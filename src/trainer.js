@@ -67,6 +67,7 @@ function buildUnifiedSingleSelect(detailsId, sourceSelectId, optionsContainerId 
 buildUnifiedSingleSelect('lessonTypeDropdown', 'lessonTypeSelect');
 buildUnifiedSingleSelect('rootDropdown', 'rootSelect', 'rootOptions');
 buildUnifiedSingleSelect('scaleDropdown', 'scaleSelect', 'scaleOptions');
+buildUnifiedSingleSelect('orderDropdown', 'orderSelect');
 
 const noteNames = [
   'C', 'C#', 'D', 'D#', 'E', 'F',
@@ -933,7 +934,7 @@ function updateLessonControls() {
 
   document
     .getElementById(
-      'intervalControlGroup'
+      'intervalLessonControls'
     )
     .hidden =
       nps;
@@ -1943,7 +1944,7 @@ function buildTrainer() {
       'showAllButton'
     )
     .innerText =
-      'Show All';
+      'Show Answer';
 
   const chartDiv =
     document.getElementById(
@@ -2348,6 +2349,7 @@ function generateIntervalAnswer() {
     );
 
   answerDisplay.innerHTML = '';
+  answerDisplay.className = 'intervalQuizPrompt';
 
   answerDisplay.appendChild(
     document.createTextNode(
