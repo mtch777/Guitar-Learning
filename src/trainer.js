@@ -826,7 +826,8 @@ function buildDirectionControls() {
     label.className = 'directionOption';
 
     const input = document.createElement('input');
-    input.type = 'checkbox';
+    input.type = 'radio';
+    input.name = 'direction';
     input.className = 'directionCheckbox';
     input.value = value;
     input.checked = value === 'up';
@@ -843,8 +844,7 @@ function buildDirectionControls() {
   updateDirectionSummary();
 }
 
-function handleDirectionChange(event) {
-  if (!preventEmptySelection(event, '.directionCheckbox')) return;
+function handleDirectionChange() {
   updateDirectionSummary();
 
   if (getLessonType() === 'nps') {
@@ -854,7 +854,7 @@ function handleDirectionChange(event) {
 
 function getSelectedDirections() {
   return [...document.querySelectorAll('.directionCheckbox:checked')]
-    .map(checkbox => checkbox.value);
+    .map(input => input.value);
 }
 
 function getDirectionLabel(value) {
