@@ -1116,3 +1116,19 @@ button {
     grid-template-columns: max-content !important;
   }
 }
+
+
+/* Keep the section container full width; only the controls are content-sized. */
+.settingsSection {
+  width: 100%;
+}
+
+.lessonSettingsSection {
+  width: 100%;
+}
+
+.lessonSettingsSection .npsControlGrid {
+  width: 100%;
+  grid-template-columns: max-content max-content max-content !important;
+  justify-content: start;
+}
