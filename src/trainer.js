@@ -1210,12 +1210,8 @@ function lockColumnWidths() {
   const table = document.querySelector('#chartDiv table');
   if (!table) return;
 
-  // CodePen previously measured the rendered header cells and then locked
-  // those measurements. That made interval text (R₁/R₂) change widths and
-  // squeezed the settings column. Use one deterministic width for all eight
-  // guitar strings and a separate fixed width for the settings/fret column.
-  const stringWidth = 52;
-  const fretWidth = 48;
+  const stringWidth = 39;
+  const fretWidth = 39;
 
   const oldColgroup = table.querySelector('colgroup');
   if (oldColgroup) oldColgroup.remove();
