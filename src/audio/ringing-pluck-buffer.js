@@ -9,7 +9,7 @@ export class RingingPluckBuffer {
   constructor({
     minDbfs = -48,
     releaseDbfs = -54,
-    captureSeconds = 0.90,
+    captureSeconds = 0.82,
     releaseFrames = 2
   } = {}) {
     this.minDbfs = minDbfs;
