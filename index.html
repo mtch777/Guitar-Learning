@@ -58,12 +58,28 @@
 
       <div class="settingsSection lessonSettingsSection">
         <div class="sectionTitle">Lesson Settings</div>
+        <div id="intervalLessonControls" class="intervalLessonGrid">
         <div id="intervalControlGroup" class="controlField">
-        <span class="fieldLabel">Intervals</span>
-        <details id="intervalDropdown" class="multiSelect">
-          <summary id="intervalSummary">All 7</summary>
-          <div id="intervalOptions" class="multiSelectMenu"></div>
-        </details>
+          <span class="fieldLabel">Intervals</span>
+          <details id="intervalDropdown" class="multiSelect">
+            <summary id="intervalSummary">All 7</summary>
+            <div id="intervalOptions" class="multiSelectMenu"></div>
+          </details>
+        </div>
+        <div id="orderControl" class="controlField orderField">
+          <span class="fieldLabel">Order</span>
+          <details id="orderDropdown" class="singleSelect">
+            <summary id="orderSummary">Random</summary>
+            <div class="singleSelectMenu">
+              <label class="singleOption"><input type="radio" name="order" value="random" checked><span>Random</span></label>
+              <label class="singleOption"><input type="radio" name="order" value="ordered"><span>Ordered</span></label>
+            </div>
+          </details>
+          <select id="orderSelect" class="stateSelect" aria-hidden="true" tabindex="-1">
+            <option value="random" selected>Random</option>
+            <option value="ordered">Ordered</option>
+          </select>
+        </div>
       </div>
 
       <div id="npsControls" class="npsControlGrid" hidden>
@@ -80,14 +96,6 @@
           <div id="directionOptions" class="directionSegment" role="radiogroup" aria-label="Direction"></div>
           <span id="directionSummary" hidden></span>
         </div>
-      </div>
-
-        <div class="actionRow">
-        <div id="orderControl" class="controlField orderField">
-          <label for="orderSelect">Order</label>
-          <select id="orderSelect"><option value="random" selected>Random</option><option value="ordered">Ordered</option></select>
-        </div>
-        <div class="actionButtons"></div>
       </div>
       </div>
     </section>
