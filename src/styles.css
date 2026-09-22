@@ -2317,3 +2317,45 @@ button.uiButton:disabled {
 #guitarInputButton {
   margin: 0;
 }
+
+
+/* Live classifier diagnostic log */
+.guitarInputLogPanel {
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  margin: 0 0 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background: var(--control-bg);
+  overflow: hidden;
+}
+.guitarInputLogHeader {
+  padding: 6px 9px;
+  background: var(--header-bg);
+  font: 600 14px/16px Arial, sans-serif;
+}
+.guitarInputLogScroll {
+  max-width: calc(100vw - 26px);
+  max-height: 220px;
+  overflow: auto;
+}
+.guitarInputLogTable {
+  width: max-content;
+  font: 12px/14px Arial, sans-serif;
+}
+.guitarInputLogTable th,
+.guitarInputLogTable td {
+  height: auto;
+  min-width: 44px;
+  padding: 4px 7px;
+  text-align: right;
+  white-space: nowrap;
+}
+.guitarInputLogTable th:nth-child(1),
+.guitarInputLogTable td:nth-child(1),
+.guitarInputLogTable th:nth-child(2),
+.guitarInputLogTable td:nth-child(2),
+.guitarInputLogTable th:last-child,
+.guitarInputLogTable td:last-child {
+  text-align: left;
+}
