@@ -267,9 +267,9 @@ const startingDegreeOrder = [
 ];
 
 const directionOptions = [
-  ['up', 'Up'],
-  ['down', 'Down'],
-  ['upDown', 'Up + Down']
+  ['up', '⬆️'],
+  ['down', '⬇️'],
+  ['upDown', '↕️']
 ];
 
 
@@ -1093,7 +1093,10 @@ function createTuningSettings() {
   button.className =
     'settingsButton';
 
-  button.innerText = '⚙️';
+  button.innerHTML = `
+    <svg class="tuningForkIcon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M7 3v5a5 5 0 0 0 4 4.9V21h2v-8.1A5 5 0 0 0 17 8V3h-2v5a3 3 0 0 1-2 2.83V3h-2v7.83A3 3 0 0 1 9 8V3H7Z"/>
+    </svg>`;
 
   button.title =
     'Tuning settings';
@@ -2424,11 +2427,11 @@ function displayNpsQuestion() {
   directionLine.className =
     'quizPromptLine';
 
-  directionLine.textContent =
-    'Direction: ' +
-    getDirectionLabel(
-      exercise.direction
-    );
+  directionLine.innerHTML =
+    '<span class="promptLabel">Direction:</span> ' +
+    '<span class="promptValue">' +
+    getDirectionLabel(exercise.direction) +
+    '</span>';
 
   const modeLine =
     document.createElement('span');
@@ -2436,11 +2439,11 @@ function displayNpsQuestion() {
   modeLine.className =
     'quizPromptLine';
 
-  modeLine.textContent =
-    'Mode: ' +
-    modeNames[
-      exercise.mode
-    ];
+  modeLine.innerHTML =
+    '<span class="promptLabel">Mode:</span> ' +
+    '<span class="promptValue">' +
+    modeNames[exercise.mode] +
+    '</span>';
 
   const startLine =
     document.createElement('span');
@@ -2448,12 +2451,13 @@ function displayNpsQuestion() {
   startLine.className =
     'quizPromptLine';
 
-  startLine.textContent =
-    'Starting note: ' +
+  startLine.innerHTML =
+    '<span class="promptLabel">Starting note:</span> ' +
+    '<span class="promptValue">' +
     exercise.startInterval +
     ' on ' +
     exercise.startStringName +
-    ' string';
+    ' string</span>';
 
   answerDisplay.appendChild(
     directionLine
