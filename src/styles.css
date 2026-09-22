@@ -786,3 +786,58 @@ button {
   .actionRow { grid-column: 1; }
   .guitarInputPanel { flex-wrap: wrap; }
 }
+
+
+/* Sectioned settings layout */
+.setupPanel {
+  display: block;
+  padding: 0;
+  overflow: visible;
+}
+
+.settingsSection {
+  padding: 14px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.settingsSection:last-child {
+  border-bottom: 0;
+}
+
+.sectionTitle {
+  margin-bottom: 10px;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  opacity: .72;
+}
+
+.lessonSection .lessonField {
+  width: min(100%, 390px);
+}
+
+.keySection .keyField {
+  width: min(100%, 270px);
+}
+
+.lessonSettingsSection {
+  display: block;
+}
+
+.lessonSettingsSection .npsControlGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 174px;
+  gap: 10px;
+}
+
+.lessonSettingsSection .actionRow {
+  margin-top: 12px;
+}
+
+@media (max-width: 700px) {
+  .lessonSettingsSection .npsControlGrid {
+    grid-template-columns: 1fr;
+  }
+}
