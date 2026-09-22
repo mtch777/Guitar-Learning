@@ -7,6 +7,38 @@ import { classifyRingingPluck } from "../classifier/full-ringing-classifier.js";
 
 let microphone = null;
 const pluckBuffer = new RingingPluckBuffer();
+let featureReferencePromise = null;
+
+function loadFeatureReference() {
+  if (!featureReferencePromise) {
+    featureReferencePromise = Promise.all([
+      fetch("/model/ringing_scaler.json").then(r => {
+        if (!r.ok) throw new Error("Could not load ringing scaler");
+        return r.json();
+      }),
+      fetch("/model/feature_names.json").then(r => {
+        if (!r.ok) throw new Error("Could not load feature names");
+        return r.json();
+      })
+    ]).then(([scaler, names]) => ({ scaler, names }));
+  }
+  return featureReferencePromise;
+}
+
+async function summarizeFeatureShift(features) {
+  const { scaler, names } = await loadFeatureReference();
+  const shifts = Array.from(features, (value, i) => ({
+    name: names[i] || `f${i}`,
+    z: (value - scaler.mean[i]) / scaler.scale[i]
+  })).filter(x => Number.isFinite(x.z));
+
+  shifts.sort((a, b) => Math.abs(b.z) - Math.abs(a.z));
+  const extreme = shifts.filter(x => Math.abs(x.z) >= 3).length;
+  const top = shifts.slice(0, 5)
+    .map(x => `${x.name} ${x.z >= 0 ? "+" : ""}${x.z.toFixed(1)}σ`)
+    .join(" · ");
+  return `${extreme}/107 ≥3σ · ${top}`;
+}
 
 export function setupLiveGuitarInput() {
   const button = document.getElementById("guitarInputButton");
@@ -40,7 +72,7 @@ export function setupLiveGuitarInput() {
     lastAudibleMidi = null;
   };
 
-  const appendLogRow = (pluck, result) => {
+  const appendLogRow = async (pluck, result, features) => {
     if (!logBody || pluck.midi == null) return;
     const event = currentNoteEvent?.midi === pluck.midi
       ? currentNoteEvent
@@ -61,9 +93,17 @@ export function setupLiveGuitarInput() {
     const quizState = window.getGuitarTrainerDebugState?.() || {
       prompt: "—", played: "—", remaining: "—"
     };
+    let featureShift = "—";
+    try {
+      featureShift = await summarizeFeatureShift(features);
+    } catch (error) {
+      featureShift = "diagnostic error";
+      console.error("Feature shift diagnostics:", error);
+    }
     values.push(
       quizState.prompt,
-      `Played: ${quizState.played} | Remaining: ${quizState.remaining}`
+      `Played: ${quizState.played} | Remaining: ${quizState.remaining}`,
+      featureShift
     );
     for (const value of values) {
       const cell = document.createElement("td");
@@ -101,7 +141,8 @@ export function setupLiveGuitarInput() {
         "—", "—", "—", "—", "—", "—", "—", "—",
         `S${detail.string} F${detail.fret} manual`,
         before.prompt,
-        `Played: ${after.played} | Remaining: ${after.remaining}`
+        `Played: ${after.played} | Remaining: ${after.remaining}`,
+        "—"
       ];
       for (const value of values) {
         const cell = document.createElement("td");
@@ -171,7 +212,7 @@ export function setupLiveGuitarInput() {
                   stringConfidence: result.confidence
                 }
               }));
-              appendLogRow(completedPluck, result);
+              appendLogRow(completedPluck, result, features);
             } catch (error) {
               console.error("Full ringing classifier:", error);
             }
