@@ -1210,8 +1210,8 @@ function lockColumnWidths() {
   const table = document.querySelector('#chartDiv table');
   if (!table) return;
 
-  const stringWidth = 39;
-  const fretWidth = 39;
+  const stringWidth = 32;
+  const fretWidth = 32;
 
   const oldColgroup = table.querySelector('colgroup');
   if (oldColgroup) oldColgroup.remove();
