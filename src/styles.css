@@ -2359,3 +2359,22 @@ button.uiButton:disabled {
 .guitarInputLogTable td:last-child {
   text-align: left;
 }
+
+
+/* Classifier live-test controls */
+.guitarInputLogHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.classifierTestControls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 400;
+}
+#classifierTestStatus {
+  white-space: nowrap;
+  font-size: 12px;
+}
