@@ -53,9 +53,12 @@ export function setupLiveGuitarInput() {
               });
               const fret = completedPluck.midi - [27,34,39,44,49,54,58,63][result.string - 1];
               string.textContent = String(result.string);
+              const probabilityText = result.probabilities
+                .map((p, i) => `S${i + 1} ${p.toFixed(2)}`)
+                .join(" · ");
               confidence.textContent =
                 "Pitch: " + completedPluck.pitchConfidence.toFixed(2) +
-                " · String: " + result.confidence.toFixed(2);
+                " · " + probabilityText;
               window.dispatchEvent(new CustomEvent("guitar-note-detected", {
                 detail: {
                   midi: completedPluck.midi,
