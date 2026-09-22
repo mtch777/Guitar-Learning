@@ -71,6 +71,78 @@ export function setupLiveGuitarInput() {
   let currentNoteEvent = null;
   let lastAudibleMidi = null;
 
+  const testButton = document.getElementById("classifierTestButton");
+  const exportButton = document.getElementById("classifierTestExportButton");
+  const testStatus = document.getElementById("classifierTestStatus");
+  const openMidis = [27,34,39,44,49,54,58,63];
+  let testActive = false;
+  let testCases = [];
+  let testIndex = 0;
+  const testResults = [];
+
+  const buildTestCases = () => {
+    const cases = [];
+    for (let string = 1; string <= 8; string++) {
+      for (let fret = 0; fret <= 24; fret++) {
+        const midi = openMidis[string - 1] + fret;
+        if (candidateStringsForMidi(midi).length >= 2) cases.push({ string, fret, midi });
+      }
+    }
+    return cases;
+  };
+
+  const currentTestCase = () => testActive ? testCases[testIndex] : null;
+
+  const updateTestStatus = () => {
+    if (!testStatus) return;
+    const t = currentTestCase();
+    testStatus.textContent = t
+      ? `Test ${testIndex + 1}/${testCases.length}: play S${t.string} F${t.fret} (${midiToNoteName(t.midi)})`
+      : testResults.length
+        ? `Test stopped · ${testResults.filter(x => x.correct).length}/${testResults.length} correct`
+        : "Test: off";
+  };
+
+  const stopTest = () => {
+    testActive = false;
+    if (testButton) testButton.textContent = "Start Test";
+    updateTestStatus();
+  };
+
+  testButton?.addEventListener("click", () => {
+    if (testActive) {
+      stopTest();
+      return;
+    }
+    testCases = buildTestCases();
+    testIndex = 0;
+    testResults.length = 0;
+    testActive = true;
+    testButton.textContent = "Stop Test";
+    updateTestStatus();
+  });
+
+  exportButton?.addEventListener("click", () => {
+    if (!testResults.length) return;
+    const header = ["time","expected_string","expected_fret","expected_midi","detected_midi",
+      "pitch_confidence","p_s1","p_s2","p_s3","p_s4","p_s5","p_s6","p_s7","p_s8",
+      "predicted_string","string_confidence","correct"];
+    const rows = testResults.map(x => [
+      x.time,x.expectedString,x.expectedFret,x.expectedMidi,x.detectedMidi,x.pitchConfidence,
+      ...x.probabilities,x.predictedString,x.stringConfidence,x.correct
+    ]);
+    const csv = [header, ...rows].map(row => row.map(value => {
+      const s = String(value ?? "");
+      return /[",\n]/.test(s) ? '"' + s.replaceAll('"','""') + '"' : s;
+    }).join(",")).join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `classifier-live-test-${new Date().toISOString().replaceAll(":","-")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
   const beginNoteEvent = frame => {
     if (frame.midi == null || frame.pitchConfidence < 0.55) return;
     if (lastAudibleMidi !== frame.midi || currentNoteEvent == null) {
@@ -233,6 +305,33 @@ export function setupLiveGuitarInput() {
                 }
               }));
               appendLogRow(completedPluck, result, features);
+
+              const expected = currentTestCase();
+              if (expected) {
+                const record = {
+                  time: new Date().toISOString(),
+                  expectedString: expected.string,
+                  expectedFret: expected.fret,
+                  expectedMidi: expected.midi,
+                  detectedMidi: completedPluck.midi,
+                  pitchConfidence: completedPluck.pitchConfidence,
+                  probabilities: result.probabilities.map(p => Number(p.toFixed(6))),
+                  predictedString: result.string,
+                  stringConfidence: result.confidence,
+                  correct: completedPluck.midi === expected.midi && result.string === expected.string
+                };
+                testResults.push(record);
+
+                // Advance only when the requested pitch was actually heard.
+                // A pitch-detection mistake is recorded but does not silently skip the target.
+                if (completedPluck.midi === expected.midi) {
+                  testIndex++;
+                  if (testIndex >= testCases.length) stopTest();
+                  else updateTestStatus();
+                } else {
+                  updateTestStatus();
+                }
+              }
             } catch (error) {
               console.error("Full ringing classifier:", error);
             }
