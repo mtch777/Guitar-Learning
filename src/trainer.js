@@ -1108,128 +1108,81 @@ function restoreCellDisplay(cell) {
    ========================================================= */
 
 function createTuningSettings() {
-  const wrapper =
-    document.createElement('div');
+  const wrapper = document.createElement('div');
 
-  const button =
-    document.createElement('button');
-
+  const button = document.createElement('button');
   button.type = 'button';
-  button.className =
-    'settingsButton';
-
+  button.className = 'settingsButton';
   button.innerHTML = `
     <svg class="tuningForkIcon" viewBox="0 0 32 32" aria-hidden="true">
       <path class="forkStroke" d="M12 5v8a4 4 0 0 0 8 0V5M10 5v8a6 6 0 0 0 5 5.92V27h2v-8.08A6 6 0 0 0 22 13V5"/>
       <path class="forkStroke" d="M7.5 9.5c-2 2-2 5 0 7M24.5 9.5c2 2 2 5 0 7M4.5 7c-3.5 3.5-3.5 8.5 0 12M27.5 7c3.5 3.5 3.5 8.5 0 12"/>
     </svg>`;
+  button.title = 'Tuning settings';
+  button.setAttribute('aria-label', 'Tuning settings');
 
-  button.title =
-    'Tuning settings';
+  const popover = document.createElement('div');
+  popover.className = 'tuningPopover';
 
-  button.setAttribute(
-    'aria-label',
-    'Tuning settings'
-  );
+  currentTuning.forEach((midiPitch, stringIndex) => {
+    const item = document.createElement('div');
+    item.className = 'tuningItem';
 
-  const popover =
-    document.createElement('div');
+    const text = document.createElement('span');
+    text.className = 'tuningLabel';
+    text.textContent = `String ${stringIndex + 1}`;
 
-  popover.className =
-    'tuningPopover';
+    const details = document.createElement('details');
+    details.className = 'singleSelect tuningSelect';
 
-  currentTuning.forEach(
-    (
-      midiPitch,
-      stringIndex
-    ) => {
+    const summary = document.createElement('summary');
+    summary.textContent = midiToScientificPitch(midiPitch);
 
-      const label =
-        document.createElement('label');
+    const menu = document.createElement('div');
+    menu.className = 'singleSelectMenu tuningSelectMenu';
 
-      label.className =
-        'tuningItem';
+    for (let midi = 12; midi <= 95; midi++) {
+      const option = document.createElement('label');
+      option.className = 'singleOption';
 
-      const text =
-        document.createElement('span');
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = `tuning-string-${stringIndex}`;
+      input.value = midi;
+      input.checked = midi === midiPitch;
 
-      text.innerText =
-        `String ${stringIndex + 1}`;
+      const optionText = document.createElement('span');
+      optionText.textContent = midiToScientificPitch(midi);
 
-      const select =
-        document.createElement('select');
+      input.addEventListener('change', () => {
+        if (!input.checked) return;
+        currentTuning[stringIndex] = midi;
+        summary.textContent = optionText.textContent;
+        details.open = false;
+        buildTrainer();
+      });
 
-      for (
-        let midi = 12;
-        midi <= 95;
-        midi++
-      ) {
-        const option =
-          document.createElement('option');
-
-        option.value = midi;
-
-        option.innerText =
-          midiToScientificPitch(
-            midi
-          );
-
-        if (
-          midi === midiPitch
-        ) {
-          option.selected = true;
-        }
-
-        select.appendChild(
-          option
-        );
-      }
-
-      select.addEventListener(
-        'change',
-        event => {
-          currentTuning[
-            stringIndex
-          ] =
-            Number(
-              event.target.value
-            );
-
-          buildTrainer();
-        }
-      );
-
-      label.appendChild(text);
-      label.appendChild(select);
-
-      popover.appendChild(label);
+      option.append(input, optionText);
+      menu.appendChild(option);
     }
-  );
 
-  button.addEventListener(
-    'click',
-    event => {
-      event.stopPropagation();
+    details.append(summary, menu);
+    item.append(text, details);
+    popover.appendChild(item);
+  });
 
-      popover.classList.toggle(
-        'open'
-      );
-    }
-  );
+  button.addEventListener('click', event => {
+    event.stopPropagation();
+    popover.classList.toggle('open');
+  });
 
-  popover.addEventListener(
-    'click',
-    event => {
-      event.stopPropagation();
-    }
-  );
+  popover.addEventListener('click', event => {
+    event.stopPropagation();
+  });
 
-  wrapper.appendChild(button);
-  wrapper.appendChild(popover);
-
+  wrapper.append(button, popover);
   return wrapper;
 }
-
 
 /* =========================================================
    COLUMN WIDTHS
