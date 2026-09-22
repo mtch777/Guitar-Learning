@@ -1781,3 +1781,50 @@ select[data-auto-width="true"],
     width: 100% !important;
   }
 }
+
+
+/* Compact typography inside configuration controls */
+.settingsSection .singleSelect > summary,
+.settingsSection .multiSelect > summary,
+.settingsSection select,
+.settingsSection button:not(.themeSwitch) {
+  font-size: 14px !important;
+}
+
+/* Current Exercise: one compact typography system */
+.promptSection #answerNote,
+.promptSection #answerNote.npsExerciseCard {
+  font-size: 14px !important;
+}
+
+.promptSection .npsExercisePrimary {
+  font-size: 16px !important;
+  line-height: 1.25;
+}
+
+.promptSection .npsExerciseDirection {
+  font-size: 16px !important;
+}
+
+.promptSection .npsExerciseSecondary {
+  font-size: 14px !important;
+  line-height: 1.35;
+}
+
+.exerciseActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.exerciseActions button {
+  height: 32px !important;
+  min-height: 32px !important;
+  font-size: 14px !important;
+}
+
+/* Lesson Settings no longer needs an empty action row. */
+.lessonSettingsSection .actionRow {
+  display: none !important;
+}
