@@ -11,6 +11,7 @@ export function detectPitch(buffer, sampleRate) {
   const maxOffset = Math.min(Math.floor(sampleRate / MIN_FREQ), buffer.length - 2);
   let bestOffset = -1;
   let bestCorrelation = -1;
+  const correlations = new Float64Array(maxOffset + 1);
 
   for (let offset = minOffset; offset <= maxOffset; offset++) {
     let correlation = 0, normA = 0, normB = 0;
@@ -24,16 +25,44 @@ export function detectPitch(buffer, sampleRate) {
     const denominator = Math.sqrt(normA * normB);
     if (!denominator) continue;
     correlation /= denominator;
+    correlations[offset] = correlation;
     if (correlation > bestCorrelation) {
       bestCorrelation = correlation;
       bestOffset = offset;
     }
   }
 
-  if (bestOffset <= 0 || bestCorrelation < 0.3) {
-    return { frequency: NaN, confidence: Math.max(0, bestCorrelation), rms };
+  // Diagnostic only: expose the strongest distinct local correlation peaks.
+  // Do not alter pitch selection yet; this lets us measure octave/subharmonic
+  // failures before changing the detector.
+  const peaks = [];
+  for (let offset = minOffset + 1; offset < maxOffset; offset++) {
+    const value = correlations[offset];
+    if (value < 0.3 || value < correlations[offset - 1] || value < correlations[offset + 1]) continue;
+    peaks.push({
+      offset,
+      frequency: sampleRate / offset,
+      midi: Math.round(69 + 12 * Math.log2((sampleRate / offset) / 440)),
+      confidence: value
+    });
   }
-  return { frequency: sampleRate / bestOffset, confidence: bestCorrelation, rms };
+  peaks.sort((a, b) => b.confidence - a.confidence);
+  const candidates = [];
+  for (const peak of peaks) {
+    if (candidates.some(x => Math.abs(x.midi - peak.midi) < 1)) continue;
+    candidates.push(peak);
+    if (candidates.length === 5) break;
+  }
+
+  if (bestOffset <= 0 || bestCorrelation < 0.3) {
+    return { frequency: NaN, confidence: Math.max(0, bestCorrelation), rms, candidates };
+  }
+  return {
+    frequency: sampleRate / bestOffset,
+    confidence: bestCorrelation,
+    rms,
+    candidates
+  };
 }
 
 export function frequencyToMidiFloat(frequency) {
