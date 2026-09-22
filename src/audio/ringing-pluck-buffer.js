@@ -1,23 +1,36 @@
 /**
- * Buffers one pluck long enough for the full ringing-only classifier.
+ * Buffers exactly one ringing pluck for the full classifier.
  *
- * Training extractor uses:
- *   attack: 0.00–0.12 s
- *   sustain: 0.15–0.80 s
- * so live inference must retain at least 0.80 s from the detected onset.
- *
- * This module does NOT classify muted articulations; the production model is
- * intentionally ringing-only.
+ * A completed capture does not immediately re-arm.  The input must fall below
+ * releaseDbfs first, preventing one decaying note from being classified over
+ * and over as multiple plucks.
  */
 export class RingingPluckBuffer {
-  constructor({ minDbfs = -48, releaseDbfs = -54, captureSeconds = 0.82 } = {}) {
+  constructor({
+    minDbfs = -48,
+    releaseDbfs = -54,
+    captureSeconds = 0.90,
+    releaseFrames = 2
+  } = {}) {
     this.minDbfs = minDbfs;
     this.releaseDbfs = releaseDbfs;
     this.captureSeconds = captureSeconds;
+    this.releaseFrames = releaseFrames;
     this.reset();
   }
 
   reset() {
+    this.active = false;
+    this.armed = true;
+    this.releaseCount = 0;
+    this.sampleRate = null;
+    this.chunks = [];
+    this.length = 0;
+    this.midiVotes = new Map();
+    this.bestPitchConfidence = 0;
+  }
+
+  clearCapture() {
     this.active = false;
     this.sampleRate = null;
     this.chunks = [];
@@ -29,17 +42,32 @@ export class RingingPluckBuffer {
   push(frame) {
     if (!frame?.samples?.length || !frame.sampleRate) return null;
 
-    if (!this.active) {
-      if (frame.midi == null || frame.pitchConfidence < 0.55 || frame.dbfs < this.minDbfs) {
-        return null;
+    if (!this.armed) {
+      if (frame.dbfs <= this.releaseDbfs) {
+        this.releaseCount++;
+        if (this.releaseCount >= this.releaseFrames) {
+          this.armed = true;
+          this.releaseCount = 0;
+        }
+      } else {
+        this.releaseCount = 0;
       }
+      return null;
+    }
+
+    if (!this.active) {
+      if (
+        frame.midi == null ||
+        frame.pitchConfidence < 0.55 ||
+        frame.dbfs < this.minDbfs
+      ) return null;
+
       this.active = true;
       this.sampleRate = frame.sampleRate;
     }
 
-    // Ignore sample-rate changes inside one capture.
     if (frame.sampleRate !== this.sampleRate) {
-      this.reset();
+      this.clearCapture();
       return null;
     }
 
@@ -52,8 +80,7 @@ export class RingingPluckBuffer {
       this.bestPitchConfidence = Math.max(this.bestPitchConfidence, frame.pitchConfidence);
     }
 
-    const enough = this.length >= Math.ceil(this.captureSeconds * this.sampleRate);
-    if (!enough) return null;
+    if (this.length < Math.ceil(this.captureSeconds * this.sampleRate)) return null;
 
     let midi = null;
     let best = -Infinity;
@@ -77,7 +104,10 @@ export class RingingPluckBuffer {
       midi,
       pitchConfidence: this.bestPitchConfidence
     };
-    this.reset();
+
+    this.clearCapture();
+    this.armed = false;
+    this.releaseCount = 0;
     return result;
   }
 }
