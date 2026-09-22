@@ -489,3 +489,300 @@ button {
   display: block;
   fill: currentColor;
 }
+
+
+/* =========================================================
+   PRODUCT UI SYSTEM
+   ========================================================= */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font: 16px/1.35 Arial, sans-serif;
+}
+
+.trainerShell {
+  width: min(100%, 920px);
+}
+
+.trainerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.eyebrow {
+  margin-bottom: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  opacity: .55;
+}
+
+.trainerHeader h1 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.setupPanel {
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: minmax(260px, 2fr) minmax(190px, 1fr);
+  gap: 12px;
+}
+
+.controlField {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  min-width: 0;
+}
+
+.controlField > label,
+.fieldLabel {
+  margin: 0;
+  font-size: 12px;
+  line-height: 14px;
+  font-weight: 700;
+  opacity: .62;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.lessonField { grid-column: 1; }
+.keyField { grid-column: 2; }
+
+.keyControls {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 6px;
+}
+
+.npsControlGrid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr 174px;
+  gap: 10px;
+}
+
+#intervalControlGroup {
+  grid-column: 1 / -1;
+}
+
+select,
+button,
+.multiSelect summary,
+.directionOption span {
+  height: 32px !important;
+  min-height: 32px !important;
+  font: 16px/30px Arial, sans-serif !important;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background: var(--control-bg);
+  color: var(--control-text);
+}
+
+select {
+  width: 100%;
+  padding: 0 28px 0 9px !important;
+}
+
+button {
+  padding: 0 11px !important;
+}
+
+.multiSelect {
+  width: 100%;
+}
+
+.multiSelect summary {
+  width: 100%;
+  padding: 0 28px 0 9px !important;
+}
+
+.multiSelect summary::after {
+  right: 9px;
+}
+
+.multiSelectMenu {
+  top: 34px;
+  min-width: 100%;
+  border-radius: 5px;
+}
+
+.directionSegment {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: 32px;
+}
+
+.directionOption {
+  display: block;
+  margin: 0;
+  cursor: pointer;
+}
+
+.directionOption input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.directionOption span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  border-right-width: 0;
+  cursor: pointer;
+  line-height: 1 !important;
+}
+
+.directionOption:first-child span {
+  border-radius: 5px 0 0 5px;
+}
+
+.directionOption:last-child span {
+  border-radius: 0 5px 5px 0;
+  border-right-width: 1px;
+}
+
+.directionOption input:checked + span {
+  background: var(--text-color);
+  color: var(--page-bg);
+}
+
+.actionRow {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  padding-top: 2px;
+}
+
+.orderField {
+  width: 130px;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.primaryButton {
+  font-weight: 700 !important;
+  background: var(--text-color) !important;
+  color: var(--page-bg) !important;
+  border-color: var(--text-color) !important;
+}
+
+.exercisePanel {
+  padding: 18px 0 14px;
+}
+
+#answerNote {
+  margin: 0 0 14px;
+}
+
+.quizPromptLine {
+  line-height: 1.35;
+}
+
+.quizPromptLine:first-child {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.quizPromptLine:nth-child(2) {
+  display: inline-block;
+  font-size: 18px;
+}
+
+.quizPromptLine:nth-child(3) {
+  margin-top: 2px;
+}
+
+.promptLabel {
+  font-weight: 400;
+  opacity: .55;
+}
+
+.promptValue {
+  font-weight: 700;
+}
+
+.guitarInputPanel {
+  margin: 0;
+  padding: 8px 10px;
+  min-height: 48px;
+  border: 1px solid var(--border-color);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--control-bg);
+}
+
+.guitarInputIdentity {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.guitarIcon { font-size: 17px; }
+
+.inputStatus {
+  white-space: nowrap;
+  opacity: .65;
+}
+
+.inputMetric {
+  white-space: nowrap;
+  font-size: 14px !important;
+  opacity: .72;
+}
+
+.inputMetric strong {
+  color: var(--text-color);
+  opacity: 1;
+}
+
+.iconButton,
+.themeToggleButton {
+  width: 32px !important;
+  padding: 0 !important;
+}
+
+.settingsButton {
+  width: 100% !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  line-height: 1 !important;
+}
+
+.tuningForkIcon {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 700px) {
+  body { padding: 12px; }
+  .setupPanel { grid-template-columns: 1fr; }
+  .lessonField, .keyField, #intervalControlGroup { grid-column: 1; }
+  .npsControlGrid {
+    grid-column: 1;
+    grid-template-columns: 1fr;
+  }
+  .actionRow { grid-column: 1; }
+  .guitarInputPanel { flex-wrap: wrap; }
+}
