@@ -1862,3 +1862,30 @@ select[data-auto-width="true"],
   padding-top: 6px !important;
   padding-bottom: 6px !important;
 }
+
+
+/* FINAL CONTROL TYPOGRAPHY + HEIGHT
+   Override the legacy font shorthand that was forcing 16px/30px. */
+.settingsSection .singleSelect > summary,
+.settingsSection .multiSelect > summary {
+  font-family: Arial, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 16px !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+}
+
+/* Direction uses the same resulting control height: 16px line + 10px padding + 2px border = 28px. */
+.directionSegment {
+  height: 28px !important;
+}
+
+.directionOption span {
+  height: 28px !important;
+  min-height: 0 !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+}
