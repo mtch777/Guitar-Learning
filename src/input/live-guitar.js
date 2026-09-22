@@ -17,7 +17,7 @@ export function setupLiveGuitarInput() {
     if (microphone) {
       microphone.stop();
       microphone = null;
-      button.textContent = "Start Guitar Input";
+      button.textContent = "Enable";
       status.textContent = "Stopped";
       return;
     }
@@ -51,7 +51,7 @@ export function setupLiveGuitarInput() {
 
     try {
       const { sampleRate } = await microphone.start();
-      button.textContent = "Stop Guitar Input";
+      button.textContent = "Disable";
       status.textContent = "Listening · " + sampleRate + " Hz";
     } catch (error) {
       microphone = null;
