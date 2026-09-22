@@ -143,17 +143,22 @@ export function setupLiveGuitarInput() {
 
     // One-time migration for the test run completed before progress persistence
     // existed. Continue at the exact blocked case instead of restarting S1.
-    // The previous build may already have written an empty index-0 save
-    // before this migration existed. Treat that as legacy/no-progress too.
-    const needsLegacyResume = !saved ||
-      (saved.index === 0 && (!Array.isArray(saved.results) || saved.results.length === 0));
+    // One-time recovery for the current interrupted run. The exported data
+    // is complete through S8 F19, so stale/legacy progress at or before S6 F21
+    // should resume at S8 F20 instead.
+    const s6f21Index = testCases.findIndex(
+      testCase => testCase.string === 6 && testCase.fret === 21
+    );
+    const s8f20Index = testCases.findIndex(
+      testCase => testCase.string === 8 && testCase.fret === 20
+    );
+    const staleLegacyProgress = !saved ||
+      !Number.isInteger(saved.index) ||
+      saved.index <= s6f21Index;
 
-    if (needsLegacyResume) {
-      const resumeIndex = testCases.findIndex(
-        testCase => testCase.string === 6 && testCase.fret === 21
-      );
+    if (staleLegacyProgress) {
       saved = {
-        index: resumeIndex >= 0 ? resumeIndex : 0,
+        index: s8f20Index >= 0 ? s8f20Index : Math.max(0, testCases.length - 3),
         results: []
       };
     }
