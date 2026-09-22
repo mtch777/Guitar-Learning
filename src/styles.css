@@ -1828,3 +1828,37 @@ select[data-auto-width="true"],
 .lessonSettingsSection .actionRow {
   display: none !important;
 }
+
+
+/* Dynamic control height: typography + padding determines height. */
+.singleSelect > summary,
+.multiSelect > summary {
+  height: auto !important;
+  min-height: 0 !important;
+  line-height: 1.2 !important;
+  padding: 6px 8px 6px 10px !important;
+}
+
+.singleSelect > summary,
+.multiSelect > summary {
+  grid-template-columns: max-content 10px;
+  column-gap: 8px;
+}
+
+/* Keep popup rows proportional to the same compact typography. */
+.singleOption,
+.multiOption {
+  min-height: 0 !important;
+  line-height: 1.2 !important;
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+}
+
+/* Buttons use the same content-driven vertical sizing principle. */
+.exerciseActions button {
+  height: auto !important;
+  min-height: 0 !important;
+  line-height: 1.2 !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
