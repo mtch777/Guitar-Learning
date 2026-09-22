@@ -6,7 +6,10 @@ const savedTheme = localStorage.getItem('guitar-learning-theme');
 const initialTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
-  themeButton.textContent = theme === 'dark' ? '☀️' : '🌙';
+  themeButton.setAttribute(
+    'aria-label',
+    theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+  );
 }
 applyTheme(initialTheme);
 themeButton.addEventListener('click', () => {
@@ -1066,8 +1069,9 @@ function createTuningSettings() {
     'settingsButton';
 
   button.innerHTML = `
-    <svg class="tuningForkIcon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M7 3v5a5 5 0 0 0 4 4.9V21h2v-8.1A5 5 0 0 0 17 8V3h-2v5a3 3 0 0 1-2 2.83V3h-2v7.83A3 3 0 0 1 9 8V3H7Z"/>
+    <svg class="tuningForkIcon" viewBox="0 0 32 32" aria-hidden="true">
+      <path class="forkStroke" d="M12 5v8a4 4 0 0 0 8 0V5M10 5v8a6 6 0 0 0 5 5.92V27h2v-8.08A6 6 0 0 0 22 13V5"/>
+      <path class="forkStroke" d="M7.5 9.5c-2 2-2 5 0 7M24.5 9.5c2 2 2 5 0 7M4.5 7c-3.5 3.5-3.5 8.5 0 12M27.5 7c3.5 3.5 3.5 8.5 0 12"/>
     </svg>`;
 
   button.title =
