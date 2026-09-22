@@ -1,3 +1,4 @@
+import { setupLiveGuitarInput } from "./input/live-guitar.js";
 
 // GitHub/Vite theme initialization added during migration.
 const themeButton = document.getElementById('themeToggle');
@@ -2917,3 +2918,6 @@ document
 
     buildTrainer();
   });
+
+
+setupLiveGuitarInput();
