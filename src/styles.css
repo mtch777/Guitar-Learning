@@ -1022,3 +1022,16 @@ button {
 .lessonSection .sectionTitle {
   padding-right: 86px;
 }
+
+
+/* Size native selects to their widest option instead of stretching. */
+.fitSelect {
+  width: max-content !important;
+  min-width: max-content;
+}
+
+.keyControls {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+}
