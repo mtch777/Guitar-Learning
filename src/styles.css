@@ -1009,3 +1009,16 @@ button {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+
+
+/* Theme switch placement: compact utility control in the Lesson header */
+.floatingThemeToggle {
+  top: 1px !important;
+  right: 8px !important;
+  transform: scale(.78);
+  transform-origin: right top;
+}
+
+.lessonSection .sectionTitle {
+  padding-right: 86px;
+}
