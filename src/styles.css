@@ -1448,3 +1448,94 @@ select[data-auto-width="true"],
 .selectWrap > select {
   padding-right: 24px !important;
 }
+
+
+/* =========================================================
+   UNIFIED DROPDOWN COMPONENT
+   One box model and one width formula for visible selectors.
+   ========================================================= */
+.stateSelect {
+  display: none !important;
+}
+
+.singleSelect,
+.multiSelect {
+  position: relative;
+  width: var(--dropdown-width, var(--auto-width, max-content)) !important;
+  min-width: 0 !important;
+}
+
+.singleSelect summary,
+.multiSelect summary {
+  box-sizing: border-box;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 32px !important;
+  padding: 0 26px 0 8px !important;
+  display: flex;
+  align-items: center;
+  list-style: none;
+  cursor: pointer;
+}
+
+.singleSelect summary::-webkit-details-marker,
+.multiSelect summary::-webkit-details-marker {
+  display: none;
+}
+
+.singleSelect summary::after,
+.multiSelect summary::after {
+  content: "";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-right: 1.7px solid currentColor;
+  border-bottom: 1.7px solid currentColor;
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+
+.singleSelectMenu,
+.multiSelectMenu {
+  position: absolute;
+  z-index: 100;
+  top: 34px;
+  left: 0;
+  box-sizing: border-box;
+  width: max-content !important;
+  min-width: 100% !important;
+  padding: 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background: var(--control-bg);
+  color: var(--control-text);
+  box-shadow: 0 4px 10px rgba(0,0,0,.16);
+}
+
+.singleOption {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+  padding: 3px 6px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.singleOption input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.singleOption:hover {
+  background: color-mix(in srgb, var(--text-color) 8%, transparent);
+}
+
+.keyControls {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+}
