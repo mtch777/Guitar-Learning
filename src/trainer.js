@@ -818,83 +818,55 @@ function updateStartDegreeSummary() {
    ========================================================= */
 
 function buildDirectionControls() {
-  const container =
-    document.getElementById(
-      'directionOptions'
-    );
-
+  const container = document.getElementById('directionOptions');
   container.innerHTML = '';
 
-  directionOptions.forEach(
-    ([value, text]) => {
-      createMultiOption(
-        container,
-        'directionCheckbox',
-        value,
-        text,
-        value === 'up',
-        handleDirectionChange
-      );
-    }
-  );
+  directionOptions.forEach(([value, text]) => {
+    const label = document.createElement('label');
+    label.className = 'directionOption';
+
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.className = 'directionCheckbox';
+    input.value = value;
+    input.checked = value === 'up';
+    input.addEventListener('change', handleDirectionChange);
+
+    const visual = document.createElement('span');
+    visual.textContent = text;
+
+    label.appendChild(input);
+    label.appendChild(visual);
+    container.appendChild(label);
+  });
 
   updateDirectionSummary();
 }
 
 function handleDirectionChange(event) {
-  if (
-    !preventEmptySelection(
-      event,
-      '.directionCheckbox'
-    )
-  ) {
-    return;
-  }
-
+  if (!preventEmptySelection(event, '.directionCheckbox')) return;
   updateDirectionSummary();
 
-  if (
-    getLessonType() === 'nps'
-  ) {
+  if (getLessonType() === 'nps') {
     buildTrainer();
   }
 }
 
 function getSelectedDirections() {
-  return [
-    ...document.querySelectorAll(
-      '.directionCheckbox:checked'
-    )
-  ].map(
-    checkbox =>
-      checkbox.value
-  );
+  return [...document.querySelectorAll('.directionCheckbox:checked')]
+    .map(checkbox => checkbox.value);
 }
 
 function getDirectionLabel(value) {
-  const found =
-    directionOptions.find(
-      ([optionValue]) =>
-        optionValue === value
-    );
-
-  return found
-    ? found[1]
-    : value;
+  const found = directionOptions.find(([optionValue]) => optionValue === value);
+  return found ? found[1] : value;
 }
 
 function updateDirectionSummary() {
-  const selected =
-    getSelectedDirections();
-
-  document
-    .getElementById(
-      'directionSummary'
-    )
-    .textContent =
-      selected
-        .map(getDirectionLabel)
-        .join(', ');
+  const summary = document.getElementById('directionSummary');
+  if (summary) {
+    summary.textContent = getSelectedDirections().map(getDirectionLabel).join(' ');
+  }
 }
 
 
