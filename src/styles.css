@@ -2200,3 +2200,19 @@ select.stateSelect,
 .stateOnly {
   display: none;
 }
+
+
+/* Quiz actions: equal visual treatment; hierarchy comes from order, not fill. */
+.exerciseActions .secondaryButton,
+.exerciseActions .primaryButton {
+  background: #e2e2e2;
+  color: #111;
+  border: 1px solid var(--border-color);
+  font-weight: 600;
+}
+
+[data-theme="dark"] .exerciseActions .secondaryButton,
+[data-theme="dark"] .exerciseActions .primaryButton {
+  background: #3a3a3a;
+  color: var(--text-color);
+}
