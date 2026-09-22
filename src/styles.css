@@ -2081,3 +2081,42 @@ select[data-auto-width="true"],
 .lessonSettingsSection .actionRow {
   display: none !important;
 }
+
+
+/* =========================================================
+   LESSON-SETTINGS LAYOUT — visibility drives layout
+   ========================================================= */
+
+/* hidden must beat legacy display:grid !important rules */
+.lessonSettingsSection [hidden] {
+  display: none !important;
+}
+
+/* Both lesson-specific control sets use the same horizontal row grammar. */
+.intervalLessonGrid,
+.lessonSettingsSection .npsControlGrid {
+  display: grid !important;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  grid-template-columns: none !important;
+  align-items: end;
+  justify-content: start;
+  column-gap: 12px !important;
+  row-gap: 0 !important;
+  width: max-content !important;
+}
+
+/* Same label-to-control spacing for every field in either lesson. */
+.lessonSettingsSection .controlField {
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px !important;
+  width: max-content !important;
+  margin: 0 !important;
+}
+
+/* No stray vertical spacing between interval fields. */
+.intervalLessonGrid {
+  gap: 0 12px !important;
+}
