@@ -2396,58 +2396,76 @@ function displayNpsQuestion() {
   }
 
   answerDisplay.innerHTML = '';
+  answerDisplay.className = 'npsExerciseCard';
 
-  const directionLine =
+  const primaryLine =
+    document.createElement('div');
+
+  primaryLine.className =
+    'npsExercisePrimary';
+
+  const mode =
     document.createElement('span');
 
-  directionLine.className =
-    'quizPromptLine';
+  mode.className =
+    'npsExerciseMode';
 
-  directionLine.innerHTML =
-    '<span class="promptLabel">Direction:</span> ' +
-    '<span class="promptValue">' +
-    getDirectionLabel(exercise.direction) +
-    '</span>';
+  mode.textContent =
+    modeNames[exercise.mode];
 
-  const modeLine =
+  const direction =
     document.createElement('span');
 
-  modeLine.className =
-    'quizPromptLine';
+  direction.className =
+    'npsExerciseDirection';
 
-  modeLine.innerHTML =
-    '<span class="promptLabel">Mode:</span> ' +
-    '<span class="promptValue">' +
-    modeNames[exercise.mode] +
-    '</span>';
+  direction.textContent =
+    exercise.direction === 'up'
+      ? '↑'
+      : exercise.direction === 'down'
+        ? '↓'
+        : '↕';
 
-  const startLine =
-    document.createElement('span');
+  primaryLine.appendChild(mode);
+  primaryLine.appendChild(direction);
 
-  startLine.className =
-    'quizPromptLine';
+  const secondaryLine =
+    document.createElement('div');
 
-  startLine.innerHTML =
-    '<span class="promptLabel">Starting note:</span> ' +
-    '<span class="promptValue">' +
-    exercise.startInterval +
-    ' on ' +
-    exercise.startStringName +
-    ' string</span>';
+  secondaryLine.className =
+    'npsExerciseSecondary';
 
-  answerDisplay.appendChild(
-    directionLine
+  secondaryLine.appendChild(
+    document.createTextNode('Start: ')
   );
 
-  answerDisplay.appendChild(
-    modeLine
+  const interval =
+    document.createElement('strong');
+
+  interval.textContent =
+    exercise.startInterval;
+
+  secondaryLine.appendChild(interval);
+
+  secondaryLine.appendChild(
+    document.createTextNode(' · ')
   );
 
-  answerDisplay.appendChild(
-    startLine
+  const stringName =
+    document.createElement('strong');
+
+  stringName.textContent =
+    exercise.startStringName;
+
+  secondaryLine.appendChild(stringName);
+
+  secondaryLine.appendChild(
+    document.createTextNode(' string')
   );
+
+  answerDisplay.appendChild(primaryLine);
+  answerDisplay.appendChild(secondaryLine);
 }
-
 
 /* =========================================================
    INTERVAL COMPLETE
