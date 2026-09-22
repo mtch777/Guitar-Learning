@@ -355,3 +355,16 @@ td {
   margin: 0;
 }
 
+
+.guitarInputPanel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 14px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--control-bg);
+}
+.guitarInputPanel button { padding: 6px 10px; }
+.guitarInputPanel span { font-size: 13px; }
