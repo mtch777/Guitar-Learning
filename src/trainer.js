@@ -2472,6 +2472,37 @@ function displayNpsQuestion() {
    INTERVAL COMPLETE
    ========================================================= */
 
+function getIntervalDebugState() {
+  const prompt = document.getElementById('answerNote')?.textContent?.trim() || '—';
+
+  if (getLessonType() !== 'intervals' || !currentAnswer) {
+    return { prompt, played: '—', remaining: '—' };
+  }
+
+  const matchingCells = [...document.querySelectorAll('.noteCell')]
+    .filter(cell => cell.dataset.target === currentAnswer);
+
+  const formatCell = cell =>
+    `S${cell.dataset.string} F${cell.dataset.fret}`;
+
+  const played = matchingCells
+    .filter(cell => cell.classList.contains('correct'))
+    .map(formatCell);
+
+  const remaining = matchingCells
+    .filter(cell => !cell.classList.contains('correct'))
+    .map(formatCell);
+
+  return {
+    prompt,
+    played: played.length ? played.join(', ') : '—',
+    remaining: remaining.length ? remaining.join(', ') : '—'
+  };
+}
+
+window.getGuitarTrainerDebugState = getIntervalDebugState;
+
+
 function intervalTargetComplete() {
   const matchingCells = [
     ...document.querySelectorAll(
