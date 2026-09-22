@@ -82,8 +82,25 @@ function autoSizeMultiSelect(details) {
   details.style.setProperty('--auto-width', summaryWidth + 'px');
 }
 
+function tightenLessonSelect() {
+  const select = document.getElementById('lessonTypeSelect');
+  if (!select) return;
+
+  let widest = 0;
+  for (const option of select.options) {
+    widest = Math.max(widest, measureTextWidth(option.textContent, select));
+  }
+
+  // Text + 8px left inset + 20px arrow area + 2px borders.
+  const width = Math.ceil(widest + 30);
+  select.style.setProperty('width', width + 'px', 'important');
+  select.style.setProperty('min-width', '0', 'important');
+  select.style.setProperty('max-width', 'none', 'important');
+}
+
 function autoSizeTrainerUI() {
   document.querySelectorAll('select').forEach(autoSizeNativeSelect);
+  tightenLessonSelect();
   document.querySelectorAll('.multiSelect').forEach(autoSizeMultiSelect);
 
   const setup = document.querySelector('.setupPanel');
