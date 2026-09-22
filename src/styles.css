@@ -432,3 +432,60 @@ button {
 .guitarInputPanel span {
   font-size: 16px;
 }
+
+
+/* Compact inline control sizing */
+.controlsRow {
+  line-height: 1.2;
+}
+
+.controlLabel {
+  font-weight: normal;
+}
+
+.inlineSelectLabel {
+  margin: 0;
+}
+
+select,
+button,
+.multiSelect summary {
+  box-sizing: border-box;
+  min-height: 0;
+  height: 1.55em;
+  line-height: 1.15;
+  vertical-align: middle;
+}
+
+select {
+  padding: 0 22px 0 5px;
+}
+
+button {
+  padding: 0 6px;
+}
+
+.multiSelect summary {
+  padding: 1px 24px 1px 6px;
+}
+
+.themeToggleButton {
+  width: 30px;
+  height: 1.55em;
+}
+
+.promptLabel {
+  font-weight: normal;
+  opacity: 0.68;
+}
+
+.promptValue {
+  font-weight: 700;
+}
+
+.tuningForkIcon {
+  width: 17px;
+  height: 17px;
+  display: block;
+  fill: currentColor;
+}
