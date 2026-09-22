@@ -14,7 +14,57 @@ export function setupLiveGuitarInput() {
   const note = document.getElementById("guitarDetectedNote");
   const string = document.getElementById("guitarDetectedString");
   const confidence = document.getElementById("guitarConfidence");
+  const logBody = document.getElementById("guitarInputLogBody");
   let lastClassificationText = "Classifier: waiting for pluck";
+  let currentNoteEvent = null;
+  let lastAudibleMidi = null;
+
+  const beginNoteEvent = frame => {
+    if (frame.midi == null || frame.pitchConfidence < 0.55) return;
+    if (lastAudibleMidi !== frame.midi || currentNoteEvent == null) {
+      currentNoteEvent = {
+        midi: frame.midi,
+        timestamp: new Date(),
+        pitchConfidence: frame.pitchConfidence
+      };
+    } else {
+      currentNoteEvent.pitchConfidence = Math.max(
+        currentNoteEvent.pitchConfidence,
+        frame.pitchConfidence
+      );
+    }
+    lastAudibleMidi = frame.midi;
+  };
+
+  const endAudibleNote = () => {
+    lastAudibleMidi = null;
+  };
+
+  const appendLogRow = (pluck, result) => {
+    if (!logBody || pluck.midi == null) return;
+    const event = currentNoteEvent?.midi === pluck.midi
+      ? currentNoteEvent
+      : { midi: pluck.midi, timestamp: new Date(), pitchConfidence: pluck.pitchConfidence };
+
+    const row = document.createElement("tr");
+    const values = [
+      event.timestamp.toLocaleTimeString([], {
+        hour: "2-digit", minute: "2-digit", second: "2-digit", fractionalSecondDigits: 3
+      }),
+      midiToNoteName(pluck.midi),
+      String(pluck.midi),
+      Math.max(event.pitchConfidence || 0, pluck.pitchConfidence || 0).toFixed(2),
+      ...result.probabilities.map(p => p.toFixed(2)),
+      `S${result.string} (${result.confidence.toFixed(2)})`
+    ];
+    for (const value of values) {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+      row.appendChild(cell);
+    }
+    logBody.prepend(row);
+    currentNoteEvent = null;
+  };
 
   if (!button) return;
 
@@ -64,6 +114,7 @@ export function setupLiveGuitarInput() {
               confidence.textContent =
                 "Pitch: " + completedPluck.pitchConfidence.toFixed(2) +
                 " · " + lastClassificationText;
+              appendLogRow(completedPluck, result);
               window.dispatchEvent(new CustomEvent("guitar-note-detected", {
                 detail: {
                   midi: completedPluck.midi,
@@ -80,6 +131,7 @@ export function setupLiveGuitarInput() {
         }
 
         if (frame.midi == null || frame.pitchConfidence < 0.55) {
+          endAudibleNote();
           note.textContent = "—";
           string.textContent = "—";
           confidence.textContent =
@@ -88,6 +140,7 @@ export function setupLiveGuitarInput() {
           return;
         }
 
+        beginNoteEvent(frame);
         note.textContent = midiToNoteName(frame.midi);
         confidence.textContent =
           "Pitch: " + frame.pitchConfidence.toFixed(2) +
