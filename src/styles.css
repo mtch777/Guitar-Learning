@@ -2033,3 +2033,51 @@ select[data-auto-width="true"],
 .tuningPopover .singleSelect {
   width: max-content !important;
 }
+
+
+/* Interval lesson: only Intervals + Order, using the same component system. */
+.intervalLessonGrid {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  gap: 12px;
+  width: max-content;
+}
+
+.intervalLessonGrid[hidden] {
+  display: none !important;
+}
+
+#orderControl {
+  width: max-content !important;
+}
+
+/* Interval quiz is one compact instruction, matching the Quiz typography system. */
+.promptSection .intervalQuizPrompt {
+  display: flex !important;
+  align-items: baseline;
+  gap: 4px;
+  width: max-content !important;
+  max-width: 100%;
+  white-space: nowrap;
+  font-family: Arial, sans-serif !important;
+  font-size: 14px !important;
+  line-height: 16px !important;
+  font-weight: 400 !important;
+}
+
+.promptSection .intervalQuizPrompt > span {
+  display: inline-flex;
+  align-items: baseline;
+  font: inherit !important;
+  font-weight: 700 !important;
+}
+
+.promptSection .intervalQuizPrompt sub {
+  font-size: .72em !important;
+  line-height: 0 !important;
+}
+
+/* Old action-row layout no longer participates anywhere. */
+.lessonSettingsSection .actionRow {
+  display: none !important;
+}
