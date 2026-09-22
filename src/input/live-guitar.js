@@ -57,6 +57,14 @@ export function setupLiveGuitarInput() {
       ...result.probabilities.map(p => p.toFixed(2)),
       `S${result.string} (${result.confidence.toFixed(2)})`
     ];
+
+    const quizState = window.getGuitarTrainerDebugState?.() || {
+      prompt: "—", played: "—", remaining: "—"
+    };
+    values.push(
+      quizState.prompt,
+      `Played: ${quizState.played} | Remaining: ${quizState.remaining}`
+    );
     for (const value of values) {
       const cell = document.createElement("td");
       cell.textContent = value;
@@ -114,7 +122,6 @@ export function setupLiveGuitarInput() {
               confidence.textContent =
                 "Pitch: " + completedPluck.pitchConfidence.toFixed(2) +
                 " · " + lastClassificationText;
-              appendLogRow(completedPluck, result);
               window.dispatchEvent(new CustomEvent("guitar-note-detected", {
                 detail: {
                   midi: completedPluck.midi,
@@ -124,6 +131,7 @@ export function setupLiveGuitarInput() {
                   stringConfidence: result.confidence
                 }
               }));
+              appendLogRow(completedPluck, result);
             } catch (error) {
               console.error("Full ringing classifier:", error);
             }
