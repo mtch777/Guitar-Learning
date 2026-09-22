@@ -189,14 +189,13 @@ function regionFeatures(y,sr) {
     const total=mag.reduce((a,b)=>a+b,0), target=.85*total;
     let cum=0,ro=0; for(let k=0;k<mag.length;k++){cum+=mag[k];if(cum>=target){ro=k*sr/N_FFT;break;}}
     rolloff.push(ro);
-    // librosa.feature.spectral_flatness(y=...) first obtains magnitude S,
-    // floors S at amin=1e-10, then raises it to power=2.  The order matters
-    // for quiet bins: max(S, amin)^2 != max(S^2, amin).
+    // librosa.feature.spectral_flatness(y=...) computes
+    // S_thresh = maximum(amin, S ** power), with magnitude S and power=2.
     let logsum=0,amsum=0;
     for(const magnitude of mag){
-      const powered=Math.max(magnitude,1e-10) ** 2;
-      logsum+=Math.log(powered);
-      amsum+=powered;
+      const thresholded=Math.max(1e-10,magnitude*magnitude);
+      logsum+=Math.log(thresholded);
+      amsum+=thresholded;
     }
     flatness.push(Math.exp(logsum/mag.length)/(amsum/mag.length));
     // librosa.feature.zero_crossing_rate centers with edge-value padding,
