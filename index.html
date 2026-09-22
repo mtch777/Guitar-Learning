@@ -22,15 +22,15 @@
         <div class="sectionTitle">Lesson</div>
         <div class="controlField lessonField">
         <details id="lessonTypeDropdown" class="singleSelect">
-          <summary id="lessonTypeSummary">2/3 NPS Starting From Interval</summary>
+          <summary id="lessonTypeSummary">Intervals Relative to Low String</summary>
           <div class="singleSelectMenu">
-            <label class="singleOption"><input type="radio" name="lessonType" value="intervals"><span>Intervals Relative to Low String</span></label>
-            <label class="singleOption"><input type="radio" name="lessonType" value="nps" checked><span>2/3 NPS Starting From Interval</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="intervals" checked><span>Intervals Relative to Low String</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="nps"><span>2/3 NPS Starting From Interval</span></label>
           </div>
         </details>
         <span class="stateOnly"><select id="lessonTypeSelect" aria-hidden="true" tabindex="-1">
-          <option value="intervals">Intervals Relative to Low String</option>
-          <option value="nps" selected>2/3 NPS Starting From Interval</option>
+          <option value="intervals" selected>Intervals Relative to Low String</option>
+          <option value="nps">2/3 NPS Starting From Interval</option>
         </select></span>
         </div>
       </div>
@@ -65,15 +65,15 @@
         <div id="orderControl" class="controlField orderField">
           <span class="fieldLabel">Order</span>
           <details id="orderDropdown" class="singleSelect">
-            <summary id="orderSummary">Random</summary>
+            <summary id="orderSummary">Ordered</summary>
             <div class="singleSelectMenu">
-              <label class="singleOption"><input type="radio" name="order" value="random" checked><span>Random</span></label>
-              <label class="singleOption"><input type="radio" name="order" value="ordered"><span>Ordered</span></label>
+              <label class="singleOption"><input type="radio" name="order" value="random"><span>Random</span></label>
+              <label class="singleOption"><input type="radio" name="order" value="ordered" checked><span>Ordered</span></label>
             </div>
           </details>
           <span class="stateOnly"><select id="orderSelect" aria-hidden="true" tabindex="-1">
-            <option value="random" selected>Random</option>
-            <option value="ordered">Ordered</option>
+            <option value="random">Random</option>
+            <option value="ordered" selected>Ordered</option>
           </select></span></div></div>
 
       <div id="npsControls" class="npsControlGrid" hidden>
@@ -127,6 +127,7 @@
               <th>Time</th><th>Note</th><th>MIDI</th><th>Pitch</th>
               <th>S1</th><th>S2</th><th>S3</th><th>S4</th>
               <th>S5</th><th>S6</th><th>S7</th><th>S8</th><th>Pick</th>
+              <th>Prompt</th><th>Played / Remaining</th>
             </tr>
           </thead>
           <tbody id="guitarInputLogBody"></tbody>
