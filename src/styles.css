@@ -1132,3 +1132,50 @@ button {
   grid-template-columns: max-content max-content max-content !important;
   justify-content: start;
 }
+
+
+/* Final compact desktop sizing: app shell hugs its actual controls. */
+.trainerShell {
+  width: max-content !important;
+  max-width: calc(100vw - 40px);
+}
+
+.setupPanel {
+  width: max-content !important;
+  min-width: 0 !important;
+}
+
+.settingsSection {
+  width: 100%;
+}
+
+.lessonSettingsSection .npsControlGrid {
+  width: max-content !important;
+}
+
+/* Remove excess native-select whitespace; JS sets exact measured widths. */
+#lessonTypeSelect,
+#rootSelect,
+#scaleSelect,
+#orderSelect {
+  min-width: 0 !important;
+  padding-left: 8px !important;
+  padding-right: 24px !important;
+}
+
+.lessonSection {
+  padding-right: 14px;
+}
+
+/* Reserve only the small top-right theme switch footprint. */
+.lessonSection .sectionTitle {
+  padding-right: 76px;
+}
+
+@media (max-width: 700px) {
+  .trainerShell,
+  .setupPanel {
+    width: 100% !important;
+    max-width: 100%;
+  }
+}
