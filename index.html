@@ -20,7 +20,7 @@
       <div class="settingsSection lessonSection">
         <div class="sectionTitle">Lesson</div>
         <div class="controlField lessonField">
-        <select id="lessonTypeSelect">
+        <select id="lessonTypeSelect" class="fitSelect">
           <option value="intervals">Intervals Relative to Low String</option>
           <option value="nps" selected>2/3 NPS Starting From Interval</option>
         </select>
@@ -31,13 +31,13 @@
         <div class="sectionTitle">Base Key</div>
         <div class="controlField keyField">
         <div class="keyControls">
-          <select id="rootSelect" aria-label="Root note">
+          <select id="rootSelect" class="fitSelect" aria-label="Root note">
             <option value="0">C</option><option value="1">C#</option><option value="2">D</option>
             <option value="3" selected>D#</option><option value="4">E</option><option value="5">F</option>
             <option value="6">F#</option><option value="7">G</option><option value="8">G#</option>
             <option value="9">A</option><option value="10">A#</option><option value="11">B</option>
           </select>
-          <select id="scaleSelect" aria-label="Scale">
+          <select id="scaleSelect" class="fitSelect" aria-label="Scale">
             <option value="ionian">Ionian</option><option value="dorian">Dorian</option>
             <option value="phrygian">Phrygian</option><option value="lydian">Lydian</option>
             <option value="mixolydian">Mixolydian</option><option value="aeolian">Aeolian</option>
@@ -76,7 +76,7 @@
         <div class="actionRow">
         <div id="orderControl" class="controlField orderField">
           <label for="orderSelect">Order</label>
-          <select id="orderSelect"><option value="random" selected>Random</option><option value="ordered">Ordered</option></select>
+          <select id="orderSelect" class="fitSelect"><option value="random" selected>Random</option><option value="ordered">Ordered</option></select>
         </div>
         <div class="actionButtons">
           <button id="showAllButton" class="secondaryButton" type="button">Show all</button>
