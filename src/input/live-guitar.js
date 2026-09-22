@@ -72,6 +72,7 @@ export function setupLiveGuitarInput() {
   let lastAudibleMidi = null;
 
   const testButton = document.getElementById("classifierTestButton");
+  const skipButton = document.getElementById("classifierTestSkipButton");
   const exportButton = document.getElementById("classifierTestExportButton");
   const testStatus = document.getElementById("classifierTestStatus");
   const openMidis = [27,34,39,44,49,54,58,63];
@@ -106,7 +107,14 @@ export function setupLiveGuitarInput() {
   const stopTest = () => {
     testActive = false;
     if (testButton) testButton.textContent = "Start Test";
+    if (skipButton) skipButton.disabled = true;
     updateTestStatus();
+  };
+
+  const advanceTest = () => {
+    testIndex++;
+    if (testIndex >= testCases.length) stopTest();
+    else updateTestStatus();
   };
 
   testButton?.addEventListener("click", () => {
@@ -119,17 +127,37 @@ export function setupLiveGuitarInput() {
     testResults.length = 0;
     testActive = true;
     testButton.textContent = "Stop Test";
+    if (skipButton) skipButton.disabled = false;
     updateTestStatus();
+  });
+
+  skipButton?.addEventListener("click", () => {
+    const expected = currentTestCase();
+    if (!expected) return;
+    testResults.push({
+      time: new Date().toISOString(),
+      expectedString: expected.string,
+      expectedFret: expected.fret,
+      expectedMidi: expected.midi,
+      detectedMidi: "",
+      pitchConfidence: "",
+      probabilities: ["","","","","","","",""],
+      predictedString: "",
+      stringConfidence: "",
+      correct: false,
+      status: "skipped"
+    });
+    advanceTest();
   });
 
   exportButton?.addEventListener("click", () => {
     if (!testResults.length) return;
     const header = ["time","expected_string","expected_fret","expected_midi","detected_midi",
       "pitch_confidence","p_s1","p_s2","p_s3","p_s4","p_s5","p_s6","p_s7","p_s8",
-      "predicted_string","string_confidence","correct"];
+      "predicted_string","string_confidence","correct","status"];
     const rows = testResults.map(x => [
       x.time,x.expectedString,x.expectedFret,x.expectedMidi,x.detectedMidi,x.pitchConfidence,
-      ...x.probabilities,x.predictedString,x.stringConfidence,x.correct
+      ...x.probabilities,x.predictedString,x.stringConfidence,x.correct,x.status || "tested"
     ]);
     const csv = [header, ...rows].map(row => row.map(value => {
       const s = String(value ?? "");
@@ -318,16 +346,15 @@ export function setupLiveGuitarInput() {
                   probabilities: result.probabilities.map(p => Number(p.toFixed(6))),
                   predictedString: result.string,
                   stringConfidence: result.confidence,
-                  correct: completedPluck.midi === expected.midi && result.string === expected.string
+                  correct: completedPluck.midi === expected.midi && result.string === expected.string,
+                  status: completedPluck.midi === expected.midi ? "tested" : "pitch_mismatch"
                 };
                 testResults.push(record);
 
                 // Advance only when the requested pitch was actually heard.
                 // A pitch-detection mistake is recorded but does not silently skip the target.
                 if (completedPluck.midi === expected.midi) {
-                  testIndex++;
-                  if (testIndex >= testCases.length) stopTest();
-                  else updateTestStatus();
+                  advanceTest();
                 } else {
                   updateTestStatus();
                 }
