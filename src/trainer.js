@@ -19,84 +19,6 @@ themeButton.addEventListener('click', () => {
 });
 
 
-function measureTextWidth(text, referenceElement) {
-  const probe = document.createElement('span');
-  const style = getComputedStyle(referenceElement);
-
-  probe.style.position = 'fixed';
-  probe.style.left = '-10000px';
-  probe.style.top = '-10000px';
-  probe.style.visibility = 'hidden';
-  probe.style.whiteSpace = 'pre';
-  probe.style.fontFamily = style.fontFamily;
-  probe.style.fontSize = style.fontSize;
-  probe.style.fontWeight = style.fontWeight;
-  probe.style.fontStyle = style.fontStyle;
-  probe.style.letterSpacing = style.letterSpacing;
-  probe.textContent = text;
-
-  document.body.appendChild(probe);
-  const width = probe.getBoundingClientRect().width;
-  probe.remove();
-
-  return width;
-}
-
-function autoSizeNativeSelect(select) {
-  let widest = 0;
-
-  for (const option of select.options) {
-    widest = Math.max(
-      widest,
-      measureTextWidth(option.textContent, select)
-    );
-  }
-
-  // Exact visible width: text + 8px left + 24px custom arrow zone + borders.
-  const width = Math.ceil(widest + 34);
-
-  select.dataset.autoWidth = 'true';
-  select.style.setProperty('--auto-width', width + 'px');
-
-  let wrapper = select.parentElement;
-  if (!wrapper.classList.contains('selectWrap')) {
-    wrapper = document.createElement('span');
-    wrapper.className = 'selectWrap';
-    select.parentNode.insertBefore(wrapper, select);
-    wrapper.appendChild(select);
-
-    const arrow = document.createElement('span');
-    arrow.className = 'selectChevron';
-    arrow.setAttribute('aria-hidden', 'true');
-    arrow.innerHTML = '<svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5 6 6.5 11 1.5"/></svg>';
-    wrapper.appendChild(arrow);
-  }
-
-  wrapper.style.width = width + 'px';
-}
-
-function autoSizeMultiSelect(details) {
-  const labels = [
-    ...details.querySelectorAll('.multiOption span')
-  ];
-
-  if (!labels.length) return;
-
-  let widest = 0;
-
-  for (const label of labels) {
-    widest = Math.max(
-      widest,
-      measureTextWidth(label.textContent, label)
-    );
-  }
-
-  // Closed trigger needs text + compact dropdown arrow area.
-  const summaryWidth = Math.ceil(widest + 34);
-
-  details.dataset.autoWidth = 'true';
-  details.style.setProperty('--auto-width', summaryWidth + 'px');
-}
 
 function buildUnifiedSingleSelect(detailsId, sourceSelectId, optionsContainerId = null) {
   const details = document.getElementById(detailsId);
@@ -134,7 +56,6 @@ function buildUnifiedSingleSelect(detailsId, sourceSelectId, optionsContainerId 
       summary.textContent = radio.closest('label').querySelector('span').textContent;
       details.open = false;
       source.dispatchEvent(new Event('change', { bubbles: true }));
-      requestAnimationFrame(autoSizeTrainerUI);
     };
   }
 
@@ -142,61 +63,7 @@ function buildUnifiedSingleSelect(detailsId, sourceSelectId, optionsContainerId 
   if (selected) summary.textContent = selected.textContent;
 }
 
-function sizeUnifiedSingleSelect(details) {
-  const labels = [...details.querySelectorAll('.singleOption span')];
-  if (!labels.length) return;
-  let widest = 0;
-  for (const label of labels) {
-    widest = Math.max(widest, measureTextWidth(label.textContent, label));
-  }
-  // One universal formula for every custom dropdown.
-  details.style.setProperty('--dropdown-width', Math.ceil(widest + 34) + 'px');
-}
-
-function autoSizeTrainerUI() {
-  document.querySelectorAll('select:not(.stateSelect)').forEach(autoSizeNativeSelect);
-  document.querySelectorAll('.multiSelect').forEach(autoSizeMultiSelect);
-  document.querySelectorAll('.singleSelect').forEach(sizeUnifiedSingleSelect);
-
-  const setup = document.querySelector('.setupPanel');
-  const prompt = document.querySelector('.promptSection');
-  const shell = document.querySelector('.trainerShell');
-
-  if (!setup || !shell) return;
-
-  // Let content establish its natural width first.
-  shell.style.removeProperty('--trainer-auto-width');
-
-  requestAnimationFrame(() => {
-    const sectionPadding = 28; // 14px each side.
-    const candidates = [
-      ...setup.querySelectorAll(
-        '.lessonField, .keyControls, .npsControlGrid, .actionRow'
-      )
-    ].filter(el => !el.hidden && getComputedStyle(el).display !== 'none');
-
-    let widestRow = 0;
-
-    for (const row of candidates) {
-      widestRow = Math.max(widestRow, row.scrollWidth);
-    }
-
-    // Header theme control must also fit cleanly.
-    const titleMinimum = 250;
-    const cardWidth = Math.ceil(
-      Math.max(widestRow + sectionPadding, titleMinimum)
-    );
-
-    shell.style.setProperty('--trainer-auto-width', cardWidth + 'px');
-
-    if (prompt) {
-      prompt.style.width = cardWidth + 'px';
-    }
-  });
-}
-
-
-// Unified dropdowns: visible controls all use the same component and sizing model.
+// Visible single-selects share one component; hidden native selects remain state only.
 buildUnifiedSingleSelect('lessonTypeDropdown', 'lessonTypeSelect');
 buildUnifiedSingleSelect('rootDropdown', 'rootSelect', 'rootOptions');
 buildUnifiedSingleSelect('scaleDropdown', 'scaleSelect', 'scaleOptions');
@@ -3065,13 +2932,3 @@ document
 
 setupLiveGuitarInput();
 
-window.addEventListener('load', () => {
-  requestAnimationFrame(() => requestAnimationFrame(autoSizeTrainerUI));
-});
-
-window.addEventListener('resize', autoSizeTrainerUI);
-
-document.getElementById('lessonTypeSelect')?.addEventListener(
-  'change',
-  () => requestAnimationFrame(autoSizeTrainerUI)
-);
