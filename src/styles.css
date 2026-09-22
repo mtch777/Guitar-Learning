@@ -2186,3 +2186,11 @@ select[data-auto-width="true"],
     flex-wrap: wrap;
   }
 }
+
+
+/* State selects are data plumbing only; they must never render or affect layout. */
+select.stateSelect,
+.stateSelect,
+.selectWrap:has(> select.stateSelect) {
+  display: none;
+}
