@@ -47,26 +47,45 @@ export function resampleLinear(input, sourceRate, targetRate=TARGET_SR) {
 }
 
 function trimTopDb(y, topDb=50) {
-  // librosa.effects.trim uses frame RMS. This mirrors its default frame/hop
-  // geometry closely enough for runtime parity while keeping the browser
-  // dependency-free.
+  // Match librosa.effects.trim defaults:
+  // frame_length=2048, hop_length=512, ref=np.max, center=True RMS with
+  // constant-zero padding. Non-silent frame indices are converted back to
+  // sample boundaries exactly as librosa does.
   if (!y.length) return y;
-  const frame=2048, hop=512;
-  let peak=0; const levels=[];
-  for (let start=0; start<y.length; start+=hop) {
-    let s=0;
-    for(let i=0;i<frame;i++){const x=y[start+i]||0;s+=x*x;}
-    const r=Math.sqrt(s/frame); levels.push(r); peak=Math.max(peak,r);
-  }
-  const threshold=peak * 10**(-topDb/20);
-  let first=0,last=levels.length-1;
-  while(first<levels.length && levels[first]<threshold) first++;
-  while(last>=first && levels[last]<threshold) last--;
-  const start=Math.max(0,first*hop);
-  const end=Math.min(y.length,last*hop+frame);
-  return y.slice(start,end);
-}
+  const frame=2048, hop=512, pad=frame>>1;
+  const frameCount=1+Math.floor((y.length+2*pad-frame)/hop);
+  const rmsLevels=new Float64Array(Math.max(1,frameCount));
+  let peakRms=0;
 
+  for(let fi=0;fi<rmsLevels.length;fi++){
+    const start=fi*hop-pad;
+    let sum=0;
+    for(let i=0;i<frame;i++){
+      const idx=start+i;
+      const x=(idx>=0 && idx<y.length) ? y[idx] : 0;
+      sum+=x*x;
+    }
+    const level=Math.sqrt(sum/frame);
+    rmsLevels[fi]=level;
+    if(level>peakRms) peakRms=level;
+  }
+
+  if(peakRms<=0) return y.slice(0,0);
+  const thresholdDb=-topDb;
+  let first=-1,last=-1;
+  for(let i=0;i<rmsLevels.length;i++){
+    const relDb=20*Math.log10(Math.max(rmsLevels[i],1e-10)/peakRms);
+    if(relDb>thresholdDb){
+      if(first<0) first=i;
+      last=i;
+    }
+  }
+  if(first<0) return y.slice(0,0);
+
+  const startSample=Math.min(y.length,Math.max(0,first*hop));
+  const endSample=Math.min(y.length,(last+1)*hop);
+  return y.slice(startSample,endSample);
+}
 function hann(n) {
   const w=new Float64Array(n);
   for(let i=0;i<n;i++) w[i]=0.5-0.5*Math.cos(2*Math.PI*i/n);
