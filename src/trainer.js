@@ -2421,10 +2421,10 @@ function displayNpsQuestion() {
 
   direction.textContent =
     exercise.direction === 'up'
-      ? '↑'
+      ? '⬆️'
       : exercise.direction === 'down'
-        ? '↓'
-        : '↕';
+        ? '⬇️'
+        : '↕️';
 
   primaryLine.appendChild(mode);
   primaryLine.appendChild(direction);
