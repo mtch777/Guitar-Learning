@@ -2,6 +2,7 @@ import { GuitarMicrophone } from "../audio/microphone.js";
 import { midiToNoteName } from "../guitar/notes.js";
 import { candidateStringsForMidi } from "../guitar/tuning.js";
 import { RingingPluckBuffer } from "../audio/ringing-pluck-buffer.js";
+import { extractRingingFeatures } from "../classifier/ringing-features.js";
 
 let microphone = null;
 const pluckBuffer = new RingingPluckBuffer();
@@ -33,7 +34,16 @@ export function setupLiveGuitarInput() {
       onFrame(frame) {
         const completedPluck = pluckBuffer.push(frame);
         if (completedPluck) {
-          window.dispatchEvent(new CustomEvent("guitar-ringing-pluck", { detail: completedPluck }));
+          // Extract exactly 107 full-model features once per completed ringing pluck.
+          // Keep extraction off the continuous pitch path so classification is
+          // one event per pluck rather than one event per audio callback.
+          const features = extractRingingFeatures(
+            completedPluck.samples,
+            completedPluck.sampleRate
+          );
+          window.dispatchEvent(new CustomEvent("guitar-ringing-pluck", {
+            detail: { ...completedPluck, features }
+          }));
         }
 
         if (frame.midi == null || frame.pitchConfidence < 0.55) {
