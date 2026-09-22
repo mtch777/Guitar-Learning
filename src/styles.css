@@ -2012,3 +2012,24 @@ select[data-auto-width="true"],
   min-height: 0 !important;
   padding: 4px 7px !important;
 }
+
+
+/* Tuning popover: intrinsic size only. No static 210px container. */
+.tuningPopover,
+.tuningPopover.open {
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  grid-template-columns: max-content max-content !important;
+  column-gap: 12px !important;
+  row-gap: 8px !important;
+}
+
+.tuningItem {
+  width: max-content !important;
+  min-width: 0 !important;
+}
+
+.tuningPopover .singleSelect {
+  width: max-content !important;
+}
