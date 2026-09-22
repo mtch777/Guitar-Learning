@@ -841,3 +841,25 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Top-right theme toggle without affecting section height */
+.setupPanel {
+  position: relative;
+}
+
+.floatingThemeToggle {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 20;
+  margin: 0;
+}
+
+.lessonSection {
+  padding-right: 58px;
+}
+
+.lessonSection .lessonField {
+  justify-content: center;
+}
