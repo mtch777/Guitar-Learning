@@ -1,8 +1,10 @@
 import { GuitarMicrophone } from "../audio/microphone.js";
 import { midiToNoteName } from "../guitar/notes.js";
 import { candidateStringsForMidi } from "../guitar/tuning.js";
+import { RingingPluckBuffer } from "../audio/ringing-pluck-buffer.js";
 
 let microphone = null;
+const pluckBuffer = new RingingPluckBuffer();
 
 export function setupLiveGuitarInput() {
   const button = document.getElementById("guitarInputButton");
@@ -17,6 +19,7 @@ export function setupLiveGuitarInput() {
     if (microphone) {
       microphone.stop();
       microphone = null;
+      pluckBuffer.reset();
       button.textContent = "Enable";
       status.textContent = "Stopped";
       return;
@@ -28,6 +31,11 @@ export function setupLiveGuitarInput() {
     microphone = new GuitarMicrophone({
       fftSize: 4096,
       onFrame(frame) {
+        const completedPluck = pluckBuffer.push(frame);
+        if (completedPluck) {
+          window.dispatchEvent(new CustomEvent("guitar-ringing-pluck", { detail: completedPluck }));
+        }
+
         if (frame.midi == null || frame.pitchConfidence < 0.55) {
           note.textContent = "—";
           string.textContent = "—";
