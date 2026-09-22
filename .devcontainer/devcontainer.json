@@ -1,0 +1,4 @@
+{
+  "name": "Guitar Learning",
+  "postStartCommand": "bash -lc 'npm run dev > /tmp/guitar-learning-vite.log 2>&1 & while true; do git pull --ff-only origin main; sleep 3; done > /tmp/guitar-learning-pull.log 2>&1 &'"
+}
