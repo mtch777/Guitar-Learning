@@ -80,6 +80,17 @@ export function setupLiveGuitarInput() {
   let testCases = [];
   let testIndex = 0;
   const testResults = [];
+  const TEST_PROGRESS_KEY = "classifier-live-test-progress-v1";
+
+  const saveTestProgress = () => {
+    if (!testActive) return;
+    localStorage.setItem(TEST_PROGRESS_KEY, JSON.stringify({
+      index: testIndex,
+      results: testResults
+    }));
+  };
+
+  const clearTestProgress = () => localStorage.removeItem(TEST_PROGRESS_KEY);
 
   const buildTestCases = () => {
     const cases = [];
@@ -113,8 +124,13 @@ export function setupLiveGuitarInput() {
 
   const advanceTest = () => {
     testIndex++;
-    if (testIndex >= testCases.length) stopTest();
-    else updateTestStatus();
+    if (testIndex >= testCases.length) {
+      clearTestProgress();
+      stopTest();
+    } else {
+      saveTestProgress();
+      updateTestStatus();
+    }
   };
 
   testButton?.addEventListener("click", () => {
@@ -123,11 +139,16 @@ export function setupLiveGuitarInput() {
       return;
     }
     testCases = buildTestCases();
-    testIndex = 0;
+    const saved = JSON.parse(localStorage.getItem(TEST_PROGRESS_KEY) || "null");
+    testIndex = Number.isInteger(saved?.index)
+      ? Math.min(Math.max(saved.index, 0), Math.max(0, testCases.length - 1))
+      : 0;
     testResults.length = 0;
+    if (Array.isArray(saved?.results)) testResults.push(...saved.results);
     testActive = true;
     testButton.textContent = "Stop Test";
     if (skipButton) skipButton.disabled = false;
+    saveTestProgress();
     updateTestStatus();
   });
 
@@ -350,6 +371,7 @@ export function setupLiveGuitarInput() {
                   status: completedPluck.midi === expected.midi ? "tested" : "pitch_mismatch"
                 };
                 testResults.push(record);
+                saveTestProgress();
 
                 // Advance only when the requested pitch was actually heard.
                 // A pitch-detection mistake is recorded but does not silently skip the target.
