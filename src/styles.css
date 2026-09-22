@@ -1073,3 +1073,46 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Content-sized dropdowns: closed control and popup fit their widest option. */
+.lessonSettingsSection .npsControlGrid {
+  grid-template-columns: max-content max-content max-content !important;
+  justify-content: start;
+}
+
+.lessonSettingsSection .controlField {
+  width: max-content;
+}
+
+.lessonSettingsSection .multiSelect {
+  width: max-content;
+}
+
+.lessonSettingsSection .multiSelect summary {
+  width: max-content !important;
+  min-width: 0 !important;
+}
+
+.lessonSettingsSection .multiSelectMenu {
+  width: max-content !important;
+  min-width: 100% !important;
+}
+
+#npsModeSummary {
+  min-width: 112px !important; /* Mixolydian */
+}
+
+#startDegreeSummary {
+  min-width: 48px !important; /* widest start option + arrow/padding */
+}
+
+#intervalSummary {
+  min-width: 72px !important;
+}
+
+@media (max-width: 700px) {
+  .lessonSettingsSection .npsControlGrid {
+    grid-template-columns: max-content !important;
+  }
+}
