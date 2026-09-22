@@ -1238,3 +1238,68 @@ button {
 .exercisePanel {
   padding-top: 14px;
 }
+
+
+/* Unified setup + current-exercise cards */
+.trainerShell {
+  --trainer-width: 460px;
+  width: var(--trainer-width) !important;
+  max-width: calc(100vw - 24px);
+}
+
+.setupPanel,
+.promptSection {
+  width: 100% !important;
+  max-width: 100%;
+}
+
+.promptSection {
+  margin-top: 10px;
+  padding: 0 14px 13px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--control-bg);
+  overflow: hidden;
+}
+
+.promptSectionTitle {
+  margin: 0 -14px 12px;
+  padding: 8px 14px;
+  background: var(--section-title-bg);
+  color: var(--section-title-text);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.promptSection #answerNote.npsExerciseCard {
+  gap: 4px;
+}
+
+.npsExercisePrimary {
+  gap: 7px;
+  font-size: 19px;
+}
+
+.npsExerciseDirection {
+  font-size: 19px;
+}
+
+.npsExerciseSecondary {
+  font-size: 14px;
+  opacity: .7;
+}
+
+.exercisePanel {
+  width: 100%;
+  padding-top: 12px;
+}
+
+@media (max-width: 700px) {
+  .trainerShell {
+    width: 100% !important;
+  }
+}
