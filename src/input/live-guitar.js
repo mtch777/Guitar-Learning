@@ -38,14 +38,35 @@ export function setupLiveGuitarInput() {
         note.textContent = midiToNoteName(frame.midi);
         confidence.textContent = "Pitch: " + frame.pitchConfidence.toFixed(2);
 
-        // Classifier attaches here next. Until it is loaded, show only
-        // physically possible strings; never invent a string prediction.
         const candidates = candidateStringsForMidi(frame.midi);
-        string.textContent = candidates.length
-          ? candidates.map(x => x.string).join(" / ")
-          : "—";
+
+        // Prefer a physical-string prediction supplied by the full classifier.
+        // Until that model is connected, a note is actionable only when pitch
+        // leaves exactly one physically possible string. We never guess.
+        const resolvedString = Number.isInteger(frame.string)
+          ? frame.string
+          : candidates.length === 1
+            ? candidates[0].string
+            : null;
+
+        string.textContent = resolvedString
+          ? String(resolvedString)
+          : candidates.length
+            ? candidates.map(x => x.string).join(" / ")
+            : "—";
 
         window.dispatchEvent(new CustomEvent("guitar-audio-frame", { detail: frame }));
+
+        if (resolvedString) {
+          window.dispatchEvent(new CustomEvent("guitar-note-detected", {
+            detail: {
+              midi: frame.midi,
+              string: resolvedString,
+              pitchConfidence: frame.pitchConfidence,
+              stringConfidence: frame.stringConfidence ?? null
+            }
+          }));
+        }
       }
     });
 
