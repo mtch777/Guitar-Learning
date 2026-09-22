@@ -863,3 +863,36 @@ button {
 .lessonSection .lessonField {
   justify-content: center;
 }
+
+
+/* Section title bands */
+:root {
+  --section-title-bg: #e7e7e7;
+}
+
+:root[data-theme="dark"] {
+  --section-title-bg: #242424;
+}
+
+.sectionTitle {
+  margin: -14px -14px 12px;
+  padding: 8px 14px;
+  background: var(--section-title-bg);
+  border-bottom: 1px solid var(--border-color);
+  border-radius: 0;
+  opacity: 1;
+}
+
+.settingsSection:first-of-type .sectionTitle {
+  border-radius: 7px 7px 0 0;
+}
+
+/* Keep the floating theme button aligned inside the Lesson title band. */
+.floatingThemeToggle {
+  top: 4px;
+  right: 8px;
+  height: 26px !important;
+  min-height: 26px !important;
+  border-color: transparent;
+  background: transparent;
+}
