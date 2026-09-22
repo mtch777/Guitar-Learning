@@ -2739,8 +2739,8 @@ document
         )
         .innerText =
           showAll
-            ? 'Hide All'
-            : 'Show All';
+            ? 'Hide Answer'
+            : 'Show Answer';
 
       document
         .querySelectorAll(
@@ -2879,10 +2879,73 @@ document
   .addEventListener('click', () => {
     showAll = false;
 
-    document.getElementById('showAllButton').innerText = 'Show All';
+    document.getElementById('showAllButton').innerText = 'Show Answer';
 
     buildTrainer();
   });
+
+
+/* =========================================================
+   LIVE GUITAR -> QUIZ INPUT
+   Audio detections become the exact same interaction as a
+   physical fretboard click. No duplicate quiz-answer logic.
+   ========================================================= */
+
+let lastAudioCellKey = null;
+let lastAudioCellAt = 0;
+const AUDIO_REPEAT_LOCK_MS = 350;
+
+function activateDetectedFret({ midi, string }) {
+  const midiNumber = Number(midi);
+  const stringNumber = Number(string);
+
+  if (!Number.isInteger(midiNumber) || !Number.isInteger(stringNumber)) {
+    return false;
+  }
+
+  const stringIndex = stringNumber - 1;
+  const openMidi = currentTuning[stringIndex];
+
+  if (!Number.isInteger(openMidi)) {
+    return false;
+  }
+
+  const fret = midiNumber - openMidi;
+
+  if (fret < 0 || fret > 24) {
+    return false;
+  }
+
+  const cell = document.querySelector(
+    `.noteCell[data-string-index="${stringIndex}"][data-fret="${fret}"]`
+  );
+
+  if (!cell) {
+    return false;
+  }
+
+  const cellKey = makeCellKey(stringIndex, fret);
+  const now = performance.now();
+
+  // A sustained note produces many audio frames. Treat it as one fret press.
+  if (
+    cellKey === lastAudioCellKey &&
+    now - lastAudioCellAt < AUDIO_REPEAT_LOCK_MS
+  ) {
+    return false;
+  }
+
+  lastAudioCellKey = cellKey;
+  lastAudioCellAt = now;
+
+  cell.click();
+  return true;
+}
+
+window.addEventListener('guitar-note-detected', event => {
+  activateDetectedFret(event.detail || {});
+});
+
 
 
 setupLiveGuitarInput();
