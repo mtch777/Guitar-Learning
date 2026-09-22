@@ -68,7 +68,7 @@ function autoSizeNativeSelect(select) {
     const arrow = document.createElement('span');
     arrow.className = 'selectChevron';
     arrow.setAttribute('aria-hidden', 'true');
-    arrow.textContent = '⌄';
+    arrow.innerHTML = '<svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5 6 6.5 11 1.5"/></svg>';
     wrapper.appendChild(arrow);
   }
 
