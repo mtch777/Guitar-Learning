@@ -3,6 +3,7 @@ import { midiToNoteName } from "../guitar/notes.js";
 import { candidateStringsForMidi } from "../guitar/tuning.js";
 import { RingingPluckBuffer } from "../audio/ringing-pluck-buffer.js";
 import { extractRingingFeatures } from "../classifier/ringing-features.js";
+import { classifyRingingPluck } from "../classifier/full-ringing-classifier.js";
 
 let microphone = null;
 const pluckBuffer = new RingingPluckBuffer();
@@ -31,7 +32,7 @@ export function setupLiveGuitarInput() {
 
     microphone = new GuitarMicrophone({
       fftSize: 4096,
-      onFrame(frame) {
+      async onFrame(frame) {
         const completedPluck = pluckBuffer.push(frame);
         if (completedPluck) {
           // Extract exactly 107 full-model features once per completed ringing pluck.
@@ -44,6 +45,30 @@ export function setupLiveGuitarInput() {
           window.dispatchEvent(new CustomEvent("guitar-ringing-pluck", {
             detail: { ...completedPluck, features }
           }));
+          if (completedPluck.midi != null) {
+            try {
+              const result = await classifyRingingPluck({
+                midi: completedPluck.midi,
+                features
+              });
+              const fret = completedPluck.midi - [27,34,39,44,49,54,58,63][result.string - 1];
+              string.textContent = String(result.string);
+              confidence.textContent =
+                "Pitch: " + completedPluck.pitchConfidence.toFixed(2) +
+                " · String: " + result.confidence.toFixed(2);
+              window.dispatchEvent(new CustomEvent("guitar-note-detected", {
+                detail: {
+                  midi: completedPluck.midi,
+                  string: result.string,
+                  fret,
+                  pitchConfidence: completedPluck.pitchConfidence,
+                  stringConfidence: result.confidence
+                }
+              }));
+            } catch (error) {
+              console.error("Full ringing classifier:", error);
+            }
+          }
         }
 
         if (frame.midi == null || frame.pitchConfidence < 0.55) {
