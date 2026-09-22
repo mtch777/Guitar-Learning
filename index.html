@@ -8,24 +8,21 @@
 </head>
 <body>
   <main class="trainerShell">
-    <header class="trainerHeader">
-      <div>
-        <div class="eyebrow">GUITAR TRAINER</div>
-        <h1>2/3 NPS Trainer</h1>
-      </div>
-      <button id="themeToggle" class="iconButton themeToggleButton" type="button" aria-label="Toggle theme">🌙</button>
-    </header>
-
     <section class="setupPanel">
-      <div class="controlField lessonField">
+      <div class="settingsSection lessonSection">
+        <div class="sectionTitle">Lesson</div>
+        <div class="controlField lessonField">
         <label for="lessonTypeSelect">Lesson</label>
         <select id="lessonTypeSelect">
           <option value="intervals">Intervals Relative to Low String</option>
           <option value="nps" selected>2/3 NPS Starting From Interval</option>
         </select>
+        </div>
       </div>
 
-      <div class="controlField keyField">
+      <div class="settingsSection keySection">
+        <div class="sectionTitle">Base Key</div>
+        <div class="controlField keyField">
         <span class="fieldLabel">Key</span>
         <div class="keyControls">
           <select id="rootSelect" aria-label="Root note">
@@ -41,9 +38,12 @@
             <option value="locrian" selected>Locrian</option>
           </select>
         </div>
+        </div>
       </div>
 
-      <div id="intervalControlGroup" class="controlField">
+      <div class="settingsSection lessonSettingsSection">
+        <div class="sectionTitle">Lesson Settings</div>
+        <div id="intervalControlGroup" class="controlField">
         <span class="fieldLabel">Intervals</span>
         <details id="intervalDropdown" class="multiSelect">
           <summary id="intervalSummary">All 7</summary>
@@ -62,12 +62,12 @@
         </div>
         <div class="controlField directionField">
           <span class="fieldLabel">Direction</span>
-          <div id="directionOptions" class="directionSegment" role="group" aria-label="Directions"></div>
+          <div id="directionOptions" class="directionSegment" role="radiogroup" aria-label="Direction"></div>
           <span id="directionSummary" hidden></span>
         </div>
       </div>
 
-      <div class="actionRow">
+        <div class="actionRow">
         <div id="orderControl" class="controlField orderField">
           <label for="orderSelect">Order</label>
           <select id="orderSelect"><option value="random" selected>Random</option><option value="ordered">Ordered</option></select>
@@ -76,6 +76,7 @@
           <button id="showAllButton" class="secondaryButton" type="button">Show all</button>
           <button id="nextButton" class="primaryButton" type="button">Next →</button>
         </div>
+      </div>
       </div>
     </section>
 
