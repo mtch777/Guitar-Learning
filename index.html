@@ -20,7 +20,14 @@
       <div class="settingsSection lessonSection">
         <div class="sectionTitle">Lesson</div>
         <div class="controlField lessonField">
-        <select id="lessonTypeSelect">
+        <details id="lessonTypeDropdown" class="singleSelect">
+          <summary id="lessonTypeSummary">2/3 NPS Starting From Interval</summary>
+          <div class="singleSelectMenu">
+            <label class="singleOption"><input type="radio" name="lessonType" value="intervals"><span>Intervals Relative to Low String</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="nps" checked><span>2/3 NPS Starting From Interval</span></label>
+          </div>
+        </details>
+        <select id="lessonTypeSelect" class="stateSelect" aria-hidden="true" tabindex="-1">
           <option value="intervals">Intervals Relative to Low String</option>
           <option value="nps" selected>2/3 NPS Starting From Interval</option>
         </select>
@@ -31,13 +38,14 @@
         <div class="sectionTitle">Base Key</div>
         <div class="controlField keyField">
         <div class="keyControls">
-          <select id="rootSelect" aria-label="Root note">
+          <details id="rootDropdown" class="singleSelect"><summary id="rootSummary">D#</summary><div id="rootOptions" class="singleSelectMenu"></div></details><select id="rootSelect" class="stateSelect" aria-hidden="true" tabindex="-1">
             <option value="0">C</option><option value="1">C#</option><option value="2">D</option>
             <option value="3" selected>D#</option><option value="4">E</option><option value="5">F</option>
             <option value="6">F#</option><option value="7">G</option><option value="8">G#</option>
             <option value="9">A</option><option value="10">A#</option><option value="11">B</option>
           </select>
-          <select id="scaleSelect" aria-label="Scale">
+          <details id="scaleDropdown" class="singleSelect"><summary id="scaleSummary">Locrian</summary><div id="scaleOptions" class="singleSelectMenu"></div></details>
+          <select id="scaleSelect" class="stateSelect" aria-hidden="true" tabindex="-1">
             <option value="ionian">Ionian</option><option value="dorian">Dorian</option>
             <option value="phrygian">Phrygian</option><option value="lydian">Lydian</option>
             <option value="mixolydian">Mixolydian</option><option value="aeolian">Aeolian</option>
