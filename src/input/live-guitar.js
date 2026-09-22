@@ -197,10 +197,11 @@ export function setupLiveGuitarInput() {
   exportButton?.addEventListener("click", () => {
     if (!testResults.length) return;
     const header = ["time","expected_string","expected_fret","expected_midi","detected_midi",
-      "pitch_confidence","p_s1","p_s2","p_s3","p_s4","p_s5","p_s6","p_s7","p_s8",
+      "pitch_confidence","pitch_candidates","p_s1","p_s2","p_s3","p_s4","p_s5","p_s6","p_s7","p_s8",
       "predicted_string","string_confidence","correct","status"];
     const rows = testResults.map(x => [
       x.time,x.expectedString,x.expectedFret,x.expectedMidi,x.detectedMidi,x.pitchConfidence,
+      (x.pitchCandidates || []).map(p => `${p.midi}:${Number(p.confidence).toFixed(4)}`).join("|"),
       ...x.probabilities,x.predictedString,x.stringConfidence,x.correct,x.status || "tested"
     ]);
     const csv = [header, ...rows].map(row => row.map(value => {
@@ -221,13 +222,14 @@ export function setupLiveGuitarInput() {
       currentNoteEvent = {
         midi: frame.midi,
         timestamp: new Date(),
-        pitchConfidence: frame.pitchConfidence
+        pitchConfidence: frame.pitchConfidence,
+        pitchCandidates: frame.pitchCandidates || []
       };
     } else {
-      currentNoteEvent.pitchConfidence = Math.max(
-        currentNoteEvent.pitchConfidence,
-        frame.pitchConfidence
-      );
+      if (frame.pitchConfidence >= currentNoteEvent.pitchConfidence) {
+        currentNoteEvent.pitchConfidence = frame.pitchConfidence;
+        currentNoteEvent.pitchCandidates = frame.pitchCandidates || [];
+      }
     }
     lastAudibleMidi = frame.midi;
   };
@@ -241,6 +243,11 @@ export function setupLiveGuitarInput() {
     const event = currentNoteEvent?.midi === pluck.midi
       ? currentNoteEvent
       : { midi: pluck.midi, timestamp: new Date(), pitchConfidence: pluck.pitchConfidence };
+
+    const candidateText = (event.pitchCandidates || [])
+      .map(x => `${midiToNoteName(x.midi)} ${x.confidence.toFixed(2)}`)
+      .join(", ");
+    if (candidateText) console.debug("Pitch candidates:", candidateText);
 
     const row = document.createElement("tr");
     const values = [
@@ -387,6 +394,7 @@ export function setupLiveGuitarInput() {
                   expectedMidi: expected.midi,
                   detectedMidi: completedPluck.midi,
                   pitchConfidence: completedPluck.pitchConfidence,
+                  pitchCandidates: currentNoteEvent?.pitchCandidates || [],
                   probabilities: result.probabilities.map(p => Number(p.toFixed(6))),
                   predictedString: result.string,
                   stringConfidence: result.confidence,
