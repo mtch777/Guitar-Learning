@@ -9,18 +9,38 @@ let microphone = null;
 const pluckBuffer = new RingingPluckBuffer();
 let featureReferencePromise = null;
 
+const FEATURE_STATS = ["mean", "std", "p25", "median", "p75"];
+const FEATURE_NAMES = (() => {
+  const names = [];
+  for (const part of ["attack", "sustain"]) {
+    for (let i = 1; i <= 13; i++) {
+      names.push(`${part}_mfcc${i}_mean`, `${part}_mfcc${i}_std`);
+    }
+    for (const descriptor of ["centroid", "bandwidth", "rolloff", "flatness", "zcr"]) {
+      for (const stat of FEATURE_STATS) names.push(`${part}_${descriptor}_${stat}`);
+    }
+  }
+  names.push(
+    "attack_peak_dbfs",
+    "attack_rms_50_dbfs",
+    "attack_rms_100_dbfs",
+    "attack_energy_100",
+    "total_rms_dbfs"
+  );
+  if (names.length !== 107) throw new Error(`Expected 107 feature names; got ${names.length}`);
+  return names;
+})();
+
 function loadFeatureReference() {
   if (!featureReferencePromise) {
-    featureReferencePromise = Promise.all([
-      fetch("/model/ringing_scaler.json").then(r => {
-        if (!r.ok) throw new Error("Could not load ringing scaler");
-        return r.json();
-      }),
-      fetch("/model/feature_names.json").then(r => {
-        if (!r.ok) throw new Error("Could not load feature names");
-        return r.json();
-      })
-    ]).then(([scaler, names]) => ({ scaler, names }));
+    featureReferencePromise = fetch("/model/ringing_scaler.json").then(async r => {
+      if (!r.ok) throw new Error(`Could not load ringing scaler (${r.status})`);
+      const scaler = await r.json();
+      if (scaler.mean?.length !== 107 || scaler.scale?.length !== 107) {
+        throw new Error("Ringing scaler must contain exactly 107 means and scales");
+      }
+      return { scaler, names: FEATURE_NAMES };
+    });
   }
   return featureReferencePromise;
 }
