@@ -51,6 +51,7 @@ export class GuitarMicrophone {
         frequency: pitch.frequency,
         midi: Number.isFinite(pitch.frequency) ? frequencyToMidi(pitch.frequency) : null,
         pitchConfidence: pitch.confidence,
+        pitchCandidates: pitch.candidates || [],
         rms: pitch.rms,
         peak,
         dbfs
