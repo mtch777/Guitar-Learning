@@ -7,78 +7,92 @@
   <link rel="stylesheet" href="/src/styles.css" />
 </head>
 <body>
-  <div class="controlsRow lessonTypeRow">
-    <label>Lesson Type
-      <select id="lessonTypeSelect">
-        <option value="intervals">Intervals Relative to Low String</option>
-        <option value="nps" selected>2/3 NPS Starting From Interval</option>
-      </select>
-    </label>
-    <button id="themeToggle" class="themeToggleButton" type="button" aria-label="Toggle theme">🌙</button>
-  </div>
+  <main class="trainerShell">
+    <header class="trainerHeader">
+      <div>
+        <div class="eyebrow">GUITAR TRAINER</div>
+        <h1>2/3 NPS Trainer</h1>
+      </div>
+      <button id="themeToggle" class="iconButton themeToggleButton" type="button" aria-label="Toggle theme">🌙</button>
+    </header>
 
-  <div class="controlsRow">
-    <span class="controlLabel">Key:</span>
-    <label class="inlineSelectLabel">
-      <select id="rootSelect">
-        <option value="0">C</option><option value="1">C#</option><option value="2">D</option>
-        <option value="3" selected>D#</option><option value="4">E</option><option value="5">F</option>
-        <option value="6">F#</option><option value="7">G</option><option value="8">G#</option>
-        <option value="9">A</option><option value="10">A#</option><option value="11">B</option>
-      </select>
-    </label>
+    <section class="setupPanel">
+      <div class="controlField lessonField">
+        <label for="lessonTypeSelect">Lesson</label>
+        <select id="lessonTypeSelect">
+          <option value="intervals">Intervals Relative to Low String</option>
+          <option value="nps" selected>2/3 NPS Starting From Interval</option>
+        </select>
+      </div>
 
-    <label class="inlineSelectLabel">
-      <select id="scaleSelect">
-        <option value="ionian">Ionian</option><option value="dorian">Dorian</option>
-        <option value="phrygian">Phrygian</option><option value="lydian">Lydian</option>
-        <option value="mixolydian">Mixolydian</option><option value="aeolian">Aeolian</option>
-        <option value="locrian" selected>Locrian</option>
-      </select>
-    </label>
+      <div class="controlField keyField">
+        <span class="fieldLabel">Key</span>
+        <div class="keyControls">
+          <select id="rootSelect" aria-label="Root note">
+            <option value="0">C</option><option value="1">C#</option><option value="2">D</option>
+            <option value="3" selected>D#</option><option value="4">E</option><option value="5">F</option>
+            <option value="6">F#</option><option value="7">G</option><option value="8">G#</option>
+            <option value="9">A</option><option value="10">A#</option><option value="11">B</option>
+          </select>
+          <select id="scaleSelect" aria-label="Scale">
+            <option value="ionian">Ionian</option><option value="dorian">Dorian</option>
+            <option value="phrygian">Phrygian</option><option value="lydian">Lydian</option>
+            <option value="mixolydian">Mixolydian</option><option value="aeolian">Aeolian</option>
+            <option value="locrian" selected>Locrian</option>
+          </select>
+        </div>
+      </div>
 
-    <div id="intervalControlGroup" class="controlGroup">
-      <span>Intervals</span>
-      <details id="intervalDropdown" class="multiSelect">
-        <summary id="intervalSummary">All 7</summary>
-        <div id="intervalOptions" class="multiSelectMenu"></div>
-      </details>
-    </div>
-  </div>
+      <div id="intervalControlGroup" class="controlField">
+        <span class="fieldLabel">Intervals</span>
+        <details id="intervalDropdown" class="multiSelect">
+          <summary id="intervalSummary">All 7</summary>
+          <div id="intervalOptions" class="multiSelectMenu"></div>
+        </details>
+      </div>
 
-  <div id="npsControls" class="controlsRow" hidden>
-    <div class="controlGroup">
-      <span>2/3 NPS Modes</span>
-      <details class="multiSelect"><summary id="npsModeSummary">All 7</summary><div id="npsModeOptions" class="multiSelectMenu"></div></details>
-    </div>
-    <div class="controlGroup">
-      <span>Starting Intervals</span>
-      <details class="multiSelect"><summary id="startDegreeSummary">R</summary><div id="startDegreeOptions" class="multiSelectMenu"></div></details>
-    </div>
-    <div class="controlGroup">
-      <span>Directions</span>
-      <details class="multiSelect"><summary id="directionSummary">Up</summary><div id="directionOptions" class="multiSelectMenu"></div></details>
-    </div>
-  </div>
+      <div id="npsControls" class="npsControlGrid" hidden>
+        <div class="controlField">
+          <span class="fieldLabel">Mode</span>
+          <details class="multiSelect"><summary id="npsModeSummary">All 7</summary><div id="npsModeOptions" class="multiSelectMenu"></div></details>
+        </div>
+        <div class="controlField">
+          <span class="fieldLabel">Start</span>
+          <details class="multiSelect"><summary id="startDegreeSummary">R</summary><div id="startDegreeOptions" class="multiSelectMenu"></div></details>
+        </div>
+        <div class="controlField directionField">
+          <span class="fieldLabel">Direction</span>
+          <div id="directionOptions" class="directionSegment" role="group" aria-label="Directions"></div>
+          <span id="directionSummary" hidden></span>
+        </div>
+      </div>
 
-  <div class="controlsRow secondRow">
-    <label id="orderControl">Order
-      <select id="orderSelect"><option value="random" selected>Random</option><option value="ordered">Ordered</option></select>
-    </label>
-    <button id="showAllButton" type="button">Show All</button>
-    <button id="nextButton" type="button">Next</button>
-  </div>
+      <div class="actionRow">
+        <div id="orderControl" class="controlField orderField">
+          <label for="orderSelect">Order</label>
+          <select id="orderSelect"><option value="random" selected>Random</option><option value="ordered">Ordered</option></select>
+        </div>
+        <div class="actionButtons">
+          <button id="showAllButton" class="secondaryButton" type="button">Show all</button>
+          <button id="nextButton" class="primaryButton" type="button">Next →</button>
+        </div>
+      </div>
+    </section>
 
-  <section class="guitarInputPanel">
-    <button id="guitarInputButton" type="button">Start Guitar Input</button>
-    <span id="guitarInputStatus">Stopped</span>
-    <span>Note: <strong id="guitarDetectedNote">—</strong></span>
-    <span>Possible string(s): <strong id="guitarDetectedString">—</strong></span>
-    <span id="guitarConfidence">Pitch: —</span>
-  </section>
+    <section class="exercisePanel">
+      <div id="answerNote"></div>
+      <div id="chartDiv"></div>
+    </section>
 
-  <div id="answerNote"></div>
-  <div id="chartDiv"></div>
+    <section class="guitarInputPanel">
+      <div class="guitarInputIdentity"><span class="guitarIcon">🎸</span><strong>Guitar Input</strong></div>
+      <button id="guitarInputButton" class="secondaryButton" type="button">Start</button>
+      <span id="guitarInputStatus" class="inputStatus">● Stopped</span>
+      <span class="inputMetric">Note <strong id="guitarDetectedNote">—</strong></span>
+      <span class="inputMetric">String <strong id="guitarDetectedString">—</strong></span>
+      <span id="guitarConfidence" class="inputMetric">Pitch —</span>
+    </section>
+  </main>
 
   <script type="module" src="/src/trainer.js"></script>
 </body>
