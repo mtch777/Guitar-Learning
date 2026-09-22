@@ -1889,3 +1889,82 @@ select[data-auto-width="true"],
   font-size: 14px !important;
   line-height: 1 !important;
 }
+
+
+/* FINAL COMPACT CURRENT EXERCISE SYSTEM
+   One type size and content-hugging controls. */
+.promptSection #answerNote,
+.promptSection #answerNote.npsExerciseCard,
+.promptSection .npsExercisePrimary,
+.promptSection .npsExerciseMode,
+.promptSection .npsExerciseDirection,
+.promptSection .npsExerciseSecondary,
+.promptSection .npsExerciseSecondary strong {
+  font-family: Arial, sans-serif !important;
+  font-size: 14px !important;
+  line-height: 16px !important;
+}
+
+.promptSection .npsExercisePrimary {
+  font-weight: 700 !important;
+  gap: 6px !important;
+}
+
+.promptSection .npsExerciseDirection {
+  line-height: 16px !important;
+}
+
+.promptSection .npsExerciseSecondary {
+  font-weight: 400 !important;
+}
+
+.promptSection .npsExerciseSecondary strong {
+  font-weight: 700 !important;
+}
+
+.promptSection #answerNote.npsExerciseCard {
+  gap: 3px !important;
+}
+
+/* Buttons hug 14px text instead of inheriting old 32px/30px control rules. */
+.exerciseActions {
+  gap: 8px !important;
+  margin-top: 10px !important;
+}
+
+.exerciseActions button {
+  box-sizing: border-box;
+  width: max-content !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 5px 9px !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 14px !important;
+  line-height: 16px !important;
+  border-radius: 5px !important;
+}
+
+.exerciseActions .primaryButton {
+  font-weight: 700 !important;
+}
+
+.exerciseActions .secondaryButton {
+  font-weight: 400 !important;
+}
+
+/* Dropdowns: tighter vertical padding; height remains content-driven. */
+.settingsSection .singleSelect > summary,
+.settingsSection .multiSelect > summary {
+  padding-top: 3px !important;
+  padding-bottom: 3px !important;
+}
+
+/* 16px line + 6px vertical padding + 2px borders = 24px */
+.directionSegment {
+  height: 24px !important;
+}
+
+.directionOption span {
+  height: 24px !important;
+  min-height: 0 !important;
+}
