@@ -1093,7 +1093,7 @@ function createTuningSettings() {
   button.className =
     'settingsButton';
 
-  button.innerText = 'âï¸';
+  button.innerText = '⚙️';
 
   button.title =
     'Tuning settings';
@@ -1207,64 +1207,34 @@ function createTuningSettings() {
    ========================================================= */
 
 function lockColumnWidths() {
-  const table =
-    document.querySelector(
-      '#chartDiv table'
-    );
+  const table = document.querySelector('#chartDiv table');
+  if (!table) return;
 
-  if (!table) {
-    return;
+  // CodePen previously measured the rendered header cells and then locked
+  // those measurements. That made interval text (R₁/R₂) change widths and
+  // squeezed the settings column. Use one deterministic width for all eight
+  // guitar strings and a separate fixed width for the settings/fret column.
+  const stringWidth = 52;
+  const fretWidth = 48;
+
+  const oldColgroup = table.querySelector('colgroup');
+  if (oldColgroup) oldColgroup.remove();
+
+  const colgroup = document.createElement('colgroup');
+
+  for (let i = 0; i < 8; i++) {
+    const col = document.createElement('col');
+    col.style.width = `${stringWidth}px`;
+    colgroup.appendChild(col);
   }
 
-  const headerCells = [
-    ...table.querySelectorAll(
-      'tr:first-child > th'
-    )
-  ];
+  const fretCol = document.createElement('col');
+  fretCol.style.width = `${fretWidth}px`;
+  colgroup.appendChild(fretCol);
 
-  const widths =
-    headerCells.map(
-      cell =>
-        Math.ceil(
-          cell.getBoundingClientRect()
-            .width
-        )
-    );
-
-  const totalWidth =
-    widths.reduce(
-      (sum, width) =>
-        sum + width,
-      0
-    );
-
-  const colgroup =
-    document.createElement(
-      'colgroup'
-    );
-
-  widths.forEach(
-    width => {
-      const col =
-        document.createElement('col');
-
-      col.style.width =
-        `${width}px`;
-
-      colgroup.appendChild(col);
-    }
-  );
-
-  table.insertBefore(
-    colgroup,
-    table.firstChild
-  );
-
-  table.style.tableLayout =
-    'fixed';
-
-  table.style.width =
-    `${totalWidth}px`;
+  table.insertBefore(colgroup, table.firstChild);
+  table.style.tableLayout = 'fixed';
+  table.style.width = `${stringWidth * 8 + fretWidth}px`;
 }
 
 
