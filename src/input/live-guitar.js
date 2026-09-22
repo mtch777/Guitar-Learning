@@ -14,6 +14,7 @@ export function setupLiveGuitarInput() {
   const note = document.getElementById("guitarDetectedNote");
   const string = document.getElementById("guitarDetectedString");
   const confidence = document.getElementById("guitarConfidence");
+  let lastClassificationText = "Classifier: waiting for pluck";
 
   if (!button) return;
 
@@ -56,9 +57,13 @@ export function setupLiveGuitarInput() {
               const probabilityText = result.probabilities
                 .map((p, i) => `S${i + 1} ${p.toFixed(2)}`)
                 .join(" · ");
+              lastClassificationText =
+                "Classifier: " + probabilityText +
+                " · picked S" + result.string +
+                " (" + result.confidence.toFixed(2) + ")";
               confidence.textContent =
                 "Pitch: " + completedPluck.pitchConfidence.toFixed(2) +
-                " · " + probabilityText;
+                " · " + lastClassificationText;
               window.dispatchEvent(new CustomEvent("guitar-note-detected", {
                 detail: {
                   midi: completedPluck.midi,
@@ -77,12 +82,16 @@ export function setupLiveGuitarInput() {
         if (frame.midi == null || frame.pitchConfidence < 0.55) {
           note.textContent = "—";
           string.textContent = "—";
-          confidence.textContent = "Pitch: " + frame.pitchConfidence.toFixed(2);
+          confidence.textContent =
+            "Pitch: " + frame.pitchConfidence.toFixed(2) +
+            " · " + lastClassificationText;
           return;
         }
 
         note.textContent = midiToNoteName(frame.midi);
-        confidence.textContent = "Pitch: " + frame.pitchConfidence.toFixed(2);
+        confidence.textContent =
+          "Pitch: " + frame.pitchConfidence.toFixed(2) +
+          " · " + lastClassificationText;
 
         const candidates = candidateStringsForMidi(frame.midi);
 
