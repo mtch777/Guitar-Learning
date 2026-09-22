@@ -98,9 +98,65 @@ function autoSizeMultiSelect(details) {
   details.style.setProperty('--auto-width', summaryWidth + 'px');
 }
 
+function buildUnifiedSingleSelect(detailsId, sourceSelectId, optionsContainerId = null) {
+  const details = document.getElementById(detailsId);
+  const source = document.getElementById(sourceSelectId);
+  if (!details || !source) return;
+
+  const summary = details.querySelector('summary');
+  const menu = optionsContainerId
+    ? document.getElementById(optionsContainerId)
+    : details.querySelector('.singleSelectMenu');
+
+  if (optionsContainerId) {
+    menu.innerHTML = '';
+    for (const option of source.options) {
+      const label = document.createElement('label');
+      label.className = 'singleOption';
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = detailsId;
+      input.value = option.value;
+      input.checked = option.value === source.value;
+      const span = document.createElement('span');
+      span.textContent = option.textContent;
+      label.append(input, span);
+      menu.appendChild(label);
+    }
+  }
+
+  const radios = [...menu.querySelectorAll('input[type="radio"]')];
+  for (const radio of radios) {
+    radio.checked = radio.value === source.value;
+    radio.onchange = () => {
+      if (!radio.checked) return;
+      source.value = radio.value;
+      summary.textContent = radio.closest('label').querySelector('span').textContent;
+      details.open = false;
+      source.dispatchEvent(new Event('change', { bubbles: true }));
+      requestAnimationFrame(autoSizeTrainerUI);
+    };
+  }
+
+  const selected = source.options[source.selectedIndex];
+  if (selected) summary.textContent = selected.textContent;
+}
+
+function sizeUnifiedSingleSelect(details) {
+  const labels = [...details.querySelectorAll('.singleOption span')];
+  if (!labels.length) return;
+  let widest = 0;
+  for (const label of labels) {
+    widest = Math.max(widest, measureTextWidth(label.textContent, label));
+  }
+  // One universal formula for every custom dropdown.
+  details.style.setProperty('--dropdown-width', Math.ceil(widest + 34) + 'px');
+}
+
 function autoSizeTrainerUI() {
-  document.querySelectorAll('select').forEach(autoSizeNativeSelect);
+  document.querySelectorAll('select:not(.stateSelect)').forEach(autoSizeNativeSelect);
   document.querySelectorAll('.multiSelect').forEach(autoSizeMultiSelect);
+  document.querySelectorAll('.singleSelect').forEach(sizeUnifiedSingleSelect);
 
   const setup = document.querySelector('.setupPanel');
   const prompt = document.querySelector('.promptSection');
@@ -138,6 +194,12 @@ function autoSizeTrainerUI() {
     }
   });
 }
+
+
+// Unified dropdowns: visible controls all use the same component and sizing model.
+buildUnifiedSingleSelect('lessonTypeDropdown', 'lessonTypeSelect');
+buildUnifiedSingleSelect('rootDropdown', 'rootSelect', 'rootOptions');
+buildUnifiedSingleSelect('scaleDropdown', 'scaleSelect', 'scaleOptions');
 
 const noteNames = [
   'C', 'C#', 'D', 'D#', 'E', 'F',
