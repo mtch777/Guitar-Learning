@@ -2216,3 +2216,104 @@ select.stateSelect,
   background: #3a3a3a;
   color: var(--text-color);
 }
+
+
+/* =========================================================
+   GLOBAL UI COMPONENTS
+   These selectors are semantic, so future buttons/dropdowns
+   automatically inherit the same component styling.
+   ========================================================= */
+
+/* Every normal app button. Excludes icon-only theme/tuning controls. */
+button.uiButton {
+  box-sizing: border-box;
+  width: max-content;
+  height: auto;
+  min-height: 0;
+  padding: 5px 9px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background: #e2e2e2;
+  color: #111;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 16px;
+  cursor: pointer;
+}
+
+button.uiButton:disabled {
+  opacity: .55;
+  cursor: default;
+}
+
+[data-theme="dark"] button.uiButton {
+  background: #3a3a3a;
+  color: var(--text-color);
+}
+
+/* Every custom dropdown, regardless of where it is added. */
+:is(.singleSelect, .multiSelect) {
+  position: relative;
+  display: inline-block;
+  width: max-content;
+  min-width: 0;
+}
+
+:is(.singleSelect, .multiSelect) > summary {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: max-content 10px;
+  align-items: center;
+  column-gap: 8px;
+  width: max-content;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  padding: 3px 8px 3px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background: var(--control-bg);
+  color: var(--control-text);
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 16px;
+  list-style: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+:is(.singleSelect, .multiSelect) > summary::-webkit-details-marker {
+  display: none;
+}
+
+:is(.singleSelect, .multiSelect) > summary::after {
+  content: "";
+  position: static;
+  box-sizing: border-box;
+  width: 7px;
+  height: 7px;
+  border: 0;
+  border-right: 1.7px solid currentColor;
+  border-bottom: 1.7px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+}
+
+:is(.singleSelectMenu, .multiSelectMenu) {
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 100%;
+}
+
+:is(.singleOption, .multiOption) {
+  min-height: 0;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 16px;
+}
+
+/* Guitar Enable/Disable is now exactly the same button component as Quiz actions. */
+#guitarInputButton {
+  margin: 0;
+}
