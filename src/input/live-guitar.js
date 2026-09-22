@@ -139,7 +139,20 @@ export function setupLiveGuitarInput() {
       return;
     }
     testCases = buildTestCases();
-    const saved = JSON.parse(localStorage.getItem(TEST_PROGRESS_KEY) || "null");
+    let saved = JSON.parse(localStorage.getItem(TEST_PROGRESS_KEY) || "null");
+
+    // One-time migration for the test run completed before progress persistence
+    // existed. Continue at the exact blocked case instead of restarting S1.
+    if (!saved) {
+      const resumeIndex = testCases.findIndex(
+        testCase => testCase.string === 6 && testCase.fret === 21
+      );
+      saved = {
+        index: resumeIndex >= 0 ? resumeIndex : 0,
+        results: []
+      };
+    }
+
     testIndex = Number.isInteger(saved?.index)
       ? Math.min(Math.max(saved.index, 0), Math.max(0, testCases.length - 1))
       : 0;
