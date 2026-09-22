@@ -403,16 +403,16 @@ button {
 /* Compact columns: wide enough for D#/A# and R₁/R₂, but no dead space. */
 #chartDiv th.noteCell,
 #chartDiv td.noteCell {
-  width: 39px;
-  min-width: 39px;
-  max-width: 39px;
+  width: 32px;
+  min-width: 32px;
+  max-width: 32px;
 }
 
 #chartDiv .settingsHeader,
 #chartDiv .fretNumber {
-  width: 39px;
-  min-width: 39px;
-  max-width: 39px;
+  width: 32px;
+  min-width: 32px;
+  max-width: 32px;
 }
 
 .settingsHeader {
