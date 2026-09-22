@@ -1426,3 +1426,25 @@ select[data-auto-width="true"],
 #orderSelect {
   padding-right: 26px !important;
 }
+
+
+/* Refined select chevron: proper icon, not a text glyph */
+.selectChevron {
+  width: 22px;
+  transform: none;
+}
+
+.selectChevron svg {
+  width: 10px;
+  height: 7px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.selectWrap > select {
+  padding-right: 24px !important;
+}
