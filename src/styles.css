@@ -1699,3 +1699,85 @@ select[data-auto-width="true"],
     row-gap: 10px !important;
   }
 }
+
+
+/* =========================================================
+   CONTROL CARD GEOMETRY — one intrinsic parent owns both cards
+   ========================================================= */
+.trainerShell {
+  display: block !important;
+  width: max-content !important;
+  max-width: calc(100vw - 24px) !important;
+}
+
+.trainerControls {
+  display: grid;
+  grid-template-columns: max-content;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  gap: 10px;
+}
+
+.trainerControls > .setupPanel,
+.trainerControls > .promptSection {
+  box-sizing: border-box;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+}
+
+/* Every settings section fills the setup card, including Lesson Settings. */
+.setupPanel > .settingsSection {
+  box-sizing: border-box;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Every gray section title fills its section edge-to-edge. */
+.setupPanel > .settingsSection > .sectionTitle,
+.promptSection > .sectionTitle {
+  box-sizing: border-box;
+  width: auto !important;
+  max-width: none !important;
+}
+
+/* Intrinsic card width comes from actual controls, not headers. */
+.setupPanel {
+  width: max-content !important;
+}
+
+/* Prevent the full-width child rules from influencing intrinsic width calculation. */
+.setupPanel > .settingsSection {
+  contain: inline-size;
+}
+
+.setupPanel > .lessonSection,
+.setupPanel > .keySection,
+.setupPanel > .lessonSettingsSection {
+  contain: none;
+}
+
+/* Prompt no longer participates in choosing the card width. */
+.promptSection {
+  justify-self: stretch;
+}
+
+/* Fretboard/input remain independent of control-card width. */
+.exercisePanel,
+.guitarInputPanel {
+  width: max-content !important;
+}
+
+@media (max-width: 700px) {
+  .trainerControls {
+    width: min(100%, calc(100vw - 24px));
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .trainerControls > .setupPanel,
+  .trainerControls > .promptSection {
+    width: 100% !important;
+  }
+}
