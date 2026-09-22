@@ -1303,3 +1303,62 @@ button {
     width: 100% !important;
   }
 }
+
+
+/* =========================================================
+   AUTHORITATIVE CONTENT-DRIVEN SIZING
+   ========================================================= */
+
+/* JS writes exact pixel widths after measuring rendered option text. */
+select[data-auto-width="true"],
+.multiSelect[data-auto-width="true"] {
+  width: var(--auto-width) !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+.multiSelect[data-auto-width="true"] summary {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.multiSelect[data-auto-width="true"] .multiSelectMenu {
+  width: max-content !important;
+  min-width: 100% !important;
+}
+
+/* Rows hug their controls. */
+.lessonField,
+.keyField,
+.keyControls,
+.lessonSettingsSection .npsControlGrid,
+.actionRow {
+  width: max-content !important;
+  max-width: none !important;
+}
+
+.lessonSettingsSection .npsControlGrid {
+  grid-template-columns: max-content max-content max-content !important;
+}
+
+/* Sections are as wide as the widest actual row, not an arbitrary card width. */
+.trainerShell,
+.setupPanel,
+.promptSection {
+  width: var(--trainer-auto-width, max-content) !important;
+  min-width: 0 !important;
+  max-width: calc(100vw - 24px) !important;
+}
+
+.settingsSection,
+.lessonSettingsSection {
+  width: 100% !important;
+}
+
+@media (max-width: 700px) {
+  .trainerShell,
+  .setupPanel,
+  .promptSection {
+    max-width: calc(100vw - 24px) !important;
+  }
+}
