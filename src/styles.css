@@ -1539,3 +1539,163 @@ select[data-auto-width="true"],
   align-items: center;
   gap: 6px;
 }
+
+
+/* =========================================================
+   FINAL INTRINSIC UI LAYOUT
+   No JS width measurement. One visual dropdown system.
+   ========================================================= */
+
+.trainerShell {
+  display: inline-flex !important;
+  flex-direction: column;
+  align-items: stretch;
+  width: max-content !important;
+  max-width: calc(100vw - 24px) !important;
+}
+
+.setupPanel {
+  display: block !important;
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+.settingsSection {
+  box-sizing: border-box;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.lessonField,
+.keyField,
+.keyControls,
+.lessonSettingsSection,
+.lessonSettingsSection .npsControlGrid,
+.actionRow {
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+.lessonSettingsSection .npsControlGrid {
+  display: grid !important;
+  grid-template-columns: max-content max-content max-content !important;
+  column-gap: 12px !important;
+  row-gap: 0 !important;
+  justify-content: start !important;
+}
+
+/* Hidden state selects never participate in layout. */
+.stateSelect {
+  display: none !important;
+}
+
+/* SAME CLOSED CONTROL FOR SINGLE + MULTI SELECTS */
+.singleSelect,
+.multiSelect {
+  position: relative;
+  display: inline-block;
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+.singleSelect > summary,
+.multiSelect > summary {
+  position: relative;
+  box-sizing: border-box;
+  display: grid !important;
+  grid-template-columns: max-content 10px;
+  align-items: center;
+  column-gap: 8px;
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 32px !important;
+  padding: 0 8px 0 10px !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 5px !important;
+  background: var(--control-bg) !important;
+  color: var(--control-text) !important;
+  font: 16px/1 Arial, sans-serif !important;
+  list-style: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.singleSelect > summary::-webkit-details-marker,
+.multiSelect > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* One identical chevron for every custom dropdown. */
+.singleSelect > summary::after,
+.multiSelect > summary::after {
+  content: "";
+  position: static !important;
+  box-sizing: border-box;
+  width: 7px;
+  height: 7px;
+  margin: 0;
+  border: 0 !important;
+  border-right: 1.7px solid currentColor !important;
+  border-bottom: 1.7px solid currentColor !important;
+  transform: translateY(-2px) rotate(45deg) !important;
+}
+
+/* Popup is at least as wide as trigger, otherwise fits its content. */
+.singleSelectMenu,
+.multiSelectMenu {
+  box-sizing: border-box;
+  width: max-content !important;
+  min-width: 100% !important;
+  max-width: none !important;
+}
+
+/* Remove every old per-control width assumption. */
+#npsModeSummary,
+#startDegreeSummary,
+#intervalSummary {
+  min-width: 0 !important;
+  width: max-content !important;
+}
+
+/* Consistent field rhythm. */
+.controlField {
+  gap: 5px !important;
+}
+
+.keyControls {
+  display: flex !important;
+  gap: 8px !important;
+}
+
+.lessonSettingsSection .actionRow {
+  margin-top: 14px !important;
+}
+
+/* Current Exercise follows the setup card's intrinsic width. */
+.promptSection {
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Fretboard is allowed to be wider without forcing the setup card wider. */
+.exercisePanel,
+.guitarInputPanel {
+  width: max-content;
+  max-width: calc(100vw - 24px);
+}
+
+@media (max-width: 700px) {
+  .trainerShell {
+    max-width: calc(100vw - 24px) !important;
+  }
+
+  .lessonSettingsSection .npsControlGrid {
+    grid-template-columns: max-content !important;
+    row-gap: 10px !important;
+  }
+}
