@@ -91,8 +91,8 @@ function tightenLessonSelect() {
     widest = Math.max(widest, measureTextWidth(option.textContent, select));
   }
 
-  // Text + 8px left inset + 20px arrow area + 2px borders.
-  const width = Math.ceil(widest + 30);
+  // Text + left inset + safe native arrow area + borders.
+  const width = Math.ceil(widest + 42);
   select.style.setProperty('width', width + 'px', 'important');
   select.style.setProperty('min-width', '0', 'important');
   select.style.setProperty('max-width', 'none', 'important');
