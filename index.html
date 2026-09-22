@@ -119,7 +119,14 @@
     </section>
 
     <section class="guitarInputLogPanel" aria-label="Guitar input detection log">
-      <div class="guitarInputLogHeader">Detection Log</div>
+      <div class="guitarInputLogHeader">
+        <span>Detection Log</span>
+        <span class="classifierTestControls">
+          <button id="classifierTestButton" class="uiButton" type="button">Start Test</button>
+          <button id="classifierTestExportButton" class="uiButton" type="button">Export CSV</button>
+          <span id="classifierTestStatus">Test: off</span>
+        </span>
+      </div>
       <div class="guitarInputLogScroll">
         <table class="guitarInputLogTable">
           <thead>
