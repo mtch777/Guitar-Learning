@@ -2436,19 +2436,7 @@ function displayNpsQuestion() {
     'npsExerciseSecondary';
 
   secondaryLine.appendChild(
-    document.createTextNode('Start: ')
-  );
-
-  const interval =
-    document.createElement('strong');
-
-  interval.textContent =
-    exercise.startInterval;
-
-  secondaryLine.appendChild(interval);
-
-  secondaryLine.appendChild(
-    document.createTextNode(' · ')
+    document.createTextNode('Start on ')
   );
 
   const stringName =
@@ -2460,8 +2448,16 @@ function displayNpsQuestion() {
   secondaryLine.appendChild(stringName);
 
   secondaryLine.appendChild(
-    document.createTextNode(' string')
+    document.createTextNode(' · ')
   );
+
+  const interval =
+    document.createElement('strong');
+
+  interval.textContent =
+    exercise.startInterval;
+
+  secondaryLine.appendChild(interval);
 
   answerDisplay.appendChild(primaryLine);
   answerDisplay.appendChild(secondaryLine);
