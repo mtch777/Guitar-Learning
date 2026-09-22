@@ -36,16 +36,49 @@ const db = x => 20 * Math.log10(Math.max(x, EPS));
 
 export function resampleLinear(input, sourceRate, targetRate=TARGET_SR) {
   if (sourceRate === targetRate) return new Float32Array(input);
-  const n = Math.max(1, Math.round(input.length * targetRate / sourceRate));
+
+  // The training WAVs are 44.1 kHz and librosa.load(..., sr=22050) applies an
+  // anti-aliasing resampler.  A linear 44.1 -> 22.05 kHz conversion samples
+  // every other input point and aliases high-frequency energy into the
+  // spectrum, which strongly biases spectral-flatness features.
+  //
+  // Use a windowed-sinc low-pass resampler so live input is anti-aliased
+  // before decimation.  This also supports non-2:1 device sample rates.
+  const ratio = targetRate / sourceRate;
+  const n = Math.max(1, Math.round(input.length * ratio));
   const out = new Float32Array(n);
-  const scale = sourceRate / targetRate;
-  for (let i=0;i<n;i++) {
-    const p=i*scale, a=Math.floor(p), b=Math.min(input.length-1,a+1), t=p-a;
-    out[i]=(input[a]||0)*(1-t)+(input[b]||0)*t;
+  const halfTaps = 32;
+  const cutoff = Math.min(1, ratio) * 0.94;
+
+  const sinc = x => Math.abs(x) < 1e-12 ? 1 : Math.sin(Math.PI*x)/(Math.PI*x);
+
+  for (let i=0; i<n; i++) {
+    const center = i / ratio;
+    const base = Math.floor(center);
+    let sum = 0;
+    let weightSum = 0;
+
+    for (let k=-halfTaps+1; k<=halfTaps; k++) {
+      const idx = base + k;
+      if (idx < 0 || idx >= input.length) continue;
+
+      const distance = center - idx;
+      if (Math.abs(distance) >= halfTaps) continue;
+
+      // Blackman-windowed sinc. cutoff is normalized to the source Nyquist.
+      const phase = distance * cutoff;
+      const windowPos = (distance + halfTaps) / (2 * halfTaps);
+      const window = 0.42 - 0.5*Math.cos(2*Math.PI*windowPos)
+                         + 0.08*Math.cos(4*Math.PI*windowPos);
+      const weight = cutoff * sinc(phase) * window;
+      sum += input[idx] * weight;
+      weightSum += weight;
+    }
+
+    out[i] = weightSum ? sum / weightSum : 0;
   }
   return out;
 }
-
 function trimTopDb(y, topDb=50) {
   // Match librosa.effects.trim defaults:
   // frame_length=2048, hop_length=512, ref=np.max, center=True RMS with
