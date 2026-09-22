@@ -119,18 +119,8 @@ function fftMag(frame) {
   for(let i=0;i<m.length;i++) m[i]=Math.hypot(re[i],im[i]);
   return m;
 }
-function reflectIndex(i, n) {
-  if (n <= 1) return 0;
-  while (i < 0 || i >= n) {
-    if (i < 0) i = -i;
-    if (i >= n) i = 2 * n - 2 - i;
-  }
-  return i;
-}
-
 function frames(y) {
-  // librosa.feature spectral functions and MFCC use STFT center=True by
-  // default: pad n_fft/2 on both sides with reflect mode, then hop.
+  // librosa STFT defaults: center=true, pad_mode="constant".
   const out=[];
   if(!y.length) return [new Float32Array(N_FFT)];
   const pad=N_FFT>>1;
@@ -139,7 +129,7 @@ function frames(y) {
     const f=new Float32Array(N_FFT);
     for(let i=0;i<N_FFT;i++){
       const source=start+i-pad;
-      f[i]=y[reflectIndex(source,y.length)] || 0;
+      f[i]=(source>=0 && source<y.length) ? y[source] : 0;
     }
     out.push(f);
   }
@@ -195,8 +185,9 @@ function regionFeatures(y,sr) {
     const c=sum?weighted/sum:0; centroid.push(c);
     let bw=0; for(let k=0;k<mag.length;k++) bw+=mag[k]*(k*sr/N_FFT-c)**2;
     bandwidth.push(sum?Math.sqrt(bw/sum):0);
-    const total=power.reduce((a,b)=>a+b,0), target=.85*total;
-    let cum=0,ro=0; for(let k=0;k<power.length;k++){cum+=power[k];if(cum>=target){ro=k*sr/N_FFT;break;}}
+    // librosa.feature.spectral_rolloff(y=...) operates on magnitude S.
+    const total=mag.reduce((a,b)=>a+b,0), target=.85*total;
+    let cum=0,ro=0; for(let k=0;k<mag.length;k++){cum+=mag[k];if(cum>=target){ro=k*sr/N_FFT;break;}}
     rolloff.push(ro);
     // librosa.feature.spectral_flatness defaults to power=2 and amin=1e-10.
     let logsum=0,amsum=0;
@@ -206,9 +197,18 @@ function regionFeatures(y,sr) {
       amsum+=floored;
     }
     flatness.push(Math.exp(logsum/power.length)/(amsum/power.length));
-    const fr=timeFrames[fi]; let crossings=0;
-    for(let i=1;i<fr.length;i++) if((fr[i-1]>=0)!==(fr[i]>=0)) crossings++;
-    zcr.push(crossings/fr.length);
+    // librosa.feature.zero_crossing_rate centers with edge-value padding,
+    // unlike STFT-based descriptors which use constant-zero padding.
+    const zStart=fi*HOP-(N_FFT>>1);
+    let crossings=0;
+    let prev=null;
+    for(let i=0;i<N_FFT;i++){
+      const source=Math.max(0,Math.min(y.length-1,zStart+i));
+      const value=y[source] || 0;
+      if(prev!==null && ((prev>=0)!==(value>=0))) crossings++;
+      prev=value;
+    }
+    zcr.push(crossings/N_FFT);
     // Store mel power now; librosa's dB conversion is applied after the full
     // mel spectrogram is known (ref=max, amin=1e-10, top_db=80).
     const melPower=bank.map(w=>{
@@ -220,12 +220,15 @@ function regionFeatures(y,sr) {
     mfcc._melPower.push(melPower);
   }
   const allMel=mfcc._melPower || [];
-  let melMax=1e-10;
-  for(const frameMel of allMel) for(const x of frameMel) melMax=Math.max(melMax,x);
-  const maxDb=10*Math.log10(melMax);
+  let maxDb=-Infinity;
+  const rawDb=allMel.map(frameMel=>frameMel.map(x=>{
+    const value=10*Math.log10(Math.max(x,1e-10)); // ref=1.0
+    if(value>maxDb) maxDb=value;
+    return value;
+  }));
   const minDb=maxDb-80;
-  for(const frameMel of allMel){
-    const melDb=frameMel.map(x=>Math.max(minDb,10*Math.log10(Math.max(x,1e-10))));
+  for(const melDbRaw of rawDb){
+    const melDb=melDbRaw.map(x=>Math.max(minDb,x));
     for(let q=0;q<N_MFCC;q++){
       let s=0;
       for(let m=0;m<N_MELS;m++) s+=melDb[m]*Math.cos(Math.PI*q*(m+.5)/N_MELS);
