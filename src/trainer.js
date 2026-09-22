@@ -18,6 +18,111 @@ themeButton.addEventListener('click', () => {
   applyTheme(next);
 });
 
+
+function measureTextWidth(text, referenceElement) {
+  const probe = document.createElement('span');
+  const style = getComputedStyle(referenceElement);
+
+  probe.style.position = 'fixed';
+  probe.style.left = '-10000px';
+  probe.style.top = '-10000px';
+  probe.style.visibility = 'hidden';
+  probe.style.whiteSpace = 'pre';
+  probe.style.fontFamily = style.fontFamily;
+  probe.style.fontSize = style.fontSize;
+  probe.style.fontWeight = style.fontWeight;
+  probe.style.fontStyle = style.fontStyle;
+  probe.style.letterSpacing = style.letterSpacing;
+  probe.textContent = text;
+
+  document.body.appendChild(probe);
+  const width = probe.getBoundingClientRect().width;
+  probe.remove();
+
+  return width;
+}
+
+function autoSizeNativeSelect(select) {
+  let widest = 0;
+
+  for (const option of select.options) {
+    widest = Math.max(
+      widest,
+      measureTextWidth(option.textContent, select)
+    );
+  }
+
+  // 8px left padding + 8px text/arrow gap + ~18px arrow + borders.
+  const width = Math.ceil(widest + 36);
+
+  select.dataset.autoWidth = 'true';
+  select.style.setProperty('--auto-width', width + 'px');
+}
+
+function autoSizeMultiSelect(details) {
+  const labels = [
+    ...details.querySelectorAll('.multiOption span')
+  ];
+
+  if (!labels.length) return;
+
+  let widest = 0;
+
+  for (const label of labels) {
+    widest = Math.max(
+      widest,
+      measureTextWidth(label.textContent, label)
+    );
+  }
+
+  // Closed trigger needs text + compact dropdown arrow area.
+  const summaryWidth = Math.ceil(widest + 34);
+
+  details.dataset.autoWidth = 'true';
+  details.style.setProperty('--auto-width', summaryWidth + 'px');
+}
+
+function autoSizeTrainerUI() {
+  document.querySelectorAll('select').forEach(autoSizeNativeSelect);
+  document.querySelectorAll('.multiSelect').forEach(autoSizeMultiSelect);
+
+  const setup = document.querySelector('.setupPanel');
+  const prompt = document.querySelector('.promptSection');
+  const shell = document.querySelector('.trainerShell');
+
+  if (!setup || !shell) return;
+
+  // Let content establish its natural width first.
+  shell.style.removeProperty('--trainer-auto-width');
+
+  requestAnimationFrame(() => {
+    const sectionPadding = 28; // 14px each side.
+    const candidates = [
+      ...setup.querySelectorAll(
+        '.lessonField, .keyControls, .npsControlGrid, .actionRow'
+      )
+    ].filter(el => !el.hidden && getComputedStyle(el).display !== 'none');
+
+    let widestRow = 0;
+
+    for (const row of candidates) {
+      widestRow = Math.max(widestRow, row.scrollWidth);
+    }
+
+    // Header theme control must also fit cleanly.
+    const titleMinimum = 250;
+    const cardWidth = Math.ceil(
+      Math.max(widestRow + sectionPadding, titleMinimum)
+    );
+
+    shell.style.setProperty('--trainer-auto-width', cardWidth + 'px');
+
+    if (prompt) {
+      prompt.style.width = cardWidth + 'px';
+    }
+  });
+}
+
 const noteNames = [
   'C', 'C#', 'D', 'D#', 'E', 'F',
   'F#', 'G', 'G#', 'A', 'A#', 'B'
@@ -2881,3 +2986,14 @@ document
 
 
 setupLiveGuitarInput();
+
+window.addEventListener('load', () => {
+  requestAnimationFrame(() => requestAnimationFrame(autoSizeTrainerUI));
+});
+
+window.addEventListener('resize', autoSizeTrainerUI);
+
+document.getElementById('lessonTypeSelect')?.addEventListener(
+  'change',
+  () => requestAnimationFrame(autoSizeTrainerUI)
+);
