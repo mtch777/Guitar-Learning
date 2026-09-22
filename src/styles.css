@@ -2194,3 +2194,9 @@ select.stateSelect,
 .selectWrap:has(> select.stateSelect) {
   display: none;
 }
+
+
+/* State plumbing is structurally isolated; descendants cannot re-enter layout. */
+.stateOnly {
+  display: none;
+}
