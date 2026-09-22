@@ -189,14 +189,16 @@ function regionFeatures(y,sr) {
     const total=mag.reduce((a,b)=>a+b,0), target=.85*total;
     let cum=0,ro=0; for(let k=0;k<mag.length;k++){cum+=mag[k];if(cum>=target){ro=k*sr/N_FFT;break;}}
     rolloff.push(ro);
-    // librosa.feature.spectral_flatness defaults to power=2 and amin=1e-10.
+    // librosa.feature.spectral_flatness(y=...) first obtains magnitude S,
+    // floors S at amin=1e-10, then raises it to power=2.  The order matters
+    // for quiet bins: max(S, amin)^2 != max(S^2, amin).
     let logsum=0,amsum=0;
-    for(const x of power){
-      const floored=Math.max(x,1e-10);
-      logsum+=Math.log(floored);
-      amsum+=floored;
+    for(const magnitude of mag){
+      const powered=Math.max(magnitude,1e-10) ** 2;
+      logsum+=Math.log(powered);
+      amsum+=powered;
     }
-    flatness.push(Math.exp(logsum/power.length)/(amsum/power.length));
+    flatness.push(Math.exp(logsum/mag.length)/(amsum/mag.length));
     // librosa.feature.zero_crossing_rate centers with edge-value padding,
     // unlike STFT-based descriptors which use constant-zero padding.
     const zStart=fi*HOP-(N_FFT>>1);
