@@ -52,11 +52,27 @@ function autoSizeNativeSelect(select) {
     );
   }
 
-  // 8px left padding + 8px text/arrow gap + ~18px arrow + borders.
-  const width = Math.ceil(widest + 36);
+  // Exact visible width: text + 8px left + 24px custom arrow zone + borders.
+  const width = Math.ceil(widest + 34);
 
   select.dataset.autoWidth = 'true';
   select.style.setProperty('--auto-width', width + 'px');
+
+  let wrapper = select.parentElement;
+  if (!wrapper.classList.contains('selectWrap')) {
+    wrapper = document.createElement('span');
+    wrapper.className = 'selectWrap';
+    select.parentNode.insertBefore(wrapper, select);
+    wrapper.appendChild(select);
+
+    const arrow = document.createElement('span');
+    arrow.className = 'selectChevron';
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.textContent = '⌄';
+    wrapper.appendChild(arrow);
+  }
+
+  wrapper.style.width = width + 'px';
 }
 
 function autoSizeMultiSelect(details) {
@@ -82,25 +98,8 @@ function autoSizeMultiSelect(details) {
   details.style.setProperty('--auto-width', summaryWidth + 'px');
 }
 
-function tightenLessonSelect() {
-  const select = document.getElementById('lessonTypeSelect');
-  if (!select) return;
-
-  let widest = 0;
-  for (const option of select.options) {
-    widest = Math.max(widest, measureTextWidth(option.textContent, select));
-  }
-
-  // Text + left inset + safe native arrow area + borders.
-  const width = Math.ceil(widest + 42);
-  select.style.setProperty('width', width + 'px', 'important');
-  select.style.setProperty('min-width', '0', 'important');
-  select.style.setProperty('max-width', 'none', 'important');
-}
-
 function autoSizeTrainerUI() {
   document.querySelectorAll('select').forEach(autoSizeNativeSelect);
-  tightenLessonSelect();
   document.querySelectorAll('.multiSelect').forEach(autoSizeMultiSelect);
 
   const setup = document.querySelector('.setupPanel');
