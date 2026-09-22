@@ -14,9 +14,6 @@ const N_MELS = 128;
 const N_MFCC = 13;
 const EPS = 1e-12;
 
-const hzToMel = hz => 2595 * Math.log10(1 + hz / 700);
-const melToHz = mel => 700 * (10 ** (mel / 2595) - 1);
-
 function percentile(values, q) {
   const a = Array.from(values).sort((x, y) => x - y);
   if (!a.length) return 0;
@@ -103,31 +100,73 @@ function fftMag(frame) {
   for(let i=0;i<m.length;i++) m[i]=Math.hypot(re[i],im[i]);
   return m;
 }
+function reflectIndex(i, n) {
+  if (n <= 1) return 0;
+  while (i < 0 || i >= n) {
+    if (i < 0) i = -i;
+    if (i >= n) i = 2 * n - 2 - i;
+  }
+  return i;
+}
+
 function frames(y) {
+  // librosa.feature spectral functions and MFCC use STFT center=True by
+  // default: pad n_fft/2 on both sides with reflect mode, then hop.
   const out=[];
   if(!y.length) return [new Float32Array(N_FFT)];
-  for(let start=0; start<Math.max(1,y.length); start+=HOP){
+  const pad=N_FFT>>1;
+  const paddedLength=y.length+2*pad;
+  for(let start=0; start+N_FFT<=paddedLength; start+=HOP){
     const f=new Float32Array(N_FFT);
-    f.set(y.slice(start,Math.min(y.length,start+N_FFT)));
+    for(let i=0;i<N_FFT;i++){
+      const source=start+i-pad;
+      f[i]=y[reflectIndex(source,y.length)] || 0;
+    }
     out.push(f);
-    if(start+N_FFT>=y.length) break;
   }
-  return out;
+  return out.length ? out : [new Float32Array(N_FFT)];
+}
+function hzToMelSlaney(hz) {
+  const fSp=200/3;
+  const minLogHz=1000;
+  const minLogMel=minLogHz/fSp;
+  const logstep=Math.log(6.4)/27;
+  return hz < minLogHz
+    ? hz/fSp
+    : minLogMel + Math.log(hz/minLogHz)/logstep;
+}
+function melToHzSlaney(mel) {
+  const fSp=200/3;
+  const minLogHz=1000;
+  const minLogMel=minLogHz/fSp;
+  const logstep=Math.log(6.4)/27;
+  return mel < minLogMel
+    ? fSp*mel
+    : minLogHz*Math.exp(logstep*(mel-minLogMel));
 }
 function melBank(sr) {
-  const lo=hzToMel(0), hi=hzToMel(sr/2);
-  const hz=Array.from({length:N_MELS+2},(_,i)=>melToHz(lo+(hi-lo)*i/(N_MELS+1)));
-  const bins=hz.map(x=>Math.floor((N_FFT+1)*x/sr));
+  // librosa.filters.mel defaults: htk=False, norm="slaney".
+  const lo=hzToMelSlaney(0), hi=hzToMelSlaney(sr/2);
+  const edges=Array.from(
+    {length:N_MELS+2},
+    (_,i)=>melToHzSlaney(lo+(hi-lo)*i/(N_MELS+1))
+  );
+  const fftFreq=Array.from({length:N_FFT/2+1},(_,k)=>k*sr/N_FFT);
   return Array.from({length:N_MELS},(_,m)=>{
     const w=new Float64Array(N_FFT/2+1);
-    const a=bins[m],b=bins[m+1],c=bins[m+2];
-    for(let k=a;k<b;k++) if(k<w.length) w[k]=(k-a)/Math.max(1,b-a);
-    for(let k=b;k<c;k++) if(k<w.length) w[k]=(c-k)/Math.max(1,c-b);
+    const lower=edges[m], center=edges[m+1], upper=edges[m+2];
+    const enorm=2/Math.max(EPS,upper-lower);
+    for(let k=0;k<w.length;k++){
+      const f=fftFreq[k];
+      const lowerSlope=(f-lower)/Math.max(EPS,center-lower);
+      const upperSlope=(upper-f)/Math.max(EPS,upper-center);
+      w[k]=Math.max(0,Math.min(lowerSlope,upperSlope))*enorm;
+    }
     return w;
   });
 }
 function regionFeatures(y,sr) {
-  const bank=melBank(sr), specs=frames(y).map(fftMag);
+  const bank=melBank(sr), timeFrames=frames(y), specs=timeFrames.map(fftMag);
   const centroid=[], bandwidth=[], rolloff=[], flatness=[], zcr=[];
   const mfcc=Array.from({length:N_MFCC},()=>[]);
   for(let fi=0;fi<specs.length;fi++){
@@ -140,17 +179,42 @@ function regionFeatures(y,sr) {
     const total=power.reduce((a,b)=>a+b,0), target=.85*total;
     let cum=0,ro=0; for(let k=0;k<power.length;k++){cum+=power[k];if(cum>=target){ro=k*sr/N_FFT;break;}}
     rolloff.push(ro);
-    let logsum=0,amsum=0; for(const x of power){logsum+=Math.log(Math.max(x,EPS));amsum+=x;}
-    flatness.push(Math.exp(logsum/power.length)/Math.max(amsum/power.length,EPS));
-    const fr=frames(y)[fi]; let crossings=0;
+    // librosa.feature.spectral_flatness defaults to power=2 and amin=1e-10.
+    let logsum=0,amsum=0;
+    for(const x of power){
+      const floored=Math.max(x,1e-10);
+      logsum+=Math.log(floored);
+      amsum+=floored;
+    }
+    flatness.push(Math.exp(logsum/power.length)/(amsum/power.length));
+    const fr=timeFrames[fi]; let crossings=0;
     for(let i=1;i<fr.length;i++) if((fr[i-1]>=0)!==(fr[i]>=0)) crossings++;
     zcr.push(crossings/fr.length);
-    const mel=bank.map(w=>{let s=0;for(let k=0;k<w.length;k++)s+=power[k]*w[k];return 10*Math.log10(Math.max(s,EPS));});
+    // Store mel power now; librosa's dB conversion is applied after the full
+    // mel spectrogram is known (ref=max, amin=1e-10, top_db=80).
+    const melPower=bank.map(w=>{
+      let s=0;
+      for(let k=0;k<w.length;k++) s+=power[k]*w[k];
+      return s;
+    });
+    mfcc._melPower ??= [];
+    mfcc._melPower.push(melPower);
+  }
+  const allMel=mfcc._melPower || [];
+  let melMax=1e-10;
+  for(const frameMel of allMel) for(const x of frameMel) melMax=Math.max(melMax,x);
+  const maxDb=10*Math.log10(melMax);
+  const minDb=maxDb-80;
+  for(const frameMel of allMel){
+    const melDb=frameMel.map(x=>Math.max(minDb,10*Math.log10(Math.max(x,1e-10))));
     for(let q=0;q<N_MFCC;q++){
-      let s=0; for(let m=0;m<N_MELS;m++) s+=mel[m]*Math.cos(Math.PI*q*(m+.5)/N_MELS);
-      mfcc[q].push(s*Math.sqrt(2/N_MELS));
+      let s=0;
+      for(let m=0;m<N_MELS;m++) s+=melDb[m]*Math.cos(Math.PI*q*(m+.5)/N_MELS);
+      const norm=q===0 ? Math.sqrt(1/N_MELS) : Math.sqrt(2/N_MELS);
+      mfcc[q].push(s*norm);
     }
   }
+
   const out=[];
   for(let q=0;q<N_MFCC;q++){
     const a=mfcc[q],mean=a.reduce((s,x)=>s+x,0)/a.length;
