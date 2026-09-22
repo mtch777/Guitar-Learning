@@ -2599,6 +2599,17 @@ document
         return;
       }
 
+      if (!event.detail?.guitarAudio) {
+        window.dispatchEvent(new CustomEvent('guitar-manual-fret-click', {
+          detail: {
+            midi: Number(cell.dataset.absolutePitch),
+            string: Number(cell.dataset.string),
+            fret: Number(cell.dataset.fret),
+            note: cell.dataset.scientificPitch || cell.dataset.noteName || '—'
+          }
+        }));
+      }
+
 
       /* INTERVAL LESSON */
 
@@ -2969,7 +2980,10 @@ function activateDetectedFret({ midi, string }) {
   lastAudioCellKey = cellKey;
   lastAudioCellAt = now;
 
-  cell.click();
+  cell.dispatchEvent(new CustomEvent('click', {
+    bubbles: true,
+    detail: { guitarAudio: true }
+  }));
   return true;
 }
 
