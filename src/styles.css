@@ -1024,14 +1024,52 @@ button {
 }
 
 
-/* Size native selects to their widest option instead of stretching. */
-.fitSelect {
-  width: max-content !important;
-  min-width: max-content;
+
+/* Content-sized dropdowns */
+#lessonTypeSelect,
+#rootSelect,
+#scaleSelect,
+#orderSelect {
+  width: auto !important;
+}
+
+.lessonSection .lessonField,
+.keySection .keyField,
+.orderField {
+  width: auto;
+  align-items: flex-start;
 }
 
 .keyControls {
-  display: flex !important;
+  display: flex;
   align-items: center;
   gap: 6px;
+}
+
+/* Multi-select controls size to the longest option; menus match the trigger. */
+.lessonSettingsSection .npsControlGrid {
+  grid-template-columns: max-content max-content 174px;
+  justify-content: start;
+}
+
+.lessonSettingsSection .multiSelect,
+#intervalControlGroup .multiSelect {
+  width: max-content;
+}
+
+.lessonSettingsSection .multiSelect summary,
+#intervalControlGroup .multiSelect summary {
+  width: auto;
+}
+
+.lessonSettingsSection .multiSelectMenu,
+#intervalControlGroup .multiSelectMenu {
+  min-width: 100%;
+  width: max-content;
+}
+
+@media (max-width: 700px) {
+  .lessonSettingsSection .npsControlGrid {
+    grid-template-columns: 1fr;
+  }
 }
