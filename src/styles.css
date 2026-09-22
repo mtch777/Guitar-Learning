@@ -368,3 +368,36 @@ td {
 }
 .guitarInputPanel button { padding: 6px 10px; }
 .guitarInputPanel span { font-size: 13px; }
+
+/* GitHub migration layout fixes */
+#chartDiv {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+#chartDiv table {
+  min-width: 464px;
+}
+
+#chartDiv th.noteCell,
+#chartDiv td.noteCell {
+  width: 52px;
+  min-width: 52px;
+  max-width: 52px;
+}
+
+#chartDiv .settingsHeader,
+#chartDiv .fretNumber {
+  width: 48px;
+  min-width: 48px;
+  max-width: 48px;
+}
+
+.settingsHeader {
+  overflow: visible !important;
+}
+
+.settingsButton {
+  min-width: 48px;
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", sans-serif;
+}
