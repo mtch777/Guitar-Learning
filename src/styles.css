@@ -1362,3 +1362,18 @@ select[data-auto-width="true"],
     max-width: calc(100vw - 24px) !important;
   }
 }
+
+
+/* Lesson selector: no flex/grid stretching; exact JS-measured width wins. */
+.lessonSection .lessonField {
+  display: block !important;
+  width: max-content !important;
+  max-width: none !important;
+}
+
+#lessonTypeSelect {
+  display: block;
+  margin: 0 !important;
+  padding-left: 8px !important;
+  padding-right: 20px !important;
+}
