@@ -117,6 +117,22 @@
       <span class="inputMetric">String <strong id="guitarDetectedString">—</strong></span>
       <span id="guitarConfidence" class="inputMetric">Pitch —</span>
     </section>
+
+    <section class="guitarInputLogPanel" aria-label="Guitar input detection log">
+      <div class="guitarInputLogHeader">Detection Log</div>
+      <div class="guitarInputLogScroll">
+        <table class="guitarInputLogTable">
+          <thead>
+            <tr>
+              <th>Time</th><th>Note</th><th>MIDI</th><th>Pitch</th>
+              <th>S1</th><th>S2</th><th>S3</th><th>S4</th>
+              <th>S5</th><th>S6</th><th>S7</th><th>S8</th><th>Pick</th>
+            </tr>
+          </thead>
+          <tbody id="guitarInputLogBody"></tbody>
+        </table>
+      </div>
+    </section>
   </main>
 
   <script type="module" src="/src/trainer.js"></script>
