@@ -70,9 +70,49 @@ export function setupLiveGuitarInput() {
       cell.textContent = value;
       row.appendChild(cell);
     }
-    logBody.prepend(row);
+    logBody.appendChild(row);
+    logBody.closest(".guitarInputLogScroll")?.scrollTo({
+      top: logBody.closest(".guitarInputLogScroll").scrollHeight,
+      behavior: "smooth"
+    });
     currentNoteEvent = null;
   };
+
+
+  window.addEventListener("guitar-manual-fret-click", event => {
+    if (!logBody) return;
+    const detail = event.detail || {};
+    const before = window.getGuitarTrainerDebugState?.() || {
+      prompt: "—", played: "—", remaining: "—"
+    };
+
+    // Let the trainer's click handler finish first so the row reflects the
+    // resulting played/remaining state.
+    queueMicrotask(() => {
+      const after = window.getGuitarTrainerDebugState?.() || before;
+      const row = document.createElement("tr");
+      const values = [
+        new Date().toLocaleTimeString([], {
+          hour: "2-digit", minute: "2-digit", second: "2-digit", fractionalSecondDigits: 3
+        }),
+        detail.note || (Number.isFinite(detail.midi) ? midiToNoteName(detail.midi) : "—"),
+        Number.isFinite(detail.midi) ? String(detail.midi) : "—",
+        "MANUAL",
+        "—", "—", "—", "—", "—", "—", "—", "—",
+        `S${detail.string} F${detail.fret} manual`,
+        before.prompt,
+        `Played: ${after.played} | Remaining: ${after.remaining}`
+      ];
+      for (const value of values) {
+        const cell = document.createElement("td");
+        cell.textContent = value;
+        row.appendChild(cell);
+      }
+      logBody.appendChild(row);
+      const scroll = logBody.closest(".guitarInputLogScroll");
+      if (scroll) scroll.scrollTop = scroll.scrollHeight;
+    });
+  });
 
   if (!button) return;
 
