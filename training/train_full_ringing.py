@@ -27,7 +27,67 @@ def summary(x):
 
 def db(v): return float(20*np.log10(max(float(v),1e-12)))
 
-def extract(path):
+def harmonic_features(y,sr,midi):
+    """Pitch-relative harmonic features: H2-H8/H1 in three time regions,
+    temporal deltas, peak detuning/shape, and local harmonic-to-noise contrast."""
+    f0=440.0*2**((midi-69)/12)
+    regions=(("harm_attack",0.00,0.12),("harm_early",0.15,0.40),("harm_late",0.40,0.80))
+    vals=[]; names=[]; ratios=[]
+    for region,t0,t1 in regions:
+        seg=y[int(t0*sr):min(len(y),int(t1*sr))]
+        if len(seg)<256: seg=y
+        n_fft=max(8192,1<<(max(256,len(seg))-1).bit_length())
+        win=np.hanning(len(seg))
+        spec=np.abs(np.fft.rfft(seg*win,n=n_fft))
+        freqs=np.fft.rfftfreq(n_fft,1/sr)
+        amps=[]; region_ratios=[]
+        for h in range(1,9):
+            target=f0*h
+            if target>=sr/2:
+                amps.append(1e-12); continue
+            bw=max(4.0,target*.006)
+            mask=np.abs(freqs-target)<=bw
+            amps.append(float(np.sqrt(np.sum(spec[mask]**2))) if np.any(mask) else 1e-12)
+        h1=max(amps[0],1e-12)
+        for h in range(2,9):
+            ratio=20*np.log10(max(amps[h-1],1e-12)/h1)
+            vals.append(float(ratio)); names.append(f"{region}_h{h}_db_vs_h1"); region_ratios.append(ratio)
+        ratios.append(region_ratios)
+
+        # Peak-level shape around H1-H8: cents detuning, width, and local contrast.
+        for h in range(1,9):
+            target=f0*h
+            if target>=sr/2:
+                vals += [0.0,0.0,0.0]
+            else:
+                search=max(8.0,target*.02)
+                idx=np.where(np.abs(freqs-target)<=search)[0]
+                if not len(idx):
+                    vals += [0.0,0.0,0.0]
+                else:
+                    peak_idx=idx[np.argmax(spec[idx])]
+                    peak_f=max(freqs[peak_idx],1e-9); peak=max(spec[peak_idx],1e-12)
+                    cents=1200*np.log2(peak_f/target)
+                    half=peak/np.sqrt(2)
+                    left=peak_idx
+                    while left>0 and spec[left]>=half: left-=1
+                    right=peak_idx
+                    while right+1<len(spec) and spec[right]>=half: right+=1
+                    width=freqs[right]-freqs[left]
+                    noise_idx=idx[np.abs(freqs[idx]-peak_f)>max(4.0,target*.006)]
+                    noise=float(np.median(spec[noise_idx])) if len(noise_idx) else 1e-12
+                    contrast=20*np.log10(peak/max(noise,1e-12))
+                    vals += [float(cents),float(width),float(contrast)]
+            names += [f"{region}_h{h}_detune_cents",f"{region}_h{h}_width_hz",f"{region}_h{h}_contrast_db"]
+
+    # Harmonic evolution: early-attack and late-early deltas for H2-H8.
+    for a,b,label in ((0,1,"early_minus_attack"),(1,2,"late_minus_early")):
+        for h in range(2,9):
+            vals.append(float(ratios[b][h-2]-ratios[a][h-2]))
+            names.append(f"harm_{label}_h{h}_delta_db")
+    return vals,names
+
+def extract(path,string,fret,feature_set="full"):
     y,sr=librosa.load(path,sr=22050,mono=True)
     y,_=librosa.effects.trim(y,top_db=50)
     attack=y[:int(.12*sr)]
@@ -59,6 +119,9 @@ def extract(path):
     names += ["attack_peak_dbfs","attack_rms_50_dbfs","attack_rms_100_dbfs",
               "attack_energy_100","total_rms_dbfs"]
     assert len(values)==107
+    if feature_set!="baseline":
+        hv,hn=harmonic_features(y,sr,OPEN_MIDI[string]+fret)
+        values += hv; names += hn
     return np.asarray(values,dtype=np.float32),names
 
 def model(n=100):
@@ -77,6 +140,7 @@ def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("wav_dir",type=Path)
     ap.add_argument("--out",type=Path,default=Path("training/results/full_ringing"))
+    ap.add_argument("--feature-set",choices=("baseline","full"),default="full")
     a=ap.parse_args(); a.out.mkdir(parents=True,exist_ok=True)
     rows=[]; xs=[]
     for path in sorted(a.wav_dir.glob("*.wav")):
@@ -84,8 +148,9 @@ def main():
         if "muted" in path.name.lower(): continue
         m=RX.fullmatch(path.name)
         if not m: continue
-        x,names=extract(path); xs.append(x)
-        rows.append({"string":int(m[1]),"fret":int(m[2]),"strength":m[3].lower(),"file":path.name})
+        string=int(m[1]); fret=int(m[2])
+        x,names=extract(path,string,fret,a.feature_set); xs.append(x)
+        rows.append({"string":string,"fret":fret,"strength":m[3].lower(),"file":path.name})
     if not rows:
         raise RuntimeError("No ringing recordings found")
     X=np.vstack(xs); df=pd.DataFrame(rows); truth=df.string.to_numpy()
@@ -108,7 +173,7 @@ def main():
 
     strengths=sorted(df.strength.unique())
     metrics={"recordings":len(df),"positions":int(df[["string","fret"]].drop_duplicates().shape[0]),
-      "muted_included":0,"features":X.shape[1],
+      "muted_included":0,"feature_set":a.feature_set,"features":X.shape[1],
       "leave_one_pitch_out_accuracy":float(accuracy_score(truth,pred)),
       "by_strength":{s:float(accuracy_score(truth[df.strength==s],pred[df.strength.to_numpy()==s]))
                      for s in strengths}}
