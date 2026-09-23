@@ -2383,3 +2383,47 @@ button.uiButton:disabled {
   white-space: pre-line;
   line-height: 1.5;
 }
+
+
+/* =========================================================
+   NPS START MARKER
+   Circular interval cue aligned directly above its string.
+   ========================================================= */
+
+.npsStartGuide {
+  display: grid;
+  grid-template-columns: repeat(8, 32px) 32px;
+  width: 288px;
+  height: 44px;
+  align-items: end;
+}
+
+.npsStartMarker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 32px;
+  height: 44px;
+}
+
+.npsStartInterval {
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 16px/1 Arial, sans-serif;
+  font-weight: 400;
+}
+
+.npsStartArrow {
+  height: 16px;
+  margin-top: 0;
+  color: var(--text-color);
+  font: 16px/16px Arial, sans-serif;
+  text-align: center;
+}
