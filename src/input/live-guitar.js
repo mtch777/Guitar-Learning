@@ -86,6 +86,12 @@ export function setupLiveGuitarInput() {
   const datasetExportButton = document.getElementById("datasetExportButton");
   const datasetStatus = document.getElementById("datasetRecordStatus");
 
+  const datasetPlanText = () => {
+    const positions = DATASET_TARGET_POSITIONS?.length ?? 0;
+    const strengths = DATASET_STRENGTHS?.length ?? 0;
+    return `${positions * strengths} targeted follow-up samples · ${positions} positions × ${DATASET_STRENGTHS.map(x => x.label).join(" / ")}`;
+  };
+
   // Existing ringing dataset already contains soft/normal/hard at these frets.
   // Record only the 18 missing frets per string: 8 * 18 * 3 = 432 samples.
   const EXISTING_DATASET_FRETS = new Set([0, 5, 7, 12, 17, 19, 24]);
@@ -197,7 +203,7 @@ export function setupLiveGuitarInput() {
     if (!datasetActive) {
       datasetStatus.textContent = datasetSamples.length
         ? `Stopped · ${datasetSamples.length}/${datasetCases.length || 18} accepted`
-        : "18 targeted follow-up samples · 6 positions × soft/medium/hard";
+        : datasetPlanText();
       return;
     }
     const target = datasetCases[datasetIndex];
@@ -305,6 +311,8 @@ export function setupLiveGuitarInput() {
     ev.setUint32(16, centralOffset, true);
     return new Blob([...locals, ...centrals, end], { type: "application/zip" });
   };
+
+  if (datasetStatus) datasetStatus.textContent = datasetPlanText();
 
   datasetButton?.addEventListener("click", () => {
     if (datasetActive) {
