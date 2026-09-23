@@ -1010,6 +1010,10 @@ function revealCell(
     );
   }
 
+  cell.classList.add(
+    'revealed'
+  );
+
   applyIntervalStyle(
     cell,
     interval
@@ -1017,6 +1021,10 @@ function revealCell(
 }
 
 function hideCell(cell) {
+  cell.classList.remove(
+    'revealed'
+  );
+
   clearCellStyle(cell);
 
   if (
@@ -1029,7 +1037,6 @@ function hideCell(cell) {
     cell.innerText = '';
   }
 }
-
 
 /*
   SHOW ALL
@@ -1110,6 +1117,7 @@ function restoreCellDisplay(cell) {
 
 function createTuningSettings() {
   const wrapper = document.createElement('div');
+  wrapper.className = 'fretboardTuningControl';
 
   const button = document.createElement('button');
   button.type = 'button';
@@ -1186,36 +1194,14 @@ function createTuningSettings() {
 }
 
 /* =========================================================
-   COLUMN WIDTHS
+   FRETBOARD LAYOUT
+   The physical fretboard is responsive, so no table-column
+   width locking is required.
    ========================================================= */
 
 function lockColumnWidths() {
-  const table = document.querySelector('#chartDiv table');
-  if (!table) return;
-
-  const stringWidth = 32;
-  const fretWidth = 32;
-
-  const oldColgroup = table.querySelector('colgroup');
-  if (oldColgroup) oldColgroup.remove();
-
-  const colgroup = document.createElement('colgroup');
-
-  for (let i = 0; i < 8; i++) {
-    const col = document.createElement('col');
-    col.style.width = `${stringWidth}px`;
-    colgroup.appendChild(col);
-  }
-
-  const fretCol = document.createElement('col');
-  fretCol.style.width = `${fretWidth}px`;
-  colgroup.appendChild(fretCol);
-
-  table.insertBefore(colgroup, table.firstChild);
-  table.style.tableLayout = 'fixed';
-  table.style.width = `${stringWidth * 8 + fretWidth}px`;
+  // Compatibility no-op for older call sites.
 }
-
 
 /* =========================================================
    RELATIVE MODES
@@ -1953,17 +1939,80 @@ function buildTrainer() {
 
   chartDiv.innerHTML = '';
 
-  const table =
-    document.createElement(
-      'table'
-    );
-
-  chartDiv.appendChild(table);
-
   const availableTargets =
     new Map();
 
   const allCells = [];
+
+  const maxFret =
+    lessonType === 'nps'
+      ? 24
+      : 12;
+
+  const stringGap = 52;
+  const edgePadding = 28;
+
+  const toolbar =
+    document.createElement('div');
+
+  toolbar.className =
+    'fretboardToolbar';
+
+  toolbar.appendChild(
+    createTuningSettings()
+  );
+
+  chartDiv.appendChild(
+    toolbar
+  );
+
+  const stage =
+    document.createElement('div');
+
+  stage.className =
+    'fretboardStage';
+
+  if (
+    lessonType === 'nps'
+  ) {
+    stage.classList.add(
+      'hasStartCue'
+    );
+  }
+
+  const fretboard =
+    document.createElement('div');
+
+  fretboard.className =
+    'physicalFretboard';
+
+  if (
+    maxFret >= 20
+  ) {
+    fretboard.classList.add(
+      'compact'
+    );
+  }
+
+  fretboard.style.height =
+    (
+      edgePadding * 2 +
+      (tuning.length - 1) *
+        stringGap
+    ) + 'px';
+
+  fretboard.style.setProperty(
+    '--fret-count',
+    maxFret
+  );
+
+  stage.appendChild(
+    fretboard
+  );
+
+  chartDiv.appendChild(
+    stage
+  );
 
 
   function configureNoteCell(
@@ -2042,6 +2091,28 @@ function buildTrainer() {
         absolutePitch
       );
 
+    cell.setAttribute(
+      'role',
+      'button'
+    );
+
+    cell.setAttribute(
+      'tabindex',
+      '0'
+    );
+
+    cell.setAttribute(
+      'aria-label',
+      'String ' +
+        (stringIndex + 1) +
+        ', fret ' +
+        fret +
+        ', ' +
+        midiToScientificPitch(
+          absolutePitch
+        )
+    );
+
     allCells.push({
       element: cell,
       absolutePitch,
@@ -2075,121 +2146,257 @@ function buildTrainer() {
   }
 
 
-  /* OPEN STRINGS */
+  /* =======================================================
+     FRETBOARD STRUCTURE
+     ======================================================= */
 
-  const headerRow =
-    document.createElement('tr');
+  const nut =
+    document.createElement('div');
 
-  table.appendChild(
-    headerRow
+  nut.className =
+    'fretboardNut';
+
+  fretboard.appendChild(
+    nut
   );
 
-  tuning.forEach(
-    (
-      openPitch,
-      stringIndex
-    ) => {
-
-      const th =
-        document.createElement('th');
-
-      configureNoteCell(
-        th,
-        openPitch,
-        stringIndex,
-        0,
-        true
-      );
-
-      headerRow.appendChild(th);
-
-      restoreCellDisplay(th);
-    }
-  );
-
-
-  /* SETTINGS */
-
-  const settingsHeader =
-    document.createElement('th');
-
-  settingsHeader.classList.add(
-    'settingsHeader'
-  );
-
-  settingsHeader.appendChild(
-    createTuningSettings()
-  );
-
-  headerRow.appendChild(
-    settingsHeader
-  );
-
-
-  /* FRETS */
-
-  const maxFret =
-    lessonType === 'nps'
-      ? 24
-      : 12;
 
   for (
     let fret = 1;
     fret <= maxFret;
     fret++
   ) {
-    const row =
-      document.createElement('tr');
+    const fretLine =
+      document.createElement('div');
 
-    table.appendChild(row);
+    fretLine.className =
+      'fretboardFret';
 
-    tuning.forEach(
+    fretLine.style.left =
       (
-        openPitch,
-        stringIndex
-      ) => {
+        fret /
+        maxFret *
+        100
+      ) + '%';
 
-        const cell =
-          document.createElement('td');
-
-        const absolutePitch =
-          openPitch + fret;
-
-        configureNoteCell(
-          cell,
-          absolutePitch,
-          stringIndex,
-          fret,
-          false
-        );
-
-        row.appendChild(cell);
-
-        restoreCellDisplay(cell);
-      }
+    fretboard.appendChild(
+      fretLine
     );
+  }
 
-    const fretCell =
-      document.createElement('td');
 
-    fretCell.innerText =
-      fret;
+  const boardMiddleY =
+    edgePadding +
+    (
+      tuning.length - 1
+    ) *
+    stringGap /
+    2;
 
-    fretCell.classList.add(
-      'fretNumber'
-    );
 
+  function addPositionDot(
+    fret,
+    y,
+    doubleDot = false
+  ) {
     if (
-      dotFrets.includes(fret)
+      fret > maxFret
     ) {
-      fretCell.classList.add(
-        'fretDot'
-      );
+      return;
     }
 
-    row.appendChild(
-      fretCell
+    const dot =
+      document.createElement('div');
+
+    dot.className =
+      doubleDot
+        ? 'fretboardPositionDot doubleDot'
+        : 'fretboardPositionDot';
+
+    dot.style.left =
+      (
+        (
+          fret - 0.5
+        ) /
+        maxFret *
+        100
+      ) + '%';
+
+    dot.style.top =
+      y + 'px';
+
+    fretboard.appendChild(
+      dot
     );
+  }
+
+
+  [
+    3,
+    5,
+    7,
+    9,
+    15,
+    17,
+    19,
+    21
+  ].forEach(
+    fret =>
+      addPositionDot(
+        fret,
+        boardMiddleY
+      )
+  );
+
+
+  [
+    12,
+    24
+  ].forEach(
+    fret => {
+      addPositionDot(
+        fret,
+        edgePadding +
+          2.5 *
+          stringGap,
+        true
+      );
+
+      addPositionDot(
+        fret,
+        edgePadding +
+          4.5 *
+          stringGap,
+        true
+      );
+    }
+  );
+
+
+  /*
+    Visual order is conventional guitar orientation:
+    highest string at the top, lowest string at the bottom.
+
+    Internal stringIndex remains unchanged:
+    0 = physical String 1 / lowest.
+  */
+
+  for (
+    let displayIndex = 0;
+    displayIndex <
+      tuning.length;
+    displayIndex++
+  ) {
+    const stringIndex =
+      tuning.length -
+      1 -
+      displayIndex;
+
+    const openPitch =
+      tuning[
+        stringIndex
+      ];
+
+    const y =
+      edgePadding +
+      displayIndex *
+        stringGap;
+
+
+    const stringLine =
+      document.createElement('div');
+
+    stringLine.className =
+      'fretboardString';
+
+    stringLine.style.top =
+      y + 'px';
+
+    stringLine.style.height =
+      (
+        1 +
+        displayIndex *
+          0.42
+      ) + 'px';
+
+    fretboard.appendChild(
+      stringLine
+    );
+
+
+    /* OPEN STRING */
+
+    const openCell =
+      document.createElement('div');
+
+    openCell.className =
+      'fretboardNote openStringNote';
+
+    openCell.style.top =
+      y + 'px';
+
+    configureNoteCell(
+      openCell,
+      openPitch,
+      stringIndex,
+      0,
+      true
+    );
+
+    fretboard.appendChild(
+      openCell
+    );
+
+    restoreCellDisplay(
+      openCell
+    );
+
+
+    /* FRETTED NOTES */
+
+    for (
+      let fret = 1;
+      fret <= maxFret;
+      fret++
+    ) {
+      const cell =
+        document.createElement('div');
+
+      cell.className =
+        'fretboardNote';
+
+      cell.style.left =
+        (
+          (
+            fret - 0.5
+          ) /
+          maxFret *
+          100
+        ) + '%';
+
+      cell.style.top =
+        y + 'px';
+
+      const absolutePitch =
+        openPitch +
+        fret;
+
+      configureNoteCell(
+        cell,
+        absolutePitch,
+        stringIndex,
+        fret,
+        false
+      );
+
+      fretboard.appendChild(
+        cell
+      );
+
+      restoreCellDisplay(
+        cell
+      );
+    }
   }
 
 
@@ -2229,7 +2436,6 @@ function buildTrainer() {
       }
     );
 
-    lockColumnWidths();
     generateIntervalAnswer();
 
     return;
@@ -2256,8 +2462,6 @@ function buildTrainer() {
       )
       .textContent =
         'No valid 2/3 NPS starting positions for these settings.';
-
-    lockColumnWidths();
 
     return;
   }
@@ -2298,16 +2502,15 @@ function buildTrainer() {
 
   displayNpsQuestion();
 
-  chartDiv.insertBefore(
+  fretboard.appendChild(
     createNpsStartMarker(
-      currentNpsExercise
-    ),
-    table
+      currentNpsExercise,
+      tuning.length,
+      edgePadding,
+      stringGap
+    )
   );
-
-  lockColumnWidths();
 }
-
 
 /* =========================================================
    INTERVAL QUESTION
@@ -2449,23 +2652,29 @@ function displayNpsQuestion() {
    NPS START MARKER
    ========================================================= */
 
-function createNpsStartMarker(exercise) {
+function createNpsStartMarker(
+  exercise,
+  stringCount,
+  edgePadding,
+  stringGap
+) {
   const guide =
     document.createElement('div');
 
   guide.className =
     'npsStartGuide';
 
-  const marker =
-    document.createElement('div');
+  const displayIndex =
+    stringCount -
+    1 -
+    exercise.startStringIndex;
 
-  marker.className =
-    'npsStartMarker';
-
-  marker.style.gridColumn =
-    String(
-      exercise.startStringIndex + 1
-    );
+  guide.style.top =
+    (
+      edgePadding +
+      displayIndex *
+        stringGap
+    ) + 'px';
 
   const interval =
     document.createElement('div');
@@ -2478,7 +2687,10 @@ function createNpsStartMarker(exercise) {
 
   interval.setAttribute(
     'aria-label',
-    `Start on ${exercise.startStringName}, interval ${exercise.startInterval}`
+    'Start on ' +
+      exercise.startStringName +
+      ', interval ' +
+      exercise.startInterval
   );
 
   applyIntervalStyle(
@@ -2492,11 +2704,15 @@ function createNpsStartMarker(exercise) {
   arrow.className =
     'npsStartArrow';
 
-  arrow.textContent = '↓';
+  arrow.textContent = '→';
 
-  marker.appendChild(interval);
-  marker.appendChild(arrow);
-  guide.appendChild(marker);
+  guide.appendChild(
+    interval
+  );
+
+  guide.appendChild(
+    arrow
+  );
 
   return guide;
 }
