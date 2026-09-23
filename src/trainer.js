@@ -932,8 +932,11 @@ function updateDirectionSummary() {
    ========================================================= */
 
 function updateLessonControls() {
+  const lessonType =
+    getLessonType();
+
   const nps =
-    getLessonType() === 'nps';
+    lessonType === 'nps';
 
   document
     .getElementById(
@@ -955,6 +958,18 @@ function updateLessonControls() {
     )
     .hidden =
       nps;
+
+  const intervalFieldLabel =
+    document.querySelector(
+      '#intervalControlGroup .fieldLabel'
+    );
+
+  if (intervalFieldLabel) {
+    intervalFieldLabel.textContent =
+      lessonType === 'shape'
+        ? 'Starting Intervals'
+        : 'Intervals';
+  }
 }
 
 
@@ -2067,7 +2082,8 @@ function getClosestShapeCell(
 
 function createShapeExercise(
   allCells,
-  selectedIntervals
+  selectedIntervals,
+  scaleName
 ) {
   if (
     selectedIntervals.length === 0
@@ -2106,8 +2122,19 @@ function createShapeExercise(
       startItem.fret
     );
 
+  const allScaleIntervals =
+    scales[
+      scaleName
+    ].map(
+      ([
+        semitones,
+        intervalName
+      ]) =>
+        intervalName
+    );
+
   const remainingIntervals =
-    selectedIntervals.filter(
+    allScaleIntervals.filter(
       interval =>
         interval !==
         startInterval
@@ -2860,7 +2887,8 @@ function buildTrainer() {
     currentShapeExercise =
       createShapeExercise(
         allCells,
-        selectedIntervals
+        selectedIntervals,
+        scaleName
       );
 
     if (
