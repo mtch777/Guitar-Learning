@@ -2980,21 +2980,74 @@ function getFittingCagedShapesForMode(
 
 
 /*
-  Build an NPS bridge around the selected 0-12 root and
-  attach a normal fitting CAGED shape to the requested
-  extreme of that bridge.
+  Return every cell at the requested vertical/pitch extreme
+  of a fitting CAGED shape.
 
-  LOW fallback:
-    the shared CAGED/NPS connection is the LOWEST note
-    of the selected NPS bridge.
+  "bottom" = lowest pitch in the shape.
+  "top"    = highest pitch in the shape.
 
-  HIGH fallback:
-    the shared CAGED/NPS connection is the HIGHEST note
-    of the selected NPS bridge.
+  Multiple physical positions can occasionally share the
+  same MIDI pitch, so keep every tied extreme.
+*/
+function getCagedShapeExtremeKeys(
+  shape,
+  extreme
+) {
+  if (
+    !shape ||
+    !shape.shapeCells ||
+    shape.shapeCells.length === 0
+  ) {
+    return [];
+  }
 
-  The bridge is a contiguous slice of one of the exact
-  connected 2/3-NPS paths, and still has to span at least
-  two strings just like a normal directional NPS exercise.
+  const extremePitch =
+    extreme === 'bottom'
+      ? Math.min(
+          ...shape.shapeCells.map(
+            item =>
+              item.absolutePitch
+          )
+        )
+      : Math.max(
+          ...shape.shapeCells.map(
+            item =>
+              item.absolutePitch
+          )
+        );
+
+  return shape.shapeCells
+    .filter(
+      item =>
+        item.absolutePitch ===
+          extremePitch
+    )
+    .map(
+      item =>
+        makeCellKey(
+          item.stringIndex,
+          item.fret
+        )
+    );
+}
+
+
+/*
+  Build an NPS bridge from the selected 0-12 modal root
+  into a normal fitting CAGED shape.
+
+  If the attempted CAGED placement is TOO LOW:
+    - connect to the BOTTOM of a fitting CAGED shape
+    - the NPS bridge must travel UP diagonally
+    - prompt arrow: ↗️
+
+  If the attempted CAGED placement is TOO HIGH:
+    - connect to the TOP of a fitting CAGED shape
+    - the NPS bridge must travel DOWN diagonally
+    - prompt arrow: ↙️
+
+  The bridge is always a contiguous slice of one exact
+  connected 2/3-NPS path and must span at least two strings.
 */
 function getCagedNpsFallbacks(
   cells,
@@ -3035,34 +3088,62 @@ function getCagedNpsFallbacks(
   }
 
 
-  const shapesByCell =
+  const bottomShapesByCell =
     new Map();
+
+  const topShapesByCell =
+    new Map();
+
+
+  function addShapeToMap(
+    map,
+    key,
+    shape
+  ) {
+    if (
+      !map.has(
+        key
+      )
+    ) {
+      map.set(
+        key,
+        []
+      );
+    }
+
+    map.get(
+      key
+    ).push(
+      shape
+    );
+  }
+
 
   fittingCagedShapes.forEach(
     shape => {
-      shape.requiredCellKeys
-        .forEach(
-          key => {
-            if (
-              !shapesByCell.has(
-                key
-              )
-            ) {
-              shapesByCell.set(
-                key,
-                []
-              );
-            }
+      getCagedShapeExtremeKeys(
+        shape,
+        'bottom'
+      ).forEach(
+        key =>
+          addShapeToMap(
+            bottomShapesByCell,
+            key,
+            shape
+          )
+      );
 
-            shapesByCell
-              .get(
-                key
-              )
-              .push(
-                shape
-              );
-          }
-        );
+      getCagedShapeExtremeKeys(
+        shape,
+        'top'
+      ).forEach(
+        key =>
+          addShapeToMap(
+            topShapesByCell,
+            key,
+            shape
+          )
+      );
     }
   );
 
@@ -3098,31 +3179,57 @@ function getCagedNpsFallbacks(
         rootIndex => {
           sides.forEach(
             side => {
-              const endpointIndexes =
+              const bridgeDirection =
                 side === 'low'
+                  ? 'up'
+                  : 'down';
+
+              const landingMap =
+                bridgeDirection === 'up'
+                  ? bottomShapesByCell
+                  : topShapesByCell;
+
+              /*
+                UP:
+                  start at the selected root and search forward
+                  through the ascending NPS path. The connection
+                  note is the HIGHEST note of the bridge and the
+                  BOTTOM note of the CAGED shape.
+
+                DOWN:
+                  start at the selected root and search backward
+                  through the NPS path. The connection note is the
+                  LOWEST note of the bridge and the TOP note of the
+                  CAGED shape.
+              */
+              const endpointIndexes =
+                bridgeDirection === 'up'
                   ? Array.from(
                       {
                         length:
-                          rootIndex + 1
-                      },
-                      (
-                        _,
-                        offset
-                      ) =>
-                        rootIndex -
-                        offset
-                    )
-                  : Array.from(
-                      {
-                        length:
                           path.length -
-                          rootIndex
+                          rootIndex -
+                          1
                       },
                       (
                         _,
                         offset
                       ) =>
                         rootIndex +
+                        1 +
+                        offset
+                    )
+                  : Array.from(
+                      {
+                        length:
+                          rootIndex
+                      },
+                      (
+                        _,
+                        offset
+                      ) =>
+                        rootIndex -
+                        1 -
                         offset
                     );
 
@@ -3141,7 +3248,7 @@ function getCagedNpsFallbacks(
                     );
 
                   const landingShapes =
-                    shapesByCell.get(
+                    landingMap.get(
                       endpointKey
                     );
 
@@ -3153,69 +3260,17 @@ function getCagedNpsFallbacks(
                   }
 
 
-                  /*
-                    Start with the smallest path section between
-                    root and connection. If that is still on one
-                    string, extend AWAY from the connection until
-                    it becomes an eligible multi-string NPS run.
-                  */
-                  let segmentStart =
+                  const segmentStart =
                     Math.min(
                       rootIndex,
                       endpointIndex
                     );
 
-                  let segmentEnd =
+                  const segmentEnd =
                     Math.max(
                       rootIndex,
                       endpointIndex
                     );
-
-
-                  function getSegmentStrings() {
-                    return new Set(
-                      path
-                        .slice(
-                          segmentStart,
-                          segmentEnd + 1
-                        )
-                        .map(
-                          item =>
-                            item.stringIndex
-                        )
-                    );
-                  }
-
-
-                  if (
-                    side === 'low'
-                  ) {
-                    while (
-                      getSegmentStrings()
-                        .size < 2 &&
-                      segmentEnd <
-                        path.length - 1
-                    ) {
-                      segmentEnd++;
-                    }
-                  } else {
-                    while (
-                      getSegmentStrings()
-                        .size < 2 &&
-                      segmentStart > 0
-                    ) {
-                      segmentStart--;
-                    }
-                  }
-
-
-                  if (
-                    getSegmentStrings()
-                      .size < 2
-                  ) {
-                    return;
-                  }
-
 
                   const bridgeCells =
                     path.slice(
@@ -3223,18 +3278,37 @@ function getCagedNpsFallbacks(
                       segmentEnd + 1
                     );
 
-                  const actualExtreme =
-                    side === 'low'
-                      ? bridgeCells[0]
-                      : bridgeCells[
-                          bridgeCells.length -
-                          1
-                        ];
+                  const bridgeStrings =
+                    new Set(
+                      bridgeCells.map(
+                        item =>
+                          item.stringIndex
+                      )
+                    );
+
+
+                  /*
+                    Keep the same eligibility rule as the
+                    directional 2/3-NPS lesson.
+                  */
+                  if (
+                    bridgeStrings.size < 2
+                  ) {
+                    return;
+                  }
+
+
+                  const connectionCell =
+                    bridgeDirection === 'up'
+                      ? bridgeCells[
+                          bridgeCells.length - 1
+                        ]
+                      : bridgeCells[0];
 
                   if (
                     makeCellKey(
-                      actualExtreme.stringIndex,
-                      actualExtreme.fret
+                      connectionCell.stringIndex,
+                      connectionCell.fret
                     ) !==
                       endpointKey
                   ) {
@@ -3247,6 +3321,7 @@ function getCagedNpsFallbacks(
                       const cellByKey =
                         new Map();
 
+
                       bridgeCells.forEach(
                         item => {
                           cellByKey.set(
@@ -3258,6 +3333,7 @@ function getCagedNpsFallbacks(
                           );
                         }
                       );
+
 
                       landingShape
                         .shapeCells
@@ -3311,6 +3387,8 @@ function getCagedNpsFallbacks(
                         fallbackSide:
                           side,
 
+                        bridgeDirection,
+
                         connectionCellKey:
                           endpointKey,
 
@@ -3335,8 +3413,8 @@ function getCagedNpsFallbacks(
                         requiredCellKeys,
 
                         /*
-                          Prefer the closest fluid connection.
-                          Ties prefer the shorter complete bridge.
+                          Prefer the nearest valid connection.
+                          Ties prefer the shorter full NPS bridge.
                         */
                         bridgeDistance:
                           Math.abs(
@@ -3622,6 +3700,11 @@ function createCagedExercise(
         .fallbackSide ||
       null,
 
+    bridgeDirection:
+      selectedCandidate
+        .bridgeDirection ||
+      null,
+
     connectionCellKey:
       selectedCandidate
         .connectionCellKey ||
@@ -3723,13 +3806,23 @@ function displayCagedQuestion() {
     'npsExerciseDirection';
 
   shape.textContent =
-    exercise.shapeName +
-    ' shape' +
-    (
-      exercise.usesNpsBridge
-        ? ' + 2/3 NPS'
-        : ''
-    );
+    exercise.usesNpsBridge
+      ? (
+          '2/3 NPS ' +
+          (
+            exercise.bridgeDirection ===
+              'up'
+              ? '↗️'
+              : '↙️'
+          ) +
+          ' + ' +
+          exercise.shapeName +
+          ' shape'
+        )
+      : (
+          exercise.shapeName +
+          ' shape'
+        );
 
   primaryLine.appendChild(
     mode
