@@ -1961,8 +1961,31 @@ function buildTrainer() {
       ? 24
       : 12;
 
-  const stringGap = 52;
-  const edgePadding = 28;
+  const stringTopStart = 7;
+  const stringTopEnd = 93;
+
+  function getStringTopPercent(
+    displayIndex
+  ) {
+    if (
+      tuning.length <= 1
+    ) {
+      return 50;
+    }
+
+    return (
+      stringTopStart +
+      displayIndex *
+        (
+          stringTopEnd -
+          stringTopStart
+        ) /
+        (
+          tuning.length -
+          1
+        )
+    );
+  }
 
   const toolbar =
     document.createElement('div');
@@ -2005,13 +2028,6 @@ function buildTrainer() {
       'compact'
     );
   }
-
-  fretboard.style.height =
-    (
-      edgePadding * 2 +
-      (tuning.length - 1) *
-        stringGap
-    ) + 'px';
 
   fretboard.style.setProperty(
     '--fret-count',
@@ -2197,18 +2213,9 @@ function buildTrainer() {
   }
 
 
-  const boardMiddleY =
-    edgePadding +
-    (
-      tuning.length - 1
-    ) *
-    stringGap /
-    2;
-
-
   function addPositionDot(
     fret,
-    y,
+    topPercent,
     doubleDot = false
   ) {
     if (
@@ -2235,7 +2242,7 @@ function buildTrainer() {
       ) + '%';
 
     dot.style.top =
-      y + 'px';
+      topPercent + '%';
 
     fretboard.appendChild(
       dot
@@ -2256,7 +2263,7 @@ function buildTrainer() {
     fret =>
       addPositionDot(
         fret,
-        boardMiddleY
+        50
       )
   );
 
@@ -2268,17 +2275,19 @@ function buildTrainer() {
     fret => {
       addPositionDot(
         fret,
-        edgePadding +
-          2.5 *
-          stringGap,
+        (
+          getStringTopPercent(2) +
+          getStringTopPercent(3)
+        ) / 2,
         true
       );
 
       addPositionDot(
         fret,
-        edgePadding +
-          4.5 *
-          stringGap,
+        (
+          getStringTopPercent(4) +
+          getStringTopPercent(5)
+        ) / 2,
         true
       );
     }
@@ -2309,10 +2318,10 @@ function buildTrainer() {
         stringIndex
       ];
 
-    const y =
-      edgePadding +
-      displayIndex *
-        stringGap;
+    const topPercent =
+      getStringTopPercent(
+        displayIndex
+      );
 
 
     const stringLine =
@@ -2322,7 +2331,7 @@ function buildTrainer() {
       'fretboardString';
 
     stringLine.style.top =
-      y + 'px';
+      topPercent + '%';
 
     stringLine.style.height =
       (
@@ -2345,7 +2354,7 @@ function buildTrainer() {
       'fretboardNote openStringNote';
 
     openCell.style.top =
-      y + 'px';
+      topPercent + '%';
 
     configureNoteCell(
       openCell,
@@ -2387,7 +2396,7 @@ function buildTrainer() {
         ) + '%';
 
       cell.style.top =
-        y + 'px';
+        topPercent + '%';
 
       const absolutePitch =
         openPitch +
@@ -2517,9 +2526,7 @@ function buildTrainer() {
   fretboard.appendChild(
     createNpsStartMarker(
       currentNpsExercise,
-      tuning.length,
-      edgePadding,
-      stringGap
+      tuning.length
     )
   );
 }
@@ -2666,9 +2673,7 @@ function displayNpsQuestion() {
 
 function createNpsStartMarker(
   exercise,
-  stringCount,
-  edgePadding,
-  stringGap
+  stringCount
 ) {
   const guide =
     document.createElement('div');
@@ -2681,12 +2686,18 @@ function createNpsStartMarker(
     1 -
     exercise.startStringIndex;
 
+  const topPercent =
+    stringCount <= 1
+      ? 50
+      : (
+          7 +
+          displayIndex *
+            (93 - 7) /
+            (stringCount - 1)
+        );
+
   guide.style.top =
-    (
-      edgePadding +
-      displayIndex *
-        stringGap
-    ) + 'px';
+    topPercent + '%';
 
   const interval =
     document.createElement('div');
