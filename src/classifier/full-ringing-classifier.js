@@ -7,7 +7,7 @@ const MODEL_CHUNKS = [
   "/model/ringing_xgboost_384.b64.03",
   "/model/ringing_xgboost_384.b64.04"
 ];
-const SCALER_URL = "/model/ringing_scaler.json";
+const SCALER_URL = "/model/ringing_scaler_384.json";
 
 let loaded = null;
 
