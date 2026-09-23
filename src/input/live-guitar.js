@@ -82,6 +82,186 @@ export function setupLiveGuitarInput() {
   const testResults = [];
   const TEST_PROGRESS_KEY = "classifier-live-test-progress-v1";
 
+  const datasetButton = document.getElementById("datasetRecordButton");
+  const datasetExportButton = document.getElementById("datasetExportButton");
+  const datasetStatus = document.getElementById("datasetRecordStatus");
+
+  // Existing ringing dataset already contains soft/normal/hard at these frets.
+  // Record only the 18 missing frets per string: 8 * 18 * 3 = 432 samples.
+  const EXISTING_DATASET_FRETS = new Set([0, 5, 7, 12, 17, 19, 24]);
+  const DATASET_STRENGTHS = [
+    // Central 50% (P25-P75) of the 56 existing samples for each strength,
+    // measured with the same attack_rms_100_dbfs feature used in training.
+    { key: "soft", label: "soft", minDb: -33.615, maxDb: -26.816 },
+    { key: "normal", label: "medium", minDb: -26.441, maxDb: -19.956 },
+    { key: "hard", label: "hard", minDb: -24.598, maxDb: -18.565 }
+  ];
+  let datasetActive = false;
+  let datasetCases = [];
+  let datasetIndex = 0;
+  const datasetSamples = [];
+
+  const buildDatasetCases = () => {
+    const cases = [];
+    for (let string = 1; string <= 8; string++) {
+      for (let fret = 0; fret <= 24; fret++) {
+        if (EXISTING_DATASET_FRETS.has(fret)) continue;
+        for (const strength of DATASET_STRENGTHS) {
+          cases.push({
+            string,
+            fret,
+            midi: openMidis[string - 1] + fret,
+            ...strength
+          });
+        }
+      }
+    }
+    return cases;
+  };
+
+  const updateDatasetStatus = (message = "") => {
+    if (!datasetStatus) return;
+    if (!datasetActive) {
+      datasetStatus.textContent = datasetSamples.length
+        ? `Stopped · ${datasetSamples.length}/432 accepted`
+        : "432 missing samples · soft / medium / hard";
+      return;
+    }
+    const target = datasetCases[datasetIndex];
+    if (!target) {
+      datasetStatus.textContent = `Complete · ${datasetSamples.length}/432 accepted`;
+      return;
+    }
+    const range = `${target.minDb.toFixed(1)} to ${target.maxDb.toFixed(1)} dBFS`;
+    datasetStatus.textContent =
+      `${datasetIndex + 1}/${datasetCases.length}: S${target.string} F${target.fret} ${target.label} · target ${range}` +
+      (message ? ` · ${message}` : "");
+  };
+
+  const writeAscii = (view, offset, text) => {
+    for (let i = 0; i < text.length; i++) view.setUint8(offset + i, text.charCodeAt(i));
+  };
+
+  const wavBytes = (samples, sampleRate) => {
+    const buffer = new ArrayBuffer(44 + samples.length * 2);
+    const view = new DataView(buffer);
+    writeAscii(view, 0, "RIFF");
+    view.setUint32(4, 36 + samples.length * 2, true);
+    writeAscii(view, 8, "WAVEfmt ");
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    writeAscii(view, 36, "data");
+    view.setUint32(40, samples.length * 2, true);
+    let offset = 44;
+    for (const sample of samples) {
+      const value = Math.max(-1, Math.min(1, sample));
+      view.setInt16(offset, value < 0 ? value * 32768 : value * 32767, true);
+      offset += 2;
+    }
+    return new Uint8Array(buffer);
+  };
+
+  const CRC_TABLE = (() => {
+    const table = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      table[n] = c >>> 0;
+    }
+    return table;
+  })();
+
+  const crc32 = bytes => {
+    let c = 0xffffffff;
+    for (const byte of bytes) c = CRC_TABLE[(c ^ byte) & 0xff] ^ (c >>> 8);
+    return (c ^ 0xffffffff) >>> 0;
+  };
+
+  // Minimal ZIP writer using STORE (no compression), avoiding another runtime dependency.
+  const zipBlob = files => {
+    const encoder = new TextEncoder();
+    const locals = [];
+    const centrals = [];
+    let offset = 0;
+    for (const file of files) {
+      const name = encoder.encode(file.name);
+      const data = file.bytes;
+      const crc = crc32(data);
+      const local = new Uint8Array(30 + name.length + data.length);
+      const lv = new DataView(local.buffer);
+      lv.setUint32(0, 0x04034b50, true);
+      lv.setUint16(4, 20, true);
+      lv.setUint16(6, 0, true);
+      lv.setUint16(8, 0, true);
+      lv.setUint32(14, crc, true);
+      lv.setUint32(18, data.length, true);
+      lv.setUint32(22, data.length, true);
+      lv.setUint16(26, name.length, true);
+      local.set(name, 30);
+      local.set(data, 30 + name.length);
+      locals.push(local);
+
+      const central = new Uint8Array(46 + name.length);
+      const cv = new DataView(central.buffer);
+      cv.setUint32(0, 0x02014b50, true);
+      cv.setUint16(4, 20, true);
+      cv.setUint16(6, 20, true);
+      cv.setUint32(16, crc, true);
+      cv.setUint32(20, data.length, true);
+      cv.setUint32(24, data.length, true);
+      cv.setUint16(28, name.length, true);
+      cv.setUint32(42, offset, true);
+      central.set(name, 46);
+      centrals.push(central);
+      offset += local.length;
+    }
+    const centralOffset = offset;
+    const centralSize = centrals.reduce((sum, x) => sum + x.length, 0);
+    const end = new Uint8Array(22);
+    const ev = new DataView(end.buffer);
+    ev.setUint32(0, 0x06054b50, true);
+    ev.setUint16(8, files.length, true);
+    ev.setUint16(10, files.length, true);
+    ev.setUint32(12, centralSize, true);
+    ev.setUint32(16, centralOffset, true);
+    return new Blob([...locals, ...centrals, end], { type: "application/zip" });
+  };
+
+  datasetButton?.addEventListener("click", () => {
+    if (datasetActive) {
+      datasetActive = false;
+      datasetButton.textContent = "Start Recording";
+      updateDatasetStatus();
+      return;
+    }
+    datasetCases = buildDatasetCases();
+    datasetIndex = datasetSamples.length;
+    if (datasetIndex >= datasetCases.length) datasetIndex = 0;
+    datasetActive = true;
+    datasetButton.textContent = "Stop Recording";
+    updateDatasetStatus();
+  });
+
+  datasetExportButton?.addEventListener("click", () => {
+    if (!datasetSamples.length) return;
+    const files = datasetSamples.map(sample => ({
+      name: sample.name,
+      bytes: wavBytes(sample.samples, sample.sampleRate)
+    }));
+    const url = URL.createObjectURL(zipBlob(files));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `string-classifier-missing-ringing-${new Date().toISOString().replaceAll(":","-")}.zip`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+
+
   const saveTestProgress = () => {
     if (!testActive) return;
     localStorage.setItem(TEST_PROGRESS_KEY, JSON.stringify({
@@ -353,6 +533,40 @@ export function setupLiveGuitarInput() {
             completedPluck.samples,
             completedPluck.sampleRate
           );
+
+          // Dataset recording is intentionally driven by the prompted physical
+          // position, not detected pitch: the current pitch detector is known
+          // to octave/subharmonic-error on high frets.
+          if (datasetActive) {
+            const target = datasetCases[datasetIndex];
+            if (target) {
+              const attackRms100Dbfs = features[104];
+              if (attackRms100Dbfs >= target.minDb && attackRms100Dbfs <= target.maxDb) {
+                const name =
+                  `s${target.string}_f${String(target.fret).padStart(2, "0")}_${target.key}_ringing.wav`;
+                datasetSamples.push({
+                  name,
+                  samples: new Float32Array(completedPluck.samples),
+                  sampleRate: completedPluck.sampleRate,
+                  attackRms100Dbfs
+                });
+                datasetIndex++;
+                if (datasetExportButton) datasetExportButton.disabled = false;
+                if (datasetIndex >= datasetCases.length) {
+                  datasetActive = false;
+                  datasetButton.textContent = "Start Recording";
+                  updateDatasetStatus();
+                } else {
+                  updateDatasetStatus(`accepted ${attackRms100Dbfs.toFixed(1)} dBFS`);
+                }
+              } else {
+                const direction = attackRms100Dbfs < target.minDb ? "too quiet" : "too loud";
+                updateDatasetStatus(
+                  `rejected ${attackRms100Dbfs.toFixed(1)} dBFS (${direction})`
+                );
+              }
+            }
+          }
           window.dispatchEvent(new CustomEvent("guitar-ringing-pluck", {
             detail: { ...completedPluck, features }
           }));
