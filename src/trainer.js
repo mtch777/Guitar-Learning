@@ -94,7 +94,49 @@ document
 buildUnifiedSingleSelect('lessonTypeDropdown', 'lessonTypeSelect');
 buildUnifiedSingleSelect('rootDropdown', 'rootSelect', 'rootOptions');
 buildUnifiedSingleSelect('scaleDropdown', 'scaleSelect', 'scaleOptions');
-buildUnifiedSingleSelect('orderDropdown', 'orderSelect');
+
+function buildOrderControls() {
+  const source =
+    document.getElementById(
+      'orderSelect'
+    );
+
+  const radios = [
+    ...document.querySelectorAll(
+      '#orderOptions input[type="radio"]'
+    )
+  ];
+
+  radios.forEach(
+    radio => {
+      radio.checked =
+        radio.value ===
+        source.value;
+
+      radio.onchange =
+        () => {
+          if (!radio.checked) {
+            return;
+          }
+
+          source.value =
+            radio.value;
+
+          source.dispatchEvent(
+            new Event(
+              'change',
+              {
+                bubbles:
+                  true
+              }
+            )
+          );
+        };
+    }
+  );
+}
+
+buildOrderControls();
 
 const noteNames = [
   'C', 'C#', 'D', 'D#', 'E', 'F',
