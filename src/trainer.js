@@ -2084,7 +2084,9 @@ function createShapeExercise(
     allCells.filter(
       item =>
         item.element.dataset.interval ===
-        startInterval
+          startInterval &&
+        item.fret >= 0 &&
+        item.fret <= 12
     );
 
   if (
@@ -2382,7 +2384,9 @@ function buildTrainer() {
   const maxFret =
     lessonType === 'nps'
       ? 24
-      : 12;
+      : lessonType === 'shape'
+        ? 15
+        : 12;
 
   const stringTopStart = 7;
   const stringTopEnd = 93;
