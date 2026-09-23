@@ -2641,6 +2641,15 @@ button.uiButton:disabled {
   box-shadow: 0 2px 4px rgba(0, 0, 0, .32);
 }
 
+/*
+  When a CAGED exercise falls back to a connected
+  2/3-NPS bridge, distinguish the revealed bridge notes
+  from the CAGED box with a white outline.
+*/
+.fretboardNote.cagedNpsBridge.revealed {
+  border-color: #ffffff !important;
+}
+
 .fretboardNote.openStringNote {
   left: -34px;
   width: 38px;
