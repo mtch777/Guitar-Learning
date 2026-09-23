@@ -355,6 +355,43 @@ let showAll = false;
 let currentNpsExercise = null;
 let currentShapeExercise = null;
 
+const quizCompletePauseMs = 1000;
+
+let quizTransitionTimer = null;
+let isQuizTransitioning = false;
+
+function cancelQuizTransition() {
+  if (
+    quizTransitionTimer !== null
+  ) {
+    clearTimeout(
+      quizTransitionTimer
+    );
+  }
+
+  quizTransitionTimer = null;
+  isQuizTransitioning = false;
+}
+
+function scheduleQuizTransition(
+  callback
+) {
+  cancelQuizTransition();
+
+  isQuizTransitioning = true;
+
+  quizTransitionTimer =
+    setTimeout(
+      () => {
+        quizTransitionTimer = null;
+        isQuizTransitioning = false;
+
+        callback();
+      },
+      quizCompletePauseMs
+    );
+}
+
 
 /* =========================================================
    BASIC HELPERS
@@ -2331,7 +2368,10 @@ function advanceShapeExercise() {
     exercise.promptQueue.shift();
 
   if (!nextInterval) {
-    buildTrainer();
+    scheduleQuizTransition(
+      buildTrainer
+    );
+
     return;
   }
 
@@ -2359,6 +2399,8 @@ function advanceShapeExercise() {
    ========================================================= */
 
 function buildTrainer() {
+  cancelQuizTransition();
+
   const lessonType =
     getLessonType();
 
@@ -3373,6 +3415,10 @@ document
         return;
       }
 
+      if (isQuizTransitioning) {
+        return;
+      }
+
       if (!event.detail?.guitarAudio) {
         window.dispatchEvent(new CustomEvent('guitar-manual-fret-click', {
           detail: {
@@ -3435,7 +3481,29 @@ document
               );
             }
 
-            generateIntervalAnswer();
+            scheduleQuizTransition(
+              () => {
+                document
+                  .querySelectorAll(
+                    '.noteCell.correct'
+                  )
+                  .forEach(
+                    correctCell => {
+                      correctCell
+                        .classList
+                        .remove(
+                          'correct'
+                        );
+
+                      restoreCellDisplay(
+                        correctCell
+                      );
+                    }
+                  );
+
+                generateIntervalAnswer();
+              }
+            );
           }
 
         } else {
@@ -3622,7 +3690,9 @@ document
           .remainingCellKeys
           .size === 0
       ) {
-        buildTrainer();
+        scheduleQuizTransition(
+          buildTrainer
+        );
       }
     }
   );
