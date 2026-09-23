@@ -2591,6 +2591,802 @@ function buildCagedShapeForAnchor(
 }
 
 
+function getCagedStartCandidates(
+  shapeCells,
+  modeRoot,
+  modeName,
+  allowedDegrees
+) {
+  return shapeCells.filter(
+    item => {
+      const interval =
+        getNpsIntervalForPitch(
+          midiToPitchClass(
+            item.absolutePitch
+          ),
+          modeRoot,
+          modeName
+        );
+
+      const degree =
+        getGenericDegreeForNpsInterval(
+          modeName,
+          interval
+        );
+
+      return (
+        degree &&
+        allowedDegrees.has(
+          degree
+        )
+      );
+    }
+  );
+}
+
+
+/*
+  Work out WHY an anchored CAGED shape does not fit.
+
+  "low" means it would cross below fret 0 or below
+  physical String 1.
+
+  "high" means it would cross above fret 24 or above
+  physical String 8.
+*/
+function getCagedShapeOverflow(
+  modeRoot,
+  modeName,
+  rootAnchor,
+  shapeName
+) {
+  const definition =
+    cagedShapeDefinitions[
+      shapeName
+    ];
+
+  if (!definition) {
+    return {
+      low: false,
+      high: false
+    };
+  }
+
+  const blockStartString =
+    rootAnchor.stringIndex -
+    definition.rootStringOffset;
+
+  const blockEndString =
+    blockStartString + 5;
+
+  let low =
+    blockStartString < 0;
+
+  let high =
+    blockEndString >=
+    currentTuning.length;
+
+
+  /*
+    If the six-string block itself is outside the
+    instrument, there is no need to calculate fret bounds.
+  */
+  if (
+    low ||
+    high
+  ) {
+    return {
+      low,
+      high
+    };
+  }
+
+
+  const rootStringFrets =
+    getCagedPentatonicFrets(
+      rootAnchor.stringIndex,
+      modeRoot,
+      modeName
+    );
+
+  const rootIndex =
+    rootStringFrets.indexOf(
+      rootAnchor.fret
+    );
+
+  if (
+    rootIndex === -1
+  ) {
+    return {
+      low,
+      high
+    };
+  }
+
+
+  let rootPair;
+
+  if (
+    definition.rootRole ===
+    'high'
+  ) {
+    if (
+      rootIndex === 0
+    ) {
+      low = true;
+
+      return {
+        low,
+        high
+      };
+    }
+
+    rootPair = {
+      low:
+        rootStringFrets[
+          rootIndex - 1
+        ],
+
+      high:
+        rootAnchor.fret
+    };
+  } else {
+    if (
+      rootIndex >=
+      rootStringFrets.length - 1
+    ) {
+      high = true;
+
+      return {
+        low,
+        high
+      };
+    }
+
+    rootPair = {
+      low:
+        rootAnchor.fret,
+
+      high:
+        rootStringFrets[
+          rootIndex + 1
+        ]
+    };
+  }
+
+  rootPair.center =
+    (
+      rootPair.low +
+      rootPair.high
+    ) / 2;
+
+
+  let minFret =
+    Infinity;
+
+  let maxFret =
+    -Infinity;
+
+
+  for (
+    let stringIndex =
+      blockStartString;
+    stringIndex <=
+      blockEndString;
+    stringIndex++
+  ) {
+    const pair =
+      stringIndex ===
+        rootAnchor.stringIndex
+        ? rootPair
+        : getClosestCagedPair(
+            getCagedPentatonicFrets(
+              stringIndex,
+              modeRoot,
+              modeName
+            ),
+            rootPair.center
+          );
+
+    if (!pair) {
+      continue;
+    }
+
+    minFret =
+      Math.min(
+        minFret,
+        pair.low,
+        pair.high
+      );
+
+    maxFret =
+      Math.max(
+        maxFret,
+        pair.low,
+        pair.high
+      );
+  }
+
+
+  if (
+    minFret < 0
+  ) {
+    low = true;
+  }
+
+  if (
+    maxFret > 24
+  ) {
+    high = true;
+  }
+
+
+  return {
+    low,
+    high
+  };
+}
+
+
+function getCagedFallbackSides(
+  modeRoot,
+  modeName,
+  rootAnchor,
+  allowedShapes
+) {
+  const sides =
+    new Set();
+
+  allowedShapes.forEach(
+    shapeName => {
+      const overflow =
+        getCagedShapeOverflow(
+          modeRoot,
+          modeName,
+          rootAnchor,
+          shapeName
+        );
+
+      if (
+        overflow.low
+      ) {
+        sides.add(
+          'low'
+        );
+      }
+
+      if (
+        overflow.high
+      ) {
+        sides.add(
+          'high'
+        );
+      }
+    }
+  );
+
+
+  /*
+    Safety fallback for an unusual non-boundary rejection.
+    Use the side of the instrument the chosen root is nearest.
+  */
+  if (
+    sides.size === 0
+  ) {
+    if (
+      rootAnchor.stringIndex >=
+      (
+        currentTuning.length /
+        2
+      )
+    ) {
+      sides.add(
+        'high'
+      );
+    } else {
+      sides.add(
+        'low'
+      );
+    }
+  }
+
+
+  return [
+    ...sides
+  ];
+}
+
+
+/*
+  Every normal CAGED shape that actually fits somewhere
+  on the current 24-fret board for this mode.
+
+  These are possible landing shapes for the NPS bridge.
+*/
+function getFittingCagedShapesForMode(
+  cells,
+  modeRoot,
+  modeName,
+  allowedShapes
+) {
+  const rootAnchors =
+    cells.filter(
+      item =>
+        item.fret >= 0 &&
+        item.fret <= 24 &&
+        item.stringIndex >= 2 &&
+        midiToPitchClass(
+          item.absolutePitch
+        ) ===
+          modeRoot
+    );
+
+  const results = [];
+  const seen =
+    new Set();
+
+
+  rootAnchors.forEach(
+    rootAnchor => {
+      allowedShapes.forEach(
+        shapeName => {
+          const built =
+            buildCagedShapeForAnchor(
+              cells,
+              modeRoot,
+              modeName,
+              rootAnchor,
+              shapeName
+            );
+
+          if (!built) {
+            return;
+          }
+
+          const key =
+            [
+              shapeName,
+              ...[
+                ...built
+                  .requiredCellKeys
+              ].sort()
+            ].join(
+              '|'
+            );
+
+          if (
+            seen.has(
+              key
+            )
+          ) {
+            return;
+          }
+
+          seen.add(
+            key
+          );
+
+          results.push(
+            built
+          );
+        }
+      );
+    }
+  );
+
+
+  return results;
+}
+
+
+/*
+  Build an NPS bridge around the selected 0-12 root and
+  attach a normal fitting CAGED shape to the requested
+  extreme of that bridge.
+
+  LOW fallback:
+    the shared CAGED/NPS connection is the LOWEST note
+    of the selected NPS bridge.
+
+  HIGH fallback:
+    the shared CAGED/NPS connection is the HIGHEST note
+    of the selected NPS bridge.
+
+  The bridge is a contiguous slice of one of the exact
+  connected 2/3-NPS paths, and still has to span at least
+  two strings just like a normal directional NPS exercise.
+*/
+function getCagedNpsFallbacks(
+  cells,
+  modeRoot,
+  modeName,
+  rootAnchor,
+  allowedShapes,
+  allowedDegrees,
+  sides
+) {
+  const rootKey =
+    makeCellKey(
+      rootAnchor.stringIndex,
+      rootAnchor.fret
+    );
+
+  const npsPaths =
+    buildNpsDiagonalPaths(
+      modeRoot,
+      modeName,
+      cells
+    );
+
+  const fittingCagedShapes =
+    getFittingCagedShapesForMode(
+      cells,
+      modeRoot,
+      modeName,
+      allowedShapes
+    );
+
+
+  if (
+    npsPaths.length === 0 ||
+    fittingCagedShapes.length === 0
+  ) {
+    return [];
+  }
+
+
+  const shapesByCell =
+    new Map();
+
+  fittingCagedShapes.forEach(
+    shape => {
+      shape.requiredCellKeys
+        .forEach(
+          key => {
+            if (
+              !shapesByCell.has(
+                key
+              )
+            ) {
+              shapesByCell.set(
+                key,
+                []
+              );
+            }
+
+            shapesByCell
+              .get(
+                key
+              )
+              .push(
+                shape
+              );
+          }
+        );
+    }
+  );
+
+
+  const candidates = [];
+
+
+  npsPaths.forEach(
+    path => {
+      const rootIndexes = [];
+
+      path.forEach(
+        (
+          item,
+          index
+        ) => {
+          if (
+            makeCellKey(
+              item.stringIndex,
+              item.fret
+            ) ===
+              rootKey
+          ) {
+            rootIndexes.push(
+              index
+            );
+          }
+        }
+      );
+
+
+      rootIndexes.forEach(
+        rootIndex => {
+          sides.forEach(
+            side => {
+              const endpointIndexes =
+                side === 'low'
+                  ? Array.from(
+                      {
+                        length:
+                          rootIndex + 1
+                      },
+                      (
+                        _,
+                        offset
+                      ) =>
+                        rootIndex -
+                        offset
+                    )
+                  : Array.from(
+                      {
+                        length:
+                          path.length -
+                          rootIndex
+                      },
+                      (
+                        _,
+                        offset
+                      ) =>
+                        rootIndex +
+                        offset
+                    );
+
+
+              endpointIndexes.forEach(
+                endpointIndex => {
+                  const endpoint =
+                    path[
+                      endpointIndex
+                    ];
+
+                  const endpointKey =
+                    makeCellKey(
+                      endpoint.stringIndex,
+                      endpoint.fret
+                    );
+
+                  const landingShapes =
+                    shapesByCell.get(
+                      endpointKey
+                    );
+
+                  if (
+                    !landingShapes ||
+                    landingShapes.length === 0
+                  ) {
+                    return;
+                  }
+
+
+                  /*
+                    Start with the smallest path section between
+                    root and connection. If that is still on one
+                    string, extend AWAY from the connection until
+                    it becomes an eligible multi-string NPS run.
+                  */
+                  let segmentStart =
+                    Math.min(
+                      rootIndex,
+                      endpointIndex
+                    );
+
+                  let segmentEnd =
+                    Math.max(
+                      rootIndex,
+                      endpointIndex
+                    );
+
+
+                  function getSegmentStrings() {
+                    return new Set(
+                      path
+                        .slice(
+                          segmentStart,
+                          segmentEnd + 1
+                        )
+                        .map(
+                          item =>
+                            item.stringIndex
+                        )
+                    );
+                  }
+
+
+                  if (
+                    side === 'low'
+                  ) {
+                    while (
+                      getSegmentStrings()
+                        .size < 2 &&
+                      segmentEnd <
+                        path.length - 1
+                    ) {
+                      segmentEnd++;
+                    }
+                  } else {
+                    while (
+                      getSegmentStrings()
+                        .size < 2 &&
+                      segmentStart > 0
+                    ) {
+                      segmentStart--;
+                    }
+                  }
+
+
+                  if (
+                    getSegmentStrings()
+                      .size < 2
+                  ) {
+                    return;
+                  }
+
+
+                  const bridgeCells =
+                    path.slice(
+                      segmentStart,
+                      segmentEnd + 1
+                    );
+
+                  const actualExtreme =
+                    side === 'low'
+                      ? bridgeCells[0]
+                      : bridgeCells[
+                          bridgeCells.length -
+                          1
+                        ];
+
+                  if (
+                    makeCellKey(
+                      actualExtreme.stringIndex,
+                      actualExtreme.fret
+                    ) !==
+                      endpointKey
+                  ) {
+                    return;
+                  }
+
+
+                  landingShapes.forEach(
+                    landingShape => {
+                      const cellByKey =
+                        new Map();
+
+                      bridgeCells.forEach(
+                        item => {
+                          cellByKey.set(
+                            makeCellKey(
+                              item.stringIndex,
+                              item.fret
+                            ),
+                            item
+                          );
+                        }
+                      );
+
+                      landingShape
+                        .shapeCells
+                        .forEach(
+                          item => {
+                            cellByKey.set(
+                              makeCellKey(
+                                item.stringIndex,
+                                item.fret
+                              ),
+                              item
+                            );
+                          }
+                        );
+
+
+                      const combinedCells =
+                        [
+                          ...cellByKey
+                            .values()
+                        ];
+
+                      const startCandidates =
+                        getCagedStartCandidates(
+                          combinedCells,
+                          modeRoot,
+                          modeName,
+                          allowedDegrees
+                        );
+
+                      if (
+                        startCandidates.length === 0
+                      ) {
+                        return;
+                      }
+
+
+                      const requiredCellKeys =
+                        new Set(
+                          cellByKey.keys()
+                        );
+
+
+                      candidates.push({
+                        shapeName:
+                          landingShape.shapeName,
+
+                        usesNpsBridge:
+                          true,
+
+                        fallbackSide:
+                          side,
+
+                        connectionCellKey:
+                          endpointKey,
+
+                        bridgeCells,
+
+                        cagedShape:
+                          landingShape,
+
+                        startCandidates,
+
+                        requiredCellKeys,
+
+                        /*
+                          Prefer the closest fluid connection.
+                          Ties prefer the shorter complete bridge.
+                        */
+                        bridgeDistance:
+                          Math.abs(
+                            endpointIndex -
+                            rootIndex
+                          ),
+
+                        bridgeLength:
+                          bridgeCells.length
+                      });
+                    }
+                  );
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+
+
+  if (
+    candidates.length === 0
+  ) {
+    return [];
+  }
+
+
+  const bestDistance =
+    Math.min(
+      ...candidates.map(
+        candidate =>
+          candidate.bridgeDistance
+      )
+    );
+
+  const closest =
+    candidates.filter(
+      candidate =>
+        candidate.bridgeDistance ===
+          bestDistance
+    );
+
+  const bestLength =
+    Math.min(
+      ...closest.map(
+        candidate =>
+          candidate.bridgeLength
+      )
+    );
+
+
+  return closest.filter(
+    candidate =>
+      candidate.bridgeLength ===
+        bestLength
+  );
+}
+
+
 function createCagedExercise(
   cells,
   baseRoot,
@@ -2607,8 +3403,19 @@ function createCagedExercise(
       getSelectedStartDegrees()
     );
 
-  const validModes = [];
+  const viableModes = [];
 
+
+  /*
+    Important selection rule:
+
+    We no longer discard a 0-12 modal root just because
+    no CAGED box can be anchored there.
+
+    Each root gets:
+      1. normal CAGED candidates, if any fit
+      2. otherwise, NPS -> fitting-CAGED fallback candidates
+  */
 
   allowedModes.forEach(
     modeName => {
@@ -2631,12 +3438,12 @@ function createCagedExercise(
               modeRoot
         );
 
-      const validRoots = [];
+      const viableRoots = [];
 
 
       rootAnchors.forEach(
         rootAnchor => {
-          const feasibleShapes = [];
+          const directCandidates = [];
 
 
           allowedShapes.forEach(
@@ -2654,36 +3461,13 @@ function createCagedExercise(
                 return;
               }
 
-
               const startCandidates =
-                builtShape
-                  .shapeCells
-                  .filter(
-                    item => {
-                      const interval =
-                        getNpsIntervalForPitch(
-                          midiToPitchClass(
-                            item.absolutePitch
-                          ),
-                          modeRoot,
-                          modeName
-                        );
-
-                      const degree =
-                        getGenericDegreeForNpsInterval(
-                          modeName,
-                          interval
-                        );
-
-                      return (
-                        degree &&
-                        allowedDegrees.has(
-                          degree
-                        )
-                      );
-                    }
-                  );
-
+                getCagedStartCandidates(
+                  builtShape.shapeCells,
+                  modeRoot,
+                  modeName,
+                  allowedDegrees
+                );
 
               if (
                 startCandidates.length === 0
@@ -2692,20 +3476,52 @@ function createCagedExercise(
               }
 
 
-              feasibleShapes.push({
+              directCandidates.push({
                 ...builtShape,
+
+                usesNpsBridge:
+                  false,
+
                 startCandidates
               });
             }
           );
 
 
+          let candidates =
+            directCandidates;
+
+
           if (
-            feasibleShapes.length > 0
+            candidates.length === 0
           ) {
-            validRoots.push({
+            const sides =
+              getCagedFallbackSides(
+                modeRoot,
+                modeName,
+                rootAnchor,
+                allowedShapes
+              );
+
+            candidates =
+              getCagedNpsFallbacks(
+                cells,
+                modeRoot,
+                modeName,
+                rootAnchor,
+                allowedShapes,
+                allowedDegrees,
+                sides
+              );
+          }
+
+
+          if (
+            candidates.length > 0
+          ) {
+            viableRoots.push({
               rootAnchor,
-              feasibleShapes
+              candidates
             });
           }
         }
@@ -2713,12 +3529,12 @@ function createCagedExercise(
 
 
       if (
-        validRoots.length > 0
+        viableRoots.length > 0
       ) {
-        validModes.push({
+        viableModes.push({
           modeName,
           modeRoot,
-          validRoots
+          viableRoots
         });
       }
     }
@@ -2726,38 +3542,36 @@ function createCagedExercise(
 
 
   if (
-    validModes.length === 0
+    viableModes.length === 0
   ) {
     return null;
   }
 
 
   /*
-    Selection order intentionally matches the lesson spec:
-      1. random allowed mode
-      2. random valid root on frets 0-12
-      3. random feasible allowed CAGED shape
-      4. random allowed start note inside that shape
+    Preserve the intended random hierarchy:
+      mode -> 0-12 root -> direct/fallback shape
   */
 
   const selectedMode =
     randomItem(
-      validModes
+      viableModes
     );
 
   const selectedRoot =
     randomItem(
-      selectedMode.validRoots
+      selectedMode.viableRoots
     );
 
-  const selectedShape =
+  const selectedCandidate =
     randomItem(
-      selectedRoot.feasibleShapes
+      selectedRoot.candidates
     );
 
   const startItem =
     randomItem(
-      selectedShape.startCandidates
+      selectedCandidate
+        .startCandidates
     );
 
   const startInterval =
@@ -2784,7 +3598,23 @@ function createCagedExercise(
       selectedMode.modeRoot,
 
     shapeName:
-      selectedShape.shapeName,
+      selectedCandidate.shapeName,
+
+    usesNpsBridge:
+      Boolean(
+        selectedCandidate
+          .usesNpsBridge
+      ),
+
+    fallbackSide:
+      selectedCandidate
+        .fallbackSide ||
+      null,
+
+    connectionCellKey:
+      selectedCandidate
+        .connectionCellKey ||
+      null,
 
     rootCellKey:
       makeCellKey(
@@ -2812,13 +3642,13 @@ function createCagedExercise(
 
     requiredCellKeys:
       new Set(
-        selectedShape
+        selectedCandidate
           .requiredCellKeys
       ),
 
     remainingCellKeys:
       new Set(
-        selectedShape
+        selectedCandidate
           .requiredCellKeys
       )
   };
@@ -2876,7 +3706,12 @@ function displayCagedQuestion() {
 
   shape.textContent =
     exercise.shapeName +
-    ' shape';
+    ' shape' +
+    (
+      exercise.usesNpsBridge
+        ? ' + 2/3 NPS'
+        : ''
+    );
 
   primaryLine.appendChild(
     mode
