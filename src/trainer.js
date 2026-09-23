@@ -2311,7 +2311,7 @@ function displayShapeQuestion() {
     exercise.currentPromptInterval +
     ' (' +
     count +
-    ')';
+    ' left)';
 
   answerDisplay.appendChild(
     interval
