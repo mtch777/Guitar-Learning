@@ -2582,10 +2582,21 @@ button.uiButton:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid transparent;
+
+  /*
+    Every unknown fret position remains visibly clickable:
+    transparent fill, subtle circular outline, above the
+    fret/string graphics.
+  */
+  border: 1px solid color-mix(
+    in srgb,
+    var(--text-color) 42%,
+    transparent
+  );
   border-radius: 50%;
   background: transparent;
   color: transparent;
+
   font: 600 14px/1 Arial, sans-serif;
   text-align: center;
   cursor: pointer;
