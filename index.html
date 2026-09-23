@@ -22,16 +22,16 @@
         <div class="sectionTitle">Lesson</div>
         <div class="controlField lessonField">
         <details id="lessonTypeDropdown" class="singleSelect">
-          <summary id="lessonTypeSummary">Intervals Relative to Low String</summary>
+          <summary id="lessonTypeSummary">Closest interval</summary>
           <div class="singleSelectMenu">
-            <label class="singleOption"><input type="radio" name="lessonType" value="intervals" checked><span>Intervals Relative to Low String</span></label>
-            <label class="singleOption"><input type="radio" name="lessonType" value="shape"><span>Shape Around Interval</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="intervals"><span>Intervals Relative to Low String</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="shape" checked><span>Closest interval</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="nps"><span>2/3 NPS Starting From Interval</span></label>
           </div>
         </details>
         <span class="stateOnly"><select id="lessonTypeSelect" aria-hidden="true" tabindex="-1">
-          <option value="intervals" selected>Intervals Relative to Low String</option>
-          <option value="shape">Shape Around Interval</option>
+          <option value="intervals">Intervals Relative to Low String</option>
+          <option value="shape" selected>Closest interval</option>
           <option value="nps">2/3 NPS Starting From Interval</option>
         </select></span>
         </div>
