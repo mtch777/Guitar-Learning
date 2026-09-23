@@ -2298,6 +2298,13 @@ function buildTrainer() {
 
   displayNpsQuestion();
 
+  chartDiv.insertBefore(
+    createNpsStartMarker(
+      currentNpsExercise
+    ),
+    table
+  );
+
   lockColumnWidths();
 }
 
@@ -2434,38 +2441,64 @@ function displayNpsQuestion() {
   primaryLine.appendChild(mode);
   primaryLine.appendChild(direction);
 
-  const secondaryLine =
+  answerDisplay.appendChild(primaryLine);
+}
+
+
+/* =========================================================
+   NPS START MARKER
+   ========================================================= */
+
+function createNpsStartMarker(exercise) {
+  const guide =
     document.createElement('div');
 
-  secondaryLine.className =
-    'npsExerciseSecondary';
+  guide.className =
+    'npsStartGuide';
 
-  secondaryLine.appendChild(
-    document.createTextNode('Start on ')
-  );
+  const marker =
+    document.createElement('div');
 
-  const stringName =
-    document.createElement('strong');
+  marker.className =
+    'npsStartMarker';
 
-  stringName.textContent =
-    exercise.startStringName;
-
-  secondaryLine.appendChild(stringName);
-
-  secondaryLine.appendChild(
-    document.createTextNode(' · ')
-  );
+  marker.style.gridColumn =
+    String(
+      exercise.startStringIndex + 1
+    );
 
   const interval =
-    document.createElement('strong');
+    document.createElement('div');
+
+  interval.className =
+    'npsStartInterval';
 
   interval.textContent =
     exercise.startInterval;
 
-  secondaryLine.appendChild(interval);
+  interval.setAttribute(
+    'aria-label',
+    `Start on ${exercise.startStringName}, interval ${exercise.startInterval}`
+  );
 
-  answerDisplay.appendChild(primaryLine);
-  answerDisplay.appendChild(secondaryLine);
+  applyIntervalStyle(
+    interval,
+    exercise.startInterval
+  );
+
+  const arrow =
+    document.createElement('div');
+
+  arrow.className =
+    'npsStartArrow';
+
+  arrow.textContent = '↓';
+
+  marker.appendChild(interval);
+  marker.appendChild(arrow);
+  guide.appendChild(marker);
+
+  return guide;
 }
 
 /* =========================================================
