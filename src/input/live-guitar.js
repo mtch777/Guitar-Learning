@@ -200,7 +200,7 @@ export function setupLiveGuitarInput() {
       `String: ${target.string}\n` +
       `Fret:    ${target.fret}\n` +
       `Pick: ${target.label[0].toUpperCase() + target.label.slice(1)}\n` +
-      `Vol: ${message || "🔉"}`;
+      `Vol: ${message || "—"}`;
   };
 
   const writeAscii = (view, offset, text) => {
@@ -628,7 +628,12 @@ export function setupLiveGuitarInput() {
                   updateDatasetStatus("✅");
                 }
               } else {
-                updateDatasetStatus("🚨");
+                const volumeIcon = attackRms100Dbfs < target.minDb
+                  ? "🔉"
+                  : attackRms100Dbfs > target.maxDb
+                    ? "🚨"
+                    : "—";
+                updateDatasetStatus(volumeIcon);
               }
             }
           }
