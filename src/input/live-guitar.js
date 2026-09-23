@@ -145,10 +145,11 @@ export function setupLiveGuitarInput() {
     return d0 + (d1 - d0) * ((fret - f0) / (f1 - f0));
   };
 
+  // S1/S2 missing frets were already recorded in the previous pass.
+  // Continue with one medium take only for the remaining S3-S8 missing frets.
+  const DATASET_COMPLETED_STRINGS = new Set([1, 2]);
   const DATASET_STRENGTHS = [
-    { key: "soft", label: "soft" },
-    { key: "normal", label: "medium" },
-    { key: "hard", label: "hard" }
+    { key: "normal", label: "medium" }
   ];
 
   let datasetActive = false;
@@ -161,13 +162,13 @@ export function setupLiveGuitarInput() {
   const buildDatasetCases = () => {
     const cases = [];
     for (let string = 1; string <= 8; string++) {
+      if (DATASET_COMPLETED_STRINGS.has(string)) continue;
       for (let fret = 0; fret <= 24; fret++) {
         if (EXISTING_DATASET_FRETS.has(fret)) continue;
         for (const strength of DATASET_STRENGTHS) {
-          // Bias the interpolated historical target slightly quieter.
-          // Keep the empirically-derived width unchanged; shift the whole range down.
-          const extraQuietDb = strength.key === "hard" ? 8.0 : strength.key === "normal" ? 2.0 : 0;
-          const expectedDb = expectedDatasetDb(string, fret, strength.key) - 2.0 - extraQuietDb;
+          // One medium sweet-spot take per remaining position.
+          // Preserve the current medium target used in the S1/S2 pass.
+          const expectedDb = expectedDatasetDb(string, fret, strength.key) - 4.0;
           const toleranceDb = DATASET_VOLUME_TOLERANCE_DB[strength.key];
           cases.push({
             string,
@@ -189,12 +190,12 @@ export function setupLiveGuitarInput() {
     if (!datasetActive) {
       datasetStatus.textContent = datasetSamples.length
         ? `Stopped · ${datasetSamples.length}/432 accepted`
-        : "432 missing samples · soft / medium / hard";
+        : "108 remaining samples · medium only · S3-S8";
       return;
     }
     const target = datasetCases[datasetIndex];
     if (!target) {
-      datasetStatus.textContent = `Complete · ${datasetSamples.length}/432 accepted`;
+      datasetStatus.textContent = `Complete · ${datasetSamples.length}/${datasetCases.length} accepted`;
       return;
     }
     datasetStatus.textContent =
