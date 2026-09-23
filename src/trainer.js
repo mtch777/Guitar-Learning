@@ -353,6 +353,7 @@ let questions = [];
 let currentAnswer = null;
 let showAll = false;
 let currentNpsExercise = null;
+let currentShapeExercise = null;
 
 
 /* =========================================================
@@ -589,7 +590,9 @@ function handleIntervalChange(event) {
   updateIntervalSummary();
 
   if (
-    getLessonType() === 'intervals'
+    ['intervals', 'shape'].includes(
+      getLessonType()
+    )
   ) {
     buildTrainer();
   }
@@ -996,7 +999,9 @@ function revealCell(
   }
 
   if (
-    getLessonType() === 'nps'
+    ['nps', 'shape'].includes(
+      getLessonType()
+    )
   ) {
     cell.textContent =
       interval;
@@ -1087,6 +1092,33 @@ function restoreCellDisplay(cell) {
       selected.includes(
         cell.dataset.interval
       )
+    ) {
+      revealCell(cell);
+    } else {
+      hideCell(cell);
+    }
+
+    return;
+  }
+
+  if (
+    getLessonType() === 'shape' &&
+    currentShapeExercise
+  ) {
+    const key =
+      makeCellKey(
+        Number(
+          cell.dataset.stringIndex
+        ),
+        Number(
+          cell.dataset.fret
+        )
+      );
+
+    if (
+      currentShapeExercise
+        .requiredCellKeys
+        .has(key)
     ) {
       revealCell(cell);
     } else {
@@ -1904,6 +1936,357 @@ function getNpsExerciseCandidates(
 
 
 /* =========================================================
+   SHAPE AROUND INTERVAL
+   ========================================================= */
+
+function shuffleList(list) {
+  const copy =
+    [...list];
+
+  for (
+    let index =
+      copy.length - 1;
+    index > 0;
+    index--
+  ) {
+    const swapIndex =
+      Math.floor(
+        Math.random() *
+        (index + 1)
+      );
+
+    [
+      copy[index],
+      copy[swapIndex]
+    ] = [
+      copy[swapIndex],
+      copy[index]
+    ];
+  }
+
+  return copy;
+}
+
+
+function getShapeCellDistanceSquared(
+  startItem,
+  candidateItem
+) {
+  const startElement =
+    startItem.element;
+
+  const candidateElement =
+    candidateItem.element;
+
+  const dx =
+    candidateElement.offsetLeft -
+    startElement.offsetLeft;
+
+  const dy =
+    candidateElement.offsetTop -
+    startElement.offsetTop;
+
+  return (
+    dx * dx +
+    dy * dy
+  );
+}
+
+
+function getClosestShapeCell(
+  allCells,
+  startItem,
+  interval
+) {
+  const candidates =
+    allCells.filter(
+      item =>
+        item.element.dataset.interval ===
+        interval
+    );
+
+  if (
+    candidates.length === 0
+  ) {
+    return null;
+  }
+
+  let bestDistance =
+    Infinity;
+
+  let closest = [];
+
+  candidates.forEach(
+    candidate => {
+
+      const distance =
+        getShapeCellDistanceSquared(
+          startItem,
+          candidate
+        );
+
+      if (
+        distance <
+        bestDistance - 0.01
+      ) {
+        bestDistance =
+          distance;
+
+        closest =
+          [candidate];
+
+        return;
+      }
+
+      if (
+        Math.abs(
+          distance -
+          bestDistance
+        ) <= 0.01
+      ) {
+        closest.push(
+          candidate
+        );
+      }
+    }
+  );
+
+  return randomItem(
+    closest
+  );
+}
+
+
+function createShapeExercise(
+  allCells,
+  selectedIntervals
+) {
+  if (
+    selectedIntervals.length === 0
+  ) {
+    return null;
+  }
+
+  const startInterval =
+    randomItem(
+      selectedIntervals
+    );
+
+  const startCandidates =
+    allCells.filter(
+      item =>
+        item.element.dataset.interval ===
+        startInterval
+    );
+
+  if (
+    startCandidates.length === 0
+  ) {
+    return null;
+  }
+
+  const startItem =
+    randomItem(
+      startCandidates
+    );
+
+  const startCellKey =
+    makeCellKey(
+      startItem.stringIndex,
+      startItem.fret
+    );
+
+  const remainingIntervals =
+    selectedIntervals.filter(
+      interval =>
+        interval !==
+        startInterval
+    );
+
+  const targetCellKeysByInterval =
+    new Map();
+
+  const requiredCellKeys =
+    new Set([
+      startCellKey
+    ]);
+
+  for (
+    const interval of
+    remainingIntervals
+  ) {
+    const closest =
+      getClosestShapeCell(
+        allCells,
+        startItem,
+        interval
+      );
+
+    if (!closest) {
+      continue;
+    }
+
+    const key =
+      makeCellKey(
+        closest.stringIndex,
+        closest.fret
+      );
+
+    targetCellKeysByInterval.set(
+      interval,
+      key
+    );
+
+    requiredCellKeys.add(
+      key
+    );
+  }
+
+  const order =
+    document
+      .getElementById(
+        'orderSelect'
+      )
+      .value;
+
+  const promptQueue =
+    order === 'random'
+      ? shuffleList(
+          remainingIntervals.filter(
+            interval =>
+              targetCellKeysByInterval
+                .has(interval)
+          )
+        )
+      : remainingIntervals.filter(
+          interval =>
+            targetCellKeysByInterval
+              .has(interval)
+        );
+
+  return {
+    startInterval,
+
+    startCellKey,
+
+    startStringIndex:
+      startItem.stringIndex,
+
+    startStringName:
+      midiToScientificPitch(
+        currentTuning[
+          startItem.stringIndex
+        ]
+      ),
+
+    requiredCellKeys,
+
+    targetCellKeysByInterval,
+
+    promptQueue,
+
+    currentPromptInterval:
+      null,
+
+    phase:
+      'start'
+  };
+}
+
+
+function displayShapeQuestion() {
+  const answerDisplay =
+    document.getElementById(
+      'answerNote'
+    );
+
+  const exercise =
+    currentShapeExercise;
+
+  if (!exercise) {
+    answerDisplay.textContent =
+      'Done!';
+
+    return;
+  }
+
+  answerDisplay.innerHTML = '';
+
+  if (
+    exercise.phase ===
+    'start'
+  ) {
+    answerDisplay.className =
+      'npsExerciseCard';
+
+    const startLabel =
+      document.createElement(
+        'div'
+      );
+
+    startLabel.className =
+      'npsExercisePrimary';
+
+    startLabel.textContent =
+      'Start';
+
+    answerDisplay.appendChild(
+      startLabel
+    );
+
+    return;
+  }
+
+  answerDisplay.className =
+    'intervalQuizPrompt';
+
+  answerDisplay.appendChild(
+    document.createTextNode(
+      'Select '
+    )
+  );
+
+  const interval =
+    document.createElement(
+      'span'
+    );
+
+  interval.textContent =
+    exercise.currentPromptInterval;
+
+  answerDisplay.appendChild(
+    interval
+  );
+}
+
+
+function advanceShapeExercise() {
+  const exercise =
+    currentShapeExercise;
+
+  if (!exercise) {
+    return;
+  }
+
+  const nextInterval =
+    exercise.promptQueue.shift();
+
+  if (!nextInterval) {
+    buildTrainer();
+    return;
+  }
+
+  exercise.phase =
+    'remaining';
+
+  exercise.currentPromptInterval =
+    nextInterval;
+
+  displayShapeQuestion();
+}
+
+
+/* =========================================================
    BUILD TRAINER
    ========================================================= */
 
@@ -1935,6 +2318,7 @@ function buildTrainer() {
 
   currentAnswer = null;
   currentNpsExercise = null;
+  currentShapeExercise = null;
   showAll = false;
 
   document
@@ -2008,7 +2392,9 @@ function buildTrainer() {
     'fretboardStage';
 
   if (
-    lessonType === 'nps'
+    ['nps', 'shape'].includes(
+      lessonType
+    )
   ) {
     stage.classList.add(
       'hasStartCue'
@@ -2422,6 +2808,45 @@ function buildTrainer() {
 
 
   /* =======================================================
+     SHAPE AROUND INTERVAL
+     ======================================================= */
+
+  if (
+    lessonType === 'shape'
+  ) {
+    currentShapeExercise =
+      createShapeExercise(
+        allCells,
+        selectedIntervals
+      );
+
+    if (
+      !currentShapeExercise
+    ) {
+      document
+        .getElementById(
+          'answerNote'
+        )
+        .textContent =
+          'No valid shape for these settings.';
+
+      return;
+    }
+
+    displayShapeQuestion();
+
+    fretboard.appendChild(
+      createNpsStartMarker(
+        currentShapeExercise,
+        tuning.length
+      )
+    );
+
+    return;
+  }
+
+
+  /* =======================================================
      INTERVAL LESSON
      ======================================================= */
 
@@ -2813,7 +3238,9 @@ function temporarilyShowWrong(cell) {
   }
 
   if (
-    getLessonType() === 'nps'
+    ['nps', 'shape'].includes(
+      getLessonType()
+    )
   ) {
     cell.textContent =
       interval;
@@ -2945,6 +3372,78 @@ document
             cell
           );
         }
+
+        return;
+      }
+
+
+      /* SHAPE AROUND INTERVAL */
+
+      if (
+        getLessonType() ===
+        'shape'
+      ) {
+        const exercise =
+          currentShapeExercise;
+
+        if (!exercise) {
+          return;
+        }
+
+        if (
+          cell.classList.contains(
+            'correct'
+          )
+        ) {
+          return;
+        }
+
+        const cellKey =
+          makeCellKey(
+            Number(
+              cell.dataset.stringIndex
+            ),
+            Number(
+              cell.dataset.fret
+            )
+          );
+
+        const expectedCellKey =
+          exercise.phase ===
+            'start'
+            ? exercise
+                .startCellKey
+            : exercise
+                .targetCellKeysByInterval
+                .get(
+                  exercise
+                    .currentPromptInterval
+                );
+
+        if (
+          cellKey !==
+          expectedCellKey
+        ) {
+          temporarilyShowWrong(
+            cell
+          );
+
+          return;
+        }
+
+        cell.classList.remove(
+          'wrong'
+        );
+
+        cell.classList.add(
+          'correct'
+        );
+
+        revealCell(
+          cell
+        );
+
+        advanceShapeExercise();
 
         return;
       }
@@ -3120,8 +3619,9 @@ document
     'change',
     () => {
       if (
-        getLessonType() ===
-        'intervals'
+        ['intervals', 'shape'].includes(
+          getLessonType()
+        )
       ) {
         buildTrainer();
       }
