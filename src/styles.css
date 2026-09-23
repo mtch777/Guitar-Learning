@@ -2731,3 +2731,27 @@ button.uiButton:disabled {
     font-size: 11px;
   }
 }
+
+
+/* UNKNOWN INTERVAL CLICK TARGETS */
+.fretboardNote.unknownInterval {
+  background: transparent !important;
+  color: transparent !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.58);
+  box-shadow: none;
+  z-index: 12;
+}
+
+[data-theme="light"] .fretboardNote.unknownInterval {
+  border-color: rgba(0, 0, 0, 0.48);
+}
+
+.fretboardNote.unknownInterval:hover {
+  background: rgba(255, 255, 255, 0.10) !important;
+  border-color: rgba(255, 255, 255, 0.90);
+}
+
+[data-theme="light"] .fretboardNote.unknownInterval:hover {
+  background: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(0, 0, 0, 0.75);
+}
