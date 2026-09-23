@@ -2276,6 +2276,9 @@ function createShapeExercise(
     currentPromptCellKeys:
       new Set(),
 
+    currentPromptInitialCount:
+      0,
+
     phase:
       'start'
   };
@@ -2346,9 +2349,17 @@ function displayShapeQuestion() {
 
   interval.textContent =
     exercise.currentPromptInterval +
-    ' (' +
-    count +
-    ' left)';
+    (
+      exercise
+        .currentPromptInitialCount >
+        1
+        ? (
+            ' (' +
+            count +
+            ' left)'
+          )
+        : ''
+    );
 
   answerDisplay.appendChild(
     interval
@@ -2389,6 +2400,11 @@ function advanceShapeExercise() {
           nextInterval
         ) || []
     );
+
+  exercise.currentPromptInitialCount =
+    exercise
+      .currentPromptCellKeys
+      .size;
 
   displayShapeQuestion();
 }
