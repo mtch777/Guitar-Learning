@@ -3316,6 +3316,17 @@ function getCagedNpsFallbacks(
 
                         bridgeCells,
 
+                        bridgeCellKeys:
+                          new Set(
+                            bridgeCells.map(
+                              item =>
+                                makeCellKey(
+                                  item.stringIndex,
+                                  item.fret
+                                )
+                            )
+                          ),
+
                         cagedShape:
                           landingShape,
 
@@ -3615,6 +3626,13 @@ function createCagedExercise(
       selectedCandidate
         .connectionCellKey ||
       null,
+
+    bridgeCellKeys:
+      new Set(
+        selectedCandidate
+          .bridgeCellKeys ||
+        []
+      ),
 
     rootCellKey:
       makeCellKey(
@@ -4770,6 +4788,24 @@ function buildTrainer() {
         item.element.dataset
           .displayInterval =
             translatedInterval || '';
+
+        const key =
+          makeCellKey(
+            item.stringIndex,
+            item.fret
+          );
+
+        if (
+          currentCagedExercise
+            .usesNpsBridge &&
+          currentCagedExercise
+            .bridgeCellKeys
+            .has(key)
+        ) {
+          item.element.classList.add(
+            'cagedNpsBridge'
+          );
+        }
 
         hideCell(
           item.element
