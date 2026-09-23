@@ -63,6 +63,33 @@ function buildUnifiedSingleSelect(detailsId, sourceSelectId, optionsContainerId 
   if (selected) summary.textContent = selected.textContent;
 }
 
+// Default key: D#, with the mode randomly chosen on page load
+// from Locrian, Dorian, or Ionian.
+const defaultScaleChoices = [
+  'locrian',
+  'dorian',
+  'ionian'
+];
+
+document
+  .getElementById(
+    'rootSelect'
+  )
+  .value =
+    '3';
+
+document
+  .getElementById(
+    'scaleSelect'
+  )
+  .value =
+    defaultScaleChoices[
+      Math.floor(
+        Math.random() *
+        defaultScaleChoices.length
+      )
+    ];
+
 // Visible single-selects share one component; hidden native selects remain state only.
 buildUnifiedSingleSelect('lessonTypeDropdown', 'lessonTypeSelect');
 buildUnifiedSingleSelect('rootDropdown', 'rootSelect', 'rootOptions');
@@ -592,7 +619,10 @@ function buildIntervalControls() {
         intervalName;
 
       checkbox.checked =
-        true;
+        getLessonType() ===
+          'shape'
+          ? intervalName === 'R'
+          : true;
 
       checkbox.addEventListener(
         'change',
