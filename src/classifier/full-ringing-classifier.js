@@ -1,11 +1,7 @@
 import { maskProbabilitiesByPitch } from "./candidate-strings.js";
 
 const MODEL_CHUNKS = [
-  "/model/ringing_xgboost_384.b64.00",
-  "/model/ringing_xgboost_384.b64.01",
-  "/model/ringing_xgboost_384.b64.02",
-  "/model/ringing_xgboost_384.b64.03",
-  "/model/ringing_xgboost_384.b64.04"
+  "/model/ringing_xgboost_384.b64.00"
 ];
 const SCALER_URL = "/model/ringing_scaler_384.json";
 
