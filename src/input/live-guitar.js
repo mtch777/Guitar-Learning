@@ -155,6 +155,8 @@ export function setupLiveGuitarInput() {
   let datasetCases = [];
   let datasetIndex = 0;
   const datasetSamples = [];
+  let datasetPitchOk = false;
+  const DATASET_PITCH_TOLERANCE_SEMITONES = 1;
 
   const buildDatasetCases = () => {
     const cases = [];
@@ -194,10 +196,11 @@ export function setupLiveGuitarInput() {
       datasetStatus.textContent = `Complete · ${datasetSamples.length}/432 accepted`;
       return;
     }
-    const range = `${target.minDb.toFixed(1)} to ${target.maxDb.toFixed(1)} dBFS`;
     datasetStatus.textContent =
-      `${datasetIndex + 1}/${datasetCases.length}: S${target.string} F${target.fret} ${target.label} · expected ${target.expectedDb.toFixed(1)} dBFS · accept ${range}` +
-      (message ? ` · ${message}` : "");
+      `String: ${target.string}\n` +
+      `Fret:    ${target.fret}\n` +
+      `Pick: ${target.label[0].toUpperCase() + target.label.slice(1)}\n` +
+      `Vol: ${message || "🔉"}`;
   };
 
   const writeAscii = (view, offset, text) => {
@@ -305,6 +308,7 @@ export function setupLiveGuitarInput() {
     datasetIndex = datasetSamples.length;
     if (datasetIndex >= datasetCases.length) datasetIndex = 0;
     datasetActive = true;
+    datasetPitchOk = false;
     datasetButton.textContent = "Stop Recording";
     updateDatasetStatus();
   });
@@ -603,7 +607,8 @@ export function setupLiveGuitarInput() {
             const target = datasetCases[datasetIndex];
             if (target) {
               const attackRms100Dbfs = features[104];
-              if (attackRms100Dbfs >= target.minDb && attackRms100Dbfs <= target.maxDb) {
+              const volumeOk = attackRms100Dbfs >= target.minDb && attackRms100Dbfs <= target.maxDb;
+              if (volumeOk && datasetPitchOk) {
                 const name =
                   `s${target.string}_f${String(target.fret).padStart(2, "0")}_${target.key}_ringing.wav`;
                 datasetSamples.push({
@@ -613,19 +618,17 @@ export function setupLiveGuitarInput() {
                   attackRms100Dbfs
                 });
                 datasetIndex++;
+                datasetPitchOk = false;
                 if (datasetExportButton) datasetExportButton.disabled = false;
                 if (datasetIndex >= datasetCases.length) {
                   datasetActive = false;
                   datasetButton.textContent = "Start Recording";
                   updateDatasetStatus();
                 } else {
-                  updateDatasetStatus(`accepted ${attackRms100Dbfs.toFixed(1)} dBFS`);
+                  updateDatasetStatus("✅");
                 }
               } else {
-                const direction = attackRms100Dbfs < target.minDb ? "too quiet" : "too loud";
-                updateDatasetStatus(
-                  `rejected ${attackRms100Dbfs.toFixed(1)} dBFS (${direction})`
-                );
+                updateDatasetStatus("🚨");
               }
             }
           }
@@ -702,6 +705,13 @@ export function setupLiveGuitarInput() {
             "Pitch: " + frame.pitchConfidence.toFixed(2) +
             " · " + lastClassificationText;
           return;
+        }
+
+        if (datasetActive) {
+          const target = datasetCases[datasetIndex];
+          if (target && Math.abs(frame.midi - target.midi) <= DATASET_PITCH_TOLERANCE_SEMITONES) {
+            datasetPitchOk = true;
+          }
         }
 
         beginNoteEvent(frame);
