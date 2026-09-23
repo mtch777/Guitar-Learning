@@ -578,7 +578,8 @@ body {
 select,
 button,
 .multiSelect summary,
-.directionOption span {
+.directionOption span,
+.orderOption span {
   height: 32px;
   min-height: 32px;
   font: 16px/30px Arial, sans-serif;
@@ -616,25 +617,36 @@ button {
   border-radius: 5px;
 }
 
-.directionSegment {
+.directionSegment,
+.orderSegment {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
   height: 32px;
 }
 
-.directionOption {
+.directionSegment {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.orderSegment {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.directionOption,
+.orderOption {
   display: block;
   margin: 0;
   cursor: pointer;
 }
 
-.directionOption input {
+.directionOption input,
+.orderOption input {
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
 
-.directionOption span {
+.directionOption span,
+.orderOption span {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -644,16 +656,19 @@ button {
   line-height: 1;
 }
 
-.directionOption:first-child span {
+.directionOption:first-child span,
+.orderOption:first-child span {
   border-radius: 5px 0 0 5px;
 }
 
-.directionOption:last-child span {
+.directionOption:last-child span,
+.orderOption:last-child span {
   border-radius: 0 5px 5px 0;
   border-right-width: 1px;
 }
 
-.directionOption input:checked + span {
+.directionOption input:checked + span,
+.orderOption input:checked + span {
   background: var(--text-color);
   color: var(--page-bg);
 }
