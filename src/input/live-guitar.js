@@ -145,11 +145,22 @@ export function setupLiveGuitarInput() {
     return d0 + (d1 - d0) * ((fret - f0) / (f1 - f0));
   };
 
-  // S1/S2 missing frets were already recorded in the previous pass.
-  // Continue with one medium take only for the remaining S3-S8 missing frets.
-  const DATASET_COMPLETED_STRINGS = new Set([1, 2]);
+  // Targeted follow-up set for the 12 leave-one-pitch-out errors.
+  // Four single-take failures get soft/normal/hard repeats.
+  // S5 F24 is the systematic failure; S6 F19 is its same-pitch (MIDI 73)
+  // competing position, so collect matched repeats there too.
+  const DATASET_TARGET_POSITIONS = [
+    { string: 3, fret: 8 },
+    { string: 8, fret: 1 },
+    { string: 6, fret: 16 },
+    { string: 5, fret: 23 },
+    { string: 5, fret: 24 },
+    { string: 6, fret: 19 }
+  ];
   const DATASET_STRENGTHS = [
-    { key: "normal", label: "medium" }
+    { key: "soft", label: "soft" },
+    { key: "normal", label: "medium" },
+    { key: "hard", label: "hard" }
   ];
 
   let datasetActive = false;
@@ -161,25 +172,21 @@ export function setupLiveGuitarInput() {
 
   const buildDatasetCases = () => {
     const cases = [];
-    for (let string = 1; string <= 8; string++) {
-      if (DATASET_COMPLETED_STRINGS.has(string)) continue;
-      for (let fret = 0; fret <= 24; fret++) {
-        if (EXISTING_DATASET_FRETS.has(fret)) continue;
-        for (const strength of DATASET_STRENGTHS) {
-          // One medium sweet-spot take per remaining position.
-          // Preserve the current medium target used in the S1/S2 pass.
-          const expectedDb = expectedDatasetDb(string, fret, strength.key) - 6.0;
-          const toleranceDb = DATASET_VOLUME_TOLERANCE_DB[strength.key];
-          cases.push({
-            string,
-            fret,
-            midi: openMidis[string - 1] + fret,
-            ...strength,
-            expectedDb,
-            minDb: expectedDb - toleranceDb,
-            maxDb: expectedDb + toleranceDb
-          });
-        }
+    for (const { string, fret } of DATASET_TARGET_POSITIONS) {
+      for (const strength of DATASET_STRENGTHS) {
+        // Keep the same calibrated targets used by the existing recorder,
+        // including the current -6 dB sweet-spot shift.
+        const expectedDb = expectedDatasetDb(string, fret, strength.key) - 6.0;
+        const toleranceDb = DATASET_VOLUME_TOLERANCE_DB[strength.key];
+        cases.push({
+          string,
+          fret,
+          midi: openMidis[string - 1] + fret,
+          ...strength,
+          expectedDb,
+          minDb: expectedDb - toleranceDb,
+          maxDb: expectedDb + toleranceDb
+        });
       }
     }
     return cases;
@@ -189,8 +196,8 @@ export function setupLiveGuitarInput() {
     if (!datasetStatus) return;
     if (!datasetActive) {
       datasetStatus.textContent = datasetSamples.length
-        ? `Stopped · ${datasetSamples.length}/432 accepted`
-        : "108 remaining samples · medium only · S3-S8";
+        ? `Stopped · ${datasetSamples.length}/${datasetCases.length || 18} accepted`
+        : "18 targeted follow-up samples · 6 positions × soft/medium/hard";
       return;
     }
     const target = datasetCases[datasetIndex];
@@ -324,7 +331,7 @@ export function setupLiveGuitarInput() {
     const url = URL.createObjectURL(zipBlob(files));
     const a = document.createElement("a");
     a.href = url;
-    a.download = `string-classifier-missing-ringing-${new Date().toISOString().replaceAll(":","-")}.zip`;
+    a.download = `string-classifier-error-followup-${new Date().toISOString().replaceAll(":","-")}.zip`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
