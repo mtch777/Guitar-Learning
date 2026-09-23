@@ -2061,9 +2061,7 @@ function getClosestShapeCell(
     }
   );
 
-  return randomItem(
-    closest
-  );
+  return closest;
 }
 
 
@@ -2125,30 +2123,41 @@ function createShapeExercise(
     const interval of
     remainingIntervals
   ) {
-    const closest =
+    const closestCells =
       getClosestShapeCell(
         allCells,
         startItem,
         interval
       );
 
-    if (!closest) {
+    if (
+      !closestCells ||
+      closestCells.length === 0
+    ) {
       continue;
     }
 
-    const key =
-      makeCellKey(
-        closest.stringIndex,
-        closest.fret
+    const keys =
+      new Set(
+        closestCells.map(
+          closest =>
+            makeCellKey(
+              closest.stringIndex,
+              closest.fret
+            )
+        )
       );
 
     targetCellKeysByInterval.set(
       interval,
-      key
+      keys
     );
 
-    requiredCellKeys.add(
-      key
+    keys.forEach(
+      key =>
+        requiredCellKeys.add(
+          key
+        )
     );
   }
 
@@ -2197,6 +2206,9 @@ function createShapeExercise(
 
     currentPromptInterval:
       null,
+
+    currentPromptCellKeys:
+      new Set(),
 
     phase:
       'start'
@@ -2261,8 +2273,16 @@ function displayShapeQuestion() {
       'span'
     );
 
+  const count =
+    exercise
+      .currentPromptCellKeys
+      .size;
+
   interval.textContent =
-    exercise.currentPromptInterval;
+    exercise.currentPromptInterval +
+    ' (' +
+    count +
+    ')';
 
   answerDisplay.appendChild(
     interval
@@ -2291,6 +2311,15 @@ function advanceShapeExercise() {
 
   exercise.currentPromptInterval =
     nextInterval;
+
+  exercise.currentPromptCellKeys =
+    new Set(
+      exercise
+        .targetCellKeysByInterval
+        .get(
+          nextInterval
+        ) || []
+    );
 
   displayShapeQuestion();
 }
@@ -3418,22 +3447,21 @@ document
             )
           );
 
-        const expectedCellKey =
+        const correct =
           exercise.phase ===
             'start'
-            ? exercise
-                .startCellKey
+            ? (
+                cellKey ===
+                exercise
+                  .startCellKey
+              )
             : exercise
-                .targetCellKeysByInterval
-                .get(
-                  exercise
-                    .currentPromptInterval
+                .currentPromptCellKeys
+                .has(
+                  cellKey
                 );
 
-        if (
-          cellKey !==
-          expectedCellKey
-        ) {
+        if (!correct) {
           temporarilyShowWrong(
             cell
           );
@@ -3453,7 +3481,30 @@ document
           cell
         );
 
-        advanceShapeExercise();
+        if (
+          exercise.phase ===
+          'start'
+        ) {
+          advanceShapeExercise();
+
+          return;
+        }
+
+        exercise
+          .currentPromptCellKeys
+          .delete(
+            cellKey
+          );
+
+        if (
+          exercise
+            .currentPromptCellKeys
+            .size === 0
+        ) {
+          advanceShapeExercise();
+        } else {
+          displayShapeQuestion();
+        }
 
         return;
       }
