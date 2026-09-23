@@ -2755,3 +2755,62 @@ button.uiButton:disabled {
   background: rgba(255, 255, 255, 0.18) !important;
   border-color: rgba(0, 0, 0, 0.75);
 }
+
+
+/* PHONE LANDSCAPE FRETBOARD HEIGHT */
+.physicalFretboard {
+  height: 420px;
+}
+
+@media (max-width: 700px) {
+  .physicalFretboard {
+    height: 340px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .exercisePanel {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .fretboardToolbar {
+    min-height: 24px;
+    margin-bottom: 4px;
+  }
+
+  .physicalFretboard {
+    height: clamp(210px, 58vh, 260px);
+  }
+
+  .physicalFretboard .fretboardNote,
+  .physicalFretboard.compact .fretboardNote {
+    width: 26px;
+    height: 26px;
+    font-size: 10px;
+  }
+
+  .physicalFretboard .fretboardNote.openStringNote,
+  .physicalFretboard.compact .fretboardNote.openStringNote {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .fretboardPositionDot {
+    width: 18px;
+    height: 18px;
+  }
+
+  .fretboardPositionDot.doubleDot {
+    width: 20px;
+    height: 20px;
+  }
+
+  .physicalFretboard .npsStartInterval {
+    width: 26px;
+    height: 26px;
+    flex-basis: 26px;
+    font-size: 11px;
+  }
+}
