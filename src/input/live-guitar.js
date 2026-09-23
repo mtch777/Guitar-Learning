@@ -89,13 +89,68 @@ export function setupLiveGuitarInput() {
   // Existing ringing dataset already contains soft/normal/hard at these frets.
   // Record only the 18 missing frets per string: 8 * 18 * 3 = 432 samples.
   const EXISTING_DATASET_FRETS = new Set([0, 5, 7, 12, 17, 19, 24]);
+  // Measured attack_rms_100_dbfs from the 168 existing ringing WAVs.
+  // Each row is frets [0, 5, 7, 12, 17, 19, 24]. Missing frets are
+  // predicted by piecewise-linear interpolation on the SAME string/strength.
+  const DATASET_ANCHOR_FRETS = [0, 5, 7, 12, 17, 19, 24];
+  const DATASET_VOLUME_MAP = {
+    soft: [
+      [-37.70,-32.30,-31.42,-27.08,-25.18,-26.83,-26.33],
+      [-30.00,-28.05,-27.82,-26.06,-24.68,-25.89,-22.15],
+      [-31.49,-30.28,-27.26,-31.67,-26.70,-26.91,-28.55],
+      [-36.06,-34.83,-36.57,-30.85,-30.32,-28.81,-29.45],
+      [-34.86,-40.41,-36.93,-31.00,-30.66,-28.94,-30.90],
+      [-30.77,-29.92,-31.08,-26.96,-27.46,-27.10,-25.64],
+      [-34.32,-38.55,-31.85,-29.08,-30.91,-30.10,-29.48],
+      [-39.49,-39.19,-37.09,-36.86,-38.85,-34.49,-30.70]
+    ],
+    normal: [
+      [-27.57,-25.48,-25.06,-21.74,-19.07,-20.03,-18.64],
+      [-25.34,-27.09,-26.55,-19.90,-18.58,-17.84,-16.83],
+      [-26.79,-27.44,-23.68,-23.11,-20.11,-20.87,-19.69],
+      [-29.71,-29.66,-27.35,-26.33,-25.93,-23.32,-21.48],
+      [-32.64,-31.43,-28.33,-27.88,-25.06,-23.48,-21.83],
+      [-29.40,-26.88,-23.33,-20.93,-19.02,-18.88,-18.22],
+      [-28.52,-26.89,-27.50,-26.63,-24.98,-22.92,-20.19],
+      [-30.31,-29.85,-30.20,-27.54,-25.73,-24.54,-19.83]
+    ],
+    hard: [
+      [-23.00,-21.83,-18.72,-20.23,-17.10,-18.75,-16.46],
+      [-22.60,-23.24,-23.34,-19.02,-17.01,-14.70,-14.22],
+      [-25.02,-23.01,-21.31,-20.35,-19.05,-19.15,-17.65],
+      [-26.91,-25.29,-23.41,-21.82,-22.45,-22.34,-18.59],
+      [-29.36,-28.48,-24.65,-25.42,-22.42,-22.18,-17.79],
+      [-24.30,-22.48,-22.45,-20.87,-18.27,-18.03,-15.01],
+      [-29.11,-28.05,-25.44,-25.63,-25.06,-24.84,-19.22],
+      [-30.69,-31.60,-30.71,-29.83,-29.95,-26.57,-19.13]
+    ]
+  };
+
+  // Tolerance comes from leave-one-anchor-out interpolation error across the
+  // previous samples (90th percentile absolute error), separately by strength.
+  const DATASET_VOLUME_TOLERANCE_DB = {
+    soft: 3.72,
+    normal: 1.89,
+    hard: 2.33
+  };
+
+  const expectedDatasetDb = (string, fret, strength) => {
+    const values = DATASET_VOLUME_MAP[strength][string - 1];
+    let hi = DATASET_ANCHOR_FRETS.findIndex(anchor => anchor > fret);
+    if (hi < 0) hi = DATASET_ANCHOR_FRETS.length - 1;
+    const lo = Math.max(0, hi - 1);
+    const f0 = DATASET_ANCHOR_FRETS[lo], f1 = DATASET_ANCHOR_FRETS[hi];
+    const d0 = values[lo], d1 = values[hi];
+    if (f0 === f1) return d0;
+    return d0 + (d1 - d0) * ((fret - f0) / (f1 - f0));
+  };
+
   const DATASET_STRENGTHS = [
-    // Central 50% (P25-P75) of the 56 existing samples for each strength,
-    // measured with the same attack_rms_100_dbfs feature used in training.
-    { key: "soft", label: "soft", minDb: -33.615, maxDb: -26.816 },
-    { key: "normal", label: "medium", minDb: -26.441, maxDb: -19.956 },
-    { key: "hard", label: "hard", minDb: -24.598, maxDb: -18.565 }
+    { key: "soft", label: "soft" },
+    { key: "normal", label: "medium" },
+    { key: "hard", label: "hard" }
   ];
+
   let datasetActive = false;
   let datasetCases = [];
   let datasetIndex = 0;
@@ -107,11 +162,16 @@ export function setupLiveGuitarInput() {
       for (let fret = 0; fret <= 24; fret++) {
         if (EXISTING_DATASET_FRETS.has(fret)) continue;
         for (const strength of DATASET_STRENGTHS) {
+          const expectedDb = expectedDatasetDb(string, fret, strength.key);
+          const toleranceDb = DATASET_VOLUME_TOLERANCE_DB[strength.key];
           cases.push({
             string,
             fret,
             midi: openMidis[string - 1] + fret,
-            ...strength
+            ...strength,
+            expectedDb,
+            minDb: expectedDb - toleranceDb,
+            maxDb: expectedDb + toleranceDb
           });
         }
       }
@@ -134,7 +194,7 @@ export function setupLiveGuitarInput() {
     }
     const range = `${target.minDb.toFixed(1)} to ${target.maxDb.toFixed(1)} dBFS`;
     datasetStatus.textContent =
-      `${datasetIndex + 1}/${datasetCases.length}: S${target.string} F${target.fret} ${target.label} · target ${range}` +
+      `${datasetIndex + 1}/${datasetCases.length}: S${target.string} F${target.fret} ${target.label} · expected ${target.expectedDb.toFixed(1)} dBFS · accept ${range}` +
       (message ? ` · ${message}` : "");
   };
 
