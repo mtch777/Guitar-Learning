@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Train the full 107-feature ringing-only physical-string classifier.
+"""Train/evaluate the ringing-only physical-position classifier.
 
-Muted recordings are deliberately excluded.
-Expected input filenames:
+Dataset may contain one or more takes per string/fret. Muted recordings are
+deliberately excluded. Expected filenames:
   s{string}_f{fret}_{soft|normal|hard}_ringing.wav
+
+This preparation version keeps the production 107-feature baseline intact and
+adds evaluation scaffolding for the next feature/model iteration.
 """
 from __future__ import annotations
 import argparse, json, re
@@ -83,30 +86,39 @@ def main():
         if not m: continue
         x,names=extract(path); xs.append(x)
         rows.append({"string":int(m[1]),"fret":int(m[2]),"strength":m[3].lower(),"file":path.name})
-    if len(rows)!=168:
-        raise RuntimeError(f"Expected 168 ringing recordings after excluding muted; found {len(rows)}")
+    if not rows:
+        raise RuntimeError("No ringing recordings found")
     X=np.vstack(xs); df=pd.DataFrame(rows); truth=df.string.to_numpy()
+    df["midi"]=[OPEN_MIDI[s]+f for s,f in zip(df.string,df.fret)]
     pred=np.zeros(len(df),dtype=int); confidence=np.zeros(len(df))
-    for fret in sorted(df.fret.unique()):
-        test=np.where(df.fret.to_numpy()==fret)[0]; train=np.where(df.fret.to_numpy()!=fret)[0]
+
+    # Primary validation: hold out an entire pitch. This directly tests the
+    # generalization problem we care about while candidate masking constrains
+    # each prediction to physically possible strings.
+    for midi in sorted(df.midi.unique()):
+        test=np.where(df.midi.to_numpy()==midi)[0]
+        train=np.where(df.midi.to_numpy()!=midi)[0]
+        if not len(train): continue
         scaler=StandardScaler().fit(X[train])
         clf=model().fit(scaler.transform(X[train]),truth[train]-1)
         probs=clf.predict_proba(scaler.transform(X[test]))
         for row_i,idx in enumerate(test):
-            midi=OPEN_MIDI[int(df.iloc[idx].string)]+int(df.iloc[idx].fret)
-            p=mask(probs[row_i],midi)
+            p=mask(probs[row_i],int(midi))
             pred[idx]=int(np.argmax(p))+1; confidence[idx]=float(np.max(p))
-    metrics={"recordings":len(df),"muted_included":0,"features":X.shape[1],
-      "leave_one_fret_out_accuracy":float(accuracy_score(truth,pred)),
+
+    strengths=sorted(df.strength.unique())
+    metrics={"recordings":len(df),"positions":int(df[["string","fret"]].drop_duplicates().shape[0]),
+      "muted_included":0,"features":X.shape[1],
+      "leave_one_pitch_out_accuracy":float(accuracy_score(truth,pred)),
       "by_strength":{s:float(accuracy_score(truth[df.strength==s],pred[df.strength.to_numpy()==s]))
-                     for s in ("soft","normal","hard")}}
+                     for s in strengths}}
     final_scaler=StandardScaler().fit(X)
     final_model=model().fit(final_scaler.transform(X),truth-1)
     final_model.save_model(a.out/"ringing_xgboost.json")
     joblib.dump(final_scaler,a.out/"ringing_scaler.joblib")
     (a.out/"feature_names.json").write_text(json.dumps(names,indent=2))
     (a.out/"metrics.json").write_text(json.dumps(metrics,indent=2))
-    df.assign(predicted_string=pred,confidence=confidence).to_csv(a.out/"lofo_predictions.csv",index=False)
+    df.assign(predicted_string=pred,confidence=confidence).to_csv(a.out/"leave_one_pitch_out_predictions.csv",index=False)
     print(json.dumps(metrics,indent=2))
 
 if __name__=="__main__": main()
