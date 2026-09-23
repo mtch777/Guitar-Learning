@@ -1972,23 +1972,33 @@ function getShapeCellDistanceSquared(
   startItem,
   candidateItem
 ) {
-  const startElement =
-    startItem.element;
+  /*
+    Logical fretboard distance, independent of rendering.
 
-  const candidateElement =
-    candidateItem.element;
+    Each fret = 1 unit.
+    Each string = 1 unit.
 
-  const dx =
-    candidateElement.offsetLeft -
-    startElement.offsetLeft;
+    Squared Euclidean distance is enough for comparison:
+      sqrt(a) < sqrt(b) exactly when a < b.
 
-  const dy =
-    candidateElement.offsetTop -
-    startElement.offsetTop;
+    Examples:
+      4 frets + 0 strings => 16
+      3 frets + 1 string  => 10
+      3 frets + 2 strings => 13
+      0 frets + 5 strings => 25
+  */
+
+  const fretDelta =
+    candidateItem.fret -
+    startItem.fret;
+
+  const stringDelta =
+    candidateItem.stringIndex -
+    startItem.stringIndex;
 
   return (
-    dx * dx +
-    dy * dy
+    fretDelta * fretDelta +
+    stringDelta * stringDelta
   );
 }
 
