@@ -166,7 +166,7 @@ export function setupLiveGuitarInput() {
         for (const strength of DATASET_STRENGTHS) {
           // Bias the interpolated historical target slightly quieter.
           // Keep the empirically-derived width unchanged; shift the whole range down.
-          const extraQuietDb = strength.key === "hard" ? 4.0 : strength.key === "normal" ? 2.0 : 0;
+          const extraQuietDb = strength.key === "hard" ? 8.0 : strength.key === "normal" ? 2.0 : 0;
           const expectedDb = expectedDatasetDb(string, fret, strength.key) - 2.0 - extraQuietDb;
           const toleranceDb = DATASET_VOLUME_TOLERANCE_DB[strength.key];
           cases.push({
