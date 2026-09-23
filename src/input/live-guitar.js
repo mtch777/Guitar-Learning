@@ -625,7 +625,9 @@ export function setupLiveGuitarInput() {
                   datasetButton.textContent = "Start Recording";
                   updateDatasetStatus();
                 } else {
-                  updateDatasetStatus("✅");
+                  // The check belongs to the sample that was just accepted.
+                  // Clear it immediately when advancing to the next prompt.
+                  updateDatasetStatus();
                 }
               } else {
                 const volumeIcon = attackRms100Dbfs < target.minDb
