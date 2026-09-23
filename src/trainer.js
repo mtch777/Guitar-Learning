@@ -395,6 +395,50 @@ const directionOptions = [
   ['upDown', '↕️']
 ];
 
+const cagedShapeOrder = [
+  'C',
+  'A',
+  'G',
+  'E',
+  'D'
+];
+
+/*
+  Root position inside a six-string CAGED block,
+  counted from that block's lowest string.
+
+  On the normal six-string block of this 8-string tuning
+  (physical strings 3-8), this maps to:
+    G / E root -> physical string 3
+    C / A root -> physical string 4
+    D     root -> physical string 5
+
+  G/C use the root as the higher note of the local
+  two-note pentatonic pair. E/A/D use it as the lower note.
+*/
+const cagedShapeDefinitions = {
+  C: {
+    rootStringOffset: 1,
+    rootRole: 'high'
+  },
+  A: {
+    rootStringOffset: 1,
+    rootRole: 'low'
+  },
+  G: {
+    rootStringOffset: 0,
+    rootRole: 'high'
+  },
+  E: {
+    rootStringOffset: 0,
+    rootRole: 'low'
+  },
+  D: {
+    rootStringOffset: 2,
+    rootRole: 'low'
+  }
+};
+
 
 /* =========================================================
    FRETBOARD
@@ -423,6 +467,7 @@ let currentAnswer = null;
 let showAll = false;
 let currentNpsExercise = null;
 let currentShapeExercise = null;
+let currentCagedExercise = null;
 
 const quizCompletePauseMs = 1000;
 
@@ -864,7 +909,9 @@ function handleNpsModeChange(event) {
   updateNpsModeSummary();
 
   if (
-    getLessonType() === 'nps'
+    ['nps', 'caged'].includes(
+      getLessonType()
+    )
   ) {
     buildTrainer();
   }
@@ -949,7 +996,9 @@ function handleStartDegreeChange(event) {
   updateStartDegreeSummary();
 
   if (
-    getLessonType() === 'nps'
+    ['nps', 'caged'].includes(
+      getLessonType()
+    )
   ) {
     buildTrainer();
   }
@@ -976,6 +1025,86 @@ function updateStartDegreeSummary() {
     )
     .textContent =
       selected.join(', ');
+}
+
+
+/* =========================================================
+   CAGED SHAPES MULTISELECT
+   ========================================================= */
+
+function buildCagedShapeControls() {
+  const container =
+    document.getElementById(
+      'cagedShapeOptions'
+    );
+
+  container.innerHTML = '';
+
+  cagedShapeOrder.forEach(
+    shape => {
+      createMultiOption(
+        container,
+        'cagedShapeCheckbox',
+        shape,
+        shape,
+        true,
+        handleCagedShapeChange
+      );
+    }
+  );
+
+  updateCagedShapeSummary();
+}
+
+function handleCagedShapeChange(event) {
+  if (
+    !preventEmptySelection(
+      event,
+      '.cagedShapeCheckbox'
+    )
+  ) {
+    return;
+  }
+
+  updateCagedShapeSummary();
+
+  if (
+    getLessonType() === 'caged'
+  ) {
+    buildTrainer();
+  }
+}
+
+function getSelectedCagedShapes() {
+  return [
+    ...document.querySelectorAll(
+      '.cagedShapeCheckbox:checked'
+    )
+  ].map(
+    checkbox =>
+      checkbox.value
+  );
+}
+
+function updateCagedShapeSummary() {
+  const selected =
+    getSelectedCagedShapes();
+
+  const summary =
+    document.getElementById(
+      'cagedShapeSummary'
+    );
+
+  if (
+    selected.length ===
+    cagedShapeOrder.length
+  ) {
+    summary.textContent =
+      'All 5';
+  } else {
+    summary.textContent =
+      selected.join(', ');
+  }
 }
 
 
@@ -1047,26 +1176,46 @@ function updateLessonControls() {
   const nps =
     lessonType === 'nps';
 
+  const caged =
+    lessonType === 'caged';
+
+  const pentatonicLesson =
+    nps || caged;
+
   document
     .getElementById(
       'intervalLessonControls'
     )
     .hidden =
-      nps;
+      pentatonicLesson;
 
   document
     .getElementById(
       'npsControls'
     )
     .hidden =
+      !pentatonicLesson;
+
+  document
+    .getElementById(
+      'directionControl'
+    )
+    .hidden =
       !nps;
+
+  document
+    .getElementById(
+      'cagedShapeControl'
+    )
+    .hidden =
+      !caged;
 
   document
     .getElementById(
       'orderControl'
     )
     .hidden =
-      nps;
+      pentatonicLesson;
 
   const intervalFieldLabel =
     document.querySelector(
@@ -1123,7 +1272,7 @@ function revealCell(
   }
 
   if (
-    ['nps', 'shape'].includes(
+    ['nps', 'shape', 'caged'].includes(
       getLessonType()
     )
   ) {
@@ -1241,6 +1390,33 @@ function restoreCellDisplay(cell) {
 
     if (
       currentShapeExercise
+        .requiredCellKeys
+        .has(key)
+    ) {
+      revealCell(cell);
+    } else {
+      hideCell(cell);
+    }
+
+    return;
+  }
+
+  if (
+    getLessonType() === 'caged' &&
+    currentCagedExercise
+  ) {
+    const key =
+      makeCellKey(
+        Number(
+          cell.dataset.stringIndex
+        ),
+        Number(
+          cell.dataset.fret
+        )
+      );
+
+    if (
+      currentCagedExercise
         .requiredCellKeys
         .has(key)
     ) {
@@ -2060,6 +2236,663 @@ function getNpsExerciseCandidates(
 
 
 /* =========================================================
+   CAGED PENTATONIC
+
+   The mode supplies the same five-note pentatonic set used
+   by the 2/3 NPS lesson.
+
+   A CAGED shape spans six consecutive strings. The selected
+   modal root can move that six-string block across the
+   8-string instrument as long as it stays inside strings
+   1-8. Root anchors on physical strings 1 and 2 are ignored.
+
+   For each string, choose the adjacent pentatonic pair that
+   sits closest to the root-string pair. This preserves the
+   familiar compact CAGED-box behavior while also respecting
+   the actual tuning of whichever six-string block is used.
+   ========================================================= */
+
+function getCagedPentatonicFrets(
+  stringIndex,
+  modeRoot,
+  modeName
+) {
+  const allowedSemitones =
+    new Set(
+      npsPentatonicSemitones[
+        modeName
+      ]
+    );
+
+  const openPitch =
+    currentTuning[
+      stringIndex
+    ];
+
+  const frets = [];
+
+  /*
+    Include theoretical negative frets so a shape that would
+    cross below the nut can be detected and rejected instead
+    of silently shifting it up an octave.
+  */
+  for (
+    let fret = -12;
+    fret <= 36;
+    fret++
+  ) {
+    const relative =
+      mod12(
+        midiToPitchClass(
+          openPitch + fret
+        ) -
+        modeRoot
+      );
+
+    if (
+      allowedSemitones.has(
+        relative
+      )
+    ) {
+      frets.push(
+        fret
+      );
+    }
+  }
+
+  return frets;
+}
+
+
+function getClosestCagedPair(
+  frets,
+  targetCenter
+) {
+  const pairs = [];
+
+  for (
+    let index = 0;
+    index < frets.length - 1;
+    index++
+  ) {
+    const low =
+      frets[index];
+
+    const high =
+      frets[index + 1];
+
+    pairs.push({
+      low,
+      high,
+      center:
+        (
+          low +
+          high
+        ) / 2
+    });
+  }
+
+  pairs.sort(
+    (a, b) => {
+      const centerDifference =
+        Math.abs(
+          a.center -
+          targetCenter
+        ) -
+        Math.abs(
+          b.center -
+          targetCenter
+        );
+
+      if (
+        centerDifference !== 0
+      ) {
+        return centerDifference;
+      }
+
+      const spanDifference =
+        (
+          a.high -
+          a.low
+        ) -
+        (
+          b.high -
+          b.low
+        );
+
+      if (
+        spanDifference !== 0
+      ) {
+        return spanDifference;
+      }
+
+      return (
+        a.low -
+        b.low
+      );
+    }
+  );
+
+  return (
+    pairs[0] ||
+    null
+  );
+}
+
+
+function buildCagedShapeForAnchor(
+  cells,
+  modeRoot,
+  modeName,
+  rootAnchor,
+  shapeName
+) {
+  const definition =
+    cagedShapeDefinitions[
+      shapeName
+    ];
+
+  if (!definition) {
+    return null;
+  }
+
+  const blockStartString =
+    rootAnchor.stringIndex -
+    definition.rootStringOffset;
+
+  const blockEndString =
+    blockStartString + 5;
+
+  if (
+    blockStartString < 0 ||
+    blockEndString >=
+      currentTuning.length
+  ) {
+    return null;
+  }
+
+
+  const rootStringFrets =
+    getCagedPentatonicFrets(
+      rootAnchor.stringIndex,
+      modeRoot,
+      modeName
+    );
+
+  const rootIndex =
+    rootStringFrets.indexOf(
+      rootAnchor.fret
+    );
+
+  if (
+    rootIndex === -1
+  ) {
+    return null;
+  }
+
+
+  let rootPair;
+
+  if (
+    definition.rootRole ===
+    'high'
+  ) {
+    if (
+      rootIndex === 0
+    ) {
+      return null;
+    }
+
+    rootPair = {
+      low:
+        rootStringFrets[
+          rootIndex - 1
+        ],
+
+      high:
+        rootAnchor.fret
+    };
+  } else {
+    if (
+      rootIndex >=
+      rootStringFrets.length - 1
+    ) {
+      return null;
+    }
+
+    rootPair = {
+      low:
+        rootAnchor.fret,
+
+      high:
+        rootStringFrets[
+          rootIndex + 1
+        ]
+    };
+  }
+
+  rootPair.center =
+    (
+      rootPair.low +
+      rootPair.high
+    ) / 2;
+
+
+  const cellByKey =
+    new Map(
+      cells.map(
+        item => [
+          makeCellKey(
+            item.stringIndex,
+            item.fret
+          ),
+          item
+        ]
+      )
+    );
+
+  const shapeCells = [];
+
+
+  for (
+    let stringIndex =
+      blockStartString;
+    stringIndex <=
+      blockEndString;
+    stringIndex++
+  ) {
+    let pair;
+
+    if (
+      stringIndex ===
+      rootAnchor.stringIndex
+    ) {
+      pair =
+        rootPair;
+    } else {
+      pair =
+        getClosestCagedPair(
+          getCagedPentatonicFrets(
+            stringIndex,
+            modeRoot,
+            modeName
+          ),
+          rootPair.center
+        );
+    }
+
+    if (!pair) {
+      return null;
+    }
+
+    const pairFrets = [
+      pair.low,
+      pair.high
+    ];
+
+    /*
+      Reject the whole shape if its natural position crosses
+      the nut or extends beyond the 24-fret practice board.
+    */
+    if (
+      pairFrets.some(
+        fret =>
+          fret < 0 ||
+          fret > 24
+      )
+    ) {
+      return null;
+    }
+
+
+    for (
+      const fret of
+      pairFrets
+    ) {
+      const item =
+        cellByKey.get(
+          makeCellKey(
+            stringIndex,
+            fret
+          )
+        );
+
+      if (!item) {
+        return null;
+      }
+
+      shapeCells.push(
+        item
+      );
+    }
+  }
+
+
+  const requiredCellKeys =
+    new Set(
+      shapeCells.map(
+        item =>
+          makeCellKey(
+            item.stringIndex,
+            item.fret
+          )
+      )
+    );
+
+
+  return {
+    shapeName,
+    rootAnchor,
+    blockStartString,
+    blockEndString,
+    shapeCells,
+    requiredCellKeys
+  };
+}
+
+
+function createCagedExercise(
+  cells,
+  baseRoot,
+  baseMode
+) {
+  const allowedModes =
+    getSelectedNpsModes();
+
+  const allowedShapes =
+    getSelectedCagedShapes();
+
+  const allowedDegrees =
+    new Set(
+      getSelectedStartDegrees()
+    );
+
+  const validModes = [];
+
+
+  allowedModes.forEach(
+    modeName => {
+      const modeRoot =
+        getRelativeModeRoot(
+          baseRoot,
+          baseMode,
+          modeName
+        );
+
+      const rootAnchors =
+        cells.filter(
+          item =>
+            item.fret >= 0 &&
+            item.fret <= 12 &&
+            item.stringIndex >= 2 &&
+            midiToPitchClass(
+              item.absolutePitch
+            ) ===
+              modeRoot
+        );
+
+      const validRoots = [];
+
+
+      rootAnchors.forEach(
+        rootAnchor => {
+          const feasibleShapes = [];
+
+
+          allowedShapes.forEach(
+            shapeName => {
+              const builtShape =
+                buildCagedShapeForAnchor(
+                  cells,
+                  modeRoot,
+                  modeName,
+                  rootAnchor,
+                  shapeName
+                );
+
+              if (!builtShape) {
+                return;
+              }
+
+
+              const startCandidates =
+                builtShape
+                  .shapeCells
+                  .filter(
+                    item => {
+                      const interval =
+                        getNpsIntervalForPitch(
+                          midiToPitchClass(
+                            item.absolutePitch
+                          ),
+                          modeRoot,
+                          modeName
+                        );
+
+                      const degree =
+                        getGenericDegreeForNpsInterval(
+                          modeName,
+                          interval
+                        );
+
+                      return (
+                        degree &&
+                        allowedDegrees.has(
+                          degree
+                        )
+                      );
+                    }
+                  );
+
+
+              if (
+                startCandidates.length === 0
+              ) {
+                return;
+              }
+
+
+              feasibleShapes.push({
+                ...builtShape,
+                startCandidates
+              });
+            }
+          );
+
+
+          if (
+            feasibleShapes.length > 0
+          ) {
+            validRoots.push({
+              rootAnchor,
+              feasibleShapes
+            });
+          }
+        }
+      );
+
+
+      if (
+        validRoots.length > 0
+      ) {
+        validModes.push({
+          modeName,
+          modeRoot,
+          validRoots
+        });
+      }
+    }
+  );
+
+
+  if (
+    validModes.length === 0
+  ) {
+    return null;
+  }
+
+
+  /*
+    Selection order intentionally matches the lesson spec:
+      1. random allowed mode
+      2. random valid root on frets 0-12
+      3. random feasible allowed CAGED shape
+      4. random allowed start note inside that shape
+  */
+
+  const selectedMode =
+    randomItem(
+      validModes
+    );
+
+  const selectedRoot =
+    randomItem(
+      selectedMode.validRoots
+    );
+
+  const selectedShape =
+    randomItem(
+      selectedRoot.feasibleShapes
+    );
+
+  const startItem =
+    randomItem(
+      selectedShape.startCandidates
+    );
+
+  const startInterval =
+    getNpsIntervalForPitch(
+      midiToPitchClass(
+        startItem.absolutePitch
+      ),
+      selectedMode.modeRoot,
+      selectedMode.modeName
+    );
+
+  const startCellKey =
+    makeCellKey(
+      startItem.stringIndex,
+      startItem.fret
+    );
+
+
+  return {
+    mode:
+      selectedMode.modeName,
+
+    modeRoot:
+      selectedMode.modeRoot,
+
+    shapeName:
+      selectedShape.shapeName,
+
+    rootCellKey:
+      makeCellKey(
+        selectedRoot
+          .rootAnchor
+          .stringIndex,
+        selectedRoot
+          .rootAnchor
+          .fret
+      ),
+
+    startInterval,
+
+    startCellKey,
+
+    startStringIndex:
+      startItem.stringIndex,
+
+    startStringName:
+      midiToScientificPitch(
+        currentTuning[
+          startItem.stringIndex
+        ]
+      ),
+
+    requiredCellKeys:
+      new Set(
+        selectedShape
+          .requiredCellKeys
+      ),
+
+    remainingCellKeys:
+      new Set(
+        selectedShape
+          .requiredCellKeys
+      )
+  };
+}
+
+
+function displayCagedQuestion() {
+  const answerDisplay =
+    document.getElementById(
+      'answerNote'
+    );
+
+  const exercise =
+    currentCagedExercise;
+
+  if (!exercise) {
+    answerDisplay.textContent =
+      'Done!';
+
+    return;
+  }
+
+  answerDisplay.innerHTML = '';
+  answerDisplay.className =
+    'npsExerciseCard';
+
+  const primaryLine =
+    document.createElement(
+      'div'
+    );
+
+  primaryLine.className =
+    'npsExercisePrimary';
+
+  const mode =
+    document.createElement(
+      'span'
+    );
+
+  mode.className =
+    'npsExerciseMode';
+
+  mode.textContent =
+    modeNames[
+      exercise.mode
+    ];
+
+  const shape =
+    document.createElement(
+      'span'
+    );
+
+  shape.className =
+    'npsExerciseDirection';
+
+  shape.textContent =
+    exercise.shapeName +
+    ' shape';
+
+  primaryLine.appendChild(
+    mode
+  );
+
+  primaryLine.appendChild(
+    shape
+  );
+
+  answerDisplay.appendChild(
+    primaryLine
+  );
+}
+
+
+/* =========================================================
    SHAPE AROUND INTERVAL
    ========================================================= */
 
@@ -2517,6 +3350,7 @@ function buildTrainer() {
   currentAnswer = null;
   currentNpsExercise = null;
   currentShapeExercise = null;
+  currentCagedExercise = null;
   showAll = false;
 
   document
@@ -2539,7 +3373,9 @@ function buildTrainer() {
   const allCells = [];
 
   const maxFret =
-    lessonType === 'nps'
+    ['nps', 'caged'].includes(
+      lessonType
+    )
       ? 24
       : lessonType === 'shape'
         ? 15
@@ -2592,7 +3428,7 @@ function buildTrainer() {
     'fretboardStage';
 
   if (
-    ['nps', 'shape'].includes(
+    ['nps', 'shape', 'caged'].includes(
       lessonType
     )
   ) {
@@ -3048,6 +3884,79 @@ function buildTrainer() {
 
 
   /* =======================================================
+     CAGED PENTATONIC
+     ======================================================= */
+
+  if (
+    lessonType === 'caged'
+  ) {
+    currentCagedExercise =
+      createCagedExercise(
+        allCells,
+        root,
+        scaleName
+      );
+
+    if (
+      !currentCagedExercise
+    ) {
+      document
+        .getElementById(
+          'answerNote'
+        )
+        .textContent =
+          'No valid CAGED pentatonic shape for these settings.';
+
+      return;
+    }
+
+
+    /*
+      Translate all visible intervals relative to the
+      randomly selected modal root, exactly like NPS.
+    */
+
+    allCells.forEach(
+      item => {
+        const pitchClass =
+          midiToPitchClass(
+            item.absolutePitch
+          );
+
+        const translatedInterval =
+          getNpsIntervalForPitch(
+            pitchClass,
+            currentCagedExercise
+              .modeRoot,
+            currentCagedExercise
+              .mode
+          );
+
+        item.element.dataset
+          .displayInterval =
+            translatedInterval || '';
+
+        hideCell(
+          item.element
+        );
+      }
+    );
+
+
+    displayCagedQuestion();
+
+    fretboard.appendChild(
+      createNpsStartMarker(
+        currentCagedExercise,
+        tuning.length
+      )
+    );
+
+    return;
+  }
+
+
+  /* =======================================================
      INTERVAL LESSON
      ======================================================= */
 
@@ -3430,7 +4339,9 @@ function intervalTargetComplete() {
 
 function temporarilyShowWrong(cell) {
   const interval =
-    getLessonType() === 'nps'
+    ['nps', 'caged'].includes(
+      getLessonType()
+    )
       ? cell.dataset.displayInterval
       : cell.dataset.interval;
 
@@ -3439,7 +4350,7 @@ function temporarilyShowWrong(cell) {
   }
 
   if (
-    ['nps', 'shape'].includes(
+    ['nps', 'shape', 'caged'].includes(
       getLessonType()
     )
   ) {
@@ -3698,6 +4609,86 @@ document
       }
 
 
+      /* CAGED PENTATONIC LESSON */
+
+      if (
+        getLessonType() ===
+        'caged'
+      ) {
+        const exercise =
+          currentCagedExercise;
+
+        if (!exercise) {
+          return;
+        }
+
+        if (
+          cell.classList.contains(
+            'correct'
+          )
+        ) {
+          return;
+        }
+
+        const cellKey =
+          makeCellKey(
+            Number(
+              cell.dataset.stringIndex
+            ),
+            Number(
+              cell.dataset.fret
+            )
+          );
+
+
+        if (
+          !exercise
+            .remainingCellKeys
+            .has(
+              cellKey
+            )
+        ) {
+          temporarilyShowWrong(
+            cell
+          );
+
+          return;
+        }
+
+
+        cell.classList.remove(
+          'wrong'
+        );
+
+        cell.classList.add(
+          'correct'
+        );
+
+        revealCell(
+          cell
+        );
+
+        exercise
+          .remainingCellKeys
+          .delete(
+            cellKey
+          );
+
+
+        if (
+          exercise
+            .remainingCellKeys
+            .size === 0
+        ) {
+          scheduleQuizTransition(
+            buildTrainer
+          );
+        }
+
+        return;
+      }
+
+
       /* 2/3 NPS LESSON */
 
       const exercise =
@@ -3935,6 +4926,7 @@ buildIntervalControls();
 buildNpsModeControls();
 buildStartDegreeControls();
 buildDirectionControls();
+buildCagedShapeControls();
 
 updateLessonControls();
 buildTrainer();
