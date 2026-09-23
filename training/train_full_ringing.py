@@ -141,6 +141,7 @@ def main():
     ap.add_argument("wav_dir",type=Path)
     ap.add_argument("--out",type=Path,default=Path("training/results/full_ringing"))
     ap.add_argument("--feature-set",choices=("baseline","full"),default="full")
+    ap.add_argument("--trees",type=int,default=100,help="XGBoost estimators for validation/final model")
     a=ap.parse_args(); a.out.mkdir(parents=True,exist_ok=True)
     rows=[]; xs=[]
     for path in sorted(a.wav_dir.glob("*.wav")):
@@ -165,7 +166,7 @@ def main():
         train=np.where(df.midi.to_numpy()!=midi)[0]
         if not len(train): continue
         scaler=StandardScaler().fit(X[train])
-        clf=model().fit(scaler.transform(X[train]),truth[train]-1)
+        clf=model(a.trees).fit(scaler.transform(X[train]),truth[train]-1)
         probs=clf.predict_proba(scaler.transform(X[test]))
         for row_i,idx in enumerate(test):
             p=mask(probs[row_i],int(midi))
@@ -173,12 +174,12 @@ def main():
 
     strengths=sorted(df.strength.unique())
     metrics={"recordings":len(df),"positions":int(df[["string","fret"]].drop_duplicates().shape[0]),
-      "muted_included":0,"feature_set":a.feature_set,"features":X.shape[1],
+      "muted_included":0,"feature_set":a.feature_set,"features":X.shape[1],"trees":a.trees,
       "leave_one_pitch_out_accuracy":float(accuracy_score(truth,pred)),
       "by_strength":{s:float(accuracy_score(truth[df.strength==s],pred[df.strength.to_numpy()==s]))
                      for s in strengths}}
     final_scaler=StandardScaler().fit(X)
-    final_model=model().fit(final_scaler.transform(X),truth-1)
+    final_model=model(a.trees).fit(final_scaler.transform(X),truth-1)
     final_model.save_model(a.out/"ringing_xgboost.json")
     joblib.dump(final_scaler,a.out/"ringing_scaler.joblib")
     (a.out/"feature_names.json").write_text(json.dumps(names,indent=2))
