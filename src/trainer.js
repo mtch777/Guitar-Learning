@@ -1010,6 +1010,10 @@ function revealCell(
     );
   }
 
+  cell.classList.remove(
+    'unknownInterval'
+  );
+
   cell.classList.add(
     'revealed'
   );
@@ -1031,9 +1035,17 @@ function hideCell(cell) {
     cell.dataset.openString ===
     'true'
   ) {
+    cell.classList.remove(
+      'unknownInterval'
+    );
+
     cell.innerText =
       cell.dataset.noteName;
   } else {
+    cell.classList.add(
+      'unknownInterval'
+    );
+
     cell.innerText = '';
   }
 }
@@ -2805,6 +2817,10 @@ function temporarilyShowWrong(cell) {
   }
 
   clearCellStyle(cell);
+
+  cell.classList.remove(
+    'unknownInterval'
+  );
 
   cell.classList.add(
     'wrong'
