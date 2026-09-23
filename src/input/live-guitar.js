@@ -168,7 +168,7 @@ export function setupLiveGuitarInput() {
         for (const strength of DATASET_STRENGTHS) {
           // One medium sweet-spot take per remaining position.
           // Preserve the current medium target used in the S1/S2 pass.
-          const expectedDb = expectedDatasetDb(string, fret, strength.key) - 4.0;
+          const expectedDb = expectedDatasetDb(string, fret, strength.key) - 6.0;
           const toleranceDb = DATASET_VOLUME_TOLERANCE_DB[strength.key];
           cases.push({
             string,
