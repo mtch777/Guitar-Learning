@@ -27,12 +27,14 @@
             <label class="singleOption"><input type="radio" name="lessonType" value="intervals"><span>Intervals Relative to Low String</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="shape" checked><span>Closest interval</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="nps"><span>2/3 NPS Starting From Interval</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="caged"><span>CAGED pentatonic</span></label>
           </div>
         </details>
         <span class="stateOnly"><select id="lessonTypeSelect" aria-hidden="true" tabindex="-1">
           <option value="intervals">Intervals Relative to Low String</option>
           <option value="shape" selected>Closest interval</option>
           <option value="nps">2/3 NPS Starting From Interval</option>
+          <option value="caged">CAGED pentatonic</option>
         </select></span>
         </div>
       </div>
@@ -84,10 +86,14 @@
           <span class="fieldLabel">Start</span>
           <details class="multiSelect"><summary id="startDegreeSummary">R</summary><div id="startDegreeOptions" class="multiSelectMenu"></div></details>
         </div>
-        <div class="controlField directionField">
+        <div id="directionControl" class="controlField directionField">
           <span class="fieldLabel">Direction</span>
           <div id="directionOptions" class="directionSegment" role="radiogroup" aria-label="Direction"></div>
           <span id="directionSummary" hidden></span>
+        </div>
+        <div id="cagedShapeControl" class="controlField" hidden>
+          <span class="fieldLabel">Shapes</span>
+          <details class="multiSelect"><summary id="cagedShapeSummary">All 5</summary><div id="cagedShapeOptions" class="multiSelectMenu"></div></details>
         </div>
       </div>
       </div>
