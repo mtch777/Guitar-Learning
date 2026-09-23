@@ -66,16 +66,13 @@
         </div>
         <div id="orderControl" class="controlField orderField">
           <span class="fieldLabel">Order</span>
-          <details id="orderDropdown" class="singleSelect">
-            <summary id="orderSummary">Ordered</summary>
-            <div class="singleSelectMenu">
-              <label class="singleOption"><input type="radio" name="order" value="random"><span>Random</span></label>
-              <label class="singleOption"><input type="radio" name="order" value="ordered" checked><span>Ordered</span></label>
-            </div>
-          </details>
+          <div id="orderOptions" class="orderSegment" role="radiogroup" aria-label="Order">
+            <label class="orderOption"><input type="radio" name="orderToggle" value="random" checked><span title="Random" aria-label="Random">🔀</span></label>
+            <label class="orderOption"><input type="radio" name="orderToggle" value="ordered"><span title="Ordered" aria-label="Ordered">🔁</span></label>
+          </div>
           <span class="stateOnly"><select id="orderSelect" aria-hidden="true" tabindex="-1">
-            <option value="random">Random</option>
-            <option value="ordered" selected>Ordered</option>
+            <option value="random" selected>Random</option>
+            <option value="ordered">Ordered</option>
           </select></span></div></div>
 
       <div id="npsControls" class="npsControlGrid" hidden>
