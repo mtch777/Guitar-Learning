@@ -81,7 +81,7 @@ select.stateSelect {
 .setupPanel {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 8px;
   width: 100%;
   min-width: 0;
@@ -90,7 +90,7 @@ select.stateSelect {
 .settingsSection {
   display: inline-grid;
   grid-template-rows: auto auto;
-  align-self: flex-start;
+  align-self: stretch;
   width: max-content;
   min-width: 0;
   padding: 0;
@@ -136,10 +136,11 @@ select.stateSelect {
 }
 
 /*
-  Top-row lesson settings use inline labels so every settings
-  card has the same natural content height.
+  Any labeled filter in the top settings row is one horizontal
+  control: label on the left, UI on the right. This keeps every
+  top card to the same single-control-row height.
 */
-.lessonSettingsSection .controlField {
+.setupPanel .controlField:has(.fieldLabel) {
   flex-direction: row;
   align-items: center;
   gap: 8px;
