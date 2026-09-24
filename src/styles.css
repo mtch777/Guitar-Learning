@@ -53,7 +53,7 @@ body {
 .stateOnly,
 .stateSelect,
 select.stateSelect {
-  display: none;
+  display: none !important;
 }
 
 
