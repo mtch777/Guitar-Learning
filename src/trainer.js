@@ -3766,292 +3766,307 @@ function createCagedExercise(
       getSelectedStartDegrees()
     );
 
-  const viableModes = [];
-
-
-  /*
-    Important selection rule:
-
-    We no longer discard a 0-12 modal root just because
-    no CAGED box can be anchored there.
-
-    Each root gets:
-      1. normal CAGED candidates, if any fit
-      2. otherwise, NPS -> fitting-CAGED fallback candidates
-  */
-
-  allowedModes.forEach(
-    modeName => {
-      const modeRoot =
-        getRelativeModeRoot(
-          baseRoot,
-          baseMode,
-          modeName
-        );
-
-      const rootAnchors =
-        cells.filter(
-          item =>
-            item.fret >= 0 &&
-            item.fret <= 12 &&
-            item.stringIndex >= 2 &&
-            midiToPitchClass(
-              item.absolutePitch
-            ) ===
-              modeRoot
-        );
-
-      const viableRoots = [];
-
-
-      rootAnchors.forEach(
-        rootAnchor => {
-          const directCandidates = [];
-
-
-          allowedShapes.forEach(
-            shapeName => {
-              const builtShapes =
-                buildCagedShapesForAnchor(
-                  cells,
-                  modeRoot,
-                  modeName,
-                  rootAnchor,
-                  shapeName
-                );
-
-
-              builtShapes.forEach(
-                builtShape => {
-                  const startCandidates =
-                    getCagedStartCandidates(
-                      builtShape.shapeCells,
-                      modeRoot,
-                      modeName,
-                      allowedDegrees
-                    );
-
-                  if (
-                    startCandidates.length === 0
-                  ) {
-                    return;
-                  }
-
-
-                  directCandidates.push({
-                    ...builtShape,
-
-                    usesNpsBridge:
-                      false,
-
-                    startCandidates
-                  });
-                }
-              );
-            }
-          );
-
-
-          let candidates =
-            directCandidates;
-
-
-          if (
-            candidates.length === 0
-          ) {
-            const sides =
-              getCagedFallbackSides(
-                modeRoot,
-                modeName,
-                rootAnchor,
-                allowedShapes
-              );
-
-            candidates =
-              getCagedNpsFallbacks(
-                cells,
-                modeRoot,
-                modeName,
-                rootAnchor,
-                allowedShapes,
-                allowedDegrees,
-                sides
-              );
-          }
-
-
-          if (
-            candidates.length > 0
-          ) {
-            viableRoots.push({
-              rootAnchor,
-              candidates
-            });
-          }
-        }
-      );
-
-
-      if (
-        viableRoots.length > 0
-      ) {
-        viableModes.push({
-          modeName,
-          modeRoot,
-          viableRoots
-        });
-      }
-    }
-  );
-
 
   if (
-    viableModes.length === 0
+    allowedModes.length === 0 ||
+    allowedShapes.length === 0
   ) {
     return null;
   }
 
 
   /*
-    Preserve the intended random hierarchy:
-      mode -> 0-12 root -> direct/fallback shape
+    Selection order:
+
+      1. Random allowed mode of the selected base key.
+      2. Random occurrence of THAT mode root anywhere on the
+         fretboard, frets 0-12, strings 1-8.
+      3. Check whether ANY enabled CAGED shape can use that
+         exact root coordinate.
+      4. If yes, use one of those direct CAGED shapes.
+      5. If no, build a 2/3-NPS bridge from the selected root
+         into ONE enabled CAGED shape that fits elsewhere.
+
+    Important:
+    the initially selected coordinate is never restricted to
+    strings 3-8. Strings 1 and 2 are valid starting/root
+    coordinates and naturally require the NPS connector.
   */
 
-  const selectedMode =
-    randomItem(
-      viableModes
-    );
-
-  const selectedRoot =
-    randomItem(
-      selectedMode.viableRoots
-    );
-
-  const selectedCandidate =
-    randomItem(
-      selectedRoot.candidates
-    );
-
-  const startItem =
-    randomItem(
-      selectedCandidate
-        .startCandidates
-    );
-
-  const startInterval =
-    getNpsIntervalForPitch(
-      midiToPitchClass(
-        startItem.absolutePitch
-      ),
-      selectedMode.modeRoot,
-      selectedMode.modeName
-    );
-
-  const startCellKey =
-    makeCellKey(
-      startItem.stringIndex,
-      startItem.fret
+  const shuffledModes =
+    shuffleList(
+      allowedModes
     );
 
 
-  return {
-    mode:
-      selectedMode.modeName,
+  for (
+    const modeName of
+    shuffledModes
+  ) {
+    const modeRoot =
+      getRelativeModeRoot(
+        baseRoot,
+        baseMode,
+        modeName
+      );
 
-    modeRoot:
-      selectedMode.modeRoot,
+    const rootAnchors =
+      shuffleList(
+        cells.filter(
+          item =>
+            item.fret >= 0 &&
+            item.fret <= 12 &&
+            midiToPitchClass(
+              item.absolutePitch
+            ) ===
+              modeRoot
+        )
+      );
 
-    shapeName:
-      selectedCandidate.shapeName,
 
-    usesNpsBridge:
-      Boolean(
-        selectedCandidate
-          .usesNpsBridge
-      ),
+    for (
+      const rootAnchor of
+      rootAnchors
+    ) {
+      const directCandidates = [];
 
-    fallbackSide:
-      selectedCandidate
-        .fallbackSide ||
-      null,
 
-    bridgeDirection:
-      selectedCandidate
-        .bridgeDirection ||
-      null,
+      /*
+        Direct CAGED:
+        only shapes whose LOCKED physical root string matches
+        this exact selected coordinate can survive.
+      */
+      allowedShapes.forEach(
+        shapeName => {
+          const builtShapes =
+            buildCagedShapesForAnchor(
+              cells,
+              modeRoot,
+              modeName,
+              rootAnchor,
+              shapeName
+            );
 
-    connectionCellKey:
-      selectedCandidate
-        .connectionCellKey ||
-      null,
 
-    bridgeCellKeys:
-      new Set(
-        selectedCandidate
-          .bridgeCellKeys ||
-        []
-      ),
+          builtShapes.forEach(
+            builtShape => {
+              const startCandidates =
+                getCagedStartCandidates(
+                  builtShape.shapeCells,
+                  modeRoot,
+                  modeName,
+                  allowedDegrees
+                );
 
-    bridgeStartInterval:
-      selectedCandidate
-        .bridgeStartInterval ||
-      null,
+              if (
+                startCandidates.length === 0
+              ) {
+                return;
+              }
 
-    bridgeStartCellKey:
-      selectedCandidate
-        .bridgeStartCellKey ||
-      null,
 
-    bridgeStartStringIndex:
-      Number.isInteger(
-        selectedCandidate
-          .bridgeStartStringIndex
-      )
-        ? selectedCandidate
-            .bridgeStartStringIndex
-        : null,
+              directCandidates.push({
+                ...builtShape,
 
-    bridgeStartStringName:
-      selectedCandidate
-        .bridgeStartStringName ||
-      null,
+                usesNpsBridge:
+                  false,
 
-    rootCellKey:
-      makeCellKey(
-        selectedRoot
-          .rootAnchor
-          .stringIndex,
-        selectedRoot
-          .rootAnchor
-          .fret
-      ),
+                startCandidates
+              });
+            }
+          );
+        }
+      );
 
-    startInterval,
 
-    startCellKey,
+      let candidates =
+        directCandidates;
 
-    startStringIndex:
-      startItem.stringIndex,
 
-    startStringName:
-      midiToScientificPitch(
-        currentTuning[
-          startItem.stringIndex
-        ]
-      ),
+      /*
+        No CAGED shape fits THIS coordinate.
 
-    requiredCellKeys:
-      new Set(
-        selectedCandidate
-          .requiredCellKeys
-      ),
+        Do NOT try to force a particular failed shape.
+        Find a 2/3-NPS connection into ONE enabled CAGED
+        shape that actually fits.
+      */
+      if (
+        candidates.length === 0
+      ) {
+        const sides =
+          getCagedFallbackSides(
+            modeRoot,
+            modeName,
+            rootAnchor,
+            allowedShapes
+          );
 
-    remainingCellKeys:
-      new Set(
-        selectedCandidate
-          .requiredCellKeys
-      )
-  };
+        candidates =
+          getCagedNpsFallbacks(
+            cells,
+            modeRoot,
+            modeName,
+            rootAnchor,
+            allowedShapes,
+            allowedDegrees,
+            sides
+          );
+      }
+
+
+      if (
+        candidates.length === 0
+      ) {
+        /*
+          Extremely unusual dead end: try another randomly
+          ordered coordinate rather than producing an empty
+          exercise.
+        */
+        continue;
+      }
+
+
+      const selectedCandidate =
+        randomItem(
+          candidates
+        );
+
+
+      /*
+        With the default Start = R, the visible primary start
+        cue is the exact coordinate chosen in step 2.
+
+        If the user explicitly selects other Start degrees,
+        preserve the existing Start-filter behavior.
+      */
+      const startItem =
+        allowedDegrees.has('R')
+          ? rootAnchor
+          : randomItem(
+              selectedCandidate
+                .startCandidates
+            );
+
+      const startInterval =
+        getNpsIntervalForPitch(
+          midiToPitchClass(
+            startItem.absolutePitch
+          ),
+          modeRoot,
+          modeName
+        );
+
+      const startCellKey =
+        makeCellKey(
+          startItem.stringIndex,
+          startItem.fret
+        );
+
+
+      return {
+        mode:
+          modeName,
+
+        modeRoot,
+
+        shapeName:
+          selectedCandidate.shapeName,
+
+        usesNpsBridge:
+          Boolean(
+            selectedCandidate
+              .usesNpsBridge
+          ),
+
+        fallbackSide:
+          selectedCandidate
+            .fallbackSide ||
+          null,
+
+        bridgeDirection:
+          selectedCandidate
+            .bridgeDirection ||
+          null,
+
+        connectionCellKey:
+          selectedCandidate
+            .connectionCellKey ||
+          null,
+
+        bridgeCellKeys:
+          new Set(
+            selectedCandidate
+              .bridgeCellKeys ||
+            []
+          ),
+
+        bridgeStartInterval:
+          selectedCandidate
+            .bridgeStartInterval ||
+          null,
+
+        bridgeStartCellKey:
+          selectedCandidate
+            .bridgeStartCellKey ||
+          null,
+
+        bridgeStartStringIndex:
+          Number.isInteger(
+            selectedCandidate
+              .bridgeStartStringIndex
+          )
+            ? selectedCandidate
+                .bridgeStartStringIndex
+            : null,
+
+        bridgeStartStringName:
+          selectedCandidate
+            .bridgeStartStringName ||
+          null,
+
+        rootCellKey:
+          makeCellKey(
+            rootAnchor.stringIndex,
+            rootAnchor.fret
+          ),
+
+        selectedRootStringIndex:
+          rootAnchor.stringIndex,
+
+        selectedRootFret:
+          rootAnchor.fret,
+
+        startInterval,
+
+        startCellKey,
+
+        startStringIndex:
+          startItem.stringIndex,
+
+        startStringName:
+          midiToScientificPitch(
+            currentTuning[
+              startItem.stringIndex
+            ]
+          ),
+
+        requiredCellKeys:
+          new Set(
+            selectedCandidate
+              .requiredCellKeys
+          ),
+
+        remainingCellKeys:
+          new Set(
+            selectedCandidate
+              .requiredCellKeys
+          )
+      };
+    }
+  }
+
+
+  return null;
 }
 
 
