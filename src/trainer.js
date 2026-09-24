@@ -5152,6 +5152,10 @@ function buildTrainer() {
     fretboard.classList.add(
       'compact'
     );
+
+    stage.classList.add(
+      'compact'
+    );
   }
 
   fretboard.style.setProperty(
