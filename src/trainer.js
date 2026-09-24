@@ -404,38 +404,103 @@ const cagedShapeOrder = [
 ];
 
 /*
-  Root position inside a six-string CAGED block,
-  counted from that block's lowest string.
+  EVERY root occurrence in each standard six-string CAGED
+  shape.
 
-  On the normal six-string block of this 8-string tuning
-  (physical strings 3-8), this maps to:
-    G / E root -> physical string 3
-    C / A root -> physical string 4
-    D     root -> physical string 5
+  Offsets are counted from the LOWEST string of the six-string
+  block, using this app's low-to-high string convention:
 
-  G/C use the root as the higher note of the local
-  two-note pentatonic pair. E/A/D use it as the lower note.
+    offset 0 = shape string 1 / standard guitar string 6
+    offset 1 = shape string 2 / standard guitar string 5
+    offset 2 = shape string 3 / standard guitar string 4
+    offset 3 = shape string 4 / standard guitar string 3
+    offset 4 = shape string 5 / standard guitar string 2
+    offset 5 = shape string 6 / standard guitar string 1
+
+  Root strings, in this app's low-to-high convention:
+
+    C: 2, 5
+    A: 2, 4
+    G: 1, 4, 6
+    E: 1, 3, 6
+    D: 3, 5
+
+  "high" = the root is the higher note of the local
+  two-note pentatonic pair on that string.
+  "low"  = the root is the lower note.
 */
 const cagedShapeDefinitions = {
   C: {
-    rootStringOffset: 1,
-    rootRole: 'high'
+    roots: [
+      {
+        offset: 1,
+        role: 'high'
+      },
+      {
+        offset: 4,
+        role: 'low'
+      }
+    ]
   },
+
   A: {
-    rootStringOffset: 1,
-    rootRole: 'low'
+    roots: [
+      {
+        offset: 1,
+        role: 'low'
+      },
+      {
+        offset: 3,
+        role: 'low'
+      }
+    ]
   },
+
   G: {
-    rootStringOffset: 0,
-    rootRole: 'high'
+    roots: [
+      {
+        offset: 0,
+        role: 'high'
+      },
+      {
+        offset: 3,
+        role: 'low'
+      },
+      {
+        offset: 5,
+        role: 'high'
+      }
+    ]
   },
+
   E: {
-    rootStringOffset: 0,
-    rootRole: 'low'
+    roots: [
+      {
+        offset: 0,
+        role: 'low'
+      },
+      {
+        offset: 2,
+        role: 'low'
+      },
+      {
+        offset: 5,
+        role: 'low'
+      }
+    ]
   },
+
   D: {
-    rootStringOffset: 2,
-    rootRole: 'low'
+    roots: [
+      {
+        offset: 2,
+        role: 'low'
+      },
+      {
+        offset: 4,
+        role: 'high'
+      }
+    ]
   }
 };
 
@@ -2380,25 +2445,23 @@ function getClosestCagedPair(
 }
 
 
-function buildCagedShapeForAnchor(
+function buildCagedShapeForRootPosition(
   cells,
   modeRoot,
   modeName,
   rootAnchor,
-  shapeName
+  shapeName,
+  rootPosition
 ) {
-  const definition =
-    cagedShapeDefinitions[
-      shapeName
-    ];
-
-  if (!definition) {
+  if (
+    !rootPosition
+  ) {
     return null;
   }
 
   const blockStartString =
     rootAnchor.stringIndex -
-    definition.rootStringOffset;
+    rootPosition.offset;
 
   const blockEndString =
     blockStartString + 5;
@@ -2434,7 +2497,7 @@ function buildCagedShapeForAnchor(
   let rootPair;
 
   if (
-    definition.rootRole ===
+    rootPosition.role ===
     'high'
   ) {
     if (
@@ -2530,10 +2593,6 @@ function buildCagedShapeForAnchor(
       pair.high
     ];
 
-    /*
-      Reject the whole shape if its natural position crosses
-      the nut or extends beyond the 24-fret practice board.
-    */
     if (
       pairFrets.some(
         fret =>
@@ -2582,12 +2641,99 @@ function buildCagedShapeForAnchor(
 
   return {
     shapeName,
+
     rootAnchor,
+
+    rootPositionOffset:
+      rootPosition.offset,
+
+    rootPositionRole:
+      rootPosition.role,
+
     blockStartString,
+
     blockEndString,
+
     shapeCells,
+
     requiredCellKeys
   };
+}
+
+
+function buildCagedShapesForAnchor(
+  cells,
+  modeRoot,
+  modeName,
+  rootAnchor,
+  shapeName
+) {
+  const definition =
+    cagedShapeDefinitions[
+      shapeName
+    ];
+
+  if (
+    !definition ||
+    !Array.isArray(
+      definition.roots
+    )
+  ) {
+    return [];
+  }
+
+
+  const results = [];
+  const seen =
+    new Set();
+
+
+  definition.roots.forEach(
+    rootPosition => {
+      const built =
+        buildCagedShapeForRootPosition(
+          cells,
+          modeRoot,
+          modeName,
+          rootAnchor,
+          shapeName,
+          rootPosition
+        );
+
+      if (!built) {
+        return;
+      }
+
+      const key =
+        [
+          built.blockStartString,
+          ...[
+            ...built.requiredCellKeys
+          ].sort()
+        ].join(
+          '|'
+        );
+
+      if (
+        seen.has(
+          key
+        )
+      ) {
+        return;
+      }
+
+      seen.add(
+        key
+      );
+
+      results.push(
+        built
+      );
+    }
+  );
+
+
+  return results;
 }
 
 
@@ -2634,27 +2780,15 @@ function getCagedStartCandidates(
   "high" means it would cross above fret 24 or above
   physical String 8.
 */
-function getCagedShapeOverflow(
+function getCagedShapeOverflowForRootPosition(
   modeRoot,
   modeName,
   rootAnchor,
-  shapeName
+  rootPosition
 ) {
-  const definition =
-    cagedShapeDefinitions[
-      shapeName
-    ];
-
-  if (!definition) {
-    return {
-      low: false,
-      high: false
-    };
-  }
-
   const blockStartString =
     rootAnchor.stringIndex -
-    definition.rootStringOffset;
+    rootPosition.offset;
 
   const blockEndString =
     blockStartString + 5;
@@ -2667,10 +2801,6 @@ function getCagedShapeOverflow(
     currentTuning.length;
 
 
-  /*
-    If the six-string block itself is outside the
-    instrument, there is no need to calculate fret bounds.
-  */
   if (
     low ||
     high
@@ -2707,7 +2837,7 @@ function getCagedShapeOverflow(
   let rootPair;
 
   if (
-    definition.rootRole ===
+    rootPosition.role ===
     'high'
   ) {
     if (
@@ -2828,6 +2958,58 @@ function getCagedShapeOverflow(
 }
 
 
+function getCagedShapeOverflow(
+  modeRoot,
+  modeName,
+  rootAnchor,
+  shapeName
+) {
+  const definition =
+    cagedShapeDefinitions[
+      shapeName
+    ];
+
+  if (
+    !definition ||
+    !Array.isArray(
+      definition.roots
+    )
+  ) {
+    return {
+      low: false,
+      high: false
+    };
+  }
+
+
+  const overflows =
+    definition.roots.map(
+      rootPosition =>
+        getCagedShapeOverflowForRootPosition(
+          modeRoot,
+          modeName,
+          rootAnchor,
+          rootPosition
+        )
+    );
+
+
+  return {
+    low:
+      overflows.some(
+        overflow =>
+          overflow.low
+      ),
+
+    high:
+      overflows.some(
+        overflow =>
+          overflow.high
+      )
+  };
+}
+
+
 function getCagedFallbackSides(
   modeRoot,
   modeName,
@@ -2930,8 +3112,8 @@ function getFittingCagedShapesForMode(
     rootAnchor => {
       allowedShapes.forEach(
         shapeName => {
-          const built =
-            buildCagedShapeForAnchor(
+          const builtShapes =
+            buildCagedShapesForAnchor(
               cells,
               modeRoot,
               modeName,
@@ -2939,35 +3121,35 @@ function getFittingCagedShapesForMode(
               shapeName
             );
 
-          if (!built) {
-            return;
-          }
+          builtShapes.forEach(
+            built => {
+              const key =
+                [
+                  shapeName,
+                  ...[
+                    ...built
+                      .requiredCellKeys
+                  ].sort()
+                ].join(
+                  '|'
+                );
 
-          const key =
-            [
-              shapeName,
-              ...[
-                ...built
-                  .requiredCellKeys
-              ].sort()
-            ].join(
-              '|'
-            );
+              if (
+                seen.has(
+                  key
+                )
+              ) {
+                return;
+              }
 
-          if (
-            seen.has(
-              key
-            )
-          ) {
-            return;
-          }
+              seen.add(
+                key
+              );
 
-          seen.add(
-            key
-          );
-
-          results.push(
-            built
+              results.push(
+                built
+              );
+            }
           );
         }
       );
@@ -3572,8 +3754,8 @@ function createCagedExercise(
 
           allowedShapes.forEach(
             shapeName => {
-              const builtShape =
-                buildCagedShapeForAnchor(
+              const builtShapes =
+                buildCagedShapesForAnchor(
                   cells,
                   modeRoot,
                   modeName,
@@ -3581,33 +3763,34 @@ function createCagedExercise(
                   shapeName
                 );
 
-              if (!builtShape) {
-                return;
-              }
 
-              const startCandidates =
-                getCagedStartCandidates(
-                  builtShape.shapeCells,
-                  modeRoot,
-                  modeName,
-                  allowedDegrees
-                );
+              builtShapes.forEach(
+                builtShape => {
+                  const startCandidates =
+                    getCagedStartCandidates(
+                      builtShape.shapeCells,
+                      modeRoot,
+                      modeName,
+                      allowedDegrees
+                    );
 
-              if (
-                startCandidates.length === 0
-              ) {
-                return;
-              }
+                  if (
+                    startCandidates.length === 0
+                  ) {
+                    return;
+                  }
 
 
-              directCandidates.push({
-                ...builtShape,
+                  directCandidates.push({
+                    ...builtShape,
 
-                usesNpsBridge:
-                  false,
+                    usesNpsBridge:
+                      false,
 
-                startCandidates
-              });
+                    startCandidates
+                  });
+                }
+              );
             }
           );
 
