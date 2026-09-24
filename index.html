@@ -10,14 +10,6 @@
   <main class="trainerShell">
     <div class="trainerControls">
     <section class="setupPanel">
-      <button id="themeToggle" class="themeSwitch floatingThemeToggle" type="button" aria-label="Switch to dark mode">
-        <span class="themeChoice themeSun" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"/></svg>
-        </span>
-        <span class="themeChoice themeMoon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M20.2 15.2A8.5 8.5 0 0 1 8.8 3.8 8.5 8.5 0 1 0 20.2 15.2Z"/></svg>
-        </span>
-      </button>
       <div class="settingsSection lessonSection">
         <div class="sectionTitle">Lesson</div>
         <div class="controlField lessonField">
@@ -59,7 +51,17 @@
           </select></span></div></div></div>
 
       <div class="settingsSection lessonSettingsSection">
-        <div class="sectionTitle">Lesson Settings</div>
+        <div class="sectionTitle sectionTitleWithUtility">
+          <span>Lesson Settings</span>
+          <button id="themeToggle" class="themeSwitch" type="button" aria-label="Switch to dark mode">
+            <span class="themeChoice themeSun" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"/></svg>
+            </span>
+            <span class="themeChoice themeMoon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M20.2 15.2A8.5 8.5 0 0 1 8.8 3.8 8.5 8.5 0 1 0 20.2 15.2Z"/></svg>
+            </span>
+          </button>
+        </div>
         <div id="intervalLessonControls" class="intervalLessonGrid">
         <div id="intervalControlGroup" class="controlField">
           <span class="fieldLabel">Intervals</span>
@@ -103,8 +105,9 @@
 
     <section class="promptSection">
       <div class="sectionTitle promptSectionTitle">Quiz</div>
-      <div id="answerNote"></div>
-      <div class="exerciseActions">
+      <div class="quizContentRow">
+        <div id="quizTuningControl" class="quizTuningControl" aria-label="Tuning controls"></div>
+        <div id="answerNote"></div>
         <button id="showAllButton" class="uiButton" type="button">Show Answer</button>
         <button id="nextButton" class="uiButton" type="button">Next →</button>
       </div>
