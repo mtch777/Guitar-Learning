@@ -3043,3 +3043,91 @@ button.uiButton:disabled {
     );
   }
 }
+
+
+/* =========================================================
+   TOP UI — SNAP TO AVAILABLE WIDTH
+   ========================================================= */
+
+/*
+  The horizontal control row now fills the available viewport
+  width instead of expanding to intrinsic max-content width.
+  Quiz stays separate on the far left; the setup group uses
+  the remaining width.
+*/
+.trainerShell {
+  width: 100%;
+  max-width: 100%;
+}
+
+.trainerControls {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.promptSection {
+  flex: 0 1 auto;
+  min-width: 170px;
+  max-width: 28%;
+}
+
+.setupPanel {
+  flex: 1 1 0;
+  width: auto;
+  max-width: none;
+  min-width: 0;
+}
+
+.setupPanel .settingsSection {
+  min-width: 0;
+}
+
+.lessonSection,
+.keySection {
+  flex: 0 1 auto;
+}
+
+.lessonSettingsSection {
+  flex: 1 1 auto;
+}
+
+.lessonSettingsSection .npsControlGrid {
+  max-width: 100%;
+  grid-template-columns:
+    repeat(3, minmax(0, max-content));
+}
+
+/*
+  If the available width becomes tight, let controls inside a
+  section wrap before the entire top row overflows.
+*/
+.lessonSettingsSection .npsControlGrid,
+.keyControls,
+.actionRow {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 700px) {
+  .trainerShell,
+  .trainerControls {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .promptSection {
+    max-width: 30%;
+    min-width: 150px;
+  }
+
+  .setupPanel {
+    flex: 1 1 0;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .setupPanel .settingsSection {
+    min-width: 0;
+  }
+}
