@@ -90,6 +90,7 @@ select.stateSelect {
 */
 .setupPanel {
   grid-column: 3;
+  grid-row: 1;
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
@@ -421,10 +422,12 @@ select.stateSelect {
 
 .quizStartCueSpacer {
   grid-column: 1;
+  grid-row: 2;
 }
 
 .quizTuningControl {
   grid-column: 2;
+  grid-row: 2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -433,8 +436,9 @@ select.stateSelect {
 
 .promptSection {
   grid-column: 3;
+  grid-row: 2;
   justify-self: start;
-  width: fit-content;
+  width: max-content;
   max-width: 100%;
   min-width: 0;
   padding: 0;
