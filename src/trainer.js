@@ -404,24 +404,19 @@ const cagedShapeOrder = [
 ];
 
 /*
-  CAGED is fixed to physical strings 3-8 on this 8-string
-  guitar.
+  CAGED is permanently mapped to physical strings 3-8.
 
-  Every root occurrence is LOCKED to its real physical string.
-  A selected root on any other string cannot be reinterpreted
-  by sliding the whole CAGED shape up or down.
+  Shape identity is defined by the complete fixed template,
+  including its exact root-string signature:
 
-  Physical root strings:
+    C -> physical strings 4, 7
+    A -> physical strings 4, 6
+    G -> physical strings 3, 6, 8
+    E -> physical strings 3, 5, 8
+    D -> physical strings 5, 7
 
-    C: 4, 7
-    A: 4, 6
-    G: 3, 6, 8
-    E: 3, 5, 8
-    D: 5, 7
-
-  "high" = the root is the higher note of the local
-  two-note pentatonic pair on that string.
-  "low"  = the root is the lower note.
+  A template may transpose horizontally by fret/octave only.
+  It may NEVER move vertically to different strings.
 */
 const cagedBlockStartStringIndex =
   2; // physical String 3
@@ -429,79 +424,12 @@ const cagedBlockStartStringIndex =
 const cagedBlockEndStringIndex =
   7; // physical String 8
 
-const cagedShapeDefinitions = {
-  C: {
-    roots: [
-      {
-        physicalString: 4,
-        role: 'high'
-      },
-      {
-        physicalString: 7,
-        role: 'low'
-      }
-    ]
-  },
-
-  A: {
-    roots: [
-      {
-        physicalString: 4,
-        role: 'low'
-      },
-      {
-        physicalString: 6,
-        role: 'low'
-      }
-    ]
-  },
-
-  G: {
-    roots: [
-      {
-        physicalString: 3,
-        role: 'high'
-      },
-      {
-        physicalString: 6,
-        role: 'low'
-      },
-      {
-        physicalString: 8,
-        role: 'high'
-      }
-    ]
-  },
-
-  E: {
-    roots: [
-      {
-        physicalString: 3,
-        role: 'low'
-      },
-      {
-        physicalString: 5,
-        role: 'low'
-      },
-      {
-        physicalString: 8,
-        role: 'low'
-      }
-    ]
-  },
-
-  D: {
-    roots: [
-      {
-        physicalString: 5,
-        role: 'low'
-      },
-      {
-        physicalString: 7,
-        role: 'high'
-      }
-    ]
-  }
+const cagedShapeRootStrings = {
+  C: [4, 7],
+  A: [4, 6],
+  G: [3, 6, 8],
+  E: [3, 5, 8],
+  D: [5, 7]
 };
 
 
@@ -2301,248 +2229,435 @@ function getNpsExerciseCandidates(
 
 
 /* =========================================================
-   CAGED PENTATONIC
+   CAGED PENTATONIC — FIXED TEMPLATES
 
-   The mode supplies the same five-note pentatonic set used
-   by the 2/3 NPS lesson.
+   IMPORTANT:
+   C / A / G / E / D are real six-string fretboard templates,
+   not labels attached to a generic compact pentatonic box.
 
-   CAGED is fixed to physical strings 3-8.
+   Each template below contains the exact pair of pentatonic
+   fret positions on each of the six standard-tuned strings,
+   low -> high, relative to a reference where:
 
-  Each shape has specific physical strings on which a root is
-  valid. A root on any other string does NOT move the CAGED
-  box; it requires the 2/3-NPS connector fallback instead.
+     - the lowest CAGED string has pitch class 0
+     - the modal root has pitch class 0
 
-  For each string, choose the adjacent pentatonic pair that
-  sits closest to the root-string pair while preserving that
-  fixed strings-3-through-8 placement.
+   Runtime behavior:
+     - templates are mapped ONLY to physical strings 3-8
+     - they may shift horizontally in 12-fret octaves
+     - they are transposed to the selected modal root
+     - they may never shift vertically to strings 1-2 or to
+       any other six-string block
+
+   Dorian / Aeolian / Phrygian share the same five-note
+   pentatonic interval set, so they share one template family.
    ========================================================= */
 
-function getCagedPentatonicFrets(
-  stringIndex,
-  modeRoot,
-  modeName
+const cagedTemplatesMinorFamily = {
+  C: [
+    [5, 7],
+    [5, 7],
+    [5, 7],
+    [4, 7],
+    [3, 5],
+    [3, 5]
+  ],
+
+  A: [
+    [7, 10],
+    [7, 10],
+    [7, 9],
+    [7, 9],
+    [8, 10],
+    [7, 10]
+  ],
+
+  G: [
+    [10, 12],
+    [10, 12],
+    [9, 12],
+    [9, 12],
+    [10, 12],
+    [10, 12]
+  ],
+
+  E: [
+    [0, 3],
+    [0, 2],
+    [0, 2],
+    [0, 2],
+    [0, 3],
+    [0, 3]
+  ],
+
+  D: [
+    [3, 5],
+    [2, 5],
+    [2, 5],
+    [2, 4],
+    [3, 5],
+    [3, 5]
+  ]
+};
+
+
+const cagedTemplatesIonian = {
+  C: [
+    [5, 7],
+    [6, 7],
+    [6, 7],
+    [4, 8],
+    [4, 5],
+    [4, 5]
+  ],
+
+  A: [
+    [7, 11],
+    [7, 11],
+    [7, 9],
+    [8, 9],
+    [9, 10],
+    [7, 11]
+  ],
+
+  G: [
+    [11, 12],
+    [11, 12],
+    [9, 13],
+    [9, 13],
+    [10, 12],
+    [11, 12]
+  ],
+
+  E: [
+    [0, 4],
+    [0, 2],
+    [1, 2],
+    [1, 2],
+    [0, 4],
+    [0, 4]
+  ],
+
+  D: [
+    [4, 5],
+    [2, 6],
+    [2, 6],
+    [2, 4],
+    [4, 5],
+    [4, 5]
+  ]
+};
+
+
+const cagedTemplatesLydian = {
+  C: [
+    [6, 7],
+    [6, 7],
+    [6, 8],
+    [4, 8],
+    [4, 5],
+    [4, 6]
+  ],
+
+  A: [
+    [7, 11],
+    [7, 11],
+    [8, 9],
+    [8, 9],
+    [9, 11],
+    [7, 11]
+  ],
+
+  G: [
+    [11, 12],
+    [11, 13],
+    [9, 13],
+    [9, 13],
+    [11, 12],
+    [11, 12]
+  ],
+
+  E: [
+    [0, 4],
+    [1, 2],
+    [1, 2],
+    [1, 3],
+    [0, 4],
+    [0, 4]
+  ],
+
+  D: [
+    [4, 6],
+    [2, 6],
+    [2, 6],
+    [3, 4],
+    [4, 5],
+    [4, 6]
+  ]
+};
+
+
+const cagedTemplatesMixolydian = {
+  C: [
+    [5, 7],
+    [5, 7],
+    [6, 7],
+    [4, 7],
+    [3, 5],
+    [4, 5]
+  ],
+
+  A: [
+    [7, 10],
+    [7, 11],
+    [7, 9],
+    [7, 9],
+    [9, 10],
+    [7, 10]
+  ],
+
+  G: [
+    [10, 12],
+    [11, 12],
+    [9, 12],
+    [9, 13],
+    [10, 12],
+    [10, 12]
+  ],
+
+  E: [
+    [0, 4],
+    [0, 2],
+    [0, 2],
+    [1, 2],
+    [0, 3],
+    [0, 4]
+  ],
+
+  D: [
+    [4, 5],
+    [2, 5],
+    [2, 6],
+    [2, 4],
+    [3, 5],
+    [4, 5]
+  ]
+};
+
+
+const cagedTemplatesLocrian = {
+  C: [
+    [5, 6],
+    [5, 7],
+    [5, 7],
+    [3, 7],
+    [3, 5],
+    [3, 5]
+  ],
+
+  A: [
+    [6, 10],
+    [7, 10],
+    [7, 8],
+    [7, 9],
+    [8, 10],
+    [6, 10]
+  ],
+
+  G: [
+    [10, 12],
+    [10, 12],
+    [8, 12],
+    [9, 12],
+    [10, 11],
+    [10, 12]
+  ],
+
+  E: [
+    [12, 15],
+    [12, 13],
+    [12, 14],
+    [12, 14],
+    [11, 15],
+    [12, 15]
+  ],
+
+  D: [
+    [3, 5],
+    [1, 5],
+    [2, 5],
+    [2, 3],
+    [3, 5],
+    [3, 5]
+  ]
+};
+
+
+const cagedPentatonicTemplatesByMode = {
+  lydian:
+    cagedTemplatesLydian,
+
+  ionian:
+    cagedTemplatesIonian,
+
+  mixolydian:
+    cagedTemplatesMixolydian,
+
+  dorian:
+    cagedTemplatesMinorFamily,
+
+  aeolian:
+    cagedTemplatesMinorFamily,
+
+  phrygian:
+    cagedTemplatesMinorFamily,
+
+  locrian:
+    cagedTemplatesLocrian
+};
+
+
+/*
+  Validate the template itself before using it.
+
+  This prevents a C/A/G/E/D label from ever being attached
+  to a template whose root notes live on the wrong strings.
+*/
+function validateCagedTemplate(
+  modeName,
+  shapeName,
+  template
 ) {
-  const allowedSemitones =
+  if (
+    !template ||
+    template.length !== 6 ||
+    template.some(
+      pair =>
+        !Array.isArray(pair) ||
+        pair.length !== 2
+    )
+  ) {
+    return false;
+  }
+
+  const pentatonicSet =
     new Set(
       npsPentatonicSemitones[
         modeName
       ]
     );
 
-  const openPitch =
-    currentTuning[
-      stringIndex
+  const referenceTuning =
+    [
+      0,
+      5,
+      10,
+      15,
+      19,
+      24
     ];
 
-  const frets = [];
+  const rootStrings = [];
 
-  /*
-    Include theoretical negative frets so a shape that would
-    cross below the nut can be detected and rejected instead
-    of silently shifting it up an octave.
-  */
+
   for (
-    let fret = -12;
-    fret <= 36;
-    fret++
+    let stringOffset = 0;
+    stringOffset < 6;
+    stringOffset++
   ) {
-    const relative =
-      mod12(
-        midiToPitchClass(
-          openPitch + fret
-        ) -
-        modeRoot
-      );
-
-    if (
-      allowedSemitones.has(
-        relative
-      )
+    for (
+      const fret of
+      template[
+        stringOffset
+      ]
     ) {
-      frets.push(
-        fret
-      );
-    }
-  }
-
-  return frets;
-}
-
-
-function getClosestCagedPair(
-  frets,
-  targetCenter
-) {
-  const pairs = [];
-
-  for (
-    let index = 0;
-    index < frets.length - 1;
-    index++
-  ) {
-    const low =
-      frets[index];
-
-    const high =
-      frets[index + 1];
-
-    pairs.push({
-      low,
-      high,
-      center:
-        (
-          low +
-          high
-        ) / 2
-    });
-  }
-
-  pairs.sort(
-    (a, b) => {
-      const centerDifference =
-        Math.abs(
-          a.center -
-          targetCenter
-        ) -
-        Math.abs(
-          b.center -
-          targetCenter
+      const relative =
+        mod12(
+          referenceTuning[
+            stringOffset
+          ] +
+          fret
         );
 
       if (
-        centerDifference !== 0
+        !pentatonicSet.has(
+          relative
+        )
       ) {
-        return centerDifference;
+        return false;
       }
-
-      const spanDifference =
-        (
-          a.high -
-          a.low
-        ) -
-        (
-          b.high -
-          b.low
-        );
 
       if (
-        spanDifference !== 0
+        relative === 0 &&
+        !rootStrings.includes(
+          stringOffset + 3
+        )
       ) {
-        return spanDifference;
+        rootStrings.push(
+          stringOffset + 3
+        );
       }
-
-      return (
-        a.low -
-        b.low
-      );
     }
+  }
+
+
+  rootStrings.sort(
+    (a, b) =>
+      a - b
   );
+
+  const expected =
+    [
+      ...cagedShapeRootStrings[
+        shapeName
+      ]
+    ].sort(
+      (a, b) =>
+        a - b
+    );
+
 
   return (
-    pairs[0] ||
-    null
+    rootStrings.join(',') ===
+    expected.join(',')
   );
 }
 
 
-function buildCagedShapeForRootPosition(
+/*
+  Build every octave copy of ONE fixed CAGED template that
+  fits fully inside frets 0-24.
+
+  The template is transposed horizontally to the current
+  modal root. Strings remain permanently 3-8.
+*/
+function buildCagedTemplateCopies(
   cells,
   modeRoot,
   modeName,
-  rootAnchor,
-  shapeName,
-  rootPosition
+  shapeName
 ) {
-  if (
-    !rootPosition
-  ) {
-    return null;
-  }
-
-  /*
-    HARD RULE:
-    each CAGED root occurrence belongs to one exact physical
-    string. Never move the six-string CAGED block to make a
-    different string fit.
-  */
-  if (
-    rootAnchor.stringIndex + 1 !==
-      rootPosition.physicalString
-  ) {
-    return null;
-  }
-
-  const blockStartString =
-    cagedBlockStartStringIndex;
-
-  const blockEndString =
-    cagedBlockEndStringIndex;
-
-
-  const rootStringFrets =
-    getCagedPentatonicFrets(
-      rootAnchor.stringIndex,
-      modeRoot,
+  const templateFamily =
+    cagedPentatonicTemplatesByMode[
       modeName
-    );
+    ];
 
-  const rootIndex =
-    rootStringFrets.indexOf(
-      rootAnchor.fret
-    );
+  const template =
+    templateFamily &&
+    templateFamily[
+      shapeName
+    ];
+
 
   if (
-    rootIndex === -1
+    !validateCagedTemplate(
+      modeName,
+      shapeName,
+      template
+    )
   ) {
-    return null;
+    return [];
   }
-
-
-  let rootPair;
-
-  if (
-    rootPosition.role ===
-    'high'
-  ) {
-    if (
-      rootIndex === 0
-    ) {
-      return null;
-    }
-
-    rootPair = {
-      low:
-        rootStringFrets[
-          rootIndex - 1
-        ],
-
-      high:
-        rootAnchor.fret
-    };
-  } else {
-    if (
-      rootIndex >=
-      rootStringFrets.length - 1
-    ) {
-      return null;
-    }
-
-    rootPair = {
-      low:
-        rootAnchor.fret,
-
-      high:
-        rootStringFrets[
-          rootIndex + 1
-        ]
-    };
-  }
-
-  rootPair.center =
-    (
-      rootPair.low +
-      rootPair.high
-    ) / 2;
 
 
   const cellByKey =
@@ -2558,184 +2673,219 @@ function buildCagedShapeForRootPosition(
       )
     );
 
-  const shapeCells = [];
 
-
-  for (
-    let stringIndex =
-      blockStartString;
-    stringIndex <=
-      blockEndString;
-    stringIndex++
-  ) {
-    let pair;
-
-    if (
-      stringIndex ===
-      rootAnchor.stringIndex
-    ) {
-      pair =
-        rootPair;
-    } else {
-      pair =
-        getClosestCagedPair(
-          getCagedPentatonicFrets(
-            stringIndex,
-            modeRoot,
-            modeName
-          ),
-          rootPair.center
-        );
-    }
-
-    if (!pair) {
-      return null;
-    }
-
-    const pairFrets = [
-      pair.low,
-      pair.high
-    ];
-
-    if (
-      pairFrets.some(
-        fret =>
-          fret < 0 ||
-          fret > 24
-      )
-    ) {
-      return null;
-    }
-
-
-    for (
-      const fret of
-      pairFrets
-    ) {
-      const item =
-        cellByKey.get(
-          makeCellKey(
-            stringIndex,
-            fret
-          )
-        );
-
-      if (!item) {
-        return null;
-      }
-
-      shapeCells.push(
-        item
-      );
-    }
-  }
-
-
-  const requiredCellKeys =
-    new Set(
-      shapeCells.map(
-        item =>
-          makeCellKey(
-            item.stringIndex,
-            item.fret
-          )
-      )
+  const lowCagedStringPitchClass =
+    midiToPitchClass(
+      currentTuning[
+        cagedBlockStartStringIndex
+      ]
     );
 
-
-  return {
-    shapeName,
-
-    rootAnchor,
-
-    rootPhysicalString:
-      rootPosition.physicalString,
-
-    rootPositionRole:
-      rootPosition.role,
-
-    blockStartString,
-
-    blockEndString,
-
-    shapeCells,
-
-    requiredCellKeys
-  };
-}
-
-
-function buildCagedShapesForAnchor(
-  cells,
-  modeRoot,
-  modeName,
-  rootAnchor,
-  shapeName
-) {
-  const definition =
-    cagedShapeDefinitions[
-      shapeName
-    ];
-
-  if (
-    !definition ||
-    !Array.isArray(
-      definition.roots
-    )
-  ) {
-    return [];
-  }
-
+  const rootShift =
+    mod12(
+      modeRoot -
+      lowCagedStringPitchClass
+    );
 
   const results = [];
   const seen =
     new Set();
 
 
-  definition.roots.forEach(
-    rootPosition => {
-      const built =
-        buildCagedShapeForRootPosition(
-          cells,
-          modeRoot,
-          modeName,
-          rootAnchor,
-          shapeName,
-          rootPosition
-        );
+  for (
+    let octaveShift = -36;
+    octaveShift <= 36;
+    octaveShift += 12
+  ) {
+    const fretShift =
+      rootShift +
+      octaveShift;
 
-      if (!built) {
-        return;
-      }
+    const shapeCells = [];
+    let valid = true;
 
-      const key =
-        [
-          built.shapeName,
-          built.rootPhysicalString,
-          ...[
-            ...built.requiredCellKeys
-          ].sort()
-        ].join(
-          '|'
-        );
 
-      if (
-        seen.has(
-          key
-        )
+    for (
+      let stringOffset = 0;
+      stringOffset < 6;
+      stringOffset++
+    ) {
+      const stringIndex =
+        cagedBlockStartStringIndex +
+        stringOffset;
+
+
+      for (
+        const referenceFret of
+        template[
+          stringOffset
+        ]
       ) {
-        return;
+        const fret =
+          referenceFret +
+          fretShift;
+
+
+        if (
+          fret < 0 ||
+          fret > 24
+        ) {
+          valid = false;
+          break;
+        }
+
+
+        const item =
+          cellByKey.get(
+            makeCellKey(
+              stringIndex,
+              fret
+            )
+          );
+
+
+        if (!item) {
+          valid = false;
+          break;
+        }
+
+
+        const relative =
+          mod12(
+            midiToPitchClass(
+              item.absolutePitch
+            ) -
+            modeRoot
+          );
+
+
+        if (
+          !npsPentatonicSemitones[
+            modeName
+          ].includes(
+            relative
+          )
+        ) {
+          valid = false;
+          break;
+        }
+
+
+        shapeCells.push(
+          item
+        );
       }
 
-      seen.add(
-        key
+
+      if (!valid) {
+        break;
+      }
+    }
+
+
+    if (!valid) {
+      continue;
+    }
+
+
+    const requiredCellKeys =
+      new Set(
+        shapeCells.map(
+          item =>
+            makeCellKey(
+              item.stringIndex,
+              item.fret
+            )
+        )
       );
 
-      results.push(
-        built
+
+    const rootPhysicalStrings =
+      [
+        ...new Set(
+          shapeCells
+            .filter(
+              item =>
+                midiToPitchClass(
+                  item.absolutePitch
+                ) ===
+                  modeRoot
+            )
+            .map(
+              item =>
+                item.stringIndex +
+                1
+            )
+        )
+      ].sort(
+        (a, b) =>
+          a - b
       );
+
+
+    const expectedRootStrings =
+      [
+        ...cagedShapeRootStrings[
+          shapeName
+        ]
+      ].sort(
+        (a, b) =>
+          a - b
+      );
+
+
+    if (
+      rootPhysicalStrings.join(',') !==
+      expectedRootStrings.join(',')
+    ) {
+      continue;
     }
-  );
+
+
+    const key =
+      [
+        shapeName,
+        ...[
+          ...requiredCellKeys
+        ].sort()
+      ].join(
+        '|'
+      );
+
+
+    if (
+      seen.has(
+        key
+      )
+    ) {
+      continue;
+    }
+
+
+    seen.add(
+      key
+    );
+
+
+    results.push({
+      shapeName,
+
+      blockStartString:
+        cagedBlockStartStringIndex,
+
+      blockEndString:
+        cagedBlockEndStringIndex,
+
+      shapeCells,
+
+      requiredCellKeys,
+
+      rootPhysicalStrings,
+
+      templateFretShift:
+        fretShift
+    });
+  }
 
 
   return results;
@@ -2777,370 +2927,8 @@ function getCagedStartCandidates(
 
 
 /*
-  Work out WHY an anchored CAGED shape does not fit.
-
-  "low" means it would cross below fret 0 or below
-  physical String 1.
-
-  "high" means it would cross above fret 24 or above
-  physical String 8.
-*/
-function getCagedShapeOverflowForRootPosition(
-  modeRoot,
-  modeName,
-  rootAnchor,
-  rootPosition
-) {
-  if (
-    rootAnchor.stringIndex + 1 !==
-      rootPosition.physicalString
-  ) {
-    return {
-      matchesRootString: false,
-      low: false,
-      high: false
-    };
-  }
-
-  const blockStartString =
-    cagedBlockStartStringIndex;
-
-  const blockEndString =
-    cagedBlockEndStringIndex;
-
-  let low = false;
-  let high = false;
-
-
-  const rootStringFrets =
-    getCagedPentatonicFrets(
-      rootAnchor.stringIndex,
-      modeRoot,
-      modeName
-    );
-
-  const rootIndex =
-    rootStringFrets.indexOf(
-      rootAnchor.fret
-    );
-
-  if (
-    rootIndex === -1
-  ) {
-    return {
-      matchesRootString: true,
-      low,
-      high
-    };
-  }
-
-
-  let rootPair;
-
-  if (
-    rootPosition.role ===
-    'high'
-  ) {
-    if (
-      rootIndex === 0
-    ) {
-      low = true;
-
-      return {
-        matchesRootString: true,
-        low,
-        high
-      };
-    }
-
-    rootPair = {
-      low:
-        rootStringFrets[
-          rootIndex - 1
-        ],
-
-      high:
-        rootAnchor.fret
-    };
-  } else {
-    if (
-      rootIndex >=
-      rootStringFrets.length - 1
-    ) {
-      high = true;
-
-      return {
-        matchesRootString: true,
-        low,
-        high
-      };
-    }
-
-    rootPair = {
-      low:
-        rootAnchor.fret,
-
-      high:
-        rootStringFrets[
-          rootIndex + 1
-        ]
-    };
-  }
-
-  rootPair.center =
-    (
-      rootPair.low +
-      rootPair.high
-    ) / 2;
-
-
-  let minFret =
-    Infinity;
-
-  let maxFret =
-    -Infinity;
-
-
-  for (
-    let stringIndex =
-      blockStartString;
-    stringIndex <=
-      blockEndString;
-    stringIndex++
-  ) {
-    const pair =
-      stringIndex ===
-        rootAnchor.stringIndex
-        ? rootPair
-        : getClosestCagedPair(
-            getCagedPentatonicFrets(
-              stringIndex,
-              modeRoot,
-              modeName
-            ),
-            rootPair.center
-          );
-
-    if (!pair) {
-      continue;
-    }
-
-    minFret =
-      Math.min(
-        minFret,
-        pair.low,
-        pair.high
-      );
-
-    maxFret =
-      Math.max(
-        maxFret,
-        pair.low,
-        pair.high
-      );
-  }
-
-
-  if (
-    minFret < 0
-  ) {
-    low = true;
-  }
-
-  if (
-    maxFret > 24
-  ) {
-    high = true;
-  }
-
-
-  return {
-    matchesRootString: true,
-    low,
-    high
-  };
-}
-
-
-function getCagedShapeOverflow(
-  modeRoot,
-  modeName,
-  rootAnchor,
-  shapeName
-) {
-  const definition =
-    cagedShapeDefinitions[
-      shapeName
-    ];
-
-  if (
-    !definition ||
-    !Array.isArray(
-      definition.roots
-    )
-  ) {
-    return {
-      low: false,
-      high: false
-    };
-  }
-
-
-  const overflows =
-    definition.roots.map(
-      rootPosition =>
-        getCagedShapeOverflowForRootPosition(
-          modeRoot,
-          modeName,
-          rootAnchor,
-          rootPosition
-        )
-    );
-
-  const matching =
-    overflows.filter(
-      overflow =>
-        overflow.matchesRootString
-    );
-
-
-  if (
-    matching.length > 0
-  ) {
-    return {
-      low:
-        matching.some(
-          overflow =>
-            overflow.low
-        ),
-
-      high:
-        matching.some(
-          overflow =>
-            overflow.high
-        )
-    };
-  }
-
-
-  /*
-    This root is on a string that this CAGED shape does not
-    use for a root. Never slide the shape. Point the fallback
-    toward the nearest legal root-string occurrence instead.
-  */
-  const physicalString =
-    rootAnchor.stringIndex + 1;
-
-  const legalRootStrings =
-    definition.roots
-      .map(
-        rootPosition =>
-          rootPosition.physicalString
-      )
-      .sort(
-        (a, b) =>
-          a - b
-      );
-
-  const hasLower =
-    legalRootStrings.some(
-      stringNumber =>
-        stringNumber <
-        physicalString
-    );
-
-  const hasHigher =
-    legalRootStrings.some(
-      stringNumber =>
-        stringNumber >
-        physicalString
-    );
-
-
-  return {
-    low:
-      hasHigher,
-
-    high:
-      hasLower
-  };
-}
-
-
-function getCagedFallbackSides(
-  modeRoot,
-  modeName,
-  rootAnchor,
-  allowedShapes
-) {
-  const sides =
-    new Set();
-
-  allowedShapes.forEach(
-    shapeName => {
-      const overflow =
-        getCagedShapeOverflow(
-          modeRoot,
-          modeName,
-          rootAnchor,
-          shapeName
-        );
-
-      if (
-        overflow.low
-      ) {
-        sides.add(
-          'low'
-        );
-      }
-
-      if (
-        overflow.high
-      ) {
-        sides.add(
-          'high'
-        );
-      }
-    }
-  );
-
-
-  /*
-    Safety fallback for an unusual non-boundary rejection.
-    Use the side of the instrument the chosen root is nearest.
-  */
-  if (
-    sides.size === 0
-  ) {
-    if (
-      rootAnchor.stringIndex >=
-      (
-        currentTuning.length /
-        2
-      )
-    ) {
-      sides.add(
-        'high'
-      );
-    } else {
-      sides.add(
-        'low'
-      );
-    }
-  }
-
-
-  return [
-    ...sides
-  ];
-}
-
-
-/*
-  Every normal CAGED shape that actually fits somewhere
-  on the current 24-fret board for this mode.
-
-  These are possible landing shapes for the NPS bridge.
+  Every enabled, real CAGED template that fits on the
+  24-fret board for the selected mode.
 */
 function getFittingCagedShapesForMode(
   cells,
@@ -3148,67 +2936,18 @@ function getFittingCagedShapesForMode(
   modeName,
   allowedShapes
 ) {
-  const rootAnchors =
-    cells.filter(
-      item =>
-        item.fret >= 0 &&
-        item.fret <= 24 &&
-        item.stringIndex >= 2 &&
-        midiToPitchClass(
-          item.absolutePitch
-        ) ===
-          modeRoot
-    );
-
   const results = [];
-  const seen =
-    new Set();
 
 
-  rootAnchors.forEach(
-    rootAnchor => {
-      allowedShapes.forEach(
-        shapeName => {
-          const builtShapes =
-            buildCagedShapesForAnchor(
-              cells,
-              modeRoot,
-              modeName,
-              rootAnchor,
-              shapeName
-            );
-
-          builtShapes.forEach(
-            built => {
-              const key =
-                [
-                  shapeName,
-                  ...[
-                    ...built
-                      .requiredCellKeys
-                  ].sort()
-                ].join(
-                  '|'
-                );
-
-              if (
-                seen.has(
-                  key
-                )
-              ) {
-                return;
-              }
-
-              seen.add(
-                key
-              );
-
-              results.push(
-                built
-              );
-            }
-          );
-        }
+  allowedShapes.forEach(
+    shapeName => {
+      results.push(
+        ...buildCagedTemplateCopies(
+          cells,
+          modeRoot,
+          modeName,
+          shapeName
+        )
       );
     }
   );
@@ -3219,14 +2958,11 @@ function getFittingCagedShapesForMode(
 
 
 /*
-  Return every cell at the requested vertical/pitch extreme
-  of a fitting CAGED shape.
+  Return every cell at the requested pitch extreme of a
+  fitting CAGED template.
 
-  "bottom" = lowest pitch in the shape.
-  "top"    = highest pitch in the shape.
-
-  Multiple physical positions can occasionally share the
-  same MIDI pitch, so keep every tied extreme.
+  bottom = lowest absolute pitch
+  top    = highest absolute pitch
 */
 function getCagedShapeExtremeKeys(
   shape,
@@ -3272,21 +3008,14 @@ function getCagedShapeExtremeKeys(
 
 
 /*
-  Build an NPS bridge from the selected 0-12 modal root
-  into a normal fitting CAGED shape.
+  Build an NPS bridge from the selected coordinate into ONE
+  real CAGED template.
 
-  If the attempted CAGED placement is TOO LOW:
-    - connect to the BOTTOM of a fitting CAGED shape
-    - the NPS bridge must travel UP diagonally
-    - prompt arrow: ↗️
+  If the bridge goes up:
+    ↗️ into the BOTTOM of the CAGED template.
 
-  If the attempted CAGED placement is TOO HIGH:
-    - connect to the TOP of a fitting CAGED shape
-    - the NPS bridge must travel DOWN diagonally
-    - prompt arrow: ↙️
-
-  The bridge is always a contiguous slice of one exact
-  connected 2/3-NPS path and must span at least two strings.
+  If the bridge goes down:
+    ↙️ into the TOP of the CAGED template.
 */
 function getCagedNpsFallbacks(
   cells,
