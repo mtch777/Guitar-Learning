@@ -1,4 +1,5 @@
 :root {
+  color-scheme: light;
   --page-bg: #ffffff;
   --text-color: #111111;
   --control-bg: #ffffff;
@@ -6,14 +7,20 @@
   --border-color: #777777;
   --hover-bg: #eeeeee;
   --header-bg: #dddddd;
+  --section-title-bg: #e3e3e3;
+  --section-title-text: #111111;
   --cell-bg: #ffffff;
   --dot-bg: #000000;
   --dot-text: #ffffff;
   --popover-shadow: rgba(0, 0, 0, 0.25);
+
+  /* Shared fretboard geometry. */
+  --open-string-gutter: 54px;
+  --start-cue-gutter: 54px;
 }
 
-
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --page-bg: #151515;
   --text-color: #eeeeee;
   --control-bg: #252525;
@@ -21,480 +28,13 @@
   --border-color: #666666;
   --hover-bg: #353535;
   --header-bg: #333333;
+  --section-title-bg: #292929;
+  --section-title-text: #eeeeee;
   --cell-bg: #202020;
   --dot-bg: #050505;
   --dot-text: #ffffff;
   --popover-shadow: rgba(0, 0, 0, 0.55);
 }
-
-
-body {
-  font-family: Arial, sans-serif;
-  background: var(--page-bg);
-  color: var(--text-color);
-}
-
-
-.controlsRow {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-
-.secondRow {
-  margin-bottom: 12px;
-}
-
-
-label {
-  margin-right: 0;
-}
-
-
-select {
-  margin-left: 4px;
-}
-
-
-select,
-button {
-  background: var(--control-bg);
-  color: var(--control-text);
-  border: 1px solid var(--border-color);
-}
-
-
-button {
-  cursor: pointer;
-}
-
-
-[hidden] {
-  display: none;
-}
-
-
-.themeToggleButton {
-  width: 32px;
-  height: 28px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  line-height: 1;
-}
-
-
-
-
-/* =========================
-   INTERVAL MULTISELECT
-   ========================= */
-
-
-.controlGroup {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-
-.multiSelect {
-  position: relative;
-  display: inline-block;
-}
-
-
-.multiSelect summary {
-  list-style: none;
-  cursor: pointer;
-  min-width: 90px;
-  padding: 3px 24px 3px 7px;
-  border: 1px solid var(--border-color);
-  border-radius: 2px;
-  background: var(--control-bg);
-  color: var(--control-text);
-  position: relative;
-  user-select: none;
-}
-
-
-.multiSelect summary::-webkit-details-marker {
-  display: none;
-}
-
-
-.multiSelect summary::after {
-  content: "▼";
-  position: absolute;
-  right: 7px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 9px;
-}
-
-
-.multiSelectMenu {
-  position: absolute;
-  z-index: 100;
-  top: calc(100% + 2px);
-  left: 0;
-  min-width: 120px;
-  padding: 5px;
-  background: var(--control-bg);
-  color: var(--control-text);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 2px 5px var(--popover-shadow);
-}
-
-
-.intervalOption,
-.multiOption {
-  color: var(--control-text);
-}
-
-
-.intervalOption {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 30px;
-  margin: 0;
-  padding: 2px 5px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-
-.intervalOption:hover,
-.multiOption:hover {
-  background: var(--hover-bg);
-}
-
-
-.intervalOption input {
-  margin: 0;
-}
-
-
-
-
-/* =========================
-   QUESTION
-   ========================= */
-
-
-#answerNote {
-  margin-bottom: 8px;
-  font-weight: bold;
-}
-
-
-.quizPromptLine {
-  display: block;
-}
-
-
-.intervalDisplay sub {
-  font-size: 0.7em;
-  vertical-align: sub;
-  line-height: 0;
-}
-
-
-
-
-/* =========================
-   FRETBOARD
-   ========================= */
-
-
-table {
-  border-collapse: collapse;
-}
-
-
-th,
-td {
-  box-sizing: border-box;
-  border: 1px solid var(--border-color);
-  height: 30px;
-  padding: 2px;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-
-th {
-  background: var(--header-bg);
-  color: var(--text-color);
-  font-weight: bold;
-}
-
-
-th.noteCell {
-  cursor: pointer;
-}
-
-
-td {
-  background: var(--cell-bg);
-  color: var(--text-color);
-  cursor: pointer;
-}
-
-
-.fretNumber {
-  background: var(--header-bg);
-  color: var(--text-color);
-  cursor: default;
-  font-weight: bold;
-}
-
-
-.fretDot {
-  background: var(--dot-bg);
-  color: var(--dot-text);
-}
-
-
-.correct {
-  font-weight: bold;
-}
-
-
-.wrong {
-  color: red;
-}
-
-
-
-
-/* =========================
-   SETTINGS HEADER
-   ========================= */
-
-
-.settingsHeader {
-  position: relative;
-  overflow: visible;
-  background: var(--header-bg);
-  padding: 0;
-}
-
-
-.settingsButton {
-  width: 100%;
-  height: 100%;
-  min-height: 30px;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: var(--text-color);
-  cursor: pointer;
-  font-size: 19px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-
-
-/* =========================
-   TUNING POPUP
-   ========================= */
-
-
-.tuningPopover {
-  display: none;
-  position: absolute;
-  z-index: 1000;
-  top: calc(100% + 4px);
-  right: 0;
-  width: 210px;
-  padding: 10px;
-  background: var(--control-bg);
-  color: var(--control-text);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 3px 10px var(--popover-shadow);
-  text-align: left;
-}
-
-
-.tuningPopover.open {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-
-.tuningItem {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin: 0;
-  font-size: 12px;
-  font-weight: normal;
-}
-
-
-.tuningItem span {
-  white-space: nowrap;
-}
-
-
-.tuningItem select {
-  width: 100%;
-  margin: 0;
-}
-
-
-.guitarInputPanel {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  margin: 10px 0 14px;
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--control-bg);
-}
-.guitarInputPanel button { padding: 6px 10px; }
-.guitarInputPanel span { font-size: 13px; }
-
-/* GitHub migration layout fixes */
-#chartDiv {
-  overflow-x: auto;
-  max-width: 100%;
-}
-
-/* Normalize browser defaults so controls and labels share one scale. */
-.controlsRow,
-.controlsRow label,
-.controlGroup,
-select,
-button,
-.multiSelect summary,
-#answerNote,
-.guitarInputPanel {
-  font: 16px/1.2 Arial, sans-serif;
-}
-
-select,
-button {
-  padding: 2px 6px;
-}
-
-.multiSelect summary {
-  padding: 2px 24px 2px 6px;
-}
-
-#chartDiv table {
-  font: 16px/1 Arial, sans-serif;
-}
-
-/* Compact columns: wide enough for D#/A# and R₁/R₂, but no dead space. */
-#chartDiv th.noteCell,
-#chartDiv td.noteCell {
-  width: 32px;
-  min-width: 32px;
-  max-width: 32px;
-}
-
-#chartDiv .settingsHeader,
-#chartDiv .fretNumber {
-  width: 32px;
-  min-width: 32px;
-  max-width: 32px;
-}
-
-.settingsHeader {
-  overflow: visible;
-}
-
-.settingsButton {
-  min-width: 0;
-  font-family: "Segoe UI Emoji", "Apple Color Emoji", sans-serif;
-  font-size: 17px;
-}
-
-.guitarInputPanel button {
-  padding: 4px 8px;
-}
-
-.guitarInputPanel span {
-  font-size: 16px;
-}
-
-
-/* Compact inline control sizing */
-.controlsRow {
-  line-height: 1.2;
-}
-
-.controlLabel {
-  font-weight: normal;
-}
-
-.inlineSelectLabel {
-  margin: 0;
-}
-
-select,
-button,
-.multiSelect summary {
-  box-sizing: border-box;
-  min-height: 0;
-  height: 1.55em;
-  line-height: 1.15;
-  vertical-align: middle;
-}
-
-select {
-  padding: 0 22px 0 5px;
-}
-
-button {
-  padding: 0 6px;
-}
-
-.multiSelect summary {
-  padding: 1px 24px 1px 6px;
-}
-
-.themeToggleButton {
-  width: 30px;
-  height: 1.55em;
-}
-
-.promptLabel {
-  font-weight: normal;
-  opacity: 0.68;
-}
-
-.promptValue {
-  font-weight: 700;
-}
-
-.tuningForkIcon {
-  width: 17px;
-  height: 17px;
-  display: block;
-  fill: currentColor;
-}
-
-
-/* =========================================================
-   PRODUCT UI SYSTEM
-   One layout system for controls, cards, and quiz.
-   ========================================================= */
 
 * {
   box-sizing: border-box;
@@ -503,32 +43,54 @@ button {
 body {
   margin: 0;
   padding: 12px;
-  font: 16px/1.35 Arial, sans-serif;
+  overflow-x: auto;
   background: var(--page-bg);
   color: var(--text-color);
-  overflow-x: auto;
+  font: 16px/1.35 Arial, sans-serif;
 }
 
+[hidden],
+.stateOnly,
+.stateSelect,
+select.stateSelect {
+  display: none;
+}
+
+
+/* =========================================================
+   PAGE LAYOUT
+   ========================================================= */
+
 .trainerShell {
-  display: block;
-  width: max-content;
+  width: 100%;
   min-width: 0;
 }
 
 .trainerControls {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 8px;
-  width: max-content;
+  width: 100%;
   min-width: 0;
 }
 
-/* ---------- top settings row ---------- */
-
+/*
+  Each settings card owns its own height.
+  Nothing stretches cards to match the tallest sibling.
+*/
 .setupPanel {
-  display: inline-flex;
-  align-items: stretch;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.settingsSection {
+  display: inline-grid;
+  grid-template-rows: auto auto;
+  align-self: flex-start;
   width: max-content;
   min-width: 0;
   padding: 0;
@@ -538,28 +100,15 @@ body {
   background: var(--control-bg);
 }
 
-.settingsSection {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: max-content;
-  min-width: 0;
-  padding: 10px 14px 12px;
-  border-right: 1px solid var(--border-color);
-}
-
-.settingsSection:last-child {
-  border-right: 0;
-}
-
 .sectionTitle {
-  box-sizing: border-box;
-  width: calc(100% + 28px);
-  margin: -10px -14px 10px;
+  display: flex;
+  align-items: center;
+  min-width: 100%;
   padding: 7px 14px;
   background: var(--section-title-bg);
   color: var(--section-title-text);
   border-bottom: 1px solid var(--border-color);
+  border-radius: 7px 7px 0 0;
   font-size: 13px;
   line-height: 16px;
   font-weight: 700;
@@ -567,19 +116,13 @@ body {
   text-transform: uppercase;
 }
 
-.settingsSection:first-child .sectionTitle {
-  border-radius: 7px 0 0 0;
-}
-
-.settingsSection:last-child .sectionTitle {
-  border-radius: 0 7px 0 0;
-}
-
 .sectionTitleWithUtility {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
   gap: 18px;
+}
+
+.settingsSection > :not(.sectionTitle) {
+  margin: 10px 14px 12px;
 }
 
 .controlField {
@@ -603,47 +146,27 @@ body {
   letter-spacing: .04em;
 }
 
-.lessonField,
-.keyField,
 .keyControls,
-.lessonSettingsSection,
-.intervalLessonGrid,
-.lessonSettingsSection .npsControlGrid {
+.lessonControls {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
   width: max-content;
   min-width: 0;
 }
 
 .keyControls {
-  display: flex;
-  align-items: center;
   gap: 8px;
 }
 
-.intervalLessonGrid,
-.lessonSettingsSection .npsControlGrid {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: flex-end;
-  justify-content: flex-start;
-  gap: 12px;
-}
-
-.intervalLessonGrid[hidden],
-.lessonSettingsSection .npsControlGrid[hidden],
-.lessonSettingsSection [hidden],
-[hidden] {
+.lessonControls[hidden] {
   display: none;
 }
 
-.stateOnly,
-.stateSelect,
-select.stateSelect,
-.selectWrap:has(> select.stateSelect) {
-  display: none;
-}
 
-/* ---------- dropdowns ---------- */
+/* =========================================================
+   DROPDOWNS
+   ========================================================= */
 
 .singleSelect,
 .multiSelect {
@@ -655,14 +178,12 @@ select.stateSelect,
 
 .singleSelect > summary,
 .multiSelect > summary {
-  box-sizing: border-box;
   display: grid;
   grid-template-columns: max-content 10px;
   align-items: center;
   column-gap: 8px;
   width: max-content;
   min-width: 0;
-  height: auto;
   padding: 3px 8px 3px 10px;
   border: 1px solid var(--border-color);
   border-radius: 5px;
@@ -708,7 +229,8 @@ select.stateSelect,
 }
 
 .singleOption,
-.multiOption {
+.multiOption,
+.intervalOption {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -723,12 +245,14 @@ select.stateSelect,
 }
 
 .singleOption:hover,
-.multiOption:hover {
+.multiOption:hover,
+.intervalOption:hover {
   background: var(--hover-bg);
 }
 
 .singleOption input,
-.multiOption input {
+.multiOption input,
+.intervalOption input {
   flex: 0 0 auto;
   margin: 0;
 }
@@ -739,7 +263,10 @@ select.stateSelect,
   pointer-events: none;
 }
 
-/* ---------- segmented controls ---------- */
+
+/* =========================================================
+   SEGMENTED CONTROLS
+   ========================================================= */
 
 .directionSegment,
 .orderSegment {
@@ -802,10 +329,12 @@ select.stateSelect,
   color: var(--page-bg);
 }
 
-/* ---------- theme switch ---------- */
+
+/* =========================================================
+   THEME SWITCH
+   ========================================================= */
 
 .themeSwitch {
-  flex: 0 0 auto;
   width: 68px;
   height: 26px;
   min-height: 26px;
@@ -817,6 +346,7 @@ select.stateSelect,
   gap: 2px;
   background: #f5f8fb;
   color: #8997a8;
+  cursor: pointer;
 }
 
 .themeChoice {
@@ -852,13 +382,17 @@ select.stateSelect,
   color: #ffffff;
 }
 
-/* ---------- quiz ---------- */
+
+/* =========================================================
+   QUIZ
+   Tuning/open-string alignment is derived from the same
+   gutter geometry used by the fretboard below.
+   ========================================================= */
 
 .promptSection {
   width: 100%;
   min-width: 0;
-  margin: 0;
-  padding: 0 14px 10px;
+  padding: 0;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background: var(--control-bg);
@@ -866,33 +400,41 @@ select.stateSelect,
 }
 
 .promptSectionTitle {
-  width: calc(100% + 28px);
-  margin: 0 -14px 8px;
-  border-radius: 7px 7px 0 0;
+  width: 100%;
 }
 
 .quizContentRow {
-  display: grid;
-  grid-template-columns: 48px minmax(max-content, 1fr) auto auto;
+  display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 12px;
   width: 100%;
-  min-height: 30px;
+  min-width: 0;
+  padding: 8px 12px 10px 0;
 }
 
 .quizTuningControl {
+  flex: 0 0 var(--open-string-gutter);
+  width: var(--open-string-gutter);
+  margin-left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  min-width: 48px;
+}
+
+.trainerShell.hasStartCue .quizTuningControl {
+  margin-left: var(--start-cue-gutter);
+}
+
+.quizSpacer {
+  flex: 1 1 auto;
+  min-width: 12px;
 }
 
 #answerNote,
 #answerNote.npsExerciseCard {
-  margin: 0;
-  width: max-content;
+  flex: 0 1 auto;
   min-width: 0;
+  margin: 0;
   font: 400 14px/16px Arial, sans-serif;
 }
 
@@ -920,33 +462,33 @@ select.stateSelect,
   opacity: .7;
 }
 
-.promptSection .intervalQuizPrompt {
+.intervalQuizPrompt {
   display: flex;
   align-items: baseline;
   gap: 4px;
-  width: max-content;
   white-space: nowrap;
-  font: 400 14px/16px Arial, sans-serif;
 }
 
-.promptSection .intervalQuizPrompt > span {
+.intervalQuizPrompt > span {
   display: inline-flex;
   align-items: baseline;
-  font: inherit;
   font-weight: 700;
 }
 
-.promptSection .intervalQuizPrompt sub {
+.intervalQuizPrompt sub,
+.intervalDisplay sub {
   font-size: .72em;
   line-height: 0;
 }
 
-/* ---------- buttons ---------- */
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
 
 button.uiButton {
-  box-sizing: border-box;
+  flex: 0 0 auto;
   width: max-content;
-  height: auto;
   min-height: 0;
   padding: 5px 9px;
   border: 1px solid var(--border-color);
@@ -967,7 +509,10 @@ button.uiButton:disabled {
   color: var(--text-color);
 }
 
-/* ---------- tuning control/popover ---------- */
+
+/* =========================================================
+   TUNING CONTROL
+   ========================================================= */
 
 .fretboardTuningControl {
   position: relative;
@@ -975,8 +520,10 @@ button.uiButton:disabled {
   z-index: 1200;
 }
 
-.fretboardTuningControl .settingsButton {
-  box-sizing: border-box;
+.settingsButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 30px;
   min-width: 30px;
   height: 28px;
@@ -986,6 +533,7 @@ button.uiButton:disabled {
   border-radius: 5px;
   background: var(--control-bg);
   color: var(--control-text);
+  cursor: pointer;
 }
 
 .tuningForkIcon {
@@ -1002,32 +550,36 @@ button.uiButton:disabled {
   stroke-linejoin: round;
 }
 
-.fretboardTuningControl .tuningPopover {
+.tuningPopover {
+  display: none;
+  position: absolute;
+  z-index: 1000;
   top: calc(100% + 4px);
   left: 0;
-  right: auto;
-}
-
-.tuningPopover,
-.tuningPopover.open {
   width: max-content;
   min-width: 0;
-  max-width: none;
   padding: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--control-bg);
+  color: var(--control-text);
+  box-shadow: 0 3px 10px var(--popover-shadow);
+  text-align: left;
+}
+
+.tuningPopover.open {
+  display: grid;
   grid-template-columns: max-content max-content;
-  column-gap: 12px;
-  row-gap: 8px;
+  gap: 8px 12px;
 }
 
 .tuningItem {
   display: grid;
-  grid-template-columns: max-content;
   gap: 3px;
-  align-items: start;
   width: max-content;
 }
 
 .tuningLabel {
+  white-space: nowrap;
   font: 600 12px/14px Arial, sans-serif;
 }
 
@@ -1036,14 +588,281 @@ button.uiButton:disabled {
   overflow-y: auto;
 }
 
-/* ---------- panels below fretboard ---------- */
+
+/* =========================================================
+   FRETBOARD STRUCTURE
+   start cue | open strings | playable neck
+   ========================================================= */
 
 .exercisePanel {
-  box-sizing: border-box;
-  width: calc(100vw - 24px);
-  max-width: calc(100vw - 24px);
+  width: 100%;
+  min-width: 0;
   padding-top: 8px;
 }
+
+#chartDiv {
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
+}
+
+.fretboardStage {
+  display: grid;
+  grid-template-columns: 0 var(--open-string-gutter) minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
+}
+
+.fretboardStage.hasStartCue {
+  grid-template-columns:
+    var(--start-cue-gutter)
+    var(--open-string-gutter)
+    minmax(0, 1fr);
+}
+
+.fretboardStartCueLayer,
+.fretboardOpenStrings,
+.physicalFretboard {
+  position: relative;
+  height: 420px;
+  min-width: 0;
+}
+
+.fretboardStartCueLayer {
+  grid-column: 1;
+}
+
+.fretboardOpenStrings {
+  grid-column: 2;
+}
+
+.physicalFretboard {
+  grid-column: 3;
+  overflow: visible;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, .07),
+      rgba(255, 255, 255, .025) 40%,
+      rgba(0, 0, 0, .08)
+    ),
+    #7d5a29;
+  border-top: 1px solid #5e421f;
+  border-bottom: 1px solid #5e421f;
+  box-shadow:
+    inset 0 4px 8px rgba(0, 0, 0, .15),
+    inset 0 -4px 8px rgba(0, 0, 0, .15);
+}
+
+.fretboardNut {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 100%;
+  width: 14px;
+  background: #242424;
+  border-right: 3px solid #b9b9b9;
+  z-index: 3;
+}
+
+.fretboardFret {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  transform: translateX(-1.5px);
+  background:
+    linear-gradient(90deg, #777, #ededed 45%, #8d8d8d);
+  box-shadow: 1px 0 2px rgba(0, 0, 0, .22);
+  z-index: 2;
+}
+
+.fretboardString {
+  position: absolute;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  background:
+    linear-gradient(#ded4b5, #81785d 45%, #ded4b5);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .34);
+  z-index: 4;
+}
+
+.fretboardPositionDot {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #222;
+  opacity: .78;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.fretboardPositionDot.doubleDot {
+  width: 26px;
+  height: 26px;
+  opacity: .85;
+}
+
+
+/* =========================================================
+   FRETBOARD NOTES
+   ========================================================= */
+
+.fretboardNote {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--text-color) 42%, transparent);
+  border-radius: 50%;
+  background: transparent;
+  color: transparent;
+  font: 600 14px/1 Arial, sans-serif;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  z-index: 10;
+}
+
+.physicalFretboard .fretboardNote:not(.openStringNote) {
+  width: min(38px, calc(100% / var(--fret-count) - 4px));
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+
+.physicalFretboard.compact .fretboardNote:not(.openStringNote) {
+  width: min(30px, calc(100% / var(--fret-count) - 4px));
+  font-size: 12px;
+}
+
+.fretboardOpenStrings .openStringNote {
+  left: 50%;
+  width: 38px;
+  height: 38px;
+  border-color: var(--border-color);
+  background: var(--header-bg);
+  color: var(--text-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .24);
+}
+
+.physicalFretboard.compact ~ .fretboardOpenStrings .openStringNote {
+  width: 34px;
+  height: 34px;
+  font-size: 12px;
+}
+
+.fretboardNote .intervalDisplay {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+}
+
+.fretboardNote.revealed {
+  border-color: rgba(0, 0, 0, .48);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .32);
+}
+
+.fretboardNote.cagedNpsBridge.revealed {
+  border-color: #ffffff;
+}
+
+.fretboardNote.openStringNote.revealed {
+  border-color: rgba(0, 0, 0, .48);
+}
+
+.fretboardNote.unknownInterval {
+  border-width: 1px;
+  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.035);
+  color: transparent;
+  box-shadow: none;
+  z-index: 12;
+}
+
+:root:not([data-theme="dark"]) .fretboardNote.unknownInterval {
+  border-color: rgba(0, 0, 0, 0.22);
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.fretboardNote.unknownInterval:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.48);
+}
+
+:root:not([data-theme="dark"]) .fretboardNote.unknownInterval:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(0, 0, 0, 0.38);
+}
+
+.fretboardNote.correct {
+  font-weight: 700;
+}
+
+.fretboardNote.wrong {
+  background: var(--control-bg);
+  color: #e32626;
+  border-color: #e32626;
+  box-shadow: 0 0 0 1px rgba(227, 38, 38, .18);
+}
+
+.fretboardNote:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   START CUE
+   ========================================================= */
+
+.npsStartGuide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.npsStartInterval {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border: 1px solid rgba(0, 0, 0, .55);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 600 13px/1 Arial, sans-serif;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .25);
+}
+
+.npsStartArrow {
+  width: 18px;
+  flex: 0 0 18px;
+  color: var(--text-color);
+  font: 18px/1 Arial, sans-serif;
+  text-align: center;
+}
+
+.cagedNpsStartGuide .npsStartInterval {
+  border-color: #ffffff;
+}
+
+
+/* =========================================================
+   LIVE GUITAR / DIAGNOSTICS
+   ========================================================= */
 
 .guitarInputPanel {
   display: flex;
@@ -1051,7 +870,7 @@ button.uiButton:disabled {
   align-items: center;
   gap: 10px;
   width: max-content;
-  max-width: calc(100vw - 24px);
+  max-width: 100%;
   margin: 10px 0 14px;
   padding: 8px 10px;
   border: 1px solid var(--border-color);
@@ -1088,7 +907,7 @@ button.uiButton:disabled {
 
 .guitarInputLogPanel {
   width: max-content;
-  max-width: calc(100vw - 24px);
+  max-width: 100%;
   margin: 0 0 14px;
   border: 1px solid var(--border-color);
   border-radius: 5px;
@@ -1118,24 +937,34 @@ button.uiButton:disabled {
   font-size: 12px;
 }
 
+#datasetRecordStatus {
+  white-space: pre-line;
+  line-height: 1.5;
+}
+
 .guitarInputLogScroll {
-  max-width: calc(100vw - 26px);
+  max-width: 100%;
   max-height: 220px;
   overflow: auto;
 }
 
 .guitarInputLogTable {
   width: max-content;
+  border-collapse: collapse;
   font: 12px/14px Arial, sans-serif;
 }
 
 .guitarInputLogTable th,
 .guitarInputLogTable td {
-  height: auto;
   min-width: 44px;
   padding: 4px 7px;
+  border: 1px solid var(--border-color);
   text-align: right;
   white-space: nowrap;
+}
+
+.guitarInputLogTable th {
+  background: var(--header-bg);
 }
 
 .guitarInputLogTable th:nth-child(1),
@@ -1147,560 +976,47 @@ button.uiButton:disabled {
   text-align: left;
 }
 
-#datasetRecordStatus {
-  white-space: pre-line;
-  line-height: 1.5;
-}
+
+/* =========================================================
+   RESPONSIVE GEOMETRY
+   Only the visual fretboard scales; control layout remains
+   content-driven and may wrap naturally.
+   ========================================================= */
 
 @media (max-width: 700px) {
   body {
     padding: 10px;
   }
 
-  .setupPanel,
-  .trainerControls {
-    width: max-content;
+  .setupPanel {
+    gap: 6px;
   }
 
   .quizContentRow {
-    gap: 12px;
+    gap: 8px;
   }
 
-  .exercisePanel {
-    width: calc(100vw - 20px);
-    max-width: calc(100vw - 20px);
-  }
-}
-
-
-/* =========================================================
-   NPS START MARKER
-   Circular interval cue aligned directly above its string.
-   ========================================================= */
-
-.npsStartGuide {
-  display: grid;
-  grid-template-columns: repeat(8, 32px) 32px;
-  width: 288px;
-  height: 44px;
-  align-items: end;
-}
-
-.npsStartMarker {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  width: 32px;
-  height: 44px;
-}
-
-.npsStartInterval {
-  box-sizing: border-box;
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--border-color);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font: 16px/1 Arial, sans-serif;
-  font-weight: 400;
-}
-
-.npsStartArrow {
-  height: 16px;
-  margin-top: 0;
-  color: var(--text-color);
-  font: 16px/16px Arial, sans-serif;
-  text-align: center;
-}
-
-
-/* =========================================================
-   PHYSICAL FRETBOARD — FINAL RENDERER
-   Horizontal 8-string neck. Responsive width, 12 frets for
-   interval lessons and 24 frets for 2/3 NPS.
-   ========================================================= */
-
-.exercisePanel {
-  box-sizing: border-box;
-  width: calc(100vw - 40px);
-  max-width: calc(100vw - 40px);
-}
-
-#chartDiv {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  overflow: visible;
-}
-
-.fretboardToolbar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  width: 100%;
-  min-height: 30px;
-  margin-bottom: 6px;
-}
-
-.fretboardTuningControl {
-  position: relative;
-  width: max-content;
-  z-index: 1200;
-}
-
-.fretboardTuningControl .settingsButton {
-  box-sizing: border-box;
-  width: 30px;
-  min-width: 30px;
-  height: 28px;
-  min-height: 28px;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  background: var(--control-bg);
-  color: var(--control-text);
-}
-
-.fretboardTuningControl .tuningPopover {
-  top: calc(100% + 4px);
-  right: 0;
-}
-
-.fretboardStage {
-  position: relative;
-  box-sizing: border-box;
-  width: 100%;
-  padding-left: 58px;
-  overflow: visible;
-}
-
-.fretboardStage.hasStartCue {
-  padding-left: 112px;
-}
-
-.physicalFretboard {
-  position: relative;
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  overflow: visible;
-  background:
-    linear-gradient(
-      90deg,
-      rgba(0, 0, 0, .07),
-      rgba(255, 255, 255, .025) 40%,
-      rgba(0, 0, 0, .08)
-    ),
-    #7d5a29;
-  border-top: 1px solid #5e421f;
-  border-bottom: 1px solid #5e421f;
-  box-shadow:
-    inset 0 4px 8px rgba(0, 0, 0, .15),
-    inset 0 -4px 8px rgba(0, 0, 0, .15);
-}
-
-.fretboardNut {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 14px;
-  background: #242424;
-  border-right: 3px solid #b9b9b9;
-  z-index: 3;
-}
-
-.fretboardFret {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  transform: translateX(-1.5px);
-  background:
-    linear-gradient(
-      90deg,
-      #777,
-      #ededed 45%,
-      #8d8d8d
-    );
-  box-shadow: 1px 0 2px rgba(0, 0, 0, .22);
-  z-index: 2;
-}
-
-.fretboardString {
-  position: absolute;
-  left: 0;
-  right: 0;
-  transform: translateY(-50%);
-  background:
-    linear-gradient(
-      #ded4b5,
-      #81785d 45%,
-      #ded4b5
-    );
-  box-shadow: 0 1px 1px rgba(0, 0, 0, .34);
-  z-index: 4;
-}
-
-.fretboardPositionDot {
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: #222;
-  opacity: .78;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.fretboardPositionDot.doubleDot {
-  width: 26px;
-  height: 26px;
-  opacity: .85;
-}
-
-.fretboardNote {
-  position: absolute;
-  width: 38px;
-  height: 38px;
-  transform: translate(-50%, -50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  /*
-    Every unknown fret position remains visibly clickable:
-    transparent fill, subtle circular outline, above the
-    fret/string graphics.
-  */
-  border: 1px solid color-mix(
-    in srgb,
-    var(--text-color) 42%,
-    transparent
-  );
-  border-radius: 50%;
-  background: transparent;
-  color: transparent;
-
-  font: 600 14px/1 Arial, sans-serif;
-  text-align: center;
-  cursor: pointer;
-  user-select: none;
-  z-index: 10;
-}
-
-.physicalFretboard.compact .fretboardNote {
-  width: 30px;
-  height: 30px;
-  font-size: 12px;
-}
-
-.fretboardNote .intervalDisplay {
-  display: inline-flex;
-  align-items: baseline;
-  justify-content: center;
-}
-
-.fretboardNote .intervalDisplay sub {
-  font-size: .66em;
-  line-height: 0;
-}
-
-.fretboardNote.revealed {
-  border-color: rgba(0, 0, 0, .48);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .32);
-}
-
-/*
-  When a CAGED exercise falls back to a connected
-  2/3-NPS bridge, distinguish the revealed bridge notes
-  from the CAGED box with a white outline.
-*/
-.fretboardNote.cagedNpsBridge.revealed {
-  border-color: #ffffff !important;
-}
-
-.fretboardNote.openStringNote {
-  left: -34px;
-  width: 38px;
-  height: 38px;
-  border-color: var(--border-color);
-  background: var(--header-bg);
-  color: var(--text-color);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .24);
-}
-
-.physicalFretboard.compact .fretboardNote.openStringNote {
-  width: 34px;
-  height: 34px;
-  font-size: 12px;
-}
-
-.fretboardNote.openStringNote.revealed {
-  border-color: rgba(0, 0, 0, .48);
-}
-
-.fretboardNote.wrong {
-  background: var(--control-bg) !important;
-  color: #e32626 !important;
-  border-color: #e32626 !important;
-  box-shadow: 0 0 0 1px rgba(227, 38, 38, .18);
-}
-
-.fretboardNote:focus-visible {
-  outline: 2px solid var(--text-color);
-  outline-offset: 2px;
-}
-
-.physicalFretboard .npsStartGuide {
-  position: absolute;
-  left: -106px;
-  width: auto;
-  height: auto;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 4px;
-  z-index: 20;
-  pointer-events: none;
-}
-
-.physicalFretboard .npsStartInterval {
-  box-sizing: border-box;
-  width: 30px;
-  height: 30px;
-  flex: 0 0 30px;
-  border: 1px solid rgba(0, 0, 0, .55);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font: 600 13px/1 Arial, sans-serif;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .25);
-}
-
-.physicalFretboard .npsStartArrow {
-  width: 18px;
-  height: auto;
-  margin: 0;
-  color: var(--text-color);
-  font: 18px/1 Arial, sans-serif;
-  text-align: center;
-}
-
-/*
-  CAGED fallback connector start cue:
-  the selected coordinate is the 2/3-NPS start, so there is
-  only ONE start cue. Keep it in the normal cue position and
-  distinguish it with a white border.
-*/
-.physicalFretboard .cagedNpsStartGuide {
-  left: -106px;
-}
-
-.physicalFretboard
-  .cagedNpsStartGuide
-  .npsStartInterval {
-  border-color: #ffffff !important;
-}
-
-#chartDiv > table,
-#chartDiv .fretNumber,
-#chartDiv .settingsHeader {
-  display: none;
-}
-
-@media (max-width: 700px) {
-  .exercisePanel {
-    width: calc(100vw - 24px);
-    max-width: calc(100vw - 24px);
-  }
-
-  .fretboardStage {
-    padding-left: 48px;
-  }
-
-  .fretboardStage.hasStartCue {
-    padding-left: 92px;
-  }
-
-  .physicalFretboard .npsStartGuide {
-    left: -88px;
-  }
-
-  .physicalFretboard .cagedNpsStartGuide {
-    left: -88px;
-  }
-
-  .physicalFretboard.compact .fretboardNote {
-    width: 24px;
-    height: 24px;
-    font-size: 10px;
-  }
-
-  .physicalFretboard.compact .fretboardNote.openStringNote {
-    width: 30px;
-    height: 30px;
-    font-size: 11px;
-  }
-}
-
-
-/* UNKNOWN INTERVAL CLICK TARGETS */
-.fretboardNote.unknownInterval {
-  background: transparent !important;
-  color: transparent !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.58);
-  box-shadow: none;
-  z-index: 12;
-}
-
-[data-theme="light"] .fretboardNote.unknownInterval {
-  border-color: rgba(0, 0, 0, 0.48);
-}
-
-.fretboardNote.unknownInterval:hover {
-  background: rgba(255, 255, 255, 0.10) !important;
-  border-color: rgba(255, 255, 255, 0.90);
-}
-
-[data-theme="light"] .fretboardNote.unknownInterval:hover {
-  background: rgba(255, 255, 255, 0.18) !important;
-  border-color: rgba(0, 0, 0, 0.75);
-}
-
-
-/* PHONE LANDSCAPE FRETBOARD HEIGHT */
-.physicalFretboard {
-  height: 420px;
-}
-
-@media (max-width: 700px) {
-  .physicalFretboard {
-    height: 340px;
-  }
-}
-
-@media (orientation: landscape) and (max-height: 600px) {
-  .exercisePanel {
-    padding-top: 6px;
-    padding-bottom: 6px;
-  }
-
-  .fretboardToolbar {
-    min-height: 24px;
-    margin-bottom: 4px;
-  }
-
-  .physicalFretboard {
-    height: clamp(210px, 58vh, 260px);
-  }
-
-  .physicalFretboard .fretboardNote,
-  .physicalFretboard.compact .fretboardNote {
-    width: 26px;
-    height: 26px;
-    font-size: 10px;
-  }
-
-  .physicalFretboard .fretboardNote.openStringNote,
-  .physicalFretboard.compact .fretboardNote.openStringNote {
-    width: 28px;
-    height: 28px;
-    font-size: 11px;
-  }
-
-  .fretboardPositionDot {
-    width: 18px;
-    height: 18px;
-  }
-
-  .fretboardPositionDot.doubleDot {
-    width: 20px;
-    height: 20px;
-  }
-
-  .physicalFretboard .npsStartInterval {
-    width: 26px;
-    height: 26px;
-    flex-basis: 26px;
-    font-size: 11px;
-  }
-}
-
-
-/* =========================================================
-   FRETBOARD REFINEMENTS
-   ========================================================= */
-
-/* Nut is outside the playable width; its right edge touches fret 1. */
-.fretboardNut {
-  left: -14px;
-}
-
-/* Unknown/clickable positions stay faint. */
-.fretboardNote.unknownInterval {
-  border-width: 1px;
-  border-color: rgba(255, 255, 255, 0.24);
-  background: rgba(255, 255, 255, 0.035) !important;
-  color: transparent !important;
-  box-shadow: none;
-  z-index: 12;
-}
-
-[data-theme="light"] .fretboardNote.unknownInterval {
-  border-color: rgba(0, 0, 0, 0.22);
-  background: rgba(255, 255, 255, 0.10) !important;
-}
-
-.fretboardNote.unknownInterval:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.48);
-}
-
-[data-theme="light"] .fretboardNote.unknownInterval:hover {
-  background: rgba(255, 255, 255, 0.16) !important;
-  border-color: rgba(0, 0, 0, 0.38);
-}
-
-/* Fretted guesses remain circles and shrink only when a fret is narrower. */
-.physicalFretboard .fretboardNote:not(.openStringNote) {
-  width: min(38px, calc(100% / var(--fret-count) - 4px));
-  height: auto;
-  aspect-ratio: 1 / 1;
-}
-
-.physicalFretboard.compact .fretboardNote:not(.openStringNote) {
-  width: min(30px, calc(100% / var(--fret-count) - 4px));
-  height: auto;
-  aspect-ratio: 1 / 1;
-}
-
-/* Phone/landscape fretboard sizing. */
-.physicalFretboard {
-  height: 420px;
-}
-
-@media (max-width: 700px) {
+  .fretboardStartCueLayer,
+  .fretboardOpenStrings,
   .physicalFretboard {
     height: 340px;
   }
 
   .physicalFretboard.compact .fretboardNote:not(.openStringNote) {
     width: min(24px, calc(100% / var(--fret-count) - 3px));
+    font-size: 10px;
+  }
+
+  .fretboardOpenStrings .openStringNote {
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
   }
 }
 
 @media (orientation: landscape) and (max-height: 600px) {
-  .exercisePanel {
-    padding-top: 6px;
-    padding-bottom: 6px;
-  }
-
+  .fretboardStartCueLayer,
+  .fretboardOpenStrings,
   .physicalFretboard {
     height: clamp(210px, 58vh, 260px);
   }
@@ -1708,10 +1024,10 @@ button.uiButton:disabled {
   .physicalFretboard .fretboardNote:not(.openStringNote),
   .physicalFretboard.compact .fretboardNote:not(.openStringNote) {
     width: min(26px, calc(100% / var(--fret-count) - 3px));
+    font-size: 10px;
   }
 
-  .physicalFretboard .fretboardNote.openStringNote,
-  .physicalFretboard.compact .fretboardNote.openStringNote {
+  .fretboardOpenStrings .openStringNote {
     width: 28px;
     height: 28px;
     font-size: 11px;
@@ -1727,7 +1043,7 @@ button.uiButton:disabled {
     height: 20px;
   }
 
-  .physicalFretboard .npsStartInterval {
+  .npsStartInterval {
     width: 26px;
     height: 26px;
     flex-basis: 26px;
