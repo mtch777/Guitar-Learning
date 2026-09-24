@@ -1182,6 +1182,24 @@ function updateLessonControls() {
     .hidden =
       !pentatonicLesson;
 
+  const startDegreeControl =
+    document
+      .getElementById(
+        'startDegreeOptions'
+      )
+      ?.closest(
+        '.controlField'
+      );
+
+  if (startDegreeControl) {
+    /*
+      R-R always starts from a root.
+      The generic NPS Start selector does not apply here.
+    */
+    startDegreeControl.hidden =
+      rrPent;
+  }
+
   document
     .getElementById(
       'directionControl'
@@ -2368,8 +2386,18 @@ function buildRrPentPlacementsForString(
 
       chosen.push({
         ...item,
+
         rrInterval:
-          note.interval
+          note.interval,
+
+        rrGroupName:
+          groupName,
+
+        rrGroupNoteIndex:
+          chosen.length,
+
+        rrGroupSize:
+          group.length
       });
     }
 
@@ -2630,11 +2658,6 @@ function getRrPentExerciseCandidates(
   const allowedModes =
     getSelectedNpsModes();
 
-  const allowedDegrees =
-    new Set(
-      getSelectedStartDegrees()
-    );
-
   const allowedDirections =
     getSelectedDirections();
 
@@ -2665,26 +2688,52 @@ function getRrPentExerciseCandidates(
               start,
               startIndex
             ) => {
-              const startInterval =
-                start.rrInterval;
+              /*
+                R-R has a fixed start rule.
 
-              const genericDegree =
-                getGenericDegreeForNpsInterval(
-                  modeName,
-                  startInterval
+                Ascending:
+                  starting R is the FIRST note of an A group:
+                    current string: R - 3 - 4
+                    next higher string: 5 - 7 - R
+
+                Descending:
+                  starting R is the LAST note of a B group,
+                  i.e. the same pattern traversed backward.
+
+                Up+Down anchors on the ascending A-group root
+                and extends through the full connected chain.
+              */
+              const ascendingRoot =
+                (
+                  start.rrInterval ===
+                    'R' &&
+                  start.rrGroupName ===
+                    'A' &&
+                  start.rrGroupNoteIndex ===
+                    0
                 );
 
-              if (
-                !genericDegree ||
-                !allowedDegrees.has(
-                  genericDegree
-                )
-              ) {
-                return;
-              }
+              const descendingRoot =
+                (
+                  start.rrInterval ===
+                    'R' &&
+                  start.rrGroupName ===
+                    'B' &&
+                  start.rrGroupNoteIndex ===
+                    start.rrGroupSize - 1
+                );
 
               allowedDirections.forEach(
                 direction => {
+                  const validStart =
+                    direction === 'down'
+                      ? descendingRoot
+                      : ascendingRoot;
+
+                  if (!validStart) {
+                    return;
+                  }
+
                   let selectedPath;
 
                   if (
@@ -2709,6 +2758,10 @@ function getRrPentExerciseCandidates(
                       [...path];
                   }
 
+                  /*
+                    UP/DOWN must actually continue onto
+                    at least one adjacent string.
+                  */
                   if (
                     direction !== 'upDown'
                   ) {
@@ -2752,7 +2805,9 @@ function getRrPentExerciseCandidates(
                       startCellKey,
                       [
                         ...requiredCellKeys
-                      ].join(',')
+                      ]
+                        .sort()
+                        .join(',')
                     ].join('|');
 
                   if (
@@ -2770,24 +2825,36 @@ function getRrPentExerciseCandidates(
                   exercises.push({
                     mode:
                       modeName,
+
                     modeRoot,
+
                     direction,
-                    startInterval,
+
+                    startInterval:
+                      'R',
+
                     startIndex,
+
                     startCellKey,
+
                     startStringIndex:
                       start.stringIndex,
+
                     startStringName:
                       midiToScientificPitch(
                         currentTuning[
                           start.stringIndex
                         ]
                       ),
+
                     fullPath:
                       [...path],
+
                     path:
                       selectedPath,
+
                     requiredCellKeys,
+
                     remainingCellKeys:
                       new Set(
                         requiredCellKeys
@@ -2804,7 +2871,6 @@ function getRrPentExerciseCandidates(
 
   return exercises;
 }
-
 
 /* =========================================================
    CAGED PENTATONIC — 35 EXPLICIT MODE/SHAPE TEMPLATES
