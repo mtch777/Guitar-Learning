@@ -2282,6 +2282,18 @@ function getNpsExerciseCandidates(
 function getRrPentGroups(modeName) {
   const scale = scales[modeName];
 
+  /*
+    Repeating two-string grouping:
+
+      A: R - 3 - 4
+      B: 5 - 7
+
+    Modal color notes stay in the group where they occur
+    chromatically:
+      Phrygian b2 -> A
+      Dorian 6     -> B
+      Aeolian b6   -> B
+  */
   const groupA = [
     { semitone: scale[0][0], interval: scale[0][1] },
     { semitone: scale[2][0], interval: scale[2][1] },
@@ -2290,8 +2302,7 @@ function getRrPentGroups(modeName) {
 
   const groupB = [
     { semitone: scale[4][0], interval: scale[4][1] },
-    { semitone: scale[6][0], interval: scale[6][1] },
-    { semitone: 12, interval: 'R' }
+    { semitone: scale[6][0], interval: scale[6][1] }
   ];
 
   if (modeName === 'phrygian') {
@@ -2447,7 +2458,13 @@ function rrPentPlacementsConnect(
             groups.A.length - 1
           ].semitone
         )
-      : 0;
+      : (
+          12 +
+          groups.A[0].semitone -
+          groups.B[
+            groups.B.length - 1
+          ].semitone
+        );
 
   return (
     upperFirst.absolutePitch -
@@ -2694,14 +2711,16 @@ function getRrPentExerciseCandidates(
                 Ascending:
                   starting R is the FIRST note of an A group:
                     current string: R - 3 - 4
-                    next higher string: 5 - 7 - R
+                    next higher string: 5 - 7
+                    next higher string: R - 3 - 4
 
                 Descending:
-                  starting R is the LAST note of a B group,
-                  i.e. the same pattern traversed backward.
+                  starts from that same A-group root and
+                  traverses the connected chain backward
+                  through the preceding B group.
 
-                Up+Down anchors on the ascending A-group root
-                and extends through the full connected chain.
+                Up+Down anchors on the A-group root and
+                extends through the full connected chain.
               */
               const ascendingRoot =
                 (
@@ -2714,14 +2733,7 @@ function getRrPentExerciseCandidates(
                 );
 
               const descendingRoot =
-                (
-                  start.rrInterval ===
-                    'R' &&
-                  start.rrGroupName ===
-                    'B' &&
-                  start.rrGroupNoteIndex ===
-                    start.rrGroupSize - 1
-                );
+                ascendingRoot;
 
               allowedDirections.forEach(
                 direction => {
