@@ -135,6 +135,16 @@ select.stateSelect {
   margin: 0;
 }
 
+/*
+  Top-row lesson settings use inline labels so every settings
+  card has the same natural content height.
+*/
+.lessonSettingsSection .controlField {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
 .fieldLabel,
 .controlField > label {
   margin: 0;
@@ -144,6 +154,7 @@ select.stateSelect {
   opacity: .62;
   text-transform: uppercase;
   letter-spacing: .04em;
+  white-space: nowrap;
 }
 
 .keyControls,
@@ -389,7 +400,44 @@ select.stateSelect {
    gutter geometry used by the fretboard below.
    ========================================================= */
 
+/*
+  Quiz uses the exact same structural columns as the fretboard:
+  start-cue gutter | open-string/tuning gutter | quiz card.
+  This keeps the tuning fork over the string labels while the
+  quiz border starts immediately to its right.
+*/
+.quizRow {
+  display: grid;
+  grid-template-columns:
+    0
+    var(--open-string-gutter)
+    minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
+  align-items: stretch;
+}
+
+.trainerShell.hasStartCue .quizRow {
+  grid-template-columns:
+    var(--start-cue-gutter)
+    var(--open-string-gutter)
+    minmax(0, 1fr);
+}
+
+.quizStartCueSpacer {
+  grid-column: 1;
+}
+
+.quizTuningControl {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
 .promptSection {
+  grid-column: 3;
   width: 100%;
   min-width: 0;
   padding: 0;
@@ -409,20 +457,7 @@ select.stateSelect {
   gap: 12px;
   width: 100%;
   min-width: 0;
-  padding: 8px 12px 10px 0;
-}
-
-.quizTuningControl {
-  flex: 0 0 var(--open-string-gutter);
-  width: var(--open-string-gutter);
-  margin-left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.trainerShell.hasStartCue .quizTuningControl {
-  margin-left: var(--start-cue-gutter);
+  padding: 8px 12px 10px;
 }
 
 .quizSpacer {
