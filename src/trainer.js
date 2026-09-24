@@ -5085,19 +5085,17 @@ function buildTrainer() {
     );
   }
 
-  const toolbar =
-    document.createElement('div');
+  const quizTuningControl =
+    document.getElementById(
+      'quizTuningControl'
+    );
 
-  toolbar.className =
-    'fretboardToolbar';
-
-  toolbar.appendChild(
-    createTuningSettings()
-  );
-
-  chartDiv.appendChild(
-    toolbar
-  );
+  if (quizTuningControl) {
+    quizTuningControl.innerHTML = '';
+    quizTuningControl.appendChild(
+      createTuningSettings()
+    );
+  }
 
   const stage =
     document.createElement('div');
