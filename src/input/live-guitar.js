@@ -60,6 +60,167 @@ async function summarizeFeatureShift(features) {
   return `${extreme}/107 ≥3σ · ${top}`;
 }
 
+function applyQuizAnswerPrior(result, midi) {
+  const hintGetter =
+    window.getGuitarTrainerAudioHints;
+
+  if (
+    typeof hintGetter !== "function"
+  ) {
+    return {
+      ...result,
+      contextAdjusted: false,
+      rawProbabilities:
+        [...result.probabilities]
+    };
+  }
+
+  const hints =
+    hintGetter(midi);
+
+  if (
+    !hints?.hasMatchingAnswer ||
+    !Array.isArray(
+      hints.answerStrings
+    ) ||
+    hints.answerStrings.length === 0
+  ) {
+    return {
+      ...result,
+      contextAdjusted: false,
+      rawProbabilities:
+        [...result.probabilities]
+    };
+  }
+
+  const validStrings =
+    new Set(
+      candidateStringsForMidi(
+        midi
+      ).map(
+        candidate =>
+          candidate.string
+      )
+    );
+
+  const preferredStrings =
+    new Set(
+      hints.answerStrings.filter(
+        stringNumber =>
+          validStrings.has(
+            stringNumber
+          )
+      )
+    );
+
+  if (
+    preferredStrings.size === 0
+  ) {
+    return {
+      ...result,
+      contextAdjusted: false,
+      rawProbabilities:
+        [...result.probabilities]
+    };
+  }
+
+  /*
+    Soft quiz prior, not a hard override.
+
+    Correct remaining answer positions get a modest boost.
+    Other physically possible strings get a modest penalty.
+
+    This is deliberately strong enough to break close calls,
+    but not strong enough to routinely overturn a confident
+    classifier prediction.
+  */
+  const ANSWER_BOOST = 1.35;
+  const NON_ANSWER_PENALTY = 0.85;
+
+  const weighted =
+    result.probabilities.map(
+      (
+        probability,
+        index
+      ) => {
+        const stringNumber =
+          index + 1;
+
+        if (
+          !validStrings.has(
+            stringNumber
+          )
+        ) {
+          return 0;
+        }
+
+        return (
+          probability *
+          (
+            preferredStrings.has(
+              stringNumber
+            )
+              ? ANSWER_BOOST
+              : NON_ANSWER_PENALTY
+          )
+        );
+      }
+    );
+
+  const total =
+    weighted.reduce(
+      (
+        sum,
+        probability
+      ) =>
+        sum + probability,
+      0
+    );
+
+  const probabilities =
+    total > 0
+      ? weighted.map(
+          probability =>
+            probability / total
+        )
+      : [...result.probabilities];
+
+  let best = 0;
+
+  for (
+    let index = 1;
+    index <
+      probabilities.length;
+    index++
+  ) {
+    if (
+      probabilities[index] >
+      probabilities[best]
+    ) {
+      best = index;
+    }
+  }
+
+  return {
+    ...result,
+    string:
+      best + 1,
+    confidence:
+      probabilities[best],
+    probabilities,
+    rawProbabilities:
+      [...result.probabilities],
+    rawString:
+      result.string,
+    rawConfidence:
+      result.confidence,
+    contextAdjusted:
+      true,
+    answerStrings:
+      [...preferredStrings]
+  };
+}
+
 export function setupLiveGuitarInput() {
   const button = document.getElementById("guitarInputButton");
   const status = document.getElementById("guitarInputStatus");
@@ -661,48 +822,180 @@ export function setupLiveGuitarInput() {
           }));
           if (completedPluck.midi != null) {
             try {
-              const result = await classifyRingingPluck({
+              const rawResult = await classifyRingingPluck({
                 midi: completedPluck.midi,
                 features
               });
-              const fret = completedPluck.midi - [27,34,39,44,49,54,58,63][result.string - 1];
-              string.textContent = String(result.string);
-              const probabilityText = result.probabilities
-                .map((p, i) => `S${i + 1} ${p.toFixed(2)}`)
-                .join(" · ");
-              lastClassificationText =
-                "Classifier: " + probabilityText +
-                " · picked S" + result.string +
-                " (" + result.confidence.toFixed(2) + ")";
-              confidence.textContent =
-                "Pitch: " + completedPluck.pitchConfidence.toFixed(2) +
-                " · " + lastClassificationText;
-              window.dispatchEvent(new CustomEvent("guitar-note-detected", {
-                detail: {
-                  midi: completedPluck.midi,
-                  string: result.string,
-                  fret,
-                  pitchConfidence: completedPluck.pitchConfidence,
-                  stringConfidence: result.confidence
-                }
-              }));
-              appendLogRow(completedPluck, result, features);
 
-              const expected = currentTestCase();
+              /*
+                Apply quiz context only to gameplay inference.
+                Classifier test records remain RAW so model
+                accuracy measurements are not contaminated.
+              */
+              const result =
+                testActive
+                  ? {
+                      ...rawResult,
+                      contextAdjusted:
+                        false,
+                      rawProbabilities:
+                        [
+                          ...rawResult
+                            .probabilities
+                        ]
+                    }
+                  : applyQuizAnswerPrior(
+                      rawResult,
+                      completedPluck.midi
+                    );
+
+              const fret =
+                completedPluck.midi -
+                [
+                  27, 34, 39, 44,
+                  49, 54, 58, 63
+                ][
+                  result.string - 1
+                ];
+
+              string.textContent =
+                String(
+                  result.string
+                );
+
+              const probabilityText =
+                result.probabilities
+                  .map(
+                    (
+                      probability,
+                      index
+                    ) =>
+                      `S${index + 1} ${probability.toFixed(2)}`
+                  )
+                  .join(" · ");
+
+              const contextText =
+                result.contextAdjusted
+                  ? ` · quiz bias → S${result.answerStrings.join("/")}`
+                  : "";
+
+              lastClassificationText =
+                "Classifier: " +
+                probabilityText +
+                " · picked S" +
+                result.string +
+                " (" +
+                result.confidence.toFixed(2) +
+                ")" +
+                contextText;
+
+              confidence.textContent =
+                "Pitch: " +
+                completedPluck
+                  .pitchConfidence
+                  .toFixed(2) +
+                " · " +
+                lastClassificationText;
+
+              window.dispatchEvent(
+                new CustomEvent(
+                  "guitar-note-detected",
+                  {
+                    detail: {
+                      midi:
+                        completedPluck.midi,
+
+                      string:
+                        result.string,
+
+                      fret,
+
+                      pitchConfidence:
+                        completedPluck
+                          .pitchConfidence,
+
+                      stringConfidence:
+                        result.confidence,
+
+                      contextAdjusted:
+                        result.contextAdjusted,
+
+                      answerStrings:
+                        result.answerStrings ||
+                        []
+                    }
+                  }
+                )
+              );
+
+              appendLogRow(
+                completedPluck,
+                result,
+                features
+              );
+
+              const expected =
+                currentTestCase();
+
               if (expected) {
                 const record = {
-                  time: new Date().toISOString(),
-                  expectedString: expected.string,
-                  expectedFret: expected.fret,
-                  expectedMidi: expected.midi,
-                  detectedMidi: completedPluck.midi,
-                  pitchConfidence: completedPluck.pitchConfidence,
-                  pitchCandidates: currentNoteEvent?.pitchCandidates || [],
-                  probabilities: result.probabilities.map(p => Number(p.toFixed(6))),
-                  predictedString: result.string,
-                  stringConfidence: result.confidence,
-                  correct: completedPluck.midi === expected.midi && result.string === expected.string,
-                  status: completedPluck.midi === expected.midi ? "tested" : "pitch_mismatch"
+                  time:
+                    new Date()
+                      .toISOString(),
+
+                  expectedString:
+                    expected.string,
+
+                  expectedFret:
+                    expected.fret,
+
+                  expectedMidi:
+                    expected.midi,
+
+                  detectedMidi:
+                    completedPluck.midi,
+
+                  pitchConfidence:
+                    completedPluck
+                      .pitchConfidence,
+
+                  pitchCandidates:
+                    currentNoteEvent
+                      ?.pitchCandidates ||
+                    [],
+
+                  /*
+                    Keep classifier validation raw.
+                    Quiz-context bias is gameplay-only.
+                  */
+                  probabilities:
+                    rawResult
+                      .probabilities
+                      .map(
+                        probability =>
+                          Number(
+                            probability
+                              .toFixed(6)
+                          )
+                      ),
+
+                  predictedString:
+                    rawResult.string,
+
+                  stringConfidence:
+                    rawResult.confidence,
+
+                  correct:
+                    completedPluck.midi ===
+                      expected.midi &&
+                    rawResult.string ===
+                      expected.string,
+
+                  status:
+                    completedPluck.midi ===
+                      expected.midi
+                        ? "tested"
+                        : "pitch_mismatch"
                 };
                 testResults.push(record);
                 saveTestProgress();
