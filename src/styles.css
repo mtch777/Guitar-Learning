@@ -3131,3 +3131,139 @@ button.uiButton:disabled {
     min-width: 0;
   }
 }
+
+
+/* =========================================================
+   AUTHORITATIVE TOP-ROW SIZING
+   Each section hugs its content. No section stretches.
+   ========================================================= */
+
+.trainerShell {
+  width: max-content !important;
+  max-width: none !important;
+}
+
+.trainerControls {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+  width: max-content !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+
+.promptSection {
+  order: 1 !important;
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+.setupPanel {
+  order: 2 !important;
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  overflow: visible !important;
+}
+
+.setupPanel .settingsSection {
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  border-bottom: 0 !important;
+  border-right: 1px solid var(--border-color);
+}
+
+.setupPanel .settingsSection:last-child {
+  border-right: 0 !important;
+}
+
+.lessonSection .lessonField,
+.keySection .keyField,
+.keyControls,
+.lessonSettingsSection,
+.intervalLessonGrid,
+.lessonSettingsSection .npsControlGrid,
+.lessonSettingsSection .controlField,
+.orderField {
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+.intervalLessonGrid,
+.lessonSettingsSection .npsControlGrid {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+}
+
+.intervalLessonGrid[hidden],
+.lessonSettingsSection .npsControlGrid[hidden],
+.lessonSettingsSection [hidden] {
+  display: none !important;
+}
+
+/* Keep the theme switch from covering the Lesson Settings heading. */
+.lessonSettingsSection .sectionTitle {
+  padding-right: 92px !important;
+}
+
+/* Quiz card should be exactly as wide as its own contents. */
+.promptSection #answerNote,
+.promptSection #answerNote.npsExerciseCard,
+.promptSection .intervalQuizPrompt,
+.exerciseActions {
+  width: max-content !important;
+  max-width: none !important;
+}
+
+.exerciseActions {
+  flex-wrap: nowrap !important;
+}
+
+/* The page may scroll horizontally on a phone rather than distorting cards. */
+body {
+  overflow-x: auto;
+}
+
+@media (max-width: 700px) {
+  .trainerShell,
+  .trainerControls,
+  .setupPanel,
+  .promptSection {
+    width: max-content !important;
+    max-width: none !important;
+  }
+
+  .setupPanel .settingsSection,
+  .lessonSection .lessonField,
+  .keySection .keyField,
+  .keyControls,
+  .lessonSettingsSection,
+  .intervalLessonGrid,
+  .lessonSettingsSection .npsControlGrid,
+  .lessonSettingsSection .controlField,
+  .orderField {
+    width: max-content !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  .intervalLessonGrid,
+  .lessonSettingsSection .npsControlGrid {
+    flex-wrap: nowrap !important;
+  }
+}
