@@ -5103,15 +5103,42 @@ function buildTrainer() {
   stage.className =
     'fretboardStage';
 
-  if (
+  const hasStartCue =
     ['nps', 'rrPent', 'shape', 'caged'].includes(
       lessonType
-    )
-  ) {
-    stage.classList.add(
-      'hasStartCue'
     );
-  }
+
+  stage.classList.toggle(
+    'hasStartCue',
+    hasStartCue
+  );
+
+  document
+    .querySelector(
+      '.trainerShell'
+    )
+    ?.classList.toggle(
+      'hasStartCue',
+      hasStartCue
+    );
+
+  /*
+    The fretboard is structurally split into independent
+    columns instead of positioning UI with negative offsets:
+
+      start cue | open strings | playable neck
+  */
+  const startCueLayer =
+    document.createElement('div');
+
+  startCueLayer.className =
+    'fretboardStartCueLayer';
+
+  const openStringLayer =
+    document.createElement('div');
+
+  openStringLayer.className =
+    'fretboardOpenStrings';
 
   const fretboard =
     document.createElement('div');
@@ -5132,7 +5159,9 @@ function buildTrainer() {
     maxFret
   );
 
-  stage.appendChild(
+  stage.append(
+    startCueLayer,
+    openStringLayer,
     fretboard
   );
 
@@ -5462,7 +5491,7 @@ function buildTrainer() {
       true
     );
 
-    fretboard.appendChild(
+    openStringLayer.appendChild(
       openCell
     );
 
@@ -5548,7 +5577,7 @@ function buildTrainer() {
 
     displayShapeQuestion();
 
-    fretboard.appendChild(
+    startCueLayer.appendChild(
       createNpsStartMarker(
         currentShapeExercise,
         tuning.length
@@ -5642,7 +5671,7 @@ function buildTrainer() {
 
     displayCagedQuestion();
 
-    fretboard.appendChild(
+    startCueLayer.appendChild(
       createNpsStartMarker(
         currentCagedExercise,
         tuning.length,
@@ -5768,7 +5797,7 @@ function buildTrainer() {
 
     displayRrPentQuestion();
 
-    fretboard.appendChild(
+    startCueLayer.appendChild(
       createNpsStartMarker(
         currentRrPentExercise,
         tuning.length
