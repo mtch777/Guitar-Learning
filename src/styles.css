@@ -53,7 +53,7 @@ body {
 .stateOnly,
 .stateSelect,
 select.stateSelect {
-  display: none !important;
+  display: none;
 }
 
 
@@ -126,7 +126,7 @@ select.stateSelect {
   margin: 10px 14px 12px;
 }
 
-.controlField {
+.controlField:not([hidden]) {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -141,7 +141,7 @@ select.stateSelect {
   control: label on the left, UI on the right. This keeps every
   top card to the same single-control-row height.
 */
-.setupPanel .controlField:has(.fieldLabel) {
+.setupPanel .controlField:not([hidden]):has(.fieldLabel) {
   flex-direction: row;
   align-items: center;
   gap: 8px;
@@ -160,7 +160,7 @@ select.stateSelect {
 }
 
 .keyControls,
-.lessonControls {
+.lessonControls:not([hidden]) {
   display: flex;
   align-items: flex-end;
   gap: 12px;
@@ -170,10 +170,6 @@ select.stateSelect {
 
 .keyControls {
   gap: 8px;
-}
-
-.lessonControls[hidden] {
-  display: none;
 }
 
 
