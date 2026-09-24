@@ -104,7 +104,8 @@ select.stateSelect {
   display: flex;
   align-items: center;
   min-width: 100%;
-  padding: 7px 14px;
+  min-height: 40px;
+  padding: 6px 14px;
   background: var(--section-title-bg);
   color: var(--section-title-text);
   border-bottom: 1px solid var(--border-color);
@@ -415,7 +416,8 @@ select.stateSelect {
     minmax(0, 1fr);
   width: 100%;
   min-width: 0;
-  align-items: stretch;
+  column-gap: 0;
+  align-items: center;
 }
 
 .trainerShell.hasStartCue .quizRow {
@@ -435,6 +437,7 @@ select.stateSelect {
   align-items: center;
   justify-content: center;
   min-width: 0;
+  justify-self: stretch;
 }
 
 .promptSection {
