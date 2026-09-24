@@ -404,40 +404,40 @@ const cagedShapeOrder = [
 ];
 
 /*
-  EVERY root occurrence in each standard six-string CAGED
-  shape.
+  CAGED is fixed to physical strings 3-8 on this 8-string
+  guitar.
 
-  Offsets are counted from the LOWEST string of the six-string
-  block, using this app's low-to-high string convention:
+  Every root occurrence is LOCKED to its real physical string.
+  A selected root on any other string cannot be reinterpreted
+  by sliding the whole CAGED shape up or down.
 
-    offset 0 = shape string 1 / standard guitar string 6
-    offset 1 = shape string 2 / standard guitar string 5
-    offset 2 = shape string 3 / standard guitar string 4
-    offset 3 = shape string 4 / standard guitar string 3
-    offset 4 = shape string 5 / standard guitar string 2
-    offset 5 = shape string 6 / standard guitar string 1
+  Physical root strings:
 
-  Root strings, in this app's low-to-high convention:
-
-    C: 2, 5
-    A: 2, 4
-    G: 1, 4, 6
-    E: 1, 3, 6
-    D: 3, 5
+    C: 4, 7
+    A: 4, 6
+    G: 3, 6, 8
+    E: 3, 5, 8
+    D: 5, 7
 
   "high" = the root is the higher note of the local
   two-note pentatonic pair on that string.
   "low"  = the root is the lower note.
 */
+const cagedBlockStartStringIndex =
+  2; // physical String 3
+
+const cagedBlockEndStringIndex =
+  7; // physical String 8
+
 const cagedShapeDefinitions = {
   C: {
     roots: [
       {
-        offset: 1,
+        physicalString: 4,
         role: 'high'
       },
       {
-        offset: 4,
+        physicalString: 7,
         role: 'low'
       }
     ]
@@ -446,11 +446,11 @@ const cagedShapeDefinitions = {
   A: {
     roots: [
       {
-        offset: 1,
+        physicalString: 4,
         role: 'low'
       },
       {
-        offset: 3,
+        physicalString: 6,
         role: 'low'
       }
     ]
@@ -459,15 +459,15 @@ const cagedShapeDefinitions = {
   G: {
     roots: [
       {
-        offset: 0,
+        physicalString: 3,
         role: 'high'
       },
       {
-        offset: 3,
+        physicalString: 6,
         role: 'low'
       },
       {
-        offset: 5,
+        physicalString: 8,
         role: 'high'
       }
     ]
@@ -476,15 +476,15 @@ const cagedShapeDefinitions = {
   E: {
     roots: [
       {
-        offset: 0,
+        physicalString: 3,
         role: 'low'
       },
       {
-        offset: 2,
+        physicalString: 5,
         role: 'low'
       },
       {
-        offset: 5,
+        physicalString: 8,
         role: 'low'
       }
     ]
@@ -493,11 +493,11 @@ const cagedShapeDefinitions = {
   D: {
     roots: [
       {
-        offset: 2,
+        physicalString: 5,
         role: 'low'
       },
       {
-        offset: 4,
+        physicalString: 7,
         role: 'high'
       }
     ]
@@ -2306,15 +2306,15 @@ function getNpsExerciseCandidates(
    The mode supplies the same five-note pentatonic set used
    by the 2/3 NPS lesson.
 
-   A CAGED shape spans six consecutive strings. The selected
-   modal root can move that six-string block across the
-   8-string instrument as long as it stays inside strings
-   1-8. Root anchors on physical strings 1 and 2 are ignored.
+   CAGED is fixed to physical strings 3-8.
 
-   For each string, choose the adjacent pentatonic pair that
-   sits closest to the root-string pair. This preserves the
-   familiar compact CAGED-box behavior while also respecting
-   the actual tuning of whichever six-string block is used.
+  Each shape has specific physical strings on which a root is
+  valid. A root on any other string does NOT move the CAGED
+  box; it requires the 2/3-NPS connector fallback instead.
+
+  For each string, choose the adjacent pentatonic pair that
+  sits closest to the root-string pair while preserving that
+  fixed strings-3-through-8 placement.
    ========================================================= */
 
 function getCagedPentatonicFrets(
@@ -2459,20 +2459,24 @@ function buildCagedShapeForRootPosition(
     return null;
   }
 
-  const blockStartString =
-    rootAnchor.stringIndex -
-    rootPosition.offset;
-
-  const blockEndString =
-    blockStartString + 5;
-
+  /*
+    HARD RULE:
+    each CAGED root occurrence belongs to one exact physical
+    string. Never move the six-string CAGED block to make a
+    different string fit.
+  */
   if (
-    blockStartString < 0 ||
-    blockEndString >=
-      currentTuning.length
+    rootAnchor.stringIndex + 1 !==
+      rootPosition.physicalString
   ) {
     return null;
   }
+
+  const blockStartString =
+    cagedBlockStartStringIndex;
+
+  const blockEndString =
+    cagedBlockEndStringIndex;
 
 
   const rootStringFrets =
@@ -2644,8 +2648,8 @@ function buildCagedShapeForRootPosition(
 
     rootAnchor,
 
-    rootPositionOffset:
-      rootPosition.offset,
+    rootPhysicalString:
+      rootPosition.physicalString,
 
     rootPositionRole:
       rootPosition.role,
@@ -2706,7 +2710,8 @@ function buildCagedShapesForAnchor(
 
       const key =
         [
-          built.blockStartString,
+          built.shapeName,
+          built.rootPhysicalString,
           ...[
             ...built.requiredCellKeys
           ].sort()
@@ -2786,30 +2791,25 @@ function getCagedShapeOverflowForRootPosition(
   rootAnchor,
   rootPosition
 ) {
-  const blockStartString =
-    rootAnchor.stringIndex -
-    rootPosition.offset;
-
-  const blockEndString =
-    blockStartString + 5;
-
-  let low =
-    blockStartString < 0;
-
-  let high =
-    blockEndString >=
-    currentTuning.length;
-
-
   if (
-    low ||
-    high
+    rootAnchor.stringIndex + 1 !==
+      rootPosition.physicalString
   ) {
     return {
-      low,
-      high
+      matchesRootString: false,
+      low: false,
+      high: false
     };
   }
+
+  const blockStartString =
+    cagedBlockStartStringIndex;
+
+  const blockEndString =
+    cagedBlockEndStringIndex;
+
+  let low = false;
+  let high = false;
 
 
   const rootStringFrets =
@@ -2828,6 +2828,7 @@ function getCagedShapeOverflowForRootPosition(
     rootIndex === -1
   ) {
     return {
+      matchesRootString: true,
       low,
       high
     };
@@ -2846,6 +2847,7 @@ function getCagedShapeOverflowForRootPosition(
       low = true;
 
       return {
+        matchesRootString: true,
         low,
         high
       };
@@ -2868,6 +2870,7 @@ function getCagedShapeOverflowForRootPosition(
       high = true;
 
       return {
+        matchesRootString: true,
         low,
         high
       };
@@ -2952,6 +2955,7 @@ function getCagedShapeOverflowForRootPosition(
 
 
   return {
+    matchesRootString: true,
     low,
     high
   };
@@ -2993,19 +2997,72 @@ function getCagedShapeOverflow(
         )
     );
 
+  const matching =
+    overflows.filter(
+      overflow =>
+        overflow.matchesRootString
+    );
+
+
+  if (
+    matching.length > 0
+  ) {
+    return {
+      low:
+        matching.some(
+          overflow =>
+            overflow.low
+        ),
+
+      high:
+        matching.some(
+          overflow =>
+            overflow.high
+        )
+    };
+  }
+
+
+  /*
+    This root is on a string that this CAGED shape does not
+    use for a root. Never slide the shape. Point the fallback
+    toward the nearest legal root-string occurrence instead.
+  */
+  const physicalString =
+    rootAnchor.stringIndex + 1;
+
+  const legalRootStrings =
+    definition.roots
+      .map(
+        rootPosition =>
+          rootPosition.physicalString
+      )
+      .sort(
+        (a, b) =>
+          a - b
+      );
+
+  const hasLower =
+    legalRootStrings.some(
+      stringNumber =>
+        stringNumber <
+        physicalString
+    );
+
+  const hasHigher =
+    legalRootStrings.some(
+      stringNumber =>
+        stringNumber >
+        physicalString
+    );
+
 
   return {
     low:
-      overflows.some(
-        overflow =>
-          overflow.low
-      ),
+      hasHigher,
 
     high:
-      overflows.some(
-        overflow =>
-          overflow.high
-      )
+      hasLower
   };
 }
 
