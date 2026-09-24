@@ -3267,3 +3267,22 @@ body {
     flex-wrap: nowrap !important;
   }
 }
+
+
+/* =========================================================
+   SECTION HEADER BAND FIX
+   Fill each settings section edge-to-edge, including padding.
+   ========================================================= */
+
+.setupPanel .settingsSection {
+  position: relative;
+}
+
+.setupPanel .settingsSection > .sectionTitle {
+  box-sizing: border-box;
+  width: calc(100% + 28px) !important;
+  max-width: none !important;
+  margin: -14px -14px 12px !important;
+  background: var(--section-title-bg) !important;
+  color: var(--section-title-text) !important;
+}
