@@ -444,6 +444,7 @@ let questions = [];
 let currentAnswer = null;
 let showAll = false;
 let currentNpsExercise = null;
+let currentRrPentExercise = null;
 let currentShapeExercise = null;
 let currentCagedExercise = null;
 
@@ -887,7 +888,7 @@ function handleNpsModeChange(event) {
   updateNpsModeSummary();
 
   if (
-    ['nps', 'caged'].includes(
+    ['nps', 'rrPent', 'caged'].includes(
       getLessonType()
     )
   ) {
@@ -974,7 +975,7 @@ function handleStartDegreeChange(event) {
   updateStartDegreeSummary();
 
   if (
-    ['nps', 'caged'].includes(
+    ['nps', 'rrPent', 'caged'].includes(
       getLessonType()
     )
   ) {
@@ -1120,7 +1121,11 @@ function buildDirectionControls() {
 function handleDirectionChange() {
   updateDirectionSummary();
 
-  if (getLessonType() === 'nps') {
+  if (
+    ['nps', 'rrPent'].includes(
+      getLessonType()
+    )
+  ) {
     buildTrainer();
   }
 }
@@ -1154,11 +1159,14 @@ function updateLessonControls() {
   const nps =
     lessonType === 'nps';
 
+  const rrPent =
+    lessonType === 'rrPent';
+
   const caged =
     lessonType === 'caged';
 
   const pentatonicLesson =
-    nps || caged;
+    nps || rrPent || caged;
 
   document
     .getElementById(
@@ -1179,7 +1187,7 @@ function updateLessonControls() {
       'directionControl'
     )
     .hidden =
-      !nps;
+      !(nps || rrPent);
 
   document
     .getElementById(
@@ -1250,7 +1258,7 @@ function revealCell(
   }
 
   if (
-    ['nps', 'shape', 'caged'].includes(
+    ['nps', 'rrPent', 'shape', 'caged'].includes(
       getLessonType()
     )
   ) {
@@ -1422,6 +1430,33 @@ function restoreCellDisplay(cell) {
 
     if (
       currentNpsExercise
+        .requiredCellKeys
+        .has(key)
+    ) {
+      revealCell(cell);
+    } else {
+      hideCell(cell);
+    }
+
+    return;
+  }
+
+  if (
+    getLessonType() === 'rrPent' &&
+    currentRrPentExercise
+  ) {
+    const key =
+      makeCellKey(
+        Number(
+          cell.dataset.stringIndex
+        ),
+        Number(
+          cell.dataset.fret
+        )
+      );
+
+    if (
+      currentRrPentExercise
         .requiredCellKeys
         .has(key)
     ) {
@@ -2208,6 +2243,564 @@ function getNpsExerciseCandidates(
     }
   );
 
+
+  return exercises;
+}
+
+
+/* =========================================================
+   R-R PENTATONIC + COLOR NOTES
+
+   Alternating two-string pattern:
+     A: R - 3 - 4
+     B: 5 - 7 - R
+
+   Color-note additions:
+     Dorian   -> natural 6
+     Aeolian  -> b6
+     Phrygian -> b2
+   ========================================================= */
+
+function getRrPentGroups(modeName) {
+  const scale = scales[modeName];
+
+  const groupA = [
+    { semitone: scale[0][0], interval: scale[0][1] },
+    { semitone: scale[2][0], interval: scale[2][1] },
+    { semitone: scale[3][0], interval: scale[3][1] }
+  ];
+
+  const groupB = [
+    { semitone: scale[4][0], interval: scale[4][1] },
+    { semitone: scale[6][0], interval: scale[6][1] },
+    { semitone: 12, interval: 'R' }
+  ];
+
+  if (modeName === 'phrygian') {
+    groupA.splice(
+      1,
+      0,
+      {
+        semitone: scale[1][0],
+        interval: scale[1][1]
+      }
+    );
+  }
+
+  if (
+    modeName === 'dorian' ||
+    modeName === 'aeolian'
+  ) {
+    groupB.splice(
+      1,
+      0,
+      {
+        semitone: scale[5][0],
+        interval: scale[5][1]
+      }
+    );
+  }
+
+  return { A: groupA, B: groupB };
+}
+
+function buildRrPentPlacementsForString(
+  cells,
+  stringIndex,
+  modeRoot,
+  modeName,
+  groupName
+) {
+  const group =
+    getRrPentGroups(
+      modeName
+    )[groupName];
+
+  const cellByFret =
+    new Map(
+      cells
+        .filter(
+          item =>
+            item.stringIndex ===
+            stringIndex
+        )
+        .map(
+          item => [
+            item.fret,
+            item
+          ]
+        )
+    );
+
+  const placements = [];
+
+  for (
+    let rootMidi = modeRoot;
+    rootMidi <= 127;
+    rootMidi += 12
+  ) {
+    const chosen = [];
+    let valid = true;
+
+    for (
+      const note of group
+    ) {
+      const fret =
+        rootMidi +
+        note.semitone -
+        currentTuning[
+          stringIndex
+        ];
+
+      const item =
+        cellByFret.get(
+          fret
+        );
+
+      if (
+        !item ||
+        fret < 0 ||
+        fret > 24
+      ) {
+        valid = false;
+        break;
+      }
+
+      chosen.push({
+        ...item,
+        rrInterval:
+          note.interval
+      });
+    }
+
+    if (valid) {
+      placements.push({
+        stringIndex,
+        groupName,
+        rootMidi,
+        chosen
+      });
+    }
+  }
+
+  return placements;
+}
+
+function rrPentPlacementsConnect(
+  lowerPlacement,
+  upperPlacement,
+  modeName
+) {
+  if (
+    lowerPlacement.groupName ===
+    upperPlacement.groupName
+  ) {
+    return false;
+  }
+
+  const groups =
+    getRrPentGroups(
+      modeName
+    );
+
+  const lowerLast =
+    lowerPlacement.chosen[
+      lowerPlacement.chosen.length - 1
+    ];
+
+  const upperFirst =
+    upperPlacement.chosen[0];
+
+  const expectedGap =
+    lowerPlacement.groupName === 'A'
+      ? (
+          groups.B[0].semitone -
+          groups.A[
+            groups.A.length - 1
+          ].semitone
+        )
+      : 0;
+
+  return (
+    upperFirst.absolutePitch -
+    lowerLast.absolutePitch ===
+    expectedGap
+  );
+}
+
+function buildRrPentPaths(
+  modeRoot,
+  modeName,
+  cells
+) {
+  const placementsByString = [];
+
+  for (
+    let stringIndex = 0;
+    stringIndex <
+      currentTuning.length;
+    stringIndex++
+  ) {
+    placementsByString.push({
+      A:
+        buildRrPentPlacementsForString(
+          cells,
+          stringIndex,
+          modeRoot,
+          modeName,
+          'A'
+        ),
+      B:
+        buildRrPentPlacementsForString(
+          cells,
+          stringIndex,
+          modeRoot,
+          modeName,
+          'B'
+        )
+    });
+  }
+
+  const nodes = [];
+
+  placementsByString.forEach(
+    groups => {
+      nodes.push(
+        ...groups.A,
+        ...groups.B
+      );
+    }
+  );
+
+  const successors =
+    new Map();
+
+  const predecessors =
+    new Map();
+
+  nodes.forEach(
+    node => {
+      successors.set(
+        node,
+        []
+      );
+      predecessors.set(
+        node,
+        []
+      );
+    }
+  );
+
+  nodes.forEach(
+    lower => {
+      const upperString =
+        lower.stringIndex + 1;
+
+      if (
+        upperString >=
+        currentTuning.length
+      ) {
+        return;
+      }
+
+      const upperGroup =
+        lower.groupName === 'A'
+          ? 'B'
+          : 'A';
+
+      placementsByString[
+        upperString
+      ][upperGroup].forEach(
+        upper => {
+          if (
+            !rrPentPlacementsConnect(
+              lower,
+              upper,
+              modeName
+            )
+          ) {
+            return;
+          }
+
+          successors
+            .get(lower)
+            .push(upper);
+
+          predecessors
+            .get(upper)
+            .push(lower);
+        }
+      );
+    }
+  );
+
+  const maximalChains = [];
+
+  function extend(
+    node,
+    chain
+  ) {
+    const next =
+      successors.get(node);
+
+    if (
+      !next ||
+      next.length === 0
+    ) {
+      maximalChains.push(
+        chain
+      );
+      return;
+    }
+
+    next.forEach(
+      successor =>
+        extend(
+          successor,
+          [
+            ...chain,
+            successor
+          ]
+        )
+    );
+  }
+
+  nodes
+    .filter(
+      node =>
+        predecessors
+          .get(node)
+          .length === 0
+    )
+    .forEach(
+      start =>
+        extend(
+          start,
+          [start]
+        )
+    );
+
+  const paths = [];
+  const seen = new Set();
+
+  maximalChains.forEach(
+    chain => {
+      if (
+        chain.length < 2
+      ) {
+        return;
+      }
+
+      const path =
+        chain.flatMap(
+          placement =>
+            placement.chosen
+        );
+
+      const key =
+        path
+          .map(
+            item =>
+              makeCellKey(
+                item.stringIndex,
+                item.fret
+              )
+          )
+          .join(',');
+
+      if (
+        seen.has(key)
+      ) {
+        return;
+      }
+
+      seen.add(key);
+      paths.push(path);
+    }
+  );
+
+  return paths;
+}
+
+function getRrPentExerciseCandidates(
+  cells,
+  baseRoot,
+  baseMode
+) {
+  const allowedModes =
+    getSelectedNpsModes();
+
+  const allowedDegrees =
+    new Set(
+      getSelectedStartDegrees()
+    );
+
+  const allowedDirections =
+    getSelectedDirections();
+
+  const exercises = [];
+  const seenExercises =
+    new Set();
+
+  allowedModes.forEach(
+    modeName => {
+      const modeRoot =
+        getRelativeModeRoot(
+          baseRoot,
+          baseMode,
+          modeName
+        );
+
+      const paths =
+        buildRrPentPaths(
+          modeRoot,
+          modeName,
+          cells
+        );
+
+      paths.forEach(
+        path => {
+          path.forEach(
+            (
+              start,
+              startIndex
+            ) => {
+              const startInterval =
+                start.rrInterval;
+
+              const genericDegree =
+                getGenericDegreeForNpsInterval(
+                  modeName,
+                  startInterval
+                );
+
+              if (
+                !genericDegree ||
+                !allowedDegrees.has(
+                  genericDegree
+                )
+              ) {
+                return;
+              }
+
+              allowedDirections.forEach(
+                direction => {
+                  let selectedPath;
+
+                  if (
+                    direction === 'up'
+                  ) {
+                    selectedPath =
+                      path.slice(
+                        startIndex
+                      );
+                  } else if (
+                    direction === 'down'
+                  ) {
+                    selectedPath =
+                      path
+                        .slice(
+                          0,
+                          startIndex + 1
+                        )
+                        .reverse();
+                  } else {
+                    selectedPath =
+                      [...path];
+                  }
+
+                  if (
+                    direction !== 'upDown'
+                  ) {
+                    const strings =
+                      new Set(
+                        selectedPath.map(
+                          item =>
+                            item.stringIndex
+                        )
+                      );
+
+                    if (
+                      strings.size < 2
+                    ) {
+                      return;
+                    }
+                  }
+
+                  const requiredCellKeys =
+                    new Set(
+                      selectedPath.map(
+                        item =>
+                          makeCellKey(
+                            item.stringIndex,
+                            item.fret
+                          )
+                      )
+                    );
+
+                  const startCellKey =
+                    makeCellKey(
+                      start.stringIndex,
+                      start.fret
+                    );
+
+                  const exerciseKey =
+                    [
+                      modeName,
+                      modeRoot,
+                      direction,
+                      startCellKey,
+                      [
+                        ...requiredCellKeys
+                      ].join(',')
+                    ].join('|');
+
+                  if (
+                    seenExercises.has(
+                      exerciseKey
+                    )
+                  ) {
+                    return;
+                  }
+
+                  seenExercises.add(
+                    exerciseKey
+                  );
+
+                  exercises.push({
+                    mode:
+                      modeName,
+                    modeRoot,
+                    direction,
+                    startInterval,
+                    startIndex,
+                    startCellKey,
+                    startStringIndex:
+                      start.stringIndex,
+                    startStringName:
+                      midiToScientificPitch(
+                        currentTuning[
+                          start.stringIndex
+                        ]
+                      ),
+                    fullPath:
+                      [...path],
+                    path:
+                      selectedPath,
+                    requiredCellKeys,
+                    remainingCellKeys:
+                      new Set(
+                        requiredCellKeys
+                      )
+                  });
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
 
   return exercises;
 }
@@ -4367,6 +4960,7 @@ function buildTrainer() {
 
   currentAnswer = null;
   currentNpsExercise = null;
+  currentRrPentExercise = null;
   currentShapeExercise = null;
   currentCagedExercise = null;
   showAll = false;
@@ -4391,7 +4985,7 @@ function buildTrainer() {
   const allCells = [];
 
   const maxFret =
-    ['nps', 'caged'].includes(
+    ['nps', 'rrPent', 'caged'].includes(
       lessonType
     )
       ? 24
@@ -4446,7 +5040,7 @@ function buildTrainer() {
     'fretboardStage';
 
   if (
-    ['nps', 'shape', 'caged'].includes(
+    ['nps', 'rrPent', 'shape', 'caged'].includes(
       lessonType
     )
   ) {
@@ -5042,6 +5636,86 @@ function buildTrainer() {
 
 
   /* =======================================================
+     R-R PENTATONIC + COLOR NOTES
+     ======================================================= */
+
+  if (
+    lessonType === 'rrPent'
+  ) {
+    const exercises =
+      getRrPentExerciseCandidates(
+        allCells,
+        root,
+        scaleName
+      );
+
+    if (
+      exercises.length === 0
+    ) {
+      document
+        .getElementById(
+          'answerNote'
+        )
+        .textContent =
+          'No valid R-R pentatonic starting positions for these settings.';
+
+      return;
+    }
+
+    currentRrPentExercise =
+      randomItem(
+        exercises
+      );
+
+    allCells.forEach(
+      item => {
+        const pathItem =
+          currentRrPentExercise
+            .fullPath
+            .find(
+              pathCell =>
+                pathCell.stringIndex ===
+                  item.stringIndex &&
+                pathCell.fret ===
+                  item.fret
+            );
+
+        const translatedInterval =
+          pathItem?.rrInterval ||
+          getNpsIntervalForPitch(
+            midiToPitchClass(
+              item.absolutePitch
+            ),
+            currentRrPentExercise
+              .modeRoot,
+            currentRrPentExercise
+              .mode
+          );
+
+        item.element.dataset
+          .displayInterval =
+            translatedInterval || '';
+
+        hideCell(
+          item.element
+        );
+      }
+    );
+
+    displayRrPentQuestion();
+
+    fretboard.appendChild(
+      createNpsStartMarker(
+        currentRrPentExercise,
+        tuning.length
+      )
+    );
+
+    return;
+  }
+
+
+  /* =======================================================
      NPS LESSON
      ======================================================= */
 
@@ -5183,6 +5857,79 @@ function generateIntervalAnswer() {
     document.createTextNode(
       ' notes'
     )
+  );
+}
+
+
+/* =========================================================
+   R-R PENTATONIC QUESTION
+   ========================================================= */
+
+function displayRrPentQuestion() {
+  const answerDisplay =
+    document.getElementById(
+      'answerNote'
+    );
+
+  const exercise =
+    currentRrPentExercise;
+
+  if (!exercise) {
+    answerDisplay.textContent =
+      'Done!';
+    return;
+  }
+
+  answerDisplay.innerHTML = '';
+  answerDisplay.className =
+    'npsExerciseCard';
+
+  const primaryLine =
+    document.createElement(
+      'div'
+    );
+
+  primaryLine.className =
+    'npsExercisePrimary';
+
+  const mode =
+    document.createElement(
+      'span'
+    );
+
+  mode.className =
+    'npsExerciseMode';
+
+  mode.textContent =
+    modeNames[
+      exercise.mode
+    ];
+
+  const direction =
+    document.createElement(
+      'span'
+    );
+
+  direction.className =
+    'npsExerciseDirection';
+
+  direction.textContent =
+    exercise.direction === 'up'
+      ? '⬆️'
+      : exercise.direction === 'down'
+        ? '⬇️'
+        : '↕️';
+
+  primaryLine.appendChild(
+    mode
+  );
+
+  primaryLine.appendChild(
+    direction
+  );
+
+  answerDisplay.appendChild(
+    primaryLine
   );
 }
 
@@ -5388,7 +6135,7 @@ function intervalTargetComplete() {
 
 function temporarilyShowWrong(cell) {
   const interval =
-    ['nps', 'caged'].includes(
+    ['nps', 'rrPent', 'caged'].includes(
       getLessonType()
     )
       ? cell.dataset.displayInterval
@@ -5399,7 +6146,7 @@ function temporarilyShowWrong(cell) {
   }
 
   if (
-    ['nps', 'shape', 'caged'].includes(
+    ['nps', 'rrPent', 'shape', 'caged'].includes(
       getLessonType()
     )
   ) {
@@ -5723,6 +6470,89 @@ document
             cellKey
           );
 
+
+        if (
+          exercise
+            .remainingCellKeys
+            .size === 0
+        ) {
+          scheduleQuizTransition(
+            buildTrainer
+          );
+        }
+
+        return;
+      }
+
+
+      /* R-R PENTATONIC + COLOR NOTES */
+
+      if (
+        getLessonType() ===
+        'rrPent'
+      ) {
+        const exercise =
+          currentRrPentExercise;
+
+        if (!exercise) {
+          return;
+        }
+
+        if (
+          cell.classList.contains(
+            'correct'
+          )
+        ) {
+          return;
+        }
+
+        const cellKey =
+          makeCellKey(
+            Number(
+              cell.dataset.stringIndex
+            ),
+            Number(
+              cell.dataset.fret
+            )
+          );
+
+        if (
+          !exercise
+            .remainingCellKeys
+            .has(cellKey)
+        ) {
+          temporarilyShowWrong(
+            cell
+          );
+          return;
+        }
+
+        cell.classList.remove(
+          'wrong'
+        );
+
+        cell.classList.add(
+          'correct'
+        );
+
+        if (
+          exercise.direction ===
+            'upDown' &&
+          cellKey ===
+            exercise.startCellKey
+        ) {
+          cell.classList.add(
+            'npsAnchor'
+          );
+        }
+
+        revealCell(
+          cell
+        );
+
+        exercise
+          .remainingCellKeys
+          .delete(cellKey);
 
         if (
           exercise
