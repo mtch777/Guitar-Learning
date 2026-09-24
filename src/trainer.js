@@ -404,33 +404,18 @@ const cagedShapeOrder = [
 ];
 
 /*
-  CAGED is permanently mapped to physical strings 3-8.
+  CAGED is permanently mapped to physical strings 3-8
+  (the six-string standard-tuning block of the 8-string).
 
-  Shape identity is defined by the complete fixed template,
-  including its exact root-string signature:
-
-    C -> physical strings 4, 7
-    A -> physical strings 4, 6
-    G -> physical strings 3, 6, 8
-    E -> physical strings 3, 5, 8
-    D -> physical strings 5, 7
-
-  A template may transpose horizontally by fret/octave only.
-  It may NEVER move vertically to different strings.
+  Each mode/shape combination below supplies its own exact,
+  immutable six-string pentatonic template. Templates may
+  transpose horizontally only; they never move vertically.
 */
 const cagedBlockStartStringIndex =
   2; // physical String 3
 
 const cagedBlockEndStringIndex =
   7; // physical String 8
-
-const cagedShapeRootStrings = {
-  C: [4, 7],
-  A: [4, 6],
-  G: [3, 6, 8],
-  E: [3, 5, 8],
-  D: [5, 7]
-};
 
 
 /* =========================================================
@@ -2229,336 +2214,362 @@ function getNpsExerciseCandidates(
 
 
 /* =========================================================
-   CAGED PENTATONIC — FIXED TEMPLATES
+   CAGED PENTATONIC — 35 EXPLICIT MODE/SHAPE TEMPLATES
+
+   Storage convention:
+     - outer six entries = physical strings 3 -> 8
+       (low -> high within the CAGED six-string block)
+     - each string has exactly two notes
+     - fret is relative to the shape's anchor-root fret column
+     - fret 0 = anchor-root fret column
+     - intervals are stored explicitly at every coordinate
 
    IMPORTANT:
-   C / A / G / E / D are real six-string fretboard templates,
-   not labels attached to a generic compact pentatonic box.
-
-   Each template below contains the exact pair of pentatonic
-   fret positions on each of the six standard-tuned strings,
-   low -> high, relative to a reference where:
-
-     - the lowest CAGED string has pitch class 0
-     - the modal root has pitch class 0
-
-   Runtime behavior:
-     - templates are mapped ONLY to physical strings 3-8
-     - they may shift horizontally in 12-fret octaves
-     - they are transposed to the selected modal root
-     - they may never shift vertically to strings 1-2 or to
-       any other six-string block
-
-   Dorian / Aeolian / Phrygian share the same five-note
-   pentatonic interval set, so they share one template family.
+     - these are canonical data, not generated "closest notes"
+     - C/A/G/E/D never shift vertically
+     - only horizontal/octave transposition is allowed
    ========================================================= */
 
-const cagedTemplatesMinorFamily = {
-  C: [
-    [5, 7],
-    [5, 7],
-    [5, 7],
-    [4, 7],
-    [3, 5],
-    [3, 5]
-  ],
+const cagedPentatonicShapes = {
+  ionian: {
+    C: [
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 1, interval: '7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 1, interval: '3' }, { fret: 2, interval: '4' }],
+      [{ fret: -1, interval: '5' }, { fret: 3, interval: '7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }]
+    ],
+    A: [
+      [{ fret: 0, interval: '5' }, { fret: 4, interval: '7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 1, interval: '7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 2, interval: '3' }, { fret: 3, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 4, interval: '7' }]
+    ],
+    G: [
+      [{ fret: 2, interval: '7' }, { fret: 3, interval: 'R' }],
+      [{ fret: 2, interval: '3' }, { fret: 3, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 4, interval: '7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }],
+      [{ fret: 1, interval: '4' }, { fret: 3, interval: '5' }],
+      [{ fret: 2, interval: '7' }, { fret: 3, interval: 'R' }]
+    ],
+    E: [
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 1, interval: '7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 1, interval: '3' }, { fret: 2, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 4, interval: '7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }]
+    ],
+    D: [
+      [{ fret: 2, interval: '3' }, { fret: 3, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 4, interval: '7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 2, interval: '7' }, { fret: 3, interval: 'R' }],
+      [{ fret: 2, interval: '3' }, { fret: 3, interval: '4' }]
+    ]
+  },
 
-  A: [
-    [7, 10],
-    [7, 10],
-    [7, 9],
-    [7, 9],
-    [8, 10],
-    [7, 10]
-  ],
+  dorian: {
+    C: [
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 0, interval: 'b7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 0, interval: 'b3' }, { fret: 2, interval: '4' }],
+      [{ fret: -1, interval: '5' }, { fret: 2, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }]
+    ],
+    A: [
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 0, interval: 'b7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }]
+    ],
+    G: [
+      [{ fret: 1, interval: 'b7' }, { fret: 3, interval: 'R' }],
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 1, interval: '4' }, { fret: 3, interval: '5' }],
+      [{ fret: 1, interval: 'b7' }, { fret: 3, interval: 'R' }]
+    ],
+    E: [
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 0, interval: 'b7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 0, interval: 'b3' }, { fret: 2, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }]
+    ],
+    D: [
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 1, interval: 'b7' }, { fret: 3, interval: 'R' }],
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }]
+    ]
+  },
 
-  G: [
-    [10, 12],
-    [10, 12],
-    [9, 12],
-    [9, 12],
-    [10, 12],
-    [10, 12]
-  ],
+  phrygian: {
+    C: [
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 0, interval: 'b7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 0, interval: 'b3' }, { fret: 2, interval: '4' }],
+      [{ fret: -1, interval: '5' }, { fret: 2, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }]
+    ],
+    A: [
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 0, interval: 'b7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }]
+    ],
+    G: [
+      [{ fret: 1, interval: 'b7' }, { fret: 3, interval: 'R' }],
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 1, interval: '4' }, { fret: 3, interval: '5' }],
+      [{ fret: 1, interval: 'b7' }, { fret: 3, interval: 'R' }]
+    ],
+    E: [
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 0, interval: 'b7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 0, interval: 'b3' }, { fret: 2, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }]
+    ],
+    D: [
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 1, interval: 'b7' }, { fret: 3, interval: 'R' }],
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }]
+    ]
+  },
 
-  E: [
-    [0, 3],
-    [0, 2],
-    [0, 2],
-    [0, 2],
-    [0, 3],
-    [0, 3]
-  ],
+  lydian: {
+    C: [
+      [{ fret: 1, interval: '#4' }, { fret: 2, interval: '5' }],
+      [{ fret: 1, interval: '7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 1, interval: '3' }, { fret: 3, interval: '#4' }],
+      [{ fret: -1, interval: '5' }, { fret: 3, interval: '7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }],
+      [{ fret: 1, interval: '#4' }, { fret: 2, interval: '5' }]
+    ],
+    A: [
+      [{ fret: 0, interval: '5' }, { fret: 4, interval: '7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }],
+      [{ fret: 1, interval: '#4' }, { fret: 2, interval: '5' }],
+      [{ fret: 1, interval: '7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 2, interval: '3' }, { fret: 4, interval: '#4' }],
+      [{ fret: 0, interval: '5' }, { fret: 4, interval: '7' }]
+    ],
+    G: [
+      [{ fret: 2, interval: '7' }, { fret: 3, interval: 'R' }],
+      [{ fret: 2, interval: '3' }, { fret: 4, interval: '#4' }],
+      [{ fret: 0, interval: '5' }, { fret: 4, interval: '7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }],
+      [{ fret: 2, interval: '#4' }, { fret: 3, interval: '5' }],
+      [{ fret: 2, interval: '7' }, { fret: 3, interval: 'R' }]
+    ],
+    E: [
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }],
+      [{ fret: 1, interval: '#4' }, { fret: 2, interval: '5' }],
+      [{ fret: 1, interval: '7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 1, interval: '3' }, { fret: 3, interval: '#4' }],
+      [{ fret: 0, interval: '5' }, { fret: 4, interval: '7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }]
+    ],
+    D: [
+      [{ fret: 2, interval: '3' }, { fret: 4, interval: '#4' }],
+      [{ fret: 0, interval: '5' }, { fret: 4, interval: '7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }],
+      [{ fret: 1, interval: '#4' }, { fret: 2, interval: '5' }],
+      [{ fret: 2, interval: '7' }, { fret: 3, interval: 'R' }],
+      [{ fret: 2, interval: '3' }, { fret: 4, interval: '#4' }]
+    ]
+  },
 
-  D: [
-    [3, 5],
-    [2, 5],
-    [2, 5],
-    [2, 4],
-    [3, 5],
-    [3, 5]
-  ]
+  mixolydian: {
+    C: [
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 0, interval: 'b7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 1, interval: '3' }, { fret: 2, interval: '4' }],
+      [{ fret: -1, interval: '5' }, { fret: 2, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }]
+    ],
+    A: [
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 0, interval: 'b7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 2, interval: '3' }, { fret: 3, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }]
+    ],
+    G: [
+      [{ fret: 1, interval: 'b7' }, { fret: 3, interval: 'R' }],
+      [{ fret: 2, interval: '3' }, { fret: 3, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }],
+      [{ fret: 1, interval: '4' }, { fret: 3, interval: '5' }],
+      [{ fret: 1, interval: 'b7' }, { fret: 3, interval: 'R' }]
+    ],
+    E: [
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 0, interval: 'b7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 1, interval: '3' }, { fret: 2, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }]
+    ],
+    D: [
+      [{ fret: 2, interval: '3' }, { fret: 3, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 4, interval: '3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 1, interval: 'b7' }, { fret: 3, interval: 'R' }],
+      [{ fret: 2, interval: '3' }, { fret: 3, interval: '4' }]
+    ]
+  },
+
+  aeolian: {
+    C: [
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 0, interval: 'b7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 0, interval: 'b3' }, { fret: 2, interval: '4' }],
+      [{ fret: -1, interval: '5' }, { fret: 2, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }]
+    ],
+    A: [
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 0, interval: 'b7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }]
+    ],
+    G: [
+      [{ fret: 1, interval: 'b7' }, { fret: 3, interval: 'R' }],
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 1, interval: '4' }, { fret: 3, interval: '5' }],
+      [{ fret: 1, interval: 'b7' }, { fret: 3, interval: 'R' }]
+    ],
+    E: [
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 0, interval: 'b7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 0, interval: 'b3' }, { fret: 2, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }]
+    ],
+    D: [
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }],
+      [{ fret: 0, interval: '5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 2, interval: '5' }],
+      [{ fret: 1, interval: 'b7' }, { fret: 3, interval: 'R' }],
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }]
+    ]
+  },
+
+  locrian: {
+    C: [
+      [{ fret: 0, interval: '4' }, { fret: 1, interval: 'b5' }],
+      [{ fret: 0, interval: 'b7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 0, interval: 'b3' }, { fret: 2, interval: '4' }],
+      [{ fret: -2, interval: 'b5' }, { fret: 2, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 1, interval: 'b5' }]
+    ],
+    A: [
+      [{ fret: -1, interval: 'b5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 1, interval: 'b5' }],
+      [{ fret: 0, interval: 'b7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }],
+      [{ fret: -1, interval: 'b5' }, { fret: 3, interval: 'b7' }]
+    ],
+    G: [
+      [{ fret: 1, interval: 'b7' }, { fret: 3, interval: 'R' }],
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }],
+      [{ fret: -1, interval: 'b5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 1, interval: '4' }, { fret: 2, interval: 'b5' }],
+      [{ fret: 1, interval: 'b7' }, { fret: 3, interval: 'R' }]
+    ],
+    E: [
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 1, interval: 'b5' }],
+      [{ fret: 0, interval: 'b7' }, { fret: 2, interval: 'R' }],
+      [{ fret: 0, interval: 'b3' }, { fret: 2, interval: '4' }],
+      [{ fret: -1, interval: 'b5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }]
+    ],
+    D: [
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }],
+      [{ fret: -1, interval: 'b5' }, { fret: 3, interval: 'b7' }],
+      [{ fret: 0, interval: 'R' }, { fret: 3, interval: 'b3' }],
+      [{ fret: 0, interval: '4' }, { fret: 1, interval: 'b5' }],
+      [{ fret: 1, interval: 'b7' }, { fret: 3, interval: 'R' }],
+      [{ fret: 1, interval: 'b3' }, { fret: 3, interval: '4' }]
+    ]
+  }
 };
 
-
-const cagedTemplatesIonian = {
-  C: [
-    [5, 7],
-    [6, 7],
-    [6, 7],
-    [4, 8],
-    [4, 5],
-    [4, 5]
-  ],
-
-  A: [
-    [7, 11],
-    [7, 11],
-    [7, 9],
-    [8, 9],
-    [9, 10],
-    [7, 11]
-  ],
-
-  G: [
-    [11, 12],
-    [11, 12],
-    [9, 13],
-    [9, 13],
-    [10, 12],
-    [11, 12]
-  ],
-
-  E: [
-    [0, 4],
-    [0, 2],
-    [1, 2],
-    [1, 2],
-    [0, 4],
-    [0, 4]
-  ],
-
-  D: [
-    [4, 5],
-    [2, 6],
-    [2, 6],
-    [2, 4],
-    [4, 5],
-    [4, 5]
-  ]
+const cagedIntervalSemitones = {
+  R: 0,
+  b3: 3,
+  '3': 4,
+  '4': 5,
+  '#4': 6,
+  b5: 6,
+  '5': 7,
+  b7: 10,
+  '7': 11
 };
 
-
-const cagedTemplatesLydian = {
-  C: [
-    [6, 7],
-    [6, 7],
-    [6, 8],
-    [4, 8],
-    [4, 5],
-    [4, 6]
-  ],
-
-  A: [
-    [7, 11],
-    [7, 11],
-    [8, 9],
-    [8, 9],
-    [9, 11],
-    [7, 11]
-  ],
-
-  G: [
-    [11, 12],
-    [11, 13],
-    [9, 13],
-    [9, 13],
-    [11, 12],
-    [11, 12]
-  ],
-
-  E: [
-    [0, 4],
-    [1, 2],
-    [1, 2],
-    [1, 3],
-    [0, 4],
-    [0, 4]
-  ],
-
-  D: [
-    [4, 6],
-    [2, 6],
-    [2, 6],
-    [3, 4],
-    [4, 5],
-    [4, 6]
-  ]
-};
-
-
-const cagedTemplatesMixolydian = {
-  C: [
-    [5, 7],
-    [5, 7],
-    [6, 7],
-    [4, 7],
-    [3, 5],
-    [4, 5]
-  ],
-
-  A: [
-    [7, 10],
-    [7, 11],
-    [7, 9],
-    [7, 9],
-    [9, 10],
-    [7, 10]
-  ],
-
-  G: [
-    [10, 12],
-    [11, 12],
-    [9, 12],
-    [9, 13],
-    [10, 12],
-    [10, 12]
-  ],
-
-  E: [
-    [0, 4],
-    [0, 2],
-    [0, 2],
-    [1, 2],
-    [0, 3],
-    [0, 4]
-  ],
-
-  D: [
-    [4, 5],
-    [2, 5],
-    [2, 6],
-    [2, 4],
-    [3, 5],
-    [4, 5]
-  ]
-};
-
-
-const cagedTemplatesLocrian = {
-  C: [
-    [5, 6],
-    [5, 7],
-    [5, 7],
-    [3, 7],
-    [3, 5],
-    [3, 5]
-  ],
-
-  A: [
-    [6, 10],
-    [7, 10],
-    [7, 8],
-    [7, 9],
-    [8, 10],
-    [6, 10]
-  ],
-
-  G: [
-    [10, 12],
-    [10, 12],
-    [8, 12],
-    [9, 12],
-    [10, 11],
-    [10, 12]
-  ],
-
-  E: [
-    [12, 15],
-    [12, 13],
-    [12, 14],
-    [12, 14],
-    [11, 15],
-    [12, 15]
-  ],
-
-  D: [
-    [3, 5],
-    [1, 5],
-    [2, 5],
-    [2, 3],
-    [3, 5],
-    [3, 5]
-  ]
-};
-
-
-const cagedPentatonicTemplatesByMode = {
-  lydian:
-    cagedTemplatesLydian,
-
-  ionian:
-    cagedTemplatesIonian,
-
-  mixolydian:
-    cagedTemplatesMixolydian,
-
-  dorian:
-    cagedTemplatesMinorFamily,
-
-  aeolian:
-    cagedTemplatesMinorFamily,
-
-  phrygian:
-    cagedTemplatesMinorFamily,
-
-  locrian:
-    cagedTemplatesLocrian
-};
-
-
-/*
-  Validate the template itself before using it.
-
-  This prevents a C/A/G/E/D label from ever being attached
-  to a template whose root notes live on the wrong strings.
-*/
 function validateCagedTemplate(
   modeName,
-  shapeName,
   template
 ) {
   if (
     !template ||
     template.length !== 6 ||
     template.some(
-      pair =>
-        !Array.isArray(pair) ||
-        pair.length !== 2
+      stringNotes =>
+        !Array.isArray(stringNotes) ||
+        stringNotes.length !== 2
     )
   ) {
     return false;
   }
 
-  const pentatonicSet =
+  const allowedSemitones =
     new Set(
       npsPentatonicSemitones[
         modeName
       ]
     );
 
-  const referenceTuning =
-    [
-      0,
-      5,
-      10,
-      15,
-      19,
-      24
-    ];
-
-  const rootStrings = [];
-
+  let anchorModulo = null;
+  let rootCount = 0;
 
   for (
     let stringOffset = 0;
@@ -2566,70 +2577,80 @@ function validateCagedTemplate(
     stringOffset++
   ) {
     for (
-      const fret of
-      template[
-        stringOffset
-      ]
+      const note of
+      template[stringOffset]
     ) {
-      const relative =
-        mod12(
-          referenceTuning[
-            stringOffset
-          ] +
-          fret
-        );
+      if (
+        !note ||
+        !Number.isInteger(note.fret) ||
+        !Object.prototype.hasOwnProperty.call(
+          cagedIntervalSemitones,
+          note.interval
+        )
+      ) {
+        return false;
+      }
+
+      const intervalSemitone =
+        cagedIntervalSemitones[
+          note.interval
+        ];
 
       if (
-        !pentatonicSet.has(
-          relative
+        !allowedSemitones.has(
+          intervalSemitone
         )
       ) {
         return false;
       }
 
       if (
-        relative === 0 &&
-        !rootStrings.includes(
-          stringOffset + 3
-        )
+        note.interval === 'R'
       ) {
-        rootStrings.push(
-          stringOffset + 3
-        );
+        rootCount++;
+
+        const tuningPitchClass =
+          midiToPitchClass(
+            currentTuning[
+              cagedBlockStartStringIndex +
+              stringOffset
+            ]
+          );
+
+        const impliedAnchor =
+          mod12(
+            -tuningPitchClass -
+            note.fret
+          );
+
+        if (
+          anchorModulo === null
+        ) {
+          anchorModulo =
+            impliedAnchor;
+        } else if (
+          anchorModulo !==
+          impliedAnchor
+        ) {
+          return false;
+        }
       }
     }
   }
 
-
-  rootStrings.sort(
-    (a, b) =>
-      a - b
-  );
-
-  const expected =
-    [
-      ...cagedShapeRootStrings[
-        shapeName
-      ]
-    ].sort(
-      (a, b) =>
-        a - b
-    );
-
-
   return (
-    rootStrings.join(',') ===
-    expected.join(',')
+    rootCount > 0 &&
+    anchorModulo !== null
   );
 }
 
 
 /*
-  Build every octave copy of ONE fixed CAGED template that
-  fits fully inside frets 0-24.
+  Build every octave copy of one exact mode/shape template
+  that fits fully inside frets 0-24.
 
-  The template is transposed horizontally to the current
-  modal root. Strings remain permanently 3-8.
+  anchorFret is the absolute fret corresponding to relative
+  fret 0 in the stored template.
 */
 function buildCagedTemplateCopies(
   cells,
@@ -2637,28 +2658,21 @@ function buildCagedTemplateCopies(
   modeName,
   shapeName
 ) {
-  const templateFamily =
-    cagedPentatonicTemplatesByMode[
-      modeName
-    ];
-
   const template =
-    templateFamily &&
-    templateFamily[
+    cagedPentatonicShapes[
+      modeName
+    ]?.[
       shapeName
     ];
-
 
   if (
     !validateCagedTemplate(
       modeName,
-      shapeName,
       template
     )
   ) {
     return [];
   }
-
 
   const cellByKey =
     new Map(
@@ -2673,37 +2687,69 @@ function buildCagedTemplateCopies(
       )
     );
 
+  let rootReference = null;
 
-  const lowCagedStringPitchClass =
+  for (
+    let stringOffset = 0;
+    stringOffset < 6 &&
+    !rootReference;
+    stringOffset++
+  ) {
+    rootReference =
+      template[
+        stringOffset
+      ].find(
+        note =>
+          note.interval === 'R'
+      );
+
+    if (
+      rootReference
+    ) {
+      rootReference = {
+        stringOffset,
+        fret:
+          rootReference.fret
+      };
+    }
+  }
+
+  if (!rootReference) {
+    return [];
+  }
+
+  const rootStringIndex =
+    cagedBlockStartStringIndex +
+    rootReference.stringOffset;
+
+  const rootStringPitchClass =
     midiToPitchClass(
       currentTuning[
-        cagedBlockStartStringIndex
+        rootStringIndex
       ]
     );
 
-  const rootShift =
+  const anchorModulo =
     mod12(
       modeRoot -
-      lowCagedStringPitchClass
+      rootStringPitchClass -
+      rootReference.fret
     );
 
   const results = [];
-  const seen =
-    new Set();
-
+  const seen = new Set();
 
   for (
     let octaveShift = -36;
     octaveShift <= 36;
     octaveShift += 12
   ) {
-    const fretShift =
-      rootShift +
+    const anchorFret =
+      anchorModulo +
       octaveShift;
 
     const shapeCells = [];
     let valid = true;
-
 
     for (
       let stringOffset = 0;
@@ -2714,17 +2760,15 @@ function buildCagedTemplateCopies(
         cagedBlockStartStringIndex +
         stringOffset;
 
-
       for (
-        const referenceFret of
+        const templateNote of
         template[
           stringOffset
         ]
       ) {
         const fret =
-          referenceFret +
-          fretShift;
-
+          anchorFret +
+          templateNote.fret;
 
         if (
           fret < 0 ||
@@ -2734,7 +2778,6 @@ function buildCagedTemplateCopies(
           break;
         }
 
-
         const item =
           cellByKey.get(
             makeCellKey(
@@ -2743,14 +2786,12 @@ function buildCagedTemplateCopies(
             )
           );
 
-
         if (!item) {
           valid = false;
           break;
         }
 
-
-        const relative =
+        const actualRelative =
           mod12(
             midiToPitchClass(
               item.absolutePitch
@@ -2758,35 +2799,32 @@ function buildCagedTemplateCopies(
             modeRoot
           );
 
+        const expectedRelative =
+          cagedIntervalSemitones[
+            templateNote.interval
+          ];
 
         if (
-          !npsPentatonicSemitones[
-            modeName
-          ].includes(
-            relative
-          )
+          actualRelative !==
+          expectedRelative
         ) {
           valid = false;
           break;
         }
-
 
         shapeCells.push(
           item
         );
       }
 
-
       if (!valid) {
         break;
       }
     }
 
-
     if (!valid) {
       continue;
     }
-
 
     const requiredCellKeys =
       new Set(
@@ -2799,94 +2837,33 @@ function buildCagedTemplateCopies(
         )
       );
 
-
-    const rootPhysicalStrings =
-      [
-        ...new Set(
-          shapeCells
-            .filter(
-              item =>
-                midiToPitchClass(
-                  item.absolutePitch
-                ) ===
-                  modeRoot
-            )
-            .map(
-              item =>
-                item.stringIndex +
-                1
-            )
-        )
-      ].sort(
-        (a, b) =>
-          a - b
-      );
-
-
-    const expectedRootStrings =
-      [
-        ...cagedShapeRootStrings[
-          shapeName
-        ]
-      ].sort(
-        (a, b) =>
-          a - b
-      );
-
-
-    if (
-      rootPhysicalStrings.join(',') !==
-      expectedRootStrings.join(',')
-    ) {
-      continue;
-    }
-
-
     const key =
       [
+        modeName,
         shapeName,
         ...[
           ...requiredCellKeys
         ].sort()
-      ].join(
-        '|'
-      );
+      ].join('|');
 
-
-    if (
-      seen.has(
-        key
-      )
-    ) {
+    if (seen.has(key)) {
       continue;
     }
 
-
-    seen.add(
-      key
-    );
-
+    seen.add(key);
 
     results.push({
       shapeName,
-
       blockStartString:
         cagedBlockStartStringIndex,
-
       blockEndString:
         cagedBlockEndStringIndex,
-
       shapeCells,
-
       requiredCellKeys,
-
-      rootPhysicalStrings,
-
-      templateFretShift:
-        fretShift
+      templateAnchorFret:
+        anchorFret
     });
   }
-
 
   return results;
 }
