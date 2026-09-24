@@ -493,59 +493,107 @@ button {
 
 /* =========================================================
    PRODUCT UI SYSTEM
+   One layout system for controls, cards, and quiz.
    ========================================================= */
-* { box-sizing: border-box; }
+
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
-  padding: 20px;
+  padding: 12px;
   font: 16px/1.35 Arial, sans-serif;
+  background: var(--page-bg);
+  color: var(--text-color);
+  overflow-x: auto;
 }
 
 .trainerShell {
-  width: min(100%, 920px);
+  display: block;
+  width: max-content;
+  min-width: 0;
 }
 
-.trainerHeader {
+.trainerControls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: max-content;
+  min-width: 0;
+}
+
+/* ---------- top settings row ---------- */
+
+.setupPanel {
+  display: inline-flex;
+  align-items: stretch;
+  width: max-content;
+  min-width: 0;
+  padding: 0;
+  overflow: visible;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--control-bg);
+}
+
+.settingsSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: max-content;
+  min-width: 0;
+  padding: 10px 14px 12px;
+  border-right: 1px solid var(--border-color);
+}
+
+.settingsSection:last-child {
+  border-right: 0;
+}
+
+.sectionTitle {
+  box-sizing: border-box;
+  width: calc(100% + 28px);
+  margin: -10px -14px 10px;
+  padding: 7px 14px;
+  background: var(--section-title-bg);
+  color: var(--section-title-text);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.settingsSection:first-child .sectionTitle {
+  border-radius: 7px 0 0 0;
+}
+
+.settingsSection:last-child .sectionTitle {
+  border-radius: 0 7px 0 0;
+}
+
+.sectionTitleWithUtility {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.eyebrow {
-  margin-bottom: 2px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .12em;
-  opacity: .55;
-}
-
-.trainerHeader h1 {
-  margin: 0;
-  font-size: 22px;
-  line-height: 1.1;
-}
-
-.setupPanel {
-  padding: 14px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  display: grid;
-  grid-template-columns: minmax(260px, 2fr) minmax(190px, 1fr);
-  gap: 12px;
+  gap: 18px;
 }
 
 .controlField {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: flex-start;
   gap: 4px;
+  width: max-content;
   min-width: 0;
+  margin: 0;
 }
 
-.controlField > label,
-.fieldLabel {
+.fieldLabel,
+.controlField > label {
   margin: 0;
   font-size: 12px;
   line-height: 14px;
@@ -555,72 +603,148 @@ body {
   letter-spacing: .04em;
 }
 
-.lessonField { grid-column: 1; }
-.keyField { grid-column: 2; }
+.lessonField,
+.keyField,
+.keyControls,
+.lessonSettingsSection,
+.intervalLessonGrid,
+.lessonSettingsSection .npsControlGrid {
+  width: max-content;
+  min-width: 0;
+}
 
 .keyControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.intervalLessonGrid,
+.lessonSettingsSection .npsControlGrid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.intervalLessonGrid[hidden],
+.lessonSettingsSection .npsControlGrid[hidden],
+.lessonSettingsSection [hidden],
+[hidden] {
+  display: none;
+}
+
+.stateOnly,
+.stateSelect,
+select.stateSelect,
+.selectWrap:has(> select.stateSelect) {
+  display: none;
+}
+
+/* ---------- dropdowns ---------- */
+
+.singleSelect,
+.multiSelect {
+  position: relative;
+  display: inline-block;
+  width: max-content;
+  min-width: 0;
+}
+
+.singleSelect > summary,
+.multiSelect > summary {
+  box-sizing: border-box;
   display: grid;
-  grid-template-columns: 72px 1fr;
-  gap: 6px;
-}
-
-.npsControlGrid {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: 1fr 1fr 174px;
-  gap: 10px;
-}
-
-#intervalControlGroup {
-  grid-column: 1 / -1;
-}
-
-select,
-button,
-.multiSelect summary,
-.directionOption span,
-.orderOption span {
-  height: 32px;
-  min-height: 32px;
-  font: 16px/30px Arial, sans-serif;
+  grid-template-columns: max-content 10px;
+  align-items: center;
+  column-gap: 8px;
+  width: max-content;
+  min-width: 0;
+  height: auto;
+  padding: 3px 8px 3px 10px;
   border: 1px solid var(--border-color);
   border-radius: 5px;
   background: var(--control-bg);
   color: var(--control-text);
+  font: 400 14px/16px Arial, sans-serif;
+  list-style: none;
+  white-space: nowrap;
+  cursor: pointer;
 }
 
-select {
-  width: 100%;
-  padding: 0 28px 0 9px;
+.singleSelect > summary::-webkit-details-marker,
+.multiSelect > summary::-webkit-details-marker {
+  display: none;
 }
 
-button {
-  padding: 0 11px;
+.singleSelect > summary::after,
+.multiSelect > summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 1.7px solid currentColor;
+  border-bottom: 1.7px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
 }
 
-.multiSelect {
-  width: 100%;
-}
-
-.multiSelect summary {
-  width: 100%;
-  padding: 0 28px 0 9px;
-}
-
-.multiSelect summary::after {
-  right: 9px;
-}
-
+.singleSelectMenu,
 .multiSelectMenu {
-  top: 34px;
+  position: absolute;
+  z-index: 1000;
+  top: calc(100% + 2px);
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  width: max-content;
   min-width: 100%;
+  padding: 4px;
+  border: 1px solid var(--border-color);
   border-radius: 5px;
+  background: var(--control-bg);
+  color: var(--control-text);
+  box-shadow: 0 2px 5px var(--popover-shadow);
 }
+
+.singleOption,
+.multiOption {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 5px 7px;
+  color: var(--control-text);
+  font: 400 14px/16px Arial, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.singleOption:hover,
+.multiOption:hover {
+  background: var(--hover-bg);
+}
+
+.singleOption input,
+.multiOption input {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.singleOption input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- segmented controls ---------- */
 
 .directionSegment,
 .orderSegment {
   display: grid;
-  height: 32px;
+  height: 24px;
 }
 
 .directionSegment {
@@ -650,10 +774,15 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0;
+  height: 24px;
+  min-width: 28px;
+  padding: 0 6px;
+  border: 1px solid var(--border-color);
   border-right-width: 0;
+  background: var(--control-bg);
+  color: var(--control-text);
+  font: 14px/1 Arial, sans-serif;
   cursor: pointer;
-  line-height: 1;
 }
 
 .directionOption:first-child span,
@@ -673,303 +802,16 @@ button {
   color: var(--page-bg);
 }
 
-.actionRow {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  padding-top: 2px;
-}
+/* ---------- theme switch ---------- */
 
-.orderField {
-  width: 130px;
-}
-
-.actionButtons {
-  display: flex;
-  gap: 8px;
-}
-
-.primaryButton {
-  font-weight: 700;
-  background: var(--text-color);
-  color: var(--page-bg);
-  border-color: var(--text-color);
-}
-
-.exercisePanel {
-  padding: 18px 0 14px;
-}
-
-#answerNote {
-  margin: 0 0 14px;
-}
-
-.quizPromptLine {
-  line-height: 1.35;
-}
-
-.quizPromptLine:first-child {
-  display: inline-block;
-  margin-right: 8px;
-}
-
-.quizPromptLine:nth-child(2) {
-  display: inline-block;
-  font-size: 18px;
-}
-
-.quizPromptLine:nth-child(3) {
-  margin-top: 2px;
-}
-
-.promptLabel {
-  font-weight: 400;
-  opacity: .55;
-}
-
-.promptValue {
-  font-weight: 700;
-}
-
-.guitarInputPanel {
-  margin: 0;
-  padding: 8px 10px;
-  min-height: 48px;
-  border: 1px solid var(--border-color);
-  border-radius: 7px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--control-bg);
-}
-
-.guitarInputIdentity {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-
-.guitarIcon { font-size: 17px; }
-
-.inputStatus {
-  white-space: nowrap;
-  opacity: .65;
-}
-
-.inputMetric {
-  white-space: nowrap;
-  font-size: 14px;
-  opacity: .72;
-}
-
-.inputMetric strong {
-  color: var(--text-color);
-  opacity: 1;
-}
-
-.iconButton,
-.themeToggleButton {
-  width: 32px;
-  padding: 0;
-}
-
-.settingsButton {
-  width: 100%;
-  height: 30px;
-  min-height: 30px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  line-height: 1;
-}
-
-.tuningForkIcon {
-  width: 16px;
-  height: 16px;
-}
-
-@media (max-width: 700px) {
-  body { padding: 12px; }
-  .setupPanel { grid-template-columns: 1fr; }
-  .lessonField, .keyField, #intervalControlGroup { grid-column: 1; }
-  .npsControlGrid {
-    grid-column: 1;
-    grid-template-columns: 1fr;
-  }
-  .actionRow { grid-column: 1; }
-  .guitarInputPanel { flex-wrap: wrap; }
-}
-
-
-/* Sectioned settings layout */
-.setupPanel {
-  display: block;
-  padding: 0;
-  overflow: visible;
-}
-
-.settingsSection {
-  padding: 14px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.settingsSection:last-child {
-  border-bottom: 0;
-}
-
-.sectionTitle {
-  margin-bottom: 10px;
-  font-size: 13px;
-  line-height: 1;
-  font-weight: 700;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  opacity: .72;
-}
-
-.lessonSection .lessonField {
-  width: min(100%, 390px);
-}
-
-.keySection .keyField {
-  width: min(100%, 270px);
-}
-
-.lessonSettingsSection {
-  display: block;
-}
-
-.lessonSettingsSection .npsControlGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 174px;
-  gap: 10px;
-}
-
-.lessonSettingsSection .actionRow {
-  margin-top: 12px;
-}
-
-@media (max-width: 700px) {
-  .lessonSettingsSection .npsControlGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-
-/* Top-right theme toggle without affecting section height */
-.setupPanel {
-  position: relative;
-}
-
-.floatingThemeToggle {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 20;
-  margin: 0;
-}
-
-.lessonSection {
-  padding-right: 58px;
-}
-
-.lessonSection .lessonField {
-  justify-content: center;
-}
-
-
-/* Section title bands */
-:root {
-  --section-title-bg: #e7e7e7;
-}
-
-:root[data-theme="dark"] {
-  --section-title-bg: #242424;
-}
-
-.sectionTitle {
-  margin: -14px -14px 12px;
-  padding: 8px 14px;
-  background: var(--section-title-bg);
-  border-bottom: 1px solid var(--border-color);
-  border-radius: 0;
-  opacity: 1;
-}
-
-.settingsSection:first-of-type .sectionTitle {
-  border-radius: 7px 7px 0 0;
-}
-
-/* Keep the floating theme button aligned inside the Lesson title band. */
-.floatingThemeToggle {
-  top: 4px;
-  right: 8px;
+.themeSwitch {
+  flex: 0 0 auto;
+  width: 68px;
   height: 26px;
   min-height: 26px;
-  border-color: transparent;
-  background: transparent;
-}
-
-
-/* Theme + multiselect corrections */
-:root {
-  color-scheme: light;
-  --section-title-bg: #e3e3e3;
-  --section-title-text: #111111;
-}
-
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --section-title-bg: #292929;
-  --section-title-text: #eeeeee;
-}
-
-.sectionTitle {
-  color: var(--section-title-text);
-}
-
-.multiSelectMenu {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0;
-  padding: 4px;
-}
-
-.multiOption {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  width: 100%;
-  min-height: 30px;
-  margin: 0;
-  padding: 3px 6px;
-  cursor: pointer;
-  white-space: nowrap;
-  line-height: 1.2;
-}
-
-.multiOption input {
-  flex: 0 0 auto;
-  margin: 0;
-}
-
-.multiOption span {
-  display: block;
-  flex: 1 1 auto;
-}
-
-
-/* Icon-only theme switch matching the supplied reference */
-.themeSwitch {
-  width: 82px;
-  height: 32px;
-  min-height: 32px;
-  padding: 3px;
+  padding: 2px;
   border: 0;
-  border-radius: 18px;
+  border-radius: 14px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2px;
@@ -978,16 +820,16 @@ button {
 }
 
 .themeChoice {
-  height: 26px;
-  border-radius: 14px;
+  height: 22px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .themeChoice svg {
-  width: 18px;
-  height: 18px;
+  width: 15px;
+  height: 15px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.8;
@@ -1010,1074 +852,81 @@ button {
   color: #ffffff;
 }
 
-/* Sound-wave tuning fork matching the supplied reference */
-.tuningForkIcon {
-  width: 22px;
-  height: 22px;
-  overflow: visible;
-}
+/* ---------- quiz ---------- */
 
-.tuningForkIcon .forkStroke {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-
-/* Theme switch placement: compact utility control in the Lesson header */
-.floatingThemeToggle {
-  top: 1px;
-  right: 8px;
-  transform: scale(.78);
-  transform-origin: right top;
-}
-
-.lessonSection .sectionTitle {
-  padding-right: 86px;
-}
-
-
-
-/* Content-sized dropdowns */
-#lessonTypeSelect,
-#rootSelect,
-#scaleSelect,
-#orderSelect {
-  width: auto;
-}
-
-.lessonSection .lessonField,
-.keySection .keyField,
-.orderField {
-  width: auto;
-  align-items: flex-start;
-}
-
-.keyControls {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* Multi-select controls size to the longest option; menus match the trigger. */
-.lessonSettingsSection .npsControlGrid {
-  grid-template-columns: max-content max-content 174px;
-  justify-content: start;
-}
-
-.lessonSettingsSection .multiSelect,
-#intervalControlGroup .multiSelect {
-  width: max-content;
-}
-
-.lessonSettingsSection .multiSelect summary,
-#intervalControlGroup .multiSelect summary {
-  width: auto;
-}
-
-.lessonSettingsSection .multiSelectMenu,
-#intervalControlGroup .multiSelectMenu {
-  min-width: 100%;
-  width: max-content;
-}
-
-@media (max-width: 700px) {
-  .lessonSettingsSection .npsControlGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-
-/* Content-sized dropdowns: closed control and popup fit their widest option. */
-.lessonSettingsSection .npsControlGrid {
-  grid-template-columns: max-content max-content max-content;
-  justify-content: start;
-}
-
-.lessonSettingsSection .controlField {
-  width: max-content;
-}
-
-.lessonSettingsSection .multiSelect {
-  width: max-content;
-}
-
-.lessonSettingsSection .multiSelect summary {
-  width: max-content;
-  min-width: 0;
-}
-
-.lessonSettingsSection .multiSelectMenu {
-  width: max-content;
-  min-width: 100%;
-}
-
-#npsModeSummary {
-  min-width: 112px; /* Mixolydian */
-}
-
-#startDegreeSummary {
-  min-width: 48px; /* widest start option + arrow/padding */
-}
-
-#intervalSummary {
-  min-width: 72px;
-}
-
-@media (max-width: 700px) {
-  .lessonSettingsSection .npsControlGrid {
-    grid-template-columns: max-content;
-  }
-}
-
-
-/* Keep the section container full width; only the controls are content-sized. */
-.settingsSection {
-  width: 100%;
-}
-
-.lessonSettingsSection {
-  width: 100%;
-}
-
-.lessonSettingsSection .npsControlGrid {
-  width: 100%;
-  grid-template-columns: max-content max-content max-content;
-  justify-content: start;
-}
-
-
-/* Final compact desktop sizing: app shell hugs its actual controls. */
-.trainerShell {
-  width: max-content;
-  max-width: calc(100vw - 40px);
-}
-
-.setupPanel {
-  width: max-content;
-  min-width: 0;
-}
-
-.settingsSection {
-  width: 100%;
-}
-
-.lessonSettingsSection .npsControlGrid {
-  width: max-content;
-}
-
-/* Remove excess native-select whitespace; JS sets exact measured widths. */
-#lessonTypeSelect,
-#rootSelect,
-#scaleSelect,
-#orderSelect {
-  min-width: 0;
-  padding-left: 8px;
-  padding-right: 24px;
-}
-
-.lessonSection {
-  padding-right: 14px;
-}
-
-/* Reserve only the small top-right theme switch footprint. */
-.lessonSection .sectionTitle {
-  padding-right: 76px;
-}
-
-@media (max-width: 700px) {
-  .trainerShell,
-  .setupPanel {
-    width: 100%;
-    max-width: 100%;
-  }
-}
-
-
-/* NPS exercise prompt */
-#answerNote.npsExerciseCard {
-  margin: 0 0 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  font-weight: 400;
-}
-
-.npsExercisePrimary {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 20px;
-  line-height: 1.2;
-  font-weight: 700;
-}
-
-.npsExerciseDirection {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 21px;
-  line-height: 1;
-}
-
-.npsExerciseSecondary {
-  font-size: 14px;
-  line-height: 1.35;
-  color: var(--text-color);
-  opacity: .68;
-}
-
-.npsExerciseSecondary strong {
-  font-weight: 700;
-  color: var(--text-color);
-  opacity: 1;
-}
-
-
-/* Dedicated exercise prompt section */
 .promptSection {
-  margin-top: 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--border-color);
-  border-radius: 7px;
-  background: var(--control-bg);
-}
-
-.promptSection #answerNote,
-.promptSection #answerNote.npsExerciseCard {
+  width: 100%;
+  min-width: 0;
   margin: 0;
-}
-
-.exercisePanel {
-  padding-top: 14px;
-}
-
-
-/* Unified setup + current-exercise cards */
-.trainerShell {
-  --trainer-width: 460px;
-  width: var(--trainer-width);
-  max-width: calc(100vw - 24px);
-}
-
-.setupPanel,
-.promptSection {
-  width: 100%;
-  max-width: 100%;
-}
-
-.promptSection {
-  margin-top: 10px;
-  padding: 0 14px 13px;
+  padding: 0 14px 10px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background: var(--control-bg);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .promptSectionTitle {
-  margin: 0 -14px 12px;
-  padding: 8px 14px;
-  background: var(--section-title-bg);
-  color: var(--section-title-text);
-  border-bottom: 1px solid var(--border-color);
-  font-size: 13px;
-  line-height: 1;
-  font-weight: 700;
-  letter-spacing: .06em;
-  text-transform: uppercase;
+  width: calc(100% + 28px);
+  margin: 0 -14px 8px;
+  border-radius: 7px 7px 0 0;
 }
 
-.promptSection #answerNote.npsExerciseCard {
-  gap: 4px;
-}
-
-.npsExercisePrimary {
-  gap: 7px;
-  font-size: 19px;
-}
-
-.npsExerciseDirection {
-  font-size: 19px;
-}
-
-.npsExerciseSecondary {
-  font-size: 14px;
-  opacity: .7;
-}
-
-.exercisePanel {
+.quizContentRow {
+  display: grid;
+  grid-template-columns: 48px minmax(max-content, 1fr) auto auto;
+  align-items: center;
+  gap: 18px;
   width: 100%;
-  padding-top: 12px;
+  min-height: 30px;
 }
 
-@media (max-width: 700px) {
-  .trainerShell {
-    width: 100%;
-  }
-}
-
-
-/* =========================================================
-   AUTHORITATIVE CONTENT-DRIVEN SIZING
-   ========================================================= */
-
-/* JS writes exact pixel widths after measuring rendered option text. */
-select[data-auto-width="true"],
-.multiSelect[data-auto-width="true"] {
-  width: var(--auto-width);
-  min-width: 0;
-  max-width: none;
-}
-
-.multiSelect[data-auto-width="true"] summary {
-  width: 100%;
-  min-width: 0;
-}
-
-.multiSelect[data-auto-width="true"] .multiSelectMenu {
-  width: max-content;
-  min-width: 100%;
-}
-
-/* Rows hug their controls. */
-.lessonField,
-.keyField,
-.keyControls,
-.lessonSettingsSection .npsControlGrid,
-.actionRow {
-  width: max-content;
-  max-width: none;
-}
-
-.lessonSettingsSection .npsControlGrid {
-  grid-template-columns: max-content max-content max-content;
-}
-
-/* Sections are as wide as the widest actual row, not an arbitrary card width. */
-.trainerShell,
-.setupPanel,
-.promptSection {
-  width: var(--trainer-auto-width, max-content);
-  min-width: 0;
-  max-width: calc(100vw - 24px);
-}
-
-.settingsSection,
-.lessonSettingsSection {
-  width: 100%;
-}
-
-@media (max-width: 700px) {
-  .trainerShell,
-  .setupPanel,
-  .promptSection {
-    max-width: calc(100vw - 24px);
-  }
-}
-
-
-/* Lesson selector: no flex/grid stretching; exact JS-measured width wins. */
-.lessonSection .lessonField {
-  display: block;
-  width: max-content;
-  max-width: none;
-}
-
-#lessonTypeSelect {
-  display: block;
-  margin: 0;
-  padding-left: 8px;
-  padding-right: 20px;
-}
-
-
-/* =========================================================
-   CUSTOM NATIVE-SELECT CHEVRONS — ALL SELECTS
-   ========================================================= */
-.selectWrap {
-  position: relative;
-  display: inline-block;
-  flex: 0 0 auto;
-  vertical-align: middle;
-}
-
-.selectWrap > select {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  margin: 0;
-  padding-left: 8px;
-  padding-right: 26px;
-
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-
-  background-image: none;
-}
-
-.selectChevron {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 24px;
-  height: 100%;
+.quizTuningControl {
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
-  color: var(--control-text);
-  font: 700 15px/1 Arial, sans-serif;
-  transform: translateY(-1px);
+  width: 48px;
+  min-width: 48px;
 }
 
-/* Undo earlier lesson-only native-arrow compensation. */
-#lessonTypeSelect,
-#rootSelect,
-#scaleSelect,
-#orderSelect {
-  padding-right: 26px;
-}
-
-
-/* Refined select chevron: proper icon, not a text glyph */
-.selectChevron {
-  width: 22px;
-  transform: none;
-}
-
-.selectChevron svg {
-  width: 10px;
-  height: 7px;
-  display: block;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.selectWrap > select {
-  padding-right: 24px;
-}
-
-
-/* =========================================================
-   UNIFIED DROPDOWN COMPONENT
-   One box model and one width formula for visible selectors.
-   ========================================================= */
-.stateSelect {
-  display: none;
-}
-
-.singleSelect,
-.multiSelect {
-  position: relative;
-  width: var(--dropdown-width, var(--auto-width, max-content));
-  min-width: 0;
-}
-
-.singleSelect summary,
-.multiSelect summary {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  height: 32px;
-  padding: 0 26px 0 8px;
-  display: flex;
-  align-items: center;
-  list-style: none;
-  cursor: pointer;
-}
-
-.singleSelect summary::-webkit-details-marker,
-.multiSelect summary::-webkit-details-marker {
-  display: none;
-}
-
-.singleSelect summary::after,
-.multiSelect summary::after {
-  content: "";
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  width: 7px;
-  height: 7px;
-  border-right: 1.7px solid currentColor;
-  border-bottom: 1.7px solid currentColor;
-  transform: translateY(-70%) rotate(45deg);
-  pointer-events: none;
-}
-
-.singleSelectMenu,
-.multiSelectMenu {
-  position: absolute;
-  z-index: 100;
-  top: 34px;
-  left: 0;
-  box-sizing: border-box;
+#answerNote,
+#answerNote.npsExerciseCard {
+  margin: 0;
   width: max-content;
-  min-width: 100%;
-  padding: 4px;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  background: var(--control-bg);
-  color: var(--control-text);
-  box-shadow: 0 4px 10px rgba(0,0,0,.16);
+  min-width: 0;
+  font: 400 14px/16px Arial, sans-serif;
 }
 
-.singleOption {
+#answerNote.npsExerciseCard {
   display: flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 30px;
-  padding: 3px 6px;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.singleOption input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.singleOption:hover {
-  background: color-mix(in srgb, var(--text-color) 8%, transparent);
-}
-
-.keyControls {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-
-/* =========================================================
-   FINAL INTRINSIC UI LAYOUT
-   No JS width measurement. One visual dropdown system.
-   ========================================================= */
-
-.trainerShell {
-  display: inline-flex;
   flex-direction: column;
-  align-items: stretch;
-  width: max-content;
-  max-width: calc(100vw - 24px);
+  gap: 3px;
 }
 
-.setupPanel {
-  display: block;
-  width: max-content;
-  min-width: 0;
-  max-width: none;
-}
-
-.settingsSection {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-}
-
-.lessonField,
-.keyField,
-.keyControls,
-.lessonSettingsSection,
-.lessonSettingsSection .npsControlGrid,
-.actionRow {
-  width: max-content;
-  min-width: 0;
-  max-width: none;
-}
-
-.lessonSettingsSection .npsControlGrid {
-  display: grid;
-  grid-template-columns: max-content max-content max-content;
-  column-gap: 12px;
-  row-gap: 0;
-  justify-content: start;
-}
-
-/* Hidden state selects never participate in layout. */
-.stateSelect {
-  display: none;
-}
-
-/* SAME CLOSED CONTROL FOR SINGLE + MULTI SELECTS */
-.singleSelect,
-.multiSelect {
-  position: relative;
-  display: inline-block;
-  width: max-content;
-  min-width: 0;
-  max-width: none;
-}
-
-.singleSelect > summary,
-.multiSelect > summary {
-  position: relative;
-  box-sizing: border-box;
-  display: grid;
-  grid-template-columns: max-content 10px;
-  align-items: center;
-  column-gap: 8px;
-  width: max-content;
-  min-width: 0;
-  max-width: none;
-  height: 32px;
-  padding: 0 8px 0 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  background: var(--control-bg);
-  color: var(--control-text);
-  font: 16px/1 Arial, sans-serif;
-  list-style: none;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.singleSelect > summary::-webkit-details-marker,
-.multiSelect > summary::-webkit-details-marker {
-  display: none;
-}
-
-/* One identical chevron for every custom dropdown. */
-.singleSelect > summary::after,
-.multiSelect > summary::after {
-  content: "";
-  position: static;
-  box-sizing: border-box;
-  width: 7px;
-  height: 7px;
-  margin: 0;
-  border: 0;
-  border-right: 1.7px solid currentColor;
-  border-bottom: 1.7px solid currentColor;
-  transform: translateY(-2px) rotate(45deg);
-}
-
-/* Popup is at least as wide as trigger, otherwise fits its content. */
-.singleSelectMenu,
-.multiSelectMenu {
-  box-sizing: border-box;
-  width: max-content;
-  min-width: 100%;
-  max-width: none;
-}
-
-/* Remove every old per-control width assumption. */
-#npsModeSummary,
-#startDegreeSummary,
-#intervalSummary {
-  min-width: 0;
-  width: max-content;
-}
-
-/* Consistent field rhythm. */
-.controlField {
-  gap: 5px;
-}
-
-.keyControls {
-  display: flex;
-  gap: 8px;
-}
-
-.lessonSettingsSection .actionRow {
-  margin-top: 14px;
-}
-
-/* Current Exercise follows the setup card's intrinsic width. */
-.promptSection {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: none;
-}
-
-/* Fretboard is allowed to be wider without forcing the setup card wider. */
-.exercisePanel,
-.guitarInputPanel {
-  width: max-content;
-  max-width: calc(100vw - 24px);
-}
-
-@media (max-width: 700px) {
-  .trainerShell {
-    max-width: calc(100vw - 24px);
-  }
-
-  .lessonSettingsSection .npsControlGrid {
-    grid-template-columns: max-content;
-    row-gap: 10px;
-  }
-}
-
-
-/* =========================================================
-   CONTROL CARD GEOMETRY — one intrinsic parent owns both cards
-   ========================================================= */
-.trainerShell {
-  display: block;
-  width: max-content;
-  max-width: calc(100vw - 24px);
-}
-
-.trainerControls {
-  display: grid;
-  grid-template-columns: max-content;
-  width: max-content;
-  max-width: calc(100vw - 24px);
-  gap: 10px;
-}
-
-.trainerControls > .setupPanel,
-.trainerControls > .promptSection {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 100%;
-  max-width: 100%;
-  margin: 0;
-}
-
-/* Every settings section fills the setup card, including Lesson Settings. */
-.setupPanel > .settingsSection {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 100%;
-  max-width: 100%;
-}
-
-/* Every gray section title fills its section edge-to-edge. */
-.setupPanel > .settingsSection > .sectionTitle,
-.promptSection > .sectionTitle {
-  box-sizing: border-box;
-  width: auto;
-  max-width: none;
-}
-
-/* Intrinsic card width comes from actual controls, not headers. */
-.setupPanel {
-  width: max-content;
-}
-
-/* Prevent the full-width child rules from influencing intrinsic width calculation. */
-.setupPanel > .settingsSection {
-  contain: inline-size;
-}
-
-.setupPanel > .lessonSection,
-.setupPanel > .keySection,
-.setupPanel > .lessonSettingsSection {
-  contain: none;
-}
-
-/* Prompt no longer participates in choosing the card width. */
-.promptSection {
-  justify-self: stretch;
-}
-
-/* Fretboard/input remain independent of control-card width. */
-.exercisePanel,
-.guitarInputPanel {
-  width: max-content;
-}
-
-@media (max-width: 700px) {
-  .trainerControls {
-    width: min(100%, calc(100vw - 24px));
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .trainerControls > .setupPanel,
-  .trainerControls > .promptSection {
-    width: 100%;
-  }
-}
-
-
-/* Compact typography inside configuration controls */
-.settingsSection .singleSelect > summary,
-.settingsSection .multiSelect > summary,
-.settingsSection select,
-.settingsSection button:not(.themeSwitch) {
-  font-size: 14px;
-}
-
-/* Current Exercise: one compact typography system */
-.promptSection #answerNote,
-.promptSection #answerNote.npsExerciseCard {
-  font-size: 14px;
-}
-
-.promptSection .npsExercisePrimary {
-  font-size: 16px;
-  line-height: 1.25;
-}
-
-.promptSection .npsExerciseDirection {
-  font-size: 16px;
-}
-
-.promptSection .npsExerciseSecondary {
-  font-size: 14px;
-  line-height: 1.35;
-}
-
-.exerciseActions {
+.npsExercisePrimary {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.exerciseActions button {
-  height: 32px;
-  min-height: 32px;
-  font-size: 14px;
-}
-
-/* Lesson Settings no longer needs an empty action row. */
-.lessonSettingsSection .actionRow {
-  display: none;
-}
-
-
-/* Dynamic control height: typography + padding determines height. */
-.singleSelect > summary,
-.multiSelect > summary {
-  height: auto;
-  min-height: 0;
-  line-height: 1.2;
-  padding: 6px 8px 6px 10px;
-}
-
-.singleSelect > summary,
-.multiSelect > summary {
-  grid-template-columns: max-content 10px;
-  column-gap: 8px;
-}
-
-/* Keep popup rows proportional to the same compact typography. */
-.singleOption,
-.multiOption {
-  min-height: 0;
-  line-height: 1.2;
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
-/* Buttons use the same content-driven vertical sizing principle. */
-.exerciseActions button {
-  height: auto;
-  min-height: 0;
-  line-height: 1.2;
-  padding-top: 6px;
-  padding-bottom: 6px;
-}
-
-
-/* FINAL CONTROL TYPOGRAPHY + HEIGHT
-   Override the legacy font shorthand that was forcing 16px/30px. */
-.settingsSection .singleSelect > summary,
-.settingsSection .multiSelect > summary {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 16px;
-  height: auto;
-  min-height: 0;
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
-/* Direction uses the same resulting control height: 16px line + 10px padding + 2px border = 28px. */
-.directionSegment {
-  height: 28px;
-}
-
-.directionOption span {
-  height: 28px;
-  min-height: 0;
-  font-size: 14px;
-  line-height: 1;
-}
-
-
-/* FINAL COMPACT CURRENT EXERCISE SYSTEM
-   One type size and content-hugging controls. */
-.promptSection #answerNote,
-.promptSection #answerNote.npsExerciseCard,
-.promptSection .npsExercisePrimary,
-.promptSection .npsExerciseMode,
-.promptSection .npsExerciseDirection,
-.promptSection .npsExerciseSecondary,
-.promptSection .npsExerciseSecondary strong {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 16px;
-}
-
-.promptSection .npsExercisePrimary {
-  font-weight: 700;
   gap: 6px;
+  font: 700 14px/16px Arial, sans-serif;
 }
 
-.promptSection .npsExerciseDirection {
-  line-height: 16px;
-}
-
-.promptSection .npsExerciseSecondary {
-  font-weight: 400;
-}
-
-.promptSection .npsExerciseSecondary strong {
-  font-weight: 700;
-}
-
-.promptSection #answerNote.npsExerciseCard {
-  gap: 3px;
-}
-
-/* Buttons hug 14px text instead of inheriting old 32px/30px control rules. */
-.exerciseActions {
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.exerciseActions button {
-  box-sizing: border-box;
-  width: max-content;
-  height: auto;
-  min-height: 0;
-  padding: 5px 9px;
-  font-family: Arial, sans-serif;
+.npsExerciseDirection,
+.npsExerciseSecondary,
+.npsExerciseSecondary strong {
   font-size: 14px;
   line-height: 16px;
-  border-radius: 5px;
 }
 
-.exerciseActions .primaryButton {
-  font-weight: 700;
+.npsExerciseSecondary {
+  opacity: .7;
 }
 
-.exerciseActions .secondaryButton {
-  font-weight: 400;
-}
-
-/* Dropdowns: tighter vertical padding; height remains content-driven. */
-.settingsSection .singleSelect > summary,
-.settingsSection .multiSelect > summary {
-  padding-top: 3px;
-  padding-bottom: 3px;
-}
-
-/* 16px line + 6px vertical padding + 2px borders = 24px */
-.directionSegment {
-  height: 24px;
-}
-
-.directionOption span {
-  height: 24px;
-  min-height: 0;
-}
-
-
-/* Tuning popup uses the exact same compact dropdown component system. */
-.tuningPopover {
-  padding: 10px;
-  gap: 8px 12px;
-}
-
-.tuningItem {
-  display: grid;
-  grid-template-columns: max-content;
-  gap: 3px;
-  align-items: start;
-}
-
-.tuningLabel {
-  font-family: Arial, sans-serif;
-  font-size: 12px;
-  line-height: 14px;
-  font-weight: 600;
-}
-
-.tuningPopover .singleSelect > summary {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 16px;
-  height: auto;
-  min-height: 0;
-  padding: 3px 8px 3px 10px;
-}
-
-.tuningPopover .singleSelectMenu {
-  max-height: 220px;
-  overflow-y: auto;
-}
-
-.tuningPopover .singleOption {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 16px;
-  min-height: 0;
-  padding: 4px 7px;
-}
-
-
-/* Tuning popover: intrinsic size only. No static 210px container. */
-.tuningPopover,
-.tuningPopover.open {
-  width: max-content;
-  min-width: 0;
-  max-width: none;
-  grid-template-columns: max-content max-content;
-  column-gap: 12px;
-  row-gap: 8px;
-}
-
-.tuningItem {
-  width: max-content;
-  min-width: 0;
-}
-
-.tuningPopover .singleSelect {
-  width: max-content;
-}
-
-
-/* Interval lesson: only Intervals + Order, using the same component system. */
-.intervalLessonGrid {
-  display: grid;
-  grid-template-columns: max-content max-content;
-  gap: 12px;
-  width: max-content;
-}
-
-.intervalLessonGrid[hidden] {
-  display: none;
-}
-
-#orderControl {
-  width: max-content;
-}
-
-/* Interval quiz is one compact instruction, matching the Quiz typography system. */
 .promptSection .intervalQuizPrompt {
   display: flex;
   align-items: baseline;
   gap: 4px;
   width: max-content;
-  max-width: 100%;
   white-space: nowrap;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 16px;
-  font-weight: 400;
+  font: 400 14px/16px Arial, sans-serif;
 }
 
 .promptSection .intervalQuizPrompt > span {
@@ -2092,154 +941,8 @@ select[data-auto-width="true"],
   line-height: 0;
 }
 
-/* Old action-row layout no longer participates anywhere. */
-.lessonSettingsSection .actionRow {
-  display: none;
-}
+/* ---------- buttons ---------- */
 
-
-/* =========================================================
-   LESSON-SETTINGS LAYOUT — visibility drives layout
-   ========================================================= */
-
-/* hidden must beat legacy display:grid rules */
-.lessonSettingsSection [hidden] {
-  display: none;
-}
-
-/* Both lesson-specific control sets use the same horizontal row grammar. */
-.intervalLessonGrid,
-.lessonSettingsSection .npsControlGrid {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: max-content;
-  grid-template-columns: none;
-  align-items: end;
-  justify-content: start;
-  column-gap: 12px;
-  row-gap: 0;
-  width: max-content;
-}
-
-/* Same label-to-control spacing for every field in either lesson. */
-.lessonSettingsSection .controlField {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  width: max-content;
-  margin: 0;
-}
-
-/* No stray vertical spacing between interval fields. */
-.intervalLessonGrid {
-  gap: 0 12px;
-}
-
-
-/* =========================================================
-   CLEAN FINAL CASCADE
-   ========================================================= */
-[hidden] { display: none; }
-
-.lessonSettingsSection {
-  display: block;
-}
-
-.intervalLessonGrid,
-.lessonSettingsSection .npsControlGrid {
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-start;
-  gap: 12px;
-  width: max-content;
-}
-
-.intervalLessonGrid[hidden],
-.lessonSettingsSection .npsControlGrid[hidden] {
-  display: none;
-}
-
-.lessonSettingsSection .controlField {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  width: max-content;
-  margin: 0;
-}
-
-.lessonSettingsSection .fieldLabel {
-  margin: 0;
-}
-
-/* All compact dropdown triggers share the same content-driven geometry. */
-.lessonSettingsSection .singleSelect > summary,
-.lessonSettingsSection .multiSelect > summary,
-.tuningPopover .singleSelect > summary {
-  width: max-content;
-  min-width: 0;
-  height: auto;
-  min-height: 0;
-  padding: 3px 8px 3px 10px;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 16px;
-}
-
-/* Direction aligns to the same 24px control height. */
-.directionSegment,
-.directionOption span {
-  height: 24px;
-  min-height: 0;
-}
-
-@media (max-width: 700px) {
-  .intervalLessonGrid,
-  .lessonSettingsSection .npsControlGrid {
-    flex-wrap: wrap;
-  }
-}
-
-
-/* State selects are data plumbing only; they must never render or affect layout. */
-select.stateSelect,
-.stateSelect,
-.selectWrap:has(> select.stateSelect) {
-  display: none;
-}
-
-
-/* State plumbing is structurally isolated; descendants cannot re-enter layout. */
-.stateOnly {
-  display: none;
-}
-
-
-/* Quiz actions: equal visual treatment; hierarchy comes from order, not fill. */
-.exerciseActions .secondaryButton,
-.exerciseActions .primaryButton {
-  background: #e2e2e2;
-  color: #111;
-  border: 1px solid var(--border-color);
-  font-weight: 600;
-}
-
-[data-theme="dark"] .exerciseActions .secondaryButton,
-[data-theme="dark"] .exerciseActions .primaryButton {
-  background: #3a3a3a;
-  color: var(--text-color);
-}
-
-
-/* =========================================================
-   GLOBAL UI COMPONENTS
-   These selectors are semantic, so future buttons/dropdowns
-   automatically inherit the same component styling.
-   ========================================================= */
-
-/* Every normal app button. Excludes icon-only theme/tuning controls. */
 button.uiButton {
   box-sizing: border-box;
   width: max-content;
@@ -2250,10 +953,7 @@ button.uiButton {
   border-radius: 5px;
   background: #e2e2e2;
   color: #111;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 16px;
+  font: 600 14px/16px Arial, sans-serif;
   cursor: pointer;
 }
 
@@ -2267,74 +967,125 @@ button.uiButton:disabled {
   color: var(--text-color);
 }
 
-/* Every custom dropdown, regardless of where it is added. */
-:is(.singleSelect, .multiSelect) {
+/* ---------- tuning control/popover ---------- */
+
+.fretboardTuningControl {
   position: relative;
-  display: inline-block;
   width: max-content;
-  min-width: 0;
+  z-index: 1200;
 }
 
-:is(.singleSelect, .multiSelect) > summary {
+.fretboardTuningControl .settingsButton {
   box-sizing: border-box;
-  display: grid;
-  grid-template-columns: max-content 10px;
-  align-items: center;
-  column-gap: 8px;
-  width: max-content;
-  min-width: 0;
-  height: auto;
-  min-height: 0;
-  padding: 3px 8px 3px 10px;
+  width: 30px;
+  min-width: 30px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
   border: 1px solid var(--border-color);
   border-radius: 5px;
   background: var(--control-bg);
   color: var(--control-text);
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 16px;
-  list-style: none;
-  white-space: nowrap;
-  cursor: pointer;
 }
 
-:is(.singleSelect, .multiSelect) > summary::-webkit-details-marker {
-  display: none;
+.tuningForkIcon {
+  width: 22px;
+  height: 22px;
+  overflow: visible;
 }
 
-:is(.singleSelect, .multiSelect) > summary::after {
-  content: "";
-  position: static;
-  box-sizing: border-box;
-  width: 7px;
-  height: 7px;
-  border: 0;
-  border-right: 1.7px solid currentColor;
-  border-bottom: 1.7px solid currentColor;
-  transform: translateY(-2px) rotate(45deg);
+.tuningForkIcon .forkStroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-:is(.singleSelectMenu, .multiSelectMenu) {
-  box-sizing: border-box;
+.fretboardTuningControl .tuningPopover {
+  top: calc(100% + 4px);
+  left: 0;
+  right: auto;
+}
+
+.tuningPopover,
+.tuningPopover.open {
   width: max-content;
-  min-width: 100%;
+  min-width: 0;
+  max-width: none;
+  padding: 10px;
+  grid-template-columns: max-content max-content;
+  column-gap: 12px;
+  row-gap: 8px;
 }
 
-:is(.singleOption, .multiOption) {
-  min-height: 0;
-  font-family: Arial, sans-serif;
+.tuningItem {
+  display: grid;
+  grid-template-columns: max-content;
+  gap: 3px;
+  align-items: start;
+  width: max-content;
+}
+
+.tuningLabel {
+  font: 600 12px/14px Arial, sans-serif;
+}
+
+.tuningPopover .singleSelectMenu {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* ---------- panels below fretboard ---------- */
+
+.exercisePanel {
+  box-sizing: border-box;
+  width: calc(100vw - 24px);
+  max-width: calc(100vw - 24px);
+  padding-top: 8px;
+}
+
+.guitarInputPanel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  margin: 10px 0 14px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 7px;
+  background: var(--control-bg);
+}
+
+.guitarInputIdentity {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.guitarIcon {
+  font-size: 17px;
+}
+
+.inputStatus {
+  white-space: nowrap;
+  opacity: .65;
+}
+
+.inputMetric {
+  white-space: nowrap;
   font-size: 14px;
-  line-height: 16px;
+  opacity: .72;
 }
 
-/* Guitar Enable/Disable is now exactly the same button component as Quiz actions. */
-#guitarInputButton {
-  margin: 0;
+.inputMetric strong {
+  color: var(--text-color);
+  opacity: 1;
 }
 
-
-/* Live classifier diagnostic log */
 .guitarInputLogPanel {
   width: max-content;
   max-width: calc(100vw - 24px);
@@ -2344,20 +1095,40 @@ button.uiButton:disabled {
   background: var(--control-bg);
   overflow: hidden;
 }
+
 .guitarInputLogHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   padding: 6px 9px;
   background: var(--header-bg);
   font: 600 14px/16px Arial, sans-serif;
 }
+
+.classifierTestControls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 400;
+}
+
+#classifierTestStatus {
+  white-space: nowrap;
+  font-size: 12px;
+}
+
 .guitarInputLogScroll {
   max-width: calc(100vw - 26px);
   max-height: 220px;
   overflow: auto;
 }
+
 .guitarInputLogTable {
   width: max-content;
   font: 12px/14px Arial, sans-serif;
 }
+
 .guitarInputLogTable th,
 .guitarInputLogTable td {
   height: auto;
@@ -2366,6 +1137,7 @@ button.uiButton:disabled {
   text-align: right;
   white-space: nowrap;
 }
+
 .guitarInputLogTable th:nth-child(1),
 .guitarInputLogTable td:nth-child(1),
 .guitarInputLogTable th:nth-child(2),
@@ -2375,28 +1147,29 @@ button.uiButton:disabled {
   text-align: left;
 }
 
-
-/* Classifier live-test controls */
-.guitarInputLogHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.classifierTestControls {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 400;
-}
-#classifierTestStatus {
-  white-space: nowrap;
-  font-size: 12px;
-}
-
 #datasetRecordStatus {
   white-space: pre-line;
   line-height: 1.5;
+}
+
+@media (max-width: 700px) {
+  body {
+    padding: 10px;
+  }
+
+  .setupPanel,
+  .trainerControls {
+    width: max-content;
+  }
+
+  .quizContentRow {
+    gap: 12px;
+  }
+
+  .exercisePanel {
+    width: calc(100vw - 20px);
+    max-width: calc(100vw - 20px);
+  }
 }
 
 
@@ -2861,117 +1634,22 @@ button.uiButton:disabled {
 
 
 /* =========================================================
-   LAYOUT + FRETBOARD REFINEMENTS
+   FRETBOARD REFINEMENTS
    ========================================================= */
 
-/*
-  Top controls:
-  Quiz is a separate card on the far left.
-  Lesson / Base Key / Lesson Settings remain grouped together
-  in one setup card, arranged horizontally.
-*/
-.trainerControls {
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  gap: 10px;
-  width: max-content;
-  max-width: none;
-}
-
-.promptSection {
-  order: 1;
-  flex: 0 0 auto;
-  width: max-content;
-  min-width: 190px;
-  max-width: none;
-  margin: 0;
-}
-
-.setupPanel {
-  order: 2;
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  width: max-content;
-  max-width: none;
-  overflow: visible;
-}
-
-.setupPanel .settingsSection {
-  width: auto;
-  min-width: max-content;
-  border-bottom: 0;
-  border-right: 1px solid var(--border-color);
-}
-
-.setupPanel .settingsSection:last-child {
-  border-right: 0;
-}
-
-.setupPanel .settingsSection:first-of-type .sectionTitle {
-  border-radius: 7px 0 0 0;
-}
-
-.setupPanel .settingsSection:last-child .sectionTitle {
-  border-radius: 0 7px 0 0;
-}
-
-/*
-  Keep the horizontal control arrangement on narrow screens.
-  The page can scroll horizontally rather than collapsing the
-  four requested sections back into a vertical stack.
-*/
-@media (max-width: 700px) {
-  .trainerShell {
-    width: max-content;
-    max-width: none;
-  }
-
-  .trainerControls {
-    width: max-content;
-    max-width: none;
-  }
-
-  .setupPanel {
-    display: flex;
-    width: max-content;
-    max-width: none;
-  }
-
-  .setupPanel .settingsSection {
-    width: auto;
-    min-width: max-content;
-  }
-
-  .lessonSettingsSection .npsControlGrid {
-    grid-template-columns: max-content max-content max-content;
-  }
-
-  .promptSection {
-    width: max-content;
-    max-width: none;
-  }
-}
-
-
-/*
-  Nut sits OUTSIDE the playable fretboard.
-  Its right edge is exactly aligned with the left edge of
-  fret 1, so it no longer steals width from the first fret.
-*/
+/* Nut is outside the playable width; its right edge touches fret 1. */
 .fretboardNut {
   left: -14px;
 }
 
-
-/*
-  Unknown/clickable note positions are intentionally faint.
-*/
+/* Unknown/clickable positions stay faint. */
 .fretboardNote.unknownInterval {
   border-width: 1px;
   border-color: rgba(255, 255, 255, 0.24);
   background: rgba(255, 255, 255, 0.035) !important;
+  color: transparent !important;
+  box-shadow: none;
+  z-index: 12;
 }
 
 [data-theme="light"] .fretboardNote.unknownInterval {
@@ -2989,342 +1667,70 @@ button.uiButton:disabled {
   border-color: rgba(0, 0, 0, 0.38);
 }
 
-
-/*
-  Never let a note circle be wider than the fret that owns it.
-  The normal preferred size remains unchanged; it only shrinks
-  when the available fret width is smaller.
-*/
+/* Fretted guesses remain circles and shrink only when a fret is narrower. */
 .physicalFretboard .fretboardNote:not(.openStringNote) {
-  width: min(
-    38px,
-    calc(100% / var(--fret-count) - 4px)
-  );
-  height: min(
-    38px,
-    calc(100% / var(--fret-count) - 4px)
-  );
+  width: min(38px, calc(100% / var(--fret-count) - 4px));
+  height: auto;
+  aspect-ratio: 1 / 1;
 }
 
 .physicalFretboard.compact .fretboardNote:not(.openStringNote) {
-  width: min(
-    30px,
-    calc(100% / var(--fret-count) - 4px)
-  );
-  height: min(
-    30px,
-    calc(100% / var(--fret-count) - 4px)
-  );
+  width: min(30px, calc(100% / var(--fret-count) - 4px));
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+
+/* Phone/landscape fretboard sizing. */
+.physicalFretboard {
+  height: 420px;
 }
 
 @media (max-width: 700px) {
+  .physicalFretboard {
+    height: 340px;
+  }
+
   .physicalFretboard.compact .fretboardNote:not(.openStringNote) {
-    width: min(
-      24px,
-      calc(100% / var(--fret-count) - 3px)
-    );
-    height: min(
-      24px,
-      calc(100% / var(--fret-count) - 3px)
-    );
+    width: min(24px, calc(100% / var(--fret-count) - 3px));
   }
 }
 
 @media (orientation: landscape) and (max-height: 600px) {
+  .exercisePanel {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .physicalFretboard {
+    height: clamp(210px, 58vh, 260px);
+  }
+
   .physicalFretboard .fretboardNote:not(.openStringNote),
   .physicalFretboard.compact .fretboardNote:not(.openStringNote) {
-    width: min(
-      26px,
-      calc(100% / var(--fret-count) - 3px)
-    );
-    height: min(
-      26px,
-      calc(100% / var(--fret-count) - 3px)
-    );
-  }
-}
-
-
-/* =========================================================
-   TOP UI — SNAP TO AVAILABLE WIDTH
-   ========================================================= */
-
-/*
-  The horizontal control row now fills the available viewport
-  width instead of expanding to intrinsic max-content width.
-  Quiz stays separate on the far left; the setup group uses
-  the remaining width.
-*/
-.trainerShell {
-  width: 100%;
-  max-width: 100%;
-}
-
-.trainerControls {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-}
-
-.promptSection {
-  flex: 0 1 auto;
-  min-width: 170px;
-  max-width: 28%;
-}
-
-.setupPanel {
-  flex: 1 1 0;
-  width: auto;
-  max-width: none;
-  min-width: 0;
-}
-
-.setupPanel .settingsSection {
-  min-width: 0;
-}
-
-.lessonSection,
-.keySection {
-  flex: 0 1 auto;
-}
-
-.lessonSettingsSection {
-  flex: 1 1 auto;
-}
-
-.lessonSettingsSection .npsControlGrid {
-  max-width: 100%;
-  grid-template-columns:
-    repeat(3, minmax(0, max-content));
-}
-
-/*
-  If the available width becomes tight, let controls inside a
-  section wrap before the entire top row overflows.
-*/
-.lessonSettingsSection .npsControlGrid,
-.keyControls,
-.actionRow {
-  flex-wrap: wrap;
-}
-
-@media (max-width: 700px) {
-  .trainerShell,
-  .trainerControls {
-    width: 100%;
-    max-width: 100%;
+    width: min(26px, calc(100% / var(--fret-count) - 3px));
   }
 
-  .promptSection {
-    max-width: 30%;
-    min-width: 150px;
+  .physicalFretboard .fretboardNote.openStringNote,
+  .physicalFretboard.compact .fretboardNote.openStringNote {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
   }
 
-  .setupPanel {
-    flex: 1 1 0;
-    width: auto;
-    max-width: none;
-    min-width: 0;
+  .fretboardPositionDot {
+    width: 18px;
+    height: 18px;
   }
 
-  .setupPanel .settingsSection {
-    min-width: 0;
-  }
-}
-
-
-/* =========================================================
-   AUTHORITATIVE TOP-ROW SIZING
-   Each section hugs its content. No section stretches.
-   ========================================================= */
-
-.trainerShell {
-  width: max-content !important;
-  max-width: none !important;
-}
-
-.trainerControls {
-  display: inline-flex !important;
-  flex-direction: row !important;
-  align-items: stretch !important;
-  gap: 10px !important;
-  width: max-content !important;
-  max-width: none !important;
-  min-width: 0 !important;
-}
-
-.promptSection {
-  order: 1 !important;
-  flex: 0 0 auto !important;
-  width: max-content !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  margin: 0 !important;
-}
-
-.setupPanel {
-  order: 2 !important;
-  display: inline-flex !important;
-  flex: 0 0 auto !important;
-  flex-direction: row !important;
-  align-items: stretch !important;
-  width: max-content !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  overflow: visible !important;
-}
-
-.setupPanel .settingsSection {
-  flex: 0 0 auto !important;
-  width: max-content !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  border-bottom: 0 !important;
-  border-right: 1px solid var(--border-color);
-}
-
-.setupPanel .settingsSection:last-child {
-  border-right: 0 !important;
-}
-
-.lessonSection .lessonField,
-.keySection .keyField,
-.keyControls,
-.lessonSettingsSection,
-.intervalLessonGrid,
-.lessonSettingsSection .npsControlGrid,
-.lessonSettingsSection .controlField,
-.orderField {
-  width: max-content !important;
-  min-width: 0 !important;
-  max-width: none !important;
-}
-
-.intervalLessonGrid,
-.lessonSettingsSection .npsControlGrid {
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  align-items: flex-end !important;
-  justify-content: flex-start !important;
-  gap: 12px !important;
-}
-
-.intervalLessonGrid[hidden],
-.lessonSettingsSection .npsControlGrid[hidden],
-.lessonSettingsSection [hidden] {
-  display: none !important;
-}
-
-/* Keep the theme switch from covering the Lesson Settings heading. */
-.lessonSettingsSection .sectionTitle {
-  padding-right: 92px !important;
-}
-
-/* Quiz card should be exactly as wide as its own contents. */
-.promptSection #answerNote,
-.promptSection #answerNote.npsExerciseCard,
-.promptSection .intervalQuizPrompt,
-.exerciseActions {
-  width: max-content !important;
-  max-width: none !important;
-}
-
-.exerciseActions {
-  flex-wrap: nowrap !important;
-}
-
-/* The page may scroll horizontally on a phone rather than distorting cards. */
-body {
-  overflow-x: auto;
-}
-
-@media (max-width: 700px) {
-  .trainerShell,
-  .trainerControls,
-  .setupPanel,
-  .promptSection {
-    width: max-content !important;
-    max-width: none !important;
+  .fretboardPositionDot.doubleDot {
+    width: 20px;
+    height: 20px;
   }
 
-  .setupPanel .settingsSection,
-  .lessonSection .lessonField,
-  .keySection .keyField,
-  .keyControls,
-  .lessonSettingsSection,
-  .intervalLessonGrid,
-  .lessonSettingsSection .npsControlGrid,
-  .lessonSettingsSection .controlField,
-  .orderField {
-    width: max-content !important;
-    min-width: 0 !important;
-    max-width: none !important;
-  }
-
-  .intervalLessonGrid,
-  .lessonSettingsSection .npsControlGrid {
-    flex-wrap: nowrap !important;
-  }
-}
-
-
-/* =========================================================
-   SECTION HEADER BAND FIX
-   Fill each settings section edge-to-edge, including padding.
-   ========================================================= */
-
-.setupPanel .settingsSection {
-  position: relative;
-}
-
-.setupPanel .settingsSection > .sectionTitle {
-  box-sizing: border-box;
-  width: calc(100% + 28px) !important;
-  max-width: none !important;
-  margin: -14px -14px 12px !important;
-  background: var(--section-title-bg) !important;
-  color: var(--section-title-text) !important;
-}
-
-
-/* =========================================================
-   FINAL VISUAL FIXES
-   ========================================================= */
-
-/* All top section headers use the same full-width band color. */
-.setupPanel .sectionTitle,
-.promptSection .sectionTitle {
-  background: var(--section-title-bg) !important;
-  color: var(--section-title-text) !important;
-}
-
-/*
-  Fretboard guess targets must remain true circles.
-  Width may shrink to fit a narrow fret; height follows width
-  through aspect-ratio instead of independently using board height.
-*/
-.physicalFretboard .fretboardNote:not(.openStringNote) {
-  height: auto !important;
-  aspect-ratio: 1 / 1 !important;
-}
-
-.physicalFretboard.compact .fretboardNote:not(.openStringNote) {
-  height: auto !important;
-  aspect-ratio: 1 / 1 !important;
-}
-
-@media (max-width: 700px) {
-  .physicalFretboard.compact .fretboardNote:not(.openStringNote) {
-    height: auto !important;
-    aspect-ratio: 1 / 1 !important;
-  }
-}
-
-@media (orientation: landscape) and (max-height: 600px) {
-  .physicalFretboard .fretboardNote:not(.openStringNote),
-  .physicalFretboard.compact .fretboardNote:not(.openStringNote) {
-    height: auto !important;
-    aspect-ratio: 1 / 1 !important;
+  .physicalFretboard .npsStartInterval {
+    width: 26px;
+    height: 26px;
+    flex-basis: 26px;
+    font-size: 11px;
   }
 }
