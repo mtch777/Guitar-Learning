@@ -2858,3 +2858,188 @@ button.uiButton:disabled {
     font-size: 11px;
   }
 }
+
+
+/* =========================================================
+   LAYOUT + FRETBOARD REFINEMENTS
+   ========================================================= */
+
+/*
+  Top controls:
+  Quiz is a separate card on the far left.
+  Lesson / Base Key / Lesson Settings remain grouped together
+  in one setup card, arranged horizontally.
+*/
+.trainerControls {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 10px;
+  width: max-content;
+  max-width: none;
+}
+
+.promptSection {
+  order: 1;
+  flex: 0 0 auto;
+  width: max-content;
+  min-width: 190px;
+  max-width: none;
+  margin: 0;
+}
+
+.setupPanel {
+  order: 2;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: max-content;
+  max-width: none;
+  overflow: visible;
+}
+
+.setupPanel .settingsSection {
+  width: auto;
+  min-width: max-content;
+  border-bottom: 0;
+  border-right: 1px solid var(--border-color);
+}
+
+.setupPanel .settingsSection:last-child {
+  border-right: 0;
+}
+
+.setupPanel .settingsSection:first-of-type .sectionTitle {
+  border-radius: 7px 0 0 0;
+}
+
+.setupPanel .settingsSection:last-child .sectionTitle {
+  border-radius: 0 7px 0 0;
+}
+
+/*
+  Keep the horizontal control arrangement on narrow screens.
+  The page can scroll horizontally rather than collapsing the
+  four requested sections back into a vertical stack.
+*/
+@media (max-width: 700px) {
+  .trainerShell {
+    width: max-content;
+    max-width: none;
+  }
+
+  .trainerControls {
+    width: max-content;
+    max-width: none;
+  }
+
+  .setupPanel {
+    display: flex;
+    width: max-content;
+    max-width: none;
+  }
+
+  .setupPanel .settingsSection {
+    width: auto;
+    min-width: max-content;
+  }
+
+  .lessonSettingsSection .npsControlGrid {
+    grid-template-columns: max-content max-content max-content;
+  }
+
+  .promptSection {
+    width: max-content;
+    max-width: none;
+  }
+}
+
+
+/*
+  Nut sits OUTSIDE the playable fretboard.
+  Its right edge is exactly aligned with the left edge of
+  fret 1, so it no longer steals width from the first fret.
+*/
+.fretboardNut {
+  left: -14px;
+}
+
+
+/*
+  Unknown/clickable note positions are intentionally faint.
+*/
+.fretboardNote.unknownInterval {
+  border-width: 1px;
+  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.035) !important;
+}
+
+[data-theme="light"] .fretboardNote.unknownInterval {
+  border-color: rgba(0, 0, 0, 0.22);
+  background: rgba(255, 255, 255, 0.10) !important;
+}
+
+.fretboardNote.unknownInterval:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.48);
+}
+
+[data-theme="light"] .fretboardNote.unknownInterval:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(0, 0, 0, 0.38);
+}
+
+
+/*
+  Never let a note circle be wider than the fret that owns it.
+  The normal preferred size remains unchanged; it only shrinks
+  when the available fret width is smaller.
+*/
+.physicalFretboard .fretboardNote:not(.openStringNote) {
+  width: min(
+    38px,
+    calc(100% / var(--fret-count) - 4px)
+  );
+  height: min(
+    38px,
+    calc(100% / var(--fret-count) - 4px)
+  );
+}
+
+.physicalFretboard.compact .fretboardNote:not(.openStringNote) {
+  width: min(
+    30px,
+    calc(100% / var(--fret-count) - 4px)
+  );
+  height: min(
+    30px,
+    calc(100% / var(--fret-count) - 4px)
+  );
+}
+
+@media (max-width: 700px) {
+  .physicalFretboard.compact .fretboardNote:not(.openStringNote) {
+    width: min(
+      24px,
+      calc(100% / var(--fret-count) - 3px)
+    );
+    height: min(
+      24px,
+      calc(100% / var(--fret-count) - 3px)
+    );
+  }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .physicalFretboard .fretboardNote:not(.openStringNote),
+  .physicalFretboard.compact .fretboardNote:not(.openStringNote) {
+    width: min(
+      26px,
+      calc(100% / var(--fret-count) - 3px)
+    );
+    height: min(
+      26px,
+      calc(100% / var(--fret-count) - 3px)
+    );
+  }
+}
