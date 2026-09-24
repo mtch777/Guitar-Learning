@@ -62,7 +62,7 @@
             </span>
           </button>
         </div>
-        <div id="intervalLessonControls" class="intervalLessonGrid">
+        <div id="intervalLessonControls" class="lessonControls intervalLessonGrid">
         <div id="intervalControlGroup" class="controlField">
           <span class="fieldLabel">Intervals</span>
           <details id="intervalDropdown" class="multiSelect">
@@ -81,7 +81,7 @@
             <option value="ordered">Ordered</option>
           </select></span></div></div>
 
-      <div id="npsControls" class="npsControlGrid" hidden>
+      <div id="npsControls" class="lessonControls npsControlGrid" hidden>
         <div class="controlField">
           <span class="fieldLabel">Mode</span>
           <details class="multiSelect"><summary id="npsModeSummary">All 7</summary><div id="npsModeOptions" class="multiSelectMenu"></div></details>
@@ -108,6 +108,7 @@
       <div class="quizContentRow">
         <div id="quizTuningControl" class="quizTuningControl" aria-label="Tuning controls"></div>
         <div id="answerNote"></div>
+        <div class="quizSpacer" aria-hidden="true"></div>
         <button id="showAllButton" class="uiButton" type="button">Show Answer</button>
         <button id="nextButton" class="uiButton" type="button">Next →</button>
       </div>
