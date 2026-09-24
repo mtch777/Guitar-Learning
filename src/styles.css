@@ -136,7 +136,7 @@ select.stateSelect {
 }
 
 .settingsSection > :not(.sectionTitle) {
-  margin: 10px 14px 12px;
+  margin: 10px 16px 12px;
 }
 
 .controlField:not([hidden]) {
