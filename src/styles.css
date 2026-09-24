@@ -67,11 +67,21 @@ select.stateSelect {
 }
 
 .trainerControls {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns:
+    0
+    var(--open-string-gutter)
+    minmax(0, 1fr);
+  row-gap: 8px;
   width: 100%;
   min-width: 0;
+}
+
+.trainerShell.hasStartCue .trainerControls {
+  grid-template-columns:
+    var(--start-cue-gutter)
+    var(--open-string-gutter)
+    minmax(0, 1fr);
 }
 
 /*
@@ -79,11 +89,13 @@ select.stateSelect {
   Nothing stretches cards to match the tallest sibling.
 */
 .setupPanel {
+  grid-column: 3;
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
   gap: 8px;
-  width: 100%;
+  width: max-content;
+  max-width: 100%;
   min-width: 0;
 }
 
@@ -399,28 +411,12 @@ select.stateSelect {
    ========================================================= */
 
 /*
-  Quiz uses the exact same structural columns as the fretboard:
-  start-cue gutter | open-string/tuning gutter | quiz card.
-  This keeps the tuning fork over the string labels while the
-  quiz border starts immediately to its right.
+  Quiz shares the parent grid with the settings row:
+  start-cue gutter | open-string/tuning gutter | main content.
+  That keeps Lesson and Quiz aligned without duplicating offsets.
 */
 .quizRow {
-  display: grid;
-  grid-template-columns:
-    0
-    var(--open-string-gutter)
-    minmax(0, 1fr);
-  width: 100%;
-  min-width: 0;
-  column-gap: 0;
-  align-items: center;
-}
-
-.trainerShell.hasStartCue .quizRow {
-  grid-template-columns:
-    var(--start-cue-gutter)
-    var(--open-string-gutter)
-    minmax(0, 1fr);
+  display: contents;
 }
 
 .quizStartCueSpacer {
@@ -433,12 +429,13 @@ select.stateSelect {
   align-items: center;
   justify-content: center;
   min-width: 0;
-  justify-self: stretch;
 }
 
 .promptSection {
   grid-column: 3;
-  width: 100%;
+  justify-self: start;
+  width: fit-content;
+  max-width: 100%;
   min-width: 0;
   padding: 0;
   border: 1px solid var(--border-color);
@@ -455,14 +452,10 @@ select.stateSelect {
   display: flex;
   align-items: center;
   gap: 12px;
-  width: 100%;
+  width: max-content;
+  max-width: 100%;
   min-width: 0;
   padding: 8px 12px 10px;
-}
-
-.quizSpacer {
-  flex: 1 1 auto;
-  min-width: 12px;
 }
 
 #answerNote,
