@@ -3377,6 +3377,23 @@ function getCagedNpsFallbacks(
                         );
 
 
+                      const bridgeStartItem =
+                        bridgeDirection === 'up'
+                          ? bridgeCells[0]
+                          : bridgeCells[
+                              bridgeCells.length - 1
+                            ];
+
+                      const bridgeStartInterval =
+                        getNpsIntervalForPitch(
+                          midiToPitchClass(
+                            bridgeStartItem.absolutePitch
+                          ),
+                          modeRoot,
+                          modeName
+                        );
+
+
                       candidates.push({
                         shapeName:
                           landingShape.shapeName,
@@ -3403,6 +3420,24 @@ function getCagedNpsFallbacks(
                                   item.fret
                                 )
                             )
+                          ),
+
+                        bridgeStartInterval,
+
+                        bridgeStartCellKey:
+                          makeCellKey(
+                            bridgeStartItem.stringIndex,
+                            bridgeStartItem.fret
+                          ),
+
+                        bridgeStartStringIndex:
+                          bridgeStartItem.stringIndex,
+
+                        bridgeStartStringName:
+                          midiToScientificPitch(
+                            currentTuning[
+                              bridgeStartItem.stringIndex
+                            ]
                           ),
 
                         cagedShape:
@@ -3716,6 +3751,30 @@ function createCagedExercise(
           .bridgeCellKeys ||
         []
       ),
+
+    bridgeStartInterval:
+      selectedCandidate
+        .bridgeStartInterval ||
+      null,
+
+    bridgeStartCellKey:
+      selectedCandidate
+        .bridgeStartCellKey ||
+      null,
+
+    bridgeStartStringIndex:
+      Number.isInteger(
+        selectedCandidate
+          .bridgeStartStringIndex
+      )
+        ? selectedCandidate
+            .bridgeStartStringIndex
+        : null,
+
+    bridgeStartStringName:
+      selectedCandidate
+        .bridgeStartStringName ||
+      null,
 
     rootCellKey:
       makeCellKey(
@@ -4916,6 +4975,42 @@ function buildTrainer() {
       )
     );
 
+
+    if (
+      currentCagedExercise
+        .usesNpsBridge &&
+      currentCagedExercise
+        .bridgeStartInterval &&
+      Number.isInteger(
+        currentCagedExercise
+          .bridgeStartStringIndex
+      )
+    ) {
+      stage.classList.add(
+        'hasDualStartCue'
+      );
+
+      fretboard.appendChild(
+        createNpsStartMarker(
+          {
+            startInterval:
+              currentCagedExercise
+                .bridgeStartInterval,
+
+            startStringIndex:
+              currentCagedExercise
+                .bridgeStartStringIndex,
+
+            startStringName:
+              currentCagedExercise
+                .bridgeStartStringName
+          },
+          tuning.length,
+          'cagedNpsStartGuide'
+        )
+      );
+    }
+
     return;
   }
 
@@ -5172,13 +5267,19 @@ function displayNpsQuestion() {
 
 function createNpsStartMarker(
   exercise,
-  stringCount
+  stringCount,
+  guideClassName = ''
 ) {
   const guide =
     document.createElement('div');
 
   guide.className =
-    'npsStartGuide';
+    'npsStartGuide' +
+    (
+      guideClassName
+        ? ' ' + guideClassName
+        : ''
+    );
 
   const displayIndex =
     stringCount -
