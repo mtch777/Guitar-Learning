@@ -2721,22 +2721,18 @@ button.uiButton:disabled {
 
 /*
   CAGED fallback connector start cue:
-  keep the normal CAGED/root cue nearest the fretboard,
-  and place the 2/3-NPS starting cue farther left so both
-  remain visible even when they are on the same string.
+  the selected coordinate is the 2/3-NPS start, so there is
+  only ONE start cue. Keep it in the normal cue position and
+  distinguish it with a white border.
 */
 .physicalFretboard .cagedNpsStartGuide {
-  left: -162px;
+  left: -106px;
 }
 
 .physicalFretboard
   .cagedNpsStartGuide
   .npsStartInterval {
   border-color: #ffffff !important;
-}
-
-.fretboardStage.hasDualStartCue {
-  padding-left: 168px;
 }
 
 #chartDiv > table,
@@ -2759,16 +2755,12 @@ button.uiButton:disabled {
     padding-left: 92px;
   }
 
-  .fretboardStage.hasDualStartCue {
-    padding-left: 144px;
-  }
-
   .physicalFretboard .npsStartGuide {
     left: -88px;
   }
 
   .physicalFretboard .cagedNpsStartGuide {
-    left: -140px;
+    left: -88px;
   }
 
   .physicalFretboard.compact .fretboardNote {
