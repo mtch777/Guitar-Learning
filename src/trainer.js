@@ -3776,21 +3776,31 @@ function createCagedExercise(
 
 
   /*
-    Selection order:
+    CAGED LESSON SELECTION ORDER
 
-      1. Random allowed mode of the selected base key.
-      2. Random occurrence of THAT mode root anywhere on the
-         fretboard, frets 0-12, strings 1-8.
-      3. Check whether ANY enabled CAGED shape can use that
-         exact root coordinate.
-      4. If yes, use one of those direct CAGED shapes.
-      5. If no, build a 2/3-NPS bridge from the selected root
-         into ONE enabled CAGED shape that fits elsewhere.
+    1. Pick a random enabled relative mode of the base key.
 
-    Important:
-    the initially selected coordinate is never restricted to
-    strings 3-8. Strings 1 and 2 are valid starting/root
-    coordinates and naturally require the NPS connector.
+    2. Pick ANY eligible diatonic fret/string coordinate
+       on frets 0-12, strings 1-8.
+       The Start filter limits the modal scale degrees that
+       can be selected. Default Start = R.
+
+    3. Ask whether ANY enabled, physically valid CAGED
+       pentatonic shape already CONTAINS that exact coordinate.
+       The selected coordinate does NOT have to be a CAGED
+       root.
+
+    4. If yes:
+         use one of those direct CAGED shapes.
+
+    5. If no:
+         use the selected coordinate as the start of an
+         eligible 2/3-NPS bridge and connect it into ONE
+         enabled CAGED shape that fits elsewhere.
+
+       We search both valid connection directions:
+         ↗️ into the bottom of a CAGED shape
+         ↙️ into the top of a CAGED shape
   */
 
   const shuffledModes =
@@ -3810,73 +3820,139 @@ function createCagedExercise(
         modeName
       );
 
-    const rootAnchors =
+
+    /*
+      All normal CAGED landing shapes for this mode.
+      Their root/string positions remain locked by the CAGED
+      definitions; this does NOT move those shapes vertically.
+    */
+    const fittingCagedShapes =
+      getFittingCagedShapesForMode(
+        cells,
+        modeRoot,
+        modeName,
+        allowedShapes
+      );
+
+
+    if (
+      fittingCagedShapes.length === 0
+    ) {
+      continue;
+    }
+
+
+    const startCoordinates =
       shuffleList(
         cells.filter(
-          item =>
-            item.fret >= 0 &&
-            item.fret <= 12 &&
-            midiToPitchClass(
-              item.absolutePitch
-            ) ===
-              modeRoot
+          item => {
+            if (
+              item.fret < 0 ||
+              item.fret > 12
+            ) {
+              return false;
+            }
+
+
+            const pitchClass =
+              midiToPitchClass(
+                item.absolutePitch
+              );
+
+
+            /*
+              Must be diatonic to the selected BASE key.
+              Relative modes share this same seven-note set.
+            */
+            const baseDistance =
+              mod12(
+                pitchClass -
+                baseRoot
+              );
+
+            const baseScaleInterval =
+              getScaleInterval(
+                baseMode,
+                baseDistance
+              );
+
+            if (
+              !baseScaleInterval
+            ) {
+              return false;
+            }
+
+
+            /*
+              Apply the Start filter relative to the randomly
+              selected mode.
+            */
+            const modeInterval =
+              getNpsIntervalForPitch(
+                pitchClass,
+                modeRoot,
+                modeName
+              );
+
+            if (
+              !modeInterval
+            ) {
+              return false;
+            }
+
+            const genericDegree =
+              getGenericDegreeForNpsInterval(
+                modeName,
+                modeInterval
+              );
+
+            return (
+              genericDegree &&
+              allowedDegrees.has(
+                genericDegree
+              )
+            );
+          }
         )
       );
 
 
     for (
-      const rootAnchor of
-      rootAnchors
+      const startItem of
+      startCoordinates
     ) {
-      const directCandidates = [];
+      const startCellKey =
+        makeCellKey(
+          startItem.stringIndex,
+          startItem.fret
+        );
 
 
       /*
-        Direct CAGED:
-        only shapes whose LOCKED physical root string matches
-        this exact selected coordinate can survive.
+        DIRECT CAGED:
+        does a normal fitting CAGED shape contain the exact
+        randomly selected coordinate?
       */
-      allowedShapes.forEach(
-        shapeName => {
-          const builtShapes =
-            buildCagedShapesForAnchor(
-              cells,
-              modeRoot,
-              modeName,
-              rootAnchor,
-              shapeName
-            );
+      const directCandidates =
+        fittingCagedShapes
+          .filter(
+            shape =>
+              shape.requiredCellKeys
+                .has(
+                  startCellKey
+                )
+          )
+          .map(
+            shape => ({
+              ...shape,
 
+              usesNpsBridge:
+                false,
 
-          builtShapes.forEach(
-            builtShape => {
-              const startCandidates =
-                getCagedStartCandidates(
-                  builtShape.shapeCells,
-                  modeRoot,
-                  modeName,
-                  allowedDegrees
-                );
-
-              if (
-                startCandidates.length === 0
-              ) {
-                return;
-              }
-
-
-              directCandidates.push({
-                ...builtShape,
-
-                usesNpsBridge:
-                  false,
-
-                startCandidates
-              });
-            }
+              startCandidates:
+                [startItem]
+            })
           );
-        }
-      );
 
 
       let candidates =
@@ -3884,32 +3960,28 @@ function createCagedExercise(
 
 
       /*
-        No CAGED shape fits THIS coordinate.
+        NO DIRECT CAGED SHAPE AT THIS COORDINATE:
+        start a 2/3-NPS bridge here and connect it into ONE
+        fitting enabled CAGED shape.
 
-        Do NOT try to force a particular failed shape.
-        Find a 2/3-NPS connection into ONE enabled CAGED
-        shape that actually fits.
+        Do not try to connect "into the failed coordinate."
+        The selected coordinate is the NPS START.
       */
       if (
         candidates.length === 0
       ) {
-        const sides =
-          getCagedFallbackSides(
-            modeRoot,
-            modeName,
-            rootAnchor,
-            allowedShapes
-          );
-
         candidates =
           getCagedNpsFallbacks(
             cells,
             modeRoot,
             modeName,
-            rootAnchor,
+            startItem,
             allowedShapes,
             allowedDegrees,
-            sides
+            [
+              'low',
+              'high'
+            ]
           );
       }
 
@@ -3918,9 +3990,9 @@ function createCagedExercise(
         candidates.length === 0
       ) {
         /*
-          Extremely unusual dead end: try another randomly
-          ordered coordinate rather than producing an empty
-          exercise.
+          This particular coordinate cannot produce a valid
+          direct shape or NPS-to-CAGED connection. Continue
+          through the randomized coordinate list.
         */
         continue;
       }
@@ -3931,22 +4003,6 @@ function createCagedExercise(
           candidates
         );
 
-
-      /*
-        With the default Start = R, the visible primary start
-        cue is the exact coordinate chosen in step 2.
-
-        If the user explicitly selects other Start degrees,
-        preserve the existing Start-filter behavior.
-      */
-      const startItem =
-        allowedDegrees.has('R')
-          ? rootAnchor
-          : randomItem(
-              selectedCandidate
-                .startCandidates
-            );
-
       const startInterval =
         getNpsIntervalForPitch(
           midiToPitchClass(
@@ -3954,12 +4010,6 @@ function createCagedExercise(
           ),
           modeRoot,
           modeName
-        );
-
-      const startCellKey =
-        makeCellKey(
-          startItem.stringIndex,
-          startItem.fret
         );
 
 
@@ -4024,17 +4074,19 @@ function createCagedExercise(
             .bridgeStartStringName ||
           null,
 
+        /*
+          The randomly selected coordinate is THE lesson
+          start coordinate, whether the result is direct
+          CAGED or NPS -> CAGED.
+        */
         rootCellKey:
-          makeCellKey(
-            rootAnchor.stringIndex,
-            rootAnchor.fret
-          ),
+          startCellKey,
 
         selectedRootStringIndex:
-          rootAnchor.stringIndex,
+          startItem.stringIndex,
 
         selectedRootFret:
-          rootAnchor.fret,
+          startItem.fret,
 
         startInterval,
 
@@ -5229,45 +5281,13 @@ function buildTrainer() {
     fretboard.appendChild(
       createNpsStartMarker(
         currentCagedExercise,
-        tuning.length
+        tuning.length,
+        currentCagedExercise
+          .usesNpsBridge
+          ? 'cagedNpsStartGuide'
+          : ''
       )
     );
-
-
-    if (
-      currentCagedExercise
-        .usesNpsBridge &&
-      currentCagedExercise
-        .bridgeStartInterval &&
-      Number.isInteger(
-        currentCagedExercise
-          .bridgeStartStringIndex
-      )
-    ) {
-      stage.classList.add(
-        'hasDualStartCue'
-      );
-
-      fretboard.appendChild(
-        createNpsStartMarker(
-          {
-            startInterval:
-              currentCagedExercise
-                .bridgeStartInterval,
-
-            startStringIndex:
-              currentCagedExercise
-                .bridgeStartStringIndex,
-
-            startStringName:
-              currentCagedExercise
-                .bridgeStartStringName
-          },
-          tuning.length,
-          'cagedNpsStartGuide'
-        )
-      );
-    }
 
     return;
   }
