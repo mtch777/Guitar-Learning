@@ -3286,3 +3286,45 @@ body {
   background: var(--section-title-bg) !important;
   color: var(--section-title-text) !important;
 }
+
+
+/* =========================================================
+   FINAL VISUAL FIXES
+   ========================================================= */
+
+/* All top section headers use the same full-width band color. */
+.setupPanel .sectionTitle,
+.promptSection .sectionTitle {
+  background: var(--section-title-bg) !important;
+  color: var(--section-title-text) !important;
+}
+
+/*
+  Fretboard guess targets must remain true circles.
+  Width may shrink to fit a narrow fret; height follows width
+  through aspect-ratio instead of independently using board height.
+*/
+.physicalFretboard .fretboardNote:not(.openStringNote) {
+  height: auto !important;
+  aspect-ratio: 1 / 1 !important;
+}
+
+.physicalFretboard.compact .fretboardNote:not(.openStringNote) {
+  height: auto !important;
+  aspect-ratio: 1 / 1 !important;
+}
+
+@media (max-width: 700px) {
+  .physicalFretboard.compact .fretboardNote:not(.openStringNote) {
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .physicalFretboard .fretboardNote:not(.openStringNote),
+  .physicalFretboard.compact .fretboardNote:not(.openStringNote) {
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+  }
+}
