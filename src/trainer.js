@@ -5135,7 +5135,10 @@ function buildTrainer() {
             .usesNpsBridge &&
           currentCagedExercise
             .bridgeCellKeys
-            .has(key)
+            .has(key) &&
+          key !==
+            currentCagedExercise
+              .connectionCellKey
         ) {
           item.element.classList.add(
             'cagedNpsBridge'
