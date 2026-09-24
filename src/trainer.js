@@ -6106,6 +6106,214 @@ function getIntervalDebugState() {
 window.getGuitarTrainerDebugState = getIntervalDebugState;
 
 
+/* =========================================================
+   LIVE-GUITAR ANSWER HINTS
+
+   The microphone/string classifier may use the CURRENT quiz
+   state as a soft prior when the detected pitch matches one
+   or more remaining answer positions.
+
+   Important:
+     - only REMAINING answers are returned
+     - already-correct positions are excluded
+     - multiple valid positions for the same MIDI are all kept
+     - this does not answer the quiz itself; it only tells the
+       audio layer which physical-string interpretations are
+       currently plausible answers
+   ========================================================= */
+
+function getCurrentAudioAnswerCellKeys() {
+  const lessonType =
+    getLessonType();
+
+  if (
+    lessonType === 'intervals'
+  ) {
+    if (!currentAnswer) {
+      return new Set();
+    }
+
+    return new Set(
+      [
+        ...document.querySelectorAll(
+          '.noteCell'
+        )
+      ]
+        .filter(
+          cell =>
+            cell.dataset.target ===
+              currentAnswer &&
+            !cell.classList.contains(
+              'correct'
+            )
+        )
+        .map(
+          cell =>
+            makeCellKey(
+              Number(
+                cell.dataset.stringIndex
+              ),
+              Number(
+                cell.dataset.fret
+              )
+            )
+        )
+    );
+  }
+
+  if (
+    lessonType === 'shape' &&
+    currentShapeExercise
+  ) {
+    if (
+      currentShapeExercise.phase ===
+      'start'
+    ) {
+      return new Set(
+        [
+          currentShapeExercise
+            .startCellKey
+        ]
+      );
+    }
+
+    return new Set(
+      currentShapeExercise
+        .currentPromptCellKeys
+    );
+  }
+
+  if (
+    lessonType === 'caged' &&
+    currentCagedExercise
+  ) {
+    return new Set(
+      currentCagedExercise
+        .remainingCellKeys
+    );
+  }
+
+  if (
+    lessonType === 'rrPent' &&
+    currentRrPentExercise
+  ) {
+    return new Set(
+      currentRrPentExercise
+        .remainingCellKeys
+    );
+  }
+
+  if (
+    lessonType === 'nps' &&
+    currentNpsExercise
+  ) {
+    return new Set(
+      currentNpsExercise
+        .remainingCellKeys
+    );
+  }
+
+  return new Set();
+}
+
+window.getGuitarTrainerAudioHints =
+  midi => {
+    const midiNumber =
+      Number(midi);
+
+    if (
+      !Number.isInteger(
+        midiNumber
+      )
+    ) {
+      return {
+        hasMatchingAnswer:
+          false,
+
+        answerStrings:
+          [],
+
+        answerPositions:
+          []
+      };
+    }
+
+    const remainingKeys =
+      getCurrentAudioAnswerCellKeys();
+
+    const matchingCells =
+      [
+        ...document.querySelectorAll(
+          '.noteCell'
+        )
+      ].filter(
+        cell => {
+          const key =
+            makeCellKey(
+              Number(
+                cell.dataset.stringIndex
+              ),
+              Number(
+                cell.dataset.fret
+              )
+            );
+
+          return (
+            remainingKeys.has(key) &&
+            Number(
+              cell.dataset.absolutePitch
+            ) === midiNumber
+          );
+        }
+      );
+
+    const answerPositions =
+      matchingCells.map(
+        cell => ({
+          string:
+            Number(
+              cell.dataset.string
+            ),
+
+          fret:
+            Number(
+              cell.dataset.fret
+            ),
+
+          interval:
+            cell.dataset
+              .displayInterval ||
+            cell.dataset.interval ||
+            '',
+
+          octave:
+            Number(
+              cell.dataset.octave
+            )
+        })
+      );
+
+    const answerStrings =
+      [
+        ...new Set(
+          answerPositions.map(
+            position =>
+              position.string
+          )
+        )
+      ];
+
+    return {
+      hasMatchingAnswer:
+        answerPositions.length > 0,
+
+      answerStrings,
+
+      answerPositions
+    };
+  };
+
+
 function intervalTargetComplete() {
   const matchingCells = [
     ...document.querySelectorAll(
