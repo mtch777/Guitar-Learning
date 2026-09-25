@@ -1125,93 +1125,553 @@ export function setupLiveGuitarInput() {
     lastAudibleMidi = null;
   };
 
-  const appendLogRow = async (pluck, result, features) => {
-    if (!logBody || pluck.midi == null) return;
-    const event = currentNoteEvent?.midi === pluck.midi
-      ? currentNoteEvent
-      : { midi: pluck.midi, timestamp: new Date(), pitchConfidence: pluck.pitchConfidence };
+  const dbFromLinear =
+    value =>
+      value > 0
+        ? 20 * Math.log10(value)
+        : -Infinity;
 
-    const candidateText = (event.pitchCandidates || [])
-      .map(x => `${midiToNoteName(x.midi)} ${x.confidence.toFixed(2)}`)
-      .join(", ");
-    if (candidateText) console.debug("Pitch candidates:", candidateText);
+  const formatDb =
+    value =>
+      Number.isFinite(value)
+        ? value.toFixed(1)
+        : "—";
 
-    const row = document.createElement("tr");
-    const values = [
-      event.timestamp.toLocaleTimeString([], {
-        hour: "2-digit", minute: "2-digit", second: "2-digit", fractionalSecondDigits: 3
-      }),
-      midiToNoteName(pluck.midi),
-      String(pluck.midi),
-      Math.max(event.pitchConfidence || 0, pluck.pitchConfidence || 0).toFixed(2),
-      ...result.probabilities.map(p => p.toFixed(2)),
-      `S${result.string} (${result.confidence.toFixed(2)})`
-    ];
+  const formatCandidateStrings =
+    midi => {
+      if (!Number.isInteger(midi)) {
+        return "—";
+      }
 
-    const quizState = window.getGuitarTrainerDebugState?.() || {
-      prompt: "—", played: "—", remaining: "—"
+      const candidates =
+        candidateStringsForMidi(midi);
+
+      return candidates.length
+        ? candidates
+            .map(
+              candidate =>
+                "S" +
+                candidate.string
+            )
+            .join(" / ")
+        : "none";
     };
-    let featureShift = "—";
+
+  const appendCells =
+    (row, values) => {
+      for (const value of values) {
+        const cell =
+          document.createElement(
+            "td"
+          );
+
+        cell.textContent =
+          value;
+
+        row.appendChild(
+          cell
+        );
+      }
+    };
+
+  const appendDetectionRow =
+    values => {
+      if (!logBody) {
+        return;
+      }
+
+      const row =
+        document.createElement(
+          "tr"
+        );
+
+      appendCells(
+        row,
+        values
+      );
+
+      logBody.appendChild(
+        row
+      );
+
+      const scroll =
+        logBody.closest(
+          ".guitarInputLogScroll"
+        );
+
+      if (scroll) {
+        scroll.scrollTop =
+          scroll.scrollHeight;
+      }
+    };
+
+  let lastRejectedDiagnosticAt = 0;
+  let lastRejectedDiagnosticKey = "";
+
+  const maybeLogRejectedFrame =
+    frame => {
+      if (!logBody) {
+        return;
+      }
+
+      const bufferState =
+        pluckBuffer
+          .getDiagnostics();
+
+      /*
+        Ignore pure background noise. We only create a diagnostic
+        row when the input is close enough to the pluck threshold
+        that it could plausibly be an attempted note.
+      */
+      if (
+        !Number.isFinite(
+          frame.dbfs
+        ) ||
+        frame.dbfs <
+          bufferState.minDbfs -
+            12
+      ) {
+        return;
+      }
+
+      let decision = "";
+
+      if (!bufferState.armed) {
+        decision =
+          "Not triggered: waiting for signal to fall below " +
+          bufferState.releaseDbfs +
+          " dBFS before re-arming";
+      } else if (
+        frame.dbfs <
+        bufferState.minDbfs
+      ) {
+        decision =
+          "Not triggered: input " +
+          frame.dbfs.toFixed(1) +
+          " dBFS < " +
+          bufferState.minDbfs +
+          " dBFS pluck threshold";
+      } else if (
+        frame.midi == null
+      ) {
+        decision =
+          "Not triggered: no stable pitch detected";
+      } else if (
+        frame.pitchConfidence <
+        0.55
+      ) {
+        decision =
+          "Not triggered: pitch confidence " +
+          frame.pitchConfidence.toFixed(2) +
+          " < 0.55";
+      } else if (
+        bufferState.active
+      ) {
+        decision =
+          "Capturing pluck (" +
+          Math.round(
+            (
+              bufferState
+                .capturedSamples /
+              Math.max(
+                1,
+                bufferState
+                  .sampleRate ||
+                frame.sampleRate
+              )
+            ) *
+            1000
+          ) +
+          " ms buffered)";
+      } else {
+        return;
+      }
+
+      const key =
+        [
+          decision,
+          frame.midi ?? "none"
+        ].join("|");
+
+      const now =
+        performance.now();
+
+      if (
+        key ===
+          lastRejectedDiagnosticKey &&
+        now -
+          lastRejectedDiagnosticAt <
+          500
+      ) {
+        return;
+      }
+
+      lastRejectedDiagnosticKey =
+        key;
+
+      lastRejectedDiagnosticAt =
+        now;
+
+      const quizState =
+        window
+          .getGuitarTrainerDebugState?.() ||
+        {
+          prompt: "—",
+          played: "—",
+          remaining: "—"
+        };
+
+      appendDetectionRow([
+        new Date()
+          .toLocaleTimeString(
+            [],
+            {
+              hour:
+                "2-digit",
+              minute:
+                "2-digit",
+              second:
+                "2-digit",
+              fractionalSecondDigits:
+                3
+            }
+          ),
+
+        Number.isInteger(
+          frame.midi
+        )
+          ? midiToNoteName(
+              frame.midi
+            )
+          : "—",
+
+        Number.isInteger(
+          frame.midi
+        )
+          ? String(
+              frame.midi
+            )
+          : "—",
+
+        Number.isFinite(
+          frame.pitchConfidence
+        )
+          ? frame
+              .pitchConfidence
+              .toFixed(2)
+          : "—",
+
+        formatDb(
+          frame.dbfs
+        ),
+
+        formatDb(
+          dbFromLinear(
+            frame.peak
+          )
+        ),
+
+        bufferState.active
+          ? "capturing"
+          : "no",
+
+        formatCandidateStrings(
+          frame.midi
+        ),
+
+        "—","—","—","—",
+        "—","—","—","—",
+
+        "—",
+        "—",
+        decision,
+
+        quizState.prompt,
+        "Played: " +
+          quizState.played +
+          " | Remaining: " +
+          quizState.remaining,
+
+        "—"
+      ]);
+    };
+
+  const appendLogRow = async (
+    pluck,
+    rawResult,
+    result,
+    features
+  ) => {
+    if (
+      !logBody ||
+      pluck.midi == null
+    ) {
+      return;
+    }
+
+    const event =
+      currentNoteEvent?.midi ===
+        pluck.midi
+        ? currentNoteEvent
+        : {
+            midi:
+              pluck.midi,
+
+            timestamp:
+              new Date(),
+
+            pitchConfidence:
+              pluck.pitchConfidence,
+
+            pitchCandidates:
+              []
+          };
+
+    const candidateText =
+      formatCandidateStrings(
+        pluck.midi
+      );
+
+    const attackPeakDbfs =
+      Number(
+        features?.[102]
+      );
+
+    const attackRms100Dbfs =
+      Number(
+        features?.[104]
+      );
+
+    const quizState =
+      window
+        .getGuitarTrainerDebugState?.() ||
+      {
+        prompt: "—",
+        played: "—",
+        remaining: "—"
+      };
+
+    let featureShift =
+      "—";
+
     try {
-      featureShift = await summarizeFeatureShift(features);
+      featureShift =
+        await summarizeFeatureShift(
+          features
+        );
     } catch (error) {
-      featureShift = "diagnostic error";
-      console.error("Feature shift diagnostics:", error);
+      featureShift =
+        "diagnostic error";
+
+      console.error(
+        "Feature shift diagnostics:",
+        error
+      );
     }
-    values.push(
+
+    const rawPick =
+      "S" +
+      rawResult.string +
+      " (" +
+      rawResult
+        .confidence
+        .toFixed(2) +
+      ")";
+
+    const finalPick =
+      "S" +
+      result.string +
+      " (" +
+      result
+        .confidence
+        .toFixed(2) +
+      ")";
+
+    const decision =
+      result.contextAdjusted
+        ? (
+            rawResult.string ===
+              result.string
+              ? (
+                  "Accepted S" +
+                  result.string +
+                  "; quiz bias adjusted confidence"
+                )
+              : (
+                  "Quiz bias changed S" +
+                  rawResult.string +
+                  " → S" +
+                  result.string
+                )
+          )
+        : (
+            "Accepted S" +
+            result.string
+          );
+
+    appendDetectionRow([
+      event.timestamp
+        .toLocaleTimeString(
+          [],
+          {
+            hour:
+              "2-digit",
+            minute:
+              "2-digit",
+            second:
+              "2-digit",
+            fractionalSecondDigits:
+              3
+          }
+        ),
+
+      midiToNoteName(
+        pluck.midi
+      ),
+
+      String(
+        pluck.midi
+      ),
+
+      Math.max(
+        event.pitchConfidence ||
+          0,
+        pluck.pitchConfidence ||
+          0
+      ).toFixed(2),
+
+      formatDb(
+        attackRms100Dbfs
+      ),
+
+      formatDb(
+        attackPeakDbfs
+      ),
+
+      "captured",
+
+      candidateText,
+
+      ...rawResult
+        .probabilities
+        .map(
+          probability =>
+            probability.toFixed(2)
+        ),
+
+      rawPick,
+      finalPick,
+      decision,
+
       quizState.prompt,
-      `Played: ${quizState.played} | Remaining: ${quizState.remaining}`,
+
+      "Played: " +
+        quizState.played +
+        " | Remaining: " +
+        quizState.remaining,
+
       featureShift
-    );
-    for (const value of values) {
-      const cell = document.createElement("td");
-      cell.textContent = value;
-      row.appendChild(cell);
-    }
-    logBody.appendChild(row);
-    logBody.closest(".guitarInputLogScroll")?.scrollTo({
-      top: logBody.closest(".guitarInputLogScroll").scrollHeight,
-      behavior: "smooth"
-    });
-    currentNoteEvent = null;
+    ]);
+
+    currentNoteEvent =
+      null;
   };
 
 
-  window.addEventListener("guitar-manual-fret-click", event => {
-    if (!logBody) return;
-    const detail = event.detail || {};
-    const before = window.getGuitarTrainerDebugState?.() || {
-      prompt: "—", played: "—", remaining: "—"
-    };
-
-    // Let the trainer's click handler finish first so the row reflects the
-    // resulting played/remaining state.
-    queueMicrotask(() => {
-      const after = window.getGuitarTrainerDebugState?.() || before;
-      const row = document.createElement("tr");
-      const values = [
-        new Date().toLocaleTimeString([], {
-          hour: "2-digit", minute: "2-digit", second: "2-digit", fractionalSecondDigits: 3
-        }),
-        detail.note || (Number.isFinite(detail.midi) ? midiToNoteName(detail.midi) : "—"),
-        Number.isFinite(detail.midi) ? String(detail.midi) : "—",
-        "MANUAL",
-        "—", "—", "—", "—", "—", "—", "—", "—",
-        `S${detail.string} F${detail.fret} manual`,
-        before.prompt,
-        `Played: ${after.played} | Remaining: ${after.remaining}`,
-        "—"
-      ];
-      for (const value of values) {
-        const cell = document.createElement("td");
-        cell.textContent = value;
-        row.appendChild(cell);
+  window.addEventListener(
+    "guitar-manual-fret-click",
+    event => {
+      if (!logBody) {
+        return;
       }
-      logBody.appendChild(row);
-      const scroll = logBody.closest(".guitarInputLogScroll");
-      if (scroll) scroll.scrollTop = scroll.scrollHeight;
-    });
-  });
+
+      const detail =
+        event.detail || {};
+
+      const before =
+        window
+          .getGuitarTrainerDebugState?.() ||
+        {
+          prompt: "—",
+          played: "—",
+          remaining: "—"
+        };
+
+      queueMicrotask(
+        () => {
+          const after =
+            window
+              .getGuitarTrainerDebugState?.() ||
+            before;
+
+          appendDetectionRow([
+            new Date()
+              .toLocaleTimeString(
+                [],
+                {
+                  hour:
+                    "2-digit",
+                  minute:
+                    "2-digit",
+                  second:
+                    "2-digit",
+                  fractionalSecondDigits:
+                    3
+                }
+              ),
+
+            detail.note ||
+              (
+                Number.isFinite(
+                  detail.midi
+                )
+                  ? midiToNoteName(
+                      detail.midi
+                    )
+                  : "—"
+              ),
+
+            Number.isFinite(
+              detail.midi
+            )
+              ? String(
+                  detail.midi
+                )
+              : "—",
+
+            "MANUAL",
+            "—",
+            "—",
+            "manual",
+            formatCandidateStrings(
+              Number(
+                detail.midi
+              )
+            ),
+
+            "—","—","—","—",
+            "—","—","—","—",
+
+            "—",
+            "S" +
+              detail.string +
+              " F" +
+              detail.fret,
+            "Manual fret click",
+
+            before.prompt,
+
+            "Played: " +
+              after.played +
+              " | Remaining: " +
+              after.remaining,
+
+            "—"
+          ]);
+        }
+      );
+    }
+  );
 
   if (!button) return;
 
@@ -1408,6 +1868,7 @@ export function setupLiveGuitarInput() {
 
               appendLogRow(
                 completedPluck,
+                rawResult,
                 result,
                 features
               );
@@ -1491,6 +1952,10 @@ export function setupLiveGuitarInput() {
             }
           }
         }
+
+        maybeLogRejectedFrame(
+          frame
+        );
 
         if (frame.midi == null || frame.pitchConfidence < 0.55) {
           endAudibleNote();
