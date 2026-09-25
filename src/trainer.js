@@ -1135,6 +1135,16 @@ function getSelectedDirections() {
     .map(input => input.value);
 }
 
+function getRrColorNotesEnabled() {
+  return Boolean(
+    document
+      .getElementById(
+        'rrColorToggle'
+      )
+      ?.checked
+  );
+}
+
 function getDirectionLabel(value) {
   const found = directionOptions.find(([optionValue]) => optionValue === value);
   return found ? found[1] : value;
@@ -1213,6 +1223,13 @@ function updateLessonControls() {
     )
     .hidden =
       !caged;
+
+  document
+    .getElementById(
+      'rrColorControl'
+    )
+    .hidden =
+      !rrPent;
 
   document
     .getElementById(
@@ -2344,8 +2361,9 @@ function getRrPentGroups(modeName) {
   ];
 
   if (
+    getRrColorNotesEnabled() &&
     modeName ===
-    'phrygian'
+      'phrygian'
   ) {
     const colorNote = {
       semitone:
@@ -2376,10 +2394,13 @@ function getRrPentGroups(modeName) {
   }
 
   if (
-    modeName ===
-      'dorian' ||
-    modeName ===
-      'aeolian'
+    getRrColorNotesEnabled() &&
+    (
+      modeName ===
+        'dorian' ||
+      modeName ===
+        'aeolian'
+    )
   ) {
     groupB.push({
       semitone:
@@ -7219,6 +7240,23 @@ document.addEventListener(
       );
   }
 );
+
+
+document
+  .getElementById(
+    'rrColorToggle'
+  )
+  .addEventListener(
+    'change',
+    () => {
+      if (
+        getLessonType() ===
+        'rrPent'
+      ) {
+        buildTrainer();
+      }
+    }
+  );
 
 
 /* =========================================================
