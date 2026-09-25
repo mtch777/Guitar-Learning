@@ -137,7 +137,11 @@ select.stateSelect {
 }
 
 .settingsSection > :not(.sectionTitle) {
-  margin: 10px var(--panel-inline-buffer) 12px;
+  margin: 0;
+  padding:
+    10px
+    var(--panel-inline-buffer)
+    12px;
 }
 
 .controlField:not([hidden]) {
