@@ -545,6 +545,9 @@ function getTuning() {
   return [...currentTuning];
 }
 
+window.getGuitarTrainerTuning =
+  () => getTuning();
+
 function randomItem(list) {
   return list[
     Math.floor(
