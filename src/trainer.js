@@ -90,6 +90,26 @@ document
       )
     ];
 
+/*
+  Browser form-state restoration can override HTML "selected"
+  and "checked" defaults on reload/back-forward navigation.
+  Set the app defaults explicitly before the visible controls
+  are synchronized from their hidden state elements.
+*/
+document
+  .getElementById(
+    'lessonTypeSelect'
+  )
+  .value =
+    'rrPent';
+
+document
+  .getElementById(
+    'rrColorToggle'
+  )
+  .checked =
+    false;
+
 // Visible single-selects share one component; hidden native selects remain state only.
 buildUnifiedSingleSelect('lessonTypeDropdown', 'lessonTypeSelect');
 buildUnifiedSingleSelect('rootDropdown', 'rootSelect', 'rootOptions');
