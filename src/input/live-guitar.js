@@ -228,6 +228,10 @@ export function setupLiveGuitarInput() {
   const string = document.getElementById("guitarDetectedString");
   const confidence = document.getElementById("guitarConfidence");
   const logBody = document.getElementById("guitarInputLogBody");
+  const calibrationButton = document.getElementById("guitarCalibrationButton");
+  const calibrationPanel = document.getElementById("guitarCalibrationPanel");
+  const calibrationPrompt = document.getElementById("guitarCalibrationPrompt");
+  const calibrationResult = document.getElementById("guitarCalibrationResult");
   let lastClassificationText = "Classifier: waiting for pluck";
   let currentNoteEvent = null;
   let lastAudibleMidi = null;
@@ -311,6 +315,465 @@ export function setupLiveGuitarInput() {
     if (f0 === f1) return d0;
     return d0 + (d1 - d0) * ((fret - f0) / (f1 - f0));
   };
+
+  /*
+    Guitar-volume calibration uses the SAME attack_rms_100_dbfs
+    measurement as the ringing dataset.
+
+    String selection is data-driven:
+      - two loudest strings -> hard picks
+      - two middle-ranked strings -> normal picks
+      - two quietest strings -> soft picks
+
+    Gain-knob degrees are an estimate for the user's Scarlett 8i6 3rd Gen:
+    its instrument-input gain range is 56 dB. We approximate the useful
+    knob travel as 300 degrees, so one dB is about 5.36 degrees.
+  */
+  const CALIBRATION_KNOB_TRAVEL_DEGREES = 300;
+  const CALIBRATION_GAIN_RANGE_DB = 56;
+  const CALIBRATION_DEGREES_PER_DB =
+    CALIBRATION_KNOB_TRAVEL_DEGREES /
+    CALIBRATION_GAIN_RANGE_DB;
+
+  let calibrationActive = false;
+  let calibrationPendingStart = false;
+  let calibrationCases = [];
+  let calibrationIndex = 0;
+
+  const mean = values =>
+    values.reduce(
+      (sum, value) =>
+        sum + value,
+      0
+    ) /
+    values.length;
+
+  const getCalibrationStringRanking = () => {
+    const strengths =
+      ["soft", "normal", "hard"];
+
+    return Array.from(
+      {
+        length:
+          DATASET_VOLUME_MAP
+            .normal.length
+      },
+      (
+        _,
+        index
+      ) => ({
+        string:
+          index + 1,
+
+        meanDb:
+          mean(
+            strengths.flatMap(
+              strength =>
+                DATASET_VOLUME_MAP[
+                  strength
+                ][index]
+            )
+          )
+      })
+    )
+      .sort(
+        (a, b) =>
+          b.meanDb -
+          a.meanDb
+      )
+      .map(
+        item =>
+          item.string
+      );
+  };
+
+  const getCalibrationTuning = () => {
+    const trainerTuning =
+      window
+        .getGuitarTrainerTuning?.();
+
+    return (
+      Array.isArray(
+        trainerTuning
+      ) &&
+      trainerTuning.length === 8
+    )
+      ? trainerTuning
+      : [...openMidis];
+  };
+
+  const buildCalibrationCases = () => {
+    const ranked =
+      getCalibrationStringRanking();
+
+    const loudest =
+      ranked.slice(0, 2);
+
+    const middleStart =
+      Math.floor(
+        (
+          ranked.length -
+          2
+        ) /
+        2
+      );
+
+    const middle =
+      ranked.slice(
+        middleStart,
+        middleStart + 2
+      );
+
+    const quietest =
+      ranked.slice(-2);
+
+    return [
+      ...loudest.map(
+        stringNumber => ({
+          strength: "hard",
+          instruction:
+            "Pick as hard as you can",
+          string:
+            stringNumber
+        })
+      ),
+
+      ...middle.map(
+        stringNumber => ({
+          strength: "normal",
+          instruction:
+            "Pick normally",
+          string:
+            stringNumber
+        })
+      ),
+
+      ...quietest.map(
+        stringNumber => ({
+          strength: "soft",
+          instruction:
+            "Pick as softly as you can",
+          string:
+            stringNumber
+        })
+      )
+    ].map(
+      item => ({
+        ...item,
+
+        /*
+          Use the open-string anchor from the existing dataset,
+          because calibration prompts specifically ask for the
+          open string.
+        */
+        targetDb:
+          DATASET_VOLUME_MAP[
+            item.strength
+          ][
+            item.string - 1
+          ][0]
+      })
+    );
+  };
+
+  const formatCalibrationPrompt = () => {
+    if (
+      !calibrationActive
+    ) {
+      return;
+    }
+
+    const target =
+      calibrationCases[
+        calibrationIndex
+      ];
+
+    if (!target) {
+      calibrationActive =
+        false;
+
+      if (calibrationButton) {
+        calibrationButton
+          .textContent =
+            "Calibrate guitar volume";
+      }
+
+      if (calibrationPrompt) {
+        calibrationPrompt
+          .textContent =
+            "Calibration complete.";
+      }
+
+      return;
+    }
+
+    const tuning =
+      getCalibrationTuning();
+
+    const openMidi =
+      tuning[
+        target.string - 1
+      ];
+
+    const noteName =
+      Number.isFinite(
+        openMidi
+      )
+        ? midiToNoteName(
+            openMidi
+          )
+        : "";
+
+    if (calibrationPrompt) {
+      calibrationPrompt
+        .textContent =
+          (
+            calibrationIndex + 1
+          ) +
+          "/" +
+          calibrationCases.length +
+          " · " +
+          target.instruction +
+          " on open String " +
+          target.string +
+          (
+            noteName
+              ? " (" +
+                noteName +
+                ")"
+              : ""
+          ) +
+          ".";
+    }
+  };
+
+  const stopVolumeCalibration = (
+    message =
+      "Calibration cancelled."
+  ) => {
+    calibrationActive = false;
+    calibrationPendingStart = false;
+
+    if (calibrationButton) {
+      calibrationButton
+        .textContent =
+          "Calibrate guitar volume";
+    }
+
+    if (calibrationPrompt) {
+      calibrationPrompt
+        .textContent =
+          message;
+    }
+  };
+
+  const startVolumeCalibration = () => {
+    calibrationCases =
+      buildCalibrationCases();
+
+    calibrationIndex = 0;
+    calibrationActive = true;
+    calibrationPendingStart = false;
+
+    if (calibrationPanel) {
+      calibrationPanel.hidden =
+        false;
+    }
+
+    if (calibrationButton) {
+      calibrationButton
+        .textContent =
+          "Cancel calibration";
+    }
+
+    if (calibrationResult) {
+      calibrationResult
+        .textContent =
+          "Follow each prompt; the next pluck is measured automatically.";
+    }
+
+    formatCalibrationPrompt();
+  };
+
+  const recommendGainAdjustment = (
+    measuredDb,
+    targetDb
+  ) => {
+    const gainChangeDb =
+      targetDb -
+      measuredDb;
+
+    if (
+      Math.abs(
+        gainChangeDb
+      ) < 0.75
+    ) {
+      return (
+        "Gain is on target; leave the knob where it is."
+      );
+    }
+
+    const degrees =
+      Math.max(
+        5,
+        Math.round(
+          (
+            Math.abs(
+              gainChangeDb
+            ) *
+            CALIBRATION_DEGREES_PER_DB
+          ) /
+          5
+        ) *
+        5
+      );
+
+    const direction =
+      gainChangeDb > 0
+        ? "clockwise"
+        : "counter-clockwise";
+
+    return (
+      "Turn the interface gain knob about " +
+      degrees +
+      "° " +
+      direction +
+      " (" +
+      Math.abs(
+        gainChangeDb
+      ).toFixed(1) +
+      " dB)."
+    );
+  };
+
+  const handleCalibrationPluck = (
+    completedPluck,
+    features
+  ) => {
+    if (
+      !calibrationActive
+    ) {
+      return;
+    }
+
+    const target =
+      calibrationCases[
+        calibrationIndex
+      ];
+
+    if (!target) {
+      formatCalibrationPrompt();
+      return;
+    }
+
+    const measuredDb =
+      Number(
+        features?.[104]
+      );
+
+    if (
+      !Number.isFinite(
+        measuredDb
+      )
+    ) {
+      if (calibrationResult) {
+        calibrationResult
+          .textContent =
+            "Could not measure that pluck. Try again.";
+      }
+
+      return;
+    }
+
+    const recommendation =
+      recommendGainAdjustment(
+        measuredDb,
+        target.targetDb
+      );
+
+    if (calibrationResult) {
+      calibrationResult
+        .textContent =
+          "Measured " +
+          measuredDb.toFixed(1) +
+          " dBFS · target " +
+          target.targetDb.toFixed(1) +
+          " dBFS. " +
+          recommendation;
+    }
+
+    calibrationIndex++;
+
+    if (
+      calibrationIndex >=
+      calibrationCases.length
+    ) {
+      calibrationActive =
+        false;
+
+      if (calibrationButton) {
+        calibrationButton
+          .textContent =
+            "Calibrate guitar volume";
+      }
+
+      if (calibrationPrompt) {
+        calibrationPrompt
+          .textContent =
+            "Calibration complete.";
+      }
+
+      return;
+    }
+
+    formatCalibrationPrompt();
+  };
+
+  calibrationButton
+    ?.addEventListener(
+      "click",
+      () => {
+        if (
+          calibrationActive ||
+          calibrationPendingStart
+        ) {
+          stopVolumeCalibration();
+          return;
+        }
+
+        if (calibrationPanel) {
+          calibrationPanel.hidden =
+            false;
+        }
+
+        if (microphone) {
+          startVolumeCalibration();
+          return;
+        }
+
+        calibrationPendingStart =
+          true;
+
+        if (calibrationPrompt) {
+          calibrationPrompt
+            .textContent =
+              "Enable microphone access to start calibration.";
+        }
+
+        if (calibrationResult) {
+          calibrationResult
+            .textContent =
+              "Waiting for microphone permission…";
+        }
+
+        /*
+          Reuse the existing microphone button flow so there is
+          only one microphone lifecycle implementation.
+        */
+        button?.click();
+      }
+    );
+
 
   // Targeted follow-up set for the 12 leave-one-pitch-out errors.
   // Four single-take failures get soft/normal/hard repeats.
@@ -759,6 +1222,16 @@ export function setupLiveGuitarInput() {
       pluckBuffer.reset();
       button.textContent = "Enable";
       status.textContent = "Stopped";
+
+      if (
+        calibrationActive ||
+        calibrationPendingStart
+      ) {
+        stopVolumeCalibration(
+          "Calibration stopped because the microphone was disabled."
+        );
+      }
+
       return;
     }
 
@@ -776,6 +1249,11 @@ export function setupLiveGuitarInput() {
           const features = extractRingingFeatures(
             completedPluck.samples,
             completedPluck.sampleRate
+          );
+
+          handleCalibrationPluck(
+            completedPluck,
+            features
           );
 
           // Dataset recording is intentionally driven by the prompted physical
@@ -1073,9 +1551,24 @@ export function setupLiveGuitarInput() {
       const { sampleRate } = await microphone.start();
       button.textContent = "Disable";
       status.textContent = "Listening · " + sampleRate + " Hz";
+
+      if (
+        calibrationPendingStart
+      ) {
+        startVolumeCalibration();
+      }
     } catch (error) {
       microphone = null;
       status.textContent = "Microphone error: " + error.message;
+
+      if (
+        calibrationPendingStart
+      ) {
+        stopVolumeCalibration(
+          "Calibration could not start: " +
+          error.message
+        );
+      }
     } finally {
       button.disabled = false;
     }
