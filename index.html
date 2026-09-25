@@ -133,10 +133,15 @@
     <section class="guitarInputPanel">
       <div class="guitarInputIdentity"><span class="guitarIcon">🎙️</span><strong>Guitar Input</strong></div>
       <button id="guitarInputButton" class="uiButton" type="button">Enable</button>
+      <button id="guitarCalibrationButton" class="uiButton" type="button">Calibrate guitar volume</button>
       <span id="guitarInputStatus" class="inputStatus">● Stopped</span>
       <span class="inputMetric">Note <strong id="guitarDetectedNote">—</strong></span>
       <span class="inputMetric">String <strong id="guitarDetectedString">—</strong></span>
       <span id="guitarConfidence" class="inputMetric">Pitch —</span>
+      <div id="guitarCalibrationPanel" class="guitarCalibrationPanel" hidden>
+        <strong id="guitarCalibrationPrompt"></strong>
+        <span id="guitarCalibrationResult"></span>
+      </div>
     </section>
 
     <section class="guitarInputPanel" aria-label="Classifier dataset recorder">
