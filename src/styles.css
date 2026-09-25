@@ -691,11 +691,19 @@ button.uiButton:disabled {
 }
 
 .fretboardStage {
+  --note-max-size: 38px;
+  --note-fret-gap: 4px;
+  --fretboard-note-size: 38px;
+
   display: grid;
   grid-template-columns: 0 var(--open-string-gutter) minmax(0, 1fr);
   width: 100%;
   min-width: 0;
   overflow: visible;
+}
+
+.fretboardStage.compact {
+  --note-max-size: 30px;
 }
 
 .fretboardStage.hasStartCue {
@@ -813,31 +821,21 @@ button.uiButton:disabled {
   z-index: 10;
 }
 
-.physicalFretboard .fretboardNote:not(.openStringNote) {
-  width: min(38px, calc(100% / var(--fret-count) - 4px));
-  height: auto;
-  aspect-ratio: 1 / 1;
+.fretboardStage .fretboardNote {
+  width: var(--fretboard-note-size);
+  height: var(--fretboard-note-size);
 }
 
-.physicalFretboard.compact .fretboardNote:not(.openStringNote) {
-  width: min(30px, calc(100% / var(--fret-count) - 4px));
+.fretboardStage.compact .fretboardNote {
   font-size: 12px;
 }
 
 .fretboardOpenStrings .openStringNote {
   left: 50%;
-  width: 38px;
-  height: 38px;
   border-color: var(--border-color);
   background: var(--header-bg);
   color: var(--text-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, .24);
-}
-
-.fretboardStage.compact .fretboardOpenStrings .openStringNote {
-  width: 34px;
-  height: 34px;
-  font-size: 12px;
 }
 
 .fretboardNote .intervalDisplay {
@@ -947,6 +945,36 @@ button.uiButton:disabled {
 /* =========================================================
    LIVE GUITAR / DIAGNOSTICS
    ========================================================= */
+
+.modelDataCollection {
+  width: max-content;
+  max-width: 100%;
+  margin: 0 0 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 7px;
+  background: var(--control-bg);
+  overflow: hidden;
+}
+
+.modelDataCollection > summary {
+  padding: 8px 10px;
+  background: var(--header-bg);
+  font-weight: 700;
+  cursor: pointer;
+  list-style-position: inside;
+}
+
+.modelDataCollectionBody {
+  padding: 10px;
+}
+
+.modelDataCollectionBody .guitarInputPanel {
+  margin-top: 0;
+}
+
+.modelDataCollectionBody .guitarInputLogPanel {
+  margin-bottom: 0;
+}
 
 .guitarInputPanel {
   display: flex;
@@ -1109,14 +1137,20 @@ button.uiButton:disabled {
     height: 340px;
   }
 
-  .physicalFretboard.compact .fretboardNote:not(.openStringNote) {
-    width: min(24px, calc(100% / var(--fret-count) - 3px));
+  .fretboardStage {
+    --note-max-size: 30px;
+    --note-fret-gap: 3px;
+  }
+
+  .fretboardStage.compact {
+    --note-max-size: 24px;
+  }
+
+  .fretboardStage.compact .fretboardNote {
     font-size: 10px;
   }
 
   .fretboardOpenStrings .openStringNote {
-    width: 30px;
-    height: 30px;
     font-size: 11px;
   }
 }
@@ -1128,15 +1162,17 @@ button.uiButton:disabled {
     height: clamp(210px, 58vh, 260px);
   }
 
-  .physicalFretboard .fretboardNote:not(.openStringNote),
-  .physicalFretboard.compact .fretboardNote:not(.openStringNote) {
-    width: min(26px, calc(100% / var(--fret-count) - 3px));
+  .fretboardStage,
+  .fretboardStage.compact {
+    --note-max-size: 26px;
+    --note-fret-gap: 3px;
+  }
+
+  .fretboardStage .fretboardNote {
     font-size: 10px;
   }
 
   .fretboardOpenStrings .openStringNote {
-    width: 28px;
-    height: 28px;
     font-size: 11px;
   }
 
