@@ -39,6 +39,19 @@ export class RingingPluckBuffer {
     this.bestPitchConfidence = 0;
   }
 
+  getDiagnostics() {
+    return {
+      active: this.active,
+      armed: this.armed,
+      releaseCount: this.releaseCount,
+      minDbfs: this.minDbfs,
+      releaseDbfs: this.releaseDbfs,
+      captureSeconds: this.captureSeconds,
+      capturedSamples: this.length,
+      sampleRate: this.sampleRate
+    };
+  }
+
   push(frame) {
     if (!frame?.samples?.length || !frame.sampleRate) return null;
 
