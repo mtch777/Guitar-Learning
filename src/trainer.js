@@ -2269,68 +2269,132 @@ function getNpsExerciseCandidates(
 /* =========================================================
    R-R PENTATONIC + COLOR NOTES
 
-   Alternating two-string pattern:
-     A: R - 3 - 4
-     B: 5 - 7 - R
+   Repeating string pattern:
+
+     String 1: R - 3
+     String 2: 5
+     String 3: 7 - R - 3
+     String 4: 5
+     String 5: 7 - R - 3
+     ...
+
+   The R on each third-pattern string begins the next cycle.
 
    Color-note additions:
-     Dorian   -> natural 6
-     Aeolian  -> b6
-     Phrygian -> b2
+     Phrygian -> b2 beside R - b3
+     Dorian   -> 6 beside 5
+     Aeolian  -> b6 beside 5
    ========================================================= */
 
 function getRrPentGroups(modeName) {
-  const scale = scales[modeName];
+  const scale =
+    scales[modeName];
 
-  /*
-    Repeating two-string grouping:
-
-      A: R - 3 - 4
-      B: 5 - 7
-
-    Modal color notes stay in the group where they occur
-    chromatically:
-      Phrygian b2 -> A
-      Dorian 6     -> B
-      Aeolian b6   -> B
-  */
   const groupA = [
-    { semitone: scale[0][0], interval: scale[0][1] },
-    { semitone: scale[2][0], interval: scale[2][1] },
-    { semitone: scale[3][0], interval: scale[3][1] }
+    {
+      semitone:
+        scale[0][0],
+
+      interval:
+        scale[0][1]
+    },
+    {
+      semitone:
+        scale[2][0],
+
+      interval:
+        scale[2][1]
+    }
   ];
 
   const groupB = [
-    { semitone: scale[4][0], interval: scale[4][1] },
-    { semitone: scale[6][0], interval: scale[6][1] }
+    {
+      semitone:
+        scale[4][0],
+
+      interval:
+        scale[4][1]
+    }
   ];
 
-  if (modeName === 'phrygian') {
+  /*
+    C finishes the current cycle with 7, then immediately
+    begins the next cycle on the SAME string with R - 3.
+  */
+  const groupC = [
+    {
+      semitone:
+        scale[6][0],
+
+      interval:
+        scale[6][1]
+    },
+    {
+      semitone: 12,
+      interval: 'R'
+    },
+    {
+      semitone:
+        12 +
+        scale[2][0],
+
+      interval:
+        scale[2][1]
+    }
+  ];
+
+  if (
+    modeName ===
+    'phrygian'
+  ) {
+    const colorNote = {
+      semitone:
+        scale[1][0],
+
+      interval:
+        scale[1][1]
+    };
+
     groupA.splice(
       1,
       0,
+      colorNote
+    );
+
+    groupC.splice(
+      2,
+      0,
       {
-        semitone: scale[1][0],
-        interval: scale[1][1]
+        semitone:
+          12 +
+          colorNote.semitone,
+
+        interval:
+          colorNote.interval
       }
     );
   }
 
   if (
-    modeName === 'dorian' ||
-    modeName === 'aeolian'
+    modeName ===
+      'dorian' ||
+    modeName ===
+      'aeolian'
   ) {
-    groupB.splice(
-      1,
-      0,
-      {
-        semitone: scale[5][0],
-        interval: scale[5][1]
-      }
-    );
+    groupB.push({
+      semitone:
+        scale[5][0],
+
+      interval:
+        scale[5][1]
+    });
   }
 
-  return { A: groupA, B: groupB };
+  return {
+    A: groupA,
+    B: groupB,
+    C: groupC
+  };
 }
 
 function buildRrPentPlacementsForString(
@@ -2425,14 +2489,46 @@ function buildRrPentPlacementsForString(
   return placements;
 }
 
+function getRrPentTransition(
+  groupName
+) {
+  if (
+    groupName === 'A'
+  ) {
+    return {
+      nextGroupName: 'B',
+      cycleShift: 0
+    };
+  }
+
+  if (
+    groupName === 'B'
+  ) {
+    return {
+      nextGroupName: 'C',
+      cycleShift: 0
+    };
+  }
+
+  return {
+    nextGroupName: 'B',
+    cycleShift: 12
+  };
+}
+
 function rrPentPlacementsConnect(
   lowerPlacement,
   upperPlacement,
   modeName
 ) {
+  const transition =
+    getRrPentTransition(
+      lowerPlacement.groupName
+    );
+
   if (
-    lowerPlacement.groupName ===
-    upperPlacement.groupName
+    upperPlacement.groupName !==
+      transition.nextGroupName
   ) {
     return false;
   }
@@ -2442,6 +2538,29 @@ function rrPentPlacementsConnect(
       modeName
     );
 
+  const lowerGroup =
+    groups[
+      lowerPlacement.groupName
+    ];
+
+  const upperGroup =
+    groups[
+      upperPlacement.groupName
+    ];
+
+  const lowerLastSemitone =
+    lowerGroup[
+      lowerGroup.length - 1
+    ].semitone;
+
+  const upperFirstSemitone =
+    transition.cycleShift +
+    upperGroup[0].semitone;
+
+  const expectedGap =
+    upperFirstSemitone -
+    lowerLastSemitone;
+
   const lowerLast =
     lowerPlacement.chosen[
       lowerPlacement.chosen.length - 1
@@ -2449,22 +2568,6 @@ function rrPentPlacementsConnect(
 
   const upperFirst =
     upperPlacement.chosen[0];
-
-  const expectedGap =
-    lowerPlacement.groupName === 'A'
-      ? (
-          groups.B[0].semitone -
-          groups.A[
-            groups.A.length - 1
-          ].semitone
-        )
-      : (
-          12 +
-          groups.A[0].semitone -
-          groups.B[
-            groups.B.length - 1
-          ].semitone
-        );
 
   return (
     upperFirst.absolutePitch -
@@ -2495,6 +2598,7 @@ function buildRrPentPaths(
           modeName,
           'A'
         ),
+
       B:
         buildRrPentPlacementsForString(
           cells,
@@ -2502,6 +2606,15 @@ function buildRrPentPaths(
           modeRoot,
           modeName,
           'B'
+        ),
+
+      C:
+        buildRrPentPlacementsForString(
+          cells,
+          stringIndex,
+          modeRoot,
+          modeName,
+          'C'
         )
     });
   }
@@ -2512,7 +2625,8 @@ function buildRrPentPaths(
     groups => {
       nodes.push(
         ...groups.A,
-        ...groups.B
+        ...groups.B,
+        ...groups.C
       );
     }
   );
@@ -2529,6 +2643,7 @@ function buildRrPentPaths(
         node,
         []
       );
+
       predecessors.set(
         node,
         []
@@ -2548,14 +2663,17 @@ function buildRrPentPaths(
         return;
       }
 
-      const upperGroup =
-        lower.groupName === 'A'
-          ? 'B'
-          : 'A';
+      const transition =
+        getRrPentTransition(
+          lower.groupName
+        );
 
       placementsByString[
         upperString
-      ][upperGroup].forEach(
+      ][
+        transition
+          .nextGroupName
+      ].forEach(
         upper => {
           if (
             !rrPentPlacementsConnect(
@@ -2706,31 +2824,20 @@ function getRrPentExerciseCandidates(
               startIndex
             ) => {
               /*
-                R-R has a fixed start rule.
+                Every R in the generated path is a valid
+                cycle boundary.
 
-                Ascending:
-                  starting R is the FIRST note of an A group:
-                    current string: R - 3 - 4
-                    next higher string: 5 - 7
-                    next higher string: R - 3 - 4
+                The first cycle begins:
+                  R - 3
+                  5
+                  7 - R - 3
 
-                Descending:
-                  starts from that same A-group root and
-                  traverses the connected chain backward
-                  through the preceding B group.
-
-                Up+Down anchors on the A-group root and
-                extends through the full connected chain.
+                After that, the R inside each C group begins
+                the next cycle on that same string.
               */
               const ascendingRoot =
-                (
-                  start.rrInterval ===
-                    'R' &&
-                  start.rrGroupName ===
-                    'A' &&
-                  start.rrGroupNoteIndex ===
-                    0
-                );
+                start.rrInterval ===
+                  'R';
 
               const descendingRoot =
                 ascendingRoot;
