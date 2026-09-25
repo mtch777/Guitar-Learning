@@ -468,6 +468,8 @@ let currentRrPentExercise = null;
 let currentShapeExercise = null;
 let currentCagedExercise = null;
 
+let fretboardNoteResizeObserver = null;
+
 const quizCompletePauseMs = 1000;
 
 let quizTransitionTimer = null;
@@ -547,6 +549,135 @@ function getTuning() {
 
 window.getGuitarTrainerTuning =
   () => getTuning();
+
+function sizeFretboardNotes(
+  stage,
+  fretboard,
+  stringCount,
+  fretCount,
+  stringTopStart,
+  stringTopEnd
+) {
+  const rect =
+    fretboard
+      .getBoundingClientRect();
+
+  if (
+    rect.width <= 0 ||
+    rect.height <= 0
+  ) {
+    return;
+  }
+
+  const stageStyle =
+    getComputedStyle(
+      stage
+    );
+
+  const maxSize =
+    Number.parseFloat(
+      stageStyle.getPropertyValue(
+        '--note-max-size'
+      )
+    ) || 38;
+
+  const fretGap =
+    Number.parseFloat(
+      stageStyle.getPropertyValue(
+        '--note-fret-gap'
+      )
+    ) || 4;
+
+  /*
+    Preserve the existing horizontal fret constraint:
+      fret width - reserved horizontal breathing room.
+  */
+  const fretSizeLimit =
+    rect.width /
+      fretCount -
+    fretGap;
+
+  /*
+    String centers are distributed between stringTopStart and
+    stringTopEnd. Keep a 5% edge-to-edge gap between adjacent
+    circles by allowing the diameter to occupy 95% of the
+    center-to-center string spacing.
+  */
+  const stringCenterDistance =
+    stringCount <= 1
+      ? rect.height
+      : (
+          rect.height *
+          (
+            stringTopEnd -
+            stringTopStart
+          ) /
+          100 /
+          (
+            stringCount - 1
+          )
+        );
+
+  const stringGapSizeLimit =
+    stringCenterDistance *
+    0.95;
+
+  const noteSize =
+    Math.max(
+      1,
+      Math.min(
+        maxSize,
+        fretSizeLimit,
+        stringGapSizeLimit
+      )
+    );
+
+  stage.style.setProperty(
+    '--fretboard-note-size',
+    noteSize + 'px'
+  );
+}
+
+function observeFretboardNoteSizing(
+  stage,
+  fretboard,
+  stringCount,
+  fretCount,
+  stringTopStart,
+  stringTopEnd
+) {
+  if (
+    fretboardNoteResizeObserver
+  ) {
+    fretboardNoteResizeObserver
+      .disconnect();
+  }
+
+  const update =
+    () =>
+      sizeFretboardNotes(
+        stage,
+        fretboard,
+        stringCount,
+        fretCount,
+        stringTopStart,
+        stringTopEnd
+      );
+
+  fretboardNoteResizeObserver =
+    new ResizeObserver(
+      update
+    );
+
+  fretboardNoteResizeObserver
+    .observe(
+      fretboard
+    );
+
+  requestAnimationFrame(
+    update
+  );
+}
 
 function randomItem(list) {
   return list[
@@ -5334,6 +5465,15 @@ function buildTrainer() {
 
   chartDiv.appendChild(
     stage
+  );
+
+  observeFretboardNoteSizing(
+    stage,
+    fretboard,
+    tuning.length,
+    maxFret,
+    stringTopStart,
+    stringTopEnd
   );
 
 
