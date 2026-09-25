@@ -989,6 +989,29 @@ button.uiButton:disabled {
   opacity: 1;
 }
 
+.guitarCalibrationPanel {
+  flex: 1 0 100%;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: baseline;
+  gap: 8px 12px;
+  padding-top: 2px;
+  font-size: 14px;
+}
+
+.guitarCalibrationPanel[hidden] {
+  display: none;
+}
+
+#guitarCalibrationPrompt {
+  white-space: nowrap;
+}
+
+#guitarCalibrationResult {
+  min-width: 0;
+  opacity: .78;
+}
+
 .guitarInputLogPanel {
   width: max-content;
   max-width: 100%;
