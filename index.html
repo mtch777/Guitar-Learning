@@ -144,37 +144,43 @@
       </div>
     </section>
 
-    <section class="guitarInputPanel" aria-label="Classifier dataset recorder">
-      <div class="guitarInputIdentity"><strong>Dataset Recorder</strong></div>
-      <button id="datasetRecordButton" class="uiButton" type="button">Start Recording</button>
-      <button id="datasetExportButton" class="uiButton" type="button" disabled>Export WAV ZIP</button>
-      <span id="datasetRecordStatus" class="inputStatus">Follow-up recorder</span>
-    </section>
+    <details class="modelDataCollection">
+      <summary>Guitar String Model - Data Collection</summary>
 
-    <section class="guitarInputLogPanel" aria-label="Guitar input detection log">
-      <div class="guitarInputLogHeader">
-        <span>Detection Log</span>
-        <span class="classifierTestControls">
-          <button id="classifierTestButton" class="uiButton" type="button">Start Test</button>
-          <button id="classifierTestSkipButton" class="uiButton" type="button" disabled>Skip</button>
-          <button id="classifierTestExportButton" class="uiButton" type="button">Export CSV</button>
-          <span id="classifierTestStatus">Test: off</span>
-        </span>
+      <div class="modelDataCollectionBody">
+        <section class="guitarInputPanel" aria-label="Classifier dataset recorder">
+          <div class="guitarInputIdentity"><strong>Dataset Recorder</strong></div>
+          <button id="datasetRecordButton" class="uiButton" type="button">Start Recording</button>
+          <button id="datasetExportButton" class="uiButton" type="button" disabled>Export WAV ZIP</button>
+          <span id="datasetRecordStatus" class="inputStatus">Follow-up recorder</span>
+        </section>
+
+        <section class="guitarInputLogPanel" aria-label="Guitar input detection log">
+          <div class="guitarInputLogHeader">
+            <span>Detection Log</span>
+            <span class="classifierTestControls">
+              <button id="classifierTestButton" class="uiButton" type="button">Start Test</button>
+              <button id="classifierTestSkipButton" class="uiButton" type="button" disabled>Skip</button>
+              <button id="classifierTestExportButton" class="uiButton" type="button">Export CSV</button>
+              <span id="classifierTestStatus">Test: off</span>
+            </span>
+          </div>
+          <div class="guitarInputLogScroll">
+            <table class="guitarInputLogTable">
+              <thead>
+                <tr>
+                  <th>Time</th><th>Note</th><th>MIDI</th><th>Pitch</th>
+                  <th>S1</th><th>S2</th><th>S3</th><th>S4</th>
+                  <th>S5</th><th>S6</th><th>S7</th><th>S8</th><th>Pick</th>
+                  <th>Prompt</th><th>Played / Remaining</th><th>Feature Shift</th>
+                </tr>
+              </thead>
+              <tbody id="guitarInputLogBody"></tbody>
+            </table>
+          </div>
+        </section>
       </div>
-      <div class="guitarInputLogScroll">
-        <table class="guitarInputLogTable">
-          <thead>
-            <tr>
-              <th>Time</th><th>Note</th><th>MIDI</th><th>Pitch</th>
-              <th>S1</th><th>S2</th><th>S3</th><th>S4</th>
-              <th>S5</th><th>S6</th><th>S7</th><th>S8</th><th>Pick</th>
-              <th>Prompt</th><th>Played / Remaining</th><th>Feature Shift</th>
-            </tr>
-          </thead>
-          <tbody id="guitarInputLogBody"></tbody>
-        </table>
-      </div>
-    </section>
+    </details>
   </main>
 
   <script type="module" src="/src/trainer.js"></script>
