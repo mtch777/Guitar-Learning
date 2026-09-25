@@ -14,20 +14,20 @@
         <div class="sectionTitle">Lesson</div>
         <div class="controlField lessonField">
         <details id="lessonTypeDropdown" class="singleSelect">
-          <summary id="lessonTypeSummary">Closest interval</summary>
+          <summary id="lessonTypeSummary">R-R Pent. &amp; Color Notes</summary>
           <div class="singleSelectMenu">
             <label class="singleOption"><input type="radio" name="lessonType" value="intervals"><span>Intervals Relative to Low String</span></label>
-            <label class="singleOption"><input type="radio" name="lessonType" value="shape" checked><span>Closest interval</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="shape"><span>Closest interval</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="nps"><span>2/3 NPS Starting From Interval</span></label>
-            <label class="singleOption"><input type="radio" name="lessonType" value="rrPent"><span>R-R Pent. &amp; Color Notes</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="rrPent" checked><span>R-R Pent. &amp; Color Notes</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="caged"><span>CAGED pentatonic</span></label>
           </div>
         </details>
         <span class="stateOnly"><select id="lessonTypeSelect" aria-hidden="true" tabindex="-1">
           <option value="intervals">Intervals Relative to Low String</option>
-          <option value="shape" selected>Closest interval</option>
+          <option value="shape">Closest interval</option>
           <option value="nps">2/3 NPS Starting From Interval</option>
-          <option value="rrPent">R-R Pent. &amp; Color Notes</option>
+          <option value="rrPent" selected>R-R Pent. &amp; Color Notes</option>
           <option value="caged">CAGED pentatonic</option>
         </select></span>
         </div>
@@ -94,6 +94,13 @@
           <span class="fieldLabel">Direction</span>
           <div id="directionOptions" class="directionSegment" role="radiogroup" aria-label="Direction"></div>
           <span id="directionSummary" hidden></span>
+        </div>
+        <div id="rrColorControl" class="controlField" hidden>
+          <span class="fieldLabel">Color notes</span>
+          <label class="binaryToggle">
+            <input id="rrColorToggle" type="checkbox">
+            <span aria-hidden="true"></span>
+          </label>
         </div>
         <div id="cagedShapeControl" class="controlField" hidden>
           <span class="fieldLabel">Shapes</span>
