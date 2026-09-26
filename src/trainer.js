@@ -468,6 +468,38 @@ let currentRrPentExercise = null;
 let currentShapeExercise = null;
 let currentCagedExercise = null;
 
+const lessonDefinitions = {
+  intervals: {
+    label: 'Intervals Relative to Low String',
+    maxFret: 12,
+    hasStartCue: false
+  },
+  shape: {
+    label: 'Closest interval',
+    maxFret: 15,
+    hasStartCue: true
+  },
+  nps: {
+    label: '2/3 NPS',
+    maxFret: 24,
+    hasStartCue: true
+  },
+  rrPent: {
+    label: 'R-R',
+    maxFret: 24,
+    hasStartCue: true
+  },
+  caged: {
+    label: 'CAGED',
+    maxFret: 24,
+    hasStartCue: true
+  },
+  daily: {
+    label: 'Daily Practice',
+    orchestrator: true
+  }
+};
+
 const dailyPracticeLessonTypes = [
   'shape',
   'nps',
@@ -548,15 +580,33 @@ function midiToScientificPitch(midi) {
 
 function getSelectedLessonType() {
   return document
-    .getElementById('lessonTypeSelect')
+    .getElementById(
+      'lessonTypeSelect'
+    )
     .value;
 }
 
 function isDailyPracticeSelected() {
-  return getSelectedLessonType() ===
-    'daily';
+  return (
+    getSelectedLessonType() ===
+    'daily'
+  );
 }
 
+/*
+  "Selected lesson" is what the user chose in the Lesson menu.
+  "Active lesson" is the exercise engine currently doing the work.
+
+  Ordinary lessons:
+    selected === active
+
+  Daily Practice:
+    selected === "daily"
+    active   === intervals / shape / nps / rrPent / caged
+
+  This keeps every existing lesson engine independent from the
+  Daily Practice orchestrator.
+*/
 function getLessonType() {
   if (
     isDailyPracticeSelected() &&
@@ -567,6 +617,18 @@ function getLessonType() {
   }
 
   return getSelectedLessonType();
+}
+
+function getLessonDefinition(
+  lessonType =
+    getLessonType()
+) {
+  return (
+    lessonDefinitions[
+      lessonType
+    ] ||
+    lessonDefinitions.intervals
+  );
 }
 
 function syncSingleSelectDisplay(
@@ -653,7 +715,8 @@ function setDailyStartDegreeRoot() {
     .forEach(
       checkbox => {
         checkbox.checked =
-          checkbox.value === 'R';
+          checkbox.value ===
+          'R';
       }
     );
 
@@ -671,7 +734,8 @@ function setDailyIntervalSelection(
       checkbox => {
         checkbox.checked =
           selectAll ||
-          checkbox.value === 'R';
+          checkbox.value ===
+            'R';
       }
     );
 
@@ -689,6 +753,24 @@ function getDailyPairs() {
           })
         )
     )
+  );
+}
+
+function getDailyPairLabel(
+  pair
+) {
+  if (!pair) {
+    return '';
+  }
+
+  return (
+    modeNames[
+      pair.mode
+    ] +
+    ' · ' +
+    getLessonDefinition(
+      pair.lessonType
+    ).label
   );
 }
 
@@ -718,15 +800,15 @@ function updateDailyPracticeStatus() {
     'intervals'
   ) {
     status.textContent =
-      'Phase 1 · ' +
+      'Phase 1 · D# ' +
       modeNames[
         dailyPracticeState
-          .activeMode
+          .baseMode
       ] +
       ' · ' +
       dailyPracticeState
         .remainingPairs.length +
-      ' exercise pairs left';
+      ' pairs left';
 
     return;
   }
@@ -754,53 +836,42 @@ function updateDailyPracticeStatus() {
     );
 
   status.textContent =
-    (
+    getDailyPairLabel(
       current
-        ? (
-            modeNames[
-              current.mode
-            ] +
-            ' · ' +
-            (
-              current.lessonType ===
-                'shape'
-                ? 'Closest interval'
-                : current.lessonType ===
-                    'nps'
-                  ? '2/3 NPS'
-                  : current.lessonType ===
-                      'rrPent'
-                    ? 'R-R'
-                    : 'CAGED'
-            ) +
-            ' · '
-          )
-        : ''
     ) +
+    ' · ' +
     remaining +
     ' left';
 }
 
 function initializeDailyPractice() {
-  const phaseOneMode =
+  const baseMode =
     randomItem(
       npsModeOrder
     );
 
   dailyPracticeState = {
-    phase: 'intervals',
+    phase:
+      'intervals',
+
+    baseMode,
+
     activeLessonType:
       'intervals',
-    activeMode:
-      phaseOneMode,
+
     currentPair:
       null,
+
     remainingPairs:
       getDailyPairs()
   };
 
+  /*
+    The base key is chosen ONCE for the whole Daily Practice
+    session and never changes between exercise pairs.
+  */
   setDailyBaseScale(
-    phaseOneMode
+    baseMode
   );
 
   const orderSelect =
@@ -818,6 +889,50 @@ function initializeDailyPractice() {
   );
   setDailyStartDegreeRoot();
   updateDailyPracticeStatus();
+}
+
+function getDailyExerciseKeyContext(
+  baseRoot,
+  baseMode
+) {
+  if (
+    !isDailyPracticeSelected() ||
+    !dailyPracticeState ||
+    dailyPracticeState.phase !==
+      'pairs' ||
+    !dailyPracticeState.currentPair ||
+    dailyPracticeState.currentPair
+      .lessonType !==
+      'shape'
+  ) {
+    return {
+      root:
+        baseRoot,
+      scaleName:
+        baseMode
+    };
+  }
+
+  /*
+    Closest Interval does not have its own modal selector, so
+    Daily Practice supplies the selected relative mode directly
+    as the exercise key context while leaving the base key fixed.
+  */
+  const mode =
+    dailyPracticeState
+      .currentPair.mode;
+
+  return {
+    root:
+      getRelativeModeRoot(
+        baseRoot,
+        baseMode,
+        mode
+      ),
+
+    scaleName:
+      mode
+  };
 }
 
 function startNextDailyPair() {
@@ -840,15 +955,19 @@ function startNextDailyPair() {
       .currentPair =
         null;
 
-    dailyPracticeState
-      .activeLessonType =
-        'intervals';
-
     document
       .getElementById(
         'chartDiv'
       )
       .innerHTML = '';
+
+    document
+      .querySelector(
+        '.trainerShell'
+      )
+      ?.classList.remove(
+        'hasStartCue'
+      );
 
     document
       .getElementById(
@@ -872,25 +991,11 @@ function startNextDailyPair() {
     .activeLessonType =
       nextPair.lessonType;
 
-  dailyPracticeState
-    .activeMode =
-      nextPair.mode;
-
-  setDailyBaseScale(
-    nextPair.mode
-  );
-
-  buildIntervalControls();
-
-  if (
-    nextPair.lessonType ===
-    'shape'
-  ) {
-    setDailyIntervalSelection(
-      true
-    );
-  }
-
+  /*
+    Do NOT alter rootSelect / scaleSelect here.
+    D# + the randomly chosen base mode remain fixed throughout
+    the entire Daily Practice session.
+  */
   setDailyStartDegreeRoot();
   updateDailyPracticeStatus();
   buildTrainer();
@@ -913,6 +1018,19 @@ function completeDailyPair() {
   startNextDailyPair();
 }
 
+function completeCurrentExercise() {
+  if (
+    isDailyPracticeSelected() &&
+    dailyPracticeState?.phase ===
+      'pairs'
+  ) {
+    completeDailyPair();
+    return;
+  }
+
+  buildTrainer();
+}
+
 function finishDailyIntervals() {
   if (
     !isDailyPracticeSelected() ||
@@ -924,6 +1042,74 @@ function finishDailyIntervals() {
   }
 
   startNextDailyPair();
+  return true;
+}
+
+function skipDailyCurrentExercise() {
+  if (
+    !isDailyPracticeSelected() ||
+    !dailyPracticeState
+  ) {
+    return false;
+  }
+
+  if (
+    dailyPracticeState.phase ===
+    'intervals'
+  ) {
+    if (
+      currentAnswer
+    ) {
+      const questionIndex =
+        questions.indexOf(
+          currentAnswer
+        );
+
+      if (
+        questionIndex !== -1
+      ) {
+        questions.splice(
+          questionIndex,
+          1
+        );
+      }
+    }
+
+    document
+      .querySelectorAll(
+        '.noteCell.correct'
+      )
+      .forEach(
+        cell => {
+          cell.classList.remove(
+            'correct'
+          );
+
+          restoreCellDisplay(
+            cell
+          );
+        }
+      );
+
+    if (
+      questions.length === 0
+    ) {
+      startNextDailyPair();
+    } else {
+      generateIntervalAnswer();
+    }
+
+    return true;
+  }
+
+  if (
+    dailyPracticeState.phase ===
+    'pairs'
+  ) {
+    completeDailyPair();
+    return true;
+  }
+
   return true;
 }
 
