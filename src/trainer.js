@@ -6175,7 +6175,7 @@ function buildTrainer() {
 
   displayNpsQuestion();
 
-  fretboard.appendChild(
+  startCueLayer.appendChild(
     createNpsStartMarker(
       currentNpsExercise,
       tuning.length
