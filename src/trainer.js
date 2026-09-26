@@ -5993,7 +5993,7 @@ function buildModeIntervalExercise(baseRoot, baseScaleName) {
     answerInterval
   };
 
-  answerDisplay.className = 'intervalQuizPrompt';
+  answerDisplay.className = 'modeIntervalPrompt';
   answerDisplay.textContent =
     'The ' +
     relativeInterval +
