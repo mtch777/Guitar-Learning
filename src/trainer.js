@@ -1625,11 +1625,12 @@ function getSelectedNpsModes() {
   if (
     isDailyPracticeSelected() &&
     dailyPracticeState?.phase ===
-      'pairs'
+      'pairs' &&
+    dailyPracticeState.currentPair
   ) {
     return [
       dailyPracticeState
-        .activeMode
+        .currentPair.mode
     ];
   }
 
