@@ -821,6 +821,20 @@ function updateDailyPracticeStatus() {
 
   if (
     dailyPracticeState.phase ===
+    'modeInterval'
+  ) {
+    status.textContent =
+      'Mode Interval Matching · ' +
+      'D# ' +
+      modeNames[
+        dailyPracticeState.baseMode
+      ];
+
+    return;
+  }
+
+  if (
+    dailyPracticeState.phase ===
     'complete'
   ) {
     status.textContent =
@@ -941,6 +955,24 @@ function getDailyExerciseKeyContext(
   };
 }
 
+function startDailyModeInterval() {
+  if (!dailyPracticeState) {
+    return;
+  }
+
+  dailyPracticeState.phase =
+    'modeInterval';
+
+  dailyPracticeState.activeLessonType =
+    'modeInterval';
+
+  dailyPracticeState.currentPair =
+    null;
+
+  updateDailyPracticeStatus();
+  buildTrainer();
+}
+
 function startNextDailyPair() {
   if (
     !dailyPracticeState
@@ -1039,6 +1071,15 @@ function completeCurrentExercise() {
   if (
     isDailyPracticeSelected() &&
     dailyPracticeState?.phase ===
+      'modeInterval'
+  ) {
+    startNextDailyPair();
+    return;
+  }
+
+  if (
+    isDailyPracticeSelected() &&
+    dailyPracticeState?.phase ===
       'pairs'
   ) {
     completeDailyPair();
@@ -1058,7 +1099,7 @@ function finishDailyIntervals() {
     return false;
   }
 
-  startNextDailyPair();
+  startDailyModeInterval();
   return true;
 }
 
@@ -1116,6 +1157,14 @@ function skipDailyCurrentExercise() {
       generateIntervalAnswer();
     }
 
+    return true;
+  }
+
+  if (
+    dailyPracticeState.phase ===
+    'modeInterval'
+  ) {
+    startNextDailyPair();
     return true;
   }
 
