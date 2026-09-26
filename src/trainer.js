@@ -5886,7 +5886,7 @@ function advanceShapeExercise() {
 
   if (!nextInterval) {
     scheduleQuizTransition(
-      completeExerciseAndContinue
+      completeCurrentExercise
     );
 
     return;
@@ -5913,20 +5913,6 @@ function advanceShapeExercise() {
       .size;
 
   displayShapeQuestion();
-}
-
-
-function completeExerciseAndContinue() {
-  if (
-    isDailyPracticeSelected() &&
-    dailyPracticeState?.phase ===
-      'pairs'
-  ) {
-    completeDailyPair();
-    return;
-  }
-
-  buildTrainer();
 }
 
 
@@ -7786,7 +7772,7 @@ document
             .size === 0
         ) {
            scheduleQuizTransition(
-            completeExerciseAndContinue
+            completeCurrentExercise
           );
         }
 
@@ -7869,7 +7855,7 @@ document
             .size === 0
         ) {
            scheduleQuizTransition(
-            completeExerciseAndContinue
+            completeCurrentExercise
           );
         }
 
@@ -7958,7 +7944,7 @@ document
           .size === 0
       ) {
          scheduleQuizTransition(
-            completeExerciseAndContinue
+            completeCurrentExercise
           );
       }
     }
