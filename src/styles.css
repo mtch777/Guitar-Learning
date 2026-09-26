@@ -522,6 +522,13 @@ select.stateSelect {
   font: 400 14px/16px Arial, sans-serif;
 }
 
+#answerNote.modeIntervalPrompt {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: normal;
+}
+
 #answerNote.npsExerciseCard {
   display: flex;
   flex-direction: column;
