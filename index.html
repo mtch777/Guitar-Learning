@@ -21,6 +21,7 @@
             <label class="singleOption"><input type="radio" name="lessonType" value="nps"><span>2/3 NPS Starting From Interval</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="rrPent" checked><span>R-R Pent. &amp; Color Notes</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="caged"><span>CAGED pentatonic</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="daily"><span>Daily Practice</span></label>
           </div>
         </details>
         <span class="stateOnly"><select id="lessonTypeSelect" aria-hidden="true" tabindex="-1">
@@ -29,6 +30,7 @@
           <option value="nps">2/3 NPS Starting From Interval</option>
           <option value="rrPent" selected>R-R Pent. &amp; Color Notes</option>
           <option value="caged">CAGED pentatonic</option>
+          <option value="daily">Daily Practice</option>
         </select></span>
         </div>
       </div>
@@ -118,6 +120,7 @@
         <div class="sectionTitle promptSectionTitle">Quiz</div>
         <div class="quizContentRow">
           <div id="answerNote"></div>
+          <span id="dailyPracticeStatus" class="dailyPracticeStatus" hidden></span>
           <button id="showAllButton" class="uiButton" type="button">Show Answer</button>
           <button id="nextButton" class="uiButton" type="button">Next →</button>
         </div>
