@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>8 String Guitar Trainer</title>
+  <script type="module" crossorigin src="/Guitar-Learning/assets/index-BfN75b3S.js"></script>
+  <link rel="stylesheet" crossorigin href="/Guitar-Learning/assets/index-M9QOkhrW.css">
+</head>
+<body>
+  <main class="trainerShell">
+    <div class="trainerControls">
+    <section class="setupPanel">
+      <div class="settingsSection lessonSection">
+        <div class="sectionTitle">Lesson</div>
+        <div class="controlField lessonField">
+        <details id="lessonTypeDropdown" class="singleSelect">
+          <summary id="lessonTypeSummary">R-R Pent. &amp; Color Notes</summary>
+          <div class="singleSelectMenu">
+            <label class="singleOption"><input type="radio" name="lessonType" value="intervals"><span>Intervals Relative to Low String</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="shape"><span>Closest interval</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="nps"><span>2/3 NPS Starting From Interval</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="rrPent" checked><span>R-R Pent. &amp; Color Notes</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="caged"><span>CAGED pentatonic</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="daily"><span>Daily Practice</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="modeInterval"><span>Mode Interval Matching</span></label>
+          </div>
+        </details>
+        <span class="stateOnly"><select id="lessonTypeSelect" aria-hidden="true" tabindex="-1">
+          <option value="intervals">Intervals Relative to Low String</option>
+          <option value="shape">Closest interval</option>
+          <option value="nps">2/3 NPS Starting From Interval</option>
+          <option value="rrPent" selected>R-R Pent. &amp; Color Notes</option>
+          <option value="caged">CAGED pentatonic</option>
+          <option value="daily">Daily Practice</option>
+          <option value="modeInterval">Mode Interval Matching</option>
+        </select></span>
+        </div>
+      </div>
+
+      <div class="settingsSection keySection">
+        <div class="sectionTitle">Base Key</div>
+        <div class="controlField keyField">
+        <div class="keyControls">
+          <details id="rootDropdown" class="singleSelect"><summary id="rootSummary">D#</summary><div id="rootOptions" class="singleSelectMenu"></div></details><span class="stateOnly"><select id="rootSelect" aria-hidden="true" tabindex="-1">
+            <option value="0">C</option><option value="1">C#</option><option value="2">D</option>
+            <option value="3" selected>D#</option><option value="4">E</option><option value="5">F</option>
+            <option value="6">F#</option><option value="7">G</option><option value="8">G#</option>
+            <option value="9">A</option><option value="10">A#</option><option value="11">B</option>
+          </select></span><details id="scaleDropdown" class="singleSelect"><summary id="scaleSummary">Locrian</summary><div id="scaleOptions" class="singleSelectMenu"></div></details>
+          <span class="stateOnly"><select id="scaleSelect" aria-hidden="true" tabindex="-1">
+            <option value="ionian">Ionian</option><option value="dorian">Dorian</option>
+            <option value="phrygian">Phrygian</option><option value="lydian">Lydian</option>
+            <option value="mixolydian">Mixolydian</option><option value="aeolian">Aeolian</option>
+            <option value="locrian" selected>Locrian</option>
+          </select></span></div></div></div>
+
+      <div class="settingsSection lessonSettingsSection">
+        <div class="sectionTitle sectionTitleWithUtility">
+          <span>Lesson Settings</span>
+          <button id="themeToggle" class="themeSwitch" type="button" aria-label="Switch to dark mode">
+            <span class="themeChoice themeSun" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"/></svg>
+            </span>
+            <span class="themeChoice themeMoon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M20.2 15.2A8.5 8.5 0 0 1 8.8 3.8 8.5 8.5 0 1 0 20.2 15.2Z"/></svg>
+            </span>
+          </button>
+        </div>
+        <div id="intervalLessonControls" class="lessonControls intervalLessonGrid">
+        <div id="intervalControlGroup" class="controlField">
+          <span class="fieldLabel">Intervals</span>
+          <details id="intervalDropdown" class="multiSelect">
+            <summary id="intervalSummary">All 7</summary>
+            <div id="intervalOptions" class="multiSelectMenu"></div>
+          </details>
+        </div>
+        <div id="orderControl" class="controlField orderField">
+          <span class="fieldLabel">Order</span>
+          <div id="orderOptions" class="orderSegment" role="radiogroup" aria-label="Order">
+            <label class="orderOption"><input type="radio" name="orderToggle" value="random" checked><span title="Random" aria-label="Random">🔀</span></label>
+            <label class="orderOption"><input type="radio" name="orderToggle" value="ordered"><span title="Ordered" aria-label="Ordered">🔁</span></label>
+          </div>
+          <span class="stateOnly"><select id="orderSelect" aria-hidden="true" tabindex="-1">
+            <option value="random" selected>Random</option>
+            <option value="ordered">Ordered</option>
+          </select></span></div></div>
+
+      <div id="npsControls" class="lessonControls npsControlGrid" hidden>
+        <div class="controlField">
+          <span class="fieldLabel">Mode</span>
+          <details class="multiSelect"><summary id="npsModeSummary">All 7</summary><div id="npsModeOptions" class="multiSelectMenu"></div></details>
+        </div>
+        <div class="controlField">
+          <span class="fieldLabel">Start</span>
+          <details class="multiSelect"><summary id="startDegreeSummary">R</summary><div id="startDegreeOptions" class="multiSelectMenu"></div></details>
+        </div>
+        <div id="directionControl" class="controlField directionField">
+          <span class="fieldLabel">Direction</span>
+          <div id="directionOptions" class="directionSegment" role="radiogroup" aria-label="Direction"></div>
+          <span id="directionSummary" hidden></span>
+        </div>
+        <div id="rrColorControl" class="controlField" hidden>
+          <span class="fieldLabel">Color notes</span>
+          <label class="binaryToggle">
+            <input id="rrColorToggle" type="checkbox">
+            <span aria-hidden="true"></span>
+          </label>
+        </div>
+        <div id="cagedShapeControl" class="controlField" hidden>
+          <span class="fieldLabel">Shapes</span>
+          <details class="multiSelect"><summary id="cagedShapeSummary">All 5</summary><div id="cagedShapeOptions" class="multiSelectMenu"></div></details>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <div class="quizRow">
+      <div class="quizStartCueSpacer" aria-hidden="true"></div>
+      <div id="quizTuningControl" class="quizTuningControl" aria-label="Tuning controls"></div>
+
+      <section class="promptSection">
+        <div class="sectionTitle promptSectionTitle">Quiz</div>
+        <div class="quizContentRow">
+          <div id="answerNote"></div>
+          <span id="dailyPracticeStatus" class="dailyPracticeStatus" hidden></span>
+          <button id="showAllButton" class="uiButton" type="button">Show Answer</button>
+          <button id="nextButton" class="uiButton" type="button">Next →</button>
+        </div>
+      </section>
+    </div>
+
+    </div>
+
+    <section class="exercisePanel">
+      <div id="chartDiv"></div>
+    </section>
+
+    <section class="guitarInputPanel">
+      <div class="guitarInputIdentity"><span class="guitarIcon">🎙️</span><strong>Guitar Input</strong></div>
+      <button id="guitarInputButton" class="uiButton" type="button">Enable</button>
+      <button id="guitarCalibrationButton" class="uiButton" type="button">Calibrate guitar volume</button>
+      <span id="guitarInputStatus" class="inputStatus">● Stopped</span>
+      <span class="inputMetric">Note <strong id="guitarDetectedNote">—</strong></span>
+      <span class="inputMetric">String <strong id="guitarDetectedString">—</strong></span>
+      <span id="guitarConfidence" class="inputMetric">Pitch —</span>
+      <div id="guitarCalibrationPanel" class="guitarCalibrationPanel" hidden>
+        <strong id="guitarCalibrationPrompt"></strong>
+        <span id="guitarCalibrationResult"></span>
+      </div>
+    </section>
+
+    <details class="modelDataCollection">
+      <summary>Guitar String Model - Data Collection</summary>
+
+      <div class="modelDataCollectionBody">
+        <section class="guitarInputPanel" aria-label="Classifier dataset recorder">
+          <div class="guitarInputIdentity"><strong>Dataset Recorder</strong></div>
+          <button id="datasetRecordButton" class="uiButton" type="button">Start Recording</button>
+          <button id="datasetExportButton" class="uiButton" type="button" disabled>Export WAV ZIP</button>
+          <span id="datasetRecordStatus" class="inputStatus">Follow-up recorder</span>
+        </section>
+
+        <section class="guitarInputLogPanel" aria-label="Guitar input detection log">
+          <div class="guitarInputLogHeader">
+            <span>Detection Log</span>
+            <span class="classifierTestControls">
+              <button id="classifierTestButton" class="uiButton" type="button">Start Test</button>
+              <button id="classifierTestSkipButton" class="uiButton" type="button" disabled>Skip</button>
+              <button id="classifierTestExportButton" class="uiButton" type="button">Export CSV</button>
+              <span id="classifierTestStatus">Test: off</span>
+            </span>
+          </div>
+          <div class="guitarInputLogScroll">
+            <table class="guitarInputLogTable">
+              <thead>
+                <tr>
+                  <th>Time</th><th>Note</th><th>MIDI</th><th>Pitch</th>
+                  <th>RMS dBFS</th><th>Peak dBFS</th><th>Pluck</th><th>Candidates</th>
+                  <th>S1</th><th>S2</th><th>S3</th><th>S4</th>
+                  <th>S5</th><th>S6</th><th>S7</th><th>S8</th>
+                  <th>Raw Pick</th><th>Final Pick</th><th>Decision</th>
+                  <th>Prompt</th><th>Played / Remaining</th><th>Feature Shift</th>
+                </tr>
+              </thead>
+              <tbody id="guitarInputLogBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </details>
+  </main>
+
+</body>
+</html>
