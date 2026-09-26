@@ -468,6 +468,15 @@ let currentRrPentExercise = null;
 let currentShapeExercise = null;
 let currentCagedExercise = null;
 
+const dailyPracticeLessonTypes = [
+  'shape',
+  'nps',
+  'rrPent',
+  'caged'
+];
+
+let dailyPracticeState = null;
+
 let fretboardNoteResizeObserver = null;
 
 const quizCompletePauseMs = 1000;
@@ -537,10 +546,385 @@ function midiToScientificPitch(midi) {
   );
 }
 
-function getLessonType() {
+function getSelectedLessonType() {
   return document
     .getElementById('lessonTypeSelect')
     .value;
+}
+
+function isDailyPracticeSelected() {
+  return getSelectedLessonType() ===
+    'daily';
+}
+
+function getLessonType() {
+  if (
+    isDailyPracticeSelected() &&
+    dailyPracticeState
+  ) {
+    return dailyPracticeState
+      .activeLessonType;
+  }
+
+  return getSelectedLessonType();
+}
+
+function syncSingleSelectDisplay(
+  detailsId,
+  selectId
+) {
+  const details =
+    document.getElementById(
+      detailsId
+    );
+
+  const select =
+    document.getElementById(
+      selectId
+    );
+
+  if (!details || !select) {
+    return;
+  }
+
+  const summary =
+    details.querySelector(
+      'summary'
+    );
+
+  const selectedOption =
+    select.options[
+      select.selectedIndex
+    ];
+
+  if (
+    summary &&
+    selectedOption
+  ) {
+    summary.textContent =
+      selectedOption.textContent;
+  }
+
+  details
+    .querySelectorAll(
+      'input[type="radio"]'
+    )
+    .forEach(
+      radio => {
+        radio.checked =
+          radio.value ===
+          select.value;
+      }
+    );
+}
+
+function setDailyBaseScale(
+  mode
+) {
+  const rootSelect =
+    document.getElementById(
+      'rootSelect'
+    );
+
+  const scaleSelect =
+    document.getElementById(
+      'scaleSelect'
+    );
+
+  rootSelect.value = '3';
+  scaleSelect.value = mode;
+
+  syncSingleSelectDisplay(
+    'rootDropdown',
+    'rootSelect'
+  );
+
+  syncSingleSelectDisplay(
+    'scaleDropdown',
+    'scaleSelect'
+  );
+}
+
+function setDailyStartDegreeRoot() {
+  document
+    .querySelectorAll(
+      '.startDegreeCheckbox'
+    )
+    .forEach(
+      checkbox => {
+        checkbox.checked =
+          checkbox.value === 'R';
+      }
+    );
+
+  updateStartDegreeSummary();
+}
+
+function setDailyIntervalSelection(
+  selectAll
+) {
+  document
+    .querySelectorAll(
+      '.intervalCheckbox'
+    )
+    .forEach(
+      checkbox => {
+        checkbox.checked =
+          selectAll ||
+          checkbox.value === 'R';
+      }
+    );
+
+  updateIntervalSummary();
+}
+
+function getDailyPairs() {
+  return shuffleList(
+    npsModeOrder.flatMap(
+      mode =>
+        dailyPracticeLessonTypes.map(
+          lessonType => ({
+            mode,
+            lessonType
+          })
+        )
+    )
+  );
+}
+
+function updateDailyPracticeStatus() {
+  const status =
+    document.getElementById(
+      'dailyPracticeStatus'
+    );
+
+  if (!status) {
+    return;
+  }
+
+  if (
+    !isDailyPracticeSelected() ||
+    !dailyPracticeState
+  ) {
+    status.hidden = true;
+    status.textContent = '';
+    return;
+  }
+
+  status.hidden = false;
+
+  if (
+    dailyPracticeState.phase ===
+    'intervals'
+  ) {
+    status.textContent =
+      'Phase 1 · ' +
+      modeNames[
+        dailyPracticeState
+          .activeMode
+      ] +
+      ' · ' +
+      dailyPracticeState
+        .remainingPairs.length +
+      ' exercise pairs left';
+
+    return;
+  }
+
+  if (
+    dailyPracticeState.phase ===
+    'complete'
+  ) {
+    status.textContent =
+      'Daily practice complete · 0 left';
+
+    return;
+  }
+
+  const current =
+    dailyPracticeState.currentPair;
+
+  const remaining =
+    dailyPracticeState
+      .remainingPairs.length +
+    (
+      current
+        ? 1
+        : 0
+    );
+
+  status.textContent =
+    (
+      current
+        ? (
+            modeNames[
+              current.mode
+            ] +
+            ' · ' +
+            (
+              current.lessonType ===
+                'shape'
+                ? 'Closest interval'
+                : current.lessonType ===
+                    'nps'
+                  ? '2/3 NPS'
+                  : current.lessonType ===
+                      'rrPent'
+                    ? 'R-R'
+                    : 'CAGED'
+            ) +
+            ' · '
+          )
+        : ''
+    ) +
+    remaining +
+    ' left';
+}
+
+function initializeDailyPractice() {
+  const phaseOneMode =
+    randomItem(
+      npsModeOrder
+    );
+
+  dailyPracticeState = {
+    phase: 'intervals',
+    activeLessonType:
+      'intervals',
+    activeMode:
+      phaseOneMode,
+    currentPair:
+      null,
+    remainingPairs:
+      getDailyPairs()
+  };
+
+  setDailyBaseScale(
+    phaseOneMode
+  );
+
+  const orderSelect =
+    document.getElementById(
+      'orderSelect'
+    );
+
+  orderSelect.value =
+    'random';
+
+  buildOrderControls();
+  buildIntervalControls();
+  setDailyIntervalSelection(
+    true
+  );
+  setDailyStartDegreeRoot();
+  updateDailyPracticeStatus();
+}
+
+function startNextDailyPair() {
+  if (
+    !dailyPracticeState
+  ) {
+    return;
+  }
+
+  const nextPair =
+    dailyPracticeState
+      .remainingPairs
+      .shift();
+
+  if (!nextPair) {
+    dailyPracticeState.phase =
+      'complete';
+
+    dailyPracticeState
+      .currentPair =
+        null;
+
+    dailyPracticeState
+      .activeLessonType =
+        'intervals';
+
+    document
+      .getElementById(
+        'chartDiv'
+      )
+      .innerHTML = '';
+
+    document
+      .getElementById(
+        'answerNote'
+      )
+      .textContent =
+        'Daily practice complete!';
+
+    updateDailyPracticeStatus();
+    return;
+  }
+
+  dailyPracticeState.phase =
+    'pairs';
+
+  dailyPracticeState
+    .currentPair =
+      nextPair;
+
+  dailyPracticeState
+    .activeLessonType =
+      nextPair.lessonType;
+
+  dailyPracticeState
+    .activeMode =
+      nextPair.mode;
+
+  setDailyBaseScale(
+    nextPair.mode
+  );
+
+  buildIntervalControls();
+
+  if (
+    nextPair.lessonType ===
+    'shape'
+  ) {
+    setDailyIntervalSelection(
+      true
+    );
+  }
+
+  setDailyStartDegreeRoot();
+  updateDailyPracticeStatus();
+  buildTrainer();
+}
+
+function completeDailyPair() {
+  if (
+    !isDailyPracticeSelected() ||
+    !dailyPracticeState ||
+    dailyPracticeState.phase !==
+      'pairs'
+  ) {
+    buildTrainer();
+    return;
+  }
+
+  dailyPracticeState.currentPair =
+    null;
+
+  startNextDailyPair();
+}
+
+function finishDailyIntervals() {
+  if (
+    !isDailyPracticeSelected() ||
+    !dailyPracticeState ||
+    dailyPracticeState.phase !==
+      'intervals'
+  ) {
+    return false;
+  }
+
+  startNextDailyPair();
+  return true;
 }
 
 function getTuning() {
