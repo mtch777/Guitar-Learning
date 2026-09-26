@@ -467,6 +467,7 @@ let currentNpsExercise = null;
 let currentRrPentExercise = null;
 let currentShapeExercise = null;
 let currentCagedExercise = null;
+let currentModeIntervalExercise = null;
 
 const lessonDefinitions = {
   intervals: {
@@ -493,6 +494,11 @@ const lessonDefinitions = {
     label: 'CAGED',
     maxFret: 24,
     hasStartCue: true
+  },
+  modeInterval: {
+    label: 'Mode Interval Matching',
+    maxFret: 0,
+    hasStartCue: false
   },
   daily: {
     label: 'Daily Practice',
@@ -1944,13 +1950,17 @@ function updateLessonControls() {
   const pentatonicLesson =
     nps || rrPent || caged;
 
+  const modeInterval =
+    lessonType === 'modeInterval';
+
   document
     .getElementById(
       'intervalLessonControls'
     )
     .hidden =
       daily ||
-      pentatonicLesson;
+      pentatonicLesson ||
+      modeInterval;
 
   document
     .getElementById(
@@ -5928,6 +5938,119 @@ function advanceShapeExercise() {
 
 
 /* =========================================================
+   MODE INTERVAL MATCHING
+   ========================================================= */
+
+const modeIntervalAnswerOptions = [
+  'R', 'b2', '2', 'm3', 'M3', '4', '#4',
+  'b5', '5', 'b6', '6', 'b7', '7'
+];
+
+function getBaseKeyIntervalName(semitones, baseScaleName) {
+  const normalized = mod12(semitones);
+
+  if (normalized === 6) {
+    return baseScaleName === 'lydian'
+      ? '#4'
+      : 'b5';
+  }
+
+  return intervals[normalized];
+}
+
+function buildModeIntervalExercise(baseRoot, baseScaleName) {
+  const chartDiv = document.getElementById('chartDiv');
+  const answerDisplay = document.getElementById('answerNote');
+  const quizTuningControl = document.getElementById('quizTuningControl');
+  const showAllButton = document.getElementById('showAllButton');
+
+  if (quizTuningControl) {
+    quizTuningControl.innerHTML = '';
+  }
+
+  const relativeMode = randomItem(npsModeOrder);
+  const relativeRoot = getRelativeModeRoot(
+    baseRoot,
+    baseScaleName,
+    relativeMode
+  );
+  const [relativeSemitones, relativeInterval] =
+    randomItem(scales[relativeMode]);
+
+  const targetPitchClass =
+    mod12(relativeRoot + relativeSemitones);
+
+  const answerInterval =
+    getBaseKeyIntervalName(
+      targetPitchClass - baseRoot,
+      baseScaleName
+    );
+
+  currentModeIntervalExercise = {
+    relativeMode,
+    relativeInterval,
+    targetPitchClass,
+    answerInterval
+  };
+
+  answerDisplay.className = 'intervalQuizPrompt';
+  answerDisplay.textContent =
+    'The ' +
+    relativeInterval +
+    ' from ' +
+    modeNames[relativeMode] +
+    ' is what note on ' +
+    modeNames[baseScaleName] +
+    '?';
+
+  if (showAllButton) {
+    showAllButton.hidden = true;
+  }
+
+  chartDiv.innerHTML = '';
+
+  const choices = document.createElement('div');
+  choices.className = 'modeIntervalChoices';
+
+  modeIntervalAnswerOptions.forEach(intervalName => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'modeIntervalChoice';
+    button.textContent = intervalName;
+
+    button.addEventListener('click', () => {
+      if (
+        !currentModeIntervalExercise ||
+        isQuizTransitioning
+      ) {
+        return;
+      }
+
+      if (
+        intervalName ===
+        currentModeIntervalExercise.answerInterval
+      ) {
+        button.classList.add('correct');
+        scheduleQuizTransition(
+          completeCurrentExercise
+        );
+        return;
+      }
+
+      button.classList.add('wrong');
+      window.setTimeout(
+        () => button.classList.remove('wrong'),
+        450
+      );
+    });
+
+    choices.appendChild(button);
+  });
+
+  chartDiv.appendChild(choices);
+}
+
+/* =========================================================
    BUILD TRAINER
    ========================================================= */
 
@@ -5992,6 +6115,14 @@ function buildTrainer() {
   const scaleName =
     exerciseKeyContext.scaleName;
 
+  if (lessonType === 'modeInterval') {
+    buildModeIntervalExercise(
+      baseRoot,
+      baseScaleName
+    );
+    return;
+  }
+
   const tuning =
     getTuning();
 
@@ -6019,6 +6150,7 @@ function buildTrainer() {
   currentRrPentExercise = null;
   currentShapeExercise = null;
   currentCagedExercise = null;
+  currentModeIntervalExercise = null;
   showAll = false;
 
   document
