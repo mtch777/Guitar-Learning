@@ -8035,7 +8035,20 @@ document
   )
   .addEventListener(
     'change',
-    buildTrainer
+    () => {
+      if (
+        isDailyPracticeSelected() &&
+        dailyPracticeState
+      ) {
+        setDailyBaseScale(
+          dailyPracticeState
+            .baseMode
+        );
+        return;
+      }
+
+      buildTrainer();
+    }
   );
 
 document
@@ -8045,6 +8058,17 @@ document
   .addEventListener(
     'change',
     () => {
+      if (
+        isDailyPracticeSelected() &&
+        dailyPracticeState
+      ) {
+        setDailyBaseScale(
+          dailyPracticeState
+            .baseMode
+        );
+        return;
+      }
+
       buildIntervalControls();
       buildTrainer();
     }
@@ -8150,84 +8174,30 @@ buildTrainer();
    ========================================================= */
 
 document
-  .getElementById('nextButton')
-  .addEventListener('click', () => {
-    showAll = false;
+  .getElementById(
+    'nextButton'
+  )
+  .addEventListener(
+    'click',
+    () => {
+      showAll = false;
 
-    document
-      .getElementById(
-        'showAllButton'
-      )
-      .innerText =
-        'Show Answer';
+      document
+        .getElementById(
+          'showAllButton'
+        )
+        .innerText =
+          'Show Answer';
 
-    if (
-      isDailyPracticeSelected() &&
-      dailyPracticeState
-    ) {
       if (
-        dailyPracticeState.phase ===
-        'intervals'
+        skipDailyCurrentExercise()
       ) {
-        if (
-          currentAnswer
-        ) {
-          const questionIndex =
-            questions.indexOf(
-              currentAnswer
-            );
-
-          if (
-            questionIndex !== -1
-          ) {
-            questions.splice(
-              questionIndex,
-              1
-            );
-          }
-        }
-
-        document
-          .querySelectorAll(
-            '.noteCell.correct'
-          )
-          .forEach(
-            cell => {
-              cell.classList.remove(
-                'correct'
-              );
-
-              restoreCellDisplay(
-                cell
-              );
-            }
-          );
-
-        if (
-          questions.length === 0
-        ) {
-          finishDailyIntervals();
-        } else {
-          generateIntervalAnswer();
-        }
-
         return;
       }
 
-      if (
-        dailyPracticeState.phase ===
-        'pairs'
-      ) {
-        completeDailyPair();
-        return;
-      }
-
-      return;
+      buildTrainer();
     }
-
-    buildTrainer();
-  });
-
+  );
 
 /* =========================================================
    LIVE GUITAR -> QUIZ INPUT
