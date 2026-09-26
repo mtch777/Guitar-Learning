@@ -6082,6 +6082,16 @@ function buildTrainer() {
   const lessonType =
     getLessonType();
 
+  const showAllButton =
+    document.getElementById(
+      'showAllButton'
+    );
+
+  if (showAllButton) {
+    showAllButton.hidden =
+      lessonType === 'modeInterval';
+  }
+
   const lessonDefinition =
     getLessonDefinition(
       lessonType
