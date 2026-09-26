@@ -883,7 +883,10 @@ function initializeDailyPractice() {
       null,
 
     remainingPairs:
-      getDailyPairs()
+      getDailyPairs(),
+
+    modeIntervalRemainingModes:
+      []
   };
 
   /*
@@ -968,6 +971,9 @@ function startDailyModeInterval() {
 
   dailyPracticeState.currentPair =
     null;
+
+  dailyPracticeState.modeIntervalRemainingModes =
+    shuffleList([...npsModeOrder]);
 
   updateDailyPracticeStatus();
   buildTrainer();
@@ -1073,7 +1079,14 @@ function completeCurrentExercise() {
     dailyPracticeState?.phase ===
       'modeInterval'
   ) {
-    startNextDailyPair();
+    dailyPracticeState.modeIntervalRemainingModes.shift();
+
+    if (dailyPracticeState.modeIntervalRemainingModes.length) {
+      updateDailyPracticeStatus();
+      buildTrainer();
+    } else {
+      startNextDailyPair();
+    }
     return;
   }
 
@@ -1164,7 +1177,14 @@ function skipDailyCurrentExercise() {
     dailyPracticeState.phase ===
     'modeInterval'
   ) {
-    startNextDailyPair();
+    dailyPracticeState.modeIntervalRemainingModes.shift();
+
+    if (dailyPracticeState.modeIntervalRemainingModes.length) {
+      updateDailyPracticeStatus();
+      buildTrainer();
+    } else {
+      startNextDailyPair();
+    }
     return true;
   }
 
@@ -6017,14 +6037,23 @@ function buildModeIntervalExercise(baseRoot, baseScaleName) {
     quizTuningControl.innerHTML = '';
   }
 
-  const relativeMode = randomItem(npsModeOrder);
+  const isDailyModeInterval =
+    isDailyPracticeSelected() &&
+    dailyPracticeState?.phase === 'modeInterval';
+
+  const relativeMode = isDailyModeInterval
+    ? dailyPracticeState.modeIntervalRemainingModes[0]
+    : randomItem(npsModeOrder);
+
   const relativeRoot = getRelativeModeRoot(
     baseRoot,
     baseScaleName,
     relativeMode
   );
-  const [relativeSemitones, relativeInterval] =
-    randomItem(scales[relativeMode]);
+
+  const [relativeSemitones, relativeInterval] = isDailyModeInterval
+    ? scales[relativeMode][0]
+    : randomItem(scales[relativeMode]);
 
   const targetPitchClass =
     mod12(relativeRoot + relativeSemitones);
