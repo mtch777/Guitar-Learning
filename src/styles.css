@@ -546,6 +546,18 @@ select.stateSelect {
   opacity: .7;
 }
 
+.dailyPracticeStatus {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  padding: 3px 7px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--header-bg);
+  font-size: 12px;
+  line-height: 14px;
+  opacity: .82;
+}
+
 .intervalQuizPrompt {
   display: flex;
   align-items: baseline;
