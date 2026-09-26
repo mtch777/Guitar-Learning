@@ -1224,7 +1224,8 @@ function buildIntervalControls() {
 
       checkbox.checked =
         getLessonType() ===
-          'shape'
+          'shape' &&
+        !isDailyPracticeSelected()
           ? intervalName === 'R'
           : true;
 
@@ -1435,6 +1436,17 @@ function handleNpsModeChange(event) {
 }
 
 function getSelectedNpsModes() {
+  if (
+    isDailyPracticeSelected() &&
+    dailyPracticeState?.phase ===
+      'pairs'
+  ) {
+    return [
+      dailyPracticeState
+        .activeMode
+    ];
+  }
+
   return [
     ...document.querySelectorAll(
       '.npsModeCheckbox:checked'
@@ -1522,6 +1534,17 @@ function handleStartDegreeChange(event) {
 }
 
 function getSelectedStartDegrees() {
+  if (
+    isDailyPracticeSelected() &&
+    dailyPracticeState?.phase ===
+      'pairs' &&
+    ['nps', 'rrPent', 'caged'].includes(
+      getLessonType()
+    )
+  ) {
+    return ['R'];
+  }
+
   return [
     ...document.querySelectorAll(
       '.startDegreeCheckbox:checked'
@@ -1701,6 +1724,13 @@ function updateDirectionSummary() {
    ========================================================= */
 
 function updateLessonControls() {
+  const selectedLessonType =
+    getSelectedLessonType();
+
+  const daily =
+    selectedLessonType ===
+      'daily';
+
   const lessonType =
     getLessonType();
 
@@ -1721,6 +1751,7 @@ function updateLessonControls() {
       'intervalLessonControls'
     )
     .hidden =
+      daily ||
       pentatonicLesson;
 
   document
@@ -1728,6 +1759,7 @@ function updateLessonControls() {
       'npsControls'
     )
     .hidden =
+      daily ||
       !pentatonicLesson;
 
   const startDegreeControl =
@@ -1745,6 +1777,7 @@ function updateLessonControls() {
       The generic NPS Start selector does not apply here.
     */
     startDegreeControl.hidden =
+      daily ||
       rrPent;
   }
 
@@ -1753,6 +1786,7 @@ function updateLessonControls() {
       'directionControl'
     )
     .hidden =
+      daily ||
       !(nps || rrPent);
 
   document
@@ -1760,6 +1794,7 @@ function updateLessonControls() {
       'cagedShapeControl'
     )
     .hidden =
+      daily ||
       !caged;
 
   document
@@ -1767,6 +1802,7 @@ function updateLessonControls() {
       'rrColorControl'
     )
     .hidden =
+      daily ||
       !rrPent;
 
   document
@@ -1774,6 +1810,7 @@ function updateLessonControls() {
       'orderControl'
     )
     .hidden =
+      daily ||
       pentatonicLesson;
 
   const intervalFieldLabel =
@@ -1787,6 +1824,28 @@ function updateLessonControls() {
         ? 'Starting Intervals'
         : 'Intervals';
   }
+
+  const rootDropdown =
+    document.getElementById(
+      'rootDropdown'
+    );
+
+  const scaleDropdown =
+    document.getElementById(
+      'scaleDropdown'
+    );
+
+  if (rootDropdown) {
+    rootDropdown.inert =
+      daily;
+  }
+
+  if (scaleDropdown) {
+    scaleDropdown.inert =
+      daily;
+  }
+
+  updateDailyPracticeStatus();
 }
 
 
