@@ -5937,10 +5937,37 @@ function completeExerciseAndContinue() {
 function buildTrainer() {
   cancelQuizTransition();
 
+  if (
+    isDailyPracticeSelected() &&
+    dailyPracticeState?.phase ===
+      'complete'
+  ) {
+    document
+      .getElementById(
+        'chartDiv'
+      )
+      .innerHTML = '';
+
+    document
+      .getElementById(
+        'answerNote'
+      )
+      .textContent =
+        'Daily practice complete!';
+
+    updateDailyPracticeStatus();
+    return;
+  }
+
   const lessonType =
     getLessonType();
 
-  const root =
+  const lessonDefinition =
+    getLessonDefinition(
+      lessonType
+    );
+
+  const baseRoot =
     Number(
       document
         .getElementById(
@@ -5949,18 +5976,46 @@ function buildTrainer() {
         .value
     );
 
-  const scaleName =
+  const baseScaleName =
     document
       .getElementById(
         'scaleSelect'
       )
       .value;
 
+  const exerciseKeyContext =
+    getDailyExerciseKeyContext(
+      baseRoot,
+      baseScaleName
+    );
+
+  const root =
+    exerciseKeyContext.root;
+
+  const scaleName =
+    exerciseKeyContext.scaleName;
+
   const tuning =
     getTuning();
 
   const selectedIntervals =
-    getSelectedIntervals();
+    (
+      isDailyPracticeSelected() &&
+      dailyPracticeState?.phase ===
+        'pairs' &&
+      lessonType ===
+        'shape'
+    )
+      ? scales[
+          scaleName
+        ].map(
+          ([
+            semitones,
+            intervalName
+          ]) =>
+            intervalName
+        )
+      : getSelectedIntervals();
 
   currentAnswer = null;
   currentNpsExercise = null;
@@ -5989,13 +6044,8 @@ function buildTrainer() {
   const allCells = [];
 
   const maxFret =
-    ['nps', 'rrPent', 'caged'].includes(
-      lessonType
-    )
-      ? 24
-      : lessonType === 'shape'
-        ? 15
-        : 12;
+    lessonDefinition.maxFret ??
+    12;
 
   const stringTopStart = 7;
   const stringTopEnd = 93;
@@ -6042,8 +6092,8 @@ function buildTrainer() {
     'fretboardStage';
 
   const hasStartCue =
-    ['nps', 'rrPent', 'shape', 'caged'].includes(
-      lessonType
+    Boolean(
+      lessonDefinition.hasStartCue
     );
 
   stage.classList.toggle(
