@@ -995,7 +995,18 @@ function startNextDailyPair() {
     Do NOT alter rootSelect / scaleSelect here.
     D# + the randomly chosen base mode remain fixed throughout
     the entire Daily Practice session.
+
+    Phase 2 always starts from ROOT only:
+      - Closest Interval uses the interval/start selector.
+      - 2/3 NPS and CAGED use the generic Start selector.
+      - R-R is inherently root-starting.
+
+    Reset both selectors before every pair so no Phase 1
+    "all intervals" state can leak into a later exercise.
   */
+  setDailyIntervalSelection(
+    false
+  );
   setDailyStartDegreeRoot();
   updateDailyPracticeStatus();
   buildTrainer();
