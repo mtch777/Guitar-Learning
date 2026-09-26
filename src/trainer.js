@@ -5699,7 +5699,7 @@ function advanceShapeExercise() {
 
   if (!nextInterval) {
     scheduleQuizTransition(
-      buildTrainer
+      completeExerciseAndContinue
     );
 
     return;
@@ -5726,6 +5726,20 @@ function advanceShapeExercise() {
       .size;
 
   displayShapeQuestion();
+}
+
+
+function completeExerciseAndContinue() {
+  if (
+    isDailyPracticeSelected() &&
+    dailyPracticeState?.phase ===
+      'pairs'
+  ) {
+    completeDailyPair();
+    return;
+  }
+
+  buildTrainer();
 }
 
 
@@ -7347,6 +7361,13 @@ document
                     }
                   );
 
+                if (
+                  questions.length === 0 &&
+                  finishDailyIntervals()
+                ) {
+                  return;
+                }
+
                 generateIntervalAnswer();
               }
             );
@@ -7527,8 +7548,8 @@ document
             .remainingCellKeys
             .size === 0
         ) {
-          scheduleQuizTransition(
-            buildTrainer
+           scheduleQuizTransition(
+            completeExerciseAndContinue
           );
         }
 
@@ -7610,8 +7631,8 @@ document
             .remainingCellKeys
             .size === 0
         ) {
-          scheduleQuizTransition(
-            buildTrainer
+           scheduleQuizTransition(
+            completeExerciseAndContinue
           );
         }
 
@@ -7699,9 +7720,9 @@ document
           .remainingCellKeys
           .size === 0
       ) {
-        scheduleQuizTransition(
-          buildTrainer
-        );
+         scheduleQuizTransition(
+            completeExerciseAndContinue
+          );
       }
     }
   );
@@ -7757,6 +7778,15 @@ document
   .addEventListener(
     'change',
     () => {
+      if (
+        getSelectedLessonType() ===
+        'daily'
+      ) {
+        initializeDailyPractice();
+      } else {
+        dailyPracticeState = null;
+      }
+
       updateLessonControls();
       buildTrainer();
     }
@@ -7887,7 +7917,76 @@ document
   .addEventListener('click', () => {
     showAll = false;
 
-    document.getElementById('showAllButton').innerText = 'Show Answer';
+    document
+      .getElementById(
+        'showAllButton'
+      )
+      .innerText =
+        'Show Answer';
+
+    if (
+      isDailyPracticeSelected() &&
+      dailyPracticeState
+    ) {
+      if (
+        dailyPracticeState.phase ===
+        'intervals'
+      ) {
+        if (
+          currentAnswer
+        ) {
+          const questionIndex =
+            questions.indexOf(
+              currentAnswer
+            );
+
+          if (
+            questionIndex !== -1
+          ) {
+            questions.splice(
+              questionIndex,
+              1
+            );
+          }
+        }
+
+        document
+          .querySelectorAll(
+            '.noteCell.correct'
+          )
+          .forEach(
+            cell => {
+              cell.classList.remove(
+                'correct'
+              );
+
+              restoreCellDisplay(
+                cell
+              );
+            }
+          );
+
+        if (
+          questions.length === 0
+        ) {
+          finishDailyIntervals();
+        } else {
+          generateIntervalAnswer();
+        }
+
+        return;
+      }
+
+      if (
+        dailyPracticeState.phase ===
+        'pairs'
+      ) {
+        completeDailyPair();
+        return;
+      }
+
+      return;
+    }
 
     buildTrainer();
   });
