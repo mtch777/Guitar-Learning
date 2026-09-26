@@ -686,6 +686,46 @@ button.uiButton:disabled {
 
 
 /* =========================================================
+   MODE INTERVAL MATCHING
+   ========================================================= */
+
+.modeIntervalChoices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: max-content;
+  max-width: 100%;
+  padding: 12px 0;
+}
+
+.modeIntervalChoice {
+  min-width: 46px;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 7px;
+  background: var(--control-bg);
+  color: var(--control-text);
+  font: 600 14px/1 Arial, sans-serif;
+  cursor: pointer;
+}
+
+.modeIntervalChoice:hover {
+  background: var(--hover-bg);
+}
+
+.modeIntervalChoice.correct {
+  border-color: #34a853;
+  background: #34a853;
+  color: #000;
+}
+
+.modeIntervalChoice.wrong {
+  border-color: #e32626;
+  color: #e32626;
+}
+
+/* =========================================================
    FRETBOARD STRUCTURE
    start cue | open strings | playable neck
    ========================================================= */
