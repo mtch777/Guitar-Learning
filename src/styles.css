@@ -723,14 +723,18 @@ button.uiButton:disabled {
 
 .fretboardStartCueLayer {
   grid-column: 1;
+  grid-row: 1;
+  width: 100%;
 }
 
 .fretboardOpenStrings {
   grid-column: 2;
+  grid-row: 1;
 }
 
 .physicalFretboard {
   grid-column: 3;
+  grid-row: 1;
   overflow: visible;
   background:
     linear-gradient(
@@ -905,12 +909,11 @@ button.uiButton:disabled {
 .npsStartGuide {
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
-  transform: translateY(-50%);
+  left: 50%;
+  width: max-content;
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 4px;
   z-index: 20;
   pointer-events: none;
