@@ -6785,11 +6785,23 @@ function buildTrainer() {
     stringLine.className =
       'fretboardString';
 
+    const isBronzeString =
+      displayIndex >= 3;
+
     stringLine.classList.add(
-      displayIndex < 3
-        ? 'silverString'
-        : 'bronzeString'
+      isBronzeString
+        ? 'bronzeString'
+        : 'silverString'
     );
+
+    /*
+      Set the material color directly on the rendered string so the
+      bottom five cannot inherit/retain the base silver background.
+    */
+    stringLine.style.background =
+      isBronzeString
+        ? 'linear-gradient(to bottom, #f0ad72 0%, #a65324 48%, #713416 58%, #d98549 100%)'
+        : 'linear-gradient(to bottom, #f7f8f8 0%, #a6abad 48%, #6f7476 58%, #e7e9e9 100%)';
 
     stringLine.style.top =
       topPercent + '%';
