@@ -6785,6 +6785,12 @@ function buildTrainer() {
     stringLine.className =
       'fretboardString';
 
+    stringLine.classList.add(
+      displayIndex < 3
+        ? 'silverString'
+        : 'bronzeString'
+    );
+
     stringLine.style.top =
       topPercent + '%';
 
