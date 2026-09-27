@@ -110,6 +110,13 @@ document
   .checked =
     false;
 
+document
+  .getElementById(
+    'completedIntervalsToggle'
+  )
+  .checked =
+    true;
+
 // Visible single-selects share one component; hidden native selects remain state only.
 buildUnifiedSingleSelect('lessonTypeDropdown', 'lessonTypeSelect');
 buildUnifiedSingleSelect('rootDropdown', 'rootSelect', 'rootOptions');
@@ -1989,6 +1996,16 @@ function getRrColorNotesEnabled() {
   );
 }
 
+function getCompletedIntervalsVisible() {
+  return Boolean(
+    document
+      .getElementById(
+        'completedIntervalsToggle'
+      )
+      ?.checked
+  );
+}
+
 function getDirectionLabel(value) {
   const found = directionOptions.find(([optionValue]) => optionValue === value);
   return found ? found[1] : value;
@@ -2099,6 +2116,14 @@ function updateLessonControls() {
     .hidden =
       daily ||
       pentatonicLesson;
+
+  document
+    .getElementById(
+      'completedIntervalsControl'
+    )
+    .hidden =
+      daily ||
+      lessonType !== 'intervals';
 
   const intervalFieldLabel =
     document.querySelector(
@@ -2249,6 +2274,18 @@ function restoreCellDisplay(cell) {
     cell.classList.contains(
       'correct'
     )
+  ) {
+    revealCell(cell);
+    return;
+  }
+
+  if (
+    getLessonType() ===
+      'intervals' &&
+    cell.classList.contains(
+      'intervalCompleted'
+    ) &&
+    getCompletedIntervalsVisible()
   ) {
     revealCell(cell);
     return;
@@ -7878,6 +7915,12 @@ document
                     correctCell => {
                       correctCell
                         .classList
+                        .add(
+                          'intervalCompleted'
+                        );
+
+                      correctCell
+                        .classList
                         .remove(
                           'correct'
                         );
@@ -8442,6 +8485,33 @@ document
       ) {
         buildTrainer();
       }
+    }
+  );
+
+document
+  .getElementById(
+    'completedIntervalsToggle'
+  )
+  .addEventListener(
+    'change',
+    () => {
+      if (
+        getLessonType() !==
+        'intervals'
+      ) {
+        return;
+      }
+
+      document
+        .querySelectorAll(
+          '.noteCell.intervalCompleted'
+        )
+        .forEach(
+          cell =>
+            restoreCellDisplay(
+              cell
+            )
+        );
     }
   );
 
