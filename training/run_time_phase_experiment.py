@@ -86,11 +86,19 @@ def extract_window(y,sr,midi,t0,t1):
     for h in range(1,16):
         target=f0*h
         if target>=sr/2:
-            detunes.append(0.0); widths.append(0.0); contrasts.append(0.0); continue
+            detunes.append(0.0); widths.append(0.0); contrasts.append(0.0)
+            vals[f"detune_h{h}"]=0.0
+            vals[f"width_h{h}"]=0.0
+            vals[f"contrast_h{h}"]=0.0
+            continue
         search=max(8.0,target*.02)
         ix=np.where(np.abs(freqs-target)<=search)[0]
         if not len(ix):
-            detunes.append(0.0); widths.append(0.0); contrasts.append(0.0); continue
+            detunes.append(0.0); widths.append(0.0); contrasts.append(0.0)
+            vals[f"detune_h{h}"]=0.0
+            vals[f"width_h{h}"]=0.0
+            vals[f"contrast_h{h}"]=0.0
+            continue
         pi=ix[np.argmax(spec[ix])]; pf=max(freqs[pi],EPS); pk=max(spec[pi],EPS)
         detunes.append(float(1200*np.log2(pf/target)))
         half=pk/np.sqrt(2); l=pi; r=pi
