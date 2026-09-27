@@ -6797,7 +6797,10 @@ function buildTrainer() {
       (
         1.25 +
         displayIndex *
-          0.58
+          (
+            (10.62 - 1.25) /
+            (tuning.length - 1)
+          )
       ) + 'px';
 
     stringLine.classList.add(
