@@ -6788,23 +6788,12 @@ function buildTrainer() {
     stringLine.style.top =
       topPercent + '%';
 
-    /*
-      Visual string gauges follow the displayed fretboard order:
-      displayIndex 0 = highest/thinnest string, 7 = lowest/thickest.
-      Top 3 strings are plain steel/silver; bottom 5 are wound/copper.
-    */
     stringLine.style.height =
       (
-        1.25 +
+        1 +
         displayIndex *
-          0.58
+          0.42
       ) + 'px';
-
-    stringLine.classList.add(
-      displayIndex < 3
-        ? 'silverString'
-        : 'copperString'
-    );
 
     fretboard.appendChild(
       stringLine
