@@ -1,0 +1,71 @@
+name: String classifier benchmark
+
+on:
+  push:
+    paths:
+      - ".github/workflows/string-classifier-benchmark.yml"
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "numpy<2.1" pandas scipy librosa scikit-learn xgboost joblib soundfile
+      - name: Verify dataset
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path("training/data/ringing_384")
+          wavs=list(p.glob("*.wav"))
+          print("WAV count:", len(wavs))
+          print("Bytes:", sum(x.stat().st_size for x in wavs))
+          assert len(wavs)==384
+          PY
+      - name: Run 107-feature baseline
+        run: |
+          python training/train_full_ringing.py training/data/ringing_384 \
+            --feature-set baseline \
+            --trees 100 \
+            --out training/results/benchmark_baseline
+      - name: Run full harmonic feature model
+        run: |
+          python training/train_full_ringing.py training/data/ringing_384 \
+            --feature-set full \
+            --trees 100 \
+            --out training/results/benchmark_full
+      - name: Analyze baseline errors
+        run: |
+          python training/analyze_classifier_errors.py \
+            training/results/benchmark_baseline/leave_one_pitch_out_predictions.csv \
+            --out training/results/benchmark_baseline/error_analysis
+      - name: Analyze full-model errors
+        run: |
+          python training/analyze_classifier_errors.py \
+            training/results/benchmark_full/leave_one_pitch_out_predictions.csv \
+            --out training/results/benchmark_full/error_analysis
+      - name: Print comparison
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for name in ("benchmark_baseline","benchmark_full"):
+              p=Path("training/results")/name/"metrics.json"
+              d=json.loads(p.read_text())
+              print(name, json.dumps(d, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: string-classifier-benchmark
+          path: |
+            training/results/benchmark_baseline
+            training/results/benchmark_full
+          if-no-files-found: error
