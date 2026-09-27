@@ -5442,14 +5442,26 @@ function createCagedExercise(
           candidates
         );
 
-      const startInterval =
-        getNpsIntervalForPitch(
-          midiToPitchClass(
-            startItem.absolutePitch
-          ),
-          modeRoot,
-          modeName
-        );
+      const exerciseItems = cells.filter(item =>
+        selectedCandidate.requiredCellKeys.has(
+          makeCellKey(item.stringIndex, item.fret)
+        )
+      );
+
+      const lowestItem = exerciseItems.reduce((lowest, item) =>
+        item.absolutePitch < lowest.absolutePitch ? item : lowest
+      );
+
+      const lowestCellKey = makeCellKey(
+        lowestItem.stringIndex,
+        lowestItem.fret
+      );
+
+      const startInterval = getNpsIntervalForPitch(
+        midiToPitchClass(lowestItem.absolutePitch),
+        modeRoot,
+        modeName
+      );
 
 
       return {
@@ -5519,25 +5531,26 @@ function createCagedExercise(
           CAGED or NPS -> CAGED.
         */
         rootCellKey:
-          startCellKey,
+          lowestCellKey,
 
         selectedRootStringIndex:
-          startItem.stringIndex,
+          lowestItem.stringIndex,
 
         selectedRootFret:
-          startItem.fret,
+          lowestItem.fret,
 
         startInterval,
 
-        startCellKey,
+        startCellKey:
+          lowestCellKey,
 
         startStringIndex:
-          startItem.stringIndex,
+          lowestItem.stringIndex,
 
         startStringName:
           midiToScientificPitch(
             currentTuning[
-              startItem.stringIndex
+              lowestItem.stringIndex
             ]
           ),
 
