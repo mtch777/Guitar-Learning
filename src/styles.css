@@ -857,12 +857,10 @@ button.uiButton:disabled {
 
 .fretboardString.copperString {
   background:
-    linear-gradient(
-      #f0b06e 0%,
-      #b9682f 27%,
-      #713918 52%,
-      #d88745 76%,
-      #8b481f 100%
+    repeating-linear-gradient(
+      45deg,
+      #f0b06e 0 2px,
+      #8b481f 2px 4px
     );
   box-shadow:
     0 1px 1px rgba(0, 0, 0, .62),
