@@ -6797,13 +6797,16 @@ function buildTrainer() {
     );
 
     /*
-      Set the material color directly on the rendered string so the
-      bottom five cannot inherit/retain the base silver background.
+      Keep the material surface in one value so wound-string layers
+      render with identical color/lighting at the same vertical position.
     */
-    stringLine.style.background =
+    const stringSurface =
       isBronzeString
         ? 'linear-gradient(to bottom, #f0ad72 0%, #a65324 48%, #713416 58%, #d98549 100%)'
         : 'linear-gradient(to bottom, #f7f8f8 0%, #a6abad 48%, #6f7476 58%, #e7e9e9 100%)';
+
+    stringLine.style.background =
+      stringSurface;
 
     stringLine.style.top =
       topPercent + '%';
@@ -6823,24 +6826,27 @@ function buildTrainer() {
       );
 
       /*
-        The wound-string mask has transparent coil valleys.
-        Put a fretboard-surface occluder behind the string so
-        frets never show through those valleys.
+        The rounded-coil mask has transparent valleys. Fill the center
+        of those valleys with the exact same opaque string surface so
+        frets and fretboard graphics can never alter the string color.
       */
-      const stringOccluder =
+      const stringCore =
         document.createElement('div');
 
-      stringOccluder.className =
-        'fretboardStringOccluder';
+      stringCore.className =
+        'fretboardStringCore';
 
-      stringOccluder.style.top =
+      stringCore.style.top =
         topPercent + '%';
 
-      stringOccluder.style.height =
+      stringCore.style.height =
         stringThicknesses[displayIndex] + 'px';
 
+      stringCore.style.background =
+        stringSurface;
+
       fretboard.appendChild(
-        stringOccluder
+        stringCore
       );
     }
 
