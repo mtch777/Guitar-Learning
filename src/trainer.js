@@ -6821,6 +6821,27 @@ function buildTrainer() {
         '--winding-opacity',
         [0.68, 0.62, 0.55, 0.45][stringIndex]
       );
+
+      /*
+        The wound-string mask has transparent coil valleys.
+        Put a fretboard-surface occluder behind the string so
+        frets never show through those valleys.
+      */
+      const stringOccluder =
+        document.createElement('div');
+
+      stringOccluder.className =
+        'fretboardStringOccluder';
+
+      stringOccluder.style.top =
+        topPercent + '%';
+
+      stringOccluder.style.height =
+        stringThicknesses[displayIndex] + 'px';
+
+      fretboard.appendChild(
+        stringOccluder
+      );
     }
 
     fretboard.appendChild(
