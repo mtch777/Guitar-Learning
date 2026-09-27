@@ -52,17 +52,26 @@ def extract_window(y,sr,midi,t0,t1):
     vals["env_zcr"]=float(np.mean(librosa.feature.zero_crossing_rate(seg)))
     vals["env_energy"]=float(np.sum(seg**2))
 
-    # MFCC/timbre.
-    mf=librosa.feature.mfcc(y=seg,sr=sr,n_mfcc=13,n_fft=min(2048,max(256,2**int(np.floor(np.log2(len(seg)))))))
+    # MFCC/timbre. Analysis FFT must never exceed the observed window.
+    # Use a power-of-two <= segment length and reduce mel resolution for very
+    # short attack windows so every mel band is supported.
+    analysis_nfft=max(64,2**int(np.floor(np.log2(len(seg)))))
+    analysis_nfft=min(2048,analysis_nfft,len(seg))
+    analysis_hop=max(16,analysis_nfft//4)
+    n_mels=min(40,max(16,analysis_nfft//8))
+    mf=librosa.feature.mfcc(y=seg,sr=sr,n_mfcc=13,n_fft=analysis_nfft,
+                            hop_length=analysis_hop,n_mels=n_mels)
     for i in range(13):
         vals[f"mfcc_{i+1}_mean"]=float(np.mean(mf[i]))
         vals[f"mfcc_{i+1}_std"]=float(np.std(mf[i]))
 
-    # Generic spectral shape.
+    # Generic spectral shape uses the same length-safe analysis FFT.
+    # Harmonic peak analysis below intentionally uses a separate zero-padded
+    # FFT for interpolating peak locations.
     nfft=max(8192,1<<(max(256,len(seg))-1).bit_length())
     spec=np.abs(np.fft.rfft(seg*np.hanning(len(seg)),n=nfft))
     freqs=np.fft.rfftfreq(nfft,1/sr)
-    S=np.abs(librosa.stft(seg,n_fft=min(2048,nfft),hop_length=256))
+    S=np.abs(librosa.stft(seg,n_fft=analysis_nfft,hop_length=analysis_hop))
     vals["spec_centroid"]=float(np.mean(librosa.feature.spectral_centroid(S=S,sr=sr)))
     vals["spec_bandwidth"]=float(np.mean(librosa.feature.spectral_bandwidth(S=S,sr=sr)))
     vals["spec_rolloff"]=float(np.mean(librosa.feature.spectral_rolloff(S=S,sr=sr)))
