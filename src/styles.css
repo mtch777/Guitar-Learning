@@ -845,6 +845,33 @@ button.uiButton:disabled {
   z-index: 8;
 }
 
+/*
+  Wound strings use a transparent repeating mask to create the
+  rounded coil silhouette. Without an occlusion layer, those
+  transparent valleys reveal frets underneath and make the string
+  appear darker at every fret crossing.
+
+  This layer reproduces the fretboard surface directly beneath the
+  wound string. It sits above frets but below the string, so the
+  string appearance is independent of whatever geometry is behind it.
+*/
+.fretboardStringOccluder {
+  position: absolute;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, .07),
+      rgba(255, 255, 255, .025) 40%,
+      rgba(0, 0, 0, .08)
+    ),
+    #7d5a29;
+  z-index: 7;
+}
+
 .fretboardString.woundString {
   -webkit-mask-image: radial-gradient(ellipse 87% 50% at center, #000 96%, transparent 100%);
   -webkit-mask-size: var(--winding-step) 100%;
