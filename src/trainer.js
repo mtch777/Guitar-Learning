@@ -6756,6 +6756,8 @@ function buildTrainer() {
     Internal stringIndex remains unchanged:
     0 = physical String 1 / lowest.
   */
+  // High to low: three plain strings, then five progressively heavier wound strings.
+  const stringThicknesses = [0.8, 1, 1.35, 2.4, 3.35, 4.3, 5.1, 5.9];
 
   for (
     let displayIndex = 0;
@@ -6807,11 +6809,7 @@ function buildTrainer() {
       topPercent + '%';
 
     stringLine.style.height =
-      (
-        1 +
-        displayIndex *
-          0.42
-      ) + 'px';
+      stringThicknesses[displayIndex] + 'px';
 
     fretboard.appendChild(
       stringLine
