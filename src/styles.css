@@ -850,6 +850,28 @@ button.uiButton:disabled {
   z-index: 8;
 }
 
+.fretboardString.silverString {
+  background-color: #bfc3c6;
+  background-image:
+    linear-gradient(
+      to bottom,
+      #f4f5f5 0%,
+      #9da2a5 50%,
+      #f4f5f5 100%
+    );
+}
+
+.fretboardString.bronzeString {
+  background-color: #b66a32;
+  background-image:
+    linear-gradient(
+      to bottom,
+      #e2a06a 0%,
+      #8f4c24 50%,
+      #e2a06a 100%
+    );
+}
+
 .fretboardPositionDot {
   position: absolute;
   width: 24px;
