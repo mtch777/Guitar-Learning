@@ -838,10 +838,16 @@ button.uiButton:disabled {
   left: 0;
   right: 0;
   transform: translateY(-50%);
-  background:
-    linear-gradient(#ded4b5, #81785d 45%, #ded4b5);
+  background-color: #b8b8b8;
+  background-image:
+    linear-gradient(
+      to bottom,
+      #eeeeee 0%,
+      #9a9a9a 50%,
+      #eeeeee 100%
+    );
   box-shadow: 0 1px 1px rgba(0, 0, 0, .34);
-  z-index: 4;
+  z-index: 8;
 }
 
 .fretboardPositionDot {
