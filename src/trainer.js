@@ -6793,23 +6793,11 @@ function buildTrainer() {
       displayIndex 0 = highest/thinnest string, 7 = lowest/thickest.
       Top 3 strings are plain steel/silver; bottom 5 are wound/copper.
     */
-    const thinnestStringPx = 1.25;
-    const thickestStringPx = 10.62;
-    const gaugeRatio =
-      Math.pow(
-        thickestStringPx /
-          thinnestStringPx,
-        1 /
-          (tuning.length - 1)
-      );
-
     stringLine.style.height =
       (
-        thinnestStringPx *
-        Math.pow(
-          gaugeRatio,
-          displayIndex
-        )
+        1.25 +
+        displayIndex *
+          0.58
       ) + 'px';
 
     stringLine.classList.add(
