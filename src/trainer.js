@@ -5784,35 +5784,40 @@ function createShapeExercise(
     return null;
   }
 
-  const startInterval =
+  /*
+    The selected interval still anchors WHICH closest-note shape
+    is generated. The quiz start, however, is the physically
+    lowest-pitched note in that completed shape.
+  */
+  const anchorInterval =
     randomItem(
       selectedIntervals
     );
 
-  const startCandidates =
+  const anchorCandidates =
     allCells.filter(
       item =>
         item.element.dataset.interval ===
-          startInterval &&
+          anchorInterval &&
         item.fret >= 0 &&
         item.fret <= 12
     );
 
   if (
-    startCandidates.length === 0
+    anchorCandidates.length === 0
   ) {
     return null;
   }
 
-  const startItem =
+  const anchorItem =
     randomItem(
-      startCandidates
+      anchorCandidates
     );
 
-  const startCellKey =
+  const anchorCellKey =
     makeCellKey(
-      startItem.stringIndex,
-      startItem.fret
+      anchorItem.stringIndex,
+      anchorItem.fret
     );
 
   const allScaleIntervals =
@@ -5826,29 +5831,26 @@ function createShapeExercise(
         intervalName
     );
 
-  const remainingIntervals =
-    allScaleIntervals.filter(
-      interval =>
-        interval !==
-        startInterval
-    );
-
-  const targetCellKeysByInterval =
-    new Map();
-
   const requiredCellKeys =
     new Set([
-      startCellKey
+      anchorCellKey
     ]);
 
   for (
     const interval of
-    remainingIntervals
+    allScaleIntervals
   ) {
+    if (
+      interval ===
+      anchorInterval
+    ) {
+      continue;
+    }
+
     const closestCells =
       getClosestShapeCell(
         allCells,
-        startItem,
+        anchorItem,
         interval
       );
 
@@ -5859,29 +5861,114 @@ function createShapeExercise(
       continue;
     }
 
-    const keys =
-      new Set(
-        closestCells.map(
-          closest =>
-            makeCellKey(
-              closest.stringIndex,
-              closest.fret
-            )
-        )
-      );
-
-    targetCellKeysByInterval.set(
-      interval,
-      keys
-    );
-
-    keys.forEach(
-      key =>
+    closestCells.forEach(
+      closest =>
         requiredCellKeys.add(
-          key
+          makeCellKey(
+            closest.stringIndex,
+            closest.fret
+          )
         )
     );
   }
+
+  const shapeItems =
+    allCells.filter(
+      item =>
+        requiredCellKeys.has(
+          makeCellKey(
+            item.stringIndex,
+            item.fret
+          )
+        )
+    );
+
+  if (
+    shapeItems.length === 0
+  ) {
+    return null;
+  }
+
+  const startItem =
+    shapeItems.reduce(
+      (lowest, item) => {
+        const itemPitch =
+          currentTuning[
+            item.stringIndex
+          ] +
+          item.fret;
+
+        const lowestPitch =
+          currentTuning[
+            lowest.stringIndex
+          ] +
+          lowest.fret;
+
+        return itemPitch <
+          lowestPitch
+          ? item
+          : lowest;
+      }
+    );
+
+  const startInterval =
+    startItem.element.dataset.interval;
+
+  const startCellKey =
+    makeCellKey(
+      startItem.stringIndex,
+      startItem.fret
+    );
+
+  /*
+    Build the prompt map from the completed shape itself.
+    This means the generated anchor is still quizzed if it is
+    not the lowest note, while the lowest/start note is not
+    asked for a second time.
+  */
+  const targetCellKeysByInterval =
+    new Map();
+
+  shapeItems.forEach(
+    item => {
+      const key =
+        makeCellKey(
+          item.stringIndex,
+          item.fret
+        );
+
+      if (
+        key ===
+        startCellKey
+      ) {
+        return;
+      }
+
+      const interval =
+        item.element.dataset.interval;
+
+      if (
+        !targetCellKeysByInterval
+          .has(interval)
+      ) {
+        targetCellKeysByInterval.set(
+          interval,
+          new Set()
+        );
+      }
+
+      targetCellKeysByInterval
+        .get(interval)
+        .add(key);
+    }
+  );
+
+  const remainingIntervals =
+    allScaleIntervals.filter(
+      interval =>
+        targetCellKeysByInterval
+          .has(interval)
+    );
 
   const order =
     document
@@ -5893,17 +5980,9 @@ function createShapeExercise(
   const promptQueue =
     order === 'random'
       ? shuffleList(
-          remainingIntervals.filter(
-            interval =>
-              targetCellKeysByInterval
-                .has(interval)
-          )
+          remainingIntervals
         )
-      : remainingIntervals.filter(
-          interval =>
-            targetCellKeysByInterval
-              .has(interval)
-        );
+      : remainingIntervals;
 
   return {
     startInterval,
@@ -5939,7 +6018,6 @@ function createShapeExercise(
       'start'
   };
 }
-
 
 function displayShapeQuestion() {
   const answerDisplay =
