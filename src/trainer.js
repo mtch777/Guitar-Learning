@@ -1543,6 +1543,16 @@ function handleIntervalChange(event) {
 }
 
 function getSelectedIntervals() {
+  // During Daily Practice pair lessons, every quiz that has a selectable
+  // starting interval is temporarily root-only. Phase 1 remains all intervals.
+  if (
+    isDailyPracticeSelected() &&
+    dailyPracticeState?.phase === 'pairs' &&
+    ['shape'].includes(getLessonType())
+  ) {
+    return ['R'];
+  }
+
   const scaleName =
     document
       .getElementById('scaleSelect')
