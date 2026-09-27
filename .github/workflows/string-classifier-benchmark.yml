@@ -1,4 +1,4 @@
-name: String classifier benchmark
+name: String classifier time-phase experiment
 
 on:
   push:
@@ -30,48 +30,16 @@ jobs:
           print("Bytes:", sum(x.stat().st_size for x in wavs))
           assert len(wavs)==384
           PY
-      - name: Run 107-feature baseline
-        run: |
-          python training/train_full_ringing.py training/data/ringing_384 \
-            --feature-set baseline \
-            --trees 100 \
-            --out training/results/benchmark_baseline
-      - name: Run full harmonic feature model
-        run: |
-          python training/train_full_ringing.py training/data/ringing_384 \
-            --feature-set full \
-            --trees 100 \
-            --out training/results/benchmark_full
       - name: Run time-phase + feature-family experiment
         run: |
           python training/run_time_phase_experiment.py training/data/ringing_384 \
             --trees 40 \
             --out training/results/time_phase
-      - name: Analyze baseline errors
-        run: |
-          python training/analyze_classifier_errors.py \
-            training/results/benchmark_baseline/leave_one_pitch_out_predictions.csv \
-            --out training/results/benchmark_baseline/error_analysis
-      - name: Analyze full-model errors
-        run: |
-          python training/analyze_classifier_errors.py \
-            training/results/benchmark_full
-            training/results/time_phase/leave_one_pitch_out_predictions.csv \
-            --out training/results/benchmark_full/error_analysis
-      - name: Print comparison
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          for name in ("benchmark_baseline","benchmark_full"):
-              p=Path("training/results")/name/"metrics.json"
-              d=json.loads(p.read_text())
-              print(name, json.dumps(d, indent=2))
-          PY
+      - name: Print phase summary
+        if: success()
+        run: cat training/results/time_phase/summary.json
       - uses: actions/upload-artifact@v4
         with:
-          name: string-classifier-benchmark
-          path: |
-            training/results/benchmark_baseline
-            training/results/benchmark_full
-          if-no-files-found: error
+          name: string-classifier-time-phase
+          path: training/results/time_phase
+          if-no-files-found: warn
