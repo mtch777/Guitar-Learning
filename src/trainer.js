@@ -3760,13 +3760,63 @@ function getRrPentExerciseCandidates(
 
                   let selectedPath;
 
+                  /*
+                    R-R paths are stored as a flat note array, but each physical
+                    string's pattern is an indivisible exercise unit. Starting
+                    from an R may trim the STARTING string to that R (the cue),
+                    but the far end must never leave a partial string pattern
+                    such as a lone m3 from a 7-R-m3 group.
+                  */
                   if (
                     direction === 'up'
                   ) {
-                    selectedPath =
-                      path.slice(
-                        startIndex
+                    const lastStringIndex =
+                      path[path.length - 1]
+                        ?.stringIndex;
+
+                    const lastStringStart =
+                      path.findIndex(
+                        item =>
+                          item.stringIndex ===
+                          lastStringIndex
                       );
+
+                    const lastStringComplete =
+                      lastStringStart < 0 ||
+                      lastStringStart === 0 ||
+                      path
+                        .slice(lastStringStart)
+                        .every(
+                          item =>
+                            item.rrGroupNoteIndex ===
+                            path[
+                              lastStringStart
+                            ].rrGroupNoteIndex +
+                            path
+                              .slice(
+                                lastStringStart
+                              )
+                              .indexOf(item)
+                        );
+
+                    selectedPath =
+                      path.slice(startIndex);
+
+                    /*
+                      If the maximal chain begins partway through the final
+                      physical string group, discard that incomplete terminal
+                      fragment rather than quiz a malformed R-R pattern.
+                    */
+                    if (
+                      !lastStringComplete
+                    ) {
+                      selectedPath =
+                        selectedPath.filter(
+                          item =>
+                            item.stringIndex !==
+                            lastStringIndex
+                        );
+                    }
                   } else if (
                     direction === 'down'
                   ) {
