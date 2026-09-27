@@ -6811,6 +6811,18 @@ function buildTrainer() {
     stringLine.style.height =
       stringThicknesses[displayIndex] + 'px';
 
+    if (stringIndex < 4) {
+      stringLine.classList.add('woundString');
+      stringLine.style.setProperty(
+        '--winding-step',
+        [2.4, 2.2, 2, 1.8][stringIndex] + 'px'
+      );
+      stringLine.style.setProperty(
+        '--winding-opacity',
+        [0.68, 0.62, 0.55, 0.45][stringIndex]
+      );
+    }
+
     fretboard.appendChild(
       stringLine
     );
