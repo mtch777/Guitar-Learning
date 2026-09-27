@@ -842,6 +842,7 @@ button.uiButton:disabled {
       #eeeeee 100%
     );
   box-shadow: 0 1px 1px rgba(0, 0, 0, .34);
+  pointer-events: none;
   z-index: 8;
 }
 
@@ -997,7 +998,14 @@ button.uiButton:disabled {
   background: rgba(255, 255, 255, 0.035);
   color: transparent;
   box-shadow: none;
-  z-index: 12;
+
+  /*
+    Hidden note hit-targets must sit below the rendered strings.
+    They remain clickable because strings are pointer-events:none.
+    Revealed/correct/wrong notes lose this class and return to the
+    base fretboardNote z-index above the strings.
+  */
+  z-index: 6;
 }
 
 :root:not([data-theme="dark"]) .fretboardNote.unknownInterval {
