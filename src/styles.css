@@ -830,37 +830,60 @@ button.uiButton:disabled {
   width: 3px;
   transform: translateX(-1.5px);
   background:
-    linear-gradient(90deg, #777, #ededed 45%, #8d8d8d);
-  box-shadow: 1px 0 2px rgba(0, 0, 0, .22);
+    linear-gradient(
+      90deg,
+      #686868 0%,
+      #bfc2c3 24%,
+      #f2f3f3 48%,
+      #a4a7a8 72%,
+      #5f6061 100%
+    );
+  box-shadow:
+    1px 0 1px rgba(0, 0, 0, .26),
+    -1px 0 1px rgba(255, 255, 255, .12);
   z-index: 2;
 }
 
-/* Light beveled fret-end caps. These belong only to the frets. */
+/*
+  The fretwire itself reaches the neck edge. Only its final few pixels
+  flare into the small rounded/beveled fret-end profile.
+*/
 .fretboardFret::before,
 .fretboardFret::after {
   content: "";
   position: absolute;
   left: 50%;
-  width: 7px;
-  height: 7px;
+  width: 5px;
+  height: 5px;
   transform: translateX(-50%);
-  background: #d8d8d8;
-  clip-path: polygon(
-    50% 0,
-    100% 72%,
-    72% 100%,
-    28% 100%,
-    0 72%
-  );
+  background:
+    linear-gradient(
+      90deg,
+      #858585 0%,
+      #eeeeee 48%,
+      #929292 100%
+    );
+  border-radius: 50% 50% 30% 30%;
 }
 
 .fretboardFret::before {
   top: 0;
+  clip-path: polygon(
+    32% 0,
+    68% 0,
+    100% 100%,
+    0 100%
+  );
 }
 
 .fretboardFret::after {
   bottom: 0;
-  transform: translateX(-50%) rotate(180deg);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    68% 100%,
+    32% 100%
+  );
 }
 
 .fretboardString {
@@ -868,37 +891,44 @@ button.uiButton:disabled {
   left: 0;
   right: 0;
   transform: translateY(-50%);
+  border-radius: 999px;
+  overflow: hidden;
   z-index: 4;
 }
 
+/*
+  Fine repeating highlights represent individual wire wraps.
+  The period is intentionally tiny so the strings read as wound wire,
+  not broad diagonal stripes.
+*/
 .fretboardString.silverString {
   background:
     repeating-linear-gradient(
-      45deg,
-      #f7f8f8 0 1px,
-      #aeb4b8 1px 2px,
-      #62686c 2px 3px,
-      #dce0e2 3px 4px
+      88deg,
+      #62676a 0 .45px,
+      #aeb3b6 .45px .9px,
+      #f4f5f5 .9px 1.35px,
+      #8e9497 1.35px 1.8px
     );
-  background-size: 5px 5px;
   box-shadow:
-    0 1px 1px rgba(0, 0, 0, .62),
-    0 -1px 0 rgba(255, 255, 255, .45);
+    inset 0 1px 0 rgba(255, 255, 255, .55),
+    inset 0 -1px 0 rgba(0, 0, 0, .38),
+    0 1px 1px rgba(0, 0, 0, .48);
 }
 
 .fretboardString.copperString {
   background:
     repeating-linear-gradient(
-      45deg,
-      #eeb078 0 1px,
-      #bd6a35 1px 2px,
-      #713a1d 2px 3px,
-      #d88a50 3px 4px
+      88deg,
+      #633319 0 .45px,
+      #a95a2c .45px .9px,
+      #e6a066 .9px 1.35px,
+      #87431f 1.35px 1.8px
     );
-  background-size: 5px 5px;
   box-shadow:
-    0 1px 1px rgba(0, 0, 0, .72),
-    0 -1px 0 rgba(255, 218, 170, .48);
+    inset 0 1px 0 rgba(255, 218, 176, .48),
+    inset 0 -1px 0 rgba(70, 31, 12, .55),
+    0 1px 1px rgba(0, 0, 0, .52);
 }
 
 .fretboardPositionDot {
