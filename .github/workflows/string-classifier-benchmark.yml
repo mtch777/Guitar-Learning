@@ -41,6 +41,11 @@ jobs:
             --feature-set full \
             --trees 100 \
             --out training/results/benchmark_full
+      - name: Run time-phase + feature-family experiment
+        run: |
+          python training/run_time_phase_experiment.py training/data/ringing_384 \
+            --trees 40 \
+            --out training/results/time_phase
       - name: Analyze baseline errors
         run: |
           python training/analyze_classifier_errors.py \
@@ -49,7 +54,8 @@ jobs:
       - name: Analyze full-model errors
         run: |
           python training/analyze_classifier_errors.py \
-            training/results/benchmark_full/leave_one_pitch_out_predictions.csv \
+            training/results/benchmark_full
+            training/results/time_phase/leave_one_pitch_out_predictions.csv \
             --out training/results/benchmark_full/error_analysis
       - name: Print comparison
         run: |
