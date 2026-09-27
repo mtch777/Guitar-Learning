@@ -859,12 +859,15 @@ button.uiButton:disabled {
   background:
     repeating-linear-gradient(
       45deg,
-      #f0b06e 0 2px,
-      #8b481f 2px 4px
+      #ffd09a 0 1.5px,
+      #d78342 1.5px 3px,
+      #6e3517 3px 4.5px,
+      #b85d29 4.5px 6px
     );
+  background-size: 8px 8px;
   box-shadow:
-    0 1px 1px rgba(0, 0, 0, .62),
-    0 -1px 0 rgba(255, 207, 151, .30);
+    0 1px 1px rgba(0, 0, 0, .72),
+    0 -1px 0 rgba(255, 218, 170, .48);
 }
 
 .fretboardPositionDot {
