@@ -6811,19 +6811,6 @@ function buildTrainer() {
     stringLine.style.height =
       stringThicknesses[displayIndex] + 'px';
 
-    // Only the four lowest strings show distinct winding in the reference.
-    if (stringIndex < 4) {
-      stringLine.classList.add('woundString');
-      stringLine.style.setProperty(
-        '--winding-step',
-        [4, 3.5, 3, 2.5][stringIndex] + 'px'
-      );
-      stringLine.style.setProperty(
-        '--winding-opacity',
-        [1, 0.9, 0.8, 0.7][stringIndex]
-      );
-    }
-
     fretboard.appendChild(
       stringLine
     );
