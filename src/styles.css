@@ -838,10 +838,35 @@ button.uiButton:disabled {
   left: 0;
   right: 0;
   transform: translateY(-50%);
-  background:
-    linear-gradient(#ded4b5, #81785d 45%, #ded4b5);
-  box-shadow: 0 1px 1px rgba(0, 0, 0, .34);
   z-index: 4;
+}
+
+.fretboardString.silverString {
+  background:
+    linear-gradient(
+      #ffffff 0%,
+      #d9dde0 28%,
+      #747b80 52%,
+      #eef1f3 76%,
+      #a8adb1 100%
+    );
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, .62),
+    0 -1px 0 rgba(255, 255, 255, .45);
+}
+
+.fretboardString.copperString {
+  background:
+    linear-gradient(
+      #f0b06e 0%,
+      #b9682f 27%,
+      #713918 52%,
+      #d88745 76%,
+      #8b481f 100%
+    );
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, .62),
+    0 -1px 0 rgba(255, 207, 151, .30);
 }
 
 .fretboardPositionDot {
