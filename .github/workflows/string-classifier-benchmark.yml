@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - ".github/workflows/string-classifier-benchmark.yml"
+      - "training/run_time_phase_experiment.py"
   workflow_dispatch:
 
 jobs:
