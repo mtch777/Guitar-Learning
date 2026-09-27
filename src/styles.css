@@ -814,8 +814,10 @@ button.uiButton:disabled {
   position: absolute;
   top: 0;
   bottom: 0;
+  height: 100%;
   right: 100%;
   width: 14px;
+  box-sizing: border-box;
   background: #242424;
   border-right: 3px solid #b9b9b9;
   z-index: 3;
@@ -833,6 +835,34 @@ button.uiButton:disabled {
   z-index: 2;
 }
 
+/* Light beveled fret-end caps. These belong only to the frets. */
+.fretboardFret::before,
+.fretboardFret::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  transform: translateX(-50%);
+  background: #d8d8d8;
+  clip-path: polygon(
+    50% 0,
+    100% 72%,
+    72% 100%,
+    28% 100%,
+    0 72%
+  );
+}
+
+.fretboardFret::before {
+  top: 0;
+}
+
+.fretboardFret::after {
+  bottom: 0;
+  transform: translateX(-50%) rotate(180deg);
+}
+
 .fretboardString {
   position: absolute;
   left: 0;
@@ -843,13 +873,14 @@ button.uiButton:disabled {
 
 .fretboardString.silverString {
   background:
-    linear-gradient(
-      #ffffff 0%,
-      #d9dde0 28%,
-      #747b80 52%,
-      #eef1f3 76%,
-      #a8adb1 100%
+    repeating-linear-gradient(
+      45deg,
+      #f7f8f8 0 1px,
+      #aeb4b8 1px 2px,
+      #62686c 2px 3px,
+      #dce0e2 3px 4px
     );
+  background-size: 5px 5px;
   box-shadow:
     0 1px 1px rgba(0, 0, 0, .62),
     0 -1px 0 rgba(255, 255, 255, .45);
@@ -859,12 +890,12 @@ button.uiButton:disabled {
   background:
     repeating-linear-gradient(
       45deg,
-      #ffd09a 0 1.5px,
-      #d78342 1.5px 3px,
-      #6e3517 3px 4.5px,
-      #b85d29 4.5px 6px
+      #eeb078 0 1px,
+      #bd6a35 1px 2px,
+      #713a1d 2px 3px,
+      #d88a50 3px 4px
     );
-  background-size: 8px 8px;
+  background-size: 5px 5px;
   box-shadow:
     0 1px 1px rgba(0, 0, 0, .72),
     0 -1px 0 rgba(255, 218, 170, .48);
