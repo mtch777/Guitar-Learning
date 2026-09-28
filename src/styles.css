@@ -477,15 +477,6 @@ select.stateSelect {
   grid-row: 2;
 }
 
-.quizTuningControl {
-  grid-column: 2;
-  grid-row: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-}
-
 .promptSection {
   grid-column: 3;
   grid-row: 2;
@@ -751,6 +742,32 @@ button.uiButton:disabled {
   width: 100%;
   min-width: 0;
   padding-top: 8px;
+}
+
+.fretboardUtilityRow {
+  display: grid;
+  grid-template-columns:
+    0
+    var(--open-string-gutter)
+    minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 4px;
+}
+
+.trainerShell.hasStartCue .fretboardUtilityRow {
+  grid-template-columns:
+    var(--start-cue-gutter)
+    var(--open-string-gutter)
+    minmax(0, 1fr);
+}
+
+.fretboardUtilityRow .quizTuningControl {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
 }
 
 #chartDiv {
