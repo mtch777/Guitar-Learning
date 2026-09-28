@@ -1,0 +1,78 @@
+name: Step 10 hard MIDI vs multi-hypothesis inference
+
+on:
+  push:
+    paths:
+      - ".github/workflows/string-classifier-multi-hypothesis.yml"
+      - "training/run_multi_hypothesis_inference.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  STEP9_RUN: "36437584822"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install numpy pandas librosa scikit-learn xgboost
+      - name: Download preserved Step 9 outputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p training/input_step9
+          gh run download "$STEP9_RUN" -n string-classifier-pitch-detector -D training/input_step9
+          test -f training/input_step9/pitch_predictions.csv
+      - name: Preflight
+        run: |
+          python -m py_compile training/run_multi_hypothesis_inference.py
+          python training/run_multi_hypothesis_inference.py --help >/dev/null
+      - name: Smoke test whole joint-inference cycle
+        run: python -u training/run_multi_hypothesis_inference.py training/data/ringing_384 training/input_step9/pitch_predictions.csv --out training/results/multi_hypothesis_smoke --smoke
+      - name: Save smoke outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: string-classifier-multi-hypothesis-smoke
+          path: training/results/multi_hypothesis_smoke
+          if-no-files-found: warn
+
+  real:
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install numpy pandas librosa scikit-learn xgboost
+      - name: Download preserved Step 9 outputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p training/input_step9
+          gh run download "$STEP9_RUN" -n string-classifier-pitch-detector -D training/input_step9
+          test -f training/input_step9/pitch_predictions.csv
+      - name: Real multi-hypothesis inference
+        run: python -u training/run_multi_hypothesis_inference.py training/data/ringing_384 training/input_step9/pitch_predictions.csv --out training/results/multi_hypothesis
+      - name: Print summary
+        if: success()
+        run: cat training/results/multi_hypothesis/summary.json
+      - name: Save real outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: string-classifier-multi-hypothesis
+          path: training/results/multi_hypothesis
+          if-no-files-found: warn
