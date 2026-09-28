@@ -23,6 +23,7 @@ jobs:
         run: |
           python -m py_compile training/run_abesser_reproduction.py
           python training/run_abesser_reproduction.py --help >/dev/null
+          grep -q -- "--smoke" <(python training/run_abesser_reproduction.py --help)
       - name: Verify dataset
         run: |
           python - <<'PY'
