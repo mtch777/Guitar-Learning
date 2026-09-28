@@ -806,6 +806,8 @@ button.uiButton:disabled {
 }
 
 .physicalFretboard {
+  --fret-width: 6px;
+
   grid-column: 3;
   grid-row: 1;
   overflow: visible;
@@ -855,7 +857,6 @@ button.uiButton:disabled {
 }
 
 .fretboardFret {
-  --fret-width: 6px;
   --fret-face-revision: 1;
 
   position: absolute;
@@ -900,7 +901,7 @@ button.uiButton:disabled {
 .fretboardString {
   position: absolute;
   left: calc(-1 * var(--nut-width));
-  right: 0;
+  right: calc(var(--fret-width) / -2);
   transform: translateY(-50%);
   background-color: #b8b8b8;
   background-image:
@@ -959,7 +960,7 @@ button.uiButton:disabled {
 .fretboardStringCore {
   position: absolute;
   left: calc(-1 * var(--nut-width));
-  right: 0;
+  right: calc(var(--fret-width) / -2);
   transform: translateY(-50%);
   pointer-events: none;
   clip-path: inset(18% 0 18% 0);
