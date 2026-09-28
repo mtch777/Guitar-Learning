@@ -51,7 +51,12 @@ const files=fs.readdirSync(dir).filter(x=>RX.test(x)).sort(),rows=[];let done=0;
 for(const name of files){
   const m=name.match(RX),s=+m[1],f=+m[2],strength=m[3].toLowerCase(),truth=OPEN[s]+f;
   if(smoke&&!(truth>=54&&truth<=60&&strength==="normal"))continue;
-  const fileBuffer=fs.readFileSync(path.join(dir,name));\n  // node-wav constructs typed-array views at the WAV data-chunk offset. Some of\n  // our float WAVs have a non-4-byte-aligned chunk offset, so copy into an\n  // ArrayBuffer starting at byte zero before decoding.\n  const aligned=fileBuffer.buffer.slice(fileBuffer.byteOffset,fileBuffer.byteOffset+fileBuffer.byteLength);\n  const raw=wav.decode(Buffer.from(aligned)),mono=raw.channelData[0];
+  const fileBuffer=fs.readFileSync(path.join(dir,name));
+  // node-wav constructs typed-array views at the WAV data-chunk offset. Some of
+  // our float WAVs have a non-4-byte-aligned chunk offset, so copy into an
+  // ArrayBuffer starting at byte zero before decoding.
+  const aligned=fileBuffer.buffer.slice(fileBuffer.byteOffset,fileBuffer.byteOffset+fileBuffer.byteLength);
+  const raw=wav.decode(Buffer.from(aligned)),mono=raw.channelData[0];
   const y=trim(resampleLinear(mono,raw.sampleRate,22050)),sr=22050;
   const t0=performance.now(),p=yin(y.slice(0,Math.min(y.length,Math.round(.24*sr))),sr),pitchMs=performance.now()-t0;
   const feats=[];let featureMs=0;
