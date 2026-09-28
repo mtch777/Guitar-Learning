@@ -1241,22 +1241,31 @@ Run: `36470556416`
 Artifact: `10991343882`  
 Artifact SHA256: `b1c78236386f8ef36e15e613594d2de079f51b9902541ac5c9e25902f0094f76`
 
-### 15. Candidate-mask + context ablations
-**Smoke test → Real run. Priority increased.**
+### 15. Candidate-mask + context ablations — COMPLETE
+**Smoke test passed → Real run passed.**
 
-Raw acoustic performance is already high enough that trainer-known valid answer positions may meaningfully reduce actual gameplay errors.
+The experiment maintained the required separation between acoustic performance and trainer-context gameplay behavior.
 
-Maintain strict layers:
+Acoustic layers:
 
-A. raw acoustic  
-B. + physical candidate mask  
-C. + temporal evidence  
-D. + trainer-known answer context  
-E. final gameplay decision
+- A — raw first 40 ms acoustic probabilities: **311/384 = 80.9896%**
+- B — + physical MIDI/string/fret feasibility mask: **336/384 = 87.5000%**
+- C — + equal temporal mean of three independently trained 40 ms frames over 0–120 ms: **376/384 = 97.9167%**
 
-Never report D/E as acoustic classifier accuracy.
+The physical mask contributed **+25 correct recordings** and temporal aggregation contributed another **+40**. Layer C exactly reproduced Step 8's 376/384 result.
 
-This step should establish exactly how much production accuracy comes from each layer and whether context causes any harmful overrides.
+Because stored WAVs do not contain quiz state, D/E were controlled context scenarios rather than claims about live-lesson frequency. The test reproduced `getGuitarTrainerAudioHints(midi)` answer-string semantics:
+
+- no matching answer: **376/384**, no change
+- true string + strongest valid competitor: **376/384**, 0 rescues / 0 harmful overrides
+- true-string-only singleton: **384/384**, all 8 remaining acoustic errors rescued / 0 harmful overrides; optimistic upper bound only
+- deliberately wrong/stale singleton: **28/384**, **348 harmful overrides**
+
+Production implication: context is powerful only when trustworthy and sufficiently specific. It must remain a separately reported gameplay prior and should not blindly override strong acoustic evidence when context may be stale or wrong.
+
+Run: `36477918087`  
+Artifact: `10994099328`  
+Artifact SHA256: `fee5678b720cebf982eef64dadbafe25dfffb658145965b6773ab3f7c07e56ef`
 
 ### 16. Final time × method tournament
 **Smoke test → Real run. Scope reduced.**
@@ -1310,7 +1319,7 @@ Do not declare production success from offline stored-WAV accuracy alone.
 
 ## Revised strategic path
 
-The evidence after fourteen experiments changes the program from:
+The evidence after fifteen experiments changes the program from:
 
 > research many representations → add features → find the highest-accuracy classifier
 
@@ -1488,7 +1497,7 @@ Artifacts are not enough because they expire.
 
 # Exact continuation point
 
-**Completed through Step 14:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, hard-MIDI versus multi-hypothesis inference, compact learned spectral CNN, engineered+learned complementarity gating, and SIF feasibility.
+**Completed through Step 15:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, hard-MIDI versus multi-hypothesis inference, compact learned spectral CNN, engineered+learned complementarity gating, and SIF feasibility.
 
 **Current best overall physical-string classifier/fusion:** calibrated isotonic three-model fusion — **379/384 = 98.6979%, 5 errors**.
 
@@ -1502,6 +1511,8 @@ Artifacts are not enough because they expire.
 
 **Step 14 conclusion:** medium prototype personalization improved its lightweight MFCC base from **361/384 to 362/384**, one rescue with no regressions. The effect is positive but small; keep personalization optional and do not expand into a broad search. Reliability priors were harmful.
 
-**Next:** Step 15 — candidate-mask + context ablations. Run **Smoke test → Real run**, keep raw acoustic / physical mask / temporal / trainer-context / final-gameplay metrics separate, and quantify both context rescues and harmful overrides.
+**Step 15 conclusion:** the physical candidate mask improved the first-frame acoustic model by **25 correct recordings**, and three-frame temporal aggregation added another **40**, reaching **376/384**. Correct singleton trainer context can rescue all 8 remaining errors in the controlled upper-bound scenario, but deliberately wrong/stale singleton context caused **348 harmful overrides**. Context must remain separate and guarded.
 
-Then continue Steps 16–18. Preserve outputs and do not rerun completed experiments merely to regenerate data.
+**Next:** Step 16 — final time × method tournament. Run **Smoke test → Real run** using only surviving methods and the small predeclared early-time grid. Optimize the accuracy/latency Pareto frontier rather than reopening broad timing search.
+
+Then continue Steps 17–18. Preserve outputs and do not rerun completed experiments merely to regenerate data.
