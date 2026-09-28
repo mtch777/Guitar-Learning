@@ -506,8 +506,10 @@ select.stateSelect {
 
 .quizContentRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  column-gap: 12px;
+  row-gap: 8px;
   width: max-content;
   max-width: 100%;
   min-width: 0;
@@ -516,7 +518,7 @@ select.stateSelect {
 
 #answerNote,
 #answerNote.npsExerciseCard {
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   min-width: 0;
   margin: 0;
   font: 400 14px/16px Arial, sans-serif;
@@ -554,19 +556,18 @@ select.stateSelect {
 }
 
 .dailyPracticeStatus {
-  display: block;
+  flex: 0 0 auto;
   width: max-content;
-  max-width: calc(100% - 2 * var(--panel-inline-buffer));
-  margin: 7px var(--panel-inline-buffer) 0;
-  padding: 4px 8px;
+  max-width: 100%;
+  margin: 0;
+  padding: 3px 7px;
   border: 1px solid var(--border-color);
   border-radius: 999px;
   background: var(--header-bg);
   font-size: 12px;
   line-height: 14px;
   font-weight: 700;
-  white-space: normal;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
   opacity: .92;
 }
 
