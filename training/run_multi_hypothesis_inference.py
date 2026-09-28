@@ -91,11 +91,16 @@ def main():
     a=ap.parse_args(); a.out.mkdir(parents=True,exist_ok=True)
     pitch=pd.read_csv(a.step9_csv)
     pitch=pitch[(pitch.detector=="yin_custom")&(pitch.frame_ms==160)].copy()
-    files=select_smoke(pitch) if a.smoke else sorted(pitch.file.unique())
-    pitch=pitch[pitch.file.isin(files)].set_index("file")
+    eval_files=select_smoke(pitch) if a.smoke else sorted(pitch.file.unique())
+    # Smoke must traverse the exact real training/fold path. Keep the full dataset
+    # available for training and restrict only the evaluated test rows; otherwise
+    # a tiny smoke subset can lose physical-string classes in held-out-MIDI folds.
+    files=sorted(pitch.file.unique()) if a.smoke else eval_files
+    pitch_all=pitch.set_index("file")
     rec=load_audio(a.wav_dir,files)
     meta=pd.DataFrame([{"file":r[0],"string":r[1],"fret":r[2],"strength":r[3],"true_midi":r[4]} for r in rec])
-    print(f"Loaded {len(meta)} recordings from preserved Step-9 outputs; extracting Stage-B frames",flush=True)
+    eval_mask=meta.file.isin(eval_files).to_numpy() if a.smoke else np.ones(len(meta),dtype=bool)
+    print(f"Loaded {len(meta)} training recordings; evaluating {int(eval_mask.sum())}; extracting Stage-B frames",flush=True)
     X=[]
     for k,(name,t0,t1) in enumerate(FRAMES,1):
         X.append(np.vstack([mfcc26(r[5],r[6],t0,t1) for r in rec]))
@@ -119,7 +124,8 @@ def main():
     stage=P.mean(axis=1)
     rows=[]; methods=["hard"]+[f"top{k}" for k in KS]
     for i,r in meta.iterrows():
-        pr=pitch.loc[r.file]; cands=parse_candidates(pr)
+        if not eval_mask[i]: continue
+        pr=pitch_all.loc[r.file]; cands=parse_candidates(pr)
         if not cands: cands=[{"midi":int(pr.pred_midi),"confidence":max(float(pr.confidence),1e-9)}]
         def choose(use):
             hyps=[]
@@ -147,7 +153,7 @@ def main():
               "joint_correct":best["midi"]==int(r.true_midi) and best["string"]==int(r.string) and best["fret"]==int(r.fret),
               "joint_confidence":best.get("joint_norm",0),"hypotheses_json":json.dumps(hyps,separators=(",",":"))})
     df=pd.DataFrame(rows); df.to_csv(a.out/"joint_predictions.csv",index=False)
-    summary={"step":10,"smoke":a.smoke,"recordings":len(meta),"stage_a":"Step-9 custom YIN 160 ms preserved outputs","stage_b":"Step-8-style 3x40ms MFCC raw probability mean; trained here because preserved Step-8 CSV did not retain raw 8-class probabilities","trees":20 if a.smoke else a.trees,"methods":{}}
+    summary={"step":10,"smoke":a.smoke,"recordings":int(eval_mask.sum()),"stage_a":"Step-9 custom YIN 160 ms preserved outputs","stage_b":"Step-8-style 3x40ms MFCC raw probability mean; trained here because preserved Step-8 CSV did not retain raw 8-class probabilities","trees":20 if a.smoke else a.trees,"methods":{}}
     hard=df[df.method=="hard"].set_index("file")
     for meth in methods:
         g=df[df.method==meth].set_index("file"); n=len(g)
@@ -166,8 +172,8 @@ def main():
           "hypothesis_oracle_correct":top_oracle,"unique_rescues_vs_hard":resc,"regressions_vs_hard":reg}
     # Detector-only candidate oracle: can the true MIDI be found before Stage B?
     for k in KS:
-        found=sum(any(x["midi"]==int(meta.iloc[i].true_midi) for x in parse_candidates(pitch.loc[meta.iloc[i].file])[:k]) for i in range(len(meta)))
-        summary[f"pitch_top{k}_oracle"]={"correct":int(found),"accuracy":found/len(meta)}
+        found=sum(any(x["midi"]==int(meta.iloc[i].true_midi) for x in parse_candidates(pitch_all.loc[meta.iloc[i].file])[:k]) for i in range(len(meta)) if eval_mask[i])
+        summary[f"pitch_top{k}_oracle"]={"correct":int(found),"accuracy":found/int(eval_mask.sum())}
     (a.out/"summary.json").write_text(json.dumps(summary,indent=2))
     # Compact rescue/error table.
     wide=df.pivot(index="file",columns="method",values="joint_correct")
