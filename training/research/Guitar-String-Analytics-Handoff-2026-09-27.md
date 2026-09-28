@@ -1215,14 +1215,31 @@ Run: `36464844099`
 Artifact: `10989825794`  
 Artifact SHA256: `1aa375e45771e1775d9c9bd4ab8e9060fce7e619eb82b779d51e4b5b39eda062`
 
-### 14. Calibration / personalization
-**Smoke test → Real run. Priority increased.**
+### 14. Calibration / personalization — COMPLETE
+**Smoke test passed → Real run passed.**
 
-This step is now more important.
+The experiment used the lightweight three-frame MFCC representation as its personalization test bed and kept leave-one-entire-MIDI-out validation. Calibration anchors were selected only from training MIDIs, preventing the held-out MIDI from contributing to its own personalization.
 
-The generalized published physical representation transferred poorly, while models trained directly on this fixed rig performed extremely well. That increases the plausibility that lightweight guitar/interface-specific calibration, prototypes, priors, or fret trends can resolve some remaining structured errors.
+Calibration budgets:
 
-Test minimal calibration first and measure required user effort explicitly.
+- minimal: frets 0 and 12 per string
+- medium: frets 0, 5, 7, 12, 17, 19 and 24 per string
+
+Results:
+
+- base: **361/384 = 94.0104%**
+- minimal prototype: **361/384 = 94.0104%**, 1 rescue / 1 regression
+- minimal reliability prior: **359/384 = 93.4896%**, 0 rescues / 2 regressions
+- **medium prototype: 362/384 = 94.2708%, 1 rescue / 0 regressions**
+- medium reliability prior: **360/384 = 93.7500%**, 0 rescues / 1 regression
+
+Personalization therefore produced a real but marginal demonstrated benefit: the medium prototype gained **one correct recording (+0.2604 percentage points)** with no regressions. The reliability-prior approach was harmful.
+
+Interpretation: personalization remains eligible as a lightweight optional component, but the observed benefit does **not** justify a large calibration burden or a broad personalization search. The existing calibrated three-model fusion at **379/384 = 98.6979%** remains the best overall offline result; Step 14 did not test or supersede that fusion.
+
+Run: `36470556416`  
+Artifact: `10991343882`  
+Artifact SHA256: `b1c78236386f8ef36e15e613594d2de079f51b9902541ac5c9e25902f0094f76`
 
 ### 15. Candidate-mask + context ablations
 **Smoke test → Real run. Priority increased.**
@@ -1293,7 +1310,7 @@ Do not declare production success from offline stored-WAV accuracy alone.
 
 ## Revised strategic path
 
-The evidence after thirteen experiments changes the program from:
+The evidence after fourteen experiments changes the program from:
 
 > research many representations → add features → find the highest-accuracy classifier
 
@@ -1471,7 +1488,7 @@ Artifacts are not enough because they expire.
 
 # Exact continuation point
 
-**Completed through Step 13:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, hard-MIDI versus multi-hypothesis inference, compact learned spectral CNN, engineered+learned complementarity gating, and SIF feasibility.
+**Completed through Step 14:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, hard-MIDI versus multi-hypothesis inference, compact learned spectral CNN, engineered+learned complementarity gating, and SIF feasibility.
 
 **Current best overall physical-string classifier/fusion:** calibrated isotonic three-model fusion — **379/384 = 98.6979%, 5 errors**.
 
@@ -1483,6 +1500,8 @@ Artifacts are not enough because they expire.
 
 **Step 13 conclusion:** across 360 usable fretted recordings, SIF achieved only **+1.1378 dB median expected-vs-control**, **59.3889% control-win fraction**, and **57.2222% positive recordings**, below all three survival thresholds. The SIF branch is closed.
 
-**Next:** Step 14 — calibration/personalization. Run **Smoke test → Real run**. Test lightweight fixed-rig/player-specific calibration with explicit calibration budgets and nonleaky evaluation. Measure whether personalization resolves remaining structured string errors enough to justify user calibration effort.
+**Step 14 conclusion:** medium prototype personalization improved its lightweight MFCC base from **361/384 to 362/384**, one rescue with no regressions. The effect is positive but small; keep personalization optional and do not expand into a broad search. Reliability priors were harmful.
 
-Then continue Steps 15–18. Preserve outputs and do not rerun completed experiments merely to regenerate data.
+**Next:** Step 15 — candidate-mask + context ablations. Run **Smoke test → Real run**, keep raw acoustic / physical mask / temporal / trainer-context / final-gameplay metrics separate, and quantify both context rescues and harmful overrides.
+
+Then continue Steps 16–18. Preserve outputs and do not rerun completed experiments merely to regenerate data.
