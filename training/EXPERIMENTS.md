@@ -17,6 +17,10 @@ Primary evaluation is candidate-masked physical-string classification with leave
 | Step 6 Abeßer classifier comparison | 36374793618 | HGB, 222/384 = 57.8125% | 162 | 10953065549 |
 | Step 7 Abeßer + strong-model fusion | 36383682332 | Existing 3-model isotonic remains 379/384 | 5 | 10953427540 |
 | Step 8 temporal aggregation | 36384052764 | 3×40 ms MFCC mean, 376/384 = 97.9167% | 8 | 10953663191 |\n| Step 9 Stage-A pitch tournament | 36437584822 | librosa YIN 240 ms, 375/384 = 97.6563% MIDI | 9 MIDI | 10977090483 |
+| Step 10 multi-hypothesis inference | 36450596841 | hard top-1 joint, 366/384 = 95.3125% | 18 joint | 10983346754 |
+| Step 11 compact spectral CNN | 36459606684 | candidate-masked, 307/384 = 79.9479% | 77 | 10986904978 |
+| Step 12 engineered + learned complementarity | 36463295082 | oracle unchanged at 382/384 = 99.4792%; 0 CNN rescues | 2 oracle | 10987679899 |
+| Step 13 SIF feasibility | 36464844099 | feasibility gate failed; median expected-vs-control +1.14 dB | — | 10989825794 |
 
 ## Key conclusions
 
@@ -91,6 +95,28 @@ The preserved alternative YIN candidates contain no additional correct MIDI valu
 
 Step-10 artifact SHA256: `93b1d4e60387c8da79465c4551a4ce3ba89b12bdcaf2bf3ec3006ea9e255cc78`.
 
+### Step 11 compact spectral CNN — closed
+
+The fixed 25,864-parameter log-mel CNN over the first 160 ms reached **288/384 = 75.00% raw** and **307/384 = 79.9479% candidate-masked**. It is far below the surviving engineered/MFCC systems. Artifact SHA256: `3661550b335cea6d3c3b4b7a77703e7da823f9e82f10327bebe98244edbf45dd`.
+
+### Step 12 engineered + learned complementarity — closed
+
+Using preserved OOF predictions only, the strong-three oracle was **382/384 = 99.4792%** and remained **382/384** after adding the CNN. CNN unique rescues: **0**; CNN wrong while at least one strong model was correct: **75**. The same two recordings were wrong across all four: `s5_f24_hard_ringing.wav` and `s5_f24_normal_ringing.wav`.
+
+No learned+engineered fusion is justified. Artifact SHA256: `5eaf5b5e2e9646f12ddd956763f233a02ef776009f8c96ff6ff7cdbce51d8602`.
+
+### Step 13 SIF feasibility — closed
+
+Smoke passed after correcting the feasibility sampling/overlap logic, then the gated real run evaluated **360/360 usable fretted recordings**.
+
+- median expected SIF peak vs matched controls: **+1.1378 dB**; gate required ≥3 dB
+- expected peak control-win fraction: **59.3889%**; gate required ≥70%
+- recordings with positive expected-vs-control advantage: **57.2222%**; gate required ≥65%
+
+The SIF signal failed all three predeclared survival criteria. **Kill the SIF branch; do not build a SIF classifier.**
+
+Run: `36464844099`. Artifact: `10989825794`. Artifact SHA256: `1aa375e45771e1775d9c9bd4ab8e9060fce7e619eb82b779d51e4b5b39eda062`.
+
 ## Permanent overlap result
 
 `training/results/reference/error_overlap_fusion_screen.json`
@@ -108,13 +134,10 @@ Do not rerun completed experiments merely to regenerate outputs. Save metrics, p
 
 ## Remaining program
 
-11. Learned spectral model — smoke → real; prioritize unique rescues/complementarity, not standalone accuracy
-12. Engineered + learned fusion — smoke → real; expand only if Step 11 adds complementary evidence
-13. SIF feasibility — smoke → real; strict early kill gate
 14. Calibration/personalization — smoke → real; increased priority
-15. Candidate-mask + context ablations — smoke → real; increased priority and keep raw/context metrics separate
+15. Candidate-mask + context ablations — smoke → real; keep raw/context metrics separate
 16. Final time × method tournament — smoke → real; small survivor-only early timing grid
 17. Final architecture tournament — smoke → real
 18. Browser/runtime + live-site validation — smoke → real
 
-See `training/research/Guitar-String-Analytics-Handoff-2026-09-27.md` for the full Steps 1–10 synthesis, revised direction, detailed methodology, implementation context and continuation instructions.
+See `training/research/Guitar-String-Analytics-Handoff-2026-09-27.md` for the full Steps 1–13 synthesis, revised direction, detailed methodology, implementation context and continuation instructions.
