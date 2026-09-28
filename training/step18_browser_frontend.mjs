@@ -4,11 +4,34 @@
 import fs from "node:fs";
 import path from "node:path";
 import Meyda from "meyda";
-import wav from "node-wav";
+
 
 const OPEN={1:27,2:34,3:39,4:44,5:49,6:54,7:58,8:63};
 const RX=/s(\d+)_f(\d+)_(soft|normal|hard)_ringing\.wav$/i;
 const MIN_FREQ=35,MAX_FREQ=1600;
+function decodeWav(buf){
+  if(buf.toString("ascii",0,4)!=="RIFF"||buf.toString("ascii",8,12)!=="WAVE")throw new Error("Not RIFF/WAVE");
+  let pos=12,fmt=null,dataOff=-1,dataLen=0;
+  while(pos+8<=buf.length){
+    const id=buf.toString("ascii",pos,pos+4),len=buf.readUInt32LE(pos+4),off=pos+8;
+    if(id==="fmt ") fmt={format:buf.readUInt16LE(off),channels:buf.readUInt16LE(off+2),sampleRate:buf.readUInt32LE(off+4),bits:buf.readUInt16LE(off+14)};
+    if(id==="data"){dataOff=off;dataLen=Math.min(len,buf.length-off);break}
+    pos=off+len+(len&1);
+  }
+  if(!fmt||dataOff<0)throw new Error("Missing WAV fmt/data");
+  const bytes=fmt.bits/8,frames=Math.floor(dataLen/(bytes*fmt.channels)),channels=Array.from({length:fmt.channels},()=>new Float32Array(frames));
+  for(let i=0;i<frames;i++)for(let ch=0;ch<fmt.channels;ch++){
+    const o=dataOff+(i*fmt.channels+ch)*bytes;let v;
+    if(fmt.format===3&&fmt.bits===32)v=buf.readFloatLE(o);
+    else if(fmt.format===1&&fmt.bits===16)v=buf.readInt16LE(o)/32768;
+    else if(fmt.format===1&&fmt.bits===24){v=buf.readIntLE(o,3)/8388608}
+    else if(fmt.format===1&&fmt.bits===32)v=buf.readInt32LE(o)/2147483648;
+    else throw new Error("Unsupported WAV format "+fmt.format+"/"+fmt.bits);
+    channels[ch][i]=v;
+  }
+  return {sampleRate:fmt.sampleRate,channelData:channels};
+}
+
 
 function rms(y){let s=0;for(const x of y)s+=x*x;return Math.sqrt(s/y.length)}
 function parabolic(a,i){if(i<=0||i>=a.length-1)return i;const A=a[i-1],b=a[i],c=a[i+1],d=A-2*b+c;return Math.abs(d)<1e-12?i:i+.5*(A-c)/d}
@@ -52,11 +75,7 @@ for(const name of files){
   const m=name.match(RX),s=+m[1],f=+m[2],strength=m[3].toLowerCase(),truth=OPEN[s]+f;
   if(smoke&&!(truth>=54&&truth<=60&&strength==="normal"))continue;
   const fileBuffer=fs.readFileSync(path.join(dir,name));
-  // node-wav constructs typed-array views at the WAV data-chunk offset. Some of
-  // our float WAVs have a non-4-byte-aligned chunk offset, so copy into an
-  // ArrayBuffer starting at byte zero before decoding.
-  const aligned=fileBuffer.buffer.slice(fileBuffer.byteOffset,fileBuffer.byteOffset+fileBuffer.byteLength);
-  const raw=wav.decode(Buffer.from(aligned)),mono=raw.channelData[0];
+  const raw=decodeWav(fileBuffer),mono=raw.channelData[0];
   const y=trim(resampleLinear(mono,raw.sampleRate,22050)),sr=22050;
   const t0=performance.now(),p=yin(y.slice(0,Math.min(y.length,Math.round(.24*sr))),sr),pitchMs=performance.now()-t0;
   const feats=[];let featureMs=0;
