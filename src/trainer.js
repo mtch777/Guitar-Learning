@@ -1042,7 +1042,13 @@ function startDailyModeInterval() {
     null;
 
   dailyPracticeState.modeIntervalRemainingModes =
-    shuffleList([...npsModeOrder]);
+    shuffleList(
+      npsModeOrder.filter(
+        modeName =>
+          modeName !==
+          dailyPracticeState.baseMode
+      )
+    );
 
   updateDailyPracticeStatus();
   buildTrainer();
@@ -6329,7 +6335,13 @@ function buildModeIntervalExercise(baseRoot, baseScaleName) {
 
   const relativeMode = isDailyModeInterval
     ? dailyPracticeState.modeIntervalRemainingModes[0]
-    : randomItem(npsModeOrder);
+    : randomItem(
+        npsModeOrder.filter(
+          modeName =>
+            modeName !==
+            baseScaleName
+        )
+      );
 
   const relativeRoot = getRelativeModeRoot(
     baseRoot,
