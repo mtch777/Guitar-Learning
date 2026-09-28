@@ -6859,12 +6859,9 @@ function buildTrainer() {
 
     nutSlot.style.setProperty(
       '--nut-slot-height',
-      Math.min(
-        3.6,
-        Math.max(
-          1,
-          stringThicknesses[displayIndex] * 0.62 + 0.45
-        )
+      (
+        stringThicknesses[displayIndex] +
+        3
       ) + 'px'
     );
 
