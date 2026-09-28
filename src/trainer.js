@@ -8041,18 +8041,24 @@ function temporarilyShowWrong(cell) {
       ? cell.dataset.displayInterval
       : cell.dataset.interval;
 
-  if (!interval) {
-    return;
-  }
+  /*
+    Every click must produce visible feedback.
+    Some exercise-relative interval maps intentionally leave
+    out notes that are outside the active key/mode. Those
+    clicks are still wrong answers, so fall back to the actual
+    clicked note name instead of silently returning.
+  */
+  const feedbackLabel =
+    interval ||
+    cell.dataset.noteName ||
+    '×';
 
   if (
-    ['nps', 'rrPent', 'shape', 'caged'].includes(
+    interval &&
+    !['nps', 'rrPent', 'shape', 'caged'].includes(
       getLessonType()
     )
   ) {
-    cell.textContent =
-      interval;
-  } else {
     setIntervalOctaveDisplay(
       cell,
       interval,
@@ -8060,6 +8066,9 @@ function temporarilyShowWrong(cell) {
         cell.dataset.octave
       )
     );
+  } else {
+    cell.textContent =
+      feedbackLabel;
   }
 
   clearCellStyle(cell);
