@@ -52,12 +52,16 @@ def analyze(path,string,fret,strength):
     def harmonic_close(x):
         h=max(1,round(x/f0)); cents=1200*abs(np.log2(x/(h*f0)))
         return cents<45
-    if harmonic_close(fsif):return None
+    # Do not discard a recording merely because the expected SIF happens to
+    # overlap a speaking-string harmonic. That made the feasibility screen
+    # structurally empty for this equal-tempered geometry. Preserve the
+    # overlap as metadata and compare against matched nearby controls.
+    expected_harmonic_overlap=harmonic_close(fsif)
     expected=band_peak(freq,spec,fsif)
     ctr=[]
     for ratio in CONTROL_RATIOS:
         fc=fsif*ratio
-        if 45<=fc<=SR/2-100 and not harmonic_close(fc):
+        if 45<=fc<=SR/2-100:
             ctr.append(band_peak(freq,spec,fc))
     ctr=np.array([x for x in ctr if np.isfinite(x)])
     if not np.isfinite(expected) or len(ctr)<2:return None
@@ -67,7 +71,8 @@ def analyze(path,string,fret,strength):
     return dict(file=path.name,string=string,fret=fret,strength=strength,midi=TUNING[string-1]+fret,
                 f0_hz=f0,expected_sif_hz=fsif,expected_peak=float(expected),
                 control_median=float(np.median(ctr)),expected_vs_control_db=float(db),
-                control_win_fraction=float(rank),n_controls=len(ctr))
+                control_win_fraction=float(rank),n_controls=len(ctr),
+                expected_harmonic_overlap=bool(expected_harmonic_overlap))
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument("--data",type=Path,default=Path("training/data/ringing_384"))
