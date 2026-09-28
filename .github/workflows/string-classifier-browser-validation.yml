@@ -1,0 +1,76 @@
+name: Step 18 browser runtime validation
+
+on:
+  push:
+    paths:
+      - ".github/workflows/string-classifier-browser-validation.yml"
+      - "training/step18_browser_frontend.mjs"
+      - "training/run_step18_browser_validation.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install JS audio dependencies
+        run: npm install --no-save meyda node-wav
+      - name: Install validation dependencies
+        run: pip install numpy pandas scikit-learn xgboost
+      - name: Preflight
+        run: |
+          node --check training/step18_browser_frontend.mjs
+          python -m py_compile training/run_step18_browser_validation.py
+      - name: Browser frontend extraction
+        run: node training/step18_browser_frontend.mjs training/data/ringing_384 training/results/step18_browser_features.json
+      - name: Smoke test whole browser pipeline
+        run: python -u training/run_step18_browser_validation.py training/results/step18_browser_features.json --out training/results/step18_smoke --smoke
+      - name: Validate smoke outputs
+        run: |
+          test -f training/results/step18_smoke/summary.json
+          test -f training/results/step18_smoke/browser_pipeline_predictions.csv
+      - uses: actions/upload-artifact@v4
+        with:
+          name: step18-browser-features
+          path: training/results/step18_browser_features.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-browser-smoke
+          path: training/results/step18_smoke
+          if-no-files-found: warn
+
+  real:
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy pandas scikit-learn xgboost
+      - uses: actions/download-artifact@v4
+        with:
+          name: step18-browser-features
+          path: training/results
+      - name: Real run all 384
+        run: python -u training/run_step18_browser_validation.py training/results/step18_browser_features.json --out training/results/step18_real
+      - name: Print result
+        run: cat training/results/step18_real/summary.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-browser-real
+          path: training/results/step18_real
+          if-no-files-found: warn
