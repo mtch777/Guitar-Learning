@@ -1363,6 +1363,66 @@ function sizeFretboardNotes(
     '--fretboard-note-size',
     noteSize + 'px'
   );
+
+  /*
+    The open-string labels are intentionally shifted left
+    inside their gutter so they clear the string end caps.
+    Center the tuning control on the actual rendered label
+    centers instead of on the gutter itself.
+  */
+  const tuningControl =
+    document.getElementById(
+      'quizTuningControl'
+    );
+
+  const openNotes = [
+    ...stage.querySelectorAll(
+      '.openStringNote'
+    )
+  ];
+
+  if (
+    tuningControl &&
+    openNotes.length > 0
+  ) {
+    tuningControl.style.transform =
+      'none';
+
+    const targetCenter =
+      openNotes.reduce(
+        (
+          total,
+          note
+        ) => {
+          const noteRect =
+            note.getBoundingClientRect();
+
+          return (
+            total +
+            noteRect.left +
+            noteRect.width / 2
+          );
+        },
+        0
+      ) /
+      openNotes.length;
+
+    const tuningRect =
+      tuningControl
+        .getBoundingClientRect();
+
+    const tuningCenter =
+      tuningRect.left +
+      tuningRect.width / 2;
+
+    tuningControl.style.transform =
+      'translateX(' +
+      (
+        targetCenter -
+        tuningCenter
+      ) +
+      'px)';
+  }
 }
 
 function observeFretboardNoteSizing(
