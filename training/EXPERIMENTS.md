@@ -22,6 +22,7 @@ Primary evaluation is candidate-masked physical-string classification with leave
 | Step 12 engineered + learned complementarity | 36463295082 | oracle unchanged at 382/384 = 99.4792%; 0 CNN rescues | 2 oracle | 10987679899 |
 | Step 13 SIF feasibility | 36464844099 | feasibility gate failed; median expected-vs-control +1.14 dB | — | 10989825794 |
 | Step 14 calibration/personalization | 36470556416 | medium prototype, 362/384 = 94.2708% | 22 | 10991343882 |
+| Step 15 candidate-mask + context ablation | 36477918087 | temporal masked 120 ms, 376/384 = 97.9167%; correct singleton context upper bound 384/384 | 8 acoustic | 10994099328 |
 
 ## Key conclusions
 
@@ -129,6 +130,31 @@ This Step-14 base is not the existing 379/384 calibrated three-model fusion; the
 
 Run: `36470556416`. Artifact: `10991343882`. Artifact SHA256: `b1c78236386f8ef36e15e613594d2de079f51b9902541ac5c9e25902f0094f76`.
 
+### Step 15 candidate-mask + trainer-context ablation
+
+Smoke passed, then the gated real run evaluated all **384 recordings** under leave-one-entire-MIDI-out validation. Acoustic and trainer-context layers were reported separately.
+
+Acoustic layers:
+
+- A — raw first 40 ms acoustic probabilities: **311/384 = 80.9896%**, 73 errors
+- B — + physical MIDI/string/fret feasibility mask: **336/384 = 87.5000%**, 48 errors
+- C — + equal temporal mean of three independently trained 40 ms frames over 0–120 ms: **376/384 = 97.9167%**, 8 errors
+
+Thus the physical candidate mask added **25 correct recordings**, and temporal aggregation added another **40**. Layer C exactly reproduced the Step-8 376/384 result.
+
+Stored WAVs contain no quiz state, so trainer context was tested as explicit controlled scenarios rather than misreported as acoustic accuracy. The implementation reproduced the current `getGuitarTrainerAudioHints(midi)` answer-string semantics: context restricts Layer-C string probabilities only when a matching answer exists.
+
+Context results:
+
+- no matching answer: **376/384**, 0 rescues / 0 harmful overrides
+- true string + strongest physically valid competitor: **376/384**, 0 rescues / 0 harmful overrides
+- true-string-only singleton: **384/384**, all 8 acoustic errors rescued / 0 harmful overrides — an optimistic gameplay upper bound, not acoustic accuracy
+- deliberately wrong/stale singleton: **28/384 = 7.2917%**, with **348 harmful overrides**
+
+Conclusion: candidate masking and temporal evidence are both major contributors to acoustic performance. Trainer context can eliminate remaining errors when it uniquely and correctly identifies the physical answer position, but authoritative stale/wrong context can catastrophically override correct acoustic decisions. Keep context as a separately reported gameplay prior and design production logic so uncertain/stale context cannot blindly replace strong acoustic evidence.
+
+Run: `36477918087`. Artifact: `10994099328`. Artifact SHA256: `fee5678b720cebf982eef64dadbafe25dfffb658145965b6773ab3f7c07e56ef`.
+
 ### Step 13 SIF feasibility — closed
 
 Smoke passed after correcting the feasibility sampling/overlap logic, then the gated real run evaluated **360/360 usable fretted recordings**.
@@ -159,9 +185,9 @@ Do not rerun completed experiments merely to regenerate outputs. Save metrics, p
 ## Remaining program
 
 14. Calibration/personalization — **complete**; medium prototype gave +1 correct / +0.2604 pp, no regressions
-15. Candidate-mask + context ablations — smoke → real; keep raw/context metrics separate
+15. Candidate-mask + context ablations — **complete**; mask +25 correct, temporal +40, context retained as separate gameplay prior
 16. Final time × method tournament — smoke → real; small survivor-only early timing grid
 17. Final architecture tournament — smoke → real
 18. Browser/runtime + live-site validation — smoke → real
 
-See `training/research/Guitar-String-Analytics-Handoff-2026-09-27.md` for the full Steps 1–14 synthesis, revised direction, detailed methodology, implementation context and continuation instructions.
+See `training/research/Guitar-String-Analytics-Handoff-2026-09-27.md` for the full Steps 1–15 synthesis, revised direction, detailed methodology, implementation context and continuation instructions.
