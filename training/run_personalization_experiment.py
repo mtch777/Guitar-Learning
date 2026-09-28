@@ -140,7 +140,11 @@ def main():
       "budgets":budgets,"methods":results,"best_method":best,"best_accuracy":results[best]["accuracy"],
       "base_accuracy":results["base"]["accuracy"],
       "personalization_survives":bool(best!="base" and results[best]["accuracy"]>results["base"]["accuracy"])}
-    pd.DataFrame({**df,{f"pred_{m}":pred[m] for m in methods},{f"conf_{m}":conf[m] for m in methods}}).to_csv(a.out/"personalization_predictions.csv",index=False)
+    out_df=df.copy()
+    for m in methods:
+        out_df[f"pred_{m}"]=pred[m]
+        out_df[f"conf_{m}"]=conf[m]
+    out_df.to_csv(a.out/"personalization_predictions.csv",index=False)
     (a.out/"summary.json").write_text(json.dumps(summary,indent=2))
     (a.out/"config.json").write_text(json.dumps({"sr":SR,"frames_ms":[[0,40],[40,80],[80,120]],"n_mfcc":13,"stats":["mean","std"],"budgets":budgets,"prototype_blend":[.8,.2],"trees":100},indent=2))
     print(json.dumps(summary,indent=2),flush=True)
