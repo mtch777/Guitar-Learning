@@ -2240,17 +2240,21 @@ function applyIntervalStyle(
     return;
   }
 
-  if (
-    cell.dataset.openString ===
-    'true'
-  ) {
-    cell.style.backgroundColor =
-      style.background;
-  } else {
+  const isFrettedNote =
+    cell.classList.contains(
+      'noteCell'
+    ) &&
+    cell.dataset.openString !==
+      'true';
+
+  if (isFrettedNote) {
     cell.style.setProperty(
       '--note-feedback-bg',
       style.background
     );
+  } else {
+    cell.style.backgroundColor =
+      style.background;
   }
 
   cell.style.color =

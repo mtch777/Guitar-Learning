@@ -1175,6 +1175,10 @@ button.uiButton:disabled {
   background: rgba(200, 200, 200, .18);
 }
 
+.physicalFretboard .fretboardNote.unknownInterval:hover {
+  background: rgba(200, 200, 200, .18);
+}
+
 .fretboardNote.correct {
   font-weight: 700;
 }
