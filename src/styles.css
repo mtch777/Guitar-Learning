@@ -816,15 +816,40 @@ button.uiButton:disabled {
 }
 
 .fretboardFret {
+  --fret-width: 3px;
+
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  transform: translateX(-1.5px);
+  top: var(--fret-width);
+  bottom: var(--fret-width);
+  width: var(--fret-width);
+  transform: translateX(calc(var(--fret-width) / -2));
   background:
     linear-gradient(90deg, #777, #ededed 45%, #8d8d8d);
   box-shadow: 1px 0 2px rgba(0, 0, 0, .22);
   z-index: 2;
+}
+
+.fretboardFret::before,
+.fretboardFret::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: var(--fret-width);
+  height: var(--fret-width);
+  transform: translateX(-50%);
+  background:
+    linear-gradient(90deg, #777, #ededed 45%, #8d8d8d);
+  pointer-events: none;
+}
+
+.fretboardFret::before {
+  top: calc(var(--fret-width) * -1);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.fretboardFret::after {
+  bottom: calc(var(--fret-width) * -1);
+  clip-path: polygon(0 100%, 100% 100%, 50% 0);
 }
 
 .fretboardString {
