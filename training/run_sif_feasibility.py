@@ -82,7 +82,11 @@ def main():
         chosen=[]
         for s in range(1,9):
             q=[x for x in files if x[1]==s]
-            chosen+=q[:2]
+            # Use mid/high frets: the inverse segment at fret 1 is often
+            # above Nyquist, so the first two lexicographic files are a bad
+            # feasibility smoke sample.
+            preferred=[x for x in q if x[2] in (7,12,17,19,24)]
+            chosen+=preferred[:2]
         files=chosen
     print(f"SIF INPUT recordings={len(files)} smoke={a.smoke}",flush=True)
     rows=[];t0=time.time()
