@@ -847,11 +847,11 @@ Do not rerun Step 8 unless the data, temporal representation or evaluation metho
 
 ---
 
-# Results synthesis after Steps 1–10
+# Results synthesis after Steps 1–11
 
-The first ten experiments materially changed the direction of the project. The evidence no longer points primarily toward inventing increasingly large physical/string feature sets. String identity is already highly recoverable from this fixed guitar/interface/player setup. The remaining practical problem is increasingly an **end-to-end inference, complementarity, calibration, latency, and deployment problem**.
+The first eleven experiments materially changed the direction of the project. The evidence no longer points primarily toward inventing increasingly large physical/string feature sets. String identity is already highly recoverable from this fixed guitar/interface/player setup. The remaining practical problem is increasingly an **end-to-end inference, complementarity, calibration, latency, and deployment problem**.
 
-## What the first ten experiments established
+## What the first eleven experiments established
 
 | Experiment | Main result | Main lesson |
 |---|---|---|
@@ -865,6 +865,7 @@ The first ten experiments materially changed the direction of the project. The e
 | Abeßer fusion | no improvement; zero unique rescues | Abeßer contributes no useful complementary evidence to the strong models. |
 | Temporal MFCC | three 40 ms frames, 0–120 ms → **376/384 = 97.9167%** | Independent early observations are much stronger than one broad early summary. |
 | Stage-A pitch + joint inference | YIN up to **375/384 = 97.6563%**; multi-hypothesis path failed | Pitch detection is now a major bottleneck; naive alternative-pitch branching does not solve it. |
+| Compact spectral CNN | raw **288/384 = 75.0000%**; masked **307/384 = 79.9479%** | A small learned log-mel CNN was far below engineered/MFCC models; do not expand learned-model search unless preserved predictions show unusual complementarity. |
 
 ## Strongest findings
 
@@ -983,6 +984,69 @@ Real artifact:
 
 Do not rerun Step 10 unless the pitch-hypothesis representation or Stage-B methodology materially changes.
 
+## Step 11 — COMPLETE: compact learned spectral model
+
+Script:
+
+`training/run_spectral_cnn.py`
+
+Workflow:
+
+`.github/workflows/string-classifier-spectral-cnn.yml`
+
+Final successful run:
+
+`36459606684`
+
+Smoke: **passed**.
+
+Real: **passed**.
+
+Protocol:
+
+- all 384 recordings
+- mono 22.05 kHz
+- onset-aligned first 160 ms
+- 48-bin log-mel spectrogram
+- FFT 256, hop 64
+- input shape 48 × 52
+- compact CNN: Conv16 → Conv32 → Conv64 → global average pooling → Dense32 → 8 logits
+- 25,864 parameters
+- 18 epochs
+- leave-one-entire-MIDI-out evaluation across 61 MIDI folds
+- held-out MIDI excluded from both training and normalization
+- fixed recipe; no held-out-fold hyperparameter tuning
+- raw acoustic and physical candidate-masked metrics reported separately
+- full OOF logits/probabilities preserved for Step 12
+
+Results:
+
+| Output | Correct | Accuracy | Errors | Macro-F1 |
+|---|---:|---:|---:|---:|
+| CNN raw acoustic | 288/384 | **75.0000%** | 96 | 0.7361 |
+| CNN + physical candidate mask | 307/384 | **79.9479%** | 77 | 0.7837 |
+| Reference: 3×40 ms MFCC | 376/384 | **97.9167%** | 8 | — |
+| Reference: calibrated three-model fusion | 379/384 | **98.6979%** | 5 | — |
+
+The candidate mask rescued 19 recordings relative to the CNN's raw output, but the learned representation remained dramatically below the engineered/MFCC systems.
+
+Conclusion:
+
+> The first compact learned spectral approach is not competitive. Do **not** respond by launching a CNN architecture/representation search. Step 12 should first use the already-preserved OOF CNN probabilities to measure error overlap, unique rescues and oracle improvement. The CNN survives only if it provides unusually complementary evidence despite its weak standalone accuracy.
+
+This strengthens the broader result that, on the current small fixed-rig dataset, simple early MFCC/engineered representations generalize much better across held-out MIDI than this end-to-end learned spectral representation.
+
+Real artifact:
+
+- name: `string-classifier-spectral-cnn`
+- ID: `10986904978`
+- size: 95,051 bytes
+- SHA256: `3661550b335cea6d3c3b4b7a77703e7da823f9e82f10327bebe98244edbf45dd`
+
+The artifact preserves five output files, including OOF predictions/logits/probabilities, training curves, fold normalization metadata, config and summary.
+
+Do not rerun Step 11 merely to regenerate these outputs.
+
 ## What went as expected
 
 - **Early attack information mattered.** Physical/string-specific attack and spectral behavior were expected to be useful, and the time-phase experiments confirmed this strongly.
@@ -1052,14 +1116,12 @@ Avoid:
 
 The remaining program is intentionally narrower than the original plan.
 
-### 11. Learned spectral model — NEXT
-**Smoke test → Real run.**
+### 11. Learned spectral model — COMPLETE
+**Smoke test passed → Real run passed.**
 
 Keep the first learned model deliberately small and early-window focused. The purpose is **not** to build a large neural replacement for a system that is already strong.
 
-Primary question:
-
-> Does a small learned time-frequency model discover complementary evidence that the MFCC/engineered models miss?
+Result: the first compact log-mel CNN was **not competitive as a standalone model**. Raw accuracy was 75.00%; physical candidate masking raised it to 79.95%, still far below the 97–99% surviving systems.
 
 Start with one compact log-mel CNN, approximately 0–160 ms as originally specified. Preserve raw logits/probabilities. Candidate masking remains a separate post-model stage.
 
@@ -1082,7 +1144,7 @@ The benchmark remains:
 
 **379/384 = 98.6979%, 5 errors.**
 
-If Step 11 provides unique rescues, test calibrated fusion first. Do not automatically build elaborate meta-models. If Step 11 is non-complementary, Step 12 should be short and document that no expanded ensemble is justified.
+Step 12 must begin with a cheap preserved-prediction complementarity screen: error overlap, unique rescues, and oracle gain from adding the CNN to the surviving strong models. **Do not retrain Step 11.** Only if the weak CNN nevertheless adds meaningful unique rescues should calibrated learned+engineered fusion proceed. If it is non-complementary, Step 12 should terminate quickly and document that no expanded learned ensemble is justified.
 
 Step 10's multi-hypothesis branch is excluded from the main candidate pool because it produced zero rescues and substantial regressions.
 
@@ -1174,13 +1236,13 @@ Do not declare production success from offline stored-WAV accuracy alone.
 
 ## Revised strategic path
 
-The evidence after ten experiments changes the program from:
+The evidence after eleven experiments changes the program from:
 
 > research many representations → add features → find the highest-accuracy classifier
 
 to:
 
-> **test one genuinely different learned representation → retain only complementary evidence → personalize if useful → determine the minimum reliable decision time → select the simplest non-dominated complete architecture → prove Python/browser parity → prove it with controlled live guitar.**
+> **screen the completed learned representation only for complementary rescues → retain it only if those rescues are real → otherwise return focus to the proven early MFCC/engineered path → personalize if useful → determine the minimum reliable decision time → select the simplest non-dominated complete architecture → prove Python/browser parity → prove it with controlled live guitar.**
 
 This is the evidence-supported direction for the remaining experiments.
 
@@ -1352,7 +1414,7 @@ Artifacts are not enough because they expire.
 
 # Exact continuation point
 
-**Completed through Step 10:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, and hard-MIDI versus multi-hypothesis inference.
+**Completed through Step 11:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, hard-MIDI versus multi-hypothesis inference, and the compact learned spectral CNN.
 
 **Current best overall physical-string classifier/fusion:** calibrated isotonic three-model fusion — **379/384 = 98.6979%, 5 errors**.
 
@@ -1360,8 +1422,10 @@ Artifacts are not enough because they expire.
 
 **Current best Stage-A pitch detector tested:** librosa YIN at 240 ms — **375/384 = 97.6563%, 9 MIDI errors, 0 octave errors, mean detector runtime 1.01 ms**. Custom YIN at 160 ms reached **374/384 = 97.3958%, 0 octave errors**.
 
-**Step 10 conclusion:** the preserved custom-YIN top-2/top-3/top-5 hypotheses contained no additional correct MIDI beyond top-1. Hard top-1 joint inference was **366/384 = 95.3125%**; top-K joint inference only introduced regressions. Do not continue the current multi-hypothesis branch.
+**Step 10 conclusion:** the preserved custom-YIN top-2/top-3/top-5 hypotheses contained no additional correct MIDI beyond top-1. Do not continue the current multi-hypothesis branch.
 
-**Next:** Step 11 — one small early-window learned spectral model, evaluated primarily for **complementarity/unique rescues**, not merely standalone accuracy.
+**Step 11 conclusion:** the compact 25,864-parameter 160 ms log-mel CNN reached only **288/384 = 75.00% raw** and **307/384 = 79.95% candidate-masked**, versus 376/384 for temporal MFCC and 379/384 for existing fusion. Do not expand into a learned-model architecture search from this result.
 
-Then follow the revised Steps 12–18 program above. Keep every experiment **Smoke test → Real run**, preserve outputs, and do not rerun completed experiments merely to regenerate data.
+**Next:** Step 12 begins with a cheap complementarity screen using the **preserved Step-11 OOF probabilities**. Measure CNN unique rescues/error overlap/oracle gain against the surviving strong models without retraining anything. Proceed to calibrated engineered+learned fusion only if that screen demonstrates meaningful complementary evidence; otherwise close the learned branch and continue to Step 13.
+
+Then follow the revised Steps 13–18 program above. Keep every experiment **Smoke test → Real run**, preserve outputs, and do not rerun completed experiments merely to regenerate data.
