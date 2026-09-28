@@ -156,7 +156,8 @@ def fit_predict(Xframes,df,order,out):
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument("wav_dir",type=Path); ap.add_argument("--out",type=Path,required=True)
-    ap.add_argument("--orders",default="32,48,64"); ap.add_argument("--smoke",action="store_true")\n    a=ap.parse_args(); a.out.mkdir(parents=True,exist_ok=True)
+    ap.add_argument("--orders",default="32,48,64"); ap.add_argument("--smoke",action="store_true")
+    a=ap.parse_args(); a.out.mkdir(parents=True,exist_ok=True)
     meta=[]
     for p in sorted(a.wav_dir.glob("*.wav")):
         m=RX.fullmatch(p.name)
