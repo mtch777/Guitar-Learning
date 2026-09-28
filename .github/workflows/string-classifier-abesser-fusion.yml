@@ -32,7 +32,7 @@ jobs:
           mkdir -p preserved/benchmark preserved/confirmation preserved/abesser
           gh run download 36354714761 -n string-classifier-benchmark -D preserved/benchmark
           gh run download 36361317622 -n string-classifier-time-phase-confirmation -D preserved/confirmation
-          gh run download 36374793618 -n string-classifier-abesser-classifiers -D preserved/abesser
+          gh run download 36374793618 -n string-classifier-abesser-classifier-comparison -D preserved/abesser
           find preserved -type f -print
       - name: Smoke test whole fusion cycle
         run: |
@@ -68,7 +68,7 @@ jobs:
           mkdir -p preserved/benchmark preserved/confirmation preserved/abesser
           gh run download 36354714761 -n string-classifier-benchmark -D preserved/benchmark
           gh run download 36361317622 -n string-classifier-time-phase-confirmation -D preserved/confirmation
-          gh run download 36374793618 -n string-classifier-abesser-classifiers -D preserved/abesser
+          gh run download 36374793618 -n string-classifier-abesser-classifier-comparison -D preserved/abesser
       - name: Real fusion run
         run: |
           BASE=$(find preserved/benchmark -path '*benchmark_baseline*leave_one_pitch_out_predictions.csv' | head -1)
