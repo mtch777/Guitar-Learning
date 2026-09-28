@@ -121,16 +121,16 @@ def fit_predict(Xframes,df,order,out):
     midis=sorted(df.midi.unique()); start=time.time()
     for fi,midi in enumerate(midis,1):
         test=np.where(df.midi.to_numpy()==midi)[0]; train=np.where(df.midi.to_numpy()!=midi)[0]
-        # Train on frame rows; groups ensure all frames from a recording stay together in inner CV.
+        # Train on frame rows. Inner CV is grouped by MIDI so hyperparameter selection\n        # matches the outer unseen-pitch generalization problem.
         Xt=[];yt=[];groups=[]
         for ridx in train:
             for frame in Xframes[ridx]:
-                if np.isfinite(frame).any(): Xt.append(frame);yt.append(truth[ridx]);groups.append(ridx)
+                if np.isfinite(frame).any(): Xt.append(frame);yt.append(truth[ridx]);groups.append(int(df.iloc[ridx].midi))
         Xt=np.asarray(Xt);yt=np.asarray(yt);groups=np.asarray(groups)
-        ncomp=min(5,len(np.unique(yt))-1)
+        # Abeßer defines Nd = Nstrings - 1. For this 8-string instrument that is 7.\n        ncomp=min(len(OPEN)-1,len(np.unique(yt))-1)
         pipe=Pipeline([("imp",SimpleImputer(strategy="median",add_indicator=False)),
           ("scale",StandardScaler()),("lda",LinearDiscriminantAnalysis(n_components=ncomp)),
-          ("svm",SVC(kernel="rbf",probability=True,class_weight="balanced"))])
+          ("svm",SVC(kernel="rbf",probability=True))])
         cv=list(GroupKFold(3).split(Xt,yt,groups))
         # Materialize splits so joblib workers receive a picklable object.
         gs=GridSearchCV(pipe,{"svm__C":Cs,"svm__gamma":gammas},cv=cv,scoring="f1_macro",n_jobs=-1)
@@ -174,7 +174,7 @@ def main():
         acc=float(accuracy_score(df.string,pred)); macro=float(f1_score(df.string,pred,average="macro"))
         summaries.append({"ar_order":order,"accuracy":acc,"macro_f1":macro,"correct":int((pred==df.string).sum()),"errors":int((pred!=df.string).sum())})
         pd.DataFrame(confusion_matrix(df.string,pred,labels=range(1,9)),index=range(1,9),columns=range(1,9)).to_csv(a.out/f"confusion_ar{order}.csv")
-        (a.out/"summary.json").write_text(json.dumps({"method":"Abesser 48 -> scaler -> LDA5 -> RBF-SVM; five-frame aggregation","results":summaries},indent=2))
+        (a.out/"summary.json").write_text(json.dumps({"method":"Abesser 48 -> scaler -> LDA(Nstrings-1=7) -> RBF-SVM; five-frame aggregation","results":summaries},indent=2))
         print(f"DONE AR={order}: {acc:.4%} macro-F1={macro:.4f}",flush=True)
     print(json.dumps(summaries,indent=2),flush=True)
 
