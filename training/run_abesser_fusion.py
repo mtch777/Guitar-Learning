@@ -51,7 +51,13 @@ def calibrated_correctness(train,test,models,kind):
         if kind=="isotonic":
             cal=IsotonicRegression(out_of_bounds="clip",y_min=0,y_max=1).fit(x,y); scores[m]=cal.predict(xt)
         else:
-            cal=LogisticRegression(C=1,max_iter=1000).fit(x.reshape(-1,1),y); scores[m]=cal.predict_proba(xt.reshape(-1,1))[:,1]
+            # Tiny smoke folds can be perfect for a strong model. A constant
+            # correctness target is valid; its calibrated probability is exact.
+            if np.unique(y).size < 2:
+                scores[m]=np.full(len(xt),float(y[0]))
+            else:
+                cal=LogisticRegression(C=1,max_iter=1000).fit(x.reshape(-1,1),y)
+                scores[m]=cal.predict_proba(xt.reshape(-1,1))[:,1]
     return scores
 
 def choose(test,scores,models):
@@ -89,8 +95,11 @@ def eval_fusion(d,out,smoke):
             Xtr=meta_features(tr,models); Xte=meta_features(te,models); ps=[]
             for m in models:
                 y=tr[f"{m}_correct"].astype(int)
-                clf=LogisticRegression(C=1,max_iter=1000,class_weight="balanced").fit(Xtr,y)
-                ps.append(clf.predict_proba(Xte)[:,1])
+                if y.nunique() < 2:
+                    ps.append(np.full(len(Xte),float(y.iloc[0])))
+                else:
+                    clf=LogisticRegression(C=1,max_iter=1000,class_weight="balanced").fit(Xtr,y)
+                    ps.append(clf.predict_proba(Xte)[:,1])
             parr=np.column_stack(ps); ix=parr.argmax(axis=1)
             pred=np.array([int(te.iloc[i][f"{models[j]}_pred"]) for i,j in enumerate(ix)])
             methods[f"{label}_meta_logistic"]=(pred,parr.max(axis=1),np.array([models[j] for j in ix]))
