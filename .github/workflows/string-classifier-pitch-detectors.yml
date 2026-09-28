@@ -1,0 +1,60 @@
+name: Step 9 Stage-A pitch detector tournament
+
+on:
+  push:
+    paths:
+      - ".github/workflows/string-classifier-pitch-detectors.yml"
+      - "training/run_pitch_detector_tournament.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install numpy pandas librosa
+      - name: Preflight
+        run: |
+          python -m py_compile training/run_pitch_detector_tournament.py
+          python training/run_pitch_detector_tournament.py --help >/dev/null
+      - name: Smoke test whole pitch tournament
+        run: python -u training/run_pitch_detector_tournament.py training/data/ringing_384 --out training/results/pitch_detector_smoke --smoke
+      - name: Save smoke outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: string-classifier-pitch-detector-smoke
+          path: training/results/pitch_detector_smoke
+          if-no-files-found: warn
+
+  real:
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install numpy pandas librosa
+      - name: Real pitch detector tournament
+        run: python -u training/run_pitch_detector_tournament.py training/data/ringing_384 --out training/results/pitch_detector
+      - name: Print summary
+        if: success()
+        run: cat training/results/pitch_detector/summary.json
+      - name: Save real outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: string-classifier-pitch-detector
+          path: training/results/pitch_detector
+          if-no-files-found: warn
