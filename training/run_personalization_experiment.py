@@ -64,7 +64,7 @@ def cal_indices(df,train,frets):
             z.append(normal[0] if normal else q[0])
     return np.array(sorted(set(z)),int)
 
-def proto_probs(Z,cal,ycal):
+def proto_probs(Z,ycal):
     centers={}
     for s in range(1,9):
         q=Z[ycal==s]
