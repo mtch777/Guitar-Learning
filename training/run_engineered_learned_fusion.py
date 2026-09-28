@@ -31,25 +31,17 @@ def find_cols(root, required, preferred=()):
     return sorted(hits,key=lambda x:(-x[0],str(x[1])))[0][1]
 
 def load_original(root):
-    p=find_cols(root,KEY+["predicted_string","confidence"],("prediction",))
-    d=pd.read_csv(p)
-    # The benchmark prediction file normally carries a model/config discriminator.
-    disc=next((x for x in ("model","config","feature_set","method") if x in d.columns),None)
-    if disc is None:
-        raise RuntimeError(f"{p} has no model discriminator; columns={list(d.columns)}")
-    vals=d[disc].astype(str).str.lower()
-    def pick(tokens):
-        q=np.zeros(len(d),dtype=bool)
-        for t in tokens:q|=vals.str.contains(t,regex=False).to_numpy()
-        z=d[q].copy()
-        if len(z)!=384: raise RuntimeError(f"{disc} {tokens} selected {len(z)} rows, expected 384; values={sorted(d[disc].astype(str).unique())}")
-        return z
-    # Prefer explicit baseline and harmonic/full labels.
-    base=pick(["baseline"])
-    harm_mask=vals.str.contains("harmonic",regex=False)|vals.str.fullmatch("full")
-    harm=d[harm_mask].copy()
-    if len(harm)!=384: raise RuntimeError(f"harmonic/full selected {len(harm)} rows; values={sorted(d[disc].astype(str).unique())}")
-    return p,base,harm
+    # The preserved benchmark stores baseline and full/harmonic predictions in
+    # separate directories rather than a discriminator column.
+    files=list(Path(root).rglob("leave_one_pitch_out_predictions.csv"))
+    bp=next((p for p in files if "benchmark_baseline" in str(p)),None)
+    hp=next((p for p in files if "benchmark_full" in str(p)),None)
+    if bp is None or hp is None:
+        raise RuntimeError(f"Expected benchmark_baseline and benchmark_full prediction CSVs; found {files}")
+    base=pd.read_csv(bp); harm=pd.read_csv(hp)
+    if len(base)!=384 or len(harm)!=384:
+        raise RuntimeError(f"Expected 384 rows each; baseline={len(base)} full={len(harm)}")
+    return f"{bp};{hp}",base,harm
 
 def load_mfcc(root):
     p=find_cols(root,KEY+["predicted_string","confidence"],("prediction",))
