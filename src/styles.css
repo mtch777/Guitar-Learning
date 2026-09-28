@@ -1022,7 +1022,7 @@ button.uiButton:disabled {
   height: 24px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: #f2e6ca;
+  background: #8a7e6d;
   opacity: .78;
   z-index: 1;
   pointer-events: none;
