@@ -1,0 +1,39 @@
+{
+  "analysis": "preserved_prediction_overlap_and_simple_fusion_screen",
+  "sources": {
+    "baseline_run": 36354714761,
+    "baseline_artifact_id": 10943980624,
+    "confirmation_run": 36361317622,
+    "confirmation_artifact_id": 10945587990
+  },
+  "recordings": 384,
+  "individual": {
+    "baseline_107": {"correct": 371, "errors": 13, "accuracy": 0.9661458333333334},
+    "harmonic_214": {"correct": 372, "errors": 12, "accuracy": 0.96875},
+    "mfcc_0_120_26": {"correct": 370, "errors": 14, "accuracy": 0.9635416666666666}
+  },
+  "error_overlap": {
+    "baseline_harmonic": 8,
+    "baseline_mfcc": 3,
+    "harmonic_mfcc": 2,
+    "all_three": 2,
+    "all_three_files": [
+      "s5_f24_hard_ringing.wav",
+      "s5_f24_normal_ringing.wav"
+    ]
+  },
+  "unique_saves": {
+    "baseline_107": 0,
+    "harmonic_214": 1,
+    "mfcc_0_120_26": 6
+  },
+  "oracle_any_model_correct": {"correct": 382, "errors": 2, "accuracy": 0.9947916666666666},
+  "simple_fusion_screen": {
+    "majority_vote": {"correct": 375, "errors": 9, "accuracy": 0.9765625},
+    "highest_raw_confidence": {"correct": 378, "errors": 6, "accuracy": 0.984375}
+  },
+  "notes": [
+    "No model was retrained for this analysis; only preserved out-of-fold predictions were compared.",
+    "Highest-raw-confidence fusion is a screening result because confidence scales are not yet calibrated across models."
+  ]
+}
