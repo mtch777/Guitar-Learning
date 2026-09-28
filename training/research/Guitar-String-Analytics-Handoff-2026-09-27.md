@@ -847,11 +847,11 @@ Do not rerun Step 8 unless the data, temporal representation or evaluation metho
 
 ---
 
-# Results synthesis after Steps 1–11
+# Results synthesis after Steps 1–12
 
-The first eleven experiments materially changed the direction of the project. The evidence no longer points primarily toward inventing increasingly large physical/string feature sets. String identity is already highly recoverable from this fixed guitar/interface/player setup. The remaining practical problem is increasingly an **end-to-end inference, complementarity, calibration, latency, and deployment problem**.
+The first twelve experiments materially changed the direction of the project. The evidence no longer points primarily toward inventing increasingly large physical/string feature sets. String identity is already highly recoverable from this fixed guitar/interface/player setup. The remaining practical problem is increasingly an **end-to-end inference, complementarity, calibration, latency, and deployment problem**.
 
-## What the first eleven experiments established
+## What the first twelve experiments established
 
 | Experiment | Main result | Main lesson |
 |---|---|---|
@@ -1047,6 +1047,58 @@ The artifact preserves five output files, including OOF predictions/logits/proba
 
 Do not rerun Step 11 merely to regenerate these outputs.
 
+## Step 12 — COMPLETE: engineered + learned complementarity gate
+
+Script:
+
+`training/run_engineered_learned_fusion.py`
+
+Workflow:
+
+`.github/workflows/string-classifier-engineered-learned-fusion.yml`
+
+Final successful run:
+
+`36463295082`
+
+Smoke: **passed**.  
+Real: **passed**.
+
+Step 12 intentionally reused preserved out-of-fold predictions and **did not retrain** Steps 1–11. It compared the baseline, harmonic, confirmed 0–120 ms MFCC, and Step-11 candidate-masked CNN predictions.
+
+Results:
+
+| Measure | Result |
+|---|---:|
+| baseline | 371/384 correct |
+| harmonic | 372/384 correct |
+| MFCC | 370/384 correct |
+| CNN candidate-masked | 307/384 correct |
+| strong-three oracle | **382/384 = 99.4792%** |
+| strong-three + CNN oracle | **382/384 = 99.4792%** |
+| CNN unique rescues | **0** |
+| CNN wrong while at least one strong model was correct | **75** |
+
+The CNN added **zero oracle headroom**. All four models still jointly failed the same two recordings:
+
+- `s5_f24_hard_ringing.wav`
+- `s5_f24_normal_ringing.wav`
+
+Conclusion:
+
+> **Close the learned/CNN branch.** The CNN supplies no unique rescue and no increase in oracle accuracy, so calibrated engineered+learned fusion is not justified. Do not spend compute on CNN fusion, architecture search, or alternate learned representations unless future evidence materially changes the premise.
+
+This reinforces the current direction: prioritize the proven early MFCC/engineered systems, targeted physical feasibility tests, personalization/calibration, context ablations, latency, and live/browser validation.
+
+Real artifact:
+
+- name: `string-classifier-engineered-learned`
+- ID: `10987679899`
+- size: 17,714 bytes
+- SHA256: `5eaf5b5e2e9646f12ddd956763f233a02ef776009f8c96ff6ff7cdbce51d8602`
+
+Do not rerun Step 12 merely to regenerate these results.
+
 ## What went as expected
 
 - **Early attack information mattered.** Physical/string-specific attack and spectral behavior were expected to be useful, and the time-phase experiments confirmed this strongly.
@@ -1093,7 +1145,7 @@ The expectation that some correct MIDI values might survive as second/third cand
 
 Prioritize:
 
-1. **Complementary evidence**, especially whether a genuinely different learned spectral representation rescues errors made by the existing strong systems.
+1. **The proven early MFCC/engineered representations and their complementary evidence.** The learned spectral branch has now been tested and closed.
 2. **Early temporal modeling**, because the first approximately 120 ms is the strongest Stage-B region found so far.
 3. **Stage-A pitch quality**, especially YIN-family behavior and eventual browser-compatible implementation.
 4. **Calibration and personalization** for this fixed guitar/interface/player setup.
@@ -1135,8 +1187,8 @@ Primary survival criteria now emphasize:
 
 Standalone accuracy is secondary. If the CNN merely reproduces the same errors, stop learned-model expansion. Only investigate F0-aligned/CQT/Gammatone alternatives if the first CNN demonstrates useful learned complementarity.
 
-### 12. Engineered + learned fusion
-**Smoke test → Real run, conditional on Step 11 evidence.**
+### 12. Engineered + learned fusion — COMPLETE
+**Smoke test passed → Real run passed; learned branch closed.**
 
 Reuse preserved out-of-fold predictions; do not retrain completed experiments merely for fusion.
 
@@ -1144,7 +1196,7 @@ The benchmark remains:
 
 **379/384 = 98.6979%, 5 errors.**
 
-Step 12 must begin with a cheap preserved-prediction complementarity screen: error overlap, unique rescues, and oracle gain from adding the CNN to the surviving strong models. **Do not retrain Step 11.** Only if the weak CNN nevertheless adds meaningful unique rescues should calibrated learned+engineered fusion proceed. If it is non-complementary, Step 12 should terminate quickly and document that no expanded learned ensemble is justified.
+The preserved-prediction complementarity gate found **0 CNN unique rescues** and no oracle gain: 382/384 both before and after adding the CNN. Therefore no calibrated engineered+learned fusion was justified. The learned branch is closed.
 
 Step 10's multi-hypothesis branch is excluded from the main candidate pool because it produced zero rescues and substantial regressions.
 
@@ -1210,7 +1262,6 @@ Likely candidate structure, subject to Steps 11–16:
 
 Potential additions survive only if prior evidence supports them:
 
-- complementary CNN
 - lightweight personalization
 - calibrated fusion
 - trainer context, always reported separately
@@ -1236,13 +1287,13 @@ Do not declare production success from offline stored-WAV accuracy alone.
 
 ## Revised strategic path
 
-The evidence after eleven experiments changes the program from:
+The evidence after twelve experiments changes the program from:
 
 > research many representations → add features → find the highest-accuracy classifier
 
 to:
 
-> **screen the completed learned representation only for complementary rescues → retain it only if those rescues are real → otherwise return focus to the proven early MFCC/engineered path → personalize if useful → determine the minimum reliable decision time → select the simplest non-dominated complete architecture → prove Python/browser parity → prove it with controlled live guitar.**
+> **focus on the proven early MFCC/engineered path → cheaply test only genuinely different physical evidence → personalize if useful → quantify context separately → determine the minimum reliable decision time → select the simplest non-dominated complete architecture → prove Python/browser parity → prove it with controlled live guitar.**
 
 This is the evidence-supported direction for the remaining experiments.
 
@@ -1414,7 +1465,7 @@ Artifacts are not enough because they expire.
 
 # Exact continuation point
 
-**Completed through Step 11:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, hard-MIDI versus multi-hypothesis inference, and the compact learned spectral CNN.
+**Completed through Step 12:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, hard-MIDI versus multi-hypothesis inference, compact learned spectral CNN, and engineered+learned complementarity gating.
 
 **Current best overall physical-string classifier/fusion:** calibrated isotonic three-model fusion — **379/384 = 98.6979%, 5 errors**.
 
@@ -1424,8 +1475,10 @@ Artifacts are not enough because they expire.
 
 **Step 10 conclusion:** the preserved custom-YIN top-2/top-3/top-5 hypotheses contained no additional correct MIDI beyond top-1. Do not continue the current multi-hypothesis branch.
 
-**Step 11 conclusion:** the compact 25,864-parameter 160 ms log-mel CNN reached only **288/384 = 75.00% raw** and **307/384 = 79.95% candidate-masked**, versus 376/384 for temporal MFCC and 379/384 for existing fusion. Do not expand into a learned-model architecture search from this result.
+**Step 11 conclusion:** the compact 25,864-parameter 160 ms log-mel CNN reached only **288/384 = 75.00% raw** and **307/384 = 79.95% candidate-masked**.
 
-**Next:** Step 12 begins with a cheap complementarity screen using the **preserved Step-11 OOF probabilities**. Measure CNN unique rescues/error overlap/oracle gain against the surviving strong models without retraining anything. Proceed to calibrated engineered+learned fusion only if that screen demonstrates meaningful complementary evidence; otherwise close the learned branch and continue to Step 13.
+**Step 12 conclusion:** adding the CNN to the baseline/harmonic/MFCC oracle changed nothing: **382/384 before and 382/384 after**, with **0 CNN unique rescues**. The same two recordings remain wrong across all four models: `s5_f24_hard_ringing.wav` and `s5_f24_normal_ringing.wav`. **The learned/CNN branch is closed.**
 
-Then follow the revised Steps 13–18 program above. Keep every experiment **Smoke test → Real run**, preserve outputs, and do not rerun completed experiments merely to regenerate data.
+**Next:** Step 13 — SIF feasibility. Run **Smoke test → Real run** with a strict early kill gate. Test whether expected inverse-segment-frequency evidence is actually measurable above matched controls in the magnetic-pickup recordings. Do not build a SIF classifier if the physical signal itself is not robust.
+
+Then continue Steps 14–18. Preserve outputs and do not rerun completed experiments merely to regenerate data.
