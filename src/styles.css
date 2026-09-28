@@ -819,8 +819,8 @@ button.uiButton:disabled {
   --fret-width: 3px;
 
   position: absolute;
-  top: var(--fret-width);
-  bottom: var(--fret-width);
+  top: 0;
+  bottom: 0;
   width: var(--fret-width);
   transform: translateX(calc(var(--fret-width) / -2));
   background:
@@ -829,26 +829,31 @@ button.uiButton:disabled {
   z-index: 2;
 }
 
+/*
+  Real fret ends expose a beveled triangular end face.
+  Base width = triangle height = fret width.
+  The flat base sits on the fretboard edge; the point faces inward.
+*/
 .fretboardFret::before,
 .fretboardFret::after {
   content: "";
   position: absolute;
-  left: 50%;
+  left: 0;
   width: var(--fret-width);
   height: var(--fret-width);
-  transform: translateX(-50%);
   background:
-    linear-gradient(90deg, #777, #ededed 45%, #8d8d8d);
+    linear-gradient(90deg, #5f5f5f, #9a9a9a 50%, #656565);
   pointer-events: none;
+  z-index: 1;
 }
 
 .fretboardFret::before {
-  top: calc(var(--fret-width) * -1);
+  top: 0;
   clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
 
 .fretboardFret::after {
-  bottom: calc(var(--fret-width) * -1);
+  bottom: 0;
   clip-path: polygon(0 100%, 100% 100%, 50% 0);
 }
 
