@@ -787,6 +787,19 @@ function getDailyPairLabel(
   );
 }
 
+function formatDailyQuizCountdown(
+  count
+) {
+  return (
+    count +
+    (
+      count === 1
+        ? ' quiz left'
+        : ' quizzes left'
+    )
+  );
+}
+
 function updateDailyPracticeStatus() {
   const status =
     document.getElementById(
@@ -813,15 +826,18 @@ function updateDailyPracticeStatus() {
     'intervals'
   ) {
     status.textContent =
-      'Phase 1 · D# ' +
+      getLessonDefinition(
+        'intervals'
+      ).label +
+      ' · D# ' +
       modeNames[
         dailyPracticeState
           .baseMode
       ] +
       ' · ' +
-      dailyPracticeState
-        .remainingPairs.length +
-      ' pairs left';
+      formatDailyQuizCountdown(
+        questions.length
+      );
 
     return;
   }
@@ -835,7 +851,13 @@ function updateDailyPracticeStatus() {
       'D# ' +
       modeNames[
         dailyPracticeState.baseMode
-      ];
+      ] +
+      ' · ' +
+      formatDailyQuizCountdown(
+        dailyPracticeState
+          .modeIntervalRemainingModes
+          .length
+      );
 
     return;
   }
@@ -845,7 +867,7 @@ function updateDailyPracticeStatus() {
     'complete'
   ) {
     status.textContent =
-      'Daily practice complete · 0 left';
+      'Daily practice complete · 0 quizzes left';
 
     return;
   }
@@ -853,22 +875,30 @@ function updateDailyPracticeStatus() {
   const current =
     dailyPracticeState.currentPair;
 
-  const remaining =
+  if (!current) {
+    status.textContent = '';
+    return;
+  }
+
+  const lessonQuizzesRemaining =
+    1 +
     dailyPracticeState
-      .remainingPairs.length +
-    (
-      current
-        ? 1
-        : 0
-    );
+      .remainingPairs
+      .filter(
+        pair =>
+          pair.lessonType ===
+          current.lessonType
+      )
+      .length;
 
   status.textContent =
     getDailyPairLabel(
       current
     ) +
     ' · ' +
-    remaining +
-    ' left';
+    formatDailyQuizCountdown(
+      lessonQuizzesRemaining
+    );
 }
 
 function initializeDailyPractice() {
@@ -1150,6 +1180,8 @@ function skipDailyCurrentExercise() {
           questionIndex,
           1
         );
+
+        updateDailyPracticeStatus();
       }
     }
 
@@ -7133,6 +7165,7 @@ function buildTrainer() {
       }
     );
 
+    updateDailyPracticeStatus();
     generateIntervalAnswer();
 
     return;
@@ -7986,6 +8019,8 @@ document
                 questionIndex,
                 1
               );
+
+              updateDailyPracticeStatus();
             }
 
             scheduleQuizTransition(
