@@ -21,6 +21,7 @@ jobs:
           pip install "numpy<2.1" pandas scipy librosa scikit-learn soundfile
       - name: Preflight script
         run: |
+          if grep -nF '\n' training/run_abesser_reproduction.py; then echo "ERROR: literal escaped newline found in Python source"; exit 1; fi
           python -m py_compile training/run_abesser_reproduction.py
           python training/run_abesser_reproduction.py --help >/dev/null
           grep -q -- "--smoke" <(python training/run_abesser_reproduction.py --help)
