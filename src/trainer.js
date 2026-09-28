@@ -2240,8 +2240,18 @@ function applyIntervalStyle(
     return;
   }
 
-  cell.style.backgroundColor =
-    style.background;
+  if (
+    cell.dataset.openString ===
+    'true'
+  ) {
+    cell.style.backgroundColor =
+      style.background;
+  } else {
+    cell.style.setProperty(
+      '--note-feedback-bg',
+      style.background
+    );
+  }
 
   cell.style.color =
     style.color;
@@ -2249,6 +2259,12 @@ function applyIntervalStyle(
 
 function clearCellStyle(cell) {
   cell.style.backgroundColor = '';
+  cell.style.removeProperty(
+    '--note-feedback-bg'
+  );
+  cell.style.removeProperty(
+    '--note-feedback-border'
+  );
   cell.style.color = '';
 }
 
@@ -6464,6 +6480,42 @@ function buildTrainer() {
     );
   }
 
+  function getStringHitBounds(
+    displayIndex
+  ) {
+    const center =
+      getStringTopPercent(
+        displayIndex
+      );
+
+    const top =
+      displayIndex === 0
+        ? 0
+        : (
+            getStringTopPercent(
+              displayIndex - 1
+            ) +
+            center
+          ) / 2;
+
+    const bottom =
+      displayIndex ===
+        tuning.length - 1
+        ? 100
+        : (
+            center +
+            getStringTopPercent(
+              displayIndex + 1
+            )
+          ) / 2;
+
+    return {
+      top,
+      height:
+        bottom - top
+    };
+  }
+
   const quizTuningControl =
     document.getElementById(
       'quizTuningControl'
@@ -7028,17 +7080,31 @@ function buildTrainer() {
       cell.className =
         'fretboardNote';
 
+      const hitBounds =
+        getStringHitBounds(
+          displayIndex
+        );
+
       cell.style.left =
         (
           (
-            fret - 0.5
+            fret - 1
           ) /
           maxFret *
           100
         ) + '%';
 
+      cell.style.width =
+        (
+          100 /
+          maxFret
+        ) + '%';
+
       cell.style.top =
-        topPercent + '%';
+        hitBounds.top + '%';
+
+      cell.style.height =
+        hitBounds.height + '%';
 
       const absolutePitch =
         openPitch +

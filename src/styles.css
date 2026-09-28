@@ -1059,6 +1059,62 @@ button.uiButton:disabled {
   height: var(--fretboard-note-size);
 }
 
+/*
+  Fretted notes use the entire fret x string cell as the hit target.
+  The target itself is invisible. Circular feedback is rendered by
+  ::before so lesson feedback keeps the same visual language.
+*/
+.physicalFretboard .fretboardNote {
+  transform: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.physicalFretboard .fretboardNote::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--fretboard-note-size);
+  height: var(--fretboard-note-size);
+  transform: translate(-50%, -50%);
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--note-feedback-bg, transparent);
+  box-shadow: var(--note-feedback-shadow, none);
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.physicalFretboard .fretboardNote.revealed::before,
+.physicalFretboard .fretboardNote.wrong::before {
+  opacity: 1;
+}
+
+.physicalFretboard .fretboardNote.revealed::before {
+  border-color: var(
+    --note-feedback-border,
+    rgba(0, 0, 0, .48)
+  );
+  --note-feedback-shadow:
+    0 2px 4px rgba(0, 0, 0, .32);
+}
+
+.physicalFretboard .fretboardNote.wrong::before {
+  border-color: #e32626;
+  background: var(--control-bg);
+  --note-feedback-shadow:
+    0 0 0 1px rgba(227, 38, 38, .18);
+}
+
+.physicalFretboard .fretboardNote > * {
+  position: relative;
+  z-index: 1;
+}
+
 .fretboardStage.compact .fretboardNote {
   font-size: 12px;
 }
@@ -1088,8 +1144,17 @@ button.uiButton:disabled {
   box-shadow: 0 2px 4px rgba(0, 0, 0, .32);
 }
 
+.physicalFretboard .fretboardNote.revealed {
+  border: 0;
+  box-shadow: none;
+}
+
 .fretboardNote.cagedNpsBridge.revealed {
   border-color: #ffffff;
+}
+
+.physicalFretboard .fretboardNote.cagedNpsBridge.revealed {
+  --note-feedback-border: #ffffff;
 }
 
 .fretboardNote.openStringNote.revealed {
@@ -1097,34 +1162,16 @@ button.uiButton:disabled {
 }
 
 .fretboardNote.unknownInterval {
-  border-width: 1px;
-  border-color: rgba(255, 255, 255, 0.24);
-  background: rgba(255, 255, 255, 0.035);
+  border-color: transparent;
+  background: transparent;
   color: transparent;
   box-shadow: none;
-
-  /*
-    Hidden note hit-targets must sit below the rendered strings.
-    They remain clickable because strings are pointer-events:none.
-    Revealed/correct/wrong notes lose this class and return to the
-    base fretboardNote z-index above the strings.
-  */
   z-index: 6;
 }
 
-:root:not([data-theme="dark"]) .fretboardNote.unknownInterval {
-  border-color: rgba(0, 0, 0, 0.22);
-  background: rgba(255, 255, 255, 0.10);
-}
-
 .fretboardNote.unknownInterval:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.48);
-}
-
-:root:not([data-theme="dark"]) .fretboardNote.unknownInterval:hover {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(0, 0, 0, 0.38);
+  border-color: transparent;
+  background: transparent;
 }
 
 .fretboardNote.correct {
@@ -1136,6 +1183,12 @@ button.uiButton:disabled {
   color: #e32626;
   border-color: #e32626;
   box-shadow: 0 0 0 1px rgba(227, 38, 38, .18);
+}
+
+.physicalFretboard .fretboardNote.wrong {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .fretboardNote:focus-visible {
