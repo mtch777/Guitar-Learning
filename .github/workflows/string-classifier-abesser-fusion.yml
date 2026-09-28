@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - ".github/workflows/string-classifier-abesser-fusion.yml"
+      - "training/run_abesser_fusion.py"
   workflow_dispatch:
 
 permissions:
