@@ -817,32 +817,34 @@ button.uiButton:disabled {
 
 .fretboardFret {
   --fret-width: 3px;
-  --fret-face-revision: 2;
+  --fret-face-revision: 3;
 
   position: absolute;
   top: 0;
   bottom: 0;
   width: var(--fret-width);
   transform: translateX(calc(var(--fret-width) / -2));
+
+  /*
+    Keep lighting simple enough to survive a 3px-wide render:
+    one off-center highlight, one darker falloff, softly light edges.
+  */
   background:
     linear-gradient(
       90deg,
-      #d6d6d6 0%,
-      #8e8e8e 14%,
-      #f2f2f2 30%,
-      #b9b9b9 52%,
-      #8a8a8a 80%,
-      #d0d0d0 100%
+      #d7d7d7 0%,
+      #eeeeee 28%,
+      #9b9b9b 72%,
+      #c8c8c8 100%
     );
-  box-shadow: 1px 0 2px rgba(0, 0, 0, .22);
+
+  box-shadow: 1px 0 2px rgba(0, 0, 0, .18);
   z-index: 2;
 }
 
 /*
-  Real fret ends expose a beveled triangular end face.
-  Base width = triangle height = fret width.
-  The flat base sits on the fretboard edge; the point faces inward.
-  Lighting uses a one-sided highlight with lighter outer edges.
+  Match the end face to the same lighting direction, but keep it
+  slightly darker so it still reads as a bevel rather than a decal.
 */
 .fretboardFret::before,
 .fretboardFret::after {
@@ -851,16 +853,16 @@ button.uiButton:disabled {
   left: 0;
   width: var(--fret-width);
   height: var(--fret-width);
+
   background:
     linear-gradient(
       90deg,
-      #c4c4c4 0%,
-      #6f6f6f 16%,
-      #b6b6b6 31%,
-      #8b8b8b 55%,
-      #666666 82%,
-      #bbbbbb 100%
+      #bdbdbd 0%,
+      #d7d7d7 28%,
+      #858585 72%,
+      #adadad 100%
     );
+
   pointer-events: none;
   z-index: 1;
 }
