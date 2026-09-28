@@ -64,14 +64,14 @@ def cal_indices(df,train,frets):
             z.append(normal[0] if normal else q[0])
     return np.array(sorted(set(z)),int)
 
-def proto_probs(Z,ycal):
+def proto_probs(Zcal,ycal,query):
     centers={}
     for s in range(1,9):
-        q=Z[ycal==s]
+        q=Zcal[ycal==s]
         if len(q):centers[s]=q.mean(axis=0)
     p=np.zeros(8)
     for s,c in centers.items():
-        d=np.mean((Z[-1]-c)**2)
+        d=np.mean((query-c)**2)
         p[s-1]=np.exp(-d/2)
     return p/p.sum() if p.sum() else p
 
@@ -115,9 +115,7 @@ def main():
             rel=(correct+1)/(count+2); rel=rel/np.mean(rel)
             for ri,idx in enumerate(test):
                 pb=mask(base[ri],midi)
-                # prototype score uses current query appended only for distance computation.
-                Z=np.vstack([Zcal,Xq[ri]])
-                pp=proto_probs(Z,ycal); pp=mask(pp,midi)
+                pp=proto_probs(Zcal,ycal,Xq[ri]); pp=mask(pp,midi)
                 blend=mask(.8*pb+.2*pp,midi)
                 key=f"{b}_prototype";pred[key][idx]=np.argmax(blend)+1;conf[key][idx]=blend.max()
                 pr=mask(pb*rel,midi)
