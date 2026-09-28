@@ -6821,7 +6821,7 @@ function buildTrainer() {
     0 = physical String 1 / lowest.
   */
   // High to low: three plain strings, then five progressively heavier wound strings.
-  const stringThicknesses = [0.8, 1, 1.35, 2.4, 3.35, 4.3, 5.1, 5.9];
+  const stringThicknesses = [0.8, 1, 1.35, 1.55, 3.35, 4.3, 5.1, 5.9];
 
   for (
     let displayIndex = 0;
