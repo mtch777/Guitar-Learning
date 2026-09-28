@@ -131,8 +131,9 @@ def fit_predict(Xframes,df,order,out):
         pipe=Pipeline([("imp",SimpleImputer(strategy="median",add_indicator=False)),
           ("scale",StandardScaler()),("lda",LinearDiscriminantAnalysis(n_components=ncomp)),
           ("svm",SVC(kernel="rbf",probability=True,class_weight="balanced"))])
-        cv=GroupKFold(3)
-        gs=GridSearchCV(pipe,{"svm__C":Cs,"svm__gamma":gammas},cv=cv.split(Xt,yt,groups),scoring="f1_macro",n_jobs=-1)
+        cv=list(GroupKFold(3).split(Xt,yt,groups))
+        # Materialize splits so joblib workers receive a picklable object.
+        gs=GridSearchCV(pipe,{"svm__C":Cs,"svm__gamma":gammas},cv=cv,scoring="f1_macro",n_jobs=-1)
         gs.fit(Xt,yt); model=gs.best_estimator_; classes=model.named_steps["svm"].classes_
         for ridx in test:
             valid=[f for f in Xframes[ridx] if np.isfinite(f).any()]
