@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install JS audio dependencies
-        run: npm install --no-save meyda node-wav
+        run: echo "No JS audio dependencies required"
       - name: Install validation dependencies
         run: pip install numpy pandas scikit-learn xgboost
       - name: Preflight
