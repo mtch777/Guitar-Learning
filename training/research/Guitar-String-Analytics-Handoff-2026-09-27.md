@@ -857,65 +857,509 @@ Compare current/Pitchy with YIN/YINFast/pYIN and Essentia-compatible approaches.
 ## 10. Hard-MIDI vs multi-hypothesis inference
 **Smoke test → Real run.**
 
-Compare:
+### Question
+Does committing to one detected MIDI before string classification discard useful pitch evidence? Compare the normal hard-MIDI pipeline with joint scoring of several plausible `(MIDI,string,fret)` hypotheses.
 
-- one detected MIDI → string classifier
-- several plausible pitch candidates → joint `(MIDI,string,fret)` scoring
+### Inputs
+Use the **preserved Step-9 detector outputs**. Do not rerun Step 9. Each note should expose, where supported, several pitch hypotheses with detector score/confidence plus ground-truth MIDI/string/fret.
 
-Determine whether early hard pitch commitment destroys recoverable information.
+Use the strongest surviving Stage-B acoustic model available at that point. Step 8's three-frame 0–120 ms temporal MFCC model is the default lightweight Stage-B reference unless Step 9 establishes a better compatible pipeline.
+
+### Implementation
+Create:
+
+- `training/run_multi_hypothesis_inference.py`
+- `.github/workflows/string-classifier-multi-hypothesis.yml`
+
+For each recording, construct:
+
+1. **Hard MIDI:** detector top-1 MIDI → physically possible strings/frets → Stage-B string probabilities.
+2. **Top-K joint:** keep detector hypotheses within configurable semitone/score limits. For each pitch hypothesis, enumerate physically possible strings/frets. Score each joint hypothesis using pitch evidence × candidate-masked Stage-B acoustic evidence.
+3. Test K = 2, 3, and 5 where detector output supports it.
+4. Preserve both raw detector score and normalized joint score. Do not let trainer answer hints enter this experiment.
+
+Avoid tuning combination weights on the held-out MIDI. Any learned/calibrated combination must be fit using other MIDIs only.
+
+### Smoke test
+Run the entire chain on a small set containing:
+
+- at least one correct top-1 pitch
+- at least one detector error if available
+- at least one MIDI playable on multiple strings
+
+Validate candidate enumeration, normalization, top-K bookkeeping, and output files.
+
+### Real run
+Run all 384 recordings using the same held-out-MIDI discipline.
+
+Report:
+
+- pitch accuracy of hard top-1
+- final physical-string accuracy
+- joint `(MIDI,string,fret)` accuracy
+- top-K oracle recovery
+- octave/semitone error recovery
+- candidate-count breakdown
+- unique rescues vs hard MIDI
+- regressions introduced by multi-hypothesis inference
+- confidence/margin and latency overhead
+
+### Saved outputs
+At minimum:
+
+- `summary.json`
+- per-recording predictions CSV with all pitch and joint hypotheses
+- error/rescue CSV
+- configuration/weight metadata
+- artifact ID/hash and permanent compact result in `training/EXPERIMENTS.md`
+
+### Decision
+Keep multi-hypothesis inference only if it recovers real hard-MIDI failures without an unacceptable false-choice/latency cost.
+
+---
 
 ## 11. Learned spectral model
 **Smoke test → Real run.**
 
-Start with a small CNN, not a heavyweight pretrained architecture. Candidate inputs:
+### Question
+Can a small learned time-frequency model extract complementary string identity information that the engineered models miss?
 
-- log-STFT/log-mel
-- F0/harmonic-aligned representation
-- CQT/Gammatone only if the simple learned baseline justifies expansion
+### Implementation
+Create:
 
-Use the same pitch-separated evaluation and measure inference cost.
+- `training/run_spectral_cnn.py`
+- `.github/workflows/string-classifier-spectral-cnn.yml`
+
+Start with **one deliberately small CNN**. Do not begin with ResNet/MobileNet or a representation tournament.
+
+Default input:
+
+- mono 22.05 kHz
+- onset-aligned early region, initially 0–160 ms
+- log-mel spectrogram
+- fixed normalization computed from training folds only
+
+Suggested compact network:
+
+- 3 convolution blocks: Conv2D → BatchNorm → ReLU → pooling
+- 16 → 32 → 64 channels
+- global average pooling
+- small dense layer
+- 8 string logits
+
+Candidate masking must remain a post-model evaluation stage so raw acoustic performance is preserved separately.
+
+Critical leakage rule: all recordings sharing the held-out MIDI stay out of training, validation, normalization and early-stopping selection for that fold.
+
+### Smoke test
+Use a few held-out MIDIs, a tiny epoch count and the real preprocessing/training/evaluation path. Confirm loss decreases, model serializes, predictions map to all 8 strings, and raw/masked outputs are saved.
+
+### Real run
+Run leave-one-entire-MIDI-out. To control compute, use a fixed training recipe established before the real run; do not hyperparameter-search on the test folds.
+
+Report:
+
+- raw and candidate-masked accuracy/macro-F1
+- per-string metrics/confusion
+- errors by MIDI/fret/strength
+- unique rescues versus baseline/harmonic/Step-8 temporal
+- oracle ceiling when added to survivors
+- confidence calibration
+- preprocessing + inference latency
+- model size
+
+If the simple log-mel CNN is clearly uncompetitive and non-complementary, stop. Only test F0-aligned/CQT/Gammatone representations if the first learned model gives evidence that learned spectral modeling is useful.
+
+### Saved outputs
+Save fold predictions/logits, training curves, model/preprocessing config, metrics, latency, model size, artifact/hash, and permanent summary.
+
+---
 
 ## 12. Engineered + learned fusion
 **Smoke test → Real run.**
 
-First test probability fusion. Only use embedding/feature fusion if the learned model demonstrates complementary mistakes. Include the Step-8 three-frame temporal model as a fusion candidate.
+### Question
+Does the learned spectral model provide complementary evidence beyond the current engineered/temporal systems?
+
+### Inputs
+Reuse preserved out-of-fold predictions. **Do not retrain Steps 4, 8, or 11 just to fuse them.**
+
+Candidate pool should include only survivors:
+
+- baseline 107
+- harmonic 214
+- early MFCC / Step-8 three-frame temporal model
+- Step-11 CNN if it earned survival
+- any Step-10 joint pipeline only if its output is comparable and independently useful
+
+Abeßer is excluded unless methodology materially changed.
+
+### Implementation
+Create:
+
+- `training/run_engineered_learned_fusion.py`
+- workflow `string-classifier-engineered-learned-fusion.yml`
+
+Run in this order:
+
+1. error overlap / unique rescues
+2. oracle ceiling
+3. calibrated probability fusion
+4. meta-model fusion only if simpler calibrated fusion leaves useful room
+
+Calibration/meta fitting must be leave-one-MIDI-out: the held-out MIDI cannot fit its own calibrator/fuser.
+
+Include the existing **379/384 = 98.6979%** three-model isotonic fusion as the benchmark to beat.
+
+### Smoke test
+Use a small set of preserved predictions to validate file alignment, class ordering, calibration, fold isolation and output generation.
+
+### Real run
+Report every candidate combination that was actually justified, not a combinatorial brute-force search.
+
+Report:
+
+- accuracy/errors
+- macro-F1
+- unique rescues
+- oracle
+- selected-model frequency
+- calibration metrics
+- confidence/margin
+- added latency/model-size cost
+
+### Decision
+Keep a learned component only if it improves errors/calibration/robustness enough to justify runtime complexity.
+
+---
 
 ## 13. SIF feasibility
 **Smoke test → Real run.**
 
-First prove the inverse-segment signal is measurable through the pickup. Kill immediately if not.
+### Question
+Is inverse-string-frequency / behind-the-fret resonance measurably present in the **pickup recordings** strongly enough to help physical-string identification?
+
+This is a feasibility gate, not a full classifier project.
+
+### Implementation
+Create:
+
+- `training/run_sif_feasibility.py`
+- workflow `string-classifier-sif-feasibility.yml`
+
+For each known `(string,fret)`, calculate the theoretical inverse-segment frequency relationship from the two string segments. Search the recorded spectrum around expected SIF locations and matched control frequencies.
+
+Measure features such as:
+
+- local peak-to-neighborhood ratio
+- SIF-band energy
+- nearest-peak cents error
+- harmonic/control-band contrast
+- consistency across pick strengths
+- same-MIDI/different-string separation
+
+Focus first on fretted notes where the geometry predicts a meaningful inverse segment. Open strings should be handled separately.
+
+### Smoke test
+Use a handful of strings/frets with clearly different predicted SIF frequencies. Produce plots/data proving the extraction targets the intended frequencies.
+
+### Real run
+Run the full applicable dataset and quantify:
+
+- detection rate above control/background
+- effect size by string/fret
+- same-MIDI candidate separability
+- consistency across strength
+- univariate and simple multivariate discrimination
+- incremental unique rescues if appended cheaply to a survivor model
+
+### Kill criterion
+If expected SIF energy is not consistently distinguishable from matched controls through the magnetic pickup, stop SIF work immediately. Do not build a large model around noise.
+
+---
 
 ## 14. Calibration / personalization
 **Smoke test → Real run.**
 
-Test per-string/per-position calibration for the fixed guitar/interface setup, including pick-strength/input-level robustness and confidence calibration.
+### Question
+How much can the fixed guitar/interface/setup benefit from explicit per-string/per-position calibration, and how robust is that calibration to playing level?
+
+### Implementation
+Create:
+
+- `training/run_personalization_experiment.py`
+- workflow `string-classifier-personalization.yml`
+
+Evaluate lightweight personalization methods before neural fine-tuning:
+
+1. per-string feature centering/scaling learned from calibration examples
+2. per-string or per-position prototype distances
+3. prior/confidence calibration by string and candidate count
+4. optional fret-dependent trend features
+5. input-level normalization / soft-normal-hard robustness
+
+Calibration data must be separated from evaluation data. Never evaluate a recording that directly contributed to its own prototype/statistics.
+
+Because the current dataset has uneven strength coverage, explicitly report which tests use all strings versus the subset with soft/normal/hard recordings.
+
+### Smoke test
+Use a small calibration/evaluation split that exercises the full fit → transform/score → predict path.
+
+### Real run
+Compare calibration budgets, for example:
+
+- minimal: open strings + a few anchor frets
+- medium: anchor frets 0/5/7/12/17/19/24 where available
+- maximal available calibration without evaluation leakage
+
+Report:
+
+- accuracy/errors
+- macro-F1
+- per-string gains/losses
+- strength robustness
+- calibration curve / confidence
+- number of calibration recordings required
+- setup burden
+- unique rescues vs unpersonalized survivor
+
+### Decision
+Prefer a small calibration procedure only if gains justify the user effort and remain robust across pick strength.
+
+---
 
 ## 15. Candidate-mask + context ablations
 **Smoke test → Real run.**
 
-Quantify:
+### Question
+Exactly how much accuracy comes from acoustic evidence, physical plausibility, temporal context, and trainer-known answer context?
 
-- acoustics only
-- + physical candidate mask
-- + temporal context
-- + trainer-known answer positions
+### Implementation
+Create:
 
-Keep raw and final decisions separate.
+- `training/run_context_ablation.py`
+- workflow `string-classifier-context-ablation.yml`
+
+Using preserved survivor predictions wherever possible, evaluate distinct layers:
+
+A. raw acoustic string probabilities  
+B. + physical tuning/fret candidate mask  
+C. + temporal aggregation/context  
+D. + trainer-known valid answer positions  
+E. final gameplay decision logic
+
+Never collapse these into one metric. Trainer context is allowed only in D/E and must not be described as acoustic classifier accuracy.
+
+For trainer context, reproduce the actual semantics of `window.getGuitarTrainerAudioHints(midi)`: answer strings/positions can constrain or rerank only at the explicitly labeled context stage.
+
+### Smoke test
+Use synthetic/known examples covering:
+
+- impossible-string removal
+- multiple physically possible strings
+- multiple valid trainer answers
+- context that helps
+- context that would incorrectly hide an acoustic error if layers were mixed
+
+### Real run
+Report layer-by-layer:
+
+- accuracy/errors
+- ambiguous-note subset
+- number of decisions changed
+- correct rescues vs harmful overrides
+- confidence changes
+- latency
+- remaining error taxonomy
+
+This establishes the honest difference between raw acoustic accuracy and actual gameplay accuracy.
+
+---
 
 ## 16. Final time × method tournament
 **Smoke test → Real run.**
 
-Take only surviving methods and evaluate timing/window/aggregation consistently.
+### Question
+Among methods that survived Steps 9–15, what analysis time/window gives the best accuracy-latency tradeoff under one consistent protocol?
+
+### Implementation
+Create:
+
+- `training/run_final_time_method_tournament.py`
+- workflow `string-classifier-final-time-method.yml`
+
+Do **not** rerun the old 315-config screen. This tournament contains only surviving methods and a small predeclared set of decision times, e.g.:
+
+- 40 ms
+- 80 ms
+- 120 ms
+- 160 ms
+- 200/240 ms only for methods that require them
+
+Where preserved outputs already exactly match a tournament cell, reuse them rather than recompute.
+
+For each method/time, measure:
+
+- physical-string accuracy/macro-F1
+- ambiguous-note accuracy
+- errors
+- confidence/calibration
+- feature/preprocessing time
+- inference time
+- total onset→decision latency
+- model size/browser feasibility
+
+### Smoke test
+Run a tiny survivor × time matrix through the complete evaluator and verify reused and newly computed cells share identical schema.
+
+### Real run
+Produce a compact Pareto table: no subjective winner score. Mark configurations dominated in both accuracy and latency.
+
+The purpose is to narrow architectures for Step 17, not to create another giant grid search.
+
+---
 
 ## 17. Final architecture tournament
 **Smoke test → Real run.**
 
-Compare complete pipelines on accuracy, macro-F1, ambiguous-note performance, confidence/calibration, latency, robustness and browser/runtime cost.
+### Question
+Which complete surviving pipelines should advance to browser/live validation?
+
+### Implementation
+Create:
+
+- `training/run_final_architecture_tournament.py`
+- workflow `string-classifier-final-architecture.yml`
+
+Construct only evidence-supported complete pipelines. Likely components, depending on prior results:
+
+- Stage-A detector
+- hard or multi-hypothesis pitch handling
+- Stage-B acoustic model
+- candidate mask
+- temporal aggregation
+- calibrated fusion
+- optional personalization
+- optional trainer context, reported separately
+
+Every architecture must expose both **raw acoustic** and **final/contextual** outputs.
+
+Evaluate:
+
+- overall and ambiguous-note accuracy
+- macro-F1/per-string recall
+- error count and taxonomy
+- confidence/calibration
+- robustness by strength/fret/string
+- onset→decision latency
+- CPU inference/preprocessing cost
+- memory/model size
+- implementation complexity
+- browser compatibility
+
+### Smoke test
+Execute every candidate architecture end-to-end on a tiny labeled subset and verify identical input/output contracts.
+
+### Real run
+Run the complete dataset/protocol. Produce a factual comparison/Pareto set rather than an arbitrary composite score.
+
+Advance only architectures that are non-dominated or offer a clear implementation/latency advantage.
+
+Save the exact architecture configuration needed for browser porting.
+
+---
 
 ## 18. Browser/runtime + live-site validation
 **Smoke test → Real run.**
 
-Port the winner, establish numerical parity, measure runtime, then validate actual live guitar playing.
+### Question
+Does the selected Python pipeline reproduce correctly and perform acceptably in the actual browser trainer with live guitar input?
+
+### Part A — browser parity implementation
+Port the selected architecture into the existing audio stack, keeping components modular.
+
+Likely files to update/add only after inspecting current `main`:
+
+- `src/input/live-guitar.js`
+- browser feature extractor/model files under `src/input/`
+- `src/trainer.js` only where integration/context requires it
+- model/config assets under an appropriate static path
+- parity/validation scripts under `training/`
+
+Do not assume old browser code layout; fetch latest files first.
+
+### Part B — parity smoke test
+Create a browser/Node parity harness using stored WAVs. For identical recordings compare Python vs browser:
+
+- resampling/trim/onset behavior
+- intermediate features
+- normalization
+- raw logits/probabilities
+- candidate mask
+- temporal aggregation
+- final predicted string
+
+Define tolerances per intermediate representation. Prediction agreement alone is insufficient if feature values silently diverge.
+
+The **smoke test** is a small representative WAV set through the entire Python → browser pipeline.
+
+### Part C — parity real run
+Run all 384 stored WAVs through the browser implementation.
+
+Require:
+
+- prediction parity or explicitly explained numerical differences
+- no unexplained systematic probability drift
+- measured feature/inference runtime
+- no excessive allocations/UI blocking
+
+Save a parity report and per-recording browser predictions.
+
+### Part D — live-site controlled validation
+After offline parity passes, test actual live playing with labeled known positions.
+
+Required coverage:
+
+- same MIDI on every physically possible string
+- all 8 strings
+- open strings
+- low/mid/high frets
+- soft/normal/hard
+- repeated notes
+- fast transitions
+- sustained notes
+- S4/S5/S6 neighboring-string problem area
+- high frets
+- S5 fret 24
+- silence/noise/false triggers
+
+Log each event with:
+
+- expected string/fret/MIDI when test mode supplies it
+- detected MIDI and cents error
+- pitch confidence/stability
+- candidate pitch hypotheses if used
+- raw string probabilities
+- candidate mask
+- temporal/fusion state
+- final string/fret
+- source of any context override
+- onset→first decision and onset→stable decision latency
+- feature and model runtime
+
+### Live debug UI
+The requested Guitar String Model diagnostics should expose enough information to answer **why** a note did or did not trigger/map. Include volume plus per-string/candidate metrics, not merely final string.
+
+### Acceptance
+Do not declare production success from stored-WAV parity alone. Final acceptance requires both:
+
+1. offline Python↔browser parity, and
+2. controlled live guitar validation with acceptable latency/false-trigger behavior.
+
+Persist the final model/config, parity results, live-test summary, and exact deployed commit.
+
+---
+
 
 ---
 
