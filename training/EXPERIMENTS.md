@@ -16,7 +16,7 @@ Primary evaluation is candidate-masked physical-string classification with leave
 | Step 5 Abeßer reproduction | 36370931642 | AR32, 188/384 = 48.9583% | 196 | 10950522386 |
 | Step 6 Abeßer classifier comparison | 36374793618 | HGB, 222/384 = 57.8125% | 162 | 10953065549 |
 | Step 7 Abeßer + strong-model fusion | 36383682332 | Existing 3-model isotonic remains 379/384 | 5 | 10953427540 |
-| Step 8 temporal aggregation | 36384052764 | 3×40 ms MFCC mean, 376/384 = 97.9167% | 8 | 10953663191 |
+| Step 8 temporal aggregation | 36384052764 | 3×40 ms MFCC mean, 376/384 = 97.9167% | 8 | 10953663191 |\n| Step 9 Stage-A pitch tournament | 36437584822 | librosa YIN 240 ms, 375/384 = 97.6563% MIDI | 9 MIDI | 10977090483 |
 
 ## Key conclusions
 
@@ -59,6 +59,23 @@ Six independent 40 ms MFCC classifiers were evaluated from 0–240 ms. Equal pro
 Step-8 artifact SHA256: `59d74af732b10557ec6760a8317b3b7bef3f89da032afd70c4aaeebd3553542b`.
 
 The three-frame 0–120 ms temporal model is now a strong lightweight production/fusion candidate.
+
+### Step 9 Stage-A pitch detection — YIN wins
+
+Four pitch detectors were tested at 40/80/120/160/200/240 ms on all 384 recordings.
+
+Best per detector:
+
+- **librosa YIN, 240 ms: 375/384 = 97.6563%, 0 octave errors, 8.30¢ median absolute error, 1.01 ms mean detector runtime**
+- librosa pYIN, 240 ms: 375/384 = 97.6563%, 0 octave errors, 7.51¢, 69.60 ms
+- custom YIN, 160 ms: 374/384 = 97.3958%, 0 octave errors, 9.39¢, 2.25 ms
+- current browser correlation, 200 ms: 366/384 = 95.3125%, 6 octave errors, 11.71¢, 2.71 ms
+
+Thus the best YIN result cuts the current detector's MIDI errors from 18 to 9 and eliminates its six octave errors. pYIN adds major runtime cost without improving exact MIDI accuracy. Custom YIN is nearly tied and preserves multiple pitch hypotheses for Step 10.
+
+Step-9 artifact SHA256: `e38e632233c7f786ebcd03595dbf767f6e390c7abc24c5d1e788ba62db326efb`.
+
+Do not rerun Step 9. Step 10 should consume its preserved per-recording outputs/candidate hypotheses.
 
 ## Permanent overlap result
 
