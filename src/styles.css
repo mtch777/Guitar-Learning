@@ -554,15 +554,24 @@ select.stateSelect {
 }
 
 .dailyPracticeStatus {
-  flex: 0 0 auto;
-  white-space: nowrap;
-  padding: 3px 7px;
+  display: block;
+  width: max-content;
+  max-width: calc(100% - 2 * var(--panel-inline-buffer));
+  margin: 7px var(--panel-inline-buffer) 0;
+  padding: 4px 8px;
   border: 1px solid var(--border-color);
   border-radius: 999px;
   background: var(--header-bg);
   font-size: 12px;
   line-height: 14px;
-  opacity: .82;
+  font-weight: 700;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  opacity: .92;
+}
+
+.dailyPracticeStatus[hidden] {
+  display: none;
 }
 
 .intervalQuizPrompt {
