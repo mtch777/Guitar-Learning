@@ -1,0 +1,46 @@
+name: String classifier time-phase confirmation
+
+on:
+  push:
+    paths:
+      - ".github/workflows/string-classifier-time-phase-confirmation.yml"
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "numpy<2.1" pandas scipy librosa scikit-learn xgboost joblib soundfile
+      - name: Verify dataset
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path("training/data/ringing_384")
+          wavs=list(p.glob("*.wav"))
+          print("WAV count:",len(wavs),flush=True)
+          print("Bytes:",sum(x.stat().st_size for x in wavs),flush=True)
+          assert len(wavs)==384
+          PY
+      - name: Confirm saved-screen winners at 100 trees
+        run: |
+          python -u training/run_time_phase_confirmation.py training/data/ringing_384 \
+            --trees 100 \
+            --out training/results/time_phase_confirmation
+      - name: Print confirmation summary
+        if: success()
+        run: cat training/results/time_phase_confirmation/summary.json
+      - name: Save confirmation outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: string-classifier-time-phase-confirmation
+          path: training/results/time_phase_confirmation
+          if-no-files-found: warn
