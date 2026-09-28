@@ -6990,6 +6990,14 @@ function buildTrainer() {
     openCell.style.top =
       topPercent + '%';
 
+    openCell.style.setProperty(
+      '--string-radius',
+      (
+        stringThicknesses[displayIndex] /
+        2
+      ) + 'px'
+    );
+
     configureNoteCell(
       openCell,
       openPitch,
