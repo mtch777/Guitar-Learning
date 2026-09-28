@@ -6844,32 +6844,6 @@ function buildTrainer() {
         displayIndex
       );
 
-    /*
-      Cut a gauge-matched groove into the nut at the exact rendered
-      string position. The heavier strings get visibly wider slots.
-    */
-    const nutSlot =
-      document.createElement('div');
-
-    nutSlot.className =
-      'fretboardNutSlot';
-
-    nutSlot.style.top =
-      topPercent + '%';
-
-    nutSlot.style.setProperty(
-      '--nut-slot-height',
-      (
-        stringThicknesses[displayIndex] +
-        3
-      ) + 'px'
-    );
-
-    nut.appendChild(
-      nutSlot
-    );
-
-
     const stringLine =
       document.createElement('div');
 
@@ -6903,6 +6877,14 @@ function buildTrainer() {
     stringLine.style.height =
       stringThicknesses[displayIndex] + 'px';
 
+    stringLine.style.setProperty(
+      '--string-radius',
+      (
+        stringThicknesses[displayIndex] /
+        2
+      ) + 'px'
+    );
+
     if (stringIndex < 4) {
       stringLine.classList.add('woundString');
       stringLine.style.setProperty(
@@ -6930,6 +6912,14 @@ function buildTrainer() {
 
       stringCore.style.height =
         stringThicknesses[displayIndex] + 'px';
+
+      stringCore.style.setProperty(
+        '--string-radius',
+        (
+          stringThicknesses[displayIndex] /
+          2
+        ) + 'px'
+      );
 
       stringCore.style.background =
         stringSurface;
