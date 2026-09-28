@@ -30,7 +30,7 @@ RX=re.compile(r"s(\d+)_f(\d+)_(soft|normal|hard)_ringing\.wav",re.I)
 STAT_NAMES=["max","min","mean","median","mode","var","skew","kurt"]
 
 def midi_hz(m): return 440.0*2**((m-69)/12)
-def mode_rounded(x):
+def mode_sample(x):
     x=np.asarray(x); x=x[np.isfinite(x)]
     if not len(x): return np.nan
     # Continuous estimates rarely repeat exactly; paper says mode but not binning.
@@ -39,7 +39,7 @@ def mode_rounded(x):
 def stats8(x):
     x=np.asarray(x,float); x=x[np.isfinite(x)]
     if not len(x): return [np.nan]*8
-    return [np.max(x),np.min(x),np.mean(x),np.median(x),mode_rounded(x),
+    return [np.max(x),np.min(x),np.mean(x),np.median(x),mode_sample(x),
             np.var(x),float(skew(x,bias=False)) if len(x)>2 else 0.0,
             float(kurtosis(x,bias=False)) if len(x)>3 else 0.0]
 
