@@ -764,7 +764,7 @@ button.uiButton:disabled {
   --note-fret-gap: 4px;
   --fretboard-note-size: 38px;
   --nut-width: 11px;
-  --open-string-cap-gap: 10px;
+  --open-string-cap-gap: 6px;
 
   display: grid;
   grid-template-columns: 0 var(--open-string-gutter) minmax(0, 1fr);
