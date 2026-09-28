@@ -101,7 +101,7 @@ document
     'lessonTypeSelect'
   )
   .value =
-    'rrPent';
+    'daily';
 
 document
   .getElementById(
@@ -3364,6 +3364,38 @@ function getRrPentGroups(modeName) {
         scale[2][1]
     }
   ];
+
+  if (
+    getRrColorNotesEnabled() &&
+    modeName ===
+      'lydian'
+  ) {
+    const colorNote = {
+      semitone:
+        scale[3][0],
+
+      interval:
+        scale[3][1]
+    };
+
+    /*
+      Lydian's characteristic #4 sits between M3 and 5.
+      Add it after M3 in both the current R-3 group and
+      the repeated R-3 group that begins inside C.
+    */
+    groupA.push(
+      colorNote
+    );
+
+    groupC.push({
+      semitone:
+        12 +
+        colorNote.semitone,
+
+      interval:
+        colorNote.interval
+    });
+  }
 
   if (
     getRrColorNotesEnabled() &&
@@ -8845,6 +8877,13 @@ buildNpsModeControls();
 buildStartDegreeControls();
 buildDirectionControls();
 buildCagedShapeControls();
+
+if (
+  getSelectedLessonType() ===
+  'daily'
+) {
+  initializeDailyPractice();
+}
 
 updateLessonControls();
 buildTrainer();
