@@ -1172,7 +1172,7 @@ button.uiButton:disabled {
 
 .fretboardNote.unknownInterval:hover {
   border-color: transparent;
-  background: transparent;
+  background: rgba(200, 200, 200, .18);
 }
 
 .fretboardNote.correct {
