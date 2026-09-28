@@ -23,9 +23,9 @@ FRAMES=[("f0_40",0,.04),("f40_80",.04,.08),("f80_120",.08,.12),
         ("f120_160",.12,.16),("f160_200",.16,.20),("f200_240",.20,.24)]
 EPS=1e-12
 
-def model(n):
+def model(n,num_class=8):
     return XGBClassifier(n_estimators=n,max_depth=3,learning_rate=.04,subsample=.85,
-      colsample_bytree=.85,reg_lambda=2,objective="multi:softprob",num_class=8,
+      colsample_bytree=.85,reg_lambda=2,objective="multi:softprob",num_class=num_class,
       random_state=42,n_jobs=8)
 
 def mask(p,midi):
@@ -73,9 +73,18 @@ def main():
     for midi in midis:
         te=np.where(df.midi.to_numpy()==midi)[0]; tr=np.where(df.midi.to_numpy()!=midi)[0]
         for fi,(name,_,_) in enumerate(FRAMES):
-            sc=StandardScaler().fit(X[fi][tr]); clf=model(20 if a.smoke else a.trees)
-            clf.fit(sc.transform(X[fi][tr]),truth[tr]-1)
-            probs=clf.predict_proba(sc.transform(X[fi][te]))
+            sc=StandardScaler().fit(X[fi][tr])
+            # Smoke subsets need not contain all 8 physical strings. Encode the
+            # classes present in this training fold contiguously for XGBoost,
+            # then expand probabilities back into the fixed 8-string space.
+            classes=np.sort(np.unique(truth[tr]))
+            enc={s:i for i,s in enumerate(classes)}
+            ytr=np.asarray([enc[s] for s in truth[tr]],dtype=int)
+            clf=model(20 if a.smoke else a.trees,len(classes))
+            clf.fit(sc.transform(X[fi][tr]),ytr)
+            raw=clf.predict_proba(sc.transform(X[fi][te]))
+            probs=np.zeros((len(te),8),dtype=float)
+            for ci,s in enumerate(classes): probs[:,s-1]=raw[:,ci]
             for j,idx in enumerate(te): P[idx,fi]=mask(probs[j],int(midi))
             done+=1; elapsed=time.time()-st; eta=elapsed/done*(total-done)
             print(f"MODEL [{done}/{total}] MIDI {midi} {name} | elapsed {elapsed/60:.1f}m ETA {eta/60:.1f}m",flush=True)
