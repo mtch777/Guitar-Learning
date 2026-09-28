@@ -1,0 +1,82 @@
+name: Step 12 engineered learned complementarity
+
+on:
+  push:
+    paths:
+      - ".github/workflows/string-classifier-engineered-learned-fusion.yml"
+      - "training/run_engineered_learned_fusion.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  ORIGINAL_RUN: "36354714761"
+  CONFIRMATION_RUN: "36361317622"
+  CNN_RUN: "36459606684"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy pandas
+      - name: Download preserved predictions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p preserved/original preserved/confirmation preserved/cnn
+          gh run download "$ORIGINAL_RUN" -n string-classifier-benchmark -D preserved/original
+          gh run download "$CONFIRMATION_RUN" -n string-classifier-time-confirmation -D preserved/confirmation
+          gh run download "$CNN_RUN" -n string-classifier-spectral-cnn -D preserved/cnn
+          find preserved -maxdepth 3 -type f -print
+      - name: Preflight
+        run: python -m py_compile training/run_engineered_learned_fusion.py
+      - name: Smoke test whole preserved-prediction cycle
+        run: python -u training/run_engineered_learned_fusion.py --original preserved/original --confirmation preserved/confirmation --cnn preserved/cnn --out training/results/engineered_learned_smoke --smoke
+      - name: Validate smoke
+        run: |
+          test -f training/results/engineered_learned_smoke/summary.json
+          test -f training/results/engineered_learned_smoke/learned_complementarity.csv
+      - name: Save smoke outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: string-classifier-engineered-learned-smoke
+          path: training/results/engineered_learned_smoke
+          if-no-files-found: warn
+
+  real:
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy pandas
+      - name: Download preserved predictions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p preserved/original preserved/confirmation preserved/cnn
+          gh run download "$ORIGINAL_RUN" -n string-classifier-benchmark -D preserved/original
+          gh run download "$CONFIRMATION_RUN" -n string-classifier-time-confirmation -D preserved/confirmation
+          gh run download "$CNN_RUN" -n string-classifier-spectral-cnn -D preserved/cnn
+      - name: Real complementarity gate
+        run: python -u training/run_engineered_learned_fusion.py --original preserved/original --confirmation preserved/confirmation --cnn preserved/cnn --out training/results/engineered_learned
+      - name: Print result
+        run: cat training/results/engineered_learned/summary.json
+      - name: Save real outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: string-classifier-engineered-learned
+          path: training/results/engineered_learned
+          if-no-files-found: warn
