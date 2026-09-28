@@ -21,6 +21,7 @@ Primary evaluation is candidate-masked physical-string classification with leave
 | Step 11 compact spectral CNN | 36459606684 | candidate-masked, 307/384 = 79.9479% | 77 | 10986904978 |
 | Step 12 engineered + learned complementarity | 36463295082 | oracle unchanged at 382/384 = 99.4792%; 0 CNN rescues | 2 oracle | 10987679899 |
 | Step 13 SIF feasibility | 36464844099 | feasibility gate failed; median expected-vs-control +1.14 dB | — | 10989825794 |
+| Step 14 calibration/personalization | 36470556416 | medium prototype, 362/384 = 94.2708% | 22 | 10991343882 |
 
 ## Key conclusions
 
@@ -105,6 +106,29 @@ Using preserved OOF predictions only, the strong-three oracle was **382/384 = 99
 
 No learned+engineered fusion is justified. Artifact SHA256: `5eaf5b5e2e9646f12ddd956763f233a02ef776009f8c96ff6ff7cdbce51d8602`.
 
+### Step 14 calibration / personalization — small positive effect
+
+Smoke passed, then the gated real run evaluated all **384 recordings** with leave-one-entire-MIDI-out validation. Calibration anchors were drawn only from training MIDIs, so the held-out MIDI did not contribute to its own personalization.
+
+The tested calibration budgets were:
+
+- minimal: frets **0 and 12** per string
+- medium: frets **0, 5, 7, 12, 17, 19 and 24** per string
+
+Results:
+
+- unpersonalized base: **361/384 = 94.0104%**, 23 errors
+- minimal prototype: **361/384 = 94.0104%**, 1 rescue / 1 regression
+- minimal reliability prior: **359/384 = 93.4896%**, 0 rescues / 2 regressions
+- **medium prototype: 362/384 = 94.2708%, 22 errors, 1 rescue / 0 regressions**
+- medium reliability prior: **360/384 = 93.7500%**, 0 rescues / 1 regression
+
+The medium prototype therefore improved this Step-14 base by exactly **one recording = +0.2604 percentage points**, with no regressions. This is evidence that fixed-rig personalization can help, but the demonstrated gain is small relative to the calibration effort. Reliability-prior personalization was harmful and should not be carried forward.
+
+This Step-14 base is not the existing 379/384 calibrated three-model fusion; the experiment used the lightweight three-frame MFCC representation as its personalization test bed. Therefore **379/384 remains the best demonstrated overall offline system**.
+
+Run: `36470556416`. Artifact: `10991343882`. Artifact SHA256: `b1c78236386f8ef36e15e613594d2de079f51b9902541ac5c9e25902f0094f76`.
+
 ### Step 13 SIF feasibility — closed
 
 Smoke passed after correcting the feasibility sampling/overlap logic, then the gated real run evaluated **360/360 usable fretted recordings**.
@@ -134,10 +158,10 @@ Do not rerun completed experiments merely to regenerate outputs. Save metrics, p
 
 ## Remaining program
 
-14. Calibration/personalization — smoke → real; increased priority
+14. Calibration/personalization — **complete**; medium prototype gave +1 correct / +0.2604 pp, no regressions
 15. Candidate-mask + context ablations — smoke → real; keep raw/context metrics separate
 16. Final time × method tournament — smoke → real; small survivor-only early timing grid
 17. Final architecture tournament — smoke → real
 18. Browser/runtime + live-site validation — smoke → real
 
-See `training/research/Guitar-String-Analytics-Handoff-2026-09-27.md` for the full Steps 1–13 synthesis, revised direction, detailed methodology, implementation context and continuation instructions.
+See `training/research/Guitar-String-Analytics-Handoff-2026-09-27.md` for the full Steps 1–14 synthesis, revised direction, detailed methodology, implementation context and continuation instructions.
