@@ -1,0 +1,60 @@
+name: Step 13 SIF feasibility
+
+on:
+  push:
+    paths:
+      - ".github/workflows/string-classifier-sif-feasibility.yml"
+      - "training/run_sif_feasibility.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy pandas librosa
+      - name: Preflight
+        run: python -m py_compile training/run_sif_feasibility.py
+      - name: Smoke test whole SIF pipeline
+        run: python -u training/run_sif_feasibility.py --data training/data/ringing_384 --out training/results/sif_feasibility_smoke --smoke
+      - name: Validate smoke outputs
+        run: |
+          test -f training/results/sif_feasibility_smoke/summary.json
+          test -f training/results/sif_feasibility_smoke/sif_observations.csv
+          test -f training/results/sif_feasibility_smoke/sif_by_string.csv
+      - name: Save smoke outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: string-classifier-sif-feasibility-smoke
+          path: training/results/sif_feasibility_smoke
+          if-no-files-found: warn
+
+  real:
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy pandas librosa
+      - name: Real SIF feasibility screen
+        run: python -u training/run_sif_feasibility.py --data training/data/ringing_384 --out training/results/sif_feasibility
+      - name: Print result
+        run: cat training/results/sif_feasibility/summary.json
+      - name: Save real outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: string-classifier-sif-feasibility
+          path: training/results/sif_feasibility
+          if-no-files-found: warn
