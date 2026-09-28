@@ -52,11 +52,22 @@ function trim(y,topDb=50){
   const th=peak*Math.pow(10,-topDb/20);let a=0,b=y.length;while(a<b&&Math.abs(y[a])<th)a++;while(b>a&&Math.abs(y[b-1])<th)b--;
   return y.slice(a,b);
 }
+function reflectPad(seg,pad){
+  const out=new Float32Array(seg.length+2*pad);out.set(seg,pad);
+  for(let i=0;i<pad;i++){
+    out[pad-1-i]=seg[Math.min(seg.length-1,i+1)];
+    out[pad+seg.length+i]=seg[Math.max(0,seg.length-2-i)];
+  }
+  return out;
+}
 function mfcc26(seg,sr){
-  const bs=256,hop=64,frames=[];
-  if(seg.length<bs){const z=new Float32Array(bs);z.set(seg);seg=z}
-  for(let start=0;start+bs<=seg.length;start+=hop){
-    const frame=seg.slice(start,start+bs);
+  // Match training/run_temporal_aggregation.py for a 40 ms (882-sample) frame:
+  // n_fft=512, hop=128, n_mels=40, n_mfcc=13, librosa center=True.
+  const bs=512,hop=128,frames=[];
+  if(seg.length<128){const z=new Float32Array(128);z.set(seg);seg=z}
+  const centered=reflectPad(seg,bs>>1);
+  for(let start=0;start+bs<=centered.length;start+=hop){
+    const frame=centered.slice(start,start+bs);
     const m=Meyda.extract("mfcc",frame,{sampleRate:sr,bufferSize:bs,melBands:40,numberOfMFCCCoefficients:13});
     if(m&&m.length===13&&m.every(Number.isFinite))frames.push(m);
   }
