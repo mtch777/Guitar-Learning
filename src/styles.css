@@ -664,13 +664,8 @@ button.uiButton:disabled {
   overflow: visible;
 }
 
-.headstockIcon .headstockBody,
-.headstockIcon .headstockTuners rect {
+.tracedHeadstockIcon .tracedHeadstock {
   fill: currentColor;
-}
-
-.headstockIcon .headstockTuners circle {
-  fill: var(--control-bg);
 }
 
 .tuningPopover {

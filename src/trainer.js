@@ -2586,39 +2586,15 @@ function createTuningSettings() {
   button.type = 'button';
   button.className = 'settingsButton';
   button.innerHTML = `
-    <svg class="headstockIcon" viewBox="0 0 32 32" aria-hidden="true">
-      <path class="headstockBody"
-        d="M15.2 29
-           L15.2 25.8
-           C15.2 23.7 14.3 21.8 13.0 19.9
-           C11.4 17.5 11.3 14.6 12.4 11.8
-           L16.2 2.8
-           C16.7 1.7 17.9 1.1 19.0 1.4
-           L23.8 2.7
-           C25.0 3.0 25.7 4.3 25.4 5.5
-           L22.8 16.0
-           C22.2 18.3 21.9 20.5 21.9 22.7
-           L21.9 29
-           Z"/>
-      <g class="headstockTuners">
-        <circle cx="16.7" cy="5.0" r="1.05"/>
-        <circle cx="16.0" cy="7.8" r="1.05"/>
-        <circle cx="15.3" cy="10.6" r="1.05"/>
-        <circle cx="14.8" cy="13.4" r="1.05"/>
-        <circle cx="14.8" cy="16.2" r="1.05"/>
-        <circle cx="15.2" cy="19.0" r="1.05"/>
-        <circle cx="15.9" cy="21.8" r="1.05"/>
-        <circle cx="16.8" cy="24.5" r="1.05"/>
-        <rect x="8.7" y="4.0" width="3.5" height="1.5" rx=".55"/>
-        <rect x="8.0" y="6.8" width="3.5" height="1.5" rx=".55"/>
-        <rect x="7.4" y="9.6" width="3.5" height="1.5" rx=".55"/>
-        <rect x="7.0" y="12.4" width="3.5" height="1.5" rx=".55"/>
-        <rect x="7.0" y="15.2" width="3.5" height="1.5" rx=".55"/>
-        <rect x="7.4" y="18.0" width="3.5" height="1.5" rx=".55"/>
-        <rect x="8.0" y="20.8" width="3.5" height="1.5" rx=".55"/>
-        <rect x="8.8" y="23.5" width="3.5" height="1.5" rx=".55"/>
-      </g>
-    </svg>`;
+    <svg class="headstockIcon tracedHeadstockIcon"
+         viewBox="0 0 154 261"
+         aria-hidden="true"
+         preserveAspectRatio="xMidYMid meet">
+      <path class="tracedHeadstock"
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M 119 2 L 111 1 L 101 0 L 91 3 L 83 6 L 77 12 L 71 19 L 66 31 L 62 47 L 60 48 L 56 48 L 51 45 L 48 42 L 45 42 L 42 44 L 37 48 L 37 53 L 40 56 L 44 59 L 50 57 L 55 54 L 59 53 L 61 55 L 59 64 L 56 77 L 53 80 L 48 80 L 45 77 L 41 74 L 36 74 L 32 77 L 30 79 L 30 86 L 34 90 L 39 91 L 43 88 L 47 85 L 52 85 L 53 91 L 51 99 L 47 111 L 43 111 L 39 111 L 36 108 L 34 106 L 28 106 L 25 109 L 22 112 L 22 116 L 24 120 L 30 123 L 35 122 L 40 117 L 43 117 L 46 119 L 44 127 L 40 143 L 36 143 L 31 143 L 28 140 L 26 138 L 20 138 L 17 141 L 15 144 L 16 151 L 22 155 L 29 153 L 32 149 L 36 149 L 39 151 L 37 158 L 33 174 L 29 175 L 24 175 L 21 172 L 18 170 L 13 170 L 10 174 L 7 177 L 8 181 L 9 184 L 14 187 L 18 187 L 21 184 L 25 181 L 31 182 L 30 188 L 26 206 L 23 208 L 17 207 L 14 205 L 11 202 L 6 202 L 3 203 L 2 204 L 0 213 L 2 216 L 6 219 L 12 218 L 15 215 L 17 213 L 23 214 L 23 220 L 22 231 L 24 238 L 31 248 L 40 260 L 103 260 L 106 251 L 107 246 L 113 239 L 124 231 L 136 226 L 146 221 L 151 214 L 153 210 L 153 202 L 147 179 L 139 147 L 132 119 L 125 91 L 121 73 L 126 68 L 133 64 L 138 59 L 141 52 L 143 44 L 143 38 L 142 31 L 138 22 L 133 12 L 127 6 Z M 41 201 L 45 200 L 49 202 L 52 204 L 53 207 L 53 214 L 50 217 L 45 220 L 40 219 L 35 213 L 35 207 L 38 203 Z M 50 169 L 54 169 L 56 170 L 60 174 L 61 177 L 59 184 L 56 186 L 52 188 L 48 187 L 46 186 L 42 180 L 43 176 L 44 173 Z M 57 137 L 62 138 L 65 139 L 68 143 L 68 148 L 67 151 L 64 153 L 59 156 L 55 154 L 50 149 L 50 143 L 53 140 Z M 64 105 L 68 105 L 71 106 L 75 110 L 76 113 L 74 120 L 70 123 L 63 123 L 60 121 L 58 118 L 58 110 L 61 107 Z M 72 73 L 76 73 L 78 74 L 82 78 L 83 81 L 81 88 L 77 91 L 70 91 L 67 89 L 65 86 L 65 80 L 68 76 Z M 80 42 L 84 41 L 87 42 L 91 46 L 92 50 L 91 55 L 87 59 L 82 60 L 77 57 L 75 54 L 75 48 L 77 45 Z"/>
+    </svg>``;
   button.title = 'Tuning settings';
   button.setAttribute('aria-label', 'Tuning settings');
 
