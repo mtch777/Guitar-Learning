@@ -897,10 +897,9 @@ button.uiButton:disabled {
 
 .fretboardString {
   position: absolute;
-  left: calc(-1 * var(--nut-width) - var(--string-radius));
+  left: calc(-1 * var(--nut-width));
   right: 0;
   transform: translateY(-50%);
-  border-radius: 999px 0 0 999px;
   background-color: #b8b8b8;
   background-image:
     linear-gradient(
@@ -912,6 +911,37 @@ button.uiButton:disabled {
   box-shadow: 0 1px 1px rgba(0, 0, 0, .34);
   pointer-events: none;
   z-index: 8;
+}
+
+.fretboardStringCap {
+  position: absolute;
+  left: calc(-1 * var(--nut-width) - var(--string-radius));
+  width: calc(var(--string-radius) * 2);
+  height: calc(var(--string-radius) * 2);
+  transform: translateY(-50%);
+  border-radius: 50%;
+  overflow: hidden;
+  pointer-events: none;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .34);
+  z-index: 9;
+}
+
+.fretboardStringCap.woundStringCap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    82deg,
+    rgba(255, 255, 255, .09) 0,
+    rgba(255, 255, 255, .05) .28px,
+    rgba(0, 0, 0, .38) .72px,
+    rgba(0, 0, 0, .21) 1.04px,
+    transparent 1.4px,
+    transparent var(--winding-step)
+  );
+  opacity: var(--winding-opacity);
 }
 
 /*
@@ -926,10 +956,9 @@ button.uiButton:disabled {
 */
 .fretboardStringCore {
   position: absolute;
-  left: calc(-1 * var(--nut-width) - var(--string-radius));
+  left: calc(-1 * var(--nut-width));
   right: 0;
   transform: translateY(-50%);
-  border-radius: 999px 0 0 999px;
   pointer-events: none;
   clip-path: inset(18% 0 18% 0);
   z-index: 7;
