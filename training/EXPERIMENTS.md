@@ -24,6 +24,7 @@ Primary evaluation is candidate-masked physical-string classification with leave
 | Step 14 calibration/personalization | 36470556416 | medium prototype, 362/384 = 94.2708% | 22 | 10991343882 |
 | Step 15 candidate-mask + context ablation | 36477918087 | temporal masked 120 ms, 376/384 = 97.9167%; correct singleton context upper bound 384/384 | 8 acoustic | 10994099328 |
 | Step 16 final time × method tournament | 36479004613 | temporal MFCC 120 ms, 376/384 = 97.9167%; YIN 240 ms, 375/384 = 97.6563% MIDI | 8 Stage-B / 9 MIDI | 10995776554 |
+| Step 17 final architecture tournament | 36480723812 | YIN240→fusion3 370/384 = 96.3542% end-to-end; oracle-pitch fusion3 379/384 = 98.6979% | 14 end-to-end / 5 Stage-B oracle-pitch | 10996203285 |
 
 ## Key conclusions
 
@@ -186,6 +187,33 @@ Conclusion: do not extend Stage-B beyond 120 ms; 160 ms adds latency and loses a
 
 Run: `36479004613`. Artifact: `10995776554`. Artifact SHA256: `27099c240ebd3f40561c8de10a3b6d6090b9a9dd538548f77e10cd7880cc7344`.
 
+### Step 17 final architecture tournament
+
+Smoke passed, then the gated real run compared only evidence-supported complete pipelines on all **384 recordings**. Stage-A predicted MIDI drove the physical candidate mask; trainer context was excluded.
+
+Key complete-pipeline results:
+
+- **YIN 240 ms → calibrated fusion3: 370/384 = 96.3542% end-to-end**, 375/384 pitch correct, 379/384 string correct when scored independently, and **98.6667% string accuracy conditional on correct pitch**. Estimated availability ≈ **276.99 ms**.
+- YIN 240 ms → temporal MFCC 120 ms: **367/384 = 95.5729% end-to-end**, 375/384 pitch correct, 376/384 string correct independently, **97.8667% conditional string accuracy**. Estimated availability ≈ **243.78 ms**.
+- Oracle pitch → fusion3: **379/384 = 98.6979%**, reproducing the existing best physical-string result.
+- Oracle pitch → temporal MFCC 120 ms: **376/384 = 97.9167%**, reproducing the proven temporal Stage-B result.
+
+Thus fusion retains its **+3 correct-recording** advantage over temporal MFCC in the complete pipeline, but costs roughly **33 ms additional processing** in this Python measurement and uses a much heavier representation: **347 features vs 78**. The fusion string-confidence Brier score was **0.01363**, versus **0.05844** for temporal MFCC.
+
+The deployable Pareto frontier contained:
+
+- YIN 200 ms → temporal MFCC 120 ms
+- YIN 200 ms → fusion3
+- YIN 240 ms → fusion3
+
+YIN 240 ms → temporal MFCC was dominated.
+
+Most importantly, the remaining end-to-end ceiling is increasingly **Stage A** rather than Stage B. With YIN 240 ms, 9/384 recordings already have the wrong MIDI before final string selection. When pitch is correct, fusion identifies the string correctly on **370/375? No: conditional Stage-B accuracy is 98.6667%, i.e. 370 correct end-to-end out of 375 correct-pitch cases, leaving only 5 conditional string failures.** Therefore Step 18 should prioritize browser YIN parity, onset/decision timing and live pitch stability at least as strongly as further Stage-B work.
+
+Production choice is not yet based on offline accuracy alone: fusion is more accurate and better calibrated, while temporal MFCC is substantially simpler/faster. Step 18 must determine whether fusion's +3/384 offline gain survives browser/runtime complexity and live behavior.
+
+Run: `36480723812`. Artifact: `10996203285`. Artifact SHA256: `77743ed19d9564ccc4253e37d940615bbd11eb23b250be77fd0745e13f5ae527`.
+
 ### Step 13 SIF feasibility — closed
 
 Smoke passed after correcting the feasibility sampling/overlap logic, then the gated real run evaluated **360/360 usable fretted recordings**.
@@ -218,7 +246,7 @@ Do not rerun completed experiments merely to regenerate outputs. Save metrics, p
 14. Calibration/personalization — **complete**; medium prototype gave +1 correct / +0.2604 pp, no regressions
 15. Candidate-mask + context ablations — **complete**; mask +25 correct, temporal +40, context retained as separate gameplay prior
 16. Final time × method tournament — **complete**; Stage-B 120 ms best accuracy/latency point, Stage-A librosa YIN 240 ms highest accuracy
-17. Final architecture tournament — smoke → real
+17. Final architecture tournament — **complete**; YIN240→fusion3 370/384 end-to-end, fusion retains +3 over temporal MFCC
 18. Browser/runtime + live-site validation — smoke → real
 
-See `training/research/Guitar-String-Analytics-Handoff-2026-09-27.md` for the full Steps 1–16 synthesis, revised direction, detailed methodology, implementation context and continuation instructions.
+See `training/research/Guitar-String-Analytics-Handoff-2026-09-27.md` for the full Steps 1–17 synthesis, revised direction, detailed methodology, implementation context and continuation instructions.
