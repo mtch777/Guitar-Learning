@@ -1,0 +1,60 @@
+name: Step 8 multi-frame temporal aggregation
+
+on:
+  push:
+    paths:
+      - ".github/workflows/string-classifier-temporal-aggregation.yml"
+      - "training/run_temporal_aggregation.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install numpy pandas librosa scikit-learn xgboost
+      - name: Preflight
+        run: |
+          python -m py_compile training/run_temporal_aggregation.py
+          python training/run_temporal_aggregation.py --help >/dev/null
+      - name: Smoke test whole temporal cycle
+        run: python -u training/run_temporal_aggregation.py training/data/ringing_384 --out training/results/temporal_aggregation_smoke --smoke
+      - name: Save smoke outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: string-classifier-temporal-aggregation-smoke
+          path: training/results/temporal_aggregation_smoke
+          if-no-files-found: warn
+
+  real:
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install numpy pandas librosa scikit-learn xgboost
+      - name: Real temporal aggregation run
+        run: python -u training/run_temporal_aggregation.py training/data/ringing_384 --out training/results/temporal_aggregation --trees 100
+      - name: Print summary
+        if: success()
+        run: cat training/results/temporal_aggregation/summary.json
+      - name: Save real outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: string-classifier-temporal-aggregation
+          path: training/results/temporal_aggregation
+          if-no-files-found: warn
