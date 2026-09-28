@@ -1267,21 +1267,31 @@ Run: `36477918087`
 Artifact: `10994099328`  
 Artifact SHA256: `fee5678b720cebf982eef64dadbafe25dfffb658145965b6773ab3f7c07e56ef`
 
-### 16. Final time × method tournament
-**Smoke test → Real run. Scope reduced.**
+### 16. Final time × method tournament — COMPLETE
+**Smoke test passed → Real run passed.**
 
-Do not create another broad timing grid.
+Only surviving methods and the predeclared small timing grid were evaluated; no trainer context was used.
 
-Use only surviving architectures and a small early-time set such as:
+Stage B — temporal MFCC:
 
-- 80 ms
-- 120 ms
-- 160 ms
-- 200/240 ms only where a surviving Stage-A method requires comparison
+- 80 ms: **373/384 = 97.1354%**, availability ≈ **81.75 ms**
+- **120 ms: 376/384 = 97.9167%**, availability ≈ **122.62 ms**
+- 160 ms: **375/384 = 97.6563%**, availability ≈ **163.50 ms**
 
-The evidence already strongly favors early Stage-B decisions. This experiment is now primarily an **accuracy-versus-total-latency Pareto comparison**, not a search for arbitrary late windows.
+The Stage-B Pareto frontier is 80 ms and 120 ms. The 160 ms point is dominated by 120 ms: slower and one recording less accurate. The 120 ms model is therefore the best demonstrated final Stage-B operating point; the 80 ms model remains useful only if a provisional lower-latency decision is valuable.
 
-Reuse preserved cells whenever methodology is exactly identical.
+Stage A — surviving YIN methods:
+
+- librosa YIN 80/120/160/200/240 ms: **335 / 367 / 370 / 374 / 375 correct**
+- custom YIN 80/120/160/200/240 ms: **352 / 369 / 372 / 373 / 373 correct**
+
+Librosa YIN at 240 ms remains the highest-accuracy Stage-A point at **375/384 = 97.6563%**. Custom YIN does not exceed it, and its 200→240 ms extension adds no accuracy.
+
+Interpretation for Step 17: use **120 ms temporal MFCC** as the main Stage-B candidate. Treat **librosa YIN 240 ms** as the highest-accuracy Stage-A reference, with shorter YIN timings retained only as latency tradeoffs. Do not reopen broad timing search.
+
+Run: `36479004613`  
+Artifact: `10995776554`  
+Artifact SHA256: `27099c240ebd3f40561c8de10a3b6d6090b9a9dd538548f77e10cd7880cc7344`
 
 ### 17. Final architecture tournament
 **Smoke test → Real run. Central decision experiment.**
@@ -1319,7 +1329,7 @@ Do not declare production success from offline stored-WAV accuracy alone.
 
 ## Revised strategic path
 
-The evidence after fifteen experiments changes the program from:
+The evidence after sixteen experiments changes the program from:
 
 > research many representations → add features → find the highest-accuracy classifier
 
@@ -1497,7 +1507,7 @@ Artifacts are not enough because they expire.
 
 # Exact continuation point
 
-**Completed through Step 15:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, hard-MIDI versus multi-hypothesis inference, compact learned spectral CNN, engineered+learned complementarity gating, and SIF feasibility.
+**Completed through Step 16:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, hard-MIDI versus multi-hypothesis inference, compact learned spectral CNN, engineered+learned complementarity gating, and SIF feasibility.
 
 **Current best overall physical-string classifier/fusion:** calibrated isotonic three-model fusion — **379/384 = 98.6979%, 5 errors**.
 
@@ -1513,6 +1523,8 @@ Artifacts are not enough because they expire.
 
 **Step 15 conclusion:** the physical candidate mask improved the first-frame acoustic model by **25 correct recordings**, and three-frame temporal aggregation added another **40**, reaching **376/384**. Correct singleton trainer context can rescue all 8 remaining errors in the controlled upper-bound scenario, but deliberately wrong/stale singleton context caused **348 harmful overrides**. Context must remain separate and guarded.
 
-**Next:** Step 16 — final time × method tournament. Run **Smoke test → Real run** using only surviving methods and the small predeclared early-time grid. Optimize the accuracy/latency Pareto frontier rather than reopening broad timing search.
+**Step 16 conclusion:** the final timing comparison confirms **120 ms temporal MFCC** as the best demonstrated Stage-B accuracy/latency point at **376/384**, while **librosa YIN 240 ms** remains the highest-accuracy Stage-A point at **375/384**. Stage-B 160 ms is dominated by 120 ms.
 
-Then continue Steps 17–18. Preserve outputs and do not rerun completed experiments merely to regenerate data.
+**Next:** Step 17 — final architecture tournament. Run **Smoke test → Real run** using only evidence-supported complete pipelines. Compare final systems on accuracy, error coverage, calibration, latency, implementation cost, and browser suitability without reopening closed branches.
+
+Then continue Step 18. Preserve outputs and do not rerun completed experiments merely to regenerate data.
