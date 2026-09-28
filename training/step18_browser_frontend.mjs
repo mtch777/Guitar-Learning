@@ -3,7 +3,7 @@
 // Runs the same JS YIN + MFCC extraction that can be used in the live site.
 import fs from "node:fs";
 import path from "node:path";
-import Meyda from "meyda";
+
 
 
 const OPEN={1:27,2:34,3:39,4:44,5:49,6:54,7:58,8:63};
@@ -53,27 +53,36 @@ function trim(y,topDb=50){
   return y.slice(a,b);
 }
 function reflectPad(seg,pad){
-  const out=new Float32Array(seg.length+2*pad);out.set(seg,pad);
-  for(let i=0;i<pad;i++){
-    out[pad-1-i]=seg[Math.min(seg.length-1,i+1)];
-    out[pad+seg.length+i]=seg[Math.max(0,seg.length-2-i)];
-  }
+  const out=new Float64Array(seg.length+2*pad);out.set(seg,pad);
+  for(let i=0;i<pad;i++){out[pad-1-i]=seg[Math.min(seg.length-1,i+1)];out[pad+seg.length+i]=seg[Math.max(0,seg.length-2-i)]}
   return out;
 }
-function mfcc26(seg,sr){
-  // Match training/run_temporal_aggregation.py for a 40 ms (882-sample) frame:
-  // n_fft=512, hop=128, n_mels=40, n_mfcc=13, librosa center=True.
-  const bs=512,hop=128,frames=[];
-  if(seg.length<128){const z=new Float32Array(128);z.set(seg);seg=z}
-  const centered=reflectPad(seg,bs>>1);
-  for(let start=0;start+bs<=centered.length;start+=hop){
-    const frame=centered.slice(start,start+bs);
-    const m=Meyda.extract("mfcc",frame,{sampleRate:sr,bufferSize:bs,melBands:40,numberOfMFCCCoefficients:13});
-    if(m&&m.length===13&&m.every(Number.isFinite))frames.push(m);
-  }
-  if(!frames.length)frames.push(new Array(13).fill(0));
-  const out=[];for(let j=0;j<13;j++){const v=frames.map(x=>x[j]),mean=v.reduce((a,b)=>a+b,0)/v.length;let q=0;for(const x of v)q+=(x-mean)**2;out.push(mean,Math.sqrt(q/v.length))}
+const hzToMelSlaney=f=>{const fsp=200/3,minLogHz=1000,minLogMel=minLogHz/fsp,logstep=Math.log(6.4)/27;return f<minLogHz?f/fsp:minLogMel+Math.log(f/minLogHz)/logstep};
+const melToHzSlaney=m=>{const fsp=200/3,minLogHz=1000,minLogMel=minLogHz/fsp,logstep=Math.log(6.4)/27;return m<minLogMel?fsp*m:minLogHz*Math.exp(logstep*(m-minLogMel))};
+function melBasis(sr,nfft,nmels){
+  const fftfreq=Array.from({length:nfft/2+1},(_,i)=>i*sr/nfft),m0=hzToMelSlaney(0),m1=hzToMelSlaney(sr/2);
+  const hz=Array.from({length:nmels+2},(_,i)=>melToHzSlaney(m0+(m1-m0)*i/(nmels+1))),out=[];
+  for(let m=0;m<nmels;m++){const row=new Float64Array(fftfreq.length),enorm=2/(hz[m+2]-hz[m]);
+    for(let k=0;k<fftfreq.length;k++)row[k]=Math.max(0,Math.min((fftfreq[k]-hz[m])/(hz[m+1]-hz[m]),(hz[m+2]-fftfreq[k])/(hz[m+2]-hz[m+1])))*enorm;
+    out.push(row);
+  } return out;
+}
+function powerSpectrum(frame){
+  const n=frame.length,out=new Float64Array(n/2+1);
+  for(let k=0;k<=n/2;k++){let re=0,im=0;for(let t=0;t<n;t++){const w=.5-.5*Math.cos(2*Math.PI*t/n),x=frame[t]*w,a=-2*Math.PI*k*t/n;re+=x*Math.cos(a);im+=x*Math.sin(a)}out[k]=re*re+im*im}
   return out;
+}
+const MEL512=melBasis(22050,512,40);
+function mfcc26(seg,sr){
+  const nfft=512,hop=128,nmels=40,nmfcc=13,centered=reflectPad(seg,nfft>>1),frames=[];
+  for(let start=0;start+nfft<=centered.length;start+=hop){
+    const p=powerSpectrum(centered.slice(start,start+nfft)),mel=new Float64Array(nmels);
+    for(let m=0;m<nmels;m++){let s=0;for(let k=0;k<p.length;k++)s+=MEL512[m][k]*p[k];mel[m]=Math.max(1e-10,s)}
+    let mx=0;for(const v of mel)mx=Math.max(mx,v);const floor=Math.max(1e-10,mx*1e-8),db=Array.from(mel,v=>10*Math.log10(Math.max(floor,v)));
+    const mf=new Float64Array(nmfcc);for(let j=0;j<nmfcc;j++){let s=0;for(let m=0;m<nmels;m++)s+=db[m]*Math.cos(Math.PI*j*(2*m+1)/(2*nmels));mf[j]=s*(j===0?Math.sqrt(1/nmels):Math.sqrt(2/nmels))}
+    frames.push(mf);
+  }
+  const out=[];for(let j=0;j<nmfcc;j++){const v=frames.map(x=>x[j]),mean=v.reduce((x,y)=>x+y,0)/v.length;let q=0;for(const x of v)q+=(x-mean)**2;out.push(mean,Math.sqrt(q/v.length))}return out;
 }
 function resampleLinear(input,inRate,outRate=22050){
   if(inRate===outRate)return input;const n=Math.max(1,Math.round(input.length*outRate/inRate)),out=new Float32Array(n),ratio=inRate/outRate;
