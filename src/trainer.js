@@ -6885,6 +6885,51 @@ function buildTrainer() {
       ) + 'px'
     );
 
+    /*
+      Use an unmasked end cap so the wound-string mask cannot distort
+      the terminal geometry. The cap's center sits on the nut's left
+      edge, so the straight-to-round transition starts exactly there.
+    */
+    const stringCap =
+      document.createElement('div');
+
+    stringCap.className =
+      'fretboardStringCap';
+
+    stringCap.style.top =
+      topPercent + '%';
+
+    stringCap.style.setProperty(
+      '--string-radius',
+      (
+        stringThicknesses[displayIndex] /
+        2
+      ) + 'px'
+    );
+
+    stringCap.style.background =
+      stringSurface;
+
+    if (stringIndex < 4) {
+      stringCap.classList.add(
+        'woundStringCap'
+      );
+
+      stringCap.style.setProperty(
+        '--winding-step',
+        [2.4, 2.2, 2, 1.8][stringIndex] + 'px'
+      );
+
+      stringCap.style.setProperty(
+        '--winding-opacity',
+        [0.68, 0.62, 0.55, 0.45][stringIndex]
+      );
+    }
+
+    fretboard.appendChild(
+      stringCap
+    );
+
     if (stringIndex < 4) {
       stringLine.classList.add('woundString');
       stringLine.style.setProperty(
