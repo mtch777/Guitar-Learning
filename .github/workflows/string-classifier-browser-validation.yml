@@ -32,7 +32,7 @@ jobs:
           node --check training/step18_browser_frontend.mjs
           python -m py_compile training/run_step18_browser_validation.py
       - name: Browser frontend extraction
-        run: node training/step18_browser_frontend.mjs training/data/ringing_384 training/results/step18_browser_features.json
+        run: node training/step18_browser_frontend.mjs training/data/ringing_384 training/results/step18_browser_features.json --debug
       - name: Numerical JS-Python parity
         run: python -u training/run_step18_parity.py training/data/ringing_384 training/results/step18_browser_features.json --out training/results/step18_parity
       - name: Smoke test whole browser pipeline
