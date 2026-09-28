@@ -820,8 +820,8 @@ button.uiButton:disabled {
   --fret-end-depth: var(--fret-width);
 
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: var(--fret-end-depth);
+  bottom: var(--fret-end-depth);
   width: var(--fret-width);
   transform: translateX(calc(var(--fret-width) / -2));
   background:
@@ -838,11 +838,11 @@ button.uiButton:disabled {
 }
 
 /*
-  The end face is part of the fret geometry, not a decal:
-  base width = fret width
-  end depth = fret width
-  flat side sits on the fretboard edge
-  point faces inward toward the fretboard center
+  The triangular end replaces the missing end section of the fret.
+  Base width = fret width.
+  Triangle height = fret width.
+  Flat base sits on the fretboard edge.
+  Point faces inward and meets the rectangular fret body.
 */
 .fretboardFret::before,
 .fretboardFret::after {
@@ -853,40 +853,33 @@ button.uiButton:disabled {
   height: var(--fret-end-depth);
   transform: translateX(-50%);
   pointer-events: none;
-  z-index: 1;
   background:
     linear-gradient(
       90deg,
-      #474747 0%,
-      #888888 32%,
-      #b7b7b7 48%,
-      #7b7b7b 66%,
-      #424242 100%
+      #626262 0%,
+      #c9c9c9 28%,
+      #f5f5f5 48%,
+      #d2d2d2 66%,
+      #737373 100%
     );
 }
 
 .fretboardFret::before {
-  top: 0;
+  top: calc(var(--fret-end-depth) * -1);
   clip-path: polygon(
     0 0,
     100% 0,
-    57% 88%,
-    50% 100%,
-    43% 88%
+    50% 100%
   );
-  border-radius: 0 0 1px 1px;
 }
 
 .fretboardFret::after {
-  bottom: 0;
+  bottom: calc(var(--fret-end-depth) * -1);
   clip-path: polygon(
-    43% 12%,
     50% 0,
-    57% 12%,
     100% 100%,
     0 100%
   );
-  border-radius: 1px 1px 0 0;
 }
 
 .fretboardString {
