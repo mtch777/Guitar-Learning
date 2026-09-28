@@ -854,6 +854,89 @@ Do not rerun Step 8 unless the data, temporal representation or evaluation metho
 
 Compare current/Pitchy with YIN/YINFast/pYIN and Essentia-compatible approaches. Measure pitch accuracy, octave errors, onset behavior, confidence/stability, latency and downstream physical-string accuracy. Preserve detector outputs so later Stage-10 multi-hypothesis work does not require recomputation.
 
+## 9. Stage-A pitch detector tournament — COMPLETE
+
+Script:
+
+`training/run_pitch_detector_tournament.py`
+
+Workflow:
+
+`.github/workflows/string-classifier-pitch-detectors.yml`
+
+Final run:
+
+`36437584822`
+
+Commit that triggered the final run:
+
+`924178d9eabe23f0d2b563f31e3c00509513df21`
+
+Smoke: **passed**.
+
+Real: **passed**.
+
+### Protocol
+
+Dataset:
+
+- all 384 `ringing_384` recordings
+- ground-truth MIDI derived only from filename string/fret and fixed open-string tuning
+- no trainer context
+- no Stage-B string-classifier evidence
+
+Decision windows:
+
+- 40 ms
+- 80 ms
+- 120 ms
+- 160 ms
+- 200 ms
+- 240 ms
+
+Detectors:
+
+1. `current_corr` — Python port of current browser `src/audio/pitch.js`
+2. `yin_custom` — custom YIN/CMND implementation using threshold 0.18; preserves several local-minimum pitch hypotheses for Step 10
+3. `librosa_yin`
+4. `librosa_pyin`
+
+Metrics included exact rounded MIDI accuracy, detection count, octave errors, median absolute cents error, and detector runtime. The output CSV also preserves per-recording predictions/confidence and candidate hypotheses where the implementation exposes them.
+
+### Best result per detector
+
+| Detector | Best window | Correct | Accuracy | Octave errors | Median abs cents | Mean detector runtime |
+|---|---:|---:|---:|---:|---:|---:|
+| **librosa YIN** | 240 ms | **375/384** | **97.6563%** | **0** | 8.30¢ | **1.01 ms** |
+| librosa pYIN | 240 ms | 375/384 | 97.6563% | 0 | **7.51¢** | 69.60 ms |
+| custom YIN | 160 ms | 374/384 | 97.3958% | 0 | 9.39¢ | 2.25 ms |
+| current browser correlation | 200 ms | 366/384 | 95.3125% | **6** | 11.71¢ | 2.71 ms |
+
+### Conclusions
+
+- YIN-family pitch tracking clearly improved Stage-A accuracy on this dataset.
+- The current browser correlation detector made **18 MIDI errors** at its best window, including **6 octave errors**.
+- Best librosa YIN made **9 MIDI errors** and **zero octave errors**: half as many MIDI errors as the current detector.
+- pYIN tied librosa YIN on exact MIDI accuracy and had slightly lower cents error, but its measured detector runtime was about **69× larger** (69.60 ms vs 1.01 ms), so it demonstrated no accuracy benefit that justifies that cost here.
+- Custom YIN was only one recording behind librosa YIN and also had zero octave errors. It remains especially relevant because it is simple enough to port and already preserves multiple hypotheses needed for Step 10.
+- The best absolute accuracy occurred at 240 ms for librosa YIN/pYIN, but Step 16 must evaluate the end-to-end accuracy/latency tradeoff; this result alone does not establish 240 ms as the production decision time.
+- Step 10 should use the preserved Step-9 outputs rather than rerunning this tournament. The key next question is whether top-K/custom-YIN hypotheses can recover some of the remaining hard-MIDI errors before Stage-B string inference.
+
+### Artifact
+
+Real artifact:
+
+- name: `string-classifier-pitch-detector`
+- ID: `10977090483`
+- size: 551,837 bytes
+- SHA256: `e38e632233c7f786ebcd03595dbf767f6e390c7abc24c5d1e788ba62db326efb`
+
+The artifact contains three files, including the per-recording pitch predictions/candidates needed by Step 10.
+
+Do **not** rerun Step 9 merely to regenerate these outputs.
+
+---
+
 ## 10. Hard-MIDI vs multi-hypothesis inference
 **Smoke test → Real run.**
 
@@ -1529,12 +1612,14 @@ Artifacts are not enough because they expire.
 
 # Exact continuation point
 
-**Completed:** baseline benchmark, time-phase screen, 100-tree confirmation, error-overlap fusion screen, calibrated fusion, Step 5 Abeßer reproduction, Step 6 Abeßer classifier comparison.
+**Completed:** baseline benchmark, time-phase screen, 100-tree confirmation, error-overlap fusion screen, calibrated fusion, Step 5 Abeßer reproduction, Step 6 Abeßer classifier comparison, Step 7 Abeßer fusion test, Step 8 temporal aggregation, and Step 9 Stage-A pitch detector tournament.
 
-**Current best overall:** calibrated isotonic fusion — **379/384 = 98.6979%, 5 errors**.
+**Current best overall physical-string classifier/fusion:** calibrated isotonic three-model fusion — **379/384 = 98.6979%, 5 errors**.
 
-**Current best Abeßer standalone:** Histogram Gradient Boosting — **222/384 = 57.8125%, macro-F1 0.5700**.
+**Current best temporal Stage-B model:** equal average of three 40 ms MFCC classifiers over 0–120 ms — **376/384 = 97.9167%, 8 errors**.
 
-**Next:** Step 7 — determine whether Abeßer adds unique information to the strong existing models/fusion.
+**Current best Stage-A pitch detector tested:** librosa YIN at 240 ms — **375/384 = 97.6563%, 9 MIDI errors, 0 octave errors, mean detector runtime 1.01 ms**. Custom YIN at 160 ms is nearly tied at **374/384 = 97.3958%, 0 octave errors** and preserves multiple hypotheses for Step 10.
 
-After Step 7, proceed through Steps 8–18 only according to measured evidence, ending with browser parity and actual live-site validation.
+**Next:** Step 10 — hard-MIDI versus multi-hypothesis inference. Reuse the preserved Step-9 detector outputs; do not rerun Step 9.
+
+After Step 10, proceed through Steps 11–18 only according to measured evidence, ending with browser parity and controlled live-site validation.
