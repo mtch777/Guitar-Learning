@@ -1,0 +1,58 @@
+name: Step 15 candidate mask context ablations
+
+on:
+  push:
+    paths:
+      - ".github/workflows/string-classifier-context-ablation.yml"
+      - "training/run_context_ablation.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy pandas librosa scikit-learn xgboost
+      - name: Preflight
+        run: python -m py_compile training/run_context_ablation.py
+      - name: Smoke test whole context-ablation pipeline
+        run: python -u training/run_context_ablation.py training/data/ringing_384 --out training/results/context_ablation_smoke --smoke
+      - name: Validate smoke outputs
+        run: |
+          test -f training/results/context_ablation_smoke/summary.json
+          test -f training/results/context_ablation_smoke/context_ablation_predictions.csv
+          test -f training/results/context_ablation_smoke/config.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: string-classifier-context-ablation-smoke
+          path: training/results/context_ablation_smoke
+          if-no-files-found: warn
+
+  real:
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy pandas librosa scikit-learn xgboost
+      - name: Real context-ablation experiment
+        run: python -u training/run_context_ablation.py training/data/ringing_384 --out training/results/context_ablation
+      - name: Print result
+        run: cat training/results/context_ablation/summary.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: string-classifier-context-ablation
+          path: training/results/context_ablation
+          if-no-files-found: warn
