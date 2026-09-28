@@ -73,22 +73,22 @@ function powerSpectrum(frame){
   return out;
 }
 const MEL512=melBasis(22050,512,40);
-function mfcc26(seg,sr){
-  const nfft=512,hop=128,nmels=40,nmfcc=13,centered=reflectPad(seg,nfft>>1),frames=[];
+function mfcc26(seg,sr,debug=false){
+  const nfft=512,hop=128,nmels=40,nmfcc=13,centered=reflectPad(seg,nfft>>1),frames=[],trace=[];
   for(let start=0;start+nfft<=centered.length;start+=hop){
     const p=powerSpectrum(centered.slice(start,start+nfft)),mel=new Float64Array(nmels);
     for(let m=0;m<nmels;m++){let s=0;for(let k=0;k<p.length;k++)s+=MEL512[m][k]*p[k];mel[m]=Math.max(1e-10,s)}
     let mx=0;for(const v of mel)mx=Math.max(mx,v);const floor=Math.max(1e-10,mx*1e-8),db=Array.from(mel,v=>10*Math.log10(Math.max(floor,v)));
     const mf=new Float64Array(nmfcc);for(let j=0;j<nmfcc;j++){let s=0;for(let m=0;m<nmels;m++)s+=db[m]*Math.cos(Math.PI*j*(2*m+1)/(2*nmels));mf[j]=s*(j===0?Math.sqrt(1/nmels):Math.sqrt(2/nmels))}
-    frames.push(mf);
+    frames.push(mf); if(debug)trace.push({power:Array.from(p),mel:Array.from(mel),db:Array.from(db),mfcc:Array.from(mf)});
   }
-  const out=[];for(let j=0;j<nmfcc;j++){const v=frames.map(x=>x[j]),mean=v.reduce((x,y)=>x+y,0)/v.length;let q=0;for(const x of v)q+=(x-mean)**2;out.push(mean,Math.sqrt(q/v.length))}return out;
+  const out=[];for(let j=0;j<nmfcc;j++){const v=frames.map(x=>x[j]),mean=v.reduce((x,y)=>x+y,0)/v.length;let q=0;for(const x of v)q+=(x-mean)**2;out.push(mean,Math.sqrt(q/v.length))}return debug?{features:out,centered:Array.from(centered),trace}:out;
 }
 function resampleLinear(input,inRate,outRate=22050){
   if(inRate===outRate)return input;const n=Math.max(1,Math.round(input.length*outRate/inRate)),out=new Float32Array(n),ratio=inRate/outRate;
   for(let i=0;i<n;i++){const p=i*ratio,j=Math.floor(p),f=p-j,a=input[Math.min(j,input.length-1)],b=input[Math.min(j+1,input.length-1)];out[i]=a+(b-a)*f}return out;
 }
-const args=process.argv.slice(2),dir=args[0],out=args[1],smoke=args.includes("--smoke");
+const args=process.argv.slice(2),dir=args[0],out=args[1],smoke=args.includes("--smoke"),debug=args.includes("--debug");
 if(!dir||!out)throw new Error("usage: node step18_browser_frontend.mjs WAV_DIR OUT_JSON [--smoke]");
 const files=fs.readdirSync(dir).filter(x=>RX.test(x)).sort(),rows=[];let done=0;
 for(const name of files){
