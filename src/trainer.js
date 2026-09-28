@@ -7726,10 +7726,23 @@ function createNpsStartMarker(
       exercise.startInterval
   );
 
-  applyIntervalStyle(
-    interval,
-    exercise.startInterval
-  );
+  /*
+    Start-cue markers are not fretboard note cells. Apply their
+    interval palette directly so fret-cell hit-target rendering
+    can never redirect or clear the marker's visible color.
+  */
+  const startIntervalStyle =
+    intervalStyles[
+      exercise.startInterval
+    ];
+
+  if (startIntervalStyle) {
+    interval.style.background =
+      startIntervalStyle.background;
+
+    interval.style.color =
+      startIntervalStyle.color;
+  }
 
   const arrow =
     document.createElement('div');
