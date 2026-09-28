@@ -33,7 +33,9 @@ jobs:
           python -m py_compile training/run_step18_browser_validation.py
       - name: Browser frontend extraction
         run: node training/step18_browser_frontend.mjs training/data/ringing_384 training/results/step18_browser_features.json
-      - name: Numerical JS-Python parity\n        run: python -u training/run_step18_parity.py training/data/ringing_384 training/results/step18_browser_features.json --out training/results/step18_parity\n      - name: Smoke test whole browser pipeline
+      - name: Numerical JS-Python parity
+        run: python -u training/run_step18_parity.py training/data/ringing_384 training/results/step18_browser_features.json --out training/results/step18_parity
+      - name: Smoke test whole browser pipeline
         run: python -u training/run_step18_browser_validation.py training/results/step18_browser_features.json --out training/results/step18_smoke --smoke
       - name: Validate smoke outputs
         run: |
@@ -41,7 +43,11 @@ jobs:
           test -f training/results/step18_smoke/browser_pipeline_predictions.csv
       - uses: actions/upload-artifact@v4
         with:
-          name: step18-browser-parity\n          path: training/results/step18_parity\n      - uses: actions/upload-artifact@v4\n        with:\n          name: step18-browser-features
+          name: step18-browser-parity
+          path: training/results/step18_parity
+      - uses: actions/upload-artifact@v4
+        with:
+          name: step18-browser-features
           path: training/results/step18_browser_features.json
       - uses: actions/upload-artifact@v4
         if: always()
