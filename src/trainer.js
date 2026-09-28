@@ -6672,6 +6672,13 @@ function buildTrainer() {
     cell.dataset.displayInterval =
       interval || '';
 
+    /*
+      Always keep a chromatic interval available for feedback,
+      even when an exercise-specific mode excludes this note.
+    */
+    cell.dataset.feedbackInterval =
+      interval || '';
+
     cell.dataset.octave =
       octave;
 
@@ -7226,6 +7233,16 @@ function buildTrainer() {
           .displayInterval =
             translatedInterval || '';
 
+        item.element.dataset
+          .feedbackInterval =
+            getIntervalForPitch(
+              pitchClass,
+              currentCagedExercise
+                .modeRoot,
+              currentCagedExercise
+                .mode
+            );
+
         const key =
           makeCellKey(
             item.stringIndex,
@@ -7375,6 +7392,18 @@ function buildTrainer() {
           .displayInterval =
             translatedInterval || '';
 
+        item.element.dataset
+          .feedbackInterval =
+            getIntervalForPitch(
+              midiToPitchClass(
+                item.absolutePitch
+              ),
+              currentRrPentExercise
+                .modeRoot,
+              currentRrPentExercise
+                .mode
+            );
+
         hideCell(
           item.element
         );
@@ -7445,6 +7474,14 @@ function buildTrainer() {
       item.element.dataset
         .displayInterval =
           translatedInterval || '';
+
+      item.element.dataset
+        .feedbackInterval =
+          getIntervalForPitch(
+            pitchClass,
+            currentNpsExercise.modeRoot,
+            currentNpsExercise.mode
+          );
 
       hideCell(
         item.element
@@ -8050,8 +8087,8 @@ function temporarilyShowWrong(cell) {
   */
   const feedbackLabel =
     interval ||
+    cell.dataset.feedbackInterval ||
     cell.dataset.interval ||
-    cell.dataset.noteName ||
     '×';
 
   if (
