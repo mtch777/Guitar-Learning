@@ -847,602 +847,342 @@ Do not rerun Step 8 unless the data, temporal representation or evaluation metho
 
 ---
 
-# Remaining experiment program
+# Results synthesis after Steps 1–10
 
-## 9. Stage-A pitch detector tournament — NEXT
-**Smoke test → Real run.**
+The first ten experiments materially changed the direction of the project. The evidence no longer points primarily toward inventing increasingly large physical/string feature sets. String identity is already highly recoverable from this fixed guitar/interface/player setup. The remaining practical problem is increasingly an **end-to-end inference, complementarity, calibration, latency, and deployment problem**.
 
-Compare current/Pitchy with YIN/YINFast/pYIN and Essentia-compatible approaches. Measure pitch accuracy, octave errors, onset behavior, confidence/stability, latency and downstream physical-string accuracy. Preserve detector outputs so later Stage-10 multi-hypothesis work does not require recomputation.
+## What the first ten experiments established
 
-## 9. Stage-A pitch detector tournament — COMPLETE
+| Experiment | Main result | Main lesson |
+|---|---|---|
+| Baseline engineered model | 107 features → **371/384 = 96.6146%** | Existing engineered features were already strong. |
+| Harmonic expansion | 214 features → **372/384 = 96.8750%** | Doubling engineered features fixed only one additional recording. |
+| Time-phase screen | early signal strongest | String-identifying information is concentrated early after the pluck. |
+| Early MFCC confirmation | 26 MFCC features, 0–120 ms → **370/384 = 96.3542%** | A tiny early representation nearly matches the large models. |
+| Calibrated fusion | **379/384 = 98.6979%, 5 errors** | Existing strong models make complementary errors; fusion is extremely valuable. |
+| Abeßer reproduction | best reproduced SVM **188/384 = 48.9583%** | Published physical-string features transferred poorly to this rig/data. |
+| Abeßer classifier comparison | best HGB **222/384 = 57.8125%** | Better classifier helps, but cannot rescue a weak representation. |
+| Abeßer fusion | no improvement; zero unique rescues | Abeßer contributes no useful complementary evidence to the strong models. |
+| Temporal MFCC | three 40 ms frames, 0–120 ms → **376/384 = 97.9167%** | Independent early observations are much stronger than one broad early summary. |
+| Stage-A pitch + joint inference | YIN up to **375/384 = 97.6563%**; multi-hypothesis path failed | Pitch detection is now a major bottleneck; naive alternative-pitch branching does not solve it. |
+
+## Strongest findings
+
+### 1. The first approximately 120 ms contains most of the useful string evidence
+
+The single-window 0–120 ms MFCC model reached **370/384 = 96.3542%** using only 26 features.
+
+Splitting the same early period into independent 40 ms observations and averaging probabilities improved this to:
+
+**376/384 = 97.9167%, 8 errors.**
+
+Later temporal evidence did not beat the 0–120 ms result:
+
+- 0–80 ms: 373/384 = 97.1354%
+- 0–120 ms: **376/384 = 97.9167%**
+- 0–160 ms: 375/384 = 97.6563%
+- 0–200 ms: 376/384 = 97.9167%
+- 0–240 ms: 375/384 = 97.6563%
+
+Therefore the important phenomenon is not simply the average spectrum of the attack. **How the spectrum evolves through several early observations contains useful string information.** Waiting substantially longer has not produced better Stage-B classification.
+
+### 2. Complementarity matters much more than feature-count growth
+
+The 214-feature harmonic model improved the 107-feature baseline by only one recording:
+
+**371 → 372 correct.**
+
+But calibrated isotonic fusion of baseline + harmonic + early MFCC reached:
+
+**379/384 = 98.6979%, 5 errors.**
+
+The three-model oracle reached:
+
+**382/384 = 99.4792%.**
+
+Therefore most of the information required to solve the remaining recordings already exists somewhere among the strong representations. The high-value question is increasingly:
+
+> How can complementary evidence be extracted and combined efficiently?
+
+rather than:
+
+> How many more engineered descriptors can be added?
+
+### 3. Stage-A pitch detection is now comparable in importance to Stage-B string classification
+
+Step 9 showed:
+
+- current browser correlation, best tested point: **366/384 = 95.3125%**, 18 MIDI errors, including 6 octave errors
+- custom YIN at 160 ms: **374/384 = 97.3958%**, 10 MIDI errors, 0 octave errors
+- librosa YIN at 240 ms: **375/384 = 97.6563%**, 9 MIDI errors, 0 octave errors
+- librosa pYIN at 240 ms: same 375/384 exact-MIDI accuracy but about 69× the measured Python detector runtime of librosa YIN
+
+Stage-B alone is already around 98%, and the best preserved string fusion is 98.70%. Stage-A pitch errors can therefore dominate otherwise-correct downstream inference.
+
+## Step 10 — COMPLETE: hard MIDI versus multi-hypothesis inference
 
 Script:
 
-`training/run_pitch_detector_tournament.py`
+`training/run_multi_hypothesis_inference.py`
 
 Workflow:
 
-`.github/workflows/string-classifier-pitch-detectors.yml`
+`.github/workflows/string-classifier-multi-hypothesis.yml`
 
-Final run:
+Final successful run:
 
-`36437584822`
+`36450596841`
 
-Commit that triggered the final run:
-
-`924178d9eabe23f0d2b563f31e3c00509513df21`
-
-Smoke: **passed**.
+Smoke: **passed** after fixing the smoke-only training-coverage problem so the smoke evaluates a small subset while retaining the full training pool.
 
 Real: **passed**.
 
-### Protocol
+Protocol:
 
-Dataset:
-
-- all 384 `ringing_384` recordings
-- ground-truth MIDI derived only from filename string/fret and fixed open-string tuning
+- all 384 recordings
+- preserved Step-9 custom-YIN 160 ms outputs; Step 9 was not rerun
+- Stage-B = Step-8-style equal mean of three independent 40 ms MFCC probability models over 0–120 ms
+- Stage-B raw 8-string probabilities had to be recomputed because the preserved Step-8 CSV retained only final masked predictions/confidence, not the full raw probability vector needed to remask under alternative candidate MIDIs
+- leave-one-entire-true-MIDI-out Stage-B training
 - no trainer context
-- no Stage-B string-classifier evidence
+- compared hard top-1 MIDI with top-2/top-3/top-5 joint `(MIDI,string,fret)` scoring
 
-Decision windows:
+Results:
 
-- 40 ms
-- 80 ms
-- 120 ms
-- 160 ms
-- 200 ms
-- 240 ms
+| Method | Joint correct | Joint accuracy | Regressions vs hard | Unique rescues vs hard |
+|---|---:|---:|---:|---:|
+| **hard top-1** | **366/384** | **95.3125%** | — | — |
+| top-2 | 303/384 | 78.9063% | 63 | **0** |
+| top-3 | 259/384 | 67.4479% | 107 | **0** |
+| top-5 | 207/384 | 53.9063% | 159 | **0** |
 
-Detectors:
+Hard top-1 details:
 
-1. `current_corr` — Python port of current browser `src/audio/pitch.js`
-2. `yin_custom` — custom YIN/CMND implementation using threshold 0.18; preserves several local-minimum pitch hypotheses for Step 10
-3. `librosa_yin`
-4. `librosa_pyin`
+- MIDI correct: **374/384 = 97.3958%**
+- physical string correct: **376/384 = 97.9167%**
+- joint tuple correct: **366/384 = 95.3125%**
 
-Metrics included exact rounded MIDI accuracy, detection count, octave errors, median absolute cents error, and detector runtime. The output CSV also preserves per-recording predictions/confidence and candidate hypotheses where the implementation exposes them.
+Most important result:
 
-### Best result per detector
+- pitch top-2 oracle: **374/384**
+- pitch top-3 oracle: **374/384**
+- pitch top-5 oracle: **374/384**
 
-| Detector | Best window | Correct | Accuracy | Octave errors | Median abs cents | Mean detector runtime |
-|---|---:|---:|---:|---:|---:|---:|
-| **librosa YIN** | 240 ms | **375/384** | **97.6563%** | **0** | 8.30¢ | **1.01 ms** |
-| librosa pYIN | 240 ms | 375/384 | 97.6563% | 0 | **7.51¢** | 69.60 ms |
-| custom YIN | 160 ms | 374/384 | 97.3958% | 0 | 9.39¢ | 2.25 ms |
-| current browser correlation | 200 ms | 366/384 | 95.3125% | **6** | 11.71¢ | 2.71 ms |
+The preserved custom-YIN alternative candidates contained **zero additional correct-MIDI rescues beyond top-1**. The multi-hypothesis scorer therefore had no pitch oracle headroom and merely introduced incorrect competitors.
 
-### Conclusions
+Conclusion:
 
-- YIN-family pitch tracking clearly improved Stage-A accuracy on this dataset.
-- The current browser correlation detector made **18 MIDI errors** at its best window, including **6 octave errors**.
-- Best librosa YIN made **9 MIDI errors** and **zero octave errors**: half as many MIDI errors as the current detector.
-- pYIN tied librosa YIN on exact MIDI accuracy and had slightly lower cents error, but its measured detector runtime was about **69× larger** (69.60 ms vs 1.01 ms), so it demonstrated no accuracy benefit that justifies that cost here.
-- Custom YIN was only one recording behind librosa YIN and also had zero octave errors. It remains especially relevant because it is simple enough to port and already preserves multiple hypotheses needed for Step 10.
-- The best absolute accuracy occurred at 240 ms for librosa YIN/pYIN, but Step 16 must evaluate the end-to-end accuracy/latency tradeoff; this result alone does not establish 240 ms as the production decision time.
-- Step 10 should use the preserved Step-9 outputs rather than rerunning this tournament. The key next question is whether top-K/custom-YIN hypotheses can recover some of the remaining hard-MIDI errors before Stage-B string inference.
-
-### Artifact
+> Keep hard top-1 MIDI for this detector design. Drop the current multi-hypothesis branch unless a future pitch detector produces genuinely complementary alternative hypotheses.
 
 Real artifact:
 
-- name: `string-classifier-pitch-detector`
-- ID: `10977090483`
-- size: 551,837 bytes
-- SHA256: `e38e632233c7f786ebcd03595dbf767f6e390c7abc24c5d1e788ba62db326efb`
+- name: `string-classifier-multi-hypothesis`
+- ID: `10983346754`
+- size: 339,482 bytes
+- SHA256: `93b1d4e60387c8da79465c4551a4ce3ba89b12bdcaf2bf3ec3006ea9e255cc78`
 
-The artifact contains three files, including the per-recording pitch predictions/candidates needed by Step 10.
+Do not rerun Step 10 unless the pitch-hypothesis representation or Stage-B methodology materially changes.
 
-Do **not** rerun Step 9 merely to regenerate these outputs.
+## What went as expected
 
----
+- **Early attack information mattered.** Physical/string-specific attack and spectral behavior were expected to be useful, and the time-phase experiments confirmed this strongly.
+- **Temporal evidence helped.** Multiple observations through the attack improved materially over a single broad-window summary.
+- **Candidate masking is powerful and remains architecturally appropriate.** MIDI sharply constrains physically possible string/fret positions.
+- **Different representations make complementary mistakes.** The fusion experiments strongly confirmed this.
+- **The existing pitch detector had octave/subharmonic problems.** The known live failure mode was reproduced objectively: six octave errors at its best tested operating point, versus zero for the YIN methods.
 
-## 10. Hard-MIDI vs multi-hypothesis inference
+## What was unexpected
+
+### Abeßer transferred extremely poorly
+
+The magnitude of the failure was much larger than expected:
+
+- reproduced SVM: about 49%
+- best alternative classifier on the representation: about 58%
+- zero unique rescues when added to the strong models
+
+This indicates that generalized physical descriptors from that method transfer poorly to this specific 8-string/pickup/interface/data regime.
+
+### MFCC was much stronger than expected
+
+Only 26 MFCC statistics from 0–120 ms nearly matched the 107- and 214-feature engineered systems. Three independent MFCC snapshots reached **376/384**, outperforming either large engineered model individually.
+
+MFCC should therefore be treated as a primary signal, not merely a cheap approximation.
+
+### More features sometimes hurt
+
+Within the early 0–120 ms region, MFCC-only produced **370/384**, while the larger approximately 100-feature early representation produced **368/384** in confirmation.
+
+Feature proliferation can add noise rather than useful information.
+
+### Simple calibrated fusion beat more elaborate fusion
+
+Calibrated isotonic fusion reached **379/384**, while the tested meta-logistic fusion reached **375/384**.
+
+Complexity has not correlated reliably with quality.
+
+### The tested multi-pitch hypothesis path was decisively harmful
+
+The expectation that some correct MIDI values might survive as second/third candidates was not supported. Top-2 through top-5 contained no additional true-MIDI oracle recoveries, and actually selecting among them sharply reduced accuracy.
+
+## Focus from this point forward
+
+Prioritize:
+
+1. **Complementary evidence**, especially whether a genuinely different learned spectral representation rescues errors made by the existing strong systems.
+2. **Early temporal modeling**, because the first approximately 120 ms is the strongest Stage-B region found so far.
+3. **Stage-A pitch quality**, especially YIN-family behavior and eventual browser-compatible implementation.
+4. **Calibration and personalization** for this fixed guitar/interface/player setup.
+5. **Explicit separation of raw acoustic, physical-mask, temporal, and trainer-context performance.**
+6. **Latency and browser/live behavior**, because offline accuracy is already near the point where implementation quality can matter more than tiny benchmark gains.
+7. **Unique rescues and error overlap**, rather than standalone aggregate accuracy alone.
+
+Avoid:
+
+- further Abeßer investment unless its methodology materially changes
+- blindly adding harmonic/physical descriptors
+- assuming longer analysis windows are better
+- using pYIN merely because it is more sophisticated; it showed no exact-MIDI gain over librosa YIN at much greater measured Python runtime
+- the current multi-hypothesis pitch scheme
+- large combinatorial searches
+- treating tiny aggregate accuracy differences as sufficient evidence; with 384 recordings, one recording is approximately 0.2604 percentage points
+- hiding acoustic errors behind trainer context during evaluation
+
+## Revised direction for Steps 11–18
+
+The remaining program is intentionally narrower than the original plan.
+
+### 11. Learned spectral model — NEXT
 **Smoke test → Real run.**
 
-### Question
-Does committing to one detected MIDI before string classification discard useful pitch evidence? Compare the normal hard-MIDI pipeline with joint scoring of several plausible `(MIDI,string,fret)` hypotheses.
+Keep the first learned model deliberately small and early-window focused. The purpose is **not** to build a large neural replacement for a system that is already strong.
 
-### Inputs
-Use the **preserved Step-9 detector outputs**. Do not rerun Step 9. Each note should expose, where supported, several pitch hypotheses with detector score/confidence plus ground-truth MIDI/string/fret.
+Primary question:
 
-Use the strongest surviving Stage-B acoustic model available at that point. Step 8's three-frame 0–120 ms temporal MFCC model is the default lightweight Stage-B reference unless Step 9 establishes a better compatible pipeline.
+> Does a small learned time-frequency model discover complementary evidence that the MFCC/engineered models miss?
 
-### Implementation
-Create:
+Start with one compact log-mel CNN, approximately 0–160 ms as originally specified. Preserve raw logits/probabilities. Candidate masking remains a separate post-model stage.
 
-- `training/run_multi_hypothesis_inference.py`
-- `.github/workflows/string-classifier-multi-hypothesis.yml`
+Primary survival criteria now emphasize:
 
-For each recording, construct:
-
-1. **Hard MIDI:** detector top-1 MIDI → physically possible strings/frets → Stage-B string probabilities.
-2. **Top-K joint:** keep detector hypotheses within configurable semitone/score limits. For each pitch hypothesis, enumerate physically possible strings/frets. Score each joint hypothesis using pitch evidence × candidate-masked Stage-B acoustic evidence.
-3. Test K = 2, 3, and 5 where detector output supports it.
-4. Preserve both raw detector score and normalized joint score. Do not let trainer answer hints enter this experiment.
-
-Avoid tuning combination weights on the held-out MIDI. Any learned/calibrated combination must be fit using other MIDIs only.
-
-### Smoke test
-Run the entire chain on a small set containing:
-
-- at least one correct top-1 pitch
-- at least one detector error if available
-- at least one MIDI playable on multiple strings
-
-Validate candidate enumeration, normalization, top-K bookkeeping, and output files.
-
-### Real run
-Run all 384 recordings using the same held-out-MIDI discipline.
-
-Report:
-
-- pitch accuracy of hard top-1
-- final physical-string accuracy
-- joint `(MIDI,string,fret)` accuracy
-- top-K oracle recovery
-- octave/semitone error recovery
-- candidate-count breakdown
-- unique rescues vs hard MIDI
-- regressions introduced by multi-hypothesis inference
-- confidence/margin and latency overhead
-
-### Saved outputs
-At minimum:
-
-- `summary.json`
-- per-recording predictions CSV with all pitch and joint hypotheses
-- error/rescue CSV
-- configuration/weight metadata
-- artifact ID/hash and permanent compact result in `training/EXPERIMENTS.md`
-
-### Decision
-Keep multi-hypothesis inference only if it recovers real hard-MIDI failures without an unacceptable false-choice/latency cost.
-
----
-
-## 11. Learned spectral model
-**Smoke test → Real run.**
-
-### Question
-Can a small learned time-frequency model extract complementary string identity information that the engineered models miss?
-
-### Implementation
-Create:
-
-- `training/run_spectral_cnn.py`
-- `.github/workflows/string-classifier-spectral-cnn.yml`
-
-Start with **one deliberately small CNN**. Do not begin with ResNet/MobileNet or a representation tournament.
-
-Default input:
-
-- mono 22.05 kHz
-- onset-aligned early region, initially 0–160 ms
-- log-mel spectrogram
-- fixed normalization computed from training folds only
-
-Suggested compact network:
-
-- 3 convolution blocks: Conv2D → BatchNorm → ReLU → pooling
-- 16 → 32 → 64 channels
-- global average pooling
-- small dense layer
-- 8 string logits
-
-Candidate masking must remain a post-model evaluation stage so raw acoustic performance is preserved separately.
-
-Critical leakage rule: all recordings sharing the held-out MIDI stay out of training, validation, normalization and early-stopping selection for that fold.
-
-### Smoke test
-Use a few held-out MIDIs, a tiny epoch count and the real preprocessing/training/evaluation path. Confirm loss decreases, model serializes, predictions map to all 8 strings, and raw/masked outputs are saved.
-
-### Real run
-Run leave-one-entire-MIDI-out. To control compute, use a fixed training recipe established before the real run; do not hyperparameter-search on the test folds.
-
-Report:
-
-- raw and candidate-masked accuracy/macro-F1
-- per-string metrics/confusion
-- errors by MIDI/fret/strength
 - unique rescues versus baseline/harmonic/Step-8 temporal
-- oracle ceiling when added to survivors
-- confidence calibration
-- preprocessing + inference latency
-- model size
+- oracle improvement when added to survivors
+- error overlap
+- calibration
+- latency/model size
 
-If the simple log-mel CNN is clearly uncompetitive and non-complementary, stop. Only test F0-aligned/CQT/Gammatone representations if the first learned model gives evidence that learned spectral modeling is useful.
+Standalone accuracy is secondary. If the CNN merely reproduces the same errors, stop learned-model expansion. Only investigate F0-aligned/CQT/Gammatone alternatives if the first CNN demonstrates useful learned complementarity.
 
-### Saved outputs
-Save fold predictions/logits, training curves, model/preprocessing config, metrics, latency, model size, artifact/hash, and permanent summary.
+### 12. Engineered + learned fusion
+**Smoke test → Real run, conditional on Step 11 evidence.**
 
----
+Reuse preserved out-of-fold predictions; do not retrain completed experiments merely for fusion.
 
-## 12. Engineered + learned fusion
-**Smoke test → Real run.**
+The benchmark remains:
 
-### Question
-Does the learned spectral model provide complementary evidence beyond the current engineered/temporal systems?
+**379/384 = 98.6979%, 5 errors.**
 
-### Inputs
-Reuse preserved out-of-fold predictions. **Do not retrain Steps 4, 8, or 11 just to fuse them.**
+If Step 11 provides unique rescues, test calibrated fusion first. Do not automatically build elaborate meta-models. If Step 11 is non-complementary, Step 12 should be short and document that no expanded ensemble is justified.
 
-Candidate pool should include only survivors:
+Step 10's multi-hypothesis branch is excluded from the main candidate pool because it produced zero rescues and substantial regressions.
 
-- baseline 107
-- harmonic 214
-- early MFCC / Step-8 three-frame temporal model
-- Step-11 CNN if it earned survival
-- any Step-10 joint pipeline only if its output is comparable and independently useful
+### 13. SIF feasibility
+**Smoke test → Real run, strict early kill gate.**
 
-Abeßer is excluded unless methodology materially changed.
+SIF remains worth one cheap feasibility test because it probes different physics, but its priority is lower after the poor transfer of the Abeßer physical representation.
 
-### Implementation
-Create:
+Do not build a full SIF classifier unless expected inverse-segment energy is clearly and consistently distinguishable from matched controls in the magnetic-pickup recordings.
 
-- `training/run_engineered_learned_fusion.py`
-- workflow `string-classifier-engineered-learned-fusion.yml`
+Kill immediately if the pickup does not carry a robust SIF signal.
 
-Run in this order:
+### 14. Calibration / personalization
+**Smoke test → Real run. Priority increased.**
 
-1. error overlap / unique rescues
-2. oracle ceiling
-3. calibrated probability fusion
-4. meta-model fusion only if simpler calibrated fusion leaves useful room
+This step is now more important.
 
-Calibration/meta fitting must be leave-one-MIDI-out: the held-out MIDI cannot fit its own calibrator/fuser.
+The generalized published physical representation transferred poorly, while models trained directly on this fixed rig performed extremely well. That increases the plausibility that lightweight guitar/interface-specific calibration, prototypes, priors, or fret trends can resolve some remaining structured errors.
 
-Include the existing **379/384 = 98.6979%** three-model isotonic fusion as the benchmark to beat.
+Test minimal calibration first and measure required user effort explicitly.
 
-### Smoke test
-Use a small set of preserved predictions to validate file alignment, class ordering, calibration, fold isolation and output generation.
+### 15. Candidate-mask + context ablations
+**Smoke test → Real run. Priority increased.**
 
-### Real run
-Report every candidate combination that was actually justified, not a combinatorial brute-force search.
+Raw acoustic performance is already high enough that trainer-known valid answer positions may meaningfully reduce actual gameplay errors.
 
-Report:
+Maintain strict layers:
 
-- accuracy/errors
-- macro-F1
-- unique rescues
-- oracle
-- selected-model frequency
-- calibration metrics
-- confidence/margin
-- added latency/model-size cost
+A. raw acoustic  
+B. + physical candidate mask  
+C. + temporal evidence  
+D. + trainer-known answer context  
+E. final gameplay decision
 
-### Decision
-Keep a learned component only if it improves errors/calibration/robustness enough to justify runtime complexity.
+Never report D/E as acoustic classifier accuracy.
 
----
+This step should establish exactly how much production accuracy comes from each layer and whether context causes any harmful overrides.
 
-## 13. SIF feasibility
-**Smoke test → Real run.**
+### 16. Final time × method tournament
+**Smoke test → Real run. Scope reduced.**
 
-### Question
-Is inverse-string-frequency / behind-the-fret resonance measurably present in the **pickup recordings** strongly enough to help physical-string identification?
+Do not create another broad timing grid.
 
-This is a feasibility gate, not a full classifier project.
+Use only surviving architectures and a small early-time set such as:
 
-### Implementation
-Create:
-
-- `training/run_sif_feasibility.py`
-- workflow `string-classifier-sif-feasibility.yml`
-
-For each known `(string,fret)`, calculate the theoretical inverse-segment frequency relationship from the two string segments. Search the recorded spectrum around expected SIF locations and matched control frequencies.
-
-Measure features such as:
-
-- local peak-to-neighborhood ratio
-- SIF-band energy
-- nearest-peak cents error
-- harmonic/control-band contrast
-- consistency across pick strengths
-- same-MIDI/different-string separation
-
-Focus first on fretted notes where the geometry predicts a meaningful inverse segment. Open strings should be handled separately.
-
-### Smoke test
-Use a handful of strings/frets with clearly different predicted SIF frequencies. Produce plots/data proving the extraction targets the intended frequencies.
-
-### Real run
-Run the full applicable dataset and quantify:
-
-- detection rate above control/background
-- effect size by string/fret
-- same-MIDI candidate separability
-- consistency across strength
-- univariate and simple multivariate discrimination
-- incremental unique rescues if appended cheaply to a survivor model
-
-### Kill criterion
-If expected SIF energy is not consistently distinguishable from matched controls through the magnetic pickup, stop SIF work immediately. Do not build a large model around noise.
-
----
-
-## 14. Calibration / personalization
-**Smoke test → Real run.**
-
-### Question
-How much can the fixed guitar/interface/setup benefit from explicit per-string/per-position calibration, and how robust is that calibration to playing level?
-
-### Implementation
-Create:
-
-- `training/run_personalization_experiment.py`
-- workflow `string-classifier-personalization.yml`
-
-Evaluate lightweight personalization methods before neural fine-tuning:
-
-1. per-string feature centering/scaling learned from calibration examples
-2. per-string or per-position prototype distances
-3. prior/confidence calibration by string and candidate count
-4. optional fret-dependent trend features
-5. input-level normalization / soft-normal-hard robustness
-
-Calibration data must be separated from evaluation data. Never evaluate a recording that directly contributed to its own prototype/statistics.
-
-Because the current dataset has uneven strength coverage, explicitly report which tests use all strings versus the subset with soft/normal/hard recordings.
-
-### Smoke test
-Use a small calibration/evaluation split that exercises the full fit → transform/score → predict path.
-
-### Real run
-Compare calibration budgets, for example:
-
-- minimal: open strings + a few anchor frets
-- medium: anchor frets 0/5/7/12/17/19/24 where available
-- maximal available calibration without evaluation leakage
-
-Report:
-
-- accuracy/errors
-- macro-F1
-- per-string gains/losses
-- strength robustness
-- calibration curve / confidence
-- number of calibration recordings required
-- setup burden
-- unique rescues vs unpersonalized survivor
-
-### Decision
-Prefer a small calibration procedure only if gains justify the user effort and remain robust across pick strength.
-
----
-
-## 15. Candidate-mask + context ablations
-**Smoke test → Real run.**
-
-### Question
-Exactly how much accuracy comes from acoustic evidence, physical plausibility, temporal context, and trainer-known answer context?
-
-### Implementation
-Create:
-
-- `training/run_context_ablation.py`
-- workflow `string-classifier-context-ablation.yml`
-
-Using preserved survivor predictions wherever possible, evaluate distinct layers:
-
-A. raw acoustic string probabilities  
-B. + physical tuning/fret candidate mask  
-C. + temporal aggregation/context  
-D. + trainer-known valid answer positions  
-E. final gameplay decision logic
-
-Never collapse these into one metric. Trainer context is allowed only in D/E and must not be described as acoustic classifier accuracy.
-
-For trainer context, reproduce the actual semantics of `window.getGuitarTrainerAudioHints(midi)`: answer strings/positions can constrain or rerank only at the explicitly labeled context stage.
-
-### Smoke test
-Use synthetic/known examples covering:
-
-- impossible-string removal
-- multiple physically possible strings
-- multiple valid trainer answers
-- context that helps
-- context that would incorrectly hide an acoustic error if layers were mixed
-
-### Real run
-Report layer-by-layer:
-
-- accuracy/errors
-- ambiguous-note subset
-- number of decisions changed
-- correct rescues vs harmful overrides
-- confidence changes
-- latency
-- remaining error taxonomy
-
-This establishes the honest difference between raw acoustic accuracy and actual gameplay accuracy.
-
----
-
-## 16. Final time × method tournament
-**Smoke test → Real run.**
-
-### Question
-Among methods that survived Steps 9–15, what analysis time/window gives the best accuracy-latency tradeoff under one consistent protocol?
-
-### Implementation
-Create:
-
-- `training/run_final_time_method_tournament.py`
-- workflow `string-classifier-final-time-method.yml`
-
-Do **not** rerun the old 315-config screen. This tournament contains only surviving methods and a small predeclared set of decision times, e.g.:
-
-- 40 ms
 - 80 ms
 - 120 ms
 - 160 ms
-- 200/240 ms only for methods that require them
+- 200/240 ms only where a surviving Stage-A method requires comparison
 
-Where preserved outputs already exactly match a tournament cell, reuse them rather than recompute.
+The evidence already strongly favors early Stage-B decisions. This experiment is now primarily an **accuracy-versus-total-latency Pareto comparison**, not a search for arbitrary late windows.
 
-For each method/time, measure:
+Reuse preserved cells whenever methodology is exactly identical.
 
-- physical-string accuracy/macro-F1
-- ambiguous-note accuracy
-- errors
-- confidence/calibration
-- feature/preprocessing time
-- inference time
-- total onset→decision latency
-- model size/browser feasibility
+### 17. Final architecture tournament
+**Smoke test → Real run. Central decision experiment.**
 
-### Smoke test
-Run a tiny survivor × time matrix through the complete evaluator and verify reused and newly computed cells share identical schema.
+This becomes the main system-selection experiment.
 
-### Real run
-Produce a compact Pareto table: no subjective winner score. Mark configurations dominated in both accuracy and latency.
+Likely candidate structure, subject to Steps 11–16:
 
-The purpose is to narrow architectures for Step 17, not to create another giant grid search.
+**onset → YIN-family hard top-1 MIDI → early temporal spectral/string evidence → physical candidate mask → calibrated decision**
 
----
+Potential additions survive only if prior evidence supports them:
 
-## 17. Final architecture tournament
-**Smoke test → Real run.**
-
-### Question
-Which complete surviving pipelines should advance to browser/live validation?
-
-### Implementation
-Create:
-
-- `training/run_final_architecture_tournament.py`
-- workflow `string-classifier-final-architecture.yml`
-
-Construct only evidence-supported complete pipelines. Likely components, depending on prior results:
-
-- Stage-A detector
-- hard or multi-hypothesis pitch handling
-- Stage-B acoustic model
-- candidate mask
-- temporal aggregation
+- complementary CNN
+- lightweight personalization
 - calibrated fusion
-- optional personalization
-- optional trainer context, reported separately
+- trainer context, always reported separately
 
-Every architecture must expose both **raw acoustic** and **final/contextual** outputs.
+Do not include the current Abeßer or multi-hypothesis branches.
 
-Evaluate:
+Compare complete pipelines on accuracy, remaining error taxonomy, calibration, robustness, onset→decision latency, CPU/preprocessing cost, model size, implementation complexity, and browser compatibility.
 
-- overall and ambiguous-note accuracy
-- macro-F1/per-string recall
-- error count and taxonomy
-- confidence/calibration
-- robustness by strength/fret/string
-- onset→decision latency
-- CPU inference/preprocessing cost
-- memory/model size
-- implementation complexity
-- browser compatibility
+### 18. Browser/runtime + live-site validation
+**Smoke test → Real run. Highest practical importance.**
 
-### Smoke test
-Execute every candidate architecture end-to-end on a tiny labeled subset and verify identical input/output contracts.
-
-### Real run
-Run the complete dataset/protocol. Produce a factual comparison/Pareto set rather than an arbitrary composite score.
-
-Advance only architectures that are non-dominated or offer a clear implementation/latency advantage.
-
-Save the exact architecture configuration needed for browser porting.
-
----
-
-## 18. Browser/runtime + live-site validation
-**Smoke test → Real run.**
-
-### Question
-Does the selected Python pipeline reproduce correctly and perform acceptably in the actual browser trainer with live guitar input?
-
-### Part A — browser parity implementation
-Port the selected architecture into the existing audio stack, keeping components modular.
-
-Likely files to update/add only after inspecting current `main`:
-
-- `src/input/live-guitar.js`
-- browser feature extractor/model files under `src/input/`
-- `src/trainer.js` only where integration/context requires it
-- model/config assets under an appropriate static path
-- parity/validation scripts under `training/`
-
-Do not assume old browser code layout; fetch latest files first.
-
-### Part B — parity smoke test
-Create a browser/Node parity harness using stored WAVs. For identical recordings compare Python vs browser:
-
-- resampling/trim/onset behavior
-- intermediate features
-- normalization
-- raw logits/probabilities
-- candidate mask
-- temporal aggregation
-- final predicted string
-
-Define tolerances per intermediate representation. Prediction agreement alone is insufficient if feature values silently diverge.
-
-The **smoke test** is a small representative WAV set through the entire Python → browser pipeline.
-
-### Part C — parity real run
-Run all 384 stored WAVs through the browser implementation.
+Offline performance is now strong enough that deployment behavior can dominate small benchmark differences.
 
 Require:
 
-- prediction parity or explicitly explained numerical differences
-- no unexplained systematic probability drift
-- measured feature/inference runtime
-- no excessive allocations/UI blocking
+1. Python↔browser parity on stored WAVs, including intermediate features/probabilities rather than prediction agreement alone.
+2. Controlled live guitar testing across strings/frets/strengths/repeats/transitions/sustains/noise.
+3. Explicit Stage-A versus Stage-B versus context error logging.
+4. Onset→first-decision and onset→stable-decision latency.
+5. Debug UI that explains why a note did or did not map.
 
-Save a parity report and per-recording browser predictions.
+Do not declare production success from offline stored-WAV accuracy alone.
 
-### Part D — live-site controlled validation
-After offline parity passes, test actual live playing with labeled known positions.
+## Revised strategic path
 
-Required coverage:
+The evidence after ten experiments changes the program from:
 
-- same MIDI on every physically possible string
-- all 8 strings
-- open strings
-- low/mid/high frets
-- soft/normal/hard
-- repeated notes
-- fast transitions
-- sustained notes
-- S4/S5/S6 neighboring-string problem area
-- high frets
-- S5 fret 24
-- silence/noise/false triggers
+> research many representations → add features → find the highest-accuracy classifier
 
-Log each event with:
+to:
 
-- expected string/fret/MIDI when test mode supplies it
-- detected MIDI and cents error
-- pitch confidence/stability
-- candidate pitch hypotheses if used
-- raw string probabilities
-- candidate mask
-- temporal/fusion state
-- final string/fret
-- source of any context override
-- onset→first decision and onset→stable decision latency
-- feature and model runtime
+> **test one genuinely different learned representation → retain only complementary evidence → personalize if useful → determine the minimum reliable decision time → select the simplest non-dominated complete architecture → prove Python/browser parity → prove it with controlled live guitar.**
 
-### Live debug UI
-The requested Guitar String Model diagnostics should expose enough information to answer **why** a note did or did not trigger/map. Include volume plus per-string/candidate metrics, not merely final string.
-
-### Acceptance
-Do not declare production success from stored-WAV parity alone. Final acceptance requires both:
-
-1. offline Python↔browser parity, and
-2. controlled live guitar validation with acceptable latency/false-trigger behavior.
-
-Persist the final model/config, parity results, live-test summary, and exact deployed commit.
-
----
-
+This is the evidence-supported direction for the remaining experiments.
 
 ---
 
@@ -1612,14 +1352,16 @@ Artifacts are not enough because they expire.
 
 # Exact continuation point
 
-**Completed:** baseline benchmark, time-phase screen, 100-tree confirmation, error-overlap fusion screen, calibrated fusion, Step 5 Abeßer reproduction, Step 6 Abeßer classifier comparison, Step 7 Abeßer fusion test, Step 8 temporal aggregation, and Step 9 Stage-A pitch detector tournament.
+**Completed through Step 10:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, and hard-MIDI versus multi-hypothesis inference.
 
 **Current best overall physical-string classifier/fusion:** calibrated isotonic three-model fusion — **379/384 = 98.6979%, 5 errors**.
 
-**Current best temporal Stage-B model:** equal average of three 40 ms MFCC classifiers over 0–120 ms — **376/384 = 97.9167%, 8 errors**.
+**Current best temporal Stage-B model:** equal average of three independent 40 ms MFCC classifiers over 0–120 ms — **376/384 = 97.9167%, 8 errors**.
 
-**Current best Stage-A pitch detector tested:** librosa YIN at 240 ms — **375/384 = 97.6563%, 9 MIDI errors, 0 octave errors, mean detector runtime 1.01 ms**. Custom YIN at 160 ms is nearly tied at **374/384 = 97.3958%, 0 octave errors** and preserves multiple hypotheses for Step 10.
+**Current best Stage-A pitch detector tested:** librosa YIN at 240 ms — **375/384 = 97.6563%, 9 MIDI errors, 0 octave errors, mean detector runtime 1.01 ms**. Custom YIN at 160 ms reached **374/384 = 97.3958%, 0 octave errors**.
 
-**Next:** Step 10 — hard-MIDI versus multi-hypothesis inference. Reuse the preserved Step-9 detector outputs; do not rerun Step 9.
+**Step 10 conclusion:** the preserved custom-YIN top-2/top-3/top-5 hypotheses contained no additional correct MIDI beyond top-1. Hard top-1 joint inference was **366/384 = 95.3125%**; top-K joint inference only introduced regressions. Do not continue the current multi-hypothesis branch.
 
-After Step 10, proceed through Steps 11–18 only according to measured evidence, ending with browser parity and controlled live-site validation.
+**Next:** Step 11 — one small early-window learned spectral model, evaluated primarily for **complementarity/unique rescues**, not merely standalone accuracy.
+
+Then follow the revised Steps 12–18 program above. Keep every experiment **Smoke test → Real run**, preserve outputs, and do not rerun completed experiments merely to regenerate data.
