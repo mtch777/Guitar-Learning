@@ -117,7 +117,7 @@ def possible(midi): return [s for s,o in OPEN.items() if 0<=midi-o<=24]
 
 def fit_predict(Xframes,df,order,out):
     truth=df.string.to_numpy(int); pred=np.zeros(len(df),int); conf=np.zeros(len(df)); rows=[]
-    Cs=[.1,1,10,100]; gammas=["scale",.01,.1,1]
+    smoke=bool(getattr(df,"attrs",{}).get("smoke",False))\n    Cs=[1] if smoke else [.1,1,10,100]\n    gammas=["scale"] if smoke else ["scale",.01,.1,1]
     midis=sorted(df.midi.unique()); start=time.time()
     for fi,midi in enumerate(midis,1):
         test=np.where(df.midi.to_numpy()==midi)[0]; train=np.where(df.midi.to_numpy()!=midi)[0]
@@ -128,7 +128,7 @@ def fit_predict(Xframes,df,order,out):
                 if np.isfinite(frame).any(): Xt.append(frame);yt.append(truth[ridx]);groups.append(int(df.iloc[ridx].midi))
         Xt=np.asarray(Xt);yt=np.asarray(yt);groups=np.asarray(groups)
         # Abeßer defines Nd = Nstrings - 1. For this 8-string instrument that is 7.\n        ncomp=min(len(OPEN)-1,len(np.unique(yt))-1)
-        pipe=Pipeline([("imp",SimpleImputer(strategy="median",add_indicator=False)),
+        pipe=Pipeline([("imp",SimpleImputer(strategy="median",add_indicator=False,keep_empty_features=True)),
           ("scale",StandardScaler()),("lda",LinearDiscriminantAnalysis(n_components=ncomp)),
           ("svm",SVC(kernel="rbf",probability=True))])
         cv=list(GroupKFold(3).split(Xt,yt,groups))
