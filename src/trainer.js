@@ -8050,6 +8050,7 @@ function temporarilyShowWrong(cell) {
   */
   const feedbackLabel =
     interval ||
+    cell.dataset.interval ||
     cell.dataset.noteName ||
     '×';
 
