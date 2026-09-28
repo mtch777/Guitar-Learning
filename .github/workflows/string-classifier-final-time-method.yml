@@ -1,0 +1,59 @@
+name: Step 16 final time method tournament
+
+on:
+  push:
+    paths:
+      - ".github/workflows/string-classifier-final-time-method.yml"
+      - "training/run_final_time_method_tournament.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy pandas librosa scikit-learn xgboost
+      - name: Preflight
+        run: python -m py_compile training/run_final_time_method_tournament.py
+      - name: Smoke test whole tournament
+        run: python -u training/run_final_time_method_tournament.py training/data/ringing_384 --out training/results/final_time_method_smoke --smoke
+      - name: Validate smoke outputs
+        run: |
+          test -f training/results/final_time_method_smoke/summary.json
+          test -f training/results/final_time_method_smoke/time_method_metrics.csv
+          test -f training/results/final_time_method_smoke/pitch_predictions.csv
+          test -f training/results/final_time_method_smoke/config.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: string-classifier-final-time-method-smoke
+          path: training/results/final_time_method_smoke
+          if-no-files-found: warn
+
+  real:
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy pandas librosa scikit-learn xgboost
+      - name: Real survivor-only tournament
+        run: python -u training/run_final_time_method_tournament.py training/data/ringing_384 --out training/results/final_time_method
+      - name: Print result
+        run: cat training/results/final_time_method/summary.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: string-classifier-final-time-method
+          path: training/results/final_time_method
+          if-no-files-found: warn
