@@ -12,9 +12,9 @@ permissions:
   actions: read
 
 env:
-  ORIGINAL_RUN: "36354714761"
-  CONFIRMATION_RUN: "36361317622"
-  CNN_RUN: "36459606684"
+  ORIGINAL_ARTIFACT: "10943980624"
+  CONFIRMATION_ARTIFACT: "10945587990"
+  CNN_ARTIFACT: "10986904978"
 
 jobs:
   smoke:
@@ -31,9 +31,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p preserved/original preserved/confirmation preserved/cnn
-          gh run download "$ORIGINAL_RUN" -n string-classifier-benchmark -D preserved/original
-          gh run download "$CONFIRMATION_RUN" -n string-classifier-time-confirmation -D preserved/confirmation
-          gh run download "$CNN_RUN" -n string-classifier-spectral-cnn -D preserved/cnn
+          gh api "/repos/${{ github.repository }}/actions/artifacts/$ORIGINAL_ARTIFACT/zip" > /tmp/original.zip\n          unzip -q /tmp/original.zip -d preserved/original
+          gh api "/repos/${{ github.repository }}/actions/artifacts/$CONFIRMATION_ARTIFACT/zip" > /tmp/confirmation.zip\n          unzip -q /tmp/confirmation.zip -d preserved/confirmation
+          gh api "/repos/${{ github.repository }}/actions/artifacts/$CNN_ARTIFACT/zip" > /tmp/cnn.zip\n          unzip -q /tmp/cnn.zip -d preserved/cnn
           find preserved -maxdepth 3 -type f -print
       - name: Preflight
         run: python -m py_compile training/run_engineered_learned_fusion.py
@@ -66,9 +66,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p preserved/original preserved/confirmation preserved/cnn
-          gh run download "$ORIGINAL_RUN" -n string-classifier-benchmark -D preserved/original
-          gh run download "$CONFIRMATION_RUN" -n string-classifier-time-confirmation -D preserved/confirmation
-          gh run download "$CNN_RUN" -n string-classifier-spectral-cnn -D preserved/cnn
+          gh api "/repos/${{ github.repository }}/actions/artifacts/$ORIGINAL_ARTIFACT/zip" > /tmp/original.zip\n          unzip -q /tmp/original.zip -d preserved/original
+          gh api "/repos/${{ github.repository }}/actions/artifacts/$CONFIRMATION_ARTIFACT/zip" > /tmp/confirmation.zip\n          unzip -q /tmp/confirmation.zip -d preserved/confirmation
+          gh api "/repos/${{ github.repository }}/actions/artifacts/$CNN_ARTIFACT/zip" > /tmp/cnn.zip\n          unzip -q /tmp/cnn.zip -d preserved/cnn
       - name: Real complementarity gate
         run: python -u training/run_engineered_learned_fusion.py --original preserved/original --confirmation preserved/confirmation --cnn preserved/cnn --out training/results/engineered_learned
       - name: Print result
