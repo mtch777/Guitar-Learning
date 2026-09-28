@@ -1,6 +1,6 @@
 name: Step 18 browser runtime validation
 
-on:
+"on":
   push:
     paths:
       - ".github/workflows/string-classifier-browser-validation.yml"
