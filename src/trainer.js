@@ -6780,6 +6780,34 @@ function buildTrainer() {
         displayIndex
       );
 
+    /*
+      Cut a gauge-matched groove into the nut at the exact rendered
+      string position. The heavier strings get visibly wider slots.
+    */
+    const nutSlot =
+      document.createElement('div');
+
+    nutSlot.className =
+      'fretboardNutSlot';
+
+    nutSlot.style.top =
+      topPercent + '%';
+
+    nutSlot.style.setProperty(
+      '--nut-slot-height',
+      Math.min(
+        3.6,
+        Math.max(
+          1,
+          stringThicknesses[displayIndex] * 0.62 + 0.45
+        )
+      ) + 'px'
+    );
+
+    nut.appendChild(
+      nutSlot
+    );
+
 
     const stringLine =
       document.createElement('div');
