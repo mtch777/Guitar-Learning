@@ -187,13 +187,27 @@ def main():
 
     families=list(FAMILY_PREFIXES)+["all"]
     results=[]; predictions=[]
+    total_configs=len(windows)*len(families)
+    completed_configs=0
+    experiment_start=time.time()
+    print(f"Experiment: {len(windows)} windows x {len(families)} families = {total_configs} configurations", flush=True)
     for wi,(label,t0,t1) in enumerate(windows,1):
+        window_start=time.time()
+        print(f"WINDOW [{wi}/{len(windows)}] {label} ({round(t0*1000)}-{round(t1*1000)} ms): extracting features...", flush=True)
         feats=[extract_window(r[5],r[6],r[4],t0,t1) for r in recs]
         names=list(feats[0]); X=np.asarray([[d[n] for n in names] for d in feats],dtype=np.float32)
         for family in families:
             cols=columns_for(names,family)
             if not cols: continue
-            st=time.time(); pred,conf,acc=evaluate(X,df,cols,a.trees)
+            st=time.time()
+            print(f"  START [{completed_configs+1}/{total_configs}] {label} x {family} ({len(cols)} features)", flush=True)
+            pred,conf,acc=evaluate(X,df,cols,a.trees)
+            elapsed=time.time()-experiment_start
+            completed_configs+=1
+            avg=elapsed/completed_configs
+            eta=avg*(total_configs-completed_configs)
+            step_seconds=time.time()-st
+            print(f"  DONE  [{completed_configs}/{total_configs}] {label} x {family}: {acc:.4%} | step {step_seconds:.1f}s | elapsed {elapsed/60:.1f}m | ETA {eta/60:.1f}m", flush=True)
             results.append({"window":label,"t0_ms":round(t0*1000),"t1_ms":round(t1*1000),
               "window_ms":round((t1-t0)*1000),"family":family,"features":len(cols),
               "trees":a.trees,"correct":int((pred==df.string.to_numpy()).sum()),
@@ -203,7 +217,7 @@ def main():
                   "string":int(row.string),"fret":int(row.fret),"midi":int(row.midi),
                   "strength":row.strength,"predicted_string":int(pred[i]),"confidence":float(conf[i])})
         pd.DataFrame(results).to_csv(a.out/"time_family_results.csv",index=False)
-        print(f"[{wi}/{len(windows)}] {label}: best={max(x['accuracy'] for x in results if x['window']==label):.4%}")
+        print(f"WINDOW DONE [{wi}/{len(windows)}] {label}: best={max(x['accuracy'] for x in results if x['window']==label):.4%} | window {(time.time()-window_start):.1f}s", flush=True)
 
     rdf=pd.DataFrame(results)
     rdf.to_csv(a.out/"time_family_results.csv",index=False)
