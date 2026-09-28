@@ -1329,7 +1329,7 @@ Do not declare production success from offline stored-WAV accuracy alone.
 
 ## Revised strategic path
 
-The evidence after sixteen experiments changes the program from:
+The evidence after seventeen experiments changes the program from:
 
 > research many representations → add features → find the highest-accuracy classifier
 
@@ -1505,7 +1505,7 @@ Artifacts are not enough because they expire.
 
 ---
 
-# Synthesis after 16 experiments
+# Synthesis after 17 experiments
 
 ## What we have learned
 
@@ -1600,9 +1600,42 @@ The project is no longer trying to establish whether physical-string identificat
 
 ---
 
+# Step 17 result — final architecture tournament
+
+Smoke and gated real run both passed on all **384 recordings**. Only evidence-supported complete pipelines were compared. Stage-A predicted MIDI drove the physical feasibility mask; trainer context remained excluded from acoustic/end-to-end metrics.
+
+Results:
+
+- **YIN 240 ms → calibrated fusion3: 370/384 = 96.3542% end-to-end**
+  - pitch correct: **375/384**
+  - conditional string accuracy when pitch is correct: **98.6667%**
+  - estimated Python availability: **~276.99 ms**
+  - 347 features
+- YIN 240 ms → temporal MFCC 120 ms: **367/384 = 95.5729%**
+  - pitch correct: **375/384**
+  - conditional string accuracy: **97.8667%**
+  - estimated availability: **~243.78 ms**
+  - 78 features
+- Oracle pitch → fusion3: **379/384 = 98.6979%**
+- Oracle pitch → temporal MFCC 120 ms: **376/384 = 97.9167%**
+
+The existing Stage-B results were reproduced exactly under oracle pitch. Fusion therefore retains its **+3 correct** advantage over temporal MFCC, but costs roughly **33 ms** more processing in this Python implementation and requires a much heavier feature path. Fusion was also substantially better calibrated in this experiment: string-confidence Brier **0.01363** versus **0.05844** for temporal MFCC.
+
+The deployable Pareto set was YIN200→temporal120, YIN200→fusion3, and YIN240→fusion3. YIN240→temporal120 was dominated.
+
+The major architectural conclusion is that **Stage A is now the larger remaining end-to-end bottleneck**. YIN240 has 9 MIDI errors. Among its 375 correct-pitch recordings, fusion leaves only **5 string errors**. Step 18 must therefore treat browser pitch parity, onset handling, pitch stability and live decision timing as primary acceptance criteria, not merely validate the string classifier.
+
+The final production choice remains intentionally open until browser/live validation: fusion has the best demonstrated accuracy and calibration, while temporal MFCC is simpler and faster. Step 18 decides whether the +3/384 fusion gain survives browser implementation cost and live behavior.
+
+Run: `36480723812`  
+Artifact: `10996203285`  
+Artifact SHA256: `77743ed19d9564ccc4253e37d940615bbd11eb23b250be77fd0745e13f5ae527`
+
+---
+
 # Exact continuation point
 
-**Completed through Step 16:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, hard-MIDI versus multi-hypothesis inference, compact learned spectral CNN, engineered+learned complementarity gating, and SIF feasibility.
+**Completed through Step 17:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, hard-MIDI versus multi-hypothesis inference, compact learned spectral CNN, engineered+learned complementarity gating, and SIF feasibility.
 
 **Current best overall physical-string classifier/fusion:** calibrated isotonic three-model fusion — **379/384 = 98.6979%, 5 errors**.
 
@@ -1620,6 +1653,6 @@ The project is no longer trying to establish whether physical-string identificat
 
 **Step 16 conclusion:** the final timing comparison confirms **120 ms temporal MFCC** as the best demonstrated Stage-B accuracy/latency point at **376/384**, while **librosa YIN 240 ms** remains the highest-accuracy Stage-A point at **375/384**. Stage-B 160 ms is dominated by 120 ms.
 
-**Next:** Step 17 — final architecture tournament. Run **Smoke test → Real run** using only evidence-supported complete pipelines. Compare final systems on accuracy, error coverage, calibration, latency, implementation cost, and browser suitability without reopening closed branches.
+**Step 17 conclusion:** the best tested complete pipeline was **YIN 240 ms → calibrated fusion3 at 370/384 = 96.3542% end-to-end**. With oracle pitch, fusion remains **379/384**, versus **376/384** for temporal MFCC. Fusion therefore buys +3 correct Stage-B decisions but adds roughly 33 ms Python processing and substantially more feature complexity. With YIN240, only 5 of 375 correct-pitch cases remain string errors, making Stage A the larger remaining end-to-end bottleneck.
 
-Then continue Step 18. Preserve outputs and do not rerun completed experiments merely to regenerate data.
+**Next:** Step 18 — browser/runtime + controlled live validation. Run **Smoke test → Real run**. Treat this as the production acceptance gate: prove Python↔browser parity, validate Stage-A YIN/onset behavior and Stage-B probabilities/masking, measure real browser decision latency/CPU, and test controlled live notes/transitions/repeats/noise before selecting fusion versus temporal MFCC for production. Preserve outputs and do not rerun completed experiments merely to regenerate data.
