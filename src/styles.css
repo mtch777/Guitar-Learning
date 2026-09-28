@@ -855,7 +855,7 @@ button.uiButton:disabled {
 }
 
 .fretboardFret {
-  --fret-width: 3px;
+  --fret-width: 6px;
   --fret-face-revision: 1;
 
   position: absolute;
@@ -1022,7 +1022,7 @@ button.uiButton:disabled {
   height: 24px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: #222;
+  background: #f2e6ca;
   opacity: .78;
   z-index: 1;
   pointer-events: none;
