@@ -805,22 +805,7 @@ button.uiButton:disabled {
   grid-column: 3;
   grid-row: 1;
   overflow: visible;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, .018) 0%,
-      transparent 28%,
-      rgba(0, 0, 0, .035) 68%,
-      rgba(0, 0, 0, .08) 100%
-    ),
-    linear-gradient(
-      90deg,
-      #34231a 0%,
-      #241711 18%,
-      #17100c 50%,
-      #20140f 82%,
-      #302017 100%
-    );
+  background: #21160f;
   box-shadow:
     inset 0 1px rgba(255, 255, 255, .02),
     inset 0 -1px rgba(0, 0, 0, .24);
