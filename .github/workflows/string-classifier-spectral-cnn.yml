@@ -1,0 +1,70 @@
+name: Step 11 compact spectral CNN
+
+on:
+  push:
+    paths:
+      - ".github/workflows/string-classifier-spectral-cnn.yml"
+      - "training/run_spectral_cnn.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install numpy pandas librosa scikit-learn torch
+      - name: Preflight
+        run: |
+          python -m py_compile training/run_spectral_cnn.py
+          python training/run_spectral_cnn.py --help >/dev/null
+      - name: Smoke test whole learned pipeline
+        run: python -u training/run_spectral_cnn.py training/data/ringing_384 --out training/results/spectral_cnn_smoke --smoke
+      - name: Validate smoke
+        run: |
+          test -f training/results/spectral_cnn_smoke/summary.json
+          test -f training/results/spectral_cnn_smoke/spectral_cnn_predictions.csv
+          python - <<'PY'
+          import json
+          x=json.load(open("training/results/spectral_cnn_smoke/summary.json"))
+          assert x["folds"] == 3
+          assert x["evaluated_recordings"] > 0
+          PY
+      - name: Save smoke outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: string-classifier-spectral-cnn-smoke
+          path: training/results/spectral_cnn_smoke
+          if-no-files-found: warn
+
+  real:
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install numpy pandas librosa scikit-learn torch
+      - name: Real learned spectral model
+        run: python -u training/run_spectral_cnn.py training/data/ringing_384 --out training/results/spectral_cnn
+      - name: Print summary
+        if: success()
+        run: cat training/results/spectral_cnn/summary.json
+      - name: Save real outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: string-classifier-spectral-cnn
+          path: training/results/spectral_cnn
+          if-no-files-found: warn
