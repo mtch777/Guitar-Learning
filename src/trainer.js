@@ -787,15 +787,28 @@ function getDailyPairLabel(
   );
 }
 
-function formatDailyQuizCountdown(
+function formatDailyQuestionCountdown(
   count
 ) {
   return (
     count +
     (
       count === 1
-        ? ' quiz left'
-        : ' quizzes left'
+        ? ' question left'
+        : ' questions left'
+    )
+  );
+}
+
+function formatDailyLessonCountdown(
+  count
+) {
+  return (
+    count +
+    (
+      count === 1
+        ? ' lesson left'
+        : ' lessons left'
     )
   );
 }
@@ -821,6 +834,10 @@ function updateDailyPracticeStatus() {
 
   status.hidden = false;
 
+  const remainingLessons =
+    dailyPracticeState
+      .remainingPairs.length;
+
   if (
     dailyPracticeState.phase ===
     'intervals'
@@ -835,8 +852,12 @@ function updateDailyPracticeStatus() {
           .baseMode
       ] +
       ' · ' +
-      formatDailyQuizCountdown(
+      formatDailyQuestionCountdown(
         questions.length
+      ) +
+      ' · ' +
+      formatDailyLessonCountdown(
+        remainingLessons
       );
 
     return;
@@ -853,10 +874,14 @@ function updateDailyPracticeStatus() {
         dailyPracticeState.baseMode
       ] +
       ' · ' +
-      formatDailyQuizCountdown(
+      formatDailyQuestionCountdown(
         dailyPracticeState
           .modeIntervalRemainingModes
           .length
+      ) +
+      ' · ' +
+      formatDailyLessonCountdown(
+        remainingLessons
       );
 
     return;
@@ -867,7 +892,7 @@ function updateDailyPracticeStatus() {
     'complete'
   ) {
     status.textContent =
-      'Daily practice complete · 0 quizzes left';
+      'Daily practice complete · 0 questions left · 0 lessons left';
 
     return;
   }
@@ -880,7 +905,7 @@ function updateDailyPracticeStatus() {
     return;
   }
 
-  const lessonQuizzesRemaining =
+  const lessonQuestionsRemaining =
     1 +
     dailyPracticeState
       .remainingPairs
@@ -891,13 +916,20 @@ function updateDailyPracticeStatus() {
       )
       .length;
 
+  const totalLessonsRemaining =
+    remainingLessons + 1;
+
   status.textContent =
     getDailyPairLabel(
       current
     ) +
     ' · ' +
-    formatDailyQuizCountdown(
-      lessonQuizzesRemaining
+    formatDailyQuestionCountdown(
+      lessonQuestionsRemaining
+    ) +
+    ' · ' +
+    formatDailyLessonCountdown(
+      totalLessonsRemaining
     );
 }
 
