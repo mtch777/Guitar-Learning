@@ -687,102 +687,211 @@ Artifact:
 1. The 107/214-feature models are already near a static engineered-feature ceiling on this dataset.
 2. Early **26-feature MFCC at 0–120 ms** is remarkably efficient and almost matches the large models.
 3. Its errors are highly complementary to the large models.
-4. **Calibrated fusion is the current winner: 98.6979%, 5 errors.**
+4. **Calibrated three-model fusion remains the current overall winner: 379/384 = 98.6979%, 5 errors.**
 5. Abeßer-style features are weak standalone on this guitar/dataset even after replacing the original classifier.
-6. Abeßer should survive only long enough to answer the Step-7 complementarity question.
-7. If Abeßer adds no unique rescues or useful calibrated evidence, stop investing in it.
-8. The next major opportunities are temporal evidence, better Stage-A hypotheses, calibrated/personalized evidence and lightweight learned representations.
-9. Offline accuracy alone cannot determine the production winner; latency, robustness, calibration and browser cost matter.
+6. Step 7 confirmed that Abeßer contributes **zero unique rescues** beyond the three strong individual models and does not raise their oracle ceiling.
+7. Adding Abeßer to calibrated isotonic fusion actually reduced performance from 379/384 to 378/384. Further Abeßer investment is stopped.
+8. Step 8 showed that temporal aggregation is useful: equal averaging of three independent 40 ms MFCC classifiers over 0–120 ms reached **376/384 = 97.9167%, 8 errors**, versus 370/384 for the single 0–120 ms MFCC model.
+9. Equal early-frame weighting beat the tested recency weighting. Extending aggregation past 120 ms did not improve the best result, reinforcing that useful string-ID evidence is concentrated very early.
+10. The next major question is Stage-A pitch detection: pitch/onset quality and multi-hypothesis handling may now matter more than additional static string features.
+11. Offline accuracy alone cannot determine the production winner; latency, robustness, calibration and browser cost remain required.
 
 ---
 
-# Step 7 — NEXT: feature/model fusion
+# Step 7 — COMPLETE: Abeßer feature/model fusion
 
-Question:
+Script:
 
-> Does Abeßer-derived information provide unique useful evidence beyond the existing strong models/fusion?
+`training/run_abesser_fusion.py`
 
-Must run:
+Workflow:
 
-1. **Smoke test**
-2. **Real run**, gated on smoke success
+`.github/workflows/string-classifier-abesser-fusion.yml`
 
-Use preserved outputs wherever possible. Do not retrain completed old models merely to recreate predictions.
+Final run:
 
-Required comparisons:
+`36383682332`
 
-- Abeßer error overlap with baseline 107
-- Abeßer overlap with harmonic 214
-- Abeßer overlap with early MFCC 26
-- unique Abeßer rescues
-- oracle ceiling after adding Abeßer
-- simple probability fusion
-- calibrated probability fusion
-- feature-level fusion only if justified by the simpler results
+Smoke: **passed**.
 
-Primary benchmark to beat:
+Protocol:
 
-- **379/384 = 98.6979%, 5 errors**
+- no completed base model was retrained
+- preserved out-of-fold predictions were reused
+- fusion fitting remained leave-one-entire-MIDI-out
+- compared the existing three strong models with and without Step-6 Abeßer HGB predictions
 
-Even if total accuracy does not improve, inspect whether Abeßer improves confidence/margin on difficult examples.
+Individual preserved results:
 
-Persist all results permanently.
+- baseline 107: 371/384 = 96.6146%
+- harmonic 214: 372/384 = 96.8750%
+- MFCC 0–120 ms: 370/384 = 96.3542%
+- Abeßer HGB: 222/384 = 57.8125%
+
+Complementarity:
+
+- Abeßer errors overlapping baseline errors: 7
+- overlapping harmonic errors: 7
+- overlapping MFCC errors: 7
+- **Abeßer unique saves versus all three strong models: 0**
+- oracle three strong models: **382/384 = 99.4792%**
+- oracle after adding Abeßer: **382/384 = 99.4792%**
+
+Fusion:
+
+| Fusion | Correct | Accuracy | Errors |
+|---|---:|---:|---:|
+| Three-model calibrated isotonic | **379/384** | **98.6979%** | **5** |
+| Four-model + Abeßer calibrated isotonic | 378/384 | 98.4375% | 6 |
+| Three-model calibrated logistic | 378/384 | 98.4375% | 6 |
+| Four-model + Abeßer calibrated logistic | 378/384 | 98.4375% | 6 |
+| Three-model meta-logistic | 375/384 | 97.6563% | 9 |
+| Four-model + Abeßer meta-logistic | 375/384 | 97.6563% | 9 |
+
+The four-model isotonic selector chose Abeßer only twice and finished one error worse. Four-model logistic never selected Abeßer. The meta-logistic selected Abeßer heavily but did not improve accuracy.
+
+Conclusion:
+
+> Abeßer-derived evidence adds no demonstrated complementary coverage to the strong existing models on this dataset. Stop further Abeßer investment unless the dataset or extraction methodology materially changes.
+
+Real artifact:
+
+- ID `10953427540`
+- SHA256 `8240cf27819459e8dcc934c44495c80da05def0538d94febc09c9b05b75f9db6`
+- size 22,433 bytes
+
+Do not rerun Step 7 merely to regenerate output.
+
+---
+
+# Step 8 — COMPLETE: multi-frame temporal aggregation
+
+Script:
+
+`training/run_temporal_aggregation.py`
+
+Workflow:
+
+`.github/workflows/string-classifier-temporal-aggregation.yml`
+
+Final run:
+
+`36384052764`
+
+Smoke: **passed** after the smoke-only sparse-class encoding issue was fixed in commit `fe8a7bdf486df913a3d9729524b488df4f8f90db`.
+
+Real protocol:
+
+- 384 recordings
+- leave-one-entire-MIDI-out validation
+- candidate masking before temporal aggregation
+- six independent 40 ms MFCC classifiers:
+  - 0–40 ms
+  - 40–80 ms
+  - 80–120 ms
+  - 120–160 ms
+  - 160–200 ms
+  - 200–240 ms
+- 100 XGBoost trees per real classifier
+- tested individual frames, equal cumulative averaging and recency-weighted cumulative averaging
+
+Individual 40 ms frames:
+
+| Frame | Correct | Accuracy |
+|---|---:|---:|
+| 0–40 ms | 336/384 | 87.5000% |
+| 40–80 ms | **366/384** | **95.3125%** |
+| 80–120 ms | 356/384 | 92.7083% |
+| 120–160 ms | 354/384 | 92.1875% |
+| 160–200 ms | 354/384 | 92.1875% |
+| 200–240 ms | 358/384 | 93.2292% |
+
+Equal probability averaging:
+
+| Frames included | Correct | Accuracy |
+|---|---:|---:|
+| first 2, 0–80 ms | 373/384 | 97.1354% |
+| **first 3, 0–120 ms** | **376/384** | **97.9167%** |
+| first 4, 0–160 ms | 375/384 | 97.6563% |
+| first 5, 0–200 ms | 376/384 | 97.9167% |
+| first 6, 0–240 ms | 375/384 | 97.6563% |
+
+Recency-weighted averaging:
+
+- first 2: 373/384 = 97.1354%
+- first 3: 374/384 = 97.3958%
+- first 4: 371/384 = 96.6146%
+- first 5: 372/384 = 96.8750%
+- first 6: 371/384 = 96.6146%
+
+Key comparisons:
+
+- prior single-window MFCC 0–120 ms: **370/384 = 96.3542%, 14 errors**
+- best multi-frame temporal MFCC: **376/384 = 97.9167%, 8 errors**
+- gain from temporal aggregation: **+6 correct, +1.5625 percentage points, 14 → 8 errors**
+- current overall three-model calibrated fusion: **379/384 = 98.6979%, 5 errors**
+
+Conclusion:
+
+> Treating the first 120 ms as three independent observations and averaging their candidate-masked probabilities is materially better than collapsing the same broad period into one MFCC summary. The useful temporal structure is real. Equal weighting was better than the tested recency weighting, and adding later frames did not exceed the 0–120 ms result.
+
+This makes the three-frame 0–120 ms model a serious lightweight production candidate and a candidate for later fusion testing.
+
+Real artifact:
+
+- ID `10953663191`
+- SHA256 `59d74af732b10557ec6760a8317b3b7bef3f89da032afd70c4aaeebd3553542b`
+- size 90,348 bytes
+
+Do not rerun Step 8 unless the data, temporal representation or evaluation methodology materially changes.
 
 ---
 
 # Remaining experiment program
 
-## 7. Feature/model fusion — NEXT
-Smoke → real.
+## 9. Stage-A pitch detector tournament — NEXT
+**Smoke test → Real run.**
 
-## 8. Multi-frame temporal aggregation
-Smoke → real.
-
-Go beyond a fixed five-frame policy. Compare probability averaging, voting, timing weights and timing windows. Only attempt a learned temporal model if simple aggregation leaves meaningful room.
-
-## 9. Stage-A pitch detector tournament
-Smoke → real.
-
-Compare current/Pitchy with YIN/YINFast/pYIN, Essentia and appropriate external/reference systems. Measure pitch accuracy, octave errors, onset behavior, confidence, stability and downstream physical-string accuracy.
+Compare current/Pitchy with YIN/YINFast/pYIN and Essentia-compatible approaches. Measure pitch accuracy, octave errors, onset behavior, confidence/stability, latency and downstream physical-string accuracy. Preserve detector outputs so later Stage-10 multi-hypothesis work does not require recomputation.
 
 ## 10. Hard-MIDI vs multi-hypothesis inference
-Smoke → real.
+**Smoke test → Real run.**
 
 Compare:
 
 - one detected MIDI → string classifier
 - several plausible pitch candidates → joint `(MIDI,string,fret)` scoring
 
-This determines whether early hard commitment is destroying recoverable information.
+Determine whether early hard pitch commitment destroys recoverable information.
 
 ## 11. Learned spectral model
-Smoke → real.
+**Smoke test → Real run.**
 
 Start with a small CNN, not a heavyweight pretrained architecture. Candidate inputs:
 
 - log-STFT/log-mel
 - F0/harmonic-aligned representation
-- CQT/Gammatone only if simple learned baseline justifies expansion
+- CQT/Gammatone only if the simple learned baseline justifies expansion
 
 Use the same pitch-separated evaluation and measure inference cost.
 
 ## 12. Engineered + learned fusion
-Smoke → real.
+**Smoke test → Real run.**
 
-First test probability fusion. Only use embedding/feature fusion if the learned model demonstrates complementary mistakes.
+First test probability fusion. Only use embedding/feature fusion if the learned model demonstrates complementary mistakes. Include the Step-8 three-frame temporal model as a fusion candidate.
 
 ## 13. SIF feasibility
-Smoke → real.
+**Smoke test → Real run.**
 
 First prove the inverse-segment signal is measurable through the pickup. Kill immediately if not.
 
 ## 14. Calibration / personalization
-Smoke → real.
+**Smoke test → Real run.**
 
 Test per-string/per-position calibration for the fixed guitar/interface setup, including pick-strength/input-level robustness and confidence calibration.
 
 ## 15. Candidate-mask + context ablations
-Smoke → real.
+**Smoke test → Real run.**
 
 Quantify:
 
@@ -794,25 +903,17 @@ Quantify:
 Keep raw and final decisions separate.
 
 ## 16. Final time × method tournament
-Smoke → real.
+**Smoke test → Real run.**
 
 Take only surviving methods and evaluate timing/window/aggregation consistently.
 
 ## 17. Final architecture tournament
-Smoke → real.
+**Smoke test → Real run.**
 
-Compare complete pipelines on:
-
-- accuracy
-- macro-F1
-- ambiguous-note performance
-- confidence/calibration
-- latency
-- robustness
-- browser/runtime cost
+Compare complete pipelines on accuracy, macro-F1, ambiguous-note performance, confidence/calibration, latency, robustness and browser/runtime cost.
 
 ## 18. Browser/runtime + live-site validation
-Smoke → real.
+**Smoke test → Real run.**
 
 Port the winner, establish numerical parity, measure runtime, then validate actual live guitar playing.
 
