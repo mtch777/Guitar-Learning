@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  reproduce:
+  smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -19,7 +19,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install "numpy<2.1" pandas scipy librosa scikit-learn soundfile
-      - name: Preflight experiment script
+      - name: Preflight script
         run: |
           python -m py_compile training/run_abesser_reproduction.py
           python training/run_abesser_reproduction.py --help >/dev/null
@@ -31,7 +31,45 @@ jobs:
           print("WAV count:",len(wavs),flush=True)
           assert len(wavs)==384
           PY
-      - name: Run Abeßer reproduction
+      - name: Smoke test whole cycle
+        run: |
+          python -u training/run_abesser_reproduction.py training/data/ringing_384 \
+            --smoke \
+            --orders 32 \
+            --out training/results/abesser_smoke
+      - name: Print smoke summary
+        if: success()
+        run: cat training/results/abesser_smoke/summary.json
+      - name: Save smoke results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: string-classifier-abesser-smoke
+          path: training/results/abesser_smoke
+          if-no-files-found: warn
+
+  reproduce:
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "numpy<2.1" pandas scipy librosa scikit-learn soundfile
+      - name: Verify dataset
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          wavs=list(Path("training/data/ringing_384").glob("*.wav"))
+          print("WAV count:",len(wavs),flush=True)
+          assert len(wavs)==384
+          PY
+      - name: Run real Abeßer reproduction
         run: |
           python -u training/run_abesser_reproduction.py training/data/ringing_384 \
             --orders 32,48,64 \
