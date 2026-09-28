@@ -14,9 +14,11 @@
   --dot-text: #ffffff;
   --popover-shadow: rgba(0, 0, 0, 0.25);
 
-  /* Shared fretboard geometry. */
+  /* Shared fretboard / panel geometry. */
   --open-string-gutter: 54px;
   --start-cue-gutter: 54px;
+  --nut-width: 11px;
+  --section-header-height: 40px;
   --panel-inline-buffer: 16px;
 }
 
@@ -97,13 +99,16 @@ select.stateSelect {
   align-items: stretch;
   gap: 8px;
   width: max-content;
-  max-width: 100%;
+  max-width: calc(100% + var(--nut-width));
   min-width: 0;
+  margin-left: calc(-1 * var(--nut-width));
 }
 
 .settingsSection {
   display: inline-grid;
-  grid-template-rows: auto auto;
+  grid-template-rows:
+    var(--section-header-height)
+    auto;
   align-self: stretch;
   width: max-content;
   min-width: 0;
@@ -118,7 +123,8 @@ select.stateSelect {
   display: flex;
   align-items: center;
   min-width: 100%;
-  min-height: 40px;
+  height: var(--section-header-height);
+  min-height: var(--section-header-height);
   padding: 6px 14px;
   background: var(--section-title-bg);
   color: var(--section-title-text);
@@ -493,8 +499,9 @@ select.stateSelect {
   grid-row: 2;
   justify-self: start;
   width: max-content;
-  max-width: 100%;
+  max-width: calc(100% + var(--nut-width));
   min-width: 0;
+  margin-left: calc(-1 * var(--nut-width));
   padding: 0;
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -765,7 +772,6 @@ button.uiButton:disabled {
   --note-max-size: 38px;
   --note-fret-gap: 4px;
   --fretboard-note-size: 38px;
-  --nut-width: 11px;
   --open-string-cap-gap: 2px;
 
   display: grid;
