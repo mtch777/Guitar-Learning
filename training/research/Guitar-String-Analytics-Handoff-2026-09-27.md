@@ -1200,14 +1200,20 @@ The preserved-prediction complementarity gate found **0 CNN unique rescues** and
 
 Step 10's multi-hypothesis branch is excluded from the main candidate pool because it produced zero rescues and substantial regressions.
 
-### 13. SIF feasibility
-**Smoke test → Real run, strict early kill gate.**
+### 13. SIF feasibility — COMPLETE
+**Smoke test passed → Real run passed; SIF branch closed.**
 
-SIF remains worth one cheap feasibility test because it probes different physics, but its priority is lower after the poor transfer of the Abeßer physical representation.
+The real run evaluated **360/360 usable fretted recordings**. The expected inverse-segment-frequency peak did not separate strongly enough from matched nearby controls:
 
-Do not build a full SIF classifier unless expected inverse-segment energy is clearly and consistently distinguishable from matched controls in the magnetic-pickup recordings.
+- median expected-vs-control advantage: **+1.1378 dB**; required ≥3 dB
+- expected peak control-win fraction: **59.3889%**; required ≥70%
+- positive recording fraction: **57.2222%**; required ≥65%
 
-Kill immediately if the pickup does not carry a robust SIF signal.
+The signal failed all three predeclared survival criteria. **Do not build a SIF classifier; the SIF branch is closed.**
+
+Run: `36464844099`  
+Artifact: `10989825794`  
+Artifact SHA256: `1aa375e45771e1775d9c9bd4ab8e9060fce7e619eb82b779d51e4b5b39eda062`
 
 ### 14. Calibration / personalization
 **Smoke test → Real run. Priority increased.**
@@ -1287,7 +1293,7 @@ Do not declare production success from offline stored-WAV accuracy alone.
 
 ## Revised strategic path
 
-The evidence after twelve experiments changes the program from:
+The evidence after thirteen experiments changes the program from:
 
 > research many representations → add features → find the highest-accuracy classifier
 
@@ -1465,7 +1471,7 @@ Artifacts are not enough because they expire.
 
 # Exact continuation point
 
-**Completed through Step 12:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, hard-MIDI versus multi-hypothesis inference, compact learned spectral CNN, and engineered+learned complementarity gating.
+**Completed through Step 13:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, hard-MIDI versus multi-hypothesis inference, compact learned spectral CNN, engineered+learned complementarity gating, and SIF feasibility.
 
 **Current best overall physical-string classifier/fusion:** calibrated isotonic three-model fusion — **379/384 = 98.6979%, 5 errors**.
 
@@ -1473,12 +1479,10 @@ Artifacts are not enough because they expire.
 
 **Current best Stage-A pitch detector tested:** librosa YIN at 240 ms — **375/384 = 97.6563%, 9 MIDI errors, 0 octave errors, mean detector runtime 1.01 ms**. Custom YIN at 160 ms reached **374/384 = 97.3958%, 0 octave errors**.
 
-**Step 10 conclusion:** the preserved custom-YIN top-2/top-3/top-5 hypotheses contained no additional correct MIDI beyond top-1. Do not continue the current multi-hypothesis branch.
+**Closed branches:** Abeßer representation, current multi-hypothesis YIN candidate scheme, learned/CNN representation, and SIF. Do not rerun or expand them without materially new evidence/methodology.
 
-**Step 11 conclusion:** the compact 25,864-parameter 160 ms log-mel CNN reached only **288/384 = 75.00% raw** and **307/384 = 79.95% candidate-masked**.
+**Step 13 conclusion:** across 360 usable fretted recordings, SIF achieved only **+1.1378 dB median expected-vs-control**, **59.3889% control-win fraction**, and **57.2222% positive recordings**, below all three survival thresholds. The SIF branch is closed.
 
-**Step 12 conclusion:** adding the CNN to the baseline/harmonic/MFCC oracle changed nothing: **382/384 before and 382/384 after**, with **0 CNN unique rescues**. The same two recordings remain wrong across all four models: `s5_f24_hard_ringing.wav` and `s5_f24_normal_ringing.wav`. **The learned/CNN branch is closed.**
+**Next:** Step 14 — calibration/personalization. Run **Smoke test → Real run**. Test lightweight fixed-rig/player-specific calibration with explicit calibration budgets and nonleaky evaluation. Measure whether personalization resolves remaining structured string errors enough to justify user calibration effort.
 
-**Next:** Step 13 — SIF feasibility. Run **Smoke test → Real run** with a strict early kill gate. Test whether expected inverse-segment-frequency evidence is actually measurable above matched controls in the magnetic-pickup recordings. Do not build a SIF classifier if the physical signal itself is not robust.
-
-Then continue Steps 14–18. Preserve outputs and do not rerun completed experiments merely to regenerate data.
+Then continue Steps 15–18. Preserve outputs and do not rerun completed experiments merely to regenerate data.
