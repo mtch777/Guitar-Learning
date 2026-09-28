@@ -1505,6 +1505,101 @@ Artifacts are not enough because they expire.
 
 ---
 
+# Synthesis after 16 experiments
+
+## What we have learned
+
+The problem has narrowed substantially. The strongest evidence now supports a compact staged system rather than continued representation search:
+
+**onset → reliable hard top-1 pitch → early temporal MFCC string evidence → physical candidate mask → calibrated decision → guarded trainer context**
+
+Physical-string identity is concentrated early after the pluck. The best lightweight Stage-B representation is three independent 40 ms MFCC classifiers averaged over 0–120 ms: **376/384 = 97.9167%**. This result has now been reproduced across Steps 8, 15 and 16.
+
+Simple guitar physics is a major part of the solution. Step 15 quantified the progression:
+
+- raw first 40 ms: **311/384**
+- + physical candidate mask: **336/384** (**+25 correct**)
+- + three-frame temporal evidence: **376/384** (**+40 more correct**)
+
+Complementarity matters more than feature count. The original baseline/harmonic/early-MFCC models were individually similar at 370–372 correct, but calibrated isotonic fusion reached **379/384 = 98.6979%**, while their oracle reaches **382/384 = 99.4792%**. The remaining problem is increasingly about selecting/trusting complementary evidence rather than discovering a radically stronger representation.
+
+Stage A is a first-class bottleneck. Librosa YIN at 240 ms reaches **375/384 = 97.6563% MIDI accuracy with zero octave errors**, versus **366/384 with six octave errors** for the tested browser-correlation reference. End-to-end architecture selection must therefore consider pitch and string classification jointly rather than treating pitch as solved preprocessing.
+
+## What went as expected
+
+- Early attack/onset information is highly discriminative.
+- Temporal evidence helps: three independent 40 ms observations over 0–120 ms outperform a single broad 0–120 ms MFCC window.
+- Physical candidate masking is powerful.
+- Different strong representations make complementary errors, making calibrated fusion useful.
+- Longer Stage-B windows are not automatically better: Step 16 confirmed **120 ms > 160 ms** in both accuracy and latency.
+- Trainer-known valid positions can be extremely powerful when the context is genuinely correct and specific.
+
+## What went unexpectedly
+
+Several theoretically attractive branches transferred poorly or provided no complementary value:
+
+- **Abeßer-style physical features:** roughly 49% with the reproduction and 58% with the best alternate classifier; **zero unique rescues** versus the strong models.
+- **Compact spectral CNN:** 75.0% raw / 79.95% masked and **zero unique rescues**; the strong-model oracle remained 382/384 after adding it.
+- **Current multi-hypothesis YIN scheme:** alternative candidates contained **zero additional correct MIDI rescues**; top-2/3/5 inference introduced large regressions.
+- **SIF:** failed all three predeclared feasibility gates; the physical signal was too weak/non-specific.
+- **Personalization:** medium prototype gained only **one correct recording (+0.2604 pp)**. Positive, but too small to justify broad calibration/model search.
+- **Trainer context:** correct singleton context gave the controlled upper bound of 384/384, but deliberately wrong/stale singleton context produced **348 harmful overrides**. Context can be more dangerous than the acoustic classifier if treated as authoritative.
+
+## Focus from here
+
+1. **120 ms temporal MFCC + physical mask** as the primary lightweight Stage-B candidate.
+2. **Librosa YIN family** for Stage A, with 240 ms as the highest-accuracy reference and shorter windows retained only as latency tradeoffs.
+3. **Existing calibrated three-model fusion** because it remains the best offline physical-string result at 379/384; Step 17 must determine whether its +3 correct over temporal MFCC justifies extra implementation/preprocessing cost.
+4. **Guarded trainer context**, kept separate from acoustic metrics and used as a soft/safeguarded prior rather than an unconditional override.
+5. **End-to-end latency, calibration, browser parity and live behavior**, because these can now matter more than one or two stored-WAV errors.
+
+## Avoid
+
+Do not spend further experiments on:
+
+- Abeßer-style feature search without materially new data/methodology
+- broad CNN/neural architecture search
+- the current multi-hypothesis pitch candidate scheme
+- SIF
+- broad personalization search
+- broad timing grids
+- feature-count expansion for its own sake
+- arbitrary aggregate accuracy chasing
+- authoritative trainer context
+- reporting context-assisted gameplay results as acoustic accuracy
+
+On this 384-recording dataset, one recording is about **0.2604 percentage points**. Small gains must justify their latency, calibration burden, browser complexity and maintenance cost.
+
+## Revised direction for Steps 17–18
+
+The original program was broadly:
+
+> search representations → add physical features → try learned models → optimize classifier accuracy
+
+The evidence now supports:
+
+> **compare only the surviving complete architectures → quantify end-to-end accuracy/latency/calibration/complexity → port the selected system exactly to browser → prove Python/browser parity → validate with controlled live guitar**
+
+### Step 17 implication
+
+Step 17 is a **system-selection experiment, not another representation search**. Compare only evidence-supported complete pipelines. At minimum, preserve separate Stage-A, Stage-B and end-to-end metrics and compare:
+
+- 120 ms temporal MFCC + physical mask
+- the calibrated strong-model fusion where practical
+- YIN + surviving Stage-B configurations
+- optional personalization only if its demonstrated +1 rescue is worth the burden
+- trainer context separately from acoustic performance
+
+Evaluate tuple accuracy, Stage-A errors, Stage-B errors conditional on correct MIDI, error overlap/unique rescues, calibration, onset→decision latency, CPU/preprocessing cost, model size, implementation complexity and browser suitability.
+
+### Step 18 implication
+
+Step 18 is the **production acceptance gate**, not a cosmetic final check. Offline stored-WAV accuracy alone is no longer sufficient. Require Python↔browser parity for intermediate features/probabilities/masks/predictions and controlled live testing of repeated notes, transitions, sustains, all strings/fret ranges/pick strengths, difficult neighboring strings/high frets, noise/false triggers, first-decision latency and stable-decision latency.
+
+The project is no longer trying to establish whether physical-string identification is feasible. It is choosing between a very strong simple Stage-B system (**376/384**) and a somewhat more complex fused system (**379/384**), while integrating a Stage-A pitch system around **375/384** and proving that the complete architecture behaves correctly in the browser and on live guitar.
+
+---
+
 # Exact continuation point
 
 **Completed through Step 16:** baseline benchmark, harmonic expansion, time-phase screen, 100-tree confirmation, error-overlap/fusion screening, calibrated fusion, Abeßer reproduction, Abeßer classifier comparison, Abeßer fusion, temporal aggregation, Stage-A pitch detector tournament, hard-MIDI versus multi-hypothesis inference, compact learned spectral CNN, engineered+learned complementarity gating, and SIF feasibility.
