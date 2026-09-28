@@ -817,6 +817,7 @@ button.uiButton:disabled {
 
 .fretboardFret {
   --fret-width: 3px;
+  --fret-face-revision: 1;
 
   position: absolute;
   top: 0;
