@@ -23,6 +23,7 @@ Primary evaluation is candidate-masked physical-string classification with leave
 | Step 13 SIF feasibility | 36464844099 | feasibility gate failed; median expected-vs-control +1.14 dB | — | 10989825794 |
 | Step 14 calibration/personalization | 36470556416 | medium prototype, 362/384 = 94.2708% | 22 | 10991343882 |
 | Step 15 candidate-mask + context ablation | 36477918087 | temporal masked 120 ms, 376/384 = 97.9167%; correct singleton context upper bound 384/384 | 8 acoustic | 10994099328 |
+| Step 16 final time × method tournament | 36479004613 | temporal MFCC 120 ms, 376/384 = 97.9167%; YIN 240 ms, 375/384 = 97.6563% MIDI | 8 Stage-B / 9 MIDI | 10995776554 |
 
 ## Key conclusions
 
@@ -155,6 +156,36 @@ Conclusion: candidate masking and temporal evidence are both major contributors 
 
 Run: `36477918087`. Artifact: `10994099328`. Artifact SHA256: `fee5678b720cebf982eef64dadbafe25dfffb658145965b6773ab3f7c07e56ef`.
 
+### Step 16 final time × method tournament
+
+Smoke passed, then the gated real run evaluated the small survivor-only timing grid on all **384 recordings** with no trainer context.
+
+Stage B — temporal MFCC string classification:
+
+- 80 ms: **373/384 = 97.1354%**, availability ≈ **81.75 ms**
+- **120 ms: 376/384 = 97.9167%**, availability ≈ **122.62 ms**
+- 160 ms: **375/384 = 97.6563%**, availability ≈ **163.50 ms**
+
+The Stage-B Pareto frontier contains 80 ms and 120 ms. The 160 ms point is dominated because it is slower and one recording worse than 120 ms. Therefore **120 ms is the best demonstrated Stage-B accuracy/latency operating point**, while 80 ms remains a plausible provisional-decision option if ~41 ms lower latency is worth three additional errors.
+
+Stage A — pitch detection:
+
+- librosa YIN 80 ms: **335/384 = 87.2396%**
+- librosa YIN 120 ms: **367/384 = 95.5729%**
+- librosa YIN 160 ms: **370/384 = 96.3542%**
+- librosa YIN 200 ms: **374/384 = 97.3958%**
+- **librosa YIN 240 ms: 375/384 = 97.6563%**
+- custom YIN 80 ms: **352/384 = 91.6667%**
+- custom YIN 120 ms: **369/384 = 96.0938%**
+- custom YIN 160 ms: **372/384 = 96.8750%**
+- custom YIN 200/240 ms: **373/384 = 97.1354%**
+
+Librosa YIN remains the highest-accuracy Stage-A method, with accuracy continuing to improve through 240 ms. Custom YIN does not surpass it at any final operating point.
+
+Conclusion: do not extend Stage-B beyond 120 ms; 160 ms adds latency and loses accuracy. For Stage A, retain librosa YIN 240 ms as the highest-accuracy reference and shorter YIN timings as lower-latency tradeoffs for the final architecture tournament.
+
+Run: `36479004613`. Artifact: `10995776554`. Artifact SHA256: `27099c240ebd3f40561c8de10a3b6d6090b9a9dd538548f77e10cd7880cc7344`.
+
 ### Step 13 SIF feasibility — closed
 
 Smoke passed after correcting the feasibility sampling/overlap logic, then the gated real run evaluated **360/360 usable fretted recordings**.
@@ -186,8 +217,8 @@ Do not rerun completed experiments merely to regenerate outputs. Save metrics, p
 
 14. Calibration/personalization — **complete**; medium prototype gave +1 correct / +0.2604 pp, no regressions
 15. Candidate-mask + context ablations — **complete**; mask +25 correct, temporal +40, context retained as separate gameplay prior
-16. Final time × method tournament — smoke → real; small survivor-only early timing grid
+16. Final time × method tournament — **complete**; Stage-B 120 ms best accuracy/latency point, Stage-A librosa YIN 240 ms highest accuracy
 17. Final architecture tournament — smoke → real
 18. Browser/runtime + live-site validation — smoke → real
 
-See `training/research/Guitar-String-Analytics-Handoff-2026-09-27.md` for the full Steps 1–15 synthesis, revised direction, detailed methodology, implementation context and continuation instructions.
+See `training/research/Guitar-String-Analytics-Handoff-2026-09-27.md` for the full Steps 1–16 synthesis, revised direction, detailed methodology, implementation context and continuation instructions.
