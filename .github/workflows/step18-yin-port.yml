@@ -1,9 +1,6 @@
 name: Step 18 browser reference-YIN port
 
 "on":
-  push:
-    paths:
-      - "training/step18_browser_frontend.mjs"
   workflow_dispatch:
 
 permissions:
