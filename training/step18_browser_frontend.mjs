@@ -47,9 +47,22 @@ function yin(y,sr,threshold=.18){
   const pt=parabolic(cm,tau);return {frequency:pt>0?sr/pt:NaN,confidence:Math.max(0,Math.min(1,1-cm[tau]))}
 }
 function midi(hz){return Number.isFinite(hz)&&hz>0?Math.round(69+12*Math.log2(hz/440)):null}
-function trim(y,topDb=50){
-  let peak=0;for(const x of y)peak=Math.max(peak,Math.abs(x));if(!peak)return y;
-  const th=peak*Math.pow(10,-topDb/20);let a=0,b=y.length;while(a<b&&Math.abs(y[a])<th)a++;while(b>a&&Math.abs(y[b-1])<th)b--;
+function trim(y,topDb=50,frameLength=2048,hopLength=512){
+  // Match librosa.effects.trim(top_db=50): frame RMS, centered with constant padding,
+  // threshold relative to max frame RMS, then convert first/last non-silent frames to samples.
+  const pad=Math.floor(frameLength/2), nFrames=1+Math.floor((y.length+2*pad-frameLength)/hopLength);
+  const rmsFrames=new Float64Array(Math.max(0,nFrames)); let maxRms=0;
+  for(let fi=0;fi<nFrames;fi++){
+    const start=fi*hopLength-pad; let ss=0;
+    for(let j=0;j<frameLength;j++){const ix=start+j,x=(ix>=0&&ix<y.length)?y[ix]:0;ss+=x*x}
+    const r=Math.sqrt(ss/frameLength);rmsFrames[fi]=r;if(r>maxRms)maxRms=r;
+  }
+  if(!rmsFrames.length||maxRms<=0)return y.slice();
+  const threshold=maxRms*Math.pow(10,-topDb/20);let first=0,last=rmsFrames.length-1;
+  while(first<rmsFrames.length&&rmsFrames[first]<threshold)first++;
+  if(first===rmsFrames.length)return y.slice(0,0);
+  while(last>=first&&rmsFrames[last]<threshold)last--;
+  const a=Math.min(y.length,first*hopLength),b=Math.min(y.length,(last+1)*hopLength);
   return y.slice(a,b);
 }
 function reflectPad(seg,pad){
