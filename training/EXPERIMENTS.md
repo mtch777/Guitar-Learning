@@ -318,3 +318,11 @@ Latest successful run: `36516288014` (Smoke and Real both passed). Head: `84e8e5
 - Suggested grid: 8 physical strings (1 lowest) × frets 0/5/12/19/24 × soft/normal/hard × two repeats (240 independent plucks). Use `python training/summarize_live_yin.py exported.json` for paired pluck-level pitch accuracy and discordance; frames are never counted as independent trials.
 - Smoke: synthetic MIDI 27/32/51/63/75 at 22,050/44,100/48,000 Hz yielded the target reference YIN MIDI; report fixture counted a paired win; Vite production build passed.
 - Pending: actual guitarist/microphone trial. Reference confidence is uncalibrated; live string-classifier and lesson-gate accuracy cannot be concluded from this pitch-only trial. The new detector remains isolated from the normal trainer.
+
+
+### Step 18 offline browser MFCC FFT optimization (2026-09-29)
+
+- Replaced the 512-point brute-force DFT power spectrum in `training/step18_browser_frontend.mjs` with a radix-2 FFT. Default now uses FFT; `--dft` retains the previous implementation, and `--compare-fft` runs both in alternating order on identical segments.
+- Smoke → Real on the same stored WAVs: smoke 36 recordings / 2,808 MFCC values; real 384 recordings / 29,952 values. Full-run maximum Float64 feature difference 2.6731e-11, RMSE 3.514e-12, and **zero differences after Float32 conversion** (the exact model inputs). Therefore downstream trained-model predictions are identical for any deterministic run using these values; another model training run is unnecessary.
+- Paired steady-state runtime, first 25 recordings excluded: DFT median 99.460 ms vs FFT median 0.777 ms for three 40 ms segments, 128.0× faster on this runner. Smoke medians 99.408 ms vs 0.869 ms. Power-spectrum maximum absolute difference in the first segment 2.7285e-12.
+- `training/summarize_step18_fft.py` enforces the numerical and runtime gates. Production `src/classifier/ringing-features.js` already used a separate 2048-point FFT, so this improvement applies to the Step 18 offline/browser-compatible temporal-MFCC path, not the existing live full-model extractor. The previous comprehensive browser-validation workflow was made manual-only after its validated run to avoid repeating the expensive classifier training on every frontend edit.
