@@ -282,8 +282,13 @@ function regionFeatures(y,sr) {
   return out;
 }
 
-export function extractRingingFeatures(samples, sourceRate) {
-  let y=trimTopDb(resampleLinear(samples,sourceRate),50);
+export function prepareRingingAudio(samples, sourceRate) {
+  return trimTopDb(resampleLinear(samples,sourceRate),50);
+}
+
+export function extractRingingFeatures(samples, sourceRate, { preprocessed = false } = {}) {
+  if (preprocessed && sourceRate !== TARGET_SR) throw new Error('Preprocessed audio must be at 22,050 Hz');
+  let y=preprocessed ? samples : prepareRingingAudio(samples,sourceRate);
   const attack=y.slice(0,Math.floor(.12*TARGET_SR));
   let sustain=y.slice(Math.floor(.15*TARGET_SR),Math.min(y.length,Math.floor(.8*TARGET_SR)));
   if(sustain.length<512) sustain=y.slice(Math.min(Math.floor(y.length/2),Math.floor(.12*TARGET_SR)));

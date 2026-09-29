@@ -1,0 +1,72 @@
+name: Step 18 fusion3 browser parity
+
+"on":
+  push:
+    paths:
+      - ".github/workflows/step18-fusion-port.yml"
+      - "src/classifier/fusion3.js"
+      - "src/classifier/harmonic-fusion-features.js"
+      - "src/classifier/early-mfcc-fusion-features.js"
+      - "src/classifier/xgboost-fusion-model.js"
+      - "src/classifier/isotonic-fusion.js"
+      - "training/run_step18_fusion_oof_export.py"
+      - "training/check_step18_fusion_oof.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  smoke_then_real:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install experiment dependencies
+        run: pip install numpy==2.3.5 scikit-learn==1.8.0 xgboost==3.4.1 librosa==1.0.0 pandas joblib
+      - name: Restore preserved final-model artifact
+        run: |
+          mkdir -p /tmp/fusion_original
+          gh api repos/${{ github.repository }}/actions/artifacts/10943980624/zip > /tmp/fusion_original.zip
+          unzip -q /tmp/fusion_original.zip -d /tmp/fusion_original
+      - name: Preflight and feature pool
+        run: |
+          node --check src/classifier/fusion3.js
+          node --check training/check_step18_fusion_oof.mjs
+          python -m py_compile training/run_step18_fusion_oof_export.py training/prepare_step18_fusion_model_parity.py
+          python training/train_step18_early_mfcc_export.py training/data/ringing_384 --out /tmp/fusion_early
+          python training/prepare_step18_fusion_model_parity.py training/data/ringing_384 --baseline-dir /tmp/fusion_original/benchmark_baseline --harmonic-dir /tmp/fusion_original/benchmark_full --mfcc-dir /tmp/fusion_early --out /tmp/fusion_vectors.json
+          python training/prepare_step18_trimmed_audio.py training/data/ringing_384 /tmp/fusion_vectors.json --out /tmp/fusion_audio
+      - name: Smoke on seven held-out MIDI folds
+        run: |
+          python -u training/run_step18_fusion_oof_export.py /tmp/fusion_vectors.json --out /tmp/fusion_smoke --smoke
+          node training/check_step18_fusion_oof.mjs /tmp/fusion_smoke/python_oof_probabilities.json /tmp/fusion_smoke /tmp/fusion_audio /tmp/fusion_smoke_result.json
+      - name: Gate Real on Smoke
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";const r=JSON.parse(fs.readFileSync("/tmp/fusion_smoke_result.json")).report;if(r.recordings!==36||Object.values(r.models).some(x=>x.maskedMatches!==36))process.exit(1)'
+      - name: Real on all 61 held-out MIDI folds
+        run: |
+          python -u training/run_step18_fusion_oof_export.py /tmp/fusion_vectors.json --out /tmp/fusion_real
+          node training/check_step18_fusion_oof.mjs /tmp/fusion_real/python_oof_probabilities.json /tmp/fusion_real /tmp/fusion_audio /tmp/fusion_real_result.json
+      - name: Gate complete decision parity
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";const r=JSON.parse(fs.readFileSync("/tmp/fusion_real_result.json")).report;if(r.recordings!==384||r.fusionDecisionAgreement!==384||Object.values(r.models).some(x=>x.maskedMatches!==384))process.exit(1)'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-fusion3-browser-parity
+          path: |
+            /tmp/fusion_smoke_result.json
+            /tmp/fusion_real_result.json
+            /tmp/fusion_real/python_oof_probabilities.json
+            /tmp/fusion_real/midi_*/*.json
+          if-no-files-found: warn

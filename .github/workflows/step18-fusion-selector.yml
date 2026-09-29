@@ -1,0 +1,43 @@
+name: Step 18 fusion selector parity
+
+"on":
+  push:
+    paths:
+      - ".github/workflows/step18-fusion-selector.yml"
+      - "src/classifier/isotonic-fusion.js"
+      - "training/run_step18_fusion_selector.mjs"
+      - "training/results/reference/fusion_selector_oof_384.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke_then_real:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Preflight
+        run: |
+          node --check src/classifier/isotonic-fusion.js
+          node --check training/run_step18_fusion_selector.mjs
+      - name: Smoke on 36 held-out MIDI recordings
+        run: node training/run_step18_fusion_selector.mjs training/results/reference/fusion_selector_oof_384.json training/results/step18_fusion_selector_smoke.json --smoke
+      - name: Gate Real on Smoke result
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";const x=JSON.parse(fs.readFileSync("training/results/step18_fusion_selector_smoke.json"));if(x.summary.recordings!==36||x.summary.predicted_identical_to_python!==36)process.exit(1)'
+      - name: Real on all 384 recordings
+        run: node training/run_step18_fusion_selector.mjs training/results/reference/fusion_selector_oof_384.json training/results/step18_fusion_selector_real.json
+      - name: Gate Real result
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";const x=JSON.parse(fs.readFileSync("training/results/step18_fusion_selector_real.json"));if(x.summary.recordings!==384||x.summary.predicted_identical_to_python!==384||x.summary.correct!==379)process.exit(1)'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-fusion-selector
+          path: training/results/step18_fusion_selector_*.json
+          if-no-files-found: warn
