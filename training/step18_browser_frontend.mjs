@@ -109,12 +109,12 @@ for(const name of files){
   if(smoke&&!(truth>=54&&truth<=60&&strength==="normal"))continue;
   const fileBuffer=fs.readFileSync(path.join(dir,name));
   const raw=decodeWav(fileBuffer),mono=raw.channelData[0];
-  const y=trim(resampleLinear(mono,raw.sampleRate,22050)),sr=22050;
+  const resampled=resampleLinear(mono,raw.sampleRate,22050),y=trim(resampled),sr=22050;
   const t0=performance.now(),p=yin(y.slice(0,Math.min(y.length,Math.round(.24*sr))),sr),pitchMs=performance.now()-t0;
   const feats=[];let featureMs=0,parityDebug=null;
   for(const [fi,[a,b]] of [[0,.04],[.04,.08],[.08,.12]].entries()){
     const q=performance.now(),seg=y.slice(Math.round(a*sr),Math.round(b*sr)),z=mfcc26(seg,sr,debug&&fi===0);
-    if(debug&&fi===0){parityDebug={trimmed_head:Array.from(y.slice(0,1024)),segment:Array.from(seg),centered:z.centered,trace:z.trace};feats.push(z.features)}else feats.push(z);
+    if(debug&&fi===0){parityDebug={source_sample_rate:raw.sampleRate,resampled_head:Array.from(resampled.slice(0,2048)),trimmed_head:Array.from(y.slice(0,1024)),segment:Array.from(seg),centered:z.centered,trace:z.trace};feats.push(z.features)}else feats.push(z);
     featureMs+=performance.now()-q;
   }
   rows.push({file:name,string:s,fret:f,strength,true_midi:truth,pred_midi:midi(p.frequency),pitch_hz:p.frequency,pitch_confidence:p.confidence,pitch_runtime_ms:pitchMs,feature_runtime_ms:featureMs,features:feats,...(parityDebug?{parity_debug:parityDebug}:{})});
