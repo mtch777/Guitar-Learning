@@ -90,13 +90,13 @@ def main():
                "python_custom_yin_midi": int(custom_midi[i]),
                "js_hz": rows[i]["pitch_hz"],
                "python_yin_hz": pitch_details[names[i]]["python_yin_hz"],
-               "js_confidence": rows[i]["pitch_confidence"]}
+               "js_pitch_confidence": rows[i]["pitch_confidence"]}
         for key, pred_midi in (("js", js_midi[i]), ("python_yin", py_midi[i]),
                                ("oracle", midi[i])):
             prob = np.mean([mask(P[frame][i], pred_midi)
                             for frame in range(3)], axis=0)
             row[key + "_string"] = int(np.argmax(prob) + 1)
-            row[key + "_confidence"] = float(prob.max())
+            row[key + "_string_confidence"] = float(prob.max())
             row[key + "_tuple_correct"] = bool(pred_midi == midi[i] and
                                                row[key + "_string"] == truth[i])
         predictions.append(row)
