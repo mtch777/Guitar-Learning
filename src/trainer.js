@@ -894,6 +894,16 @@ function updateDailyPracticeStatus() {
     status.textContent =
       'Daily practice complete · 0 questions left · 0 lessons left';
 
+    const nextLessonButton =
+      document.getElementById(
+        'nextLessonButton'
+      );
+
+    if (nextLessonButton) {
+      nextLessonButton.hidden =
+        true;
+    }
+
     return;
   }
 
@@ -1274,6 +1284,57 @@ function skipDailyCurrentExercise() {
   }
 
   return true;
+}
+
+
+function skipDailyCurrentLesson() {
+  if (
+    !isDailyPracticeSelected() ||
+    !dailyPracticeState
+  ) {
+    return false;
+  }
+
+  if (
+    dailyPracticeState.phase ===
+    'intervals'
+  ) {
+    /*
+      Skip every remaining question in the Intervals lesson
+      and advance to the next Daily Practice lesson.
+    */
+    startDailyModeInterval();
+    return true;
+  }
+
+  if (
+    dailyPracticeState.phase ===
+    'modeInterval'
+  ) {
+    /*
+      Skip every remaining Mode Interval Matching question.
+    */
+    dailyPracticeState
+      .modeIntervalRemainingModes =
+        [];
+
+    startNextDailyPair();
+    return true;
+  }
+
+  if (
+    dailyPracticeState.phase ===
+    'pairs'
+  ) {
+    /*
+      Each mode + lesson pair is one scheduled Daily lesson.
+      Advance exactly one lesson without answering it.
+    */
+    completeDailyPair();
+    return true;
+  }
+
+  return false;
 }
 
 function getTuning() {
@@ -2285,6 +2346,16 @@ function updateLessonControls() {
   if (scaleDropdown) {
     scaleDropdown.inert =
       daily;
+  }
+
+  const nextLessonButton =
+    document.getElementById(
+      'nextLessonButton'
+    );
+
+  if (nextLessonButton) {
+    nextLessonButton.hidden =
+      !daily;
   }
 
   updateDailyPracticeStatus();
@@ -8984,6 +9055,26 @@ document
       }
 
       buildTrainer();
+    }
+  );
+
+document
+  .getElementById(
+    'nextLessonButton'
+  )
+  .addEventListener(
+    'click',
+    () => {
+      showAll = false;
+
+      document
+        .getElementById(
+          'showAllButton'
+        )
+        .innerText =
+          'Show Answer';
+
+      skipDailyCurrentLesson();
     }
   );
 
