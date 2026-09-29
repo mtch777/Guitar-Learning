@@ -251,6 +251,16 @@ Do not rerun completed experiments merely to regenerate outputs. Save metrics, p
 
 See `training/research/Guitar-String-Analytics-Handoff-2026-09-27.md` for the full Steps 1–17 synthesis, revised direction, detailed methodology, implementation context and continuation instructions.
 
+### Step 18 parity correction — 2026-09-29
+
+The earlier comparison of browser Stage-B **374/384** to Python **376/384** mixed two masks: the browser result used detected MIDI, while the Python Step-15 result used ground-truth MIDI. Run `36523203527` (Smoke → Real passed, commit `159e702`) scores both masks on the same browser features:
+
+- Browser Stage B with **ground-truth MIDI**: **375/384**; like-for-like Python reference: **376/384**.
+- Browser Stage B with **detected MIDI**: **374/384**; browser pitch: **373/384**; end-to-end tuple: **364/384**.
+- Python versus browser ground-truth-MIDI predictions differ on four recordings: `s3_f00_soft` and `s7_f00_soft` are browser-only errors; `s5_f06_normal` is a Python-only error; `s8_f00_soft` is wrong in both paths but predicts different strings. Net browser Stage-B deficit: one recording.
+
+Run `36522192223` (Smoke → Real passed, commit `615f608`) tested librosa-resampled float WAVs through the unchanged JS frontend and classifier. Detected-MIDI Stage B remained **374/384**. Compared with JS linear resampling, `s8_f00_soft` was rescued and `s5_f04_normal` regressed. This rules out changing resampling alone as a demonstrated accuracy fix. The JS STFT/power math remains validated; do not alter it. Investigate the four decision disagreements with ground-truth MIDI before attributing the residual to a DSP stage.
+
 
 ### Step 18 browser/runtime validation — in progress
 
