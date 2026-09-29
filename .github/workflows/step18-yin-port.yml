@@ -1,0 +1,51 @@
+name: Step 18 browser reference-YIN port
+
+"on":
+  push:
+    paths:
+      - "training/step18_browser_frontend.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke_then_real:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install validation dependencies
+        run: pip install numpy pandas scikit-learn xgboost librosa
+      - name: Preflight
+        run: |
+          node --check training/step18_browser_frontend.mjs
+          python -m py_compile training/run_step18_yin_port.py
+      - name: Paired JS pitch extraction with identical downstream features
+        run: node training/step18_browser_frontend.mjs training/data/ringing_384 training/results/step18_yin_compare.json --compare-yin
+      - name: Smoke complete pitch to tuple cycle on disagreement and controls
+        run: python -u training/run_step18_yin_port.py training/data/ringing_384 training/results/step18_yin_compare.json --out training/results/step18_yin_smoke --smoke
+      - name: Gate real run on smoke outputs
+        run: |
+          test -f training/results/step18_yin_smoke/summary.json
+          test -f training/results/step18_yin_smoke/predictions.csv
+      - name: Real run all 384 with unchanged-baseline checks
+        run: python -u training/run_step18_yin_port.py training/data/ringing_384 training/results/step18_yin_compare.json --out training/results/step18_yin_real
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-yin-port-smoke
+          path: training/results/step18_yin_smoke
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-yin-port-real
+          path: training/results/step18_yin_real
+          if-no-files-found: warn
