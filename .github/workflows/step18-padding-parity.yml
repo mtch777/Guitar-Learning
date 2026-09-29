@@ -1,0 +1,89 @@
+name: Step 18 padding parity ablation
+
+"on":
+  push:
+    paths:
+      - "training/step18_browser_frontend.mjs"
+      - "training/run_step18_padding_ablation.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke_then_real:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install validation dependencies
+        run: pip install numpy pandas scikit-learn xgboost librosa soundfile
+      - name: Preflight
+        run: |
+          node --check training/step18_browser_frontend.mjs
+          python -m py_compile training/run_step18_padding_ablation.py
+      - name: Verify exact-waveform MFCC parity on six recordings
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import librosa
+          import soundfile as sf
+          names = ('s3_f00_soft', 's5_f06_normal', 's7_f00_soft',
+                   's8_f00_soft', 's5_f04_normal', 's3_f12_hard')
+          out = Path('training/results/step18_reference_wavs')
+          out.mkdir(parents=True, exist_ok=True)
+          for stem in names:
+              source = Path('training/data/ringing_384') / (stem + '_ringing.wav')
+              y, sr = librosa.load(source, sr=22050, mono=True)
+              sf.write(out / source.name, y, sr, subtype='FLOAT')
+          PY
+          node training/step18_browser_frontend.mjs training/results/step18_reference_wavs training/results/step18_reference_features.json --global-db-floor --constant-pad
+          python - <<'PY'
+          import json
+          import librosa
+          import numpy as np
+          rows = json.load(open('training/results/step18_reference_features.json'))
+          assert len(rows) == 6
+          maximum = 0.0
+          for row in rows:
+              y, sr = librosa.load('training/data/ringing_384/' + row['file'],sr=22050,mono=True)
+              y, _ = librosa.effects.trim(y,top_db=50)
+              for frame in range(3):
+                  seg = y[int(frame*.04*sr):int((frame+1)*.04*sr)]
+                  mfcc = librosa.feature.mfcc(y=seg,sr=sr,n_mfcc=13,n_fft=512,hop_length=128,n_mels=40)
+                  ref = np.asarray([v for band in mfcc for v in (band.mean(),band.std())])
+                  maximum = max(maximum,float(np.sqrt(np.mean((ref-np.asarray(row['features'][frame]))**2))))
+          print('Maximum exact-waveform feature RMSE:',maximum)
+          assert maximum < 1e-4
+          PY
+      - name: Extract original JS features on all recordings
+        run: node training/step18_browser_frontend.mjs training/data/ringing_384 training/results/step18_padding_baseline.json
+      - name: Extract corrected JS features on all recordings
+        run: node training/step18_browser_frontend.mjs training/data/ringing_384 training/results/step18_padding_corrected.json --global-db-floor --constant-pad
+      - name: Smoke four-path cycle on disagreements and controls
+        run: python -u training/run_step18_padding_ablation.py training/results/step18_padding_baseline.json training/results/step18_padding_corrected.json --out training/results/step18_padding_smoke --smoke
+      - name: Gate real run on smoke outputs
+        run: |
+          test -f training/results/step18_padding_smoke/summary.json
+          test -f training/results/step18_padding_smoke/predictions.csv
+          test -f training/results/step18_padding_smoke/decision_traces.json
+      - name: Real run all 384 and assert original baseline
+        run: python -u training/run_step18_padding_ablation.py training/results/step18_padding_baseline.json training/results/step18_padding_corrected.json --out training/results/step18_padding_real
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-padding-parity-smoke
+          path: training/results/step18_padding_smoke
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-padding-parity-real
+          path: training/results/step18_padding_real
+          if-no-files-found: warn
