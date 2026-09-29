@@ -1,102 +1,46 @@
-# Guitar Physical-String Analytics — Research, Experiments, and Live Validation Handoff — 2026-09-27
-
-## Purpose
-
-This is the source-of-truth handoff for the physical-string-identification research program in `mtch777/Guitar-Learning`.
-
-The immediate goal is to identify which physical string/fret produced a note from the ordinary mono pickup → Scarlett signal. The production goal is broader: select the best evidence-based architecture, port it to the browser, prove Python↔browser parity, measure latency, and validate it with actual live playing in the deployed trainer.
-
-**Current exact handoff point:** Step 6 is complete. Step 7 — feature/model fusion — is next.
-
----
-
+# Guitar Physical-String Analytics — Current Handoff (updated 2026-09-29)
 
 ## NEXT CHAT START HERE
 
-**2026-09-29 Step-18 update supersedes the parity investigation below.** Numerical parity is now resolved under matched preprocessing. Run `36606741095` passed Smoke → Real: with librosa-resampled float WAVs and opt-in JS constant padding plus segment-global dB flooring, MFCC mean RMSE was **3.99e-6** over 1,152 frames (max **1.54e-5**), and all **384/384 true-MIDI string predictions matched** the Python Step-15 reference; both scored **376/384**. Ordinary JS-linear deployment remains **375/384** under true MIDI, **374/384** under detected MIDI, with **364/384** complete tuples. The isolated resampling substitution and the isolated dB/padding correction produced no net deployed Stage-B improvement. The JS FFT/STFT math remains validated. Keep the corrected options experimental; proceed to Stage-A error analysis, runtime optimization, fusion comparison and guided live validation. See the latest Step-18 entries in `training/EXPERIMENTS.md` for crossover and ablation details. Older “outstanding issue” and “immediate next action” text below describes the historical state and is superseded by this update.
+**Source of truth:** `mtch777/Guitar-Learning`, branch `main`. Step 18 remains open. Steps 1–17 are complete; keep their historical research below and the experiment ledger in `training/EXPERIMENTS.md`. Never infer production accuracy from a stored-WAV result. String **1 is lowest**, string **8 highest**; open MIDI `[27,34,39,44,49,54,58,63]`, frets 0–24.
 
-**Stage-A update:** Run `36608387084` passed Smoke → Real. Python custom YIN reproduced every browser JS MIDI decision (**373/384**); librosa YIN240 rescued exactly two browser-only pitch errors (**375/384**) and, with the same browser Stage-B models, improved complete tuples **364→366/384**. The errors are `s1_f05_hard` (a close semitone-boundary decision) and `s3_f12_hard` (custom YIN chose a subharmonic over a nearly tied true-pitch minimum). This is a detector algorithm/decision-rule issue, not a broken JS port. The remaining nine pitch errors are shared. Stage-A stored-WAV diagnosis is complete; next optimize browser runtime, compare fusion, then use guided live validation to decide whether a browser reference-YIN port is worthwhile. Full per-recording evidence is in `training/EXPERIMENTS.md` and the run artifact.
+**Latest documented main commit:** `5a81ea45639f5a1f64ef396d6ab8745515d6c6bf` (FFT ledger). Refetch `main` and the current GitHub blob SHA before editing; this SHA is a handoff marker, not a permanent HEAD. GitHub Pages: `https://mtch777.github.io/Guitar-Learning/`.
 
-**Browser reference-YIN port update:** Run `36613549255` passed Smoke → Real. The opt-in browser-compatible port matched Python librosa YIN's MIDI decisions on **all 384** recordings, improved pitch **373→375/384** and complete tuples **364→366/384** on the stored WAVs, and added ~**10.15 ms median** pitch compute (3.47→13.61 ms, paired on one runner). Standard default validation `36613549215` passed unchanged. The port is only in the Step-18 training frontend behind `--reference-yin` / `--compare-yin`; the live trainer still uses `src/audio/pitch.js` correlation. Next measure live timing and confidence/hold behavior before considering integration, alongside runtime and fusion comparisons. See the ledger for exact settings and caveats.
+### Current measured results and boundaries
 
-**Do not restart the research program or rerun completed experiments. Continue Step 18 from the current parity investigation.**
+| Variable / stage | Status | Evidence | Action |
+|---|---|---|---|
+| STFT/power and matched preprocessing | Validated offline | Exact centered samples gave power RMSE 4.58e-15; matched librosa-resampled waveform + opt-in zero padding/segment-global dB gave MFCC mean RMSE 3.99e-6 and identical string predictions on all 384 | Keep the parity settings experimental; do not rewrite validated spectral math |
+| Ordinary browser-compatible temporal Stage B | Baseline preserved | True-MIDI mask 375/384; detected-MIDI mask 374/384; Python reference 376/384. Corrected settings alone with JS linear resampling did not improve the consistent train/test path | Do not claim resampling or dB/padding alone fixes accuracy |
+| Browser-compatible reference YIN240 | Offline port validated, opt-in | Run `36613549255`: MIDI 375/384, tuple 366/384; all 384 MIDI decisions match Python librosa YIN. Custom-YIN baseline: 373/384 MIDI, 364/384 tuple. Extra median pitch compute ~10.15 ms | Live confidence, timing, and gating remain unvalidated |
+| Step-18 temporal MFCC runtime | Optimized in training frontend | Smoke 36 → Real 384 stored WAVs. All 29,952 Float32 model inputs exactly unchanged; median 3-segment runtime 99.460→0.777 ms, 128×, same runner | FFT is default in `training/step18_browser_frontend.mjs`; `--dft` retains baseline, `--compare-fft` runs paired comparison |
+| Fusion3 | Not ported to browser | Python isotonic calibrated fusion of baseline + harmonic + temporal MFCC scored 379/384 oracle MIDI; Step-17 YIN240 complete tuple 370/384, versus temporal 367/384 in that Python tournament | **Next offline experiment:** browser port, feature/model/calibration parity, latency and same-fold tuple comparison; Smoke → gated Real |
+| Live behavior | Pending guitarist input | [Paired live pitch page](https://mtch777.github.io/Guitar-Learning/live-yin-test.html?v=af21453) deployed, Pages run `36616795763` passed and page loaded. No actual guitar recordings yet | User cannot record live trials currently; do not block offline fusion work. When available, export JSON and analyze with `training/summarize_live_yin.py` |
 
-### Exact current state
+**Production separation:** `training/step18_browser_frontend.mjs` is the 512-point temporal MFCC/YIN experiment harness. The normal trainer still uses `src/audio/pitch.js` correlation and `src/audio/ringing-pluck-buffer.js` confidence/hold gates; its full-model `src/classifier/ringing-features.js` already uses a separate 2048-point FFT. The live trial is an isolated page and does not change normal lesson decisions. The 128× offline MFCC gain is **not** a measured live-trainer speedup. Reference-YIN confidence is a CMND-derived diagnostic and not calibrated to the live `pitchConfidence >= 0.55` gate.
 
-- Steps **1–17 are complete**. Their results, run IDs, artifacts, conclusions, and closed branches are documented below and in `training/EXPERIMENTS.md`.
-- Step **18 — browser/runtime + controlled live validation — is in progress**.
-- Latest successful Step-18 run: **36516288014**, head **84e8e50586f57a12c4244cde81f80b7a7a7979fa**.
-- Current browser temporal Stage-B result: **374/384 = 97.3958%**.
-- Python temporal Stage-B reference: **376/384 = 97.9167%**.
-- Remaining browser/Python Stage-B gap: **2 recordings / 0.5208 percentage points**.
-- Browser Stage-A pitch result: **373/384 = 97.1354%**.
-- Current end-to-end tuple result: **364/384 = 94.7917%**.
-- Current JS MFCC implementation is custom/librosa-like. Any result label saying **“Meyda MFCC” is stale** and should be corrected when convenient.
+### Next offline work: fusion3 port
 
-### What has already been verified
+1. Inspect Step-17 selection/evaluation and `training/run_fusion_calibration.py`, the preserved OOF predictions and the three base feature/model definitions. Isotonic fusion selects the base model with the highest **cross-fitted calibrated correctness probability**; it is not a simple probability average. Do not train calibrators on held-out MIDI or substitute the production 107-feature model for a Step-17 base without re-evaluating the complete method.
+2. Determine exact browser feature definitions and export requirements for the baseline, harmonic and early-MFCC models. Preserve the leave-one-entire-MIDI-out protocol, ground-truth versus detected-MIDI masks, and raw versus calibrated probabilities. Build the smallest real-data Smoke that exercises loading, extraction, all three inference paths, calibration, mask and final decision; gate the 384-recording Real run on it.
+3. Compare with the matching Python fusion3 protocol: 379/384 oracle-MIDI Stage B and 370/384 complete YIN240 tuple in Step 17. The Step-18 browser temporal baseline uses different preprocessing/model fitting and reaches 366/384 tuples with reference YIN, so **do not subtract numbers from mismatched experiments as a direct fusion effect**. Measure feature/probability/prediction parity, per-recording rescues/regressions, model size, memory and runtime.
+4. Keep normal trainer behavior unchanged until production evidence and live confidence/timing gates are satisfied. Record run IDs, artifacts, exact commit, failures and outcome in the ledger.
 
-- WAV/browser extraction pipeline runs end-to-end.
-- Browser validation workflow correctly enforces **Smoke test → gated Real run**.
-- Audio is analyzed at **22,050 Hz**.
-- JS trimming was changed to match librosa's frame-RMS trim semantics: 2048-sample frame, 512-sample hop, `top_db=50`.
-- After that change, browser Stage-B improved from **371/384 → 374/384**.
-- Trimmed-head parity is now very close: mean correlation **0.999638**.
-- Segment extraction and reflect/center padding are also very close.
-- **JS STFT/power math has been isolated and verified equivalent to librosa.** When Python is fed the exact JS-centered samples, power-spectrum parity is effectively numerical precision: mean RMSE **4.58e-15**, max RMSE **8.93e-14**, correlation **1.0**.
-- Therefore **do not modify FFT/STFT/windowing math** based on the ordinary-path power mismatch.
+### Live test status and design limits
 
-### Current outstanding issue
+`live-yin-test.html` records the same microphone stream through current correlation and a rolling 240 ms reference-style YIN. The suggested pitch-only grid is 8 strings × frets 0/5/12/19/24 × soft/normal/hard × 2 repeats = **240 plucks**. It exports paired frame decisions, RMS, confidence and compute times; `training/summarize_live_yin.py` scores one decision per pluck and paired discordance. This is **not a full physical-string or gameplay validation**: no Stage-B model decisions, onset-to-decision timing or lesson gate outcome are captured. A subsequent guided full-pipeline test must label known target string/fret, acceptance/rejection, overlap cases, repeated/transitional notes, noise and stable latency. The user has said live recording is unavailable for now.
 
-A small **upstream waveform/sample difference** remains between the independent Python/librosa and JS paths. It occurs before the verified STFT calculation and is then amplified through power → mel → dB → MFCC.
+### Execution and reporting rules
 
-Ordinary independent-path parity currently shows approximately:
+- Every new experiment uses **Smoke → gated Real** with the smallest meaningful Smoke, progress output and preserved results. Do not rerun completed runs merely to regenerate outputs.
+- When reporting status, use the current **Variable / stage | Status | Evidence | Action** table. Do not append the old “Remaining experiment steps” list.
+- Candidate masks and trainer context are separate from raw acoustic output. Step 15 found 348 harmful overrides under deliberately wrong/stale singleton context.
+- The connected GitHub file API can publish changes when local `git push` lacks credentials. Fetch each current file blob SHA immediately before replacing it; do not overwrite concurrent work. Training-only changes need no browser cache-key edit.
+- After code deployment provide a cache-busted Pages link, action run, and clearly separate stored-WAV, browser-compatible, and actual live measurements.
 
-- power RMSE **0.396885**, corr **0.974313**
-- mel RMSE **0.008376**, corr **0.986021**
-- dB RMSE **3.66835**, corr **0.983492**
-- MFCC RMSE **6.11716**, corr **0.997854**
+## Historical research and experiment record
 
-The next investigation should isolate whether the remaining sample-level difference comes from **WAV decoding, resampling, or exact trim-boundary semantics**. Do not optimize the DFT or port fusion3 until this parity question is resolved.
-
-### Immediate next action
-
-1. Compare Python and JS samples **before resampling**, **after resampling but before trim**, and **after trim**, including lengths and exact trim indices.
-2. Identify the **first** stage where samples diverge.
-3. Fix only that stage.
-4. Run the required **Smoke test** through the whole pipeline.
-5. Only if Smoke passes, run the gated **Real run**.
-6. Recheck whether browser temporal Stage-B reaches the Python reference **376/384**.
-7. Once temporal parity is accepted, optimize the current brute-force DFT/runtime.
-8. Port and compare browser **fusion3** against temporal120.
-9. Then build the **guided live-validation UI** and perform controlled live guitar testing.
-
-### Non-negotiable experiment/workflow rules
-
-- Every experiment step uses exactly **Smoke test → Real run**.
-- Smoke must exercise the whole cycle with the smallest practical real-data workload; Real starts only if Smoke succeeds.
-- **Do not rerun completed experiments** just to recreate outputs. Existing results are preserved.
-- Refetch the latest GitHub blob SHA immediately before updating an existing file.
-- Preserve raw acoustic output separately from candidate-mask, temporal/fusion, and trainer-context decisions.
-- Trainer context must remain a guarded/soft layer; Step 15 proved that stale authoritative context can be catastrophically wrong.
-- Keep the project's intentional string convention: **String 1 = lowest-pitched; String 8 = highest-pitched**.
-- For repo changes, provide the deployed Pages URL with `?v=<shortcommit>`.
-- The user wants execution, not long planning narration.
-- Until Step 18 is complete, end project-status responses with a concise **Remaining experiment steps** section.
-
-### Live-validation requirements once automated parity is complete
-
-The user is ready to play the guitar when requested. Do not make them interpret raw diagnostics. The live UI must explicitly tell them:
-
-- physical string number using this project's convention
-- fret
-- requested pick strength: soft / normal / hard
-- when to mute, wait, and repluck
-- whether the attempt was accepted or rejected and why
-- the next target automatically
-- progress count
-
-Controlled validation must cover all 8 strings, same-MIDI/different-string cases, fret ranges, pick strengths, repeats, transitions, S4/S5/S6 overlap cases, high frets, the known difficult S5-fret-24 cases, and silence/noise. Log detected MIDI/cents, confidence, string probabilities, candidate mask, temporal/fusion output, final choice, context source, and first/stable decision timing.
-
+The material below preserves the methods, literature, Steps 1–17, and earlier Step-18 snapshots. Statements phrased as “current,” “next,” or “outstanding” inside those older snapshots describe their time of writing. **Use the table and next-offline-work section above for current decisions.**
 
 ## Project / production context
 
@@ -1748,7 +1692,10 @@ Artifact SHA256: `77743ed19d9564ccc4253e37d940615bbd11eb23b250be77fd0745e13f5ae5
 
 ---
 
-# Step 18 progress — browser parity and production acceptance
+# Historical Step 18 snapshot — early browser parity work
+
+> This section records the state before matched-preprocessing parity, reference-YIN port, live-trial page and FFT optimization. The current state is in NEXT CHAT START HERE above.
+
 
 Step 18 is active. The browser validation infrastructure now executes the required **Smoke test → gated Real run** over the stored 384-recording dataset and includes a deep Python↔JS numerical parity harness.
 
