@@ -16,7 +16,8 @@ Primary evaluation is candidate-masked physical-string classification with leave
 | Step 5 Abeßer reproduction | 36370931642 | AR32, 188/384 = 48.9583% | 196 | 10950522386 |
 | Step 6 Abeßer classifier comparison | 36374793618 | HGB, 222/384 = 57.8125% | 162 | 10953065549 |
 | Step 7 Abeßer + strong-model fusion | 36383682332 | Existing 3-model isotonic remains 379/384 | 5 | 10953427540 |
-| Step 8 temporal aggregation | 36384052764 | 3×40 ms MFCC mean, 376/384 = 97.9167% | 8 | 10953663191 |\n| Step 9 Stage-A pitch tournament | 36437584822 | librosa YIN 240 ms, 375/384 = 97.6563% MIDI | 9 MIDI | 10977090483 |
+| Step 8 temporal aggregation | 36384052764 | 3×40 ms MFCC mean, 376/384 = 97.9167% | 8 | 10953663191 |
+| Step 9 Stage-A pitch tournament | 36437584822 | librosa YIN 240 ms, 375/384 = 97.6563% MIDI | 9 MIDI | 10977090483 |
 | Step 10 multi-hypothesis inference | 36450596841 | hard top-1 joint, 366/384 = 95.3125% | 18 joint | 10983346754 |
 | Step 11 compact spectral CNN | 36459606684 | candidate-masked, 307/384 = 79.9479% | 77 | 10986904978 |
 | Step 12 engineered + learned complementarity | 36463295082 | oracle unchanged at 382/384 = 99.4792%; 0 CNN rescues | 2 oracle | 10987679899 |
@@ -241,15 +242,17 @@ Every remaining experiment uses exactly:
 
 Do not rerun completed experiments merely to regenerate outputs. Save metrics, predictions, configuration/feature metadata, error analysis, run/artifact IDs and hashes needed for future comparisons.
 
-## Remaining program
+## Current Step 18 state (2026-09-29)
 
-14. Calibration/personalization — **complete**; medium prototype gave +1 correct / +0.2604 pp, no regressions
-15. Candidate-mask + context ablations — **complete**; mask +25 correct, temporal +40, context retained as separate gameplay prior
-16. Final time × method tournament — **complete**; Stage-B 120 ms best accuracy/latency point, Stage-A librosa YIN 240 ms highest accuracy
-17. Final architecture tournament — **complete**; YIN240→fusion3 370/384 end-to-end, fusion retains +3 over temporal MFCC
-18. Browser/runtime + live-site validation — smoke → real
+| Variable / stage | Status | Evidence | Action |
+|---|---|---|---|
+| Matched-preprocessing Stage-B parity | Resolved offline | 384/384 predictions match Python under matched waveform/padding/dB settings; ordinary JS true-MIDI Stage B 375/384 | Retain opt-in corrected options; don't claim an isolated accuracy gain |
+| Reference-style YIN | Offline validated, opt-in | Run `36613549255`: pitch 375/384, tuple 366/384; all 384 MIDI decisions match librosa; +10.15 ms median pitch compute | Live confidence/latency testing later |
+| Temporal MFCC FFT | Complete in Step-18 training frontend | Smoke 36 → Real 384; 0/29,952 Float32 input differences; 99.460→0.777 ms median for three segments, 128× | Default FFT; production full-model path already uses its own FFT |
+| Fusion3 browser port | Pending | Python Stage-B oracle MIDI 379/384; Step-17 YIN240 tuple 370/384 | **Next offline work:** same-fold browser feature/model/calibration port, Smoke → gated Real |
+| Live validation | Pending guitarist input | Pitch-only paired test deployed at `live-yin-test.html`; no recordings yet | User cannot play live trials now; continue offline work |
 
-See `training/research/Guitar-String-Analytics-Handoff-2026-09-27.md` for the full Steps 1–17 synthesis, revised direction, detailed methodology, implementation context and continuation instructions.
+The handoff's [NEXT CHAT START HERE](research/Guitar-String-Analytics-Handoff-2026-09-27.md) section explains the exact experiment boundaries, production separation, next fusion steps and live-test limitations. The entries below are chronological evidence; earlier "next" instructions in those entries are historical.
 
 ### Step 18 parity correction — 2026-09-29
 
@@ -283,7 +286,10 @@ Run `36608387084` (Smoke → Real passed, 384 recordings) completed Stage-A erro
 Run `36613549255` (Smoke → Real passed) implemented an **opt-in browser-compatible reference-style YIN240**: centered 4096-sample zero-padded frames, 1024-sample hop, 0.1 trough threshold and median frame frequency. Both JS detectors ran on the same preprocessed waveform in alternating order, with identical Stage-B features and leave-one-MIDI-out models. The new JS path matched Python librosa YIN's **MIDI decision on all 384 recordings**; it changed only the two known browser errors. Pitch improved **373→375/384** and complete tuple accuracy **364→366/384**, with no regressions. On the GitHub runner after the first 25 recordings, paired median pitch compute time was **3.47 ms** current custom YIN versus **13.61 ms** reference-style YIN; p95 was **3.70 versus 14.01 ms**. This is ~**10.15 ms** extra median compute for +2 correct tuples. The opt-in path's confidence is a CMND-derived diagnostic and is not calibrated for live gating. Standard validation run `36613549215` passed and reproduced the unchanged default 373 pitch / 364 tuples. **This is an offline browser-compatible front-end result, not a live-site deployment**: `src/audio/pitch.js` still runs its separate correlation detector on microphone frames. Live integration must account for 240 ms observation, sample-rate/preprocessing and confidence/hold behavior before judging production accuracy.
 
 
-### Step 18 browser/runtime validation — in progress
+### Historical Step 18 early browser/runtime snapshot (superseded)
+
+> This snapshot predates matched-preprocessing parity, the reference-YIN port and FFT optimization. Use the current Step 18 table above for next actions.
+
 
 The browser frontend now runs end-to-end on the 384-recording dataset with an exact **Smoke test → gated Real run** workflow. The original Meyda MFCC path was replaced by a browser-native librosa-like MFCC implementation; the summary label still says Meyda and is stale.
 
@@ -319,10 +325,16 @@ Latest successful run: `36516288014` (Smoke and Real both passed). Head: `84e8e5
 - Smoke: synthetic MIDI 27/32/51/63/75 at 22,050/44,100/48,000 Hz yielded the target reference YIN MIDI; report fixture counted a paired win; Vite production build passed.
 - Pending: actual guitarist/microphone trial. Reference confidence is uncalibrated; live string-classifier and lesson-gate accuracy cannot be concluded from this pitch-only trial. The new detector remains isolated from the normal trainer.
 
-
 ### Step 18 offline browser MFCC FFT optimization (2026-09-29)
 
 - Replaced the 512-point brute-force DFT power spectrum in `training/step18_browser_frontend.mjs` with a radix-2 FFT. Default now uses FFT; `--dft` retains the previous implementation, and `--compare-fft` runs both in alternating order on identical segments.
 - Smoke → Real on the same stored WAVs: smoke 36 recordings / 2,808 MFCC values; real 384 recordings / 29,952 values. Full-run maximum Float64 feature difference 2.6731e-11, RMSE 3.514e-12, and **zero differences after Float32 conversion** (the exact model inputs). Therefore downstream trained-model predictions are identical for any deterministic run using these values; another model training run is unnecessary.
 - Paired steady-state runtime, first 25 recordings excluded: DFT median 99.460 ms vs FFT median 0.777 ms for three 40 ms segments, 128.0× faster on this runner. Smoke medians 99.408 ms vs 0.869 ms. Power-spectrum maximum absolute difference in the first segment 2.7285e-12.
 - `training/summarize_step18_fft.py` enforces the numerical and runtime gates. Production `src/classifier/ringing-features.js` already used a separate 2048-point FFT, so this improvement applies to the Step 18 offline/browser-compatible temporal-MFCC path, not the existing live full-model extractor. The previous comprehensive browser-validation workflow was made manual-only after its validated run to avoid repeating the expensive classifier training on every frontend edit.
+
+### Handoff and publication checkpoint (2026-09-29)
+
+- Reference-style YIN run: `36613549255`; default validation: `36613549215`. The live trial was introduced by commit `af214531c0ca840ac27a14e81c68ddc43f8fc90b`, Pages run `36616795763`; page load was checked, actual playing is pending.
+- FFT optimization was tested locally in a clean worktree on the committed 384-WAV dataset. Commands: `node training/step18_browser_frontend.mjs training/data/ringing_384 OUT.json --smoke --compare-fft --debug --reference-yin` followed by `python training/summarize_step18_fft.py OUT.json --smoke --out SUMMARY.json`; after that passed, repeat the extractor without `--smoke` and summarize without `--smoke`. The full-run report recorded all 29,952 Float32 inputs identical. This was a local Smoke → Real run, **not a new GitHub Actions benchmark run**. The code/docs were published via GitHub; Pages build `36623242836` succeeded at commit `5a81ea45639f5a1f64ef396d6ab8745515d6c6bf`.
+- Full trained-model predictions were not recomputed after FFT optimization because `run_step18_browser_validation.py` converts the inputs to Float32, and every Float32 value was bit-identical to the prior DFT path. The speedup applies to `training/step18_browser_frontend.mjs`, not to the existing live 107-feature extractor.
+- The existing `string-classifier-browser-validation.yml` was switched to manual dispatch so frontend edits do not repeat its expensive completed model-validation run.
