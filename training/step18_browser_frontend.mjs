@@ -115,17 +115,43 @@ function melBasis(sr,nfft,nmels){
     out.push(row);
   } return out;
 }
-function powerSpectrum(frame){
+function powerSpectrumDft(frame){
   const n=frame.length,out=new Float64Array(n/2+1);
   for(let k=0;k<=n/2;k++){let re=0,im=0;for(let t=0;t<n;t++){const w=.5-.5*Math.cos(2*Math.PI*t/n),x=frame[t]*w,a=-2*Math.PI*k*t/n;re+=x*Math.cos(a);im+=x*Math.sin(a)}out[k]=re*re+im*im}
   return out;
 }
+const HANN512=Float64Array.from({length:512},(_,i)=>.5-.5*Math.cos(2*Math.PI*i/512));
+function powerSpectrumFft(frame){
+  const n=frame.length,re=new Float64Array(n),im=new Float64Array(n);
+  for(let i=0;i<n;i++)re[i]=frame[i]*HANN512[i];
+  let j=0;
+  for(let i=1;i<n;i++){
+    let bit=n>>1;
+    for(;j&bit;bit>>=1)j^=bit;
+    j^=bit;
+    if(i<j){[re[i],re[j]]=[re[j],re[i]];[im[i],im[j]]=[im[j],im[i]]}
+  }
+  for(let len=2;len<=n;len<<=1){
+    const ang=-2*Math.PI/len,wr0=Math.cos(ang),wi0=Math.sin(ang);
+    for(let i=0;i<n;i+=len){
+      let wr=1,wi=0;
+      for(let k=0;k<len/2;k++){
+        const u=i+k,v=u+len/2,tr=wr*re[v]-wi*im[v],ti=wr*im[v]+wi*re[v];
+        re[v]=re[u]-tr;im[v]=im[u]-ti;re[u]+=tr;im[u]+=ti;
+        const next=wr*wr0-wi*wi0;wi=wr*wi0+wi*wr0;wr=next;
+      }
+    }
+  }
+  const out=new Float64Array(n/2+1);
+  for(let k=0;k<out.length;k++)out[k]=re[k]*re[k]+im[k]*im[k];
+  return out;
+}
 const MEL512=melBasis(22050,512,40);
-function mfcc26(seg,sr,debug=false,globalDbFloor=false,constantPad=false){
+function mfcc26(seg,sr,debug=false,globalDbFloor=false,constantPad=false,fft=false){
   const nfft=512,hop=128,nmels=40,nmfcc=13,centered=constantPad?new Float64Array(seg.length+nfft):reflectPad(seg,nfft>>1),frames=[],trace=[],spectra=[],melFrames=[];
   if(constantPad)centered.set(seg,nfft>>1);
   for(let start=0;start+nfft<=centered.length;start+=hop){
-    const p=powerSpectrum(centered.slice(start,start+nfft)),mel=new Float64Array(nmels);
+    const p=(fft?powerSpectrumFft:powerSpectrumDft)(centered.slice(start,start+nfft)),mel=new Float64Array(nmels);
     for(let m=0;m<nmels;m++){let s=0;for(let k=0;k<p.length;k++)s+=MEL512[m][k]*p[k];mel[m]=Math.max(1e-10,s)}
     spectra.push(p);melFrames.push(mel);
   }
@@ -143,7 +169,7 @@ function resampleLinear(input,inRate,outRate=22050){
   if(inRate===outRate)return input;const n=Math.max(1,Math.round(input.length*outRate/inRate)),out=new Float32Array(n),ratio=inRate/outRate;
   for(let i=0;i<n;i++){const p=i*ratio,j=Math.floor(p),f=p-j,a=input[Math.min(j,input.length-1)],b=input[Math.min(j+1,input.length-1)];out[i]=a+(b-a)*f}return out;
 }
-const args=process.argv.slice(2),dir=args[0],out=args[1],smoke=args.includes("--smoke"),debug=args.includes("--debug"),globalDbFloor=args.includes("--global-db-floor"),constantPad=args.includes("--constant-pad"),referenceYin=args.includes("--reference-yin"),compareYin=args.includes("--compare-yin");
+const args=process.argv.slice(2),dir=args[0],out=args[1],smoke=args.includes("--smoke"),debug=args.includes("--debug"),globalDbFloor=args.includes("--global-db-floor"),constantPad=args.includes("--constant-pad"),referenceYin=args.includes("--reference-yin"),compareYin=args.includes("--compare-yin"),compareFft=args.includes("--compare-fft"),fft=!args.includes("--dft");
 if(!dir||!out)throw new Error("usage: node step18_browser_frontend.mjs WAV_DIR OUT_JSON [--smoke]");
 const files=fs.readdirSync(dir).filter(x=>RX.test(x)).sort(),rows=[];let done=0;
 for(const name of files){
@@ -161,13 +187,26 @@ for(const name of files){
     else{reference=timed(yinReference);baseline=timed(yin)}
     p=reference.value;pitchMs=reference.ms;
   }else{const t=performance.now();p=(referenceYin?yinReference:yin)(pitchInput,sr);pitchMs=performance.now()-t}
-  const feats=[];let featureMs=0,parityDebug=null;
+  const feats=[];let featureMs=0,parityDebug=null,baselineFeatures=[],baselineFeatureMs=0,maxPowerAbsDiff=0;
   for(const [fi,[a,b]] of [[0,.04],[.04,.08],[.08,.12]].entries()){
-    const q=performance.now(),seg=y.slice(Math.round(a*sr),Math.round(b*sr)),z=mfcc26(seg,sr,debug&&fi===0,globalDbFloor,constantPad);
+    const seg=y.slice(Math.round(a*sr),Math.round(b*sr));
+    let z,q;
+    if(compareFft){
+      const run=(useFft,withDebug)=>{const start=performance.now(),value=mfcc26(seg,sr,withDebug,globalDbFloor,constantPad,useFft);return {value,ms:performance.now()-start}};
+      let baseline,fast;
+      if((done+fi)%2===0){baseline=run(false,debug&&fi===0);fast=run(true,debug&&fi===0)}
+      else{fast=run(true,debug&&fi===0);baseline=run(false,debug&&fi===0)}
+      baselineFeatures.push(debug&&fi===0?baseline.value.features:baseline.value);
+      baselineFeatureMs+=baseline.ms;z=fast.value;q=fast.ms;
+      if(debug&&fi===0){
+        for(let frame=0;frame<z.trace.length;frame++)for(let bin=0;bin<z.trace[frame].power.length;bin++)
+          maxPowerAbsDiff=Math.max(maxPowerAbsDiff,Math.abs(z.trace[frame].power[bin]-baseline.value.trace[frame].power[bin]));
+      }
+    }else{const start=performance.now();z=mfcc26(seg,sr,debug&&fi===0,globalDbFloor,constantPad,fft);q=performance.now()-start}
     if(debug&&fi===0){parityDebug={source_sample_rate:raw.sampleRate,resampled_head:Array.from(resampled.slice(0,2048)),trimmed_head:Array.from(y.slice(0,1024)),segment:Array.from(seg),centered:z.centered,trace:z.trace};feats.push(z.features)}else feats.push(z);
-    featureMs+=performance.now()-q;
+    featureMs+=q;
   }
-  rows.push({file:name,string:s,fret:f,strength,true_midi:truth,pred_midi:midi(p.frequency),pitch_hz:p.frequency,pitch_confidence:p.confidence,pitch_runtime_ms:pitchMs,feature_runtime_ms:featureMs,features:feats,...(baseline?{baseline_pred_midi:midi(baseline.value.frequency),baseline_pitch_hz:baseline.value.frequency,baseline_pitch_confidence:baseline.value.confidence,baseline_pitch_runtime_ms:baseline.ms}:{}),...(parityDebug?{parity_debug:parityDebug}:{})});
+  rows.push({file:name,string:s,fret:f,strength,true_midi:truth,pred_midi:midi(p.frequency),pitch_hz:p.frequency,pitch_confidence:p.confidence,pitch_runtime_ms:pitchMs,feature_runtime_ms:featureMs,features:feats,...(compareFft?{baseline_features:baselineFeatures,baseline_feature_runtime_ms:baselineFeatureMs,max_power_abs_diff:maxPowerAbsDiff}:{}),...(baseline?{baseline_pred_midi:midi(baseline.value.frequency),baseline_pitch_hz:baseline.value.frequency,baseline_pitch_confidence:baseline.value.confidence,baseline_pitch_runtime_ms:baseline.ms}:{}),...(parityDebug?{parity_debug:parityDebug}:{})});
   done++;if(done===1||done%25===0)console.log("BROWSER EXTRACT ["+done+"]");
 }
 fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(rows));
