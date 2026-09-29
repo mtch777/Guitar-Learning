@@ -1,0 +1,75 @@
+name: Step 18 dB floor ablation
+
+"on":
+  push:
+    paths:
+      - "training/step18_browser_frontend.mjs"
+      - "training/run_step18_db_floor_ablation.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke_then_real:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install validation dependencies
+        run: pip install numpy pandas scikit-learn xgboost librosa
+      - name: Preflight
+        run: |
+          node --check training/step18_browser_frontend.mjs
+          python -m py_compile training/run_step18_db_floor_ablation.py
+      - name: Extract original JS features
+        run: node training/step18_browser_frontend.mjs training/data/ringing_384 training/results/step18_db_local.json
+      - name: Extract segment-global dB floor JS features
+        run: node training/step18_browser_frontend.mjs training/data/ringing_384 training/results/step18_db_global.json --global-db-floor --debug
+      - name: Verify global dB and MFCC on identical JS mel samples
+        run: |
+          python - <<'PY'
+          import json
+          import librosa
+          import numpy as np
+          rows = json.load(open('training/results/step18_db_global.json'))
+          assert len(rows) == 384
+          maximum_db = maximum_mfcc = 0.0
+          for row in rows:
+              trace = row['parity_debug']['trace']
+              mel = np.asarray([frame['mel'] for frame in trace]).T
+              db = np.asarray([frame['db'] for frame in trace]).T
+              mfcc = np.asarray([frame['mfcc'] for frame in trace]).T
+              maximum_db = max(maximum_db, float(np.max(np.abs(librosa.power_to_db(mel) - db))))
+              maximum_mfcc = max(maximum_mfcc, float(np.max(np.abs(librosa.feature.mfcc(S=db,n_mfcc=13) - mfcc))))
+          print('Exact-input max |dB difference|:', maximum_db)
+          print('Exact-input max |MFCC difference|:', maximum_mfcc)
+          assert maximum_db < 1e-9 and maximum_mfcc < 1e-9
+          PY
+      - name: Smoke full four-path cycle on disagreements and controls
+        run: python -u training/run_step18_db_floor_ablation.py training/results/step18_db_local.json training/results/step18_db_global.json --out training/results/step18_db_smoke --smoke
+      - name: Gate real run on smoke outputs
+        run: |
+          test -f training/results/step18_db_smoke/summary.json
+          test -f training/results/step18_db_smoke/predictions.csv
+          test -f training/results/step18_db_smoke/decision_traces.json
+      - name: Real run all 384 and assert unchanged original baseline
+        run: python -u training/run_step18_db_floor_ablation.py training/results/step18_db_local.json training/results/step18_db_global.json --out training/results/step18_db_real
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-db-floor-smoke
+          path: training/results/step18_db_smoke
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-db-floor-real
+          path: training/results/step18_db_real
+          if-no-files-found: warn
