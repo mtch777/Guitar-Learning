@@ -37,14 +37,16 @@ def main():
    raw=model.predict_proba(sc.transform(X[j][te]))
    for ci,s in enumerate(classes):P[j][te,s-1]=raw[:,ci]
   e=time.time()-st;print(f"STAGEB FOLD [{n}] MIDI {m} elapsed={e:.1f}s",flush=True)
- idx=np.where(evalmask)[0];pred=[];conf=[]
+ idx=np.where(evalmask)[0];pred=[];conf=[];oracle_pred=[];oracle_conf=[]
  for i in idx:
   if pm[i]<0:q=np.mean([P[j][i] for j in range(3)],axis=0)
   else:q=np.mean([mask(P[j][i],pm[i]) for j in range(3)],axis=0)
   pred.append(int(np.argmax(q)+1));conf.append(float(np.max(q)))
- pred=np.array(pred);tm=mids[idx];ts=truth[idx];pp=pm[idx];pitch=pp==tm;string=pred==ts;both=pitch&string
- out=pd.DataFrame({"file":df.file.iloc[idx],"true_midi":tm,"pred_midi":pp,"true_string":ts,"pred_string":pred,"confidence":conf,"pitch_correct":pitch,"string_correct":string,"tuple_correct":both})
+  oracle_q=np.mean([mask(P[j][i],mids[i]) for j in range(3)],axis=0)
+  oracle_pred.append(int(np.argmax(oracle_q)+1));oracle_conf.append(float(np.max(oracle_q)))
+ pred=np.array(pred);oracle_pred=np.array(oracle_pred);tm=mids[idx];ts=truth[idx];pp=pm[idx];pitch=pp==tm;string=pred==ts;oracle_string=oracle_pred==ts;both=pitch&string
+ out=pd.DataFrame({"file":df.file.iloc[idx],"true_midi":tm,"pred_midi":pp,"true_string":ts,"pred_string":pred,"confidence":conf,"oracle_midi_pred_string":oracle_pred,"oracle_midi_confidence":oracle_conf,"pitch_correct":pitch,"string_correct":string,"oracle_midi_string_correct":oracle_string,"tuple_correct":both})
  out.to_csv(a.out/"browser_pipeline_predictions.csv",index=False)
- summary={"step":18,"phase":"automated_browser_runtime","smoke":a.smoke,"recordings_scored":len(idx),"browser_frontend":"JS custom YIN 240ms + Meyda MFCC 3x40ms","pitch_correct":int(pitch.sum()),"pitch_accuracy":float(pitch.mean()),"string_correct_all":int(string.sum()),"string_accuracy":float(string.mean()),"string_accuracy_given_correct_pitch":float(string[pitch].mean()) if pitch.any() else 0,"tuple_correct":int(both.sum()),"tuple_accuracy":float(both.mean()),"mean_js_pitch_runtime_ms":float(df.pitch_runtime_ms.iloc[idx].mean()),"mean_js_feature_runtime_ms":float(df.feature_runtime_ms.iloc[idx].mean()),"acceptance":{"pipeline_completed":True,"no_trainer_context":True}}
+ summary={"step":18,"phase":"automated_browser_runtime","smoke":a.smoke,"recordings_scored":len(idx),"browser_frontend":"JS custom YIN 240ms + custom librosa-like MFCC 3x40ms","pitch_correct":int(pitch.sum()),"pitch_accuracy":float(pitch.mean()),"string_correct_all":int(string.sum()),"string_accuracy":float(string.mean()),"oracle_midi_string_correct":int(oracle_string.sum()),"oracle_midi_string_accuracy":float(oracle_string.mean()),"string_accuracy_given_correct_pitch":float(string[pitch].mean()) if pitch.any() else 0,"tuple_correct":int(both.sum()),"tuple_accuracy":float(both.mean()),"mean_js_pitch_runtime_ms":float(df.pitch_runtime_ms.iloc[idx].mean()),"mean_js_feature_runtime_ms":float(df.feature_runtime_ms.iloc[idx].mean()),"acceptance":{"pipeline_completed":True,"no_trainer_context":True}}
  (a.out/"summary.json").write_text(json.dumps(summary,indent=2));print(json.dumps(summary,indent=2))
 if __name__=="__main__":main()
