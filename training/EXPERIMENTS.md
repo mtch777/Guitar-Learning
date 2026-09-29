@@ -261,6 +261,17 @@ The earlier comparison of browser Stage-B **374/384** to Python **376/384** mixe
 
 Run `36522192223` (Smoke → Real passed, commit `615f608`) tested librosa-resampled float WAVs through the unchanged JS frontend and classifier. Detected-MIDI Stage B remained **374/384**. Compared with JS linear resampling, `s8_f00_soft` was rescued and `s5_f04_normal` regressed. This rules out changing resampling alone as a demonstrated accuracy fix. The JS STFT/power math remains validated; do not alter it. Investigate the four decision disagreements with ground-truth MIDI before attributing the residual to a DSP stage.
 
+Run `36590513302` (Smoke → gated Real passed, workflow commit `2e6add6`) performed a controlled 2×2 feature crossover on all 384 recordings, with ground-truth MIDI masks and the same leave-one-MIDI-out folds, classifier settings, and three 40 ms frames:
+
+| Training features | Test features | Correct / 384 |
+|---|---|---:|
+| Python | Python | **376** (reproduced reference) |
+| Python | JS | **376** (two rescues, two regressions versus Python/Python) |
+| JS | Python | **373** (one rescue, four regressions versus Python/Python) |
+| JS | JS | **375** (reproduced browser true-MIDI baseline) |
+
+The four Python/Python versus JS/JS prediction disagreements are `s3_f00_soft` (3→2), `s5_f06_normal` (3→5, a JS rescue), `s7_f00_soft` (7→6), and `s8_f00_soft` (7→6, both wrong). Python-trained models continue to score 376 when tested on JS features, while JS-trained models score 373 on Python test features. **Training-feature differences have the stronger demonstrated effect**, but test-feature differences also swap individual decisions and recover two of the JS-trained/Python-tested errors. The experiment identifies which side of model fitting contributes; it does not yet identify a specific DSP stage or justify changing STFT. The artifact preserves per-frame raw and masked class probabilities and MFCC feature vectors for all four disagreements and two controls.
+
 
 ### Step 18 browser/runtime validation — in progress
 
