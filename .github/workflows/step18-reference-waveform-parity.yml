@@ -1,0 +1,110 @@
+name: Step 18 matched-waveform parity
+
+"on":
+  push:
+    paths:
+      - ".github/workflows/step18-reference-waveform-parity.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke_then_real:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install validation dependencies
+        run: pip install numpy pandas scikit-learn xgboost librosa soundfile
+      - name: Preflight
+        run: |
+          node --check training/step18_browser_frontend.mjs
+          python -m py_compile training/run_step18_browser_validation.py training/run_step18_feature_crossover.py
+      - name: Produce 384 librosa-resampled float WAVs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import librosa
+          import soundfile as sf
+          source=Path('training/data/ringing_384')
+          target=Path('training/results/step18_matched_wavs')
+          target.mkdir(parents=True,exist_ok=True)
+          files=sorted(source.glob('s*_f*_*_ringing.wav'))
+          assert len(files)==384
+          for i,file in enumerate(files,1):
+              y,sr=librosa.load(file,sr=22050,mono=True)
+              sf.write(target/file.name,y,sr,subtype='FLOAT')
+              if i==1 or i%25==0:print(f'MATCHED WAV [{i}/384]',flush=True)
+          PY
+      - name: Extract corrected JS features
+        run: node training/step18_browser_frontend.mjs training/results/step18_matched_wavs training/results/step18_matched_features.json --global-db-floor --constant-pad
+      - name: Measure full Python-JS feature parity
+        run: |
+          python - <<'PY'
+          import json
+          import numpy as np
+          import librosa
+          from training.run_step18_feature_crossover import mfcc26
+          rows=json.load(open('training/results/step18_matched_features.json'))
+          assert len(rows)==384
+          errors=[]
+          for i,row in enumerate(rows,1):
+              y,sr=librosa.load('training/data/ringing_384/'+row['file'],sr=22050,mono=True)
+              y,_=librosa.effects.trim(y,top_db=50)
+              for frame in range(3):
+                  ref=mfcc26(y,sr,frame*.04,(frame+1)*.04)
+                  js=np.asarray(row['features'][frame])
+                  errors.append({'file':row['file'],'frame':frame,'rmse':float(np.sqrt(np.mean((ref-js)**2)))})
+              if i==1 or i%25==0:print(f'PARITY [{i}/384]',flush=True)
+          values=[r['rmse'] for r in errors]
+          summary={'frames':len(errors),'mean_rmse':float(np.mean(values)),
+                   'max_rmse':float(np.max(values)),
+                   'over_1e-4':[r for r in errors if r['rmse']>1e-4]}
+          out='training/results/step18_matched_parity.json'
+          open(out,'w').write(json.dumps(summary,indent=2))
+          print(json.dumps({k:v for k,v in summary.items() if k!='over_1e-4'},indent=2))
+          print('frames above 1e-4:',len(summary['over_1e-4']))
+          assert summary['max_rmse']<1e-3,'Exact-waveform feature parity failed'
+          PY
+      - name: Smoke complete browser classification cycle
+        run: python -u training/run_step18_browser_validation.py training/results/step18_matched_features.json --out training/results/step18_matched_smoke --smoke
+      - name: Gate real run on smoke outputs
+        run: |
+          test -f training/results/step18_matched_smoke/summary.json
+          test -f training/results/step18_matched_smoke/browser_pipeline_predictions.csv
+      - name: Real run all 384
+        run: python -u training/run_step18_browser_validation.py training/results/step18_matched_features.json --out training/results/step18_matched_real
+      - name: Print ground-truth-MIDI Stage-B accuracy
+        run: |
+          python - <<'PY'
+          import json
+          s=json.load(open('training/results/step18_matched_real/summary.json'))
+          print('Matched-waveform Stage B, true MIDI:',s['oracle_midi_string_correct'],'/384')
+          print('Independent Python reference: 376/384')
+          print('Matched-waveform Stage B, detected MIDI:',s['string_correct_all'],'/384')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-matched-waveform-parity
+          path: training/results/step18_matched_parity.json
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-matched-waveform-smoke
+          path: training/results/step18_matched_smoke
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-matched-waveform-real
+          path: training/results/step18_matched_real
+          if-no-files-found: warn
