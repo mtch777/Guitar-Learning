@@ -8,6 +8,8 @@ import {crossFitFusion} from '../src/classifier/isotonic-fusion.js';
 const [, , pythonJson, modelsDir, audioDir, outJson] = process.argv;
 if(!outJson)throw Error('usage: node check_step18_fusion_oof.mjs python_probs.json models_dir trimmed_f32_dir out.json');
 const rawAudio=process.argv.includes('--raw');
+const pitchFlag=process.argv.indexOf('--pitch-features');
+const pitch= pitchFlag<0?null:JSON.parse(fs.readFileSync(process.argv[pitchFlag+1]));
 const rows=JSON.parse(fs.readFileSync(pythonJson));
 const modelCache=new Map(),out=[],stats=Object.fromEntries(['baseline','harmonic','mfcc'].map(x=>[x,{rawMatches:0,maskedMatches:0,maxAbs:0}]));
 for(const row of rows){
@@ -17,7 +19,9 @@ for(const row of rows){
   const samples=new Float32Array(bytes.buffer,bytes.byteOffset,bytes.byteLength/4);
   const y=rawAudio?prepareRingingAudio(samples,44100):samples;
   const base=extractRingingFeatures(y,22050,{preprocessed:true});
-  const features={baseline:base,harmonic:[...base,...harmonicFusionFeatures(y,22050,row.midi)],mfcc:earlyMfccFusionFeatures(y)};
+  const featureMidi=pitch?pitch[row.file]:row.midi;
+  if(!Number.isInteger(featureMidi))throw Error(`Missing feature MIDI for ${row.file}`);
+  const features={baseline:base,harmonic:[...base,...harmonicFusionFeatures(y,22050,featureMidi)],mfcc:earlyMfccFusionFeatures(y)};
   const result={file:row.file,midi:row.midi,string:row.string};
   for(const name of ['baseline','harmonic','mfcc']){
     const p=predictFusionModel(models[name],features[name]),q=row[name+'_probabilities'],s=stats[name];

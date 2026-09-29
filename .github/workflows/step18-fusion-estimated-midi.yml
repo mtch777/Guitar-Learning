@@ -1,0 +1,58 @@
+name: Step 18 fusion3 estimated-MIDI features
+
+"on":
+  push:
+    paths:
+      - ".github/workflows/step18-fusion-estimated-midi.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke_then_real:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned dependencies
+        run: pip install numpy==2.3.5 scikit-learn==1.8.0 xgboost==3.4.1 pandas joblib soundfile
+      - name: Extract original-WAV features with estimated-MIDI harmonic centers
+        run: |
+          python training/prepare_step18_raw_audio.py training/data/ringing_384 training/results/reference/fusion_selector_oof_384.json --out /tmp/fusion_raw
+          node training/export_step18_raw_js_features.mjs training/results/reference/fusion_selector_oof_384.json /tmp/fusion_raw /tmp/fusion_estimated_features.json training/results/reference/step18_reference_yin_midi_384.json
+      - name: Smoke on seven held-out MIDI folds
+        run: |
+          python -u training/run_step18_fusion_oof_export.py /tmp/fusion_estimated_features.json --out /tmp/fusion_smoke --smoke
+          node training/check_step18_fusion_oof.mjs /tmp/fusion_smoke/python_oof_probabilities.json /tmp/fusion_smoke /tmp/fusion_raw /tmp/fusion_smoke_result.json --raw --pitch-features training/results/reference/step18_reference_yin_midi_384.json
+          node training/score_step18_fusion_pitch.mjs /tmp/fusion_smoke/python_oof_probabilities.json training/results/reference/step18_reference_yin_midi_384.json /tmp/fusion_tuple_smoke.json --smoke
+      - name: Gate Real on Smoke
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("/tmp/fusion_smoke_result.json")).report,t=JSON.parse(fs.readFileSync("/tmp/fusion_tuple_smoke.json")).report;if(p.recordings!==36||t.recordings!==36||Object.values(p.models).some(x=>x.maskedMatches!==36))process.exit(1)'
+      - name: Real on 61 held-out MIDI folds
+        run: |
+          python -u training/run_step18_fusion_oof_export.py /tmp/fusion_estimated_features.json --out /tmp/fusion_real
+          node training/check_step18_fusion_oof.mjs /tmp/fusion_real/python_oof_probabilities.json /tmp/fusion_real /tmp/fusion_raw /tmp/fusion_real_result.json --raw --pitch-features training/results/reference/step18_reference_yin_midi_384.json
+          node training/score_step18_fusion_pitch.mjs /tmp/fusion_real/python_oof_probabilities.json training/results/reference/step18_reference_yin_midi_384.json /tmp/fusion_tuple_real.json
+      - name: Gate complete parity
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("/tmp/fusion_real_result.json")).report,t=JSON.parse(fs.readFileSync("/tmp/fusion_tuple_real.json")).report;if(p.recordings!==384||t.recordings!==384||p.fusionDecisionAgreement!==384||Object.values(p.models).some(x=>x.maskedMatches!==384))process.exit(1)'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-fusion3-estimated-midi
+          path: |
+            /tmp/fusion_estimated_features.json
+            /tmp/fusion_smoke_result.json
+            /tmp/fusion_tuple_smoke.json
+            /tmp/fusion_real_result.json
+            /tmp/fusion_tuple_real.json
+            /tmp/fusion_real/python_oof_probabilities.json
+            /tmp/fusion_real/midi_*/*.json
+          if-no-files-found: warn

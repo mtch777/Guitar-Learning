@@ -5,7 +5,7 @@ import {crossFitFusion,FUSION_MODELS} from '../src/classifier/isotonic-fusion.js
 const [, , probsPath,pitchPath,out,...flags]=process.argv;
 if(!out)throw Error('usage: node score_step18_fusion_pitch.mjs oof_probs.json pitch_midi.json out.json [--smoke]');
 const rows=JSON.parse(fs.readFileSync(probsPath)),pitch=JSON.parse(fs.readFileSync(pitchPath));
-if(rows.length!==384)throw Error('Expected 384 OOF probabilities');
+if(rows.length!==384&&!(flags.includes('--smoke')&&rows.length===36))throw Error('Expected 384 OOF probabilities or 36 smoke rows');
 const inputs=rows.map(r=>{
  const detected=pitch[r.file],entry={file:r.file,midi:r.midi,string:r.string,detected_midi:detected};
  for(const name of FUSION_MODELS){const p=maskFusionProbabilities(r[name+'_probabilities'],detected);
