@@ -1,10 +1,6 @@
 name: Step 18 dB floor ablation
 
 "on":
-  push:
-    paths:
-      - "training/step18_browser_frontend.mjs"
-      - "training/run_step18_db_floor_ablation.py"
   workflow_dispatch:
 
 permissions:
