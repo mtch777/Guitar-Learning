@@ -1656,3 +1656,56 @@ Artifact SHA256: `77743ed19d9564ccc4253e37d940615bbd11eb23b250be77fd0745e13f5ae5
 **Step 17 conclusion:** the best tested complete pipeline was **YIN 240 ms → calibrated fusion3 at 370/384 = 96.3542% end-to-end**. With oracle pitch, fusion remains **379/384**, versus **376/384** for temporal MFCC. Fusion therefore buys +3 correct Stage-B decisions but adds roughly 33 ms Python processing and substantially more feature complexity. With YIN240, only 5 of 375 correct-pitch cases remain string errors, making Stage A the larger remaining end-to-end bottleneck.
 
 **Next:** Step 18 — browser/runtime + controlled live validation. Run **Smoke test → Real run**. Treat this as the production acceptance gate: prove Python↔browser parity, validate Stage-A YIN/onset behavior and Stage-B probabilities/masking, measure real browser decision latency/CPU, and test controlled live notes/transitions/repeats/noise before selecting fusion versus temporal MFCC for production. Preserve outputs and do not rerun completed experiments merely to regenerate data.
+
+
+---
+
+# Step 18 progress — browser parity and production acceptance
+
+Step 18 is active. The browser validation infrastructure now executes the required **Smoke test → gated Real run** over the stored 384-recording dataset and includes a deep Python↔JS numerical parity harness.
+
+## Browser pipeline status
+
+After replacing the mismatched Meyda MFCC representation with a browser-native librosa-like implementation and then matching librosa-style frame-RMS trimming, the latest successful real run produced:
+
+- pitch: **373/384 = 97.1354%**
+- temporal Stage-B string: **374/384 = 97.3958%**
+- conditional string accuracy with correct pitch: **97.5871%**
+- end-to-end tuple: **364/384 = 94.7917%**
+- mean JS pitch runtime: **~3.54 ms**
+- mean JS feature runtime: **~123.16 ms**
+
+The temporal Python reference is **376/384 = 97.9167%**, leaving a two-recording browser gap. The brute-force JS DFT is intentionally unoptimized until numerical parity is resolved.
+
+## What has now been verified
+
+The trim correction reduced the waveform discrepancy dramatically. The current trimmed-head comparison has mean RMSE **0.0003124** and correlation **0.999638**; segment and centered-waveform correlations are likewise ~0.999.
+
+A new isolation test then removed all upstream disagreement by feeding librosa STFT the **exact JS-centered waveform samples**. Result:
+
+- power-spectrum mean RMSE: **4.5826e-15**
+- maximum RMSE: **8.9297e-14**
+- correlation: **1.0**
+
+This verifies that the JS Hann-window + DFT/power implementation is mathematically equivalent to the librosa STFT reference for identical input. **Do not modify the STFT/FFT implementation in response to the ordinary power mismatch.**
+
+The remaining ordinary-path differences are downstream consequences of a small upstream sample-level discrepancy:
+
+- ordinary power: RMSE **0.396885**, corr **0.974313**
+- mel: RMSE **0.008376**, corr **0.986021**
+- dB: RMSE **3.66835**, corr **0.983492**
+- MFCC: RMSE **6.11716**, corr **0.997854**
+
+Therefore the current investigation target is **before STFT**: determine the residual difference in decoded/resampled/trimmed waveform samples and/or exact trim boundary behavior. Fix only that layer first, rerun Smoke → gated Real, and see whether browser temporal Stage-B reaches the Python 376/384 reference.
+
+## Continuation order
+
+1. Resolve residual upstream waveform parity; do not touch verified STFT math.
+2. Smoke test the complete browser pipeline.
+3. Gated Real run over all 384 recordings and compare against 376/384 temporal reference.
+4. Once parity is accepted, replace/optimize the brute-force DFT and verify no accuracy regression.
+5. Port and compare browser fusion3 against browser temporal120.
+6. Build the guided live-test UI with explicit string/fret/pick-strength instructions and automatic accepted/rejected feedback.
+7. Controlled live validation across all strings, fret ranges, strengths, repeats, transitions, overlap cases, high frets, known S5f24 hard cases, silence/noise, and first/stable decision timing.
+
+Latest successful Step-18 run: `36516288014`; head `84e8e50586f57a12c4244cde81f80b7a7a7979fa`. Smoke and Real both passed.
