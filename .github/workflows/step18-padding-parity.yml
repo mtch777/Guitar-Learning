@@ -1,10 +1,6 @@
 name: Step 18 padding parity ablation
 
 "on":
-  push:
-    paths:
-      - "training/step18_browser_frontend.mjs"
-      - "training/run_step18_padding_ablation.py"
   workflow_dispatch:
 
 permissions:
