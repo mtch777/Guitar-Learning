@@ -86,8 +86,9 @@ function powerSpectrum(frame){
   return out;
 }
 const MEL512=melBasis(22050,512,40);
-function mfcc26(seg,sr,debug=false,globalDbFloor=false){
-  const nfft=512,hop=128,nmels=40,nmfcc=13,centered=reflectPad(seg,nfft>>1),frames=[],trace=[],spectra=[],melFrames=[];
+function mfcc26(seg,sr,debug=false,globalDbFloor=false,constantPad=false){
+  const nfft=512,hop=128,nmels=40,nmfcc=13,centered=constantPad?new Float64Array(seg.length+nfft):reflectPad(seg,nfft>>1),frames=[],trace=[],spectra=[],melFrames=[];
+  if(constantPad)centered.set(seg,nfft>>1);
   for(let start=0;start+nfft<=centered.length;start+=hop){
     const p=powerSpectrum(centered.slice(start,start+nfft)),mel=new Float64Array(nmels);
     for(let m=0;m<nmels;m++){let s=0;for(let k=0;k<p.length;k++)s+=MEL512[m][k]*p[k];mel[m]=Math.max(1e-10,s)}
@@ -107,7 +108,7 @@ function resampleLinear(input,inRate,outRate=22050){
   if(inRate===outRate)return input;const n=Math.max(1,Math.round(input.length*outRate/inRate)),out=new Float32Array(n),ratio=inRate/outRate;
   for(let i=0;i<n;i++){const p=i*ratio,j=Math.floor(p),f=p-j,a=input[Math.min(j,input.length-1)],b=input[Math.min(j+1,input.length-1)];out[i]=a+(b-a)*f}return out;
 }
-const args=process.argv.slice(2),dir=args[0],out=args[1],smoke=args.includes("--smoke"),debug=args.includes("--debug"),globalDbFloor=args.includes("--global-db-floor");
+const args=process.argv.slice(2),dir=args[0],out=args[1],smoke=args.includes("--smoke"),debug=args.includes("--debug"),globalDbFloor=args.includes("--global-db-floor"),constantPad=args.includes("--constant-pad");
 if(!dir||!out)throw new Error("usage: node step18_browser_frontend.mjs WAV_DIR OUT_JSON [--smoke]");
 const files=fs.readdirSync(dir).filter(x=>RX.test(x)).sort(),rows=[];let done=0;
 for(const name of files){
@@ -119,7 +120,7 @@ for(const name of files){
   const t0=performance.now(),p=yin(y.slice(0,Math.min(y.length,Math.round(.24*sr))),sr),pitchMs=performance.now()-t0;
   const feats=[];let featureMs=0,parityDebug=null;
   for(const [fi,[a,b]] of [[0,.04],[.04,.08],[.08,.12]].entries()){
-    const q=performance.now(),seg=y.slice(Math.round(a*sr),Math.round(b*sr)),z=mfcc26(seg,sr,debug&&fi===0,globalDbFloor);
+    const q=performance.now(),seg=y.slice(Math.round(a*sr),Math.round(b*sr)),z=mfcc26(seg,sr,debug&&fi===0,globalDbFloor,constantPad);
     if(debug&&fi===0){parityDebug={source_sample_rate:raw.sampleRate,resampled_head:Array.from(resampled.slice(0,2048)),trimmed_head:Array.from(y.slice(0,1024)),segment:Array.from(seg),centered:z.centered,trace:z.trace};feats.push(z.features)}else feats.push(z);
     featureMs+=performance.now()-q;
   }
