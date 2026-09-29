@@ -250,3 +250,32 @@ Do not rerun completed experiments merely to regenerate outputs. Save metrics, p
 18. Browser/runtime + live-site validation — smoke → real
 
 See `training/research/Guitar-String-Analytics-Handoff-2026-09-27.md` for the full Steps 1–17 synthesis, revised direction, detailed methodology, implementation context and continuation instructions.
+
+
+### Step 18 browser/runtime validation — in progress
+
+The browser frontend now runs end-to-end on the 384-recording dataset with an exact **Smoke test → gated Real run** workflow. The original Meyda MFCC path was replaced by a browser-native librosa-like MFCC implementation; the summary label still says Meyda and is stale.
+
+Current browser real result after matching librosa-style frame-RMS trimming:
+
+- pitch: **373/384 = 97.1354%**
+- temporal Stage-B string accuracy: **374/384 = 97.3958%**
+- string accuracy conditional on correct pitch: **97.5871%**
+- end-to-end tuple: **364/384 = 94.7917%**
+- mean JS pitch runtime: **~3.54 ms**
+- mean JS MFCC feature runtime: **~123.16 ms** (brute-force DFT; optimization intentionally deferred until parity is solved)
+
+The Python temporal Stage-B reference remains **376/384 = 97.9167%**, so browser Stage-B is now only **2 recordings / 0.5208 pp** below the reference. Before the trim fix, browser Stage-B was 371/384; matching librosa-style trimming recovered three correct recordings.
+
+Deep numerical parity localized the remaining discrepancy. Trim/segment/centering are now very close to the Python waveform path (trimmed-head mean correlation **0.999638**). Most importantly, the isolated STFT test feeds Python the **exact JS-centered samples** and produces power spectra with mean RMSE **4.58e-15**, max RMSE **8.93e-14**, correlation **1.0**. Therefore the JS STFT/power-spectrum math itself is verified equivalent to librosa. The apparent ordinary power mismatch is caused by the small upstream waveform difference, which is amplified through power → mel → dB → MFCC.
+
+Current downstream parity from the ordinary independent Python/JS waveform paths:
+
+- power: mean RMSE **0.396885**, corr **0.974313**
+- mel: mean RMSE **0.008376**, corr **0.986021**
+- dB: mean RMSE **3.66835**, corr **0.983492**
+- MFCC: mean RMSE **6.11716**, corr **0.997854**
+
+Conclusion: **do not change STFT/FFT math.** It has now been isolated and verified exactly. The next parity work should identify/eliminate the remaining upstream sample-level difference (WAV loading/resampling/trim boundary semantics) and then rerun Smoke → gated Real. Only after temporal parity is accepted should the brute-force DFT be optimized and fusion3 be ported/compared in-browser.
+
+Latest successful run: `36516288014` (Smoke and Real both passed). Head: `84e8e50586f57a12c4244cde81f80b7a7a7979fa`.
