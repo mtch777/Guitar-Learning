@@ -1,0 +1,96 @@
+name: Step 18 librosa resampling ablation
+
+"on":
+  push:
+    paths:
+      - ".github/workflows/step18-resampling-ablation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install numpy pandas scikit-learn xgboost librosa soundfile
+      - name: Resample reference WAVs with librosa
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import librosa
+          import soundfile as sf
+
+          source = Path('training/data/ringing_384')
+          target = Path('training/results/step18_librosa_wavs')
+          target.mkdir(parents=True, exist_ok=True)
+          files = sorted(source.glob('s*_f*_*_ringing.wav'))
+          assert len(files) == 384, f'Expected 384 WAVs, found {len(files)}'
+          for index, file in enumerate(files, 1):
+              y, sr = librosa.load(file, sr=22050, mono=True)
+              assert sr == 22050
+              sf.write(target / file.name, y, sr, subtype='FLOAT')
+              if index == 1 or index % 25 == 0:
+                  print(f'RESAMPLED [{index}/384]', flush=True)
+          PY
+      - name: Extract browser features with identical downstream JS
+        run: node training/step18_browser_frontend.mjs training/results/step18_librosa_wavs training/results/step18_librosa_features.json
+      - name: Smoke test complete classification cycle
+        run: python -u training/run_step18_browser_validation.py training/results/step18_librosa_features.json --out training/results/step18_librosa_smoke --smoke
+      - name: Gate real run on smoke outputs
+        run: |
+          test -f training/results/step18_librosa_smoke/summary.json
+          test -f training/results/step18_librosa_smoke/browser_pipeline_predictions.csv
+      - uses: actions/upload-artifact@v4
+        with:
+          name: step18-librosa-features
+          path: training/results/step18_librosa_features.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-librosa-smoke
+          path: training/results/step18_librosa_smoke
+          if-no-files-found: warn
+
+  real:
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy pandas scikit-learn xgboost
+      - uses: actions/download-artifact@v4
+        with:
+          name: step18-librosa-features
+          path: training/results
+      - name: Real run all 384 recordings
+        run: python -u training/run_step18_browser_validation.py training/results/step18_librosa_features.json --out training/results/step18_librosa_real
+      - name: Report resampling effect against existing 374 baseline
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('training/results/step18_librosa_real/summary.json')
+          result = json.loads(p.read_text())
+          print(json.dumps(result, indent=2))
+          print(f"Stage-B change vs current JS-linear baseline: {result['string_correct_all'] - 374:+d}/384")
+          print('Python/librosa reference: 376/384')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-librosa-real
+          path: training/results/step18_librosa_real
+          if-no-files-found: warn
