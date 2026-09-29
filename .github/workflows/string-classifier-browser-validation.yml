@@ -5,7 +5,8 @@ name: Step 18 browser runtime validation
     paths:
       - ".github/workflows/string-classifier-browser-validation.yml"
       - "training/step18_browser_frontend.mjs"
-      - "training/run_step18_browser_validation.py"\n      - "training/run_step18_parity.py"
+      - "training/run_step18_browser_validation.py"
+      - "training/run_step18_parity.py"
   workflow_dispatch:
 
 permissions:
