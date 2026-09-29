@@ -46,6 +46,41 @@ function yin(y,sr,threshold=.18){
   if(tau<0){tau=lo;for(let t=lo+1;t<=hi;t++)if(cm[t]<cm[tau])tau=t}
   const pt=parabolic(cm,tau);return {frequency:pt>0?sr/pt:NaN,confidence:Math.max(0,Math.min(1,1-cm[tau]))}
 }
+// Opt-in reproduction of the Step-9 librosa YIN240 decision: 4096-sample
+// centered zero-padded frames, 1024 hop, 0.1 trough threshold, median F0.
+function yinReference(y,sr){
+  if(!y.length)return {frequency:NaN,confidence:0};
+  const n=4096,hop=n>>2,minP=Math.floor(sr/MAX_FREQ),maxP=Math.min(Math.ceil(sr/MIN_FREQ),n-1);
+  const frequencies=[],confidences=[];
+  for(let start=0;start<=y.length;start+=hop){
+    const frame=new Float64Array(n);
+    for(let t=0;t<n;t++){const i=start+t-(n>>1);if(i>=0&&i<y.length)frame[t]=y[i]}
+    let energy=0;for(const v of frame)energy+=v*v;
+    const cm=new Float64Array(maxP+1);let head=0,run=0;
+    for(let lag=1;lag<=maxP;lag++){
+      head+=frame[lag-1]*frame[lag-1];
+      let acf=0;for(let t=0;t<n-lag;t++)acf+=frame[t]*frame[t+lag];
+      const d=2*(energy-acf)-head;run+=d;cm[lag]=d*lag/(run+Number.MIN_VALUE);
+    }
+    let best=minP;
+    for(let lag=minP+1;lag<=maxP;lag++)if(cm[lag]<cm[best])best=lag;
+    let selected=best;
+    for(let lag=minP;lag<=maxP;lag++){
+      const trough=lag===minP?cm[lag]<cm[lag+1]:lag===maxP?cm[lag]<cm[lag-1]:cm[lag]<cm[lag-1]&&cm[lag]<=cm[lag+1];
+      if(trough&&cm[lag]<.1){selected=lag;break}
+    }
+    let shift=0;
+    if(selected>minP&&selected<maxP){
+      const a=cm[selected+1]+cm[selected-1]-2*cm[selected],b=(cm[selected+1]-cm[selected-1])/2;
+      if(Math.abs(b)<Math.abs(a))shift=-b/a;
+    }
+    frequencies.push(sr/(selected+shift));
+    confidences.push(Math.max(0,Math.min(1,1-cm[selected])));
+  }
+  frequencies.sort((a,b)=>a-b);confidences.sort((a,b)=>a-b);
+  const middle=Math.floor(frequencies.length/2),median=a=>a.length%2?a[middle]:(a[middle-1]+a[middle])/2;
+  return {frequency:median(frequencies),confidence:median(confidences)};
+}
 function midi(hz){return Number.isFinite(hz)&&hz>0?Math.round(69+12*Math.log2(hz/440)):null}
 function trim(y,topDb=50,frameLength=2048,hopLength=512){
   // Match librosa.effects.trim(top_db=50): frame RMS, centered with constant padding,
@@ -108,7 +143,7 @@ function resampleLinear(input,inRate,outRate=22050){
   if(inRate===outRate)return input;const n=Math.max(1,Math.round(input.length*outRate/inRate)),out=new Float32Array(n),ratio=inRate/outRate;
   for(let i=0;i<n;i++){const p=i*ratio,j=Math.floor(p),f=p-j,a=input[Math.min(j,input.length-1)],b=input[Math.min(j+1,input.length-1)];out[i]=a+(b-a)*f}return out;
 }
-const args=process.argv.slice(2),dir=args[0],out=args[1],smoke=args.includes("--smoke"),debug=args.includes("--debug"),globalDbFloor=args.includes("--global-db-floor"),constantPad=args.includes("--constant-pad");
+const args=process.argv.slice(2),dir=args[0],out=args[1],smoke=args.includes("--smoke"),debug=args.includes("--debug"),globalDbFloor=args.includes("--global-db-floor"),constantPad=args.includes("--constant-pad"),referenceYin=args.includes("--reference-yin"),compareYin=args.includes("--compare-yin");
 if(!dir||!out)throw new Error("usage: node step18_browser_frontend.mjs WAV_DIR OUT_JSON [--smoke]");
 const files=fs.readdirSync(dir).filter(x=>RX.test(x)).sort(),rows=[];let done=0;
 for(const name of files){
@@ -117,14 +152,22 @@ for(const name of files){
   const fileBuffer=fs.readFileSync(path.join(dir,name));
   const raw=decodeWav(fileBuffer),mono=raw.channelData[0];
   const resampled=resampleLinear(mono,raw.sampleRate,22050),y=trim(resampled),sr=22050;
-  const t0=performance.now(),p=yin(y.slice(0,Math.min(y.length,Math.round(.24*sr))),sr),pitchMs=performance.now()-t0;
+  const pitchInput=y.slice(0,Math.min(y.length,Math.round(.24*sr)));
+  let p,pitchMs,baseline=null;
+  if(compareYin){
+    const timed=fn=>{const t=performance.now(),value=fn(pitchInput,sr);return {value,ms:performance.now()-t}};
+    let reference;
+    if(done%2===0){baseline=timed(yin);reference=timed(yinReference)}
+    else{reference=timed(yinReference);baseline=timed(yin)}
+    p=reference.value;pitchMs=reference.ms;
+  }else{const t=performance.now();p=(referenceYin?yinReference:yin)(pitchInput,sr);pitchMs=performance.now()-t}
   const feats=[];let featureMs=0,parityDebug=null;
   for(const [fi,[a,b]] of [[0,.04],[.04,.08],[.08,.12]].entries()){
     const q=performance.now(),seg=y.slice(Math.round(a*sr),Math.round(b*sr)),z=mfcc26(seg,sr,debug&&fi===0,globalDbFloor,constantPad);
     if(debug&&fi===0){parityDebug={source_sample_rate:raw.sampleRate,resampled_head:Array.from(resampled.slice(0,2048)),trimmed_head:Array.from(y.slice(0,1024)),segment:Array.from(seg),centered:z.centered,trace:z.trace};feats.push(z.features)}else feats.push(z);
     featureMs+=performance.now()-q;
   }
-  rows.push({file:name,string:s,fret:f,strength,true_midi:truth,pred_midi:midi(p.frequency),pitch_hz:p.frequency,pitch_confidence:p.confidence,pitch_runtime_ms:pitchMs,feature_runtime_ms:featureMs,features:feats,...(parityDebug?{parity_debug:parityDebug}:{})});
+  rows.push({file:name,string:s,fret:f,strength,true_midi:truth,pred_midi:midi(p.frequency),pitch_hz:p.frequency,pitch_confidence:p.confidence,pitch_runtime_ms:pitchMs,feature_runtime_ms:featureMs,features:feats,...(baseline?{baseline_pred_midi:midi(baseline.value.frequency),baseline_pitch_hz:baseline.value.frequency,baseline_pitch_confidence:baseline.value.confidence,baseline_pitch_runtime_ms:baseline.ms}:{}),...(parityDebug?{parity_debug:parityDebug}:{})});
   done++;if(done===1||done%25===0)console.log("BROWSER EXTRACT ["+done+"]");
 }
 fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(rows));
