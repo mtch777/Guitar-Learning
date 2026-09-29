@@ -310,3 +310,11 @@ Current downstream parity from the ordinary independent Python/JS waveform paths
 Conclusion: **do not change STFT/FFT math.** It has now been isolated and verified exactly. The next parity work should identify/eliminate the remaining upstream sample-level difference (WAV loading/resampling/trim boundary semantics) and then rerun Smoke → gated Real. Only after temporal parity is accepted should the brute-force DFT be optimized and fusion3 be ported/compared in-browser.
 
 Latest successful run: `36516288014` (Smoke and Real both passed). Head: `84e8e50586f57a12c4244cde81f80b7a7a7979fa`.
+
+### Live paired YIN pitch trial (2026-09-29)
+
+- Opt-in page: `live-yin-test.html`; normal trainer decisions are unchanged.
+- Same live microphone stream feeds the existing 4096-sample correlation detector and the reference-style YIN port on a rolling 240 ms window resampled to 22,050 Hz. Captures 1.2 seconds per labeled pluck and exports paired frame decisions, confidence, RMS, sample rate, and compute time.
+- Suggested grid: 8 physical strings (1 lowest) × frets 0/5/12/19/24 × soft/normal/hard × two repeats (240 independent plucks). Use `python training/summarize_live_yin.py exported.json` for paired pluck-level pitch accuracy and discordance; frames are never counted as independent trials.
+- Smoke: synthetic MIDI 27/32/51/63/75 at 22,050/44,100/48,000 Hz yielded the target reference YIN MIDI; report fixture counted a paired win; Vite production build passed.
+- Pending: actual guitarist/microphone trial. Reference confidence is uncalibrated; live string-classifier and lesson-gate accuracy cannot be concluded from this pitch-only trial. The new detector remains isolated from the normal trainer.
