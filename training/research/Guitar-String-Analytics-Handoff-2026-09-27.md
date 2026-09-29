@@ -13,6 +13,8 @@ The immediate goal is to identify which physical string/fret produced a note fro
 
 ## NEXT CHAT START HERE
 
+**2026-09-29 Step-18 update supersedes the parity investigation below.** Numerical parity is now resolved under matched preprocessing. Run `36606741095` passed Smoke → Real: with librosa-resampled float WAVs and opt-in JS constant padding plus segment-global dB flooring, MFCC mean RMSE was **3.99e-6** over 1,152 frames (max **1.54e-5**), and all **384/384 true-MIDI string predictions matched** the Python Step-15 reference; both scored **376/384**. Ordinary JS-linear deployment remains **375/384** under true MIDI, **374/384** under detected MIDI, with **364/384** complete tuples. The isolated resampling substitution and the isolated dB/padding correction produced no net deployed Stage-B improvement. The JS FFT/STFT math remains validated. Keep the corrected options experimental; proceed to Stage-A error analysis, runtime optimization, fusion comparison and guided live validation. See the latest Step-18 entries in `training/EXPERIMENTS.md` for crossover and ablation details. Older “outstanding issue” and “immediate next action” text below describes the historical state and is superseded by this update.
+
 **Do not restart the research program or rerun completed experiments. Continue Step 18 from the current parity investigation.**
 
 ### Exact current state
