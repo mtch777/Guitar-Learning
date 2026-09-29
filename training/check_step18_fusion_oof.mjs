@@ -1,18 +1,21 @@
 #!/usr/bin/env node
 import fs from 'node:fs';import path from 'node:path';
-import {extractRingingFeatures} from '../src/classifier/ringing-features.js';
+import {extractRingingFeatures,prepareRingingAudio} from '../src/classifier/ringing-features.js';
 import {harmonicFusionFeatures} from '../src/classifier/harmonic-fusion-features.js';
 import {earlyMfccFusionFeatures} from '../src/classifier/early-mfcc-fusion-features.js';
 import {predictFusionModel,maskFusionProbabilities} from '../src/classifier/xgboost-fusion-model.js';
 import {crossFitFusion} from '../src/classifier/isotonic-fusion.js';
 const [, , pythonJson, modelsDir, audioDir, outJson] = process.argv;
 if(!outJson)throw Error('usage: node check_step18_fusion_oof.mjs python_probs.json models_dir trimmed_f32_dir out.json');
+const rawAudio=process.argv.includes('--raw');
 const rows=JSON.parse(fs.readFileSync(pythonJson));
 const modelCache=new Map(),out=[],stats=Object.fromEntries(['baseline','harmonic','mfcc'].map(x=>[x,{rawMatches:0,maskedMatches:0,maxAbs:0}]));
 for(const row of rows){
   let models=modelCache.get(row.midi);
   if(!models){models=Object.fromEntries(['baseline','harmonic','mfcc'].map(name=>[name,JSON.parse(fs.readFileSync(path.join(modelsDir,`midi_${row.midi}`,`${name}.json`)))]));modelCache.set(row.midi,models);}
-  const bytes=fs.readFileSync(path.join(audioDir,row.file+'.f32')),y=new Float32Array(bytes.buffer,bytes.byteOffset,bytes.byteLength/4);
+  const bytes=fs.readFileSync(path.join(audioDir,row.file+'.f32'));
+  const samples=new Float32Array(bytes.buffer,bytes.byteOffset,bytes.byteLength/4);
+  const y=rawAudio?prepareRingingAudio(samples,44100):samples;
   const base=extractRingingFeatures(y,22050,{preprocessed:true});
   const features={baseline:base,harmonic:[...base,...harmonicFusionFeatures(y,22050,row.midi)],mfcc:earlyMfccFusionFeatures(y)};
   const result={file:row.file,midi:row.midi,string:row.string};
