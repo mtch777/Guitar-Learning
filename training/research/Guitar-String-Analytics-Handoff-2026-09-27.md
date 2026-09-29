@@ -10,6 +10,88 @@ The immediate goal is to identify which physical string/fret produced a note fro
 
 ---
 
+
+## NEXT CHAT START HERE
+
+**Do not restart the research program or rerun completed experiments. Continue Step 18 from the current parity investigation.**
+
+### Exact current state
+
+- Steps **1–17 are complete**. Their results, run IDs, artifacts, conclusions, and closed branches are documented below and in `training/EXPERIMENTS.md`.
+- Step **18 — browser/runtime + controlled live validation — is in progress**.
+- Latest successful Step-18 run: **36516288014**, head **84e8e50586f57a12c4244cde81f80b7a7a7979fa**.
+- Current browser temporal Stage-B result: **374/384 = 97.3958%**.
+- Python temporal Stage-B reference: **376/384 = 97.9167%**.
+- Remaining browser/Python Stage-B gap: **2 recordings / 0.5208 percentage points**.
+- Browser Stage-A pitch result: **373/384 = 97.1354%**.
+- Current end-to-end tuple result: **364/384 = 94.7917%**.
+- Current JS MFCC implementation is custom/librosa-like. Any result label saying **“Meyda MFCC” is stale** and should be corrected when convenient.
+
+### What has already been verified
+
+- WAV/browser extraction pipeline runs end-to-end.
+- Browser validation workflow correctly enforces **Smoke test → gated Real run**.
+- Audio is analyzed at **22,050 Hz**.
+- JS trimming was changed to match librosa's frame-RMS trim semantics: 2048-sample frame, 512-sample hop, `top_db=50`.
+- After that change, browser Stage-B improved from **371/384 → 374/384**.
+- Trimmed-head parity is now very close: mean correlation **0.999638**.
+- Segment extraction and reflect/center padding are also very close.
+- **JS STFT/power math has been isolated and verified equivalent to librosa.** When Python is fed the exact JS-centered samples, power-spectrum parity is effectively numerical precision: mean RMSE **4.58e-15**, max RMSE **8.93e-14**, correlation **1.0**.
+- Therefore **do not modify FFT/STFT/windowing math** based on the ordinary-path power mismatch.
+
+### Current outstanding issue
+
+A small **upstream waveform/sample difference** remains between the independent Python/librosa and JS paths. It occurs before the verified STFT calculation and is then amplified through power → mel → dB → MFCC.
+
+Ordinary independent-path parity currently shows approximately:
+
+- power RMSE **0.396885**, corr **0.974313**
+- mel RMSE **0.008376**, corr **0.986021**
+- dB RMSE **3.66835**, corr **0.983492**
+- MFCC RMSE **6.11716**, corr **0.997854**
+
+The next investigation should isolate whether the remaining sample-level difference comes from **WAV decoding, resampling, or exact trim-boundary semantics**. Do not optimize the DFT or port fusion3 until this parity question is resolved.
+
+### Immediate next action
+
+1. Compare Python and JS samples **before resampling**, **after resampling but before trim**, and **after trim**, including lengths and exact trim indices.
+2. Identify the **first** stage where samples diverge.
+3. Fix only that stage.
+4. Run the required **Smoke test** through the whole pipeline.
+5. Only if Smoke passes, run the gated **Real run**.
+6. Recheck whether browser temporal Stage-B reaches the Python reference **376/384**.
+7. Once temporal parity is accepted, optimize the current brute-force DFT/runtime.
+8. Port and compare browser **fusion3** against temporal120.
+9. Then build the **guided live-validation UI** and perform controlled live guitar testing.
+
+### Non-negotiable experiment/workflow rules
+
+- Every experiment step uses exactly **Smoke test → Real run**.
+- Smoke must exercise the whole cycle with the smallest practical real-data workload; Real starts only if Smoke succeeds.
+- **Do not rerun completed experiments** just to recreate outputs. Existing results are preserved.
+- Refetch the latest GitHub blob SHA immediately before updating an existing file.
+- Preserve raw acoustic output separately from candidate-mask, temporal/fusion, and trainer-context decisions.
+- Trainer context must remain a guarded/soft layer; Step 15 proved that stale authoritative context can be catastrophically wrong.
+- Keep the project's intentional string convention: **String 1 = lowest-pitched; String 8 = highest-pitched**.
+- For repo changes, provide the deployed Pages URL with `?v=<shortcommit>`.
+- The user wants execution, not long planning narration.
+- Until Step 18 is complete, end project-status responses with a concise **Remaining experiment steps** section.
+
+### Live-validation requirements once automated parity is complete
+
+The user is ready to play the guitar when requested. Do not make them interpret raw diagnostics. The live UI must explicitly tell them:
+
+- physical string number using this project's convention
+- fret
+- requested pick strength: soft / normal / hard
+- when to mute, wait, and repluck
+- whether the attempt was accepted or rejected and why
+- the next target automatically
+- progress count
+
+Controlled validation must cover all 8 strings, same-MIDI/different-string cases, fret ranges, pick strengths, repeats, transitions, S4/S5/S6 overlap cases, high frets, the known difficult S5-fret-24 cases, and silence/noise. Log detected MIDI/cents, confidence, string probabilities, candidate mask, temporal/fusion output, final choice, context source, and first/stable decision timing.
+
+
 ## Project / production context
 
 - Repository: `mtch777/Guitar-Learning`
