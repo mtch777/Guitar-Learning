@@ -12,7 +12,12 @@ def main():
  for r in rows:
   d=r.get("parity_debug")
   if not d:continue
-  y,sr=librosa.load(a.wav_dir/r["file"],sr=22050,mono=True);yt,idx=librosa.effects.trim(y,top_db=50);seg=yt[:int(.04*sr)]
+  native,native_sr=librosa.load(a.wav_dir/r["file"],sr=None,mono=True)
+  y,sr=librosa.load(a.wav_dir/r["file"],sr=22050,mono=True)
+  # Reproduce the browser's current linear resampler independently to isolate resampling from trimming/STFT.
+  n=max(1,round(len(native)*22050/native_sr)); pos=np.arange(n,dtype=float)*(native_sr/22050); j=np.floor(pos).astype(int); frac=pos-j
+  linear=native[np.minimum(j,len(native)-1)]*(1-frac)+native[np.minimum(j+1,len(native)-1)]*frac
+  yt,idx=librosa.effects.trim(y,top_db=50);seg=yt[:int(.04*sr)]
   centered=np.pad(seg,(256,256),mode="reflect")
   S=np.abs(librosa.stft(seg,n_fft=512,hop_length=128,center=True,window="hann"))**2
   # Isolate STFT math from any upstream sample/resample/trim differences by feeding Python the exact JS-centered samples.
@@ -22,7 +27,7 @@ def main():
   D=librosa.power_to_db(M)
   C=librosa.feature.mfcc(S=D,n_mfcc=13)
   tr=d["trace"]; jp=np.asarray([x["power"] for x in tr]).T;jm=np.asarray([x["mel"] for x in tr]).T;jd=np.asarray([x["db"] for x in tr]).T;jc=np.asarray([x["mfcc"] for x in tr]).T
-  stages={"trimmed_head":st(yt[:1024],d["trimmed_head"]),"segment":st(seg,d["segment"]),"centered":st(centered,d["centered"]),"power":st(S,jp),"power_from_js_center":st(S_from_js_center,jp),"mel":st(M,jm),"db":st(D,jd),"mfcc":st(C,jc)}
+  stages={"resampled_head_librosa":st(y[:2048],d["resampled_head"]),"resampled_head_linear":st(linear[:2048],d["resampled_head"]),"trimmed_head":st(yt[:1024],d["trimmed_head"]),"segment":st(seg,d["segment"]),"centered":st(centered,d["centered"]),"power":st(S,jp),"power_from_js_center":st(S_from_js_center,jp),"mel":st(M,jm),"db":st(D,jd),"mfcc":st(C,jc)}
   reports.append({"file":r["file"],"librosa_trim_start":int(idx[0]),"librosa_trim_end":int(idx[1]),"stages":stages})
  names=list(reports[0]["stages"]);summary={}
  for n in names:
