@@ -4,7 +4,7 @@
 
 **Source of truth:** `mtch777/Guitar-Learning`, branch `main`. Step 18 remains open. Steps 1–17 are complete; keep their historical research below and the experiment ledger in `training/EXPERIMENTS.md`. Never infer production accuracy from a stored-WAV result. String **1 is lowest**, string **8 highest**; open MIDI `[27,34,39,44,49,54,58,63]`, frets 0–24.
 
-**Latest published matched-audio port:** `c46239af12dc4f0531492bc713637a14768c650a`; newer docs and the raw-input experiment may advance `main`. Refetch `main` and its current tree before editing. GitHub Pages: `https://mtch777.github.io/Guitar-Learning/`.
+**Latest published raw-input experiment:** `7a7e1011b8192ef73065050193c61c3d2a39304d`; this handoff documentation may advance `main` again. Refetch `main` and its current tree before editing. GitHub Pages: `https://mtch777.github.io/Guitar-Learning/`.
 
 ### Current measured results and boundaries
 
@@ -26,6 +26,8 @@
 3. Extract pitch-relative harmonic features using **estimated MIDI**, then retrain/test the entire fold-consistent path. Current raw-domain harmonic features were computed with true MIDI before applying a detected-MIDI mask, so 368/384 is conditional offline evidence. Use the 384 preserved pitch decisions and report independent pitch, string and joint tuples. Keep the user-facing classifier unchanged.
 4. Measure browser runtime, model transfer size, memory and frame/lesson timing. Raw feature extraction averaged 99.84 ms per whole WAV on the local runner, steady-state median 62.36 ms and p95 222.37 ms; these are **not live response times**. The final raw-domain model assets live under `public/model/fusion3-jsraw/` and are unused by the normal trainer.
 5. Every new investigation uses Smoke → gated Real and preserves per-recording predictions. The reproducible raw workflow is `.github/workflows/step18-fusion-raw.yml`. The user cannot record live trials now; continue offline.
+
+**Published raw validation:** run `36631761271` passed Smoke → gated Real on commit `7a7e1011b8192ef73065050193c61c3d2a39304d`; artifact `11063295712` SHA256 `2f0924ec179bf1baef85f868757155b8def2a435f697d4765bf543c7cb8d42b2` includes full JS features, fold probabilities and all-data models. The artifact's Real report confirms 377/384 oracle-MIDI strings, 368/384 complete tuples and 384/384 Python/JS fusion decisions. Matched-audio parity run `36631761265` and Pages build `36631761203` passed. Normal trainer decisions remain unchanged.
 
 ### Live test status and design limits
 
