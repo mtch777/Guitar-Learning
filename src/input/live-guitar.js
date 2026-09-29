@@ -232,6 +232,15 @@ export function setupLiveGuitarInput() {
   const calibrationPanel = document.getElementById("guitarCalibrationPanel");
   const calibrationPrompt = document.getElementById("guitarCalibrationPrompt");
   const calibrationResult = document.getElementById("guitarCalibrationResult");
+  const tunerButton = document.getElementById("guitarTunerButton");
+  const tunerPanel = document.getElementById("guitarTunerPanel");
+  const tunerTarget = document.getElementById("guitarTunerTarget");
+  const tunerReading = document.getElementById("guitarTunerReading");
+  const tunerState = document.getElementById("guitarTunerState");
+  const tunerNeedle = document.getElementById("guitarTunerNeedle");
+  const tunerTargets = document.getElementById("guitarTunerTargets");
+  let tunerOpen = false;
+  let tunerSignature = "";
   let lastClassificationText = "Classifier: waiting for pluck";
   let currentNoteEvent = null;
   let lastAudibleMidi = null;
@@ -241,6 +250,286 @@ export function setupLiveGuitarInput() {
   const exportButton = document.getElementById("classifierTestExportButton");
   const testStatus = document.getElementById("classifierTestStatus");
   const openMidis = [27,34,39,44,49,54,58,63];
+
+  const configuredTuning = () => {
+    const getter =
+      window.getGuitarTrainerTuning;
+
+    const tuning =
+      typeof getter === "function"
+        ? getter()
+        : openMidis;
+
+    return Array.isArray(tuning) &&
+      tuning.length === 8
+      ? tuning.map(Number)
+      : [...openMidis];
+  };
+
+  const midiToFrequency = midi =>
+    440 * Math.pow(
+      2,
+      (midi - 69) / 12
+    );
+
+  const midiToScientificPitch = midi =>
+    midiToNoteName(midi) +
+    (Math.floor(midi / 12) - 1);
+
+  const renderTunerTargets = (
+    activeIndex = -1
+  ) => {
+    if (!tunerTargets) return;
+
+    const tuning =
+      configuredTuning();
+
+    const signature =
+      tuning.join(",");
+
+    if (
+      signature !== tunerSignature ||
+      tunerTargets.children.length !==
+        tuning.length
+    ) {
+      tunerSignature = signature;
+      tunerTargets.innerHTML = "";
+
+      tuning.forEach(
+        (midi, index) => {
+          const chip =
+            document.createElement(
+              "span"
+            );
+
+          chip.className =
+            "guitarTunerTargetChip";
+
+          chip.dataset.stringIndex =
+            String(index);
+
+          chip.textContent =
+            "S" +
+            (index + 1) +
+            " " +
+            midiToScientificPitch(
+              midi
+            );
+
+          tunerTargets.appendChild(
+            chip
+          );
+        }
+      );
+    }
+
+    [
+      ...tunerTargets.children
+    ].forEach(
+      (chip, index) => {
+        chip.classList.toggle(
+          "active",
+          index === activeIndex
+        );
+      }
+    );
+  };
+
+  const resetTuner = (
+    message =
+      "Waiting for pitch"
+  ) => {
+    if (!tunerPanel) return;
+
+    tunerPanel.classList.remove(
+      "inTune"
+    );
+
+    if (tunerTarget) {
+      tunerTarget.textContent =
+        "Play an open string";
+    }
+
+    if (tunerReading) {
+      tunerReading.textContent =
+        "— Hz · —¢";
+    }
+
+    if (tunerState) {
+      tunerState.textContent =
+        message;
+    }
+
+    if (tunerNeedle) {
+      tunerNeedle.style.left =
+        "50%";
+    }
+
+    renderTunerTargets(-1);
+  };
+
+  const updateTuner = frame => {
+    if (
+      !tunerOpen ||
+      !tunerPanel
+    ) {
+      return;
+    }
+
+    const frequency =
+      Number(frame?.frequency);
+
+    if (
+      !Number.isFinite(frequency) ||
+      frequency <= 0
+    ) {
+      resetTuner(
+        "Waiting for pitch"
+      );
+      return;
+    }
+
+    const tuning =
+      configuredTuning();
+
+    const candidates =
+      tuning.map(
+        (midi, index) => {
+          const targetFrequency =
+            midiToFrequency(midi);
+
+          const cents =
+            1200 *
+            Math.log2(
+              frequency /
+              targetFrequency
+            );
+
+          return {
+            index,
+            midi,
+            targetFrequency,
+            cents
+          };
+        }
+      );
+
+    const target =
+      candidates.reduce(
+        (best, candidate) =>
+          Math.abs(
+            candidate.cents
+          ) <
+          Math.abs(best.cents)
+            ? candidate
+            : best
+      );
+
+    const cents =
+      target.cents;
+
+    const clampedCents =
+      Math.max(
+        -50,
+        Math.min(50, cents)
+      );
+
+    const inTune =
+      Math.abs(cents) <= 5;
+
+    tunerPanel.classList.toggle(
+      "inTune",
+      inTune
+    );
+
+    if (tunerTarget) {
+      tunerTarget.textContent =
+        "String " +
+        (target.index + 1) +
+        " · " +
+        midiToScientificPitch(
+          target.midi
+        );
+    }
+
+    if (tunerReading) {
+      const centsText =
+        (cents > 0 ? "+" : "") +
+        Math.round(cents) +
+        "¢";
+
+      tunerReading.textContent =
+        frequency.toFixed(1) +
+        " Hz · " +
+        centsText;
+    }
+
+    if (tunerState) {
+      tunerState.textContent =
+        inTune
+          ? "In tune"
+          : cents < 0
+            ? "Flat"
+            : "Sharp";
+    }
+
+    if (tunerNeedle) {
+      tunerNeedle.style.left =
+        (
+          50 +
+          clampedCents
+        ) +
+        "%";
+    }
+
+    renderTunerTargets(
+      target.index
+    );
+  };
+
+  tunerButton
+    ?.addEventListener(
+      "click",
+      () => {
+        tunerOpen =
+          !tunerOpen;
+
+        if (tunerPanel) {
+          tunerPanel.hidden =
+            !tunerOpen;
+        }
+
+        tunerButton.setAttribute(
+          "aria-expanded",
+          String(tunerOpen)
+        );
+
+        tunerButton.title =
+          tunerOpen
+            ? "Close tuner"
+            : "Open tuner";
+
+        tunerButton.setAttribute(
+          "aria-label",
+          tunerButton.title
+        );
+
+        if (!tunerOpen) {
+          return;
+        }
+
+        resetTuner(
+          microphone
+            ? "Waiting for pitch"
+            : "Starting guitar input…"
+        );
+
+        if (!microphone) {
+          button?.click();
+        }
+      }
+    );
+
   let testActive = false;
   let testCases = [];
   let testIndex = 0;
@@ -1683,6 +1972,12 @@ export function setupLiveGuitarInput() {
       button.textContent = "Enable";
       status.textContent = "Stopped";
 
+      if (tunerOpen) {
+        resetTuner(
+          "Enable guitar input to tune"
+        );
+      }
+
       if (
         calibrationActive ||
         calibrationPendingStart
@@ -1701,6 +1996,8 @@ export function setupLiveGuitarInput() {
     microphone = new GuitarMicrophone({
       fftSize: 4096,
       async onFrame(frame) {
+        updateTuner(frame);
+
         const completedPluck = pluckBuffer.push(frame);
         if (completedPluck) {
           // Extract exactly 107 full-model features once per completed ringing pluck.
@@ -2025,6 +2322,12 @@ export function setupLiveGuitarInput() {
     } catch (error) {
       microphone = null;
       status.textContent = "Microphone error: " + error.message;
+
+      if (tunerOpen) {
+        resetTuner(
+          "Microphone error"
+        );
+      }
 
       if (
         calibrationPendingStart

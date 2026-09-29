@@ -148,6 +148,13 @@
       <div class="guitarInputIdentity"><span class="guitarIcon">🎙️</span><strong>Guitar Input</strong></div>
       <button id="guitarInputButton" class="uiButton" type="button">Enable</button>
       <button id="guitarCalibrationButton" class="uiButton" type="button">Calibrate guitar volume</button>
+      <button id="guitarTunerButton" class="uiButton guitarTunerButton" type="button"
+              title="Open tuner" aria-label="Open tuner" aria-expanded="false">
+        <svg class="tuningForkIcon" viewBox="0 0 32 32" aria-hidden="true">
+          <path class="forkStroke" d="M12 5v8a4 4 0 0 0 8 0V5M10 5v8a6 6 0 0 0 5 5.92V27h2v-8.08A6 6 0 0 0 22 13V5"/>
+          <path class="forkStroke" d="M7.5 9.5c-2 2-2 5 0 7M24.5 9.5c2 2 2 5 0 7M4.5 7c-3.5 3.5-3.5 8.5 0 12M27.5 7c3.5 3.5 3.5 8.5 0 12"/>
+        </svg>
+      </button>
       <span id="guitarInputStatus" class="inputStatus">● Stopped</span>
       <span class="inputMetric">Note <strong id="guitarDetectedNote">—</strong></span>
       <span class="inputMetric">String <strong id="guitarDetectedString">—</strong></span>
@@ -155,6 +162,18 @@
       <div id="guitarCalibrationPanel" class="guitarCalibrationPanel" hidden>
         <strong id="guitarCalibrationPrompt"></strong>
         <span id="guitarCalibrationResult"></span>
+      </div>
+      <div id="guitarTunerPanel" class="guitarTunerPanel" hidden>
+        <div class="guitarTunerReadout">
+          <strong id="guitarTunerTarget">Play an open string</strong>
+          <span id="guitarTunerReading">— Hz · —¢</span>
+          <span id="guitarTunerState">Waiting for pitch</span>
+        </div>
+        <div class="guitarTunerMeter" aria-hidden="true">
+          <span class="guitarTunerCenter"></span>
+          <span id="guitarTunerNeedle" class="guitarTunerNeedle"></span>
+        </div>
+        <div id="guitarTunerTargets" class="guitarTunerTargets"></div>
       </div>
     </section>
 

@@ -1353,6 +1353,125 @@ button.uiButton:disabled {
   opacity: .78;
 }
 
+.guitarTunerButton {
+  width: 34px;
+  min-width: 34px;
+  padding: 0;
+}
+
+.guitarTunerButton .tuningForkIcon {
+  width: 22px;
+  height: 22px;
+  overflow: visible;
+}
+
+.guitarTunerButton .forkStroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.guitarTunerPanel {
+  flex: 1 0 100%;
+  display: grid;
+  grid-template-columns: minmax(150px, max-content) minmax(180px, 1fr);
+  align-items: center;
+  gap: 8px 14px;
+  min-width: 0;
+  padding-top: 4px;
+}
+
+.guitarTunerPanel[hidden] {
+  display: none;
+}
+
+.guitarTunerReadout {
+  display: grid;
+  grid-template-columns: max-content max-content max-content;
+  align-items: baseline;
+  gap: 6px 12px;
+  min-width: 0;
+  font-size: 13px;
+}
+
+#guitarTunerTarget {
+  font-size: 15px;
+}
+
+#guitarTunerReading,
+#guitarTunerState {
+  white-space: nowrap;
+  opacity: .76;
+}
+
+.guitarTunerMeter {
+  position: relative;
+  height: 20px;
+  min-width: 180px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--hover-bg) 50%,
+      transparent 100%
+    );
+  overflow: hidden;
+}
+
+.guitarTunerCenter {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: var(--text-color);
+  opacity: .55;
+}
+
+.guitarTunerNeedle {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 50%;
+  width: 3px;
+  border-radius: 2px;
+  background: #e32626;
+  transform: translateX(-50%);
+  transition:
+    left 70ms linear,
+    background-color 70ms linear;
+}
+
+.guitarTunerPanel.inTune .guitarTunerNeedle {
+  background: #34a853;
+}
+
+.guitarTunerTargets {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.guitarTunerTargetChip {
+  padding: 3px 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--header-bg);
+  font: 600 11px/13px Arial, sans-serif;
+  opacity: .62;
+}
+
+.guitarTunerTargetChip.active {
+  opacity: 1;
+  box-shadow: 0 0 0 1px var(--text-color);
+}
+
 .guitarInputLogPanel {
   width: max-content;
   max-width: 100%;
