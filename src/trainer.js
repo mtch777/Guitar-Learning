@@ -2585,40 +2585,8 @@ function createTuningSettings() {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'settingsButton';
-  button.innerHTML = `
-    <svg class="headstockIcon" viewBox="0 0 32 32" aria-hidden="true">
-      <path class="headstockBody"
-        d="M15.2 29
-           L15.2 25.8
-           C15.2 23.7 14.3 21.8 13.0 19.9
-           C11.4 17.5 11.3 14.6 12.4 11.8
-           L16.2 2.8
-           C16.7 1.7 17.9 1.1 19.0 1.4
-           L23.8 2.7
-           C25.0 3.0 25.7 4.3 25.4 5.5
-           L22.8 16.0
-           C22.2 18.3 21.9 20.5 21.9 22.7
-           L21.9 29
-           Z"/>
-      <g class="headstockTuners">
-        <circle cx="16.7" cy="5.0" r="1.05"/>
-        <circle cx="16.0" cy="7.8" r="1.05"/>
-        <circle cx="15.3" cy="10.6" r="1.05"/>
-        <circle cx="14.8" cy="13.4" r="1.05"/>
-        <circle cx="14.8" cy="16.2" r="1.05"/>
-        <circle cx="15.2" cy="19.0" r="1.05"/>
-        <circle cx="15.9" cy="21.8" r="1.05"/>
-        <circle cx="16.8" cy="24.5" r="1.05"/>
-        <rect x="8.7" y="4.0" width="3.5" height="1.5" rx=".55"/>
-        <rect x="8.0" y="6.8" width="3.5" height="1.5" rx=".55"/>
-        <rect x="7.4" y="9.6" width="3.5" height="1.5" rx=".55"/>
-        <rect x="7.0" y="12.4" width="3.5" height="1.5" rx=".55"/>
-        <rect x="7.0" y="15.2" width="3.5" height="1.5" rx=".55"/>
-        <rect x="7.4" y="18.0" width="3.5" height="1.5" rx=".55"/>
-        <rect x="8.0" y="20.8" width="3.5" height="1.5" rx=".55"/>
-        <rect x="8.8" y="23.5" width="3.5" height="1.5" rx=".55"/>
-      </g>
-    </svg>`;
+  button.innerHTML =
+    '<span class="headstockIcon" aria-hidden="true"></span>';
   button.title = 'Tuning settings';
   button.setAttribute('aria-label', 'Tuning settings');
 

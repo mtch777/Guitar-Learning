@@ -659,18 +659,18 @@ button.uiButton:disabled {
 }
 
 .headstockIcon {
+  display: block;
   width: 22px;
   height: 22px;
-  overflow: visible;
-}
-
-.headstockIcon .headstockBody,
-.headstockIcon .headstockTuners rect {
-  fill: currentColor;
-}
-
-.headstockIcon .headstockTuners circle {
-  fill: var(--control-bg);
+  background: currentColor;
+  -webkit-mask:
+    url('./headstock-icon.svg')
+    center / contain
+    no-repeat;
+  mask:
+    url('./headstock-icon.svg')
+    center / contain
+    no-repeat;
 }
 
 .tuningPopover {
