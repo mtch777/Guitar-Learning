@@ -1,0 +1,60 @@
+name: Step 18 streamed YIN gate replay
+
+"on":
+  push:
+    paths:
+      - ".github/workflows/step18-yin-gate-replay.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  smoke_then_real:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Restore preserved held-out estimated-MIDI fold models
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/step18_replay
+          gh run download 36641228328 -R "$GITHUB_REPOSITORY" -n step18-fusion3-estimated-midi -D /tmp/step18_replay
+          test -f /tmp/step18_replay/fusion_real/python_oof_probabilities.json
+          test -f /tmp/step18_replay/fusion_real/midi_27/baseline.json
+      - name: Decode original 44.1 kHz WAVs
+        run: |
+          pip install numpy==2.3.5 soundfile
+          python training/prepare_step18_raw_audio.py training/data/ringing_384 training/results/reference/fusion_selector_oof_384.json --out /tmp/step18_replay/raw
+      - name: Smoke both YIN gate paths
+        run: |
+          node training/run_step18_full_replay.mjs training/results/reference/fusion_selector_oof_384.json /tmp/step18_replay/raw /tmp/step18_replay/fusion_real/python_oof_probabilities.json /tmp/step18_replay/fusion_real /tmp/step18_replay/yin_smoke.json --smoke --reference-yin
+          node training/run_step18_full_replay.mjs training/results/reference/fusion_selector_oof_384.json /tmp/step18_replay/raw /tmp/step18_replay/fusion_real/python_oof_probabilities.json /tmp/step18_replay/fusion_real /tmp/step18_replay/hybrid_smoke.json --smoke --reference-yin --hybrid-start
+      - name: Gate Real on Smoke
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";const a=JSON.parse(fs.readFileSync("/tmp/step18_replay/yin_smoke.json")).report,b=JSON.parse(fs.readFileSync("/tmp/step18_replay/hybrid_smoke.json")).report;if(a.recordings!==36||b.recordings!==36||a.classified<1||b.classified!==36||b.tuple_correct<1)process.exit(1)'
+      - name: Real both YIN gate paths on 384 WAVs
+        run: |
+          node training/run_step18_full_replay.mjs training/results/reference/fusion_selector_oof_384.json /tmp/step18_replay/raw /tmp/step18_replay/fusion_real/python_oof_probabilities.json /tmp/step18_replay/fusion_real /tmp/step18_replay/yin_real.json --reference-yin
+          node training/run_step18_full_replay.mjs training/results/reference/fusion_selector_oof_384.json /tmp/step18_replay/raw /tmp/step18_replay/fusion_real/python_oof_probabilities.json /tmp/step18_replay/fusion_real /tmp/step18_replay/hybrid_real.json --reference-yin --hybrid-start
+      - name: Gate paired completeness
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";for(const name of ["yin_real","hybrid_real"]){const {report,rows}=JSON.parse(fs.readFileSync(`/tmp/step18_replay/${name}.json`));if(report.recordings!==384||rows.length!==384)process.exit(1)}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-streamed-yin-gate
+          path: |
+            /tmp/step18_replay/yin_smoke.json
+            /tmp/step18_replay/hybrid_smoke.json
+            /tmp/step18_replay/yin_real.json
+            /tmp/step18_replay/hybrid_real.json
+          if-no-files-found: warn
