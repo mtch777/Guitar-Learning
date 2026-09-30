@@ -1,0 +1,35 @@
+name: Step 18 early event policy
+
+"on":
+  push:
+    paths:
+      - ".github/workflows/step18-event-policy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke_then_real:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Smoke on early-correct, early-wrong, ordinary and missing cases
+        run: node training/score_step18_event_policy.mjs training/results/reference/step18_yin_gate_hybrid_real_384.json /tmp/event_smoke.json --smoke
+      - name: Gate Real on Smoke
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";const r=JSON.parse(fs.readFileSync("/tmp/event_smoke.json")).report;if(r.recordings!==13||r.changed_first_events!==8||r.current_missing!==1||r.gated_missing!==1)process.exit(1)'
+      - name: Real paired event counterfactual on all 384 recordings
+        run: node training/score_step18_event_policy.mjs training/results/reference/step18_yin_gate_hybrid_real_384.json /tmp/event_real.json
+      - name: Gate paired completeness
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";const {report:r,rows}=JSON.parse(fs.readFileSync("/tmp/event_real.json"));if(r.recordings!==384||rows.length!==384||r.changed_first_events!==33||r.current_correct+r.current_missing>384)process.exit(1)'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: step18-event-policy
+          path: |
+            /tmp/event_smoke.json
+            /tmp/event_real.json
