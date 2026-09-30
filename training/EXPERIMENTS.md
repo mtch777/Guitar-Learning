@@ -242,7 +242,7 @@ Every remaining experiment uses exactly:
 
 Do not rerun completed experiments merely to regenerate outputs. Save metrics, predictions, configuration/feature metadata, error analysis, run/artifact IDs and hashes needed for future comparisons.
 
-## Current Step 18 state (2026-09-29)
+## Current Step 18 state (2026-09-30 UTC)
 
 | Variable / stage | Status | Evidence | Action |
 |---|---|---|---|
@@ -250,7 +250,7 @@ Do not rerun completed experiments merely to regenerate outputs. Save metrics, p
 | Reference-style YIN | Offline validated, opt-in | Run `36613549255`: pitch 375/384, tuple 366/384; all 384 MIDI decisions match librosa; +10.15 ms median pitch compute | Live confidence/latency testing later |
 | Temporal MFCC FFT | Complete in Step-18 training frontend | Smoke 36 → Real 384; 0/29,952 Float32 input differences; 99.460→0.777 ms median for three segments, 128× | Default FFT; production full-model path already uses its own FFT |
 | Fusion3 browser path | Raw-input and estimated-MIDI harmonic tests complete offline; live pending | Original archived OOF 379/384; fresh matched-audio 378/384; JS-raw-trained 377/384 independently scored strings and 368/384 complete tuples with reference YIN. Estimated-MIDI features changed no final string decisions; Python/JS fusion parity 384/384 | Keep experimental; test runtime/confidence and live gates before trainer integration |
-| Frame → pluck → fusion3 replay | Streamed pitch and first-event policy comparisons complete offline; live pending | Hybrid: 380/384 MIDI, 373/384 tuples. First position event 362/384 with early singleton events versus 373/384 when withheld, +11 with no new missing events; 19 correct early events delayed ~0.8 s | Calibrate an early-event confidence policy and validate live timing before integration |
+| Frame → pluck → fusion3 replay | Streamed pitch and first-event policy comparisons complete offline; live pending | Hybrid: 380/384 MIDI, 373/384 tuples. First position: immediate 362/384, entire-MIDI-held-out selective gate 369/384, always-wait 373/384. Selective gate retained six fast correct events but introduced four wrong events relative to wait | Reject the tested selective gate; keep always-wait as offline quality baseline and validate actual lesson/live behavior before integration |
 | Callback phase and leading silence | Full-silence control passed; partial-phase coverage limited by WAV length | One/two full silent callbacks: 383 captures, 373 tuples; no pre-onset events. Partial phases +23/+46/+70 ms: 40/97/160 newly incomplete captures; on paired captures tuple changes +1/+1/+3 net | Obtain recordings with sustained post-onset tails or explicitly label synthetic tail stress; do not count incomplete clips as acoustic errors |
 | Live validation | Pending guitarist input | Pitch-only paired test deployed at `live-yin-test.html`; no recordings yet | User cannot play live trials now; continue offline work |
 
@@ -410,7 +410,7 @@ The preserved hybrid-YIN callback replay was scored under two event policies **w
 
 Withholding produced **11 rescues and zero regressions** in first-position correctness; the other three wrong early positions also had wrong completed tuples. It prevented **14 incorrect early events** but delayed **19 correct early events**. Across the 33 affected recordings, the median added wait was **796.57 ms** (p95 **813.78 ms**); the overall first-decision median barely changed (887.66→887.77 ms) because most recordings had no early singleton. This is a measurable latency/accuracy tradeoff, not free accuracy. It also does not verify what the trainer would do after a wrong early click changes the question. The normal trainer was **not** altered. The paired per-recording fixture is `training/results/reference/step18_event_policy_real_384.json`.
 
-**Published validation:** `.github/workflows/step18-event-policy.yml` run `36659607658` passed Smoke → gated Real on commit `2b4dec738efb462c63794892758ea2ced3171a7c`; artifact `11073313570` SHA256 `367f6d9af5be401518f763b27907201934de3a885485e0be0d2d1474a761b9ac` reproduced all counts. Next examine whether early confidence/duration can separate correct from wrong singleton events without losing their latency benefit, then validate on live microphone and actual lesson flow.
+**Published validation:** `.github/workflows/step18-event-policy.yml` run `36659607658` passed Smoke → gated Real on commit `2b4dec738efb462c63794892758ea2ced3171a7c`; artifact `11073313570` SHA256 `367f6d9af5be401518f763b27907201934de3a885485e0be0d2d1474a761b9ac` reproduced all counts. The later selective-gate experiment below supersedes the early confidence/duration next action from this snapshot.
 
 ### Step 18 callback phase and leading silence robustness (2026-09-29)
 
