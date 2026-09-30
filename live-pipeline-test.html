@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Full pipeline live trial</title>
+<style>body{font:16px system-ui;line-height:1.5;color:#eee;background:#15171c;max-width:900px;margin:24px auto;padding:0 16px}h1{font-size:1.7rem}fieldset{border:1px solid #555;border-radius:8px;margin:18px 0;padding:14px}button,select,input{font:inherit;padding:8px;margin:4px;border-radius:5px}button{cursor:pointer}button:disabled{cursor:default;opacity:.5}label{display:inline-block;margin-right:10px}input[type=number]{width:65px}output{display:block;font-size:1.3rem;font-weight:650;margin:16px 0}.muted{color:#bbb}table{border-collapse:collapse;width:100%}td,th{padding:8px;text-align:left;border-bottom:1px solid #444}.scroll{overflow-x:auto}#target{font-size:1.25rem}#levels{font-variant-numeric:tabular-nums}a{color:#9ad2ff}</style></head>
+<body><h1>Full pipeline live trial</h1>
+<p>Record labeled plucks through the hybrid pitch/capture/fusion pipeline. The comparison uses correlation capture with the same fusion model. Both hear the same input; predictions stay hidden during collection.</p>
+<p class="muted">String 1 is lowest. Fixed tuning: D#1, A#1, D#2, G#2, C#3, F#3, A#3, D#4. Use clean guitar input. This trial measures acoustic position matching and timing; lesson acceptance is a separate check.</p>
+<fieldset><legend>1 · Audio input</legend><label>Device <select id="device"><option value="">System default</option></select></label>
+<label>Input channel <select id="channel"><option value="1" selected>2 · guitar input</option><option value="0">1</option></select></label>
+<button id="microphone" disabled>Enable microphone</button><div id="levels">Input off</div><div id="model" class="muted">Loading models…</div></fieldset>
+<fieldset><legend>2 · Target</legend><label>Plan <select id="plan"><option value="pilot">Pilot · 24 normal plucks</option><option value="full">Full · 240 plucks</option><option value="manual">Manual / edge cases</option></select></label>
+<label>Trial <select id="kind"><option value="single">Single pluck</option><option value="silence">Silence · do not play</option><option value="repeated">Two repeated plucks</option><option value="transition">Two positions in order</option><option value="overlap">Two positions overlapping</option></select></label><br>
+<label>String <select id="string"></select></label><label>Fret <input id="fret" type="number" min="0" max="24" value="0"></label>
+<label>Pick <select id="attack"><option>soft</option><option selected>normal</option><option>hard</option></select></label>
+<label>Repeat <input id="repeat" type="number" min="1" max="20" value="1"></label>
+<div id="second"><label>Second string <select id="string2"></select></label><label>Second fret <input id="fret2" type="number" min="0" max="24" value="0"></label></div>
+<p id="target"></p><p id="progress" class="muted"></p>
+<button id="record" disabled>Record trial</button><button id="next">Skip target</button></fieldset>
+<output id="status" aria-live="polite">Loading models…</output>
+<p>Press Record, stay quiet, then play when “PLAY NOW” appears. Let the note ring. For repeats, mute between plucks; for transitions play the second position after the second cue. Overlap trials deliberately leave the first note ringing.</p>
+<fieldset><legend>3 · Save results</legend><button id="export" disabled>Export ZIP · results + audio</button><button id="clear" disabled>Clear saved trials</button><p class="muted">Export after each block of 24–40 trials. Collection pauses at 40 until you export and clear. Keep the ZIP files for analysis; audio and results stay on this device until downloaded or shared.</p><p id="saved">No saved trials</p></fieldset>
+<div class="scroll"><table><thead><tr><th>Trial</th><th>Target</th><th>Kind</th><th>Input frames</th><th>Status</th></tr></thead><tbody id="history"></tbody></table></div>
+<script type="module" src="/src/input/live-pipeline-test.js"></script></body></html>

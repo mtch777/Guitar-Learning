@@ -1,0 +1,56 @@
+name: Full pipeline live trial browser preflight
+"on":
+  push:
+    paths:
+      - ".github/workflows/live-pipeline-preflight.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci
+      - run: npm run build
+      - name: Install browser test dependencies
+        run: |
+          npm install --no-save --package-lock=false playwright@1.51.1
+          npx playwright install --with-deps chromium
+          pip install soundfile numpy
+      - name: Verify real AudioWorklet and Worker with synthetic stereo input
+        run: |
+          npm run dev -- --host 127.0.0.1 --port 5173 > /tmp/live_preview.log 2>&1 &
+          node training/check_live_trial_browser.cjs
+          python - <<'PY'
+          import zipfile,json,io,soundfile as sf
+          with zipfile.ZipFile('/tmp/live_browser_trial.zip') as z:
+              assert z.testzip() is None
+              data=json.loads(z.read('results.json'))
+              assert data['schema']=='live-pipeline-v1'
+              assert len(data['trials'])==2
+              tone,silence=data['trials']
+              assert tone['target']['positions'][0]['midi']==27
+              for route in ['hybrid','correlation']:
+                  events=tone['report']['routes'][route]['events']
+                  assert events and events[0]['midi']==51,(route,events)
+                  assert not silence['report']['routes'][route]['events']
+              for trial in data['trials']:
+                  assert not trial['aborted']
+                  assert not sum(f['missingCallbacks'] for f in trial['report']['frames'])
+                  audio,sr=sf.read(io.BytesIO(z.read(trial['audioFile'])),dtype='float32')
+                  assert sr==trial['report']['sampleRate'] and len(audio)==trial['blocks']*4096
+              print('Stereo input, acoustic-label separation, silence, timing, ZIP CRC and audio export verified')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-pipeline-browser-preflight
+          path: |
+            /tmp/live_browser_trial.zip
+            /tmp/live_pipeline_screen.png
+            /tmp/live_preview.log

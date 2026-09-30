@@ -1,0 +1,12 @@
+{
+  "heldout_callback_parity": 58,
+  "model_python_js_argmax_matches": 1152,
+  "model_max_probability_difference": 1.6650699974363192e-7,
+  "sample_rates_checked": [
+    44100,
+    48000
+  ],
+  "silent_false_events": 0,
+  "audio_worklet_channel2_blocks": 2,
+  "export_zip": "/tmp/live_pipeline_export_test.zip"
+}
