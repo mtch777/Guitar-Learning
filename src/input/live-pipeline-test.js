@@ -125,7 +125,7 @@ function invalidateCalibration(){
 }
 function calibrationPrompt(){
  const step=calibrationSteps[calibration.step];
- $('calibrationPrompt').textContent=step?`Step ${calibration.step+1}/${calibrationSteps.length} · ${step.kind==='silence'?'Mute all strings; measure silence':`String ${step.string}, open · ${step.attack} pick · click Measure, then wait for PLAY NOW`}`:`Calibration complete. ${calibration.verdict} Restart if you adjust gain.`;
+ $('calibrationPrompt').textContent=step?`Step ${calibration.step+1}/${calibrationSteps.length} · ${step.kind==='silence'?'Mute all strings. Click “Measure next step” to record silence.':`String ${step.string}, open · ${step.attack} pick · waiting for your click. Click “Measure next step”; PLAY NOW appears about half a second later.`}`:`Calibration complete. ${calibration.verdict} Restart if you adjust gain.`;
 }
 $('calibrate').onclick=()=>{
  calibration={id:crypto.randomUUID(),startedAt:new Date().toISOString(),channel:Number($('channel').value)+1,deviceSettings:stream.getAudioTracks()[0].getSettings(),sampleRate:context.sampleRate,step:0,noiseDb:null,notes:[],complete:false,thresholds:{minimumHeadroomDb:3,minimumNoiseMarginDb:20,onsetRmsDb:-48},audioCorrection:'none'};
