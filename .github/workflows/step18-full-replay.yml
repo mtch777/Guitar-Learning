@@ -1,0 +1,54 @@
+name: Step 18 full pluck replay
+
+"on":
+  push:
+    paths:
+      - ".github/workflows/step18-full-replay.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  smoke_then_real:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Restore preserved estimated-MIDI held-out fold models
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/step18_replay
+          gh run download 36641228328 -R "$GITHUB_REPOSITORY" -n step18-fusion3-estimated-midi -D /tmp/step18_replay
+          test -f /tmp/step18_replay/fusion_real/python_oof_probabilities.json
+          test -f /tmp/step18_replay/fusion_real/midi_27/baseline.json
+      - name: Decode original 44.1 kHz WAVs
+        run: |
+          pip install numpy==2.3.5 soundfile
+          python training/prepare_step18_raw_audio.py training/data/ringing_384 training/results/reference/fusion_selector_oof_384.json --out /tmp/step18_replay/raw
+      - name: Smoke frame, buffer and held-out fusion replay
+        run: node training/run_step18_full_replay.mjs training/results/reference/fusion_selector_oof_384.json /tmp/step18_replay/raw /tmp/step18_replay/fusion_real/python_oof_probabilities.json /tmp/step18_replay/fusion_real /tmp/step18_replay/smoke.json --smoke
+      - name: Gate Real on Smoke
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";const r=JSON.parse(fs.readFileSync("/tmp/step18_replay/smoke.json")).report;if(r.recordings!==36||r.classified!==36||r.tuple_correct<1)process.exit(1)'
+      - name: Real on all 384 original WAVs
+        run: node training/run_step18_full_replay.mjs training/results/reference/fusion_selector_oof_384.json /tmp/step18_replay/raw /tmp/step18_replay/fusion_real/python_oof_probabilities.json /tmp/step18_replay/fusion_real /tmp/step18_replay/real.json
+      - name: Gate result completeness
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";const {report:r,rows}=JSON.parse(fs.readFileSync("/tmp/step18_replay/real.json"));if(r.recordings!==384||rows.length!==384||r.classified<350)process.exit(1)'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-full-pluck-replay
+          path: |
+            /tmp/step18_replay/smoke.json
+            /tmp/step18_replay/real.json
+          if-no-files-found: warn
