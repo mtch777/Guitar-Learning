@@ -21,6 +21,8 @@ const {chromium}=require('playwright');
  await page.evaluate(()=>window.__trialToneGain.gain.value=0);
  if(!(await page.locator('#gainFeedback').textContent()).includes('recorded example'))throw Error('Missing reference level feedback');
  const calDownload=page.waitForEvent('download');await page.click('#calibrationExport');await (await calDownload).saveAs('/tmp/gain_calibration.json');
+ // Let the calibration tone drain out of the continuously assembled capture block.
+ await page.waitForTimeout(1200);
  await page.click('#record');await page.waitForTimeout(1200);await page.evaluate(()=>window.__trialToneGain.gain.value=.15);
  await page.waitForTimeout(1500);await page.evaluate(()=>window.__trialToneGain.gain.value=0);
  await page.waitForFunction(()=>document.querySelector('#history').rows.length===1,null,{timeout:20000});
