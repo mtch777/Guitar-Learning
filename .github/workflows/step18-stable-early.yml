@@ -1,0 +1,34 @@
+name: Step 18 final offline stability test
+"on":
+  push:
+    paths:
+      - ".github/workflows/step18-stable-early.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  smoke_then_real:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Restore preserved callback diagnostics
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download 36665632798 -R "$GITHUB_REPOSITORY" -n step18-selective-early-event -D /tmp/stability
+      - name: Smoke fixed rules
+        run: |
+          node training/score_step18_stable_early.mjs /tmp/stability/replay_real.json /tmp/stability/stable_smoke.json --smoke
+          node --input-type=module -e 'import fs from "node:fs";const r=JSON.parse(fs.readFileSync("/tmp/stability/stable_smoke.json")).report;if(r.recordings!==13||r.policies.wait.correct!==10)process.exit(1)'
+      - name: Gated Real paired policy score
+        run: |
+          node training/score_step18_stable_early.mjs /tmp/stability/replay_real.json /tmp/stability/stable_real.json
+          node --input-type=module -e 'import fs from "node:fs";const r=JSON.parse(fs.readFileSync("/tmp/stability/stable_real.json")).report;if(r.recordings!==384||r.policies.wait.correct!==373||r.policies.immediate.correct!==362)process.exit(1)'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: step18-final-offline-stability
+          path: /tmp/stability/stable_*.json
