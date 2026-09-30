@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Full pipeline live trial</title>
-<style>body{font:16px system-ui;line-height:1.5;color:#eee;background:#15171c;max-width:900px;margin:24px auto;padding:0 16px}h1{font-size:1.7rem}fieldset{border:1px solid #555;border-radius:8px;margin:18px 0;padding:14px}button,select,input{font:inherit;padding:8px;margin:4px;border-radius:5px}button{cursor:pointer}button:disabled{cursor:default;opacity:.5}label{display:inline-block;margin-right:10px}input[type=number]{width:65px}output{display:block;font-size:1.3rem;font-weight:650;margin:16px 0}.muted{color:#bbb}table{border-collapse:collapse;width:100%}td,th{padding:8px;text-align:left;border-bottom:1px solid #444}.scroll{overflow-x:auto}#target{font-size:1.25rem}#levels{font-variant-numeric:tabular-nums}a{color:#9ad2ff}</style></head>
+<style>body{font:16px system-ui;line-height:1.5;color:#eee;background:#15171c;max-width:900px;margin:24px auto;padding:0 16px}h1{font-size:1.7rem}fieldset{border:1px solid #555;border-radius:8px;margin:18px 0;padding:14px}button,select,input{font:inherit;padding:8px;margin:4px;border-radius:5px}button{cursor:pointer}button:disabled{cursor:default;opacity:.5}label{display:inline-block;margin-right:10px}input[type=number]{width:65px}output{display:block;font-size:1.3rem;font-weight:650;margin:16px 0}.muted{color:#bbb}table{border-collapse:collapse;width:100%}td,th{padding:8px;text-align:left;border-bottom:1px solid #444}.scroll{overflow-x:auto}#target{font-size:1.25rem}#levels{font-variant-numeric:tabular-nums}a{color:#9ad2ff}.calibration-stage{border:2px solid #6b93b8;border-radius:10px;padding:18px;margin:18px 0;background:#202630}#calibrationPrompt{font-size:1.5rem;font-weight:700;margin:0 0 16px}#calibrationCue{font-size:1.8rem;font-weight:700;min-height:3em;color:#bfe3ff}#calibrationMeasure{background:#bfe3ff;color:#101820;font-weight:700;padding:12px 18px}</style></head>
 <body><h1>Full pipeline live trial</h1>
 <p>Record labeled plucks through the hybrid pitch/capture/fusion pipeline. The comparison uses correlation capture with the same fusion model. Both hear the same input; predictions stay hidden during collection.</p>
 <p class="muted">String 1 is lowest. Fixed tuning: D#1, A#1, D#2, G#2, C#3, F#3, A#3, D#4. Use clean guitar input. This trial measures acoustic position matching and timing; lesson acceptance is a separate check.</p>
@@ -8,17 +8,17 @@
 <label>Input channel <select id="channel"><option value="1" selected>2 · guitar input</option><option value="0">1</option></select></label>
 <button id="microphone" disabled>Enable microphone</button><div id="levels">Input off</div><div id="model" class="muted">Loading models…</div></fieldset>
 <fieldset><legend>2 · Gain calibration</legend>
-<p>Keep guitar volume and tone at maximum. Select the bridge pickup.</p>
-<ol>
-<li>Click <strong>Start / restart calibration</strong>. This prepares the calibration; it does not record yet.</li>
-<li>Mute all strings. Click <strong>Measure next step</strong> to record silence.</li>
-<li>Read the string and picking strength shown below. Click <strong>Measure next step</strong> to begin that recording. Play one note when <strong>PLAY NOW</strong> appears in the same line.</li>
-<li>After the recording finishes, repeat instruction 3 for the next note. There are 24 notes in total.</li>
-</ol>
-<p>Keep the Focusrite gain fixed while recording these notes. If you adjust it, click <strong>Start / restart calibration</strong> and begin again.</p>
-<button id="calibrate" disabled>Start / restart calibration</button><button id="calibrationMeasure" disabled>Measure next step</button>
+<p>Guitar volume and tone: maximum. Pickup: bridge. Keep the Focusrite gain fixed throughout calibration.</p>
+<ol><li>Read the string and picking strength shown below.</li><li>Click <strong>I’m ready — start countdown</strong>. You have five seconds to get your pick ready. Then play whenever you are ready.</li><li>The result stays on screen. Click <strong>Next recording</strong> when you want to continue.</li></ol>
+<button id="calibrate" disabled>Start / restart calibration</button>
+<div class="calibration-stage">
+<p id="calibrationPrompt">Enable the microphone, then click “Start / restart calibration”.</p>
+<p id="calibrationCue" role="status">You control when each recording starts.</p>
+<button id="calibrationMeasure" disabled>I’m ready — start countdown</button>
+<button id="calibrationCancel" disabled>Cancel recording</button>
+<button id="calibrationRetry" disabled>Record again</button>
+</div>
 <button id="calibrationExport" disabled>Export calibration JSON</button>
-<p id="calibrationPrompt" role="status">Click “Enable microphone” above, then click “Start / restart calibration”.</p>
 <p id="gainFeedback" role="status">No gain assessment yet.</p><p id="gainMetrics" class="muted"></p>
 <p class="muted">Advice uses measured digital headroom and noise margin. Check the Focusrite clip indicator too. No automatic gain, normalization, EQ, or model changes are applied. If you adjust the physical gain, restart calibration. A level match is not a guarantee of classification accuracy.</p>
 </fieldset>

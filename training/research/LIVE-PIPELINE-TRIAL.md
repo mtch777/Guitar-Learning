@@ -63,3 +63,10 @@ Calibration history can be downloaded separately as JSON. Trial ZIPs include his
 Validation: `node training/check_gain_calibration.mjs` exercises clipping, low-level gating, poor noise margin, verdicts, and unchanged PCM. The browser preflight measures synthetic silence and one synthetic hard step, verifies reference feedback and calibration export, then runs the existing paired trial and silence checks. Human gain suitability and picking feedback remain to be validated with real input.
 
 Prior full-pipeline synthetic browser preflight passed in run 36670809357; Pages publication passed in run 36670809420 (commit a78cf04). These validate plumbing, not real-playing accuracy.
+
+
+## Human-paced calibration (2026-09-30)
+
+Supersedes the calibration timing instructions above. The target stays visible before and during recording. “I’m ready — start countdown” gives five seconds to put the mouse down and pick up the pick. Silence is then measured for three seconds. For notes, PLAY NOW waits indefinitely for a block at least 12 dB above the measured silence floor (minimum trigger -90 dBFS); recording lasts three seconds from that detected input. This diagnostic trigger does not change the model’s existing onset threshold. Weak input below the diagnostic trigger requires checking input/gain; it never silently advances. A live audio heartbeat timeout reports disconnected/stalled input. Cancel discards the in-progress recording. Completed results remain on screen until Next recording; Record again discards the current calibration result and prepares the same target. The final result remains displayed. This change affects calibration only, not the scored six-second trial protocol.
+
+Browser regression check explicitly waits five seconds after PLAY NOW without playing and verifies the prompt remains, then verifies the saved result stays until the user clicks Next recording.

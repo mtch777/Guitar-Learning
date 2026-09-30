@@ -30,7 +30,10 @@ function lock(on){for(const id of ['device','channel','plan','kind','string','fr
 function updateReady(){
   $('calibrationExport').disabled=!!active||!!calibrationRun||!calibrationHistory.length;
   $('calibrate').disabled=!stream||!channelAvailable||!!active||!!calibrationRun;
-  $('calibrationMeasure').disabled=!stream||!channelAvailable||!!active||!!calibrationRun||!calibration||calibration.step>=calibrationSteps.length;
+  $('calibrationMeasure').disabled=!stream||!channelAvailable||!!active||!!calibrationRun||!calibration||calibration.complete;
+  $('calibrationMeasure').textContent=calibration?.awaitingNext?'Next recording':'I’m ready — start countdown';
+  $('calibrationCancel').disabled=!calibrationRun;
+  $('calibrationRetry').disabled=!!active||!!calibrationRun||!calibration?.awaitingNext;
   $('microphone').disabled=!!active||!!calibrationRun||!manifest;
   $('record').disabled=!stream||!channelAvailable||!manifest||!!active||!!calibrationRun||trials.length>=40||($('plan').value!=='manual'&&planIndex>=plan.length);
   $('export').disabled=!!active||!trials.length;$('clear').disabled=!!active||!trials.length;
@@ -121,25 +124,35 @@ function invalidateCalibration(){
   if(calibration)calibration.invalidatedAt=new Date().toISOString();
   calibrationRun=null;calibration=null;recentLevels=[];
   $('calibrationPrompt').textContent='Click “Enable microphone” if input is off, then click “Start / restart calibration”.';
-  $('gainFeedback').textContent='No current gain calibration.';lock(false);
+  $('gainFeedback').textContent='No current gain calibration.';$('calibrationCue').textContent='';lock(false);
 }
 function calibrationPrompt(){
  const step=calibrationSteps[calibration.step];
- if(!step){$('calibrationPrompt').textContent=`Calibration finished. ${calibration.verdict} If you change the Focusrite gain, click “Start / restart calibration” and repeat the recordings.`;return;}
- const instruction=step.kind==='silence'
-  ? 'Mute all strings. Click “Measure next step” to record 3 seconds of silence.'
-  : `Prepare string ${step.string}, open (no fret), with a ${step.attack} pick. Click “Measure next step”. Do not play until this line says PLAY NOW.`;
- $('calibrationPrompt').textContent=`${calibration.step?'Previous recording finished. ':''}Recording ${calibration.step+1} of ${calibrationSteps.length}: ${instruction}`;
+ if(!step){$('calibrationPrompt').textContent='Calibration finished';$('calibrationCue').textContent=calibration.verdict;return;}
+ $('calibrationPrompt').textContent=step.kind==='silence'
+  ? 'First: mute all strings'
+  : `Note ${calibration.step} of 24 · String ${step.string}${step.string===1?' (lowest)':step.string===8?' (highest)':''} · Open string · ${step.attack.toUpperCase()} pick`;
+ $('calibrationCue').textContent=calibration.awaitingNext?'Saved. Take your time reading the result.': 'Read the instruction above. When ready, click “I’m ready — start countdown”.';
 }
 $('calibrate').onclick=()=>{
- calibration={id:crypto.randomUUID(),startedAt:new Date().toISOString(),channel:Number($('channel').value)+1,deviceSettings:stream.getAudioTracks()[0].getSettings(),sampleRate:context.sampleRate,step:0,noiseDb:null,notes:[],complete:false,thresholds:{minimumHeadroomDb:3,minimumNoiseMarginDb:20,onsetRmsDb:-48},audioCorrection:'none'};
+ calibration={id:crypto.randomUUID(),startedAt:new Date().toISOString(),channel:Number($('channel').value)+1,deviceSettings:stream.getAudioTracks()[0].getSettings(),sampleRate:context.sampleRate,step:0,noiseDb:null,notes:[],complete:false,awaitingNext:false,thresholds:{minimumHeadroomDb:3,minimumNoiseMarginDb:20,onsetRmsDb:-48},audioCorrection:'none'};
  calibrationHistory.push(calibration);calibrationPrompt();updateReady();
 };
+function cancelCalibrationRecording(message){
+ if(calibrationRun)clearTimeout(calibrationRun.timeout);
+ calibrationRun=null;lock(false);updateReady();$('calibrationCue').textContent=message;
+}
+$('calibrationCancel').onclick=()=>cancelCalibrationRecording('Stopped. Nothing saved. Click “I’m ready — start countdown” to try again.');
+$('calibrationRetry').onclick=()=>{
+ if(calibrationSteps[calibration.step].kind==='note')calibration.notes.pop();else calibration.noiseDb=null;
+ calibration.awaitingNext=false;calibrationPrompt();updateReady();
+};
 $('calibrationMeasure').onclick=()=>{
+ if(calibration.awaitingNext){calibration.step++;calibration.awaitingNext=false;calibrationPrompt();updateReady();return;}
  const step=calibrationSteps[calibration.step];
- calibrationRun={step,blocks:[],startAudioTime:null};lock(true);updateReady();
- $('calibrationPrompt').textContent=step.kind==='silence'?'RECORDING SILENCE — keep all strings muted.':'GET READY — do not play yet.';
- calibrationRun.timeout=setTimeout(()=>{calibrationRun=null;lock(false);updateReady();$('calibrationPrompt').textContent='No complete audio recording arrived. Check the input meter, then click “Measure next step” to try this recording again.';},8000);
+ calibrationRun={step,blocks:[],startAudioTime:null,onsetAudioTime:null};
+ lock(true);updateReady();$('calibrationCue').textContent='Get your pick ready · 5';
+ calibrationRun.timeout=setTimeout(()=>cancelCalibrationRecording('Audio input stopped. Check your input, then try this recording again.'),8000);
 };
 function observeGain(samples,audioTime){
  const reading=measure(samples),now=wall();recentLevels.push(reading);if(recentLevels.length>12)recentLevels.shift();
@@ -150,10 +163,24 @@ function observeGain(samples,audioTime){
  }
  if(!calibrationRun)return;
  const run=calibrationRun;run.startAudioTime??=audioTime;const elapsed=audioTime-run.startAudioTime;
- // Ignore initial half-second for pick cues. Silence uses every full block.
- if(run.step.kind==='note'&&elapsed>=.5)$('calibrationPrompt').textContent=`PLAY NOW — pluck string ${run.step.string} once, open (no fret), with a ${run.step.attack} pick. Let it ring.`;
- if(run.step.kind==='silence'||elapsed>=.5)run.blocks.push(reading);
- if(elapsed<3)return;
+ clearTimeout(run.timeout);
+ run.timeout=setTimeout(()=>cancelCalibrationRecording('Audio input stopped. Check your input, then try this recording again.'),8000);
+ if(elapsed<5){$('calibrationCue').textContent=`Get your pick ready · ${Math.ceil(5-elapsed)}`;return;}
+ if(run.step.kind==='silence'){
+  $('calibrationCue').textContent=`Recording silence · keep strings muted · ${Math.max(1,Math.ceil(8-elapsed))}`;
+  run.blocks.push(reading);if(elapsed<8)return;
+ }else{
+  // This diagnostic trigger does not alter the model's -48 dBFS onset gate.
+  const triggerDb=Math.max(-90,calibration.noiseDb+12);
+  if(run.onsetAudioTime===null){
+   $('calibrationCue').textContent='PLAY NOW — one pick, then let it ring. No time limit.';
+   if(reading.rmsDb<triggerDb)return;
+   run.onsetAudioTime=audioTime;
+  }
+  run.blocks.push(reading);
+  $('calibrationCue').textContent=`Recording your note · let it ring · ${Math.max(1,Math.ceil(3-(audioTime-run.onsetAudioTime)))}`;
+  if(audioTime-run.onsetAudioTime<3)return;
+ }
  clearTimeout(run.timeout);
  if(run.step.kind==='silence'){
   calibration.noiseDb=percentile(run.blocks.map(b=>b.rmsDb),.9);
@@ -164,8 +191,8 @@ function observeGain(samples,audioTime){
   result.referencePeakDb=ref?.peakDb??null;result.referencePeakDifferenceDb=ref?result.peakDb-ref.peakDb:null;
   calibration.notes.push(result);$('gainFeedback').textContent=assess(result,calibration.noiseDb)+(ref?` Peak is ${Math.abs(result.referencePeakDifferenceDb).toFixed(1)} dB ${result.referencePeakDifferenceDb>=0?'above':'below'} this recorded example (level only).`:' No matching training example.');
  }
- calibration.step++;calibrationRun=null;lock(false);
- if(calibration.step===calibrationSteps.length){calibration.complete=true;calibration.finishedAt=new Date().toISOString();calibration.verdict=calibrationVerdict(calibration.notes);$('gainFeedback').textContent=calibration.verdict;}
+ calibration.awaitingNext=true;calibrationRun=null;lock(false);
+ if(calibration.step===calibrationSteps.length-1){calibration.step++;calibration.awaitingNext=false;calibration.complete=true;calibration.finishedAt=new Date().toISOString();calibration.verdict=calibrationVerdict(calibration.notes);$('gainFeedback').textContent=calibration.verdict;}
  calibrationPrompt();updateReady();
 }
 $('calibrationExport').onclick=()=>download(new Blob([JSON.stringify({schema:'gain-calibration-v1',sessionId,calibrations:calibrationHistory,reference:gainReference,createdAt:new Date().toISOString()},null,2)],{type:'application/json'}),`gain-calibration-${Date.now()}.json`);
