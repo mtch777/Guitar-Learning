@@ -17,6 +17,9 @@ if (!outPath) throw Error('usage: node run_step18_full_replay.mjs fixture.json r
 const useReferenceYin = flags.includes('--reference-yin');
 const hybridStart = flags.includes('--hybrid-start');
 if (hybridStart && !useReferenceYin) throw Error('--hybrid-start requires --reference-yin');
+const leadingIndex = flags.indexOf('--leading-samples');
+const leadingSamples = leadingIndex < 0 ? 0 : Number(flags[leadingIndex + 1]);
+if (!Number.isInteger(leadingSamples) || leadingSamples < 0 || leadingSamples > 16384) throw Error('Invalid leading sample count');
 const source = JSON.parse(fs.readFileSync(fixturePath));
 const rows = Array.isArray(source) ? source : source.rows;
 const probabilities = JSON.parse(fs.readFileSync(oofPath));
@@ -48,7 +51,9 @@ function bundle(midi) {
 }
 for (const [index, row] of targets.entries()) {
   const bytes = fs.readFileSync(path.join(rawDir, row.file + '.f32'));
-  const samples = new Float32Array(bytes.buffer, bytes.byteOffset, bytes.byteLength / 4);
+  const raw = new Float32Array(bytes.buffer, bytes.byteOffset, bytes.byteLength / 4);
+  const samples = new Float32Array(leadingSamples + raw.length);
+  samples.set(raw, leadingSamples);
   const buffer = new RingingPluckBuffer();
   const pitchTimes = [], bufferTimes = [], singletonEvents = [];
   let captured = null, fusion = null, captureMs = null, inferenceMs = null;
@@ -101,8 +106,11 @@ for (const [index, row] of targets.entries()) {
   const early = singletonEvents.find(e => captureMs == null || e.elapsed_ms < captureMs - 1e-6) || null;
   const firstEvent = early || (fusion ? { midi: fusion.midi, string: fusion.string,
     elapsed_ms: captureMs + inferenceMs, source: 'fusion' } : null);
+  const onsetMs = leadingSamples / sampleRate * 1000;
   results.push({ file: row.file, true_midi: row.midi, true_string: row.string,
-    duration_ms: samples.length / sampleRate * 1000, frames, captured, capture_ms: captureMs,
+    duration_ms: samples.length / sampleRate * 1000, original_duration_ms: raw.length / sampleRate * 1000,
+    onset_ms: onsetMs, frames, captured, capture_ms: captureMs,
+    decision_from_onset_ms: fusion ? captureMs + inferenceMs - onsetMs : null,
     eligible_frames: eligibleFrames, max_pitch_confidence: maxPitchConfidence,
     inference_ms: inferenceMs, pitch_compute_ms: pitchTimes, buffer_compute_ms: bufferTimes,
     first_singleton: singletonEvents[0] || null, early_singleton: early,
@@ -112,7 +120,7 @@ for (const [index, row] of targets.entries()) {
 }
 const allPitch = results.flatMap(r => r.pitch_compute_ms), completed = results.filter(r => r.fusion);
 function percentile(a, p) { const s = [...a].sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.floor((s.length - 1) * p))] ?? null; }
-const report = { phase: flags.includes('--smoke') ? 'smoke' : 'real', detector: hybridStart ? 'correlation-start-yin-votes' : useReferenceYin ? 'referenceYin-rolling240-gate0.55' : 'correlation-frame4096', recordings: results.length,
+const report = { phase: flags.includes('--smoke') ? 'smoke' : 'real', detector: hybridStart ? 'correlation-start-yin-votes' : useReferenceYin ? 'referenceYin-rolling240-gate0.55' : 'correlation-frame4096', leading_samples: leadingSamples, recordings: results.length,
   captured: results.filter(r => r.captured).length, classified: completed.length,
   never_eligible: results.filter(r => !r.eligible_frames).length,
   eligible_but_incomplete: results.filter(r => r.eligible_frames && !r.captured).length,

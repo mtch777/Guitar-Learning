@@ -1,0 +1,60 @@
+name: Step 18 callback phase robustness
+
+"on":
+  push:
+    paths:
+      - ".github/workflows/step18-phase-robustness.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  smoke_then_real:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Restore held-out fold models and decode WAVs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/step18_phase/variants
+          gh run download 36641228328 -R "$GITHUB_REPOSITORY" -n step18-fusion3-estimated-midi -D /tmp/step18_phase
+          test -f /tmp/step18_phase/fusion_real/python_oof_probabilities.json
+          pip install numpy==2.3.5 soundfile
+          python training/prepare_step18_raw_audio.py training/data/ringing_384 training/results/reference/fusion_selector_oof_384.json --out /tmp/step18_phase/raw
+      - name: Smoke callback phases and full silent frames
+        run: |
+          for lead in 1024 2048 3072 4096 8192; do
+            node training/run_step18_full_replay.mjs training/results/reference/fusion_selector_oof_384.json /tmp/step18_phase/raw /tmp/step18_phase/fusion_real/python_oof_probabilities.json /tmp/step18_phase/fusion_real "/tmp/step18_phase/variants/lead_${lead}_smoke.json" --smoke --reference-yin --hybrid-start --leading-samples "$lead"
+          done
+          node training/summarize_step18_phase_grid.mjs training/results/reference/step18_yin_gate_hybrid_real_384.json /tmp/step18_phase/variants /tmp/step18_phase/smoke_summary.json --smoke
+      - name: Gate Real on Smoke
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";const s=JSON.parse(fs.readFileSync("/tmp/step18_phase/smoke_summary.json"));if(s.conditions.length!==5||s.conditions.some(r=>r.recordings!==36||r.variant_captures<1))process.exit(1)'
+      - name: Real paired replay on all 384 WAVs
+        run: |
+          for lead in 1024 2048 3072 4096 8192; do
+            node training/run_step18_full_replay.mjs training/results/reference/fusion_selector_oof_384.json /tmp/step18_phase/raw /tmp/step18_phase/fusion_real/python_oof_probabilities.json /tmp/step18_phase/fusion_real "/tmp/step18_phase/variants/lead_${lead}_real.json" --reference-yin --hybrid-start --leading-samples "$lead"
+          done
+          node training/summarize_step18_phase_grid.mjs training/results/reference/step18_yin_gate_hybrid_real_384.json /tmp/step18_phase/variants /tmp/step18_phase/real_summary.json
+      - name: Gate paired completeness
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";const s=JSON.parse(fs.readFileSync("/tmp/step18_phase/real_summary.json"));if(s.conditions.length!==5||s.conditions.some(r=>r.recordings!==384||r.paired_captures<100))process.exit(1)'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-callback-phase-robustness
+          path: |
+            /tmp/step18_phase/smoke_summary.json
+            /tmp/step18_phase/real_summary.json
+            /tmp/step18_phase/variants/*.json
+          if-no-files-found: warn
