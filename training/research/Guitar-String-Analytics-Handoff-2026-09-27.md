@@ -1,3 +1,9 @@
+# Gain calibration update — 2026-09-30
+
+The full-pipeline trial page now includes diagnostics-only gain calibration: silence + 24 open-string picks (eight strings × hard/normal/soft). Calibration guides Focusrite gain/headroom/noise checks and compares raw peaks to the matching recorded example. No gain correction, normalization, EQ, model, feature, threshold, capture, or early-action changes. Follow `training/research/LIVE-PIPELINE-TRIAL.md` for criteria and limitations. Calibration JSON exports separately; each trial ZIP retains a calibration snapshot. Restart calibration after changing physical gain. The model is amplitude-sensitive; do not add per-note normalization without paired accuracy evidence. Browser synthetic tests validate capture/export plumbing; actual playing accuracy is still pending. Initial gain-calibration commit: ed93c0d; Pages publication run 36740665766 passed.
+
+---
+
 # Guitar Physical-String Analytics — Current Handoff (updated 2026-09-30)
 
 ## NEXT CHAT START HERE

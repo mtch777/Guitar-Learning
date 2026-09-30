@@ -125,7 +125,7 @@ function invalidateCalibration(){
 }
 function calibrationPrompt(){
  const step=calibrationSteps[calibration.step];
- $('calibrationPrompt').textContent=step?`Step ${calibration.step+1}/${calibrationSteps.length} · ${step.kind==='silence'?'Mute all strings; measure silence':`String ${step.string}, open · ${step.attack} pick · click Measure, then wait for PLAY NOW`}`:'Calibration complete. Keep gain fixed; restart if you adjust it.';
+ $('calibrationPrompt').textContent=step?`Step ${calibration.step+1}/${calibrationSteps.length} · ${step.kind==='silence'?'Mute all strings; measure silence':`String ${step.string}, open · ${step.attack} pick · click Measure, then wait for PLAY NOW`}`:`Calibration complete. ${calibration.verdict} Restart if you adjust gain.`;
 }
 $('calibrate').onclick=()=>{
  calibration={id:crypto.randomUUID(),startedAt:new Date().toISOString(),channel:Number($('channel').value)+1,deviceSettings:stream.getAudioTracks()[0].getSettings(),sampleRate:context.sampleRate,step:0,noiseDb:null,notes:[],complete:false,thresholds:{minimumHeadroomDb:3,minimumNoiseMarginDb:20,onsetRmsDb:-48},audioCorrection:'none'};
@@ -142,7 +142,7 @@ function observeGain(samples,audioTime){
  if(now-lastFeedbackAt>400){
   lastFeedbackAt=now;const r=summarize(recentLevels,calibration?.noiseDb??null);
   $('gainMetrics').textContent=`Recent peak ${r.peakDb.toFixed(1)} dBFS · strongest block RMS ${r.loudestBlockRmsDb.toFixed(1)} dBFS`+(r.noiseMarginDb===null?'':` · noise margin ${r.noiseMarginDb.toFixed(1)} dB`);
-  if(r.peakDb>-55)$('gainFeedback').textContent=assess(r,calibration?.noiseDb??null);
+  if(r.peakDb>-55&&(!calibration||calibration.complete||active))$('gainFeedback').textContent=assess(r,calibration?.noiseDb??null);
  }
  if(!calibrationRun)return;
  const run=calibrationRun;run.startAudioTime??=audioTime;const elapsed=audioTime-run.startAudioTime;

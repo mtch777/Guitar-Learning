@@ -3,6 +3,12 @@ name: Full pipeline live trial browser preflight
   push:
     paths:
       - ".github/workflows/live-pipeline-preflight.yml"
+      - "src/input/gain-calibration.js"
+      - "src/input/live-pipeline-test.js"
+      - "live-pipeline-test.html"
+      - "public/model/gain-reference.json"
+      - "training/check_gain_calibration.mjs"
+      - "training/check_live_trial_browser.cjs"
   workflow_dispatch:
 permissions:
   contents: read
