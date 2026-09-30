@@ -120,12 +120,16 @@ function invalidateCalibration(){
   if(calibrationRun)clearTimeout(calibrationRun.timeout);
   if(calibration)calibration.invalidatedAt=new Date().toISOString();
   calibrationRun=null;calibration=null;recentLevels=[];
-  $('calibrationPrompt').textContent='Input changed or stopped. Start calibration again.';
+  $('calibrationPrompt').textContent='Click “Enable microphone” if input is off, then click “Start / restart calibration”.';
   $('gainFeedback').textContent='No current gain calibration.';lock(false);
 }
 function calibrationPrompt(){
  const step=calibrationSteps[calibration.step];
- $('calibrationPrompt').textContent=step?`Step ${calibration.step+1}/${calibrationSteps.length} · ${step.kind==='silence'?'Mute all strings. Click “Measure next step” to record silence.':`String ${step.string}, open · ${step.attack} pick · waiting for your click. Click “Measure next step”; PLAY NOW appears about half a second later.`}`:`Calibration complete. ${calibration.verdict} Restart if you adjust gain.`;
+ if(!step){$('calibrationPrompt').textContent=`Calibration finished. ${calibration.verdict} If you change the Focusrite gain, click “Start / restart calibration” and repeat the recordings.`;return;}
+ const instruction=step.kind==='silence'
+  ? 'Mute all strings. Click “Measure next step” to record 3 seconds of silence.'
+  : `Prepare string ${step.string}, open (no fret), with a ${step.attack} pick. Click “Measure next step”. Do not play until this line says PLAY NOW.`;
+ $('calibrationPrompt').textContent=`${calibration.step?'Previous recording finished. ':''}Recording ${calibration.step+1} of ${calibrationSteps.length}: ${instruction}`;
 }
 $('calibrate').onclick=()=>{
  calibration={id:crypto.randomUUID(),startedAt:new Date().toISOString(),channel:Number($('channel').value)+1,deviceSettings:stream.getAudioTracks()[0].getSettings(),sampleRate:context.sampleRate,step:0,noiseDb:null,notes:[],complete:false,thresholds:{minimumHeadroomDb:3,minimumNoiseMarginDb:20,onsetRmsDb:-48},audioCorrection:'none'};
@@ -134,8 +138,8 @@ $('calibrate').onclick=()=>{
 $('calibrationMeasure').onclick=()=>{
  const step=calibrationSteps[calibration.step];
  calibrationRun={step,blocks:[],startAudioTime:null};lock(true);updateReady();
- $('calibrationPrompt').textContent=step.kind==='silence'?'MEASURING SILENCE · mute all strings':'Stay quiet…';
- calibrationRun.timeout=setTimeout(()=>{calibrationRun=null;lock(false);updateReady();$('calibrationPrompt').textContent='Audio capture stopped. Repeat this calibration step.';},8000);
+ $('calibrationPrompt').textContent=step.kind==='silence'?'RECORDING SILENCE — keep all strings muted.':'GET READY — do not play yet.';
+ calibrationRun.timeout=setTimeout(()=>{calibrationRun=null;lock(false);updateReady();$('calibrationPrompt').textContent='No complete audio recording arrived. Check the input meter, then click “Measure next step” to try this recording again.';},8000);
 };
 function observeGain(samples,audioTime){
  const reading=measure(samples),now=wall();recentLevels.push(reading);if(recentLevels.length>12)recentLevels.shift();
@@ -147,7 +151,7 @@ function observeGain(samples,audioTime){
  if(!calibrationRun)return;
  const run=calibrationRun;run.startAudioTime??=audioTime;const elapsed=audioTime-run.startAudioTime;
  // Ignore initial half-second for pick cues. Silence uses every full block.
- if(run.step.kind==='note'&&elapsed>=.5)$('calibrationPrompt').textContent=`PLAY NOW · string ${run.step.string} open · ${run.step.attack} · let ring`;
+ if(run.step.kind==='note'&&elapsed>=.5)$('calibrationPrompt').textContent=`PLAY NOW — pluck string ${run.step.string} once, open (no fret), with a ${run.step.attack} pick. Let it ring.`;
  if(run.step.kind==='silence'||elapsed>=.5)run.blocks.push(reading);
  if(elapsed<3)return;
  clearTimeout(run.timeout);

@@ -8,10 +8,17 @@
 <label>Input channel <select id="channel"><option value="1" selected>2 · guitar input</option><option value="0">1</option></select></label>
 <button id="microphone" disabled>Enable microphone</button><div id="levels">Input off</div><div id="model" class="muted">Loading models…</div></fieldset>
 <fieldset><legend>2 · Gain calibration</legend>
-<p>Keep guitar volume/tone at maximum and bridge pickup selected. Keep the Focusrite gain fixed during a calibration pass. Each step waits for your click on “Measure next step”. For silence, keep all strings muted. For a pick, click the button, wait for PLAY NOW, then pluck once and let it ring.</p>
+<p>Keep guitar volume and tone at maximum. Select the bridge pickup.</p>
+<ol>
+<li>Click <strong>Start / restart calibration</strong>. This prepares the calibration; it does not record yet.</li>
+<li>Mute all strings. Click <strong>Measure next step</strong> to record silence.</li>
+<li>Read the string and picking strength shown below. Click <strong>Measure next step</strong> to begin that recording. Play one note when <strong>PLAY NOW</strong> appears in the same line.</li>
+<li>After the recording finishes, repeat instruction 3 for the next note. There are 24 notes in total.</li>
+</ol>
+<p>Keep the Focusrite gain fixed while recording these notes. If you adjust it, click <strong>Start / restart calibration</strong> and begin again.</p>
 <button id="calibrate" disabled>Start / restart calibration</button><button id="calibrationMeasure" disabled>Measure next step</button>
 <button id="calibrationExport" disabled>Export calibration JSON</button>
-<p id="calibrationPrompt">Enable input, then calibrate silence and 24 open-string picks.</p>
+<p id="calibrationPrompt" role="status">Click “Enable microphone” above, then click “Start / restart calibration”.</p>
 <p id="gainFeedback" role="status">No gain assessment yet.</p><p id="gainMetrics" class="muted"></p>
 <p class="muted">Advice uses measured digital headroom and noise margin. Check the Focusrite clip indicator too. No automatic gain, normalization, EQ, or model changes are applied. If you adjust the physical gain, restart calibration. A level match is not a guarantee of classification accuracy.</p>
 </fieldset>
