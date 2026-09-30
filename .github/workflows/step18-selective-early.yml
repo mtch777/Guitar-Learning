@@ -1,0 +1,56 @@
+name: Step 18 selective early event gate
+
+"on":
+  push:
+    paths:
+      - ".github/workflows/step18-selective-early.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  smoke_then_real:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Restore held-out fold models and original WAVs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/selective
+          gh run download 36641228328 -R "$GITHUB_REPOSITORY" -n step18-fusion3-estimated-midi -D /tmp/selective
+          test -f /tmp/selective/fusion_real/python_oof_probabilities.json
+          pip install numpy==2.3.5 soundfile
+          python training/prepare_step18_raw_audio.py training/data/ringing_384 training/results/reference/fusion_selector_oof_384.json --out /tmp/selective/raw
+      - name: Smoke replay and grouped policy evaluation
+        run: |
+          node training/run_step18_full_replay.mjs training/results/reference/fusion_selector_oof_384.json /tmp/selective/raw /tmp/selective/fusion_real/python_oof_probabilities.json /tmp/selective/fusion_real /tmp/selective/replay_smoke.json --smoke --reference-yin --hybrid-start
+          node --input-type=module -e 'import fs from "node:fs";const r=JSON.parse(fs.readFileSync("/tmp/selective/replay_smoke.json")).report;if(r.recordings!==36||r.classified!==36||r.tuple_correct<1)process.exit(1)'
+      - name: Full diagnostic replay and targeted Smoke scoring
+        run: |
+          node training/run_step18_full_replay.mjs training/results/reference/fusion_selector_oof_384.json /tmp/selective/raw /tmp/selective/fusion_real/python_oof_probabilities.json /tmp/selective/fusion_real /tmp/selective/replay_real.json --reference-yin --hybrid-start
+          node training/score_step18_selective_early.mjs /tmp/selective/replay_real.json /tmp/selective/score_smoke.json --smoke
+          node --input-type=module -e 'import fs from "node:fs";const r=JSON.parse(fs.readFileSync("/tmp/selective/replay_real.json")).report,s=JSON.parse(fs.readFileSync("/tmp/selective/score_smoke.json")).report;if(r.recordings!==384||r.tuple_correct!==373||r.first_event_correct!==362||s.recordings<10)process.exit(1)'
+      - name: Gate Real on Smoke
+        run: node training/score_step18_selective_early.mjs /tmp/selective/replay_real.json /tmp/selective/score_real.json
+      - name: Verify complete paired results
+        run: node --input-type=module -e 'import fs from "node:fs";const {report:r,rows}=JSON.parse(fs.readFileSync("/tmp/selective/score_real.json"));if(r.recordings!==384||rows.length!==384||r.always_wait_correct!==373||r.immediate_correct!==362)process.exit(1)'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step18-selective-early-event
+          path: |
+            /tmp/selective/replay_smoke.json
+            /tmp/selective/replay_real.json
+            /tmp/selective/score_smoke.json
+            /tmp/selective/score_real.json
+          if-no-files-found: warn

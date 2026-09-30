@@ -56,6 +56,7 @@ for (const [index, row] of targets.entries()) {
   samples.set(raw, leadingSamples);
   const buffer = new RingingPluckBuffer();
   const pitchTimes = [], bufferTimes = [], singletonEvents = [];
+  let priorSingleton = null, consecutiveSingleton = 0;
   let captured = null, fusion = null, captureMs = null, inferenceMs = null;
   let frames = 0, firstTriggerFrame = null, eligibleFrames = 0, maxPitchConfidence = 0;
   for (let offset = 0; offset + frameSize <= samples.length; offset += frameSize) {
@@ -86,9 +87,17 @@ for (const [index, row] of targets.entries()) {
     // This is the normal trainer's independent early singleton event.
     if (midi != null && votingPitch.confidence >= .55) {
       const candidates = candidateStringsForMidi(midi);
-      if (candidates.length === 1) singletonEvents.push({ midi, string: candidates[0].string,
-        frame: frames, elapsed_ms: (offset + frameSize) / sampleRate * 1000 });
-    }
+      if (candidates.length === 1) {
+        const string = candidates[0].string;
+        consecutiveSingleton = priorSingleton?.midi === midi && priorSingleton?.string === string
+          ? consecutiveSingleton + 1 : 1;
+        singletonEvents.push({ midi, string, frame: frames,
+          elapsed_ms: (offset + frameSize) / sampleRate * 1000,
+          pitch_confidence: votingPitch.confidence, dbfs: frame.dbfs,
+          rms, peak, consecutive_singleton: consecutiveSingleton });
+        priorSingleton = { midi, string };
+      } else { priorSingleton = null; consecutiveSingleton = 0; }
+    } else { priorSingleton = null; consecutiveSingleton = 0; }
     frames++;
     if (pluck) {
       captured = { midi: pluck.midi, pitch_confidence: pluck.pitchConfidence,
@@ -115,6 +124,7 @@ for (const [index, row] of targets.entries()) {
     eligible_frames: eligibleFrames, max_pitch_confidence: maxPitchConfidence,
     inference_ms: inferenceMs, pitch_compute_ms: pitchTimes, buffer_compute_ms: bufferTimes,
     first_singleton: singletonEvents[0] || null, early_singleton: early,
+    early_singletons: singletonEvents.filter(e => captureMs == null || e.elapsed_ms < captureMs - 1e-6),
     first_event: firstEvent, singleton_count: singletonEvents.length,
     fusion, tuple_correct: !!fusion && fusion.midi === row.midi && fusion.string === row.string });
   if (index === 0 || (index + 1) % 25 === 0) console.log(`REPLAY [${index + 1}/${targets.length}]`, { captured: results.filter(r => r.captured).length }, '\n');
