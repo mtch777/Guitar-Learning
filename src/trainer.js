@@ -6439,13 +6439,11 @@ function buildModeIntervalExercise(baseRoot, baseScaleName) {
 
   answerDisplay.className = 'modeIntervalPrompt';
   answerDisplay.textContent =
-    'The ' +
-    relativeInterval +
-    ' from ' +
-    modeNames[relativeMode] +
-    ' is what note on ' +
     modeNames[baseScaleName] +
-    '?';
+    ' x = ' +
+    modeNames[relativeMode] +
+    ' ' +
+    relativeInterval;
 
   if (showAllButton) {
     showAllButton.hidden = true;
