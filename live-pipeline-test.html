@@ -7,7 +7,15 @@
 <fieldset><legend>1 · Audio input</legend><label>Device <select id="device"><option value="">System default</option></select></label>
 <label>Input channel <select id="channel"><option value="1" selected>2 · guitar input</option><option value="0">1</option></select></label>
 <button id="microphone" disabled>Enable microphone</button><div id="levels">Input off</div><div id="model" class="muted">Loading models…</div></fieldset>
-<fieldset><legend>2 · Target</legend><label>Plan <select id="plan"><option value="pilot">Pilot · 24 normal plucks</option><option value="full">Full · 240 plucks</option><option value="manual">Manual / edge cases</option></select></label>
+<fieldset><legend>2 · Gain calibration</legend>
+<p>Keep guitar volume/tone at maximum and bridge pickup selected. Keep the Focusrite gain fixed during a calibration pass. Mute strings for silence; pluck once at each cue and let it ring.</p>
+<button id="calibrate" disabled>Start / restart calibration</button><button id="calibrationMeasure" disabled>Measure next step</button>
+<button id="calibrationExport" disabled>Export calibration JSON</button>
+<p id="calibrationPrompt">Enable input, then calibrate silence and 24 open-string picks.</p>
+<p id="gainFeedback" role="status">No gain assessment yet.</p><p id="gainMetrics" class="muted"></p>
+<p class="muted">Advice uses measured digital headroom and noise margin. Check the Focusrite clip indicator too. No automatic gain, normalization, EQ, or model changes are applied. If you adjust the physical gain, restart calibration. A level match is not a guarantee of classification accuracy.</p>
+</fieldset>
+<fieldset><legend>3 · Target</legend><label>Plan <select id="plan"><option value="pilot">Pilot · 24 normal plucks</option><option value="full">Full · 240 plucks</option><option value="manual">Manual / edge cases</option></select></label>
 <label>Trial <select id="kind"><option value="single">Single pluck</option><option value="silence">Silence · do not play</option><option value="repeated">Two repeated plucks</option><option value="transition">Two positions in order</option><option value="overlap">Two positions overlapping</option></select></label><br>
 <label>String <select id="string"></select></label><label>Fret <input id="fret" type="number" min="0" max="24" value="0"></label>
 <label>Pick <select id="attack"><option>soft</option><option selected>normal</option><option>hard</option></select></label>
@@ -17,6 +25,6 @@
 <button id="record" disabled>Record trial</button><button id="next">Skip target</button></fieldset>
 <output id="status" aria-live="polite">Loading models…</output>
 <p>Press Record, stay quiet, then play when “PLAY NOW” appears. Let the note ring. For repeats, mute between plucks; for transitions play the second position after the second cue. Overlap trials deliberately leave the first note ringing.</p>
-<fieldset><legend>3 · Save results</legend><button id="export" disabled>Export ZIP · results + audio</button><button id="clear" disabled>Clear saved trials</button><p class="muted">Export after each block of 24–40 trials. Collection pauses at 40 until you export and clear. Keep the ZIP files for analysis; audio and results stay on this device until downloaded or shared.</p><p id="saved">No saved trials</p></fieldset>
+<fieldset><legend>4 · Save results</legend><button id="export" disabled>Export ZIP · results + audio</button><button id="clear" disabled>Clear saved trials</button><p class="muted">Export after each block of 24–40 trials. Collection pauses at 40 until you export and clear. Keep the ZIP files for analysis; audio and results stay on this device until downloaded or shared.</p><p id="saved">No saved trials</p></fieldset>
 <div class="scroll"><table><thead><tr><th>Trial</th><th>Target</th><th>Kind</th><th>Input frames</th><th>Status</th></tr></thead><tbody id="history"></tbody></table></div>
 <script type="module" src="/src/input/live-pipeline-test.js"></script></body></html>

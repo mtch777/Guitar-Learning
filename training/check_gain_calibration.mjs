@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {measure,summarize,assess,calibrationVerdict,calibrationSteps} from '../src/input/gain-calibration.js';
+const quiet=measure(Float32Array.of(.0001,-.0001)),soft=measure(Float32Array.of(.03,-.03)),hot=measure(Float32Array.of(.9999,-1)),weak=measure(Float32Array.of(.001,-.001));
+assert.match(assess(summarize([hot],quiet.rmsDb),quiet.rmsDb),/clipping/);
+assert.match(assess(summarize([weak],quiet.rmsDb),quiet.rmsDb),/onset/);
+assert.match(assess(summarize([soft],quiet.rmsDb),quiet.rmsDb),/Usable/);
+assert.match(assess(summarize([soft],-40),-40),/noise margin/);
+assert.equal(calibrationSteps.length,25);
+const a=Float32Array.of(.01,-.2,.03),before=a.slice();measure(a);assert.deepEqual(a,before);
+assert.match(calibrationVerdict([summarize([soft],quiet.rmsDb)]),/Keep/);
+assert.match(calibrationVerdict([summarize([hot],quiet.rmsDb)]),/Lower/);
+assert.match(calibrationVerdict([summarize([weak],quiet.rmsDb)]),/reliability/);
+console.log('Gain diagnostics: clipping, gate, noise margin, verdicts, 25 steps, PCM preservation pass.');

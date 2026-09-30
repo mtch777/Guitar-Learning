@@ -1,0 +1,1160 @@
+{
+  "schema": "gain-reference-v1",
+  "count": 384,
+  "metric": "Raw WAV absolute peak dBFS; level comparison only, not spectral or accuracy matching.",
+  "datasetSha256": "20efc694400e7c040590787cf03f232cb4fda4e07b0d02d51f8582c218b5e91e",
+  "positions": {
+    "1:0:hard": {
+      "peakDb": -8.352
+    },
+    "1:0:normal": {
+      "peakDb": -13.574
+    },
+    "1:0:soft": {
+      "peakDb": -22.945
+    },
+    "1:1:hard": {
+      "peakDb": -20.738
+    },
+    "1:1:normal": {
+      "peakDb": -15.458
+    },
+    "1:1:soft": {
+      "peakDb": -24.053
+    },
+    "1:2:hard": {
+      "peakDb": -21.782
+    },
+    "1:2:normal": {
+      "peakDb": -18.136
+    },
+    "1:2:soft": {
+      "peakDb": -23.832
+    },
+    "1:3:hard": {
+      "peakDb": -17.557
+    },
+    "1:3:normal": {
+      "peakDb": -14.463
+    },
+    "1:3:soft": {
+      "peakDb": -19.219
+    },
+    "1:4:hard": {
+      "peakDb": -15.351
+    },
+    "1:4:normal": {
+      "peakDb": -17.172
+    },
+    "1:4:soft": {
+      "peakDb": -20.454
+    },
+    "1:5:hard": {
+      "peakDb": -7.52
+    },
+    "1:5:normal": {
+      "peakDb": -12.319
+    },
+    "1:5:soft": {
+      "peakDb": -19.252
+    },
+    "1:6:hard": {
+      "peakDb": -13.472
+    },
+    "1:6:normal": {
+      "peakDb": -15.166
+    },
+    "1:6:soft": {
+      "peakDb": -21.016
+    },
+    "1:7:hard": {
+      "peakDb": -5.671
+    },
+    "1:7:normal": {
+      "peakDb": -12.589
+    },
+    "1:7:soft": {
+      "peakDb": -20.348
+    },
+    "1:8:hard": {
+      "peakDb": -11.527
+    },
+    "1:8:normal": {
+      "peakDb": -12.424
+    },
+    "1:8:soft": {
+      "peakDb": -19.55
+    },
+    "1:9:hard": {
+      "peakDb": -11.832
+    },
+    "1:9:normal": {
+      "peakDb": -15.293
+    },
+    "1:9:soft": {
+      "peakDb": -19.868
+    },
+    "1:10:hard": {
+      "peakDb": -12.291
+    },
+    "1:10:normal": {
+      "peakDb": -10.707
+    },
+    "1:10:soft": {
+      "peakDb": -19.881
+    },
+    "1:11:hard": {
+      "peakDb": -12.36
+    },
+    "1:11:normal": {
+      "peakDb": -8.963
+    },
+    "1:11:soft": {
+      "peakDb": -20.476
+    },
+    "1:12:hard": {
+      "peakDb": -7.982
+    },
+    "1:12:normal": {
+      "peakDb": -10.514
+    },
+    "1:12:soft": {
+      "peakDb": -15.006
+    },
+    "1:13:hard": {
+      "peakDb": -12.721
+    },
+    "1:13:normal": {
+      "peakDb": -13.401
+    },
+    "1:13:soft": {
+      "peakDb": -13.057
+    },
+    "1:14:hard": {
+      "peakDb": -13.523
+    },
+    "1:14:normal": {
+      "peakDb": -10.918
+    },
+    "1:14:soft": {
+      "peakDb": -15.034
+    },
+    "1:15:hard": {
+      "peakDb": -13.927
+    },
+    "1:15:normal": {
+      "peakDb": -9.537
+    },
+    "1:15:soft": {
+      "peakDb": -14.842
+    },
+    "1:16:hard": {
+      "peakDb": -15.819
+    },
+    "1:16:normal": {
+      "peakDb": -10.1
+    },
+    "1:16:soft": {
+      "peakDb": -15.181
+    },
+    "1:17:hard": {
+      "peakDb": -5.552
+    },
+    "1:17:normal": {
+      "peakDb": -8.513
+    },
+    "1:17:soft": {
+      "peakDb": -14.773
+    },
+    "1:18:hard": {
+      "peakDb": -13.61
+    },
+    "1:18:normal": {
+      "peakDb": -12.299
+    },
+    "1:18:soft": {
+      "peakDb": -16.9
+    },
+    "1:19:hard": {
+      "peakDb": -7.235
+    },
+    "1:19:normal": {
+      "peakDb": -9.035
+    },
+    "1:19:soft": {
+      "peakDb": -17.001
+    },
+    "1:20:hard": {
+      "peakDb": -13.776
+    },
+    "1:20:normal": {
+      "peakDb": -14.591
+    },
+    "1:20:soft": {
+      "peakDb": -16.337
+    },
+    "1:21:hard": {
+      "peakDb": -12.152
+    },
+    "1:21:normal": {
+      "peakDb": -11.155
+    },
+    "1:21:soft": {
+      "peakDb": -14.808
+    },
+    "1:22:hard": {
+      "peakDb": -11.273
+    },
+    "1:22:normal": {
+      "peakDb": -11.212
+    },
+    "1:22:soft": {
+      "peakDb": -16.243
+    },
+    "1:23:hard": {
+      "peakDb": -13.496
+    },
+    "1:23:normal": {
+      "peakDb": -9.247
+    },
+    "1:23:soft": {
+      "peakDb": -13.661
+    },
+    "1:24:hard": {
+      "peakDb": -6.44
+    },
+    "1:24:normal": {
+      "peakDb": -9.021
+    },
+    "1:24:soft": {
+      "peakDb": -20.173
+    },
+    "2:0:hard": {
+      "peakDb": -7.08
+    },
+    "2:0:normal": {
+      "peakDb": -11.768
+    },
+    "2:0:soft": {
+      "peakDb": -15.859
+    },
+    "2:1:hard": {
+      "peakDb": -15.362
+    },
+    "2:1:normal": {
+      "peakDb": -16.19
+    },
+    "2:1:soft": {
+      "peakDb": -17.67
+    },
+    "2:2:hard": {
+      "peakDb": -15.637
+    },
+    "2:2:normal": {
+      "peakDb": -13.704
+    },
+    "2:2:soft": {
+      "peakDb": -19.349
+    },
+    "2:3:hard": {
+      "peakDb": -15.64
+    },
+    "2:3:normal": {
+      "peakDb": -15.809
+    },
+    "2:3:soft": {
+      "peakDb": -16.216
+    },
+    "2:4:hard": {
+      "peakDb": -17.727
+    },
+    "2:4:normal": {
+      "peakDb": -15.155
+    },
+    "2:4:soft": {
+      "peakDb": -17.725
+    },
+    "2:5:hard": {
+      "peakDb": -8.857
+    },
+    "2:5:normal": {
+      "peakDb": -12.977
+    },
+    "2:5:soft": {
+      "peakDb": -15.724
+    },
+    "2:6:hard": {
+      "peakDb": -17.917
+    },
+    "2:6:normal": {
+      "peakDb": -15.365
+    },
+    "2:6:soft": {
+      "peakDb": -19.543
+    },
+    "2:7:hard": {
+      "peakDb": -8.712
+    },
+    "2:7:normal": {
+      "peakDb": -12.397
+    },
+    "2:7:soft": {
+      "peakDb": -15.415
+    },
+    "2:8:hard": {
+      "peakDb": -17.309
+    },
+    "2:8:normal": {
+      "peakDb": -14.063
+    },
+    "2:8:soft": {
+      "peakDb": -17.762
+    },
+    "2:9:hard": {
+      "peakDb": -15.339
+    },
+    "2:9:normal": {
+      "peakDb": -12.588
+    },
+    "2:9:soft": {
+      "peakDb": -17.153
+    },
+    "2:10:hard": {
+      "peakDb": -14.8
+    },
+    "2:10:normal": {
+      "peakDb": -13.406
+    },
+    "2:10:soft": {
+      "peakDb": -18.136
+    },
+    "2:11:hard": {
+      "peakDb": -15.279
+    },
+    "2:11:normal": {
+      "peakDb": -13.139
+    },
+    "2:11:soft": {
+      "peakDb": -20.171
+    },
+    "2:12:hard": {
+      "peakDb": -5.163
+    },
+    "2:12:normal": {
+      "peakDb": -8.125
+    },
+    "2:12:soft": {
+      "peakDb": -15.296
+    },
+    "2:13:hard": {
+      "peakDb": -12.275
+    },
+    "2:13:normal": {
+      "peakDb": -11.534
+    },
+    "2:13:soft": {
+      "peakDb": -15.296
+    },
+    "2:14:hard": {
+      "peakDb": -14.632
+    },
+    "2:14:normal": {
+      "peakDb": -10.913
+    },
+    "2:14:soft": {
+      "peakDb": -13.964
+    },
+    "2:15:hard": {
+      "peakDb": -13.115
+    },
+    "2:15:normal": {
+      "peakDb": -10.833
+    },
+    "2:15:soft": {
+      "peakDb": -13.964
+    },
+    "2:16:hard": {
+      "peakDb": -14.787
+    },
+    "2:16:normal": {
+      "peakDb": -10.935
+    },
+    "2:16:soft": {
+      "peakDb": -14.947
+    },
+    "2:17:hard": {
+      "peakDb": -5.874
+    },
+    "2:17:normal": {
+      "peakDb": -8.012
+    },
+    "2:17:soft": {
+      "peakDb": -15.333
+    },
+    "2:18:hard": {
+      "peakDb": -9.541
+    },
+    "2:18:normal": {
+      "peakDb": -10.272
+    },
+    "2:18:soft": {
+      "peakDb": -15.505
+    },
+    "2:19:hard": {
+      "peakDb": -4.149
+    },
+    "2:19:normal": {
+      "peakDb": -8.037
+    },
+    "2:19:soft": {
+      "peakDb": -16.639
+    },
+    "2:20:hard": {
+      "peakDb": -12.668
+    },
+    "2:20:normal": {
+      "peakDb": -10.159
+    },
+    "2:20:soft": {
+      "peakDb": -15.28
+    },
+    "2:21:hard": {
+      "peakDb": -13.499
+    },
+    "2:21:normal": {
+      "peakDb": -10.405
+    },
+    "2:21:soft": {
+      "peakDb": -14.492
+    },
+    "2:22:hard": {
+      "peakDb": -16.016
+    },
+    "2:22:normal": {
+      "peakDb": -10.698
+    },
+    "2:22:soft": {
+      "peakDb": -16.093
+    },
+    "2:23:hard": {
+      "peakDb": -14.226
+    },
+    "2:23:normal": {
+      "peakDb": -9.721
+    },
+    "2:23:soft": {
+      "peakDb": -15.003
+    },
+    "2:24:hard": {
+      "peakDb": -5.107
+    },
+    "2:24:normal": {
+      "peakDb": -8.242
+    },
+    "2:24:soft": {
+      "peakDb": -13.736
+    },
+    "3:0:hard": {
+      "peakDb": -10.886
+    },
+    "3:0:normal": {
+      "peakDb": -13.468
+    },
+    "3:0:soft": {
+      "peakDb": -17.924
+    },
+    "3:1:normal": {
+      "peakDb": -19.989
+    },
+    "3:2:normal": {
+      "peakDb": -18.143
+    },
+    "3:3:normal": {
+      "peakDb": -16.401
+    },
+    "3:4:normal": {
+      "peakDb": -15.147
+    },
+    "3:5:hard": {
+      "peakDb": -8.864
+    },
+    "3:5:normal": {
+      "peakDb": -14.04
+    },
+    "3:5:soft": {
+      "peakDb": -17.036
+    },
+    "3:6:normal": {
+      "peakDb": -16.662
+    },
+    "3:7:hard": {
+      "peakDb": -9.068
+    },
+    "3:7:normal": {
+      "peakDb": -10.408
+    },
+    "3:7:soft": {
+      "peakDb": -14.819
+    },
+    "3:8:normal": {
+      "peakDb": -16.748
+    },
+    "3:9:normal": {
+      "peakDb": -16.641
+    },
+    "3:10:normal": {
+      "peakDb": -15.378
+    },
+    "3:11:normal": {
+      "peakDb": -15.68
+    },
+    "3:12:hard": {
+      "peakDb": -7.706
+    },
+    "3:12:normal": {
+      "peakDb": -11.227
+    },
+    "3:12:soft": {
+      "peakDb": -20.172
+    },
+    "3:13:normal": {
+      "peakDb": -15.898
+    },
+    "3:14:normal": {
+      "peakDb": -14.81
+    },
+    "3:15:normal": {
+      "peakDb": -15.37
+    },
+    "3:16:normal": {
+      "peakDb": -13.887
+    },
+    "3:17:hard": {
+      "peakDb": -7.717
+    },
+    "3:17:normal": {
+      "peakDb": -9.155
+    },
+    "3:17:soft": {
+      "peakDb": -16.635
+    },
+    "3:18:normal": {
+      "peakDb": -15.901
+    },
+    "3:19:hard": {
+      "peakDb": -7.803
+    },
+    "3:19:normal": {
+      "peakDb": -9.579
+    },
+    "3:19:soft": {
+      "peakDb": -18.087
+    },
+    "3:20:normal": {
+      "peakDb": -13.343
+    },
+    "3:21:normal": {
+      "peakDb": -12.638
+    },
+    "3:22:normal": {
+      "peakDb": -15.345
+    },
+    "3:23:normal": {
+      "peakDb": -14.612
+    },
+    "3:24:hard": {
+      "peakDb": -8.382
+    },
+    "3:24:normal": {
+      "peakDb": -11.373
+    },
+    "3:24:soft": {
+      "peakDb": -21.445
+    },
+    "4:0:hard": {
+      "peakDb": -12.988
+    },
+    "4:0:normal": {
+      "peakDb": -16.366
+    },
+    "4:0:soft": {
+      "peakDb": -23.274
+    },
+    "4:1:normal": {
+      "peakDb": -18.222
+    },
+    "4:2:normal": {
+      "peakDb": -18.847
+    },
+    "4:3:normal": {
+      "peakDb": -19.173
+    },
+    "4:4:normal": {
+      "peakDb": -19.502
+    },
+    "4:5:hard": {
+      "peakDb": -12.156
+    },
+    "4:5:normal": {
+      "peakDb": -15.953
+    },
+    "4:5:soft": {
+      "peakDb": -23.084
+    },
+    "4:6:normal": {
+      "peakDb": -18.584
+    },
+    "4:7:hard": {
+      "peakDb": -9.676
+    },
+    "4:7:normal": {
+      "peakDb": -14.76
+    },
+    "4:7:soft": {
+      "peakDb": -25.872
+    },
+    "4:8:normal": {
+      "peakDb": -18.465
+    },
+    "4:9:normal": {
+      "peakDb": -18.151
+    },
+    "4:10:normal": {
+      "peakDb": -18.562
+    },
+    "4:11:normal": {
+      "peakDb": -18.268
+    },
+    "4:12:hard": {
+      "peakDb": -9.718
+    },
+    "4:12:normal": {
+      "peakDb": -15.023
+    },
+    "4:12:soft": {
+      "peakDb": -20.494
+    },
+    "4:13:normal": {
+      "peakDb": -17.753
+    },
+    "4:14:normal": {
+      "peakDb": -18.346
+    },
+    "4:15:normal": {
+      "peakDb": -19.383
+    },
+    "4:16:normal": {
+      "peakDb": -21.916
+    },
+    "4:17:hard": {
+      "peakDb": -11.119
+    },
+    "4:17:normal": {
+      "peakDb": -14.512
+    },
+    "4:17:soft": {
+      "peakDb": -21.171
+    },
+    "4:18:normal": {
+      "peakDb": -18.595
+    },
+    "4:19:hard": {
+      "peakDb": -10.918
+    },
+    "4:19:normal": {
+      "peakDb": -13.908
+    },
+    "4:19:soft": {
+      "peakDb": -20.625
+    },
+    "4:20:normal": {
+      "peakDb": -19.741
+    },
+    "4:21:normal": {
+      "peakDb": -18.013
+    },
+    "4:22:normal": {
+      "peakDb": -18.625
+    },
+    "4:23:normal": {
+      "peakDb": -18.9
+    },
+    "4:24:hard": {
+      "peakDb": -10.085
+    },
+    "4:24:normal": {
+      "peakDb": -13.772
+    },
+    "4:24:soft": {
+      "peakDb": -22.641
+    },
+    "5:0:hard": {
+      "peakDb": -15.79
+    },
+    "5:0:normal": {
+      "peakDb": -17.517
+    },
+    "5:0:soft": {
+      "peakDb": -22.58
+    },
+    "5:1:normal": {
+      "peakDb": -21.691
+    },
+    "5:2:normal": {
+      "peakDb": -20.173
+    },
+    "5:3:normal": {
+      "peakDb": -22.633
+    },
+    "5:4:normal": {
+      "peakDb": -20.819
+    },
+    "5:5:hard": {
+      "peakDb": -14.263
+    },
+    "5:5:normal": {
+      "peakDb": -17.923
+    },
+    "5:5:soft": {
+      "peakDb": -29.299
+    },
+    "5:6:normal": {
+      "peakDb": -21.13
+    },
+    "5:7:hard": {
+      "peakDb": -11.445
+    },
+    "5:7:normal": {
+      "peakDb": -15.44
+    },
+    "5:7:soft": {
+      "peakDb": -26.182
+    },
+    "5:8:normal": {
+      "peakDb": -20.629
+    },
+    "5:9:normal": {
+      "peakDb": -21.548
+    },
+    "5:10:normal": {
+      "peakDb": -21.627
+    },
+    "5:11:normal": {
+      "peakDb": -22.799
+    },
+    "5:12:hard": {
+      "peakDb": -12.906
+    },
+    "5:12:normal": {
+      "peakDb": -16.291
+    },
+    "5:12:soft": {
+      "peakDb": -20.911
+    },
+    "5:13:normal": {
+      "peakDb": -19.302
+    },
+    "5:14:normal": {
+      "peakDb": -20.37
+    },
+    "5:15:normal": {
+      "peakDb": -19.965
+    },
+    "5:16:normal": {
+      "peakDb": -20.304
+    },
+    "5:17:hard": {
+      "peakDb": -11.209
+    },
+    "5:17:normal": {
+      "peakDb": -14.944
+    },
+    "5:17:soft": {
+      "peakDb": -22.003
+    },
+    "5:18:normal": {
+      "peakDb": -21.532
+    },
+    "5:19:hard": {
+      "peakDb": -10.723
+    },
+    "5:19:normal": {
+      "peakDb": -14.249
+    },
+    "5:19:soft": {
+      "peakDb": -21.381
+    },
+    "5:20:normal": {
+      "peakDb": -20.657
+    },
+    "5:21:normal": {
+      "peakDb": -20.109
+    },
+    "5:22:normal": {
+      "peakDb": -18.636
+    },
+    "5:23:normal": {
+      "peakDb": -19.371
+    },
+    "5:24:hard": {
+      "peakDb": -9.537
+    },
+    "5:24:normal": {
+      "peakDb": -13.713
+    },
+    "5:24:soft": {
+      "peakDb": -24.356
+    },
+    "6:0:hard": {
+      "peakDb": -10.924
+    },
+    "6:0:normal": {
+      "peakDb": -14.378
+    },
+    "6:0:soft": {
+      "peakDb": -18.979
+    },
+    "6:1:normal": {
+      "peakDb": -22.469
+    },
+    "6:2:normal": {
+      "peakDb": -20.448
+    },
+    "6:3:normal": {
+      "peakDb": -22.192
+    },
+    "6:4:normal": {
+      "peakDb": -20.152
+    },
+    "6:5:hard": {
+      "peakDb": -9.299
+    },
+    "6:5:normal": {
+      "peakDb": -14.95
+    },
+    "6:5:soft": {
+      "peakDb": -18.932
+    },
+    "6:6:normal": {
+      "peakDb": -21.338
+    },
+    "6:7:hard": {
+      "peakDb": -8.544
+    },
+    "6:7:normal": {
+      "peakDb": -11.186
+    },
+    "6:7:soft": {
+      "peakDb": -20.8
+    },
+    "6:8:normal": {
+      "peakDb": -19.324
+    },
+    "6:9:normal": {
+      "peakDb": -17.061
+    },
+    "6:10:normal": {
+      "peakDb": -16.464
+    },
+    "6:11:normal": {
+      "peakDb": -16.436
+    },
+    "6:12:hard": {
+      "peakDb": -8.826
+    },
+    "6:12:normal": {
+      "peakDb": -9.932
+    },
+    "6:12:soft": {
+      "peakDb": -17.592
+    },
+    "6:13:normal": {
+      "peakDb": -16.952
+    },
+    "6:14:normal": {
+      "peakDb": -15.858
+    },
+    "6:15:normal": {
+      "peakDb": -15.497
+    },
+    "6:16:normal": {
+      "peakDb": -14.88
+    },
+    "6:17:hard": {
+      "peakDb": -8.28
+    },
+    "6:17:normal": {
+      "peakDb": -9.091
+    },
+    "6:17:soft": {
+      "peakDb": -19.508
+    },
+    "6:18:normal": {
+      "peakDb": -13.955
+    },
+    "6:19:hard": {
+      "peakDb": -6.155
+    },
+    "6:19:normal": {
+      "peakDb": -9.319
+    },
+    "6:19:soft": {
+      "peakDb": -20.178
+    },
+    "6:20:normal": {
+      "peakDb": -13.972
+    },
+    "6:21:normal": {
+      "peakDb": -15.015
+    },
+    "6:22:normal": {
+      "peakDb": -17.114
+    },
+    "6:23:normal": {
+      "peakDb": -14.91
+    },
+    "6:24:hard": {
+      "peakDb": -5.718
+    },
+    "6:24:normal": {
+      "peakDb": -8.51
+    },
+    "6:24:soft": {
+      "peakDb": -19.135
+    },
+    "7:0:hard": {
+      "peakDb": -14.627
+    },
+    "7:0:normal": {
+      "peakDb": -15.588
+    },
+    "7:0:soft": {
+      "peakDb": -22.797
+    },
+    "7:1:normal": {
+      "peakDb": -21.89
+    },
+    "7:2:normal": {
+      "peakDb": -21.194
+    },
+    "7:3:normal": {
+      "peakDb": -20.854
+    },
+    "7:4:normal": {
+      "peakDb": -20.381
+    },
+    "7:5:hard": {
+      "peakDb": -12.096
+    },
+    "7:5:normal": {
+      "peakDb": -14.176
+    },
+    "7:5:soft": {
+      "peakDb": -28.096
+    },
+    "7:6:normal": {
+      "peakDb": -20.34
+    },
+    "7:7:hard": {
+      "peakDb": -12.749
+    },
+    "7:7:normal": {
+      "peakDb": -14.591
+    },
+    "7:7:soft": {
+      "peakDb": -21.35
+    },
+    "7:8:normal": {
+      "peakDb": -20.117
+    },
+    "7:9:normal": {
+      "peakDb": -21.043
+    },
+    "7:10:normal": {
+      "peakDb": -19.708
+    },
+    "7:11:normal": {
+      "peakDb": -18.884
+    },
+    "7:12:hard": {
+      "peakDb": -13.861
+    },
+    "7:12:normal": {
+      "peakDb": -15.208
+    },
+    "7:12:soft": {
+      "peakDb": -19.401
+    },
+    "7:13:normal": {
+      "peakDb": -20.735
+    },
+    "7:14:normal": {
+      "peakDb": -19.212
+    },
+    "7:15:normal": {
+      "peakDb": -19.13
+    },
+    "7:16:normal": {
+      "peakDb": -19.234
+    },
+    "7:17:hard": {
+      "peakDb": -13.348
+    },
+    "7:17:normal": {
+      "peakDb": -14.484
+    },
+    "7:17:soft": {
+      "peakDb": -23.252
+    },
+    "7:18:normal": {
+      "peakDb": -21.088
+    },
+    "7:19:hard": {
+      "peakDb": -8.784
+    },
+    "7:19:normal": {
+      "peakDb": -10.492
+    },
+    "7:19:soft": {
+      "peakDb": -23.414
+    },
+    "7:20:normal": {
+      "peakDb": -19.905
+    },
+    "7:21:normal": {
+      "peakDb": -19.628
+    },
+    "7:22:normal": {
+      "peakDb": -19.351
+    },
+    "7:23:normal": {
+      "peakDb": -18.248
+    },
+    "7:24:hard": {
+      "peakDb": -9.24
+    },
+    "7:24:normal": {
+      "peakDb": -12.451
+    },
+    "7:24:soft": {
+      "peakDb": -22.947
+    },
+    "8:0:hard": {
+      "peakDb": -17.749
+    },
+    "8:0:normal": {
+      "peakDb": -18.929
+    },
+    "8:0:soft": {
+      "peakDb": -28.208
+    },
+    "8:1:normal": {
+      "peakDb": -26.135
+    },
+    "8:2:normal": {
+      "peakDb": -24.844
+    },
+    "8:3:normal": {
+      "peakDb": -24.784
+    },
+    "8:4:normal": {
+      "peakDb": -23.68
+    },
+    "8:5:hard": {
+      "peakDb": -16.068
+    },
+    "8:5:normal": {
+      "peakDb": -18.6
+    },
+    "8:5:soft": {
+      "peakDb": -29.806
+    },
+    "8:6:normal": {
+      "peakDb": -24.354
+    },
+    "8:7:hard": {
+      "peakDb": -14.668
+    },
+    "8:7:normal": {
+      "peakDb": -17.452
+    },
+    "8:7:soft": {
+      "peakDb": -25.288
+    },
+    "8:8:normal": {
+      "peakDb": -23.923
+    },
+    "8:9:normal": {
+      "peakDb": -24.078
+    },
+    "8:10:normal": {
+      "peakDb": -23.231
+    },
+    "8:11:normal": {
+      "peakDb": -20.462
+    },
+    "8:12:hard": {
+      "peakDb": -13.595
+    },
+    "8:12:normal": {
+      "peakDb": -17.238
+    },
+    "8:12:soft": {
+      "peakDb": -28.796
+    },
+    "8:13:normal": {
+      "peakDb": -20.228
+    },
+    "8:14:normal": {
+      "peakDb": -20.122
+    },
+    "8:15:normal": {
+      "peakDb": -20.26
+    },
+    "8:16:normal": {
+      "peakDb": -21.973
+    },
+    "8:17:hard": {
+      "peakDb": -14.582
+    },
+    "8:17:normal": {
+      "peakDb": -16.342
+    },
+    "8:17:soft": {
+      "peakDb": -32.746
+    },
+    "8:18:normal": {
+      "peakDb": -22.487
+    },
+    "8:19:hard": {
+      "peakDb": -13.322
+    },
+    "8:19:normal": {
+      "peakDb": -15.241
+    },
+    "8:19:soft": {
+      "peakDb": -28.907
+    },
+    "8:20:normal": {
+      "peakDb": -22.723
+    },
+    "8:21:normal": {
+      "peakDb": -21.173
+    },
+    "8:22:normal": {
+      "peakDb": -22.161
+    },
+    "8:23:normal": {
+      "peakDb": -21.082
+    },
+    "8:24:hard": {
+      "peakDb": -12.156
+    },
+    "8:24:normal": {
+      "peakDb": -13.995
+    },
+    "8:24:soft": {
+      "peakDb": -24.953
+    }
+  }
+}

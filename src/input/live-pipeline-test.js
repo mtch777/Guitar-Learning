@@ -1,9 +1,12 @@
+import { measure, summarize, percentile, assess, calibrationVerdict, calibrationSteps } from './gain-calibration.js';
 import { trialZip } from './trial-archive.js';
 const $=id=>document.getElementById(id),base=new URL(import.meta.env.BASE_URL,location.origin);
 const worker=new Worker(new URL('./live-pipeline-worker.js',import.meta.url),{type:'module'});
 const openMidi=[27,34,39,44,49,54,58,63],sessionId=crypto.randomUUID();
 for(const id of ['string','string2'])for(let s=1;s<=8;s++)$(id).add(new Option(String(s),String(s)));
 let manifest,context,stream,source,capture,sink,active=null,trials=[],plan=[],planIndex=0,exportedCount=0,channelAvailable=false;
+let gainReference=null,calibration=null,calibrationRun=null,calibrationHistory=[],recentLevels=[],lastFeedbackAt=0;
+fetch(new URL('model/gain-reference.json',base)).then(r=>{if(!r.ok)throw Error('Reference unavailable');return r.json();}).then(r=>gainReference=r).catch(()=>{$('calibrationPrompt').textContent='Training level reference unavailable; headroom/noise calibration still works.';});
 const wall=()=>performance.timeOrigin+performance.now();
 function setStatus(s){$('status').textContent=s;}
 function planTarget(){
@@ -25,7 +28,11 @@ function refreshTarget(){
 }
 function lock(on){for(const id of ['device','channel','plan','kind','string','fret','attack','repeat','string2','fret2','next','clear','export'])$(id).disabled=on;}
 function updateReady(){
-  $('record').disabled=!stream||!channelAvailable||!manifest||!!active||trials.length>=40||($('plan').value!=='manual'&&planIndex>=plan.length);
+  $('calibrationExport').disabled=!!active||!!calibrationRun||!calibrationHistory.length;
+  $('calibrate').disabled=!stream||!channelAvailable||!!active||!!calibrationRun;
+  $('calibrationMeasure').disabled=!stream||!channelAvailable||!!active||!!calibrationRun||!calibration||calibration.step>=calibrationSteps.length;
+  $('microphone').disabled=!!active||!!calibrationRun||!manifest;
+  $('record').disabled=!stream||!channelAvailable||!manifest||!!active||!!calibrationRun||trials.length>=40||($('plan').value!=='manual'&&planIndex>=plan.length);
   $('export').disabled=!!active||!trials.length;$('clear').disabled=!!active||!trials.length;
   $('saved').textContent=`${trials.length} saved trial(s) · ${Math.round(trials.reduce((n,t)=>n+t.pcm.byteLength,0)/1048576)} MB audio`;
 }
@@ -42,6 +49,7 @@ async function devices(){
   if([...$('device').options].some(o=>o.value===selected))$('device').value=selected;
 }
 async function stop(){
+  invalidateCalibration();
   if(active&&!active.finishRequested){active.aborted=true;requestFinish();}
   stream?.getTracks().forEach(t=>t.stop());source?.disconnect();capture?.disconnect();sink?.disconnect();
   if(context)await context.close();stream=null;context=null;channelAvailable=false;$('microphone').textContent='Enable microphone';
@@ -59,9 +67,10 @@ $('microphone').onclick=async()=>{
     sink=context.createGain();sink.gain.value=0;source=context.createMediaStreamSource(stream);
     source.connect(capture);capture.connect(sink);sink.connect(context.destination);
     capture.port.onmessage=({data:d})=>{
-      if(d.type==='channel-error'){channelAvailable=false;updateReady();$('levels').textContent=`Only ${d.channels} input channel(s). Choose channel 1.`;if(active){active.aborted=true;requestFinish();}return;}
+      if(d.type==='channel-error'){invalidateCalibration();channelAvailable=false;updateReady();$('levels').textContent=`Only ${d.channels} input channel(s). Choose channel 1.`;if(active){active.aborted=true;requestFinish();}return;}
       channelAvailable=true;updateReady();
-      $('levels').textContent=`${context?.sampleRate} Hz · `+d.levels.map((l,i)=>`Ch ${i+1}: ${l.rms>0?(20*Math.log10(l.rms)).toFixed(1):'−∞'} dBFS${l.peak>=.99?' · CLIPPING':''}`).join(' | ');
+      $('levels').textContent=`${context?.sampleRate} Hz · `+d.levels.map((l,i)=>`Ch ${i+1}: ${l.rms>0?(20*Math.log10(l.rms)).toFixed(1):'−∞'} dBFS${l.peak>=.999?' · POSSIBLE CLIPPING':''}`).join(' | ');
+      observeGain(new Float32Array(d.samples),d.audioTime);
       if(!active||active.finishRequested)return;
       active.blocks++;active.channelCounts.add(d.channels);
       worker.postMessage({type:'frame',id:active.id,samples:d.samples,sequence:d.sequence,audioTime:d.audioTime,receivedWallMs:wall()},[d.samples]);
@@ -70,7 +79,7 @@ $('microphone').onclick=async()=>{
     $('microphone').textContent='Disable microphone';await devices();setStatus('Ready. Verify the selected channel responds to your guitar.');updateReady();
   }catch(e){await stop();setStatus(`Input error: ${e.message}`);}
 };
-$('channel').onchange=()=>{channelAvailable=false;updateReady();capture?.port.postMessage({type:'channel',channel:Number($('channel').value)});};
+$('channel').onchange=()=>{invalidateCalibration();channelAvailable=false;updateReady();capture?.port.postMessage({type:'channel',channel:Number($('channel').value)});};
 $('device').onchange=async()=>{if(stream){await stop();setStatus('Input changed. Enable microphone again.');}};
 $('plan').onchange=()=>{makePlan();updateReady();};
 for(const id of ['kind','string','fret','attack','repeat','string2','fret2'])$(id).onchange=refreshTarget;
@@ -81,6 +90,7 @@ $('record').onclick=()=>{
   try{
     const t=target(),id=crypto.randomUUID();
     active={id,target:t,sampleRate:context.sampleRate,seconds:6,blocks:0,channelCounts:new Set(),
+      gainCalibration:calibration?structuredClone(calibration):null,
       startedAt:new Date().toISOString(),startedWallMs:wall(),channel:Number($('channel').value)+1,
       deviceSettings:stream.getAudioTracks()[0].getSettings(),cues:[],renderedEvents:[],aborted:false};
     worker.postMessage({type:'start',id,sampleRate:context.sampleRate});lock(true);updateReady();setStatus('Stay quiet…');
@@ -106,10 +116,60 @@ worker.onmessage=({data:d})=>{
     updateReady();setStatus(trials.length>=40?'Block full. Export, then clear saved trials.':'Trial saved. Predictions stay hidden; export the ZIP for analysis.');
   }
 };
+function invalidateCalibration(){
+  if(calibrationRun)clearTimeout(calibrationRun.timeout);
+  if(calibration)calibration.invalidatedAt=new Date().toISOString();
+  calibrationRun=null;calibration=null;recentLevels=[];
+  $('calibrationPrompt').textContent='Input changed or stopped. Start calibration again.';
+  $('gainFeedback').textContent='No current gain calibration.';lock(false);
+}
+function calibrationPrompt(){
+ const step=calibrationSteps[calibration.step];
+ $('calibrationPrompt').textContent=step?`Step ${calibration.step+1}/${calibrationSteps.length} · ${step.kind==='silence'?'Mute all strings; measure silence':`String ${step.string}, open · ${step.attack} pick · click Measure, then wait for PLAY NOW`}`:'Calibration complete. Keep gain fixed; restart if you adjust it.';
+}
+$('calibrate').onclick=()=>{
+ calibration={id:crypto.randomUUID(),startedAt:new Date().toISOString(),channel:Number($('channel').value)+1,deviceSettings:stream.getAudioTracks()[0].getSettings(),sampleRate:context.sampleRate,step:0,noiseDb:null,notes:[],complete:false,thresholds:{minimumHeadroomDb:3,minimumNoiseMarginDb:20,onsetRmsDb:-48},audioCorrection:'none'};
+ calibrationHistory.push(calibration);calibrationPrompt();updateReady();
+};
+$('calibrationMeasure').onclick=()=>{
+ const step=calibrationSteps[calibration.step];
+ calibrationRun={step,blocks:[],startAudioTime:null};lock(true);updateReady();
+ $('calibrationPrompt').textContent=step.kind==='silence'?'MEASURING SILENCE · mute all strings':'Stay quiet…';
+ calibrationRun.timeout=setTimeout(()=>{calibrationRun=null;lock(false);updateReady();$('calibrationPrompt').textContent='Audio capture stopped. Repeat this calibration step.';},8000);
+};
+function observeGain(samples,audioTime){
+ const reading=measure(samples),now=wall();recentLevels.push(reading);if(recentLevels.length>12)recentLevels.shift();
+ if(now-lastFeedbackAt>400){
+  lastFeedbackAt=now;const r=summarize(recentLevels,calibration?.noiseDb??null);
+  $('gainMetrics').textContent=`Recent peak ${r.peakDb.toFixed(1)} dBFS · strongest block RMS ${r.loudestBlockRmsDb.toFixed(1)} dBFS`+(r.noiseMarginDb===null?'':` · noise margin ${r.noiseMarginDb.toFixed(1)} dB`);
+  if(r.peakDb>-55)$('gainFeedback').textContent=assess(r,calibration?.noiseDb??null);
+ }
+ if(!calibrationRun)return;
+ const run=calibrationRun;run.startAudioTime??=audioTime;const elapsed=audioTime-run.startAudioTime;
+ // Ignore initial half-second for pick cues. Silence uses every full block.
+ if(run.step.kind==='note'&&elapsed>=.5)$('calibrationPrompt').textContent=`PLAY NOW · string ${run.step.string} open · ${run.step.attack} · let ring`;
+ if(run.step.kind==='silence'||elapsed>=.5)run.blocks.push(reading);
+ if(elapsed<3)return;
+ clearTimeout(run.timeout);
+ if(run.step.kind==='silence'){
+  calibration.noiseDb=percentile(run.blocks.map(b=>b.rmsDb),.9);
+  $('gainFeedback').textContent=`Silence floor ${calibration.noiseDb.toFixed(1)} dBFS. Keep gain fixed for the picks.`;
+ }else{
+  const result={...run.step,...summarize(run.blocks,calibration.noiseDb)};
+  const ref=gainReference?.positions[`${result.string}:0:${result.attack}`];
+  result.referencePeakDb=ref?.peakDb??null;result.referencePeakDifferenceDb=ref?result.peakDb-ref.peakDb:null;
+  calibration.notes.push(result);$('gainFeedback').textContent=assess(result,calibration.noiseDb)+(ref?` Peak is ${Math.abs(result.referencePeakDifferenceDb).toFixed(1)} dB ${result.referencePeakDifferenceDb>=0?'above':'below'} this recorded example (level only).`:' No matching training example.');
+ }
+ calibration.step++;calibrationRun=null;lock(false);
+ if(calibration.step===calibrationSteps.length){calibration.complete=true;calibration.finishedAt=new Date().toISOString();calibration.verdict=calibrationVerdict(calibration.notes);$('gainFeedback').textContent=calibration.verdict;}
+ calibrationPrompt();updateReady();
+}
+$('calibrationExport').onclick=()=>download(new Blob([JSON.stringify({schema:'gain-calibration-v1',sessionId,calibrations:calibrationHistory,reference:gainReference,createdAt:new Date().toISOString()},null,2)],{type:'application/json'}),`gain-calibration-${Date.now()}.json`);
 function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
 $('export').onclick=()=>{
   const payload={schema:'live-pipeline-v1',sessionId,createdAt:new Date().toISOString(),userAgent:navigator.userAgent,
     modelManifest:manifest,tuning:openMidi,pageUrl:location.href,
+    gainCalibrations:calibrationHistory,activeGainCalibration:calibration,gainReference:gainReference?{schema:gainReference.schema,datasetSha256:gainReference.datasetSha256,count:gainReference.count}:null,
     note:'Paired routes use the same final fusion models. No early actions. Target labels only score outputs. Paired inference adds CPU load. Confidence is diagnostic. This page does not run lesson acceptance.',
     trials:trials.map(({pcm,...t})=>({...t,audioFile:`audio/${t.id}.wav`}))};
   download(trialZip(payload,trials),`live-pipeline-${Date.now()}.zip`);exportedCount=trials.length;

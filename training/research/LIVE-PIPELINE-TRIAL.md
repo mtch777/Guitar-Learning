@@ -49,3 +49,17 @@ node training/export_step18_raw_calibration.mjs fusion_real/python_oof_probabili
 ```
 
 Dependency versions and file hashes are recorded in `public/model/fusion3-live/manifest.json`.
+
+## Gain calibration and input guidance (2026-09-30)
+
+The live trial page now has a diagnostics-only calibration: three seconds of muted input, followed by one open-string pluck for each of eight strings at hard, normal, and soft strength (24 picks). Click Measure for each step; wait for PLAY NOW. Guitar volume and tone stay maximum, bridge pickup selected. Keep the physical Focusrite gain fixed during each pass; restart after changing gain. Changing input channel/device or stopping input invalidates the active calibration.
+
+Silence floor is the 90th percentile of 4096-sample block RMS. Each pick records absolute peak, strongest block RMS, near-full-scale sample count, and strongest-block-to-silence margin. Advisory criteria: less than 3 dB digital peak headroom, samples >=0.999 absolute amplitude, strongest block RMS below the existing -48 dBFS onset gate, or noise margin below 20 dB. These are engineering heuristics, not validated boundaries for classifier accuracy. Pitch confidence is still needed by the actual onset gate. Possible clipping is a digital warning; the interface clip indicator must also be checked because upstream distortion can occur below digital full scale.
+
+The page compares each calibration peak with the same open-string/strength raw WAV where available. `public/model/gain-reference.json` contains raw absolute peaks for all 384 WAVs, a dataset filename/content digest, and explicit level-only semantics. This is not spectral similarity, waveform correlation, or a confidence calibration. One recording per target cannot establish an ideal level or distinguish picking strength from gain.
+
+Calibration history can be downloaded separately as JSON. Trial ZIPs include history/reference provenance and a snapshot of the calibration at each trial start. Models, PCM, resampling, feature extraction, gates, capture timing, and early-action policy are unchanged. No digital gain, normalization, compression, limiter, EQ, or automatic threshold adjustment is introduced. Live peak/noise advice is visible; classification predictions remain hidden during scored collection. A completed calibration assesses the measured picks, not general accuracy, other frets, or analog clipping absence.
+
+Validation: `node training/check_gain_calibration.mjs` exercises clipping, low-level gating, poor noise margin, verdicts, and unchanged PCM. The browser preflight measures synthetic silence and one synthetic hard step, verifies reference feedback and calibration export, then runs the existing paired trial and silence checks. Human gain suitability and picking feedback remain to be validated with real input.
+
+Prior full-pipeline synthetic browser preflight passed in run 36670809357; Pages publication passed in run 36670809420 (commit a78cf04). These validate plumbing, not real-playing accuracy.

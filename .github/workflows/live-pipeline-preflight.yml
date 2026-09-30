@@ -17,6 +17,7 @@ jobs:
           node-version: "22"
       - run: npm ci
       - run: npm run build
+      - run: node training/check_gain_calibration.mjs
       - name: Install browser test dependencies
         run: |
           npm install --no-save --package-lock=false playwright@1.51.1
@@ -33,6 +34,13 @@ jobs:
               data=json.loads(z.read('results.json'))
               assert data['schema']=='live-pipeline-v1'
               assert len(data['trials'])==2
+              assert data['activeGainCalibration']['step']==2
+              assert data['activeGainCalibration']['audioCorrection']=='none'
+              assert data['trials'][0]['gainCalibration']['step']==2
+              cal=json.load(open('/tmp/gain_calibration.json'))['calibrations'][0]
+              assert cal['noiseDb']<-100
+              assert -18<cal['notes'][0]['peakDb']<-15
+              assert cal['notes'][0]['referencePeakDb'] is not None
               tone,silence=data['trials']
               assert tone['target']['positions'][0]['midi']==27
               for route in ['hybrid','correlation']:
@@ -63,6 +71,7 @@ jobs:
           name: live-pipeline-browser-preflight
           path: |
             /tmp/live_browser_trial.zip
+            /tmp/gain_calibration.json
             /tmp/live_pipeline_screen.png
             /tmp/live_preview.log
             /tmp/live_browser_summary.json
