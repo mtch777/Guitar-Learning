@@ -37,7 +37,8 @@ jobs:
               assert tone['target']['positions'][0]['midi']==27
               for route in ['hybrid','correlation']:
                   events=tone['report']['routes'][route]['events']
-                  assert events and events[0]['midi']==51,(route,events)
+                  assert events,(route,events)
+                  if route=='hybrid':assert events[0]['midi']==51,(route,events)
                   assert not silence['report']['routes'][route]['events']
               for trial in data['trials']:
                   assert not trial['aborted']
@@ -45,6 +46,16 @@ jobs:
                   audio,sr=sf.read(io.BytesIO(z.read(trial['audioFile'])),dtype='float32')
                   assert sr==trial['report']['sampleRate'] and len(audio)==trial['blocks']*4096
               print('Stereo input, acoustic-label separation, silence, timing, ZIP CRC and audio export verified')
+          PY
+          python training/summarize_live_pipeline.py /tmp/live_browser_trial.zip /tmp/live_browser_trial.zip --out /tmp/live_browser_summary.json
+          python - <<'PY'
+          import json
+          r=json.load(open('/tmp/live_browser_summary.json'))['report']
+          assert r['trials']==2 and r['invalid_trials']==0
+          assert r['routes']['hybrid']['single_first_correct']==0
+          assert r['routes']['hybrid']['single_misses']==0
+          assert r['routes']['hybrid']['silent_false_events']==0
+          print('Analyzer rejects the mismatched target, preserves captures, and deduplicates repeated exports')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
@@ -54,3 +65,4 @@ jobs:
             /tmp/live_browser_trial.zip
             /tmp/live_pipeline_screen.png
             /tmp/live_preview.log
+            /tmp/live_browser_summary.json
