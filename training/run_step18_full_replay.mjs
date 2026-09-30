@@ -66,9 +66,10 @@ for (const [index, row] of targets.entries()) {
       ? end >= yinWindow ? referenceYin(samples.subarray(end - yinWindow, end), sampleRate)
         : { frequency: NaN, confidence: 0 }
       : detectPitch(chunk, sampleRate);
-    // A hybrid starts the same 0.82 s capture from the existing frame detector,
-    // then uses YIN votes once its 240 ms window is available.
-    const votingPitch = hybridStart && end < yinWindow ? detectPitch(chunk, sampleRate) : pitch;
+    // Correlation must start EACH pluck, even after long leading silence.
+    // Once the buffer is active and YIN has a full window, use YIN votes.
+    const votingPitch = hybridStart && (!buffer.active || end < yinWindow)
+      ? detectPitch(chunk, sampleRate) : pitch;
     pitchTimes.push(performance.now() - pitchStart);
     const midi = Number.isFinite(votingPitch.frequency) ? frequencyToMidi(votingPitch.frequency) : null;
     let peak = 0, sumSquares = 0;

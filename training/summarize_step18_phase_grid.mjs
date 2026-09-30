@@ -8,8 +8,10 @@ if (!outPath) throw Error('usage: node summarize_step18_phase_grid.mjs baseline.
 const baseline = JSON.parse(fs.readFileSync(baselinePath));
 const smoke = flags.includes('--smoke');
 const original = new Map(baseline.rows.map(r => [r.file, r]));
-const selected = smoke ? baseline.rows.filter(r => r.true_midi >= 54 && r.true_midi <= 60 && r.file.includes('_normal_')) : baseline.rows;
-if (baseline.rows.length !== 384 || (smoke && selected.length !== 36)) throw Error('Unexpected baseline fixture');
+const selected = smoke && baseline.rows.length === 384
+  ? baseline.rows.filter(r => r.true_midi >= 54 && r.true_midi <= 60 && r.file.includes('_normal_'))
+  : baseline.rows;
+if (selected.length !== (smoke ? 36 : 384)) throw Error('Unexpected baseline fixture');
 const conditions = [1024, 2048, 3072, 4096, 8192];
 const results = [];
 function median(values) {
