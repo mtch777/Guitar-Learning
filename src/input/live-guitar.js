@@ -1,11 +1,12 @@
-import { GuitarMicrophone } from "../audio/microphone.js";
+import { LessonMicrophone as GuitarMicrophone } from "../audio/lesson-microphone.js";
 import { midiToNoteName } from "../guitar/notes.js";
 import { candidateStringsForMidi } from "../guitar/tuning.js";
 import { RingingPluckBuffer } from "../audio/ringing-pluck-buffer.js";
 import { extractRingingFeatures } from "../classifier/ringing-features.js";
-import { classifyRingingPluck } from "../classifier/full-ringing-classifier.js";
+
 
 let microphone = null;
+let latestHybridDiagnostics = null;
 const pluckBuffer = new RingingPluckBuffer();
 let featureReferencePromise = null;
 
@@ -33,7 +34,7 @@ const FEATURE_NAMES = (() => {
 
 function loadFeatureReference() {
   if (!featureReferencePromise) {
-    featureReferencePromise = fetch("/model/ringing_scaler.json").then(async r => {
+    featureReferencePromise = fetch(`${import.meta.env.BASE_URL}model/ringing_scaler.json`).then(async r => {
       if (!r.ok) throw new Error(`Could not load ringing scaler (${r.status})`);
       const scaler = await r.json();
       if (scaler.mean?.length !== 107 || scaler.scale?.length !== 107) {
@@ -60,169 +61,16 @@ async function summarizeFeatureShift(features) {
   return `${extreme}/107 ≥3σ · ${top}`;
 }
 
-function applyQuizAnswerPrior(result, midi) {
-  const hintGetter =
-    window.getGuitarTrainerAudioHints;
-
-  if (
-    typeof hintGetter !== "function"
-  ) {
-    return {
-      ...result,
-      contextAdjusted: false,
-      rawProbabilities:
-        [...result.probabilities]
-    };
-  }
-
-  const hints =
-    hintGetter(midi);
-
-  if (
-    !hints?.hasMatchingAnswer ||
-    !Array.isArray(
-      hints.answerStrings
-    ) ||
-    hints.answerStrings.length === 0
-  ) {
-    return {
-      ...result,
-      contextAdjusted: false,
-      rawProbabilities:
-        [...result.probabilities]
-    };
-  }
-
-  const validStrings =
-    new Set(
-      candidateStringsForMidi(
-        midi
-      ).map(
-        candidate =>
-          candidate.string
-      )
-    );
-
-  const preferredStrings =
-    new Set(
-      hints.answerStrings.filter(
-        stringNumber =>
-          validStrings.has(
-            stringNumber
-          )
-      )
-    );
-
-  if (
-    preferredStrings.size === 0
-  ) {
-    return {
-      ...result,
-      contextAdjusted: false,
-      rawProbabilities:
-        [...result.probabilities]
-    };
-  }
-
-  /*
-    Soft quiz prior, not a hard override.
-
-    Correct remaining answer positions get a modest boost.
-    Other physically possible strings get a modest penalty.
-
-    This is deliberately strong enough to break close calls,
-    but not strong enough to routinely overturn a confident
-    classifier prediction.
-  */
-  const ANSWER_BOOST = 1.35;
-  const NON_ANSWER_PENALTY = 0.85;
-
-  const weighted =
-    result.probabilities.map(
-      (
-        probability,
-        index
-      ) => {
-        const stringNumber =
-          index + 1;
-
-        if (
-          !validStrings.has(
-            stringNumber
-          )
-        ) {
-          return 0;
-        }
-
-        return (
-          probability *
-          (
-            preferredStrings.has(
-              stringNumber
-            )
-              ? ANSWER_BOOST
-              : NON_ANSWER_PENALTY
-          )
-        );
-      }
-    );
-
-  const total =
-    weighted.reduce(
-      (
-        sum,
-        probability
-      ) =>
-        sum + probability,
-      0
-    );
-
-  const probabilities =
-    total > 0
-      ? weighted.map(
-          probability =>
-            probability / total
-        )
-      : [...result.probabilities];
-
-  let best = 0;
-
-  for (
-    let index = 1;
-    index <
-      probabilities.length;
-    index++
-  ) {
-    if (
-      probabilities[index] >
-      probabilities[best]
-    ) {
-      best = index;
-    }
-  }
-
-  return {
-    ...result,
-    string:
-      best + 1,
-    confidence:
-      probabilities[best],
-    probabilities,
-    rawProbabilities:
-      [...result.probabilities],
-    rawString:
-      result.string,
-    rawConfidence:
-      result.confidence,
-    contextAdjusted:
-      true,
-    answerStrings:
-      [...preferredStrings]
-  };
-}
-
 export function setupLiveGuitarInput() {
   const button = document.getElementById("guitarInputButton");
+  const refreshDevices=async()=>{
+    const select=document.getElementById('guitarInputDevice');if(!select)return;
+    const selected=select.value;const devices=await navigator.mediaDevices.enumerateDevices();
+    select.replaceChildren(new Option('System default',''));
+    devices.filter(d=>d.kind==='audioinput').forEach((d,i)=>select.add(new Option(d.label||`Audio input ${i+1}`,d.deviceId)));
+    select.value=selected;
+  };
+  refreshDevices().catch(()=>{});
   const status = document.getElementById("guitarInputStatus");
   const note = document.getElementById("guitarDetectedNote");
   const string = document.getElementById("guitarDetectedString");
@@ -1504,8 +1352,7 @@ export function setupLiveGuitarInput() {
       }
 
       const bufferState =
-        pluckBuffer
-          .getDiagnostics();
+        latestHybridDiagnostics || pluckBuffer.getDiagnostics();
 
       /*
         Ignore pure background noise. We only create a diagnostic
@@ -1968,9 +1815,10 @@ export function setupLiveGuitarInput() {
     if (microphone) {
       microphone.stop();
       microphone = null;
-      pluckBuffer.reset();
+      pluckBuffer.reset();latestHybridDiagnostics=null;
       button.textContent = "Enable";
       status.textContent = "Stopped";
+      for(const id of ["guitarInputChannel","guitarInputDevice"])document.getElementById(id).disabled=false;
 
       if (tunerOpen) {
         resetTuner(
@@ -1994,11 +1842,14 @@ export function setupLiveGuitarInput() {
     status.textContent = "Requesting microphone…";
 
     microphone = new GuitarMicrophone({
-      fftSize: 4096,
+      channel:Number(document.getElementById("guitarInputChannel")?.value??1),
+      deviceId:document.getElementById("guitarInputDevice")?.value||"",
+      onError(error){status.textContent="Guitar input error: "+error.message;},
       async onFrame(frame) {
         updateTuner(frame);
 
-        const completedPluck = pluckBuffer.push(frame);
+        const completedPluck = frame.completedPluck;
+        latestHybridDiagnostics=frame.hybridDiagnostics;
         if (completedPluck) {
           // Extract exactly 107 full-model features once per completed ringing pluck.
           // Keep extraction off the continuous pitch path so classification is
@@ -2057,33 +1908,9 @@ export function setupLiveGuitarInput() {
           }));
           if (completedPluck.midi != null) {
             try {
-              const rawResult = await classifyRingingPluck({
-                midi: completedPluck.midi,
-                features
-              });
-
-              /*
-                Apply quiz context only to gameplay inference.
-                Classifier test records remain RAW so model
-                accuracy measurements are not contaminated.
-              */
-              const result =
-                testActive
-                  ? {
-                      ...rawResult,
-                      contextAdjusted:
-                        false,
-                      rawProbabilities:
-                        [
-                          ...rawResult
-                            .probabilities
-                        ]
-                    }
-                  : applyQuizAnswerPrior(
-                      rawResult,
-                      completedPluck.midi
-                    );
-
+              const rawResult = frame.fusionResult;
+              if(!rawResult)throw Error('No completed hybrid prediction');
+              const result={...rawResult,contextAdjusted:false,rawProbabilities:[...rawResult.probabilities]};
               const fret =
                 completedPluck.midi -
                 [
@@ -2296,23 +2123,16 @@ export function setupLiveGuitarInput() {
 
         window.dispatchEvent(new CustomEvent("guitar-audio-frame", { detail: frame }));
 
-        if (resolvedString) {
-          window.dispatchEvent(new CustomEvent("guitar-note-detected", {
-            detail: {
-              midi: frame.midi,
-              string: resolvedString,
-              pitchConfidence: frame.pitchConfidence,
-              stringConfidence: frame.stringConfidence ?? null
-            }
-          }));
-        }
+
       }
     });
 
     try {
       const { sampleRate } = await microphone.start();
+      await refreshDevices().catch(()=>{});
       button.textContent = "Disable";
-      status.textContent = "Listening · " + sampleRate + " Hz";
+      status.textContent = "Listening · Hybrid + fusion · " + sampleRate + " Hz";
+      for(const id of ["guitarInputChannel","guitarInputDevice"])document.getElementById(id).disabled=true;
 
       if (
         calibrationPendingStart
@@ -2342,3 +2162,4 @@ export function setupLiveGuitarInput() {
     }
   });
 }
+

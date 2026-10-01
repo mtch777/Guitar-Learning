@@ -1,3 +1,13 @@
+# Live lesson integration — 2026-09-30 evening (Denver)
+
+The homepage Guitar Input now uses the same `fusion3-live` bundle and hybrid correlation-trigger/YIN240-vote/full-capture policy tested in the live pilot. `LessonMicrophone` uses stereo AudioWorklet channel 2 by default, with explicit device/channel selectors. `lesson-worker.js` runs the shared `LivePipelineEngine` with only the hybrid route and bounded history. No quiz-answer prior or preliminary pitch-only action is applied; one completed detection is sent to the existing lesson fretboard-click handler. The model's tested eight-string tuning is checked on startup. Tuner/calibration/collection UI remains available. No weights were retrained or replaced.
+
+Live pilot: 24 trials, hybrid first detection 23/24, correlation 18/24, no missed captures or dropped frames. User confirmed the extra pre-cue pluck in S7/F12 was their accidental other-string hit. All intended notes were subsequently identified. At the user's explicit request, exclude that entire trial from training. The other 23 original WAVs and a source/label manifest are in `training/data/live_2026-09-30/`. The deployed weights do not include these new recordings. `check_lesson_pipeline.mjs` reproduces all 23 archived hybrid outputs and capture times using the lesson configuration. `check_lesson_browser.cjs` exercises a real WAV through stereo capture, Worker, completed event and actual lesson cell click.
+
+Calibration has been accepted by the user; do not request another calibration run as a prerequisite. The human-paced calibration browser preflight passed in run 36747866261. Next user task is live playing in the actual lesson.
+
+---
+
 # Gain calibration update — 2026-09-30
 
 The full-pipeline trial page now includes diagnostics-only gain calibration: silence + 24 open-string picks (eight strings × hard/normal/soft). Calibration guides Focusrite gain/headroom/noise checks and compares raw peaks to the matching recorded example. No gain correction, normalization, EQ, model, feature, threshold, capture, or early-action changes. Follow `training/research/LIVE-PIPELINE-TRIAL.md` for criteria and limitations. Calibration JSON exports separately; each trial ZIP retains a calibration snapshot. Restart calibration after changing physical gain. The model is amplitude-sensitive; do not add per-note normalization without paired accuracy evidence. Browser synthetic tests validate capture/export plumbing; actual playing accuracy is still pending. Initial gain-calibration commit: ed93c0d; Pages publication run 36740665766 passed.

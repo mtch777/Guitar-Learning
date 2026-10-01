@@ -4,6 +4,12 @@ name: Full pipeline live trial browser preflight
     paths:
       - ".github/workflows/live-pipeline-preflight.yml"
       - "src/input/gain-calibration.js"
+      - "src/input/live-pipeline-engine.js"
+      - "src/input/live-guitar.js"
+      - "src/input/lesson-worker.js"
+      - "src/audio/lesson-microphone.js"
+      - "index.html"
+      - "training/check_lesson*"
       - "src/input/live-pipeline-test.js"
       - "live-pipeline-test.html"
       - "public/model/gain-reference.json"
@@ -24,6 +30,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: node training/check_gain_calibration.mjs
+      - run: node training/check_lesson_pipeline.mjs
       - name: Install browser test dependencies
         run: |
           npm install --no-save --package-lock=false playwright@1.51.1
@@ -33,6 +40,7 @@ jobs:
         run: |
           npm run dev -- --host 127.0.0.1 --port 5173 > /tmp/live_preview.log 2>&1 &
           node training/check_live_trial_browser.cjs
+          node training/check_lesson_browser.cjs
           python - <<'PY'
           import zipfile,json,io,soundfile as sf
           with zipfile.ZipFile('/tmp/live_browser_trial.zip') as z:
@@ -79,5 +87,6 @@ jobs:
             /tmp/live_browser_trial.zip
             /tmp/gain_calibration.json
             /tmp/live_pipeline_screen.png
+            /tmp/lesson_pipeline_screen.png
             /tmp/live_preview.log
             /tmp/live_browser_summary.json

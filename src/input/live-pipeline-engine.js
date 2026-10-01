@@ -6,9 +6,10 @@ import { fretForMidiAndString } from '../guitar/tuning.js';
 
 // Target labels intentionally never enter this acoustic engine.
 export class LivePipelineEngine {
-  constructor(bundle, sampleRate) {
+  constructor(bundle, sampleRate, {routeNames=['hybrid','correlation'],retainHistory=true,includePluck=false}={}) {
+    this.routeNames=routeNames;this.retainHistory=retainHistory;this.includePluck=includePluck;this.frameCount=0;
     this.bundle=bundle; this.sampleRate=sampleRate; this.samples=0; this.frames=[];
-    this.routes=Object.fromEntries(['hybrid','correlation'].map(name=>[name,
+    this.routes=Object.fromEntries(this.routeNames.map(name=>[name,
       {buffer:new RingingPluckBuffer(),events:[],trigger:null}]));
     this.recent=new Float32Array(0); this.signalOnsetMs=null;
   }
@@ -31,7 +32,7 @@ export class LivePipelineEngine {
     const midi=p=>Number.isFinite(p.frequency)?frequencyToMidi(p.frequency):null;
     const emitted=[];
     // Alternate inference order to reduce systematic timing bias.
-    const order=this.frames.length%2?['correlation','hybrid']:['hybrid','correlation'];
+    const order=this.frameCount%2?[...this.routeNames].reverse():this.routeNames;
     for(const name of order){
       const route=this.routes[name],wasActive=route.buffer.active;
       const pitch=name==='hybrid'&&wasActive&&this.recent.length>=windowSize?yin:old;
@@ -53,16 +54,19 @@ export class LivePipelineEngine {
           captureStartMs:route.trigger?.audioMs??null,captureStartReceivedWallMs:route.trigger?.wallMs??null,captureEndMs:audioMs,
           inferenceMs,workerDecisionWallMs:performance.timeOrigin+performance.now(),
           onsetToAudioCompletionMs:route.trigger?audioMs-route.trigger.audioMs:null,error};
-        route.events.push(event);emitted.push(event);route.trigger=null;
+        if(this.includePluck)event.pluck=pluck;
+        if(this.retainHistory)route.events.push(event);emitted.push(event);route.trigger=null;
       }
     }
-    const frame={index:this.frames.length,audioMs,rms,dbfs,peak,correlationMidi:midi(old),
+    const frame={index:this.frameCount,audioMs,rms,dbfs,peak,correlationMidi:midi(old),
       correlationConfidence:old.confidence,yinMidi:midi(yin),yinConfidence:yin.confidence,
+      correlationFrequency:old.frequency,yinFrequency:yin.frequency,
       correlationMs,yinMs,computeMs:performance.now()-start,...timing,
-      hybrid:this.routes.hybrid.buffer.getDiagnostics(),correlation:this.routes.correlation.buffer.getDiagnostics()};
-    this.frames.push(frame);return {frame,events:emitted};
+      hybrid:this.routes.hybrid?.buffer.getDiagnostics(),correlation:this.routes.correlation?.buffer.getDiagnostics()};
+    this.frameCount++;if(this.retainHistory)this.frames.push(frame);return {frame,events:emitted};
   }
   finish(){return {sampleRate:this.sampleRate,frameSize:4096,durationMs:this.samples/this.sampleRate*1000,
     signalOnsetMs:this.signalOnsetMs,frames:this.frames,routes:Object.fromEntries(Object.entries(this.routes)
       .map(([name,r])=>[name,{events:r.events,incompleteCapture:r.buffer.active,diagnostics:r.buffer.getDiagnostics()}]))};}
 }
+

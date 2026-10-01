@@ -147,6 +147,8 @@
 
     <section class="guitarInputPanel">
       <div class="guitarInputIdentity"><span class="guitarIcon">🎙️</span><strong>Guitar Input</strong></div>
+      <label>Input <select id="guitarInputDevice"><option value="">System default</option></select></label>
+      <label>Channel <select id="guitarInputChannel"><option value="1" selected>2 · guitar</option><option value="0">1</option></select></label>
       <button id="guitarInputButton" class="uiButton" type="button">Enable</button>
       <span class="guitarInputToolGroup">
         <button id="guitarCalibrationButton" class="uiButton" type="button">Calibrate guitar volume</button>
@@ -224,3 +226,4 @@
   <script type="module" src="/src/trainer.js?v=wound-core-2"></script>
 </body>
 </html>
+

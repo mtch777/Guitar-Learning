@@ -1,0 +1,1557 @@
+{
+  "schema": "live-training-session-v1",
+  "sessionId": "d8d71565-a8dc-420c-b93b-57c108289920",
+  "sourceArchive": "live-pipeline-1790826710524.zip",
+  "sourceArchiveSha256": "93642c5f5ce8783e83d22feb5e35dffa09cbb215cdc6eeeb42d9fd49fcbd020e",
+  "recordingCount": 23,
+  "excluded": {
+    "position": "string 7 fret 12",
+    "reason": "User requested entire trial excluded: accidental extra string pluck. No audio from this trial is included."
+  },
+  "recordingFormat": "Original unmodified IEEE Float32 WAV, 6 seconds incl. cue silence",
+  "splitGroup": "d8d71565-a8dc-420c-b93b-57c108289920",
+  "trainingStatus": "Additional data only; not incorporated into deployed weights. Use session-grouped evaluation. Apply onset selection before fitting; do not train on leading silence. Labels are user-intended positions, predictions are diagnostic only.",
+  "records": [
+    {
+      "file": "s1_f00_normal_live.wav",
+      "trialId": "4c77446b-0446-4861-a854-d5936cdd35f2",
+      "string": 1,
+      "fret": 0,
+      "midi": 27,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "04589d13323286562199f4c93f163fc64b58d49768b5d92fe87139bbc9cc7171",
+      "sourceAudioFile": "audio/4c77446b-0446-4861-a854-d5936cdd35f2.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 27,
+          "string": 1,
+          "fret": 0,
+          "confidence": 1,
+          "model": "baseline",
+          "predictions": {
+            "baseline": 1,
+            "harmonic": 1,
+            "mfcc": 1
+          },
+          "masked": {
+            "baseline": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "harmonic": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "mfcc": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "pitchConfidence": 0.8945670139060737,
+          "capturedSamples": 36864,
+          "captureStartMs": 2229.115646258503,
+          "captureStartReceivedWallMs": 1790826447349.0999,
+          "captureEndMs": 3065.0340136054424,
+          "inferenceMs": 208.10000002384186,
+          "workerDecisionWallMs": 1790826448321.4,
+          "onsetToAudioCompletionMs": 835.9183673469392,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s1_f12_normal_live.wav",
+      "trialId": "2edaeede-2573-4395-8f89-fb9c9a988bd0",
+      "string": 1,
+      "fret": 12,
+      "midi": 39,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "2719aadf68a2fe3db2860c1e8cd17e22b8d84609d309f4291aa9e794397c617c",
+      "sourceAudioFile": "audio/2edaeede-2573-4395-8f89-fb9c9a988bd0.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 39,
+          "string": 1,
+          "fret": 12,
+          "confidence": 1,
+          "model": "baseline",
+          "predictions": {
+            "baseline": 1,
+            "harmonic": 1,
+            "mfcc": 1
+          },
+          "masked": {
+            "baseline": [
+              0.9839700332775585,
+              0.01101828621689069,
+              0.0050116805055508635,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "harmonic": [
+              0.9818929926501366,
+              0.012409639230812796,
+              0.005697368119050698,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "mfcc": [
+              0.984314389941383,
+              0.009387262945384634,
+              0.006298347113232394,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "pitchConfidence": 0.9523471799861163,
+          "capturedSamples": 36864,
+          "captureStartMs": 1764.716553287982,
+          "captureStartReceivedWallMs": 1790826464429.9,
+          "captureEndMs": 2600.6349206349205,
+          "inferenceMs": 150.39999997615814,
+          "workerDecisionWallMs": 1790826465482.0999,
+          "onsetToAudioCompletionMs": 835.9183673469386,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s1_f24_normal_live.wav",
+      "trialId": "dd0454ea-7397-439f-8f3f-de3612fb26b5",
+      "string": 1,
+      "fret": 24,
+      "midi": 51,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "c9823a8ce50b4825a65d90751ff313786857bd15442d75a69251d447f485723a",
+      "sourceAudioFile": "audio/dd0454ea-7397-439f-8f3f-de3612fb26b5.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 51,
+          "string": 1,
+          "fret": 24,
+          "confidence": 1,
+          "model": "mfcc",
+          "predictions": {
+            "baseline": 1,
+            "harmonic": 1,
+            "mfcc": 1
+          },
+          "masked": {
+            "baseline": [
+              0.9234085636165144,
+              0.03236432447789984,
+              0.01397542630932195,
+              0.01656771078889726,
+              0.013683974807366607,
+              0,
+              0,
+              0
+            ],
+            "harmonic": [
+              0.9077524720424777,
+              0.04305890947616579,
+              0.016909450547626027,
+              0.015003687186584898,
+              0.017275480747145612,
+              0,
+              0,
+              0
+            ],
+            "mfcc": [
+              0.9710568897412657,
+              0.012306796032878844,
+              0.006222638082119985,
+              0.005274519418383327,
+              0.005139156725352136,
+              0,
+              0,
+              0
+            ]
+          },
+          "pitchConfidence": 0.977457193509655,
+          "capturedSamples": 36864,
+          "captureStartMs": 2043.356009070295,
+          "captureStartReceivedWallMs": 1790826481419.9,
+          "captureEndMs": 2879.2743764172333,
+          "inferenceMs": 159.39999997615814,
+          "workerDecisionWallMs": 1790826482348.5999,
+          "onsetToAudioCompletionMs": 835.9183673469383,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s2_f00_normal_live.wav",
+      "trialId": "cd6e38e3-e8b0-4246-b79b-6cd4ac9919d6",
+      "string": 2,
+      "fret": 0,
+      "midi": 34,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "fc5ba87361a73db1657a214d51b331ec8c08a6bd46f1af01e1fed28d23e852f1",
+      "sourceAudioFile": "audio/cd6e38e3-e8b0-4246-b79b-6cd4ac9919d6.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 34,
+          "string": 2,
+          "fret": 0,
+          "confidence": 1,
+          "model": "baseline",
+          "predictions": {
+            "baseline": 2,
+            "harmonic": 2,
+            "mfcc": 2
+          },
+          "masked": {
+            "baseline": [
+              0.029943774950253715,
+              0.9700562250497463,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "harmonic": [
+              0.029729902458434994,
+              0.970270097541565,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "mfcc": [
+              0.018931112590794292,
+              0.9810688874092056,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "pitchConfidence": 0.9642621168038779,
+          "capturedSamples": 36864,
+          "captureStartMs": 1857.5963718820863,
+          "captureStartReceivedWallMs": 1790826492480.2,
+          "captureEndMs": 2693.514739229025,
+          "inferenceMs": 145.59999990463257,
+          "workerDecisionWallMs": 1790826493388.7,
+          "onsetToAudioCompletionMs": 835.9183673469388,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s2_f12_normal_live.wav",
+      "trialId": "a33a5841-77f2-4f7d-86f2-d54fae9e45f0",
+      "string": 2,
+      "fret": 12,
+      "midi": 46,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "1fc2814785b87b0589475e78321434145a050e4996776b586b945685c440a8d7",
+      "sourceAudioFile": "audio/a33a5841-77f2-4f7d-86f2-d54fae9e45f0.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 46,
+          "string": 2,
+          "fret": 12,
+          "confidence": 1,
+          "model": "baseline",
+          "predictions": {
+            "baseline": 2,
+            "harmonic": 2,
+            "mfcc": 2
+          },
+          "masked": {
+            "baseline": [
+              0.01470650430169848,
+              0.9737856460684753,
+              0.005133078209750797,
+              0.006374771420075477,
+              0,
+              0,
+              0,
+              0
+            ],
+            "harmonic": [
+              0.016826272646747263,
+              0.9717622018171957,
+              0.005850443724873142,
+              0.005561081811183812,
+              0,
+              0,
+              0,
+              0
+            ],
+            "mfcc": [
+              0.025126993665090875,
+              0.9594125948533165,
+              0.0052182680149000255,
+              0.010242143466692536,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "pitchConfidence": 0.9681178905488674,
+          "capturedSamples": 36864,
+          "captureStartMs": 1764.716553287982,
+          "captureStartReceivedWallMs": 1790826503809.7,
+          "captureEndMs": 2600.6349206349205,
+          "inferenceMs": 140.29999995231628,
+          "workerDecisionWallMs": 1790826504853.2,
+          "onsetToAudioCompletionMs": 835.9183673469386,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s2_f24_normal_live.wav",
+      "trialId": "4b563454-c36b-4a99-b58e-13938208d822",
+      "string": 2,
+      "fret": 24,
+      "midi": 58,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "497d009a7f7c5e53314a9a2b00c811f57c9a4520c70a6d479cd3124a945c21b5",
+      "sourceAudioFile": "audio/4b563454-c36b-4a99-b58e-13938208d822.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 58,
+          "string": 2,
+          "fret": 24,
+          "confidence": 1,
+          "model": "baseline",
+          "predictions": {
+            "baseline": 2,
+            "harmonic": 2,
+            "mfcc": 2
+          },
+          "masked": {
+            "baseline": [
+              0,
+              0.963693520084483,
+              0.0067702542070604155,
+              0.008600323617884511,
+              0.007804827466689403,
+              0.006585973743539907,
+              0.006545100880342785,
+              0
+            ],
+            "harmonic": [
+              0,
+              0.957784956807462,
+              0.006985528227007125,
+              0.010868508179302247,
+              0.011829074958675972,
+              0.006400870941395849,
+              0.006131060886156723,
+              0
+            ],
+            "mfcc": [
+              0,
+              0.9598016085449701,
+              0.007862080686861329,
+              0.010721149843055035,
+              0.006032888129796655,
+              0.010375007330176721,
+              0.005207265465139999,
+              0
+            ]
+          },
+          "pitchConfidence": 0.986185990831024,
+          "capturedSamples": 36864,
+          "captureStartMs": 1764.716553287982,
+          "captureStartReceivedWallMs": 1790826517000.7,
+          "captureEndMs": 2600.6349206349205,
+          "inferenceMs": 154.70000004768372,
+          "workerDecisionWallMs": 1790826518059,
+          "onsetToAudioCompletionMs": 835.9183673469386,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s3_f00_normal_live.wav",
+      "trialId": "4b07b970-2be7-4157-9f66-9430e6075f83",
+      "string": 3,
+      "fret": 0,
+      "midi": 39,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "153696a122cfa1d42684531b9c03b02b312dc47779acc95ac3bab68c96e56ecc",
+      "sourceAudioFile": "audio/4b07b970-2be7-4157-9f66-9430e6075f83.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 39,
+          "string": 3,
+          "fret": 0,
+          "confidence": 1,
+          "model": "baseline",
+          "predictions": {
+            "baseline": 3,
+            "harmonic": 3,
+            "mfcc": 3
+          },
+          "masked": {
+            "baseline": [
+              0.010324833219456722,
+              0.02435526799436862,
+              0.9653198987861747,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "harmonic": [
+              0.009663259594288393,
+              0.028112714036585402,
+              0.9622240263691262,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "mfcc": [
+              0.019003966910646396,
+              0.014621984442400171,
+              0.9663740486469534,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "pitchConfidence": 0.946593043356683,
+          "capturedSamples": 36864,
+          "captureStartMs": 2414.8752834467123,
+          "captureStartReceivedWallMs": 1790826527210.7,
+          "captureEndMs": 3250.7936507936506,
+          "inferenceMs": 150.10000002384186,
+          "workerDecisionWallMs": 1790826528131.2998,
+          "onsetToAudioCompletionMs": 835.9183673469383,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s3_f12_normal_live.wav",
+      "trialId": "30ce6b1f-6cc9-4f1c-a6bb-296dc2cd3187",
+      "string": 3,
+      "fret": 12,
+      "midi": 51,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "1f0f9985120dd839ddb5e13f9741f0ea331cfedb7351f5a7209f349d46214502",
+      "sourceAudioFile": "audio/30ce6b1f-6cc9-4f1c-a6bb-296dc2cd3187.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 51,
+          "string": 3,
+          "fret": 12,
+          "confidence": 1,
+          "model": "harmonic",
+          "predictions": {
+            "baseline": 3,
+            "harmonic": 3,
+            "mfcc": 3
+          },
+          "masked": {
+            "baseline": [
+              0.01208457706559246,
+              0.037053455519338405,
+              0.9245670129388076,
+              0.01739161541765377,
+              0.00890333905860767,
+              0,
+              0,
+              0
+            ],
+            "harmonic": [
+              0.010701082454995063,
+              0.03649215837300094,
+              0.9389214223791258,
+              0.0068128995265535905,
+              0.007072437266324619,
+              0,
+              0,
+              0
+            ],
+            "mfcc": [
+              0.038273360743413656,
+              0.02091731369556074,
+              0.9187740633428685,
+              0.011867841922723568,
+              0.01016742029543361,
+              0,
+              0,
+              0
+            ]
+          },
+          "pitchConfidence": 0.9750398602107595,
+          "capturedSamples": 36864,
+          "captureStartMs": 1764.716553287982,
+          "captureStartReceivedWallMs": 1790826537150.2998,
+          "captureEndMs": 2600.6349206349205,
+          "inferenceMs": 150,
+          "workerDecisionWallMs": 1790826538209.0999,
+          "onsetToAudioCompletionMs": 835.9183673469386,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s3_f24_normal_live.wav",
+      "trialId": "caa42185-a59b-4e40-82b9-91f4c5dd92d6",
+      "string": 3,
+      "fret": 24,
+      "midi": 63,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "738c384a2dd5620f1c3572a0887a2d2241cf1f220610e463408039084ac40217",
+      "sourceAudioFile": "audio/caa42185-a59b-4e40-82b9-91f4c5dd92d6.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 63,
+          "string": 3,
+          "fret": 24,
+          "confidence": 1,
+          "model": "baseline",
+          "predictions": {
+            "baseline": 3,
+            "harmonic": 3,
+            "mfcc": 3
+          },
+          "masked": {
+            "baseline": [
+              0,
+              0,
+              0.9524014207106475,
+              0.014355441151933088,
+              0.00899983880596903,
+              0.007356234084781308,
+              0.010168864352840408,
+              0.006718200893828829
+            ],
+            "harmonic": [
+              0,
+              0,
+              0.9648328487577957,
+              0.006502094471050253,
+              0.007424339164496318,
+              0.0067782493280857765,
+              0.008040361466042445,
+              0.006422106812529502
+            ],
+            "mfcc": [
+              0,
+              0,
+              0.9478121777372419,
+              0.00715688112407263,
+              0.006491279262293693,
+              0.006158909230688438,
+              0.025659316570871723,
+              0.006721436074831665
+            ]
+          },
+          "pitchConfidence": 0.9890610368447896,
+          "capturedSamples": 36864,
+          "captureStartMs": 2321.9954648526077,
+          "captureStartReceivedWallMs": 1790826548759.9,
+          "captureEndMs": 3157.9138321995465,
+          "inferenceMs": 136.5,
+          "workerDecisionWallMs": 1790826549795.5999,
+          "onsetToAudioCompletionMs": 835.9183673469388,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s4_f00_normal_live.wav",
+      "trialId": "9c5fb545-3382-47d2-80e3-a4a302017627",
+      "string": 4,
+      "fret": 0,
+      "midi": 44,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "898edbc181e681e5f844100310e2874441df52e24bf805383a26e0d4bd06c04f",
+      "sourceAudioFile": "audio/9c5fb545-3382-47d2-80e3-a4a302017627.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 44,
+          "string": 4,
+          "fret": 0,
+          "confidence": 1,
+          "model": "mfcc",
+          "predictions": {
+            "baseline": 4,
+            "harmonic": 1,
+            "mfcc": 4
+          },
+          "masked": {
+            "baseline": [
+              0.09019440362938981,
+              0.05285449377166753,
+              0.04559741021120968,
+              0.8113536923877329,
+              0,
+              0,
+              0,
+              0
+            ],
+            "harmonic": [
+              0.43193278015534214,
+              0.2574831165594238,
+              0.17039712477976623,
+              0.1401869785054679,
+              0,
+              0,
+              0,
+              0
+            ],
+            "mfcc": [
+              0.06710078336647544,
+              0.02829166543241138,
+              0.02539239823856979,
+              0.8792151529625434,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "pitchConfidence": 0.9623698947439742,
+          "capturedSamples": 36864,
+          "captureStartMs": 1671.8367346938776,
+          "captureStartReceivedWallMs": 1790826557399.7,
+          "captureEndMs": 2507.7551020408164,
+          "inferenceMs": 153.5,
+          "workerDecisionWallMs": 1790826558315.0999,
+          "onsetToAudioCompletionMs": 835.9183673469388,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s4_f12_normal_live.wav",
+      "trialId": "cf9ce6c2-9c15-4a51-b9a8-c7f3ccc30397",
+      "string": 4,
+      "fret": 12,
+      "midi": 56,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "0caadecb72a8ac65a0245ded4a780c6bd0ee4c8245dbb671442a9d19016c909b",
+      "sourceAudioFile": "audio/cf9ce6c2-9c15-4a51-b9a8-c7f3ccc30397.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 56,
+          "string": 4,
+          "fret": 12,
+          "confidence": 1,
+          "model": "mfcc",
+          "predictions": {
+            "baseline": 4,
+            "harmonic": 5,
+            "mfcc": 4
+          },
+          "masked": {
+            "baseline": [
+              0,
+              0.013283150708804205,
+              0.0074270170196604635,
+              0.9207071020159135,
+              0.05101237778876097,
+              0.007570352466860895,
+              0,
+              0
+            ],
+            "harmonic": [
+              0,
+              0.208893674748887,
+              0.11279258050742248,
+              0.10754283629474845,
+              0.44592937571085883,
+              0.12484153273808327,
+              0,
+              0
+            ],
+            "mfcc": [
+              0,
+              0.011173989973177213,
+              0.007529961172329918,
+              0.919006709961224,
+              0.05439761768791525,
+              0.007891721205353669,
+              0,
+              0
+            ]
+          },
+          "pitchConfidence": 0.9813685021420058,
+          "capturedSamples": 36864,
+          "captureStartMs": 1671.8367346938776,
+          "captureStartReceivedWallMs": 1790826567610,
+          "captureEndMs": 2507.7551020408164,
+          "inferenceMs": 153.19999992847443,
+          "workerDecisionWallMs": 1790826568538.2,
+          "onsetToAudioCompletionMs": 835.9183673469388,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s4_f24_normal_live.wav",
+      "trialId": "cb971bd9-fa92-44ca-9876-857245dd801e",
+      "string": 4,
+      "fret": 24,
+      "midi": 68,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "a54aefdc18c2fa44b797f67a854f193a95844a1425700c6d0e177f12cb16912a",
+      "sourceAudioFile": "audio/cb971bd9-fa92-44ca-9876-857245dd801e.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 68,
+          "string": 4,
+          "fret": 24,
+          "confidence": 0.9090909090909091,
+          "model": "baseline",
+          "predictions": {
+            "baseline": 4,
+            "harmonic": 5,
+            "mfcc": 4
+          },
+          "masked": {
+            "baseline": [
+              0,
+              0,
+              0,
+              0.7691591554089576,
+              0.13596150297465906,
+              0.03254834230026277,
+              0.03311740515612397,
+              0.029213594159996657
+            ],
+            "harmonic": [
+              0,
+              0,
+              0,
+              0.11692221268649843,
+              0.5155066054002289,
+              0.13355599842457308,
+              0.11853132794442638,
+              0.11548385554427322
+            ],
+            "mfcc": [
+              0,
+              0,
+              0,
+              0.5894002530734327,
+              0.30599344321112204,
+              0.05072214478666176,
+              0.025661413337083255,
+              0.028222745591700373
+            ]
+          },
+          "pitchConfidence": 0.9917536160949265,
+          "capturedSamples": 36864,
+          "captureStartMs": 1671.8367346938776,
+          "captureStartReceivedWallMs": 1790826578950.2,
+          "captureEndMs": 2507.7551020408164,
+          "inferenceMs": 153.39999997615814,
+          "workerDecisionWallMs": 1790826579862.7,
+          "onsetToAudioCompletionMs": 835.9183673469388,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s5_f00_normal_live.wav",
+      "trialId": "fd073592-ed29-4013-8c1b-f0e9ec65006a",
+      "string": 5,
+      "fret": 0,
+      "midi": 49,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "ccc3a5bbd0054f34e75efb89b26ae56d5a721a9a2b9707f00346a1d716ba8807",
+      "sourceAudioFile": "audio/fd073592-ed29-4013-8c1b-f0e9ec65006a.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 49,
+          "string": 5,
+          "fret": 0,
+          "confidence": 1,
+          "model": "harmonic",
+          "predictions": {
+            "baseline": 5,
+            "harmonic": 5,
+            "mfcc": 5
+          },
+          "masked": {
+            "baseline": [
+              0.019257705825948542,
+              0.019897044911233376,
+              0.013086783688170204,
+              0.020243854051993367,
+              0.9275146115226545,
+              0,
+              0,
+              0
+            ],
+            "harmonic": [
+              0.011323504075846952,
+              0.013816334563562214,
+              0.007433214548972662,
+              0.010246893524938057,
+              0.9571800532866801,
+              0,
+              0,
+              0
+            ],
+            "mfcc": [
+              0.03260623060815092,
+              0.036002460317022714,
+              0.021607619344726547,
+              0.03017545314369539,
+              0.8796082365864044,
+              0,
+              0,
+              0
+            ]
+          },
+          "pitchConfidence": 0.9702615179677784,
+          "capturedSamples": 36864,
+          "captureStartMs": 1671.8367346938776,
+          "captureStartReceivedWallMs": 1790826590280.7,
+          "captureEndMs": 2507.7551020408164,
+          "inferenceMs": 145.89999997615814,
+          "workerDecisionWallMs": 1790826591189.7,
+          "onsetToAudioCompletionMs": 835.9183673469388,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s5_f12_normal_live.wav",
+      "trialId": "214681eb-b89e-4cd7-b736-15d710fc760a",
+      "string": 5,
+      "fret": 12,
+      "midi": 61,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "7adbf82318ec2aa669d0eb3c705a77b1477194e662b0d86c81ea7009dabe33b2",
+      "sourceAudioFile": "audio/214681eb-b89e-4cd7-b736-15d710fc760a.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 61,
+          "string": 5,
+          "fret": 12,
+          "confidence": 1,
+          "model": "baseline",
+          "predictions": {
+            "baseline": 5,
+            "harmonic": 5,
+            "mfcc": 5
+          },
+          "masked": {
+            "baseline": [
+              0,
+              0,
+              0.006824954796334921,
+              0.024951639796924194,
+              0.9553732225822728,
+              0.006845204693620401,
+              0.006004978130847743,
+              0
+            ],
+            "harmonic": [
+              0,
+              0,
+              0.006910632600435735,
+              0.026058008244024138,
+              0.95287889071506,
+              0.007399280978581864,
+              0.006753187461898194,
+              0
+            ],
+            "mfcc": [
+              0,
+              0,
+              0.007906743308133287,
+              0.013078805355963284,
+              0.9550465247558528,
+              0.015350502532576676,
+              0.008617424047473954,
+              0
+            ]
+          },
+          "pitchConfidence": 0.9859213221644543,
+          "capturedSamples": 36864,
+          "captureStartMs": 1578.9569160997733,
+          "captureStartReceivedWallMs": 1790826600030.5,
+          "captureEndMs": 2414.8752834467123,
+          "inferenceMs": 150.39999997615814,
+          "workerDecisionWallMs": 1790826601089.0999,
+          "onsetToAudioCompletionMs": 835.918367346939,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s5_f24_normal_live.wav",
+      "trialId": "7dc8cbd0-81c8-47c5-b01c-71a131d84e1c",
+      "string": 5,
+      "fret": 24,
+      "midi": 73,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "6b690ab2bef3c2f28a8de90b1405a331725219f5889164e9b61973604d0b2b80",
+      "sourceAudioFile": "audio/7dc8cbd0-81c8-47c5-b01c-71a131d84e1c.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 73,
+          "string": 5,
+          "fret": 24,
+          "confidence": 0.9852941176470589,
+          "model": "harmonic",
+          "predictions": {
+            "baseline": 5,
+            "harmonic": 5,
+            "mfcc": 5
+          },
+          "masked": {
+            "baseline": [
+              0,
+              0,
+              0,
+              0,
+              0.8102267308361455,
+              0.12343212432564847,
+              0.03596539679147859,
+              0.03037574804672736
+            ],
+            "harmonic": [
+              0,
+              0,
+              0,
+              0,
+              0.8890624565161205,
+              0.05639498748273956,
+              0.032295057963457136,
+              0.02224749803768285
+            ],
+            "mfcc": [
+              0,
+              0,
+              0,
+              0,
+              0.5499845893378142,
+              0.3448272496892902,
+              0.08052911576860129,
+              0.024659045204294277
+            ]
+          },
+          "pitchConfidence": 0.9911323119964704,
+          "capturedSamples": 36864,
+          "captureStartMs": 1578.9569160997733,
+          "captureStartReceivedWallMs": 1790826610431,
+          "captureEndMs": 2414.8752834467123,
+          "inferenceMs": 145.90000009536743,
+          "workerDecisionWallMs": 1790826611491,
+          "onsetToAudioCompletionMs": 835.918367346939,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s6_f00_normal_live.wav",
+      "trialId": "5b4ecbe2-f4b8-4d91-b827-513195c91f72",
+      "string": 6,
+      "fret": 0,
+      "midi": 54,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "d8735c87cbb908c8ccaa8aa87cd827c17244875bc89cb62f3deca539662b9299",
+      "sourceAudioFile": "audio/5b4ecbe2-f4b8-4d91-b827-513195c91f72.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 54,
+          "string": 6,
+          "fret": 0,
+          "confidence": 1,
+          "model": "mfcc",
+          "predictions": {
+            "baseline": 6,
+            "harmonic": 6,
+            "mfcc": 6
+          },
+          "masked": {
+            "baseline": [
+              0,
+              0.014341532641420246,
+              0.01514100239521916,
+              0.010986629685030058,
+              0.015654951653397305,
+              0.9438758836249332,
+              0,
+              0
+            ],
+            "harmonic": [
+              0,
+              0.019604186450390634,
+              0.01926451614552714,
+              0.011769189640610238,
+              0.05355278725377166,
+              0.8958093205097004,
+              0,
+              0
+            ],
+            "mfcc": [
+              0,
+              0.021281311889225055,
+              0.028222659552104706,
+              0.017839624082176476,
+              0.048729548502929106,
+              0.8839268559735646,
+              0,
+              0
+            ]
+          },
+          "pitchConfidence": 0.9779818565283065,
+          "capturedSamples": 36864,
+          "captureStartMs": 1578.9569160997733,
+          "captureStartReceivedWallMs": 1790826619810.7,
+          "captureEndMs": 2414.8752834467123,
+          "inferenceMs": 142.10000002384186,
+          "workerDecisionWallMs": 1790826620871.4,
+          "onsetToAudioCompletionMs": 835.918367346939,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s6_f12_normal_live.wav",
+      "trialId": "8241bac9-6ed6-4a77-bfa2-e55a74bf733a",
+      "string": 6,
+      "fret": 12,
+      "midi": 66,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "ad29c70c3aff594025d27d301abf6a1bad0b50f934409635bc3b115765b76dee",
+      "sourceAudioFile": "audio/8241bac9-6ed6-4a77-bfa2-e55a74bf733a.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 66,
+          "string": 6,
+          "fret": 12,
+          "confidence": 1,
+          "model": "baseline",
+          "predictions": {
+            "baseline": 6,
+            "harmonic": 6,
+            "mfcc": 6
+          },
+          "masked": {
+            "baseline": [
+              0,
+              0,
+              0,
+              0.007786404986968334,
+              0.01814421286132652,
+              0.9622270416217793,
+              0.005933668046567056,
+              0.0059086724833588185
+            ],
+            "harmonic": [
+              0,
+              0,
+              0,
+              0.005785304782131919,
+              0.011008104026799682,
+              0.9710800517278919,
+              0.006412404514920728,
+              0.005714134948255775
+            ],
+            "mfcc": [
+              0,
+              0,
+              0,
+              0.009263726884042943,
+              0.2434025842581511,
+              0.729263911494822,
+              0.009669254931435995,
+              0.00840052243154793
+            ]
+          },
+          "pitchConfidence": 0.9901697131684248,
+          "capturedSamples": 36864,
+          "captureStartMs": 1486.077097505669,
+          "captureStartReceivedWallMs": 1790826630870.2,
+          "captureEndMs": 2321.9954648526077,
+          "inferenceMs": 142,
+          "workerDecisionWallMs": 1790826631778.0999,
+          "onsetToAudioCompletionMs": 835.9183673469388,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s6_f24_normal_live.wav",
+      "trialId": "d87331a0-1f90-4d11-b999-d2b50546f23f",
+      "string": 6,
+      "fret": 24,
+      "midi": 78,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "8de4cc9fbcd4a1f7371c3e592c6399cb50644c9ba25beb6ddeeb5c5f295a7164",
+      "sourceAudioFile": "audio/d87331a0-1f90-4d11-b999-d2b50546f23f.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 78,
+          "string": 6,
+          "fret": 24,
+          "confidence": 1,
+          "model": "baseline",
+          "predictions": {
+            "baseline": 6,
+            "harmonic": 6,
+            "mfcc": 6
+          },
+          "masked": {
+            "baseline": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.9643324744062738,
+              0.025513679532812084,
+              0.010153846060914172
+            ],
+            "harmonic": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.9646141674048004,
+              0.023122465921558515,
+              0.012263366673641094
+            ],
+            "mfcc": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.8109419413980482,
+              0.136187665318511,
+              0.05287039328344071
+            ]
+          },
+          "pitchConfidence": 0.9959451803729502,
+          "capturedSamples": 36864,
+          "captureStartMs": 1671.8367346938776,
+          "captureStartReceivedWallMs": 1790826645259.5999,
+          "captureEndMs": 2507.7551020408164,
+          "inferenceMs": 156.39999997615814,
+          "workerDecisionWallMs": 1790826646188.2,
+          "onsetToAudioCompletionMs": 835.9183673469388,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s7_f00_normal_live.wav",
+      "trialId": "08e26b69-6c07-4163-8268-7ca46e0bfdfb",
+      "string": 7,
+      "fret": 0,
+      "midi": 58,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "58f9c5058f6ba182e816fe3faa629098e7078100d28c4dc2e0a84a5b1538bf06",
+      "sourceAudioFile": "audio/08e26b69-6c07-4163-8268-7ca46e0bfdfb.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 58,
+          "string": 7,
+          "fret": 0,
+          "confidence": 1,
+          "model": "harmonic",
+          "predictions": {
+            "baseline": 7,
+            "harmonic": 7,
+            "mfcc": 7
+          },
+          "masked": {
+            "baseline": [
+              0,
+              0.011055005175531504,
+              0.009954491038302541,
+              0.0092289139175492,
+              0.008494169662381673,
+              0.012321425157348447,
+              0.9489459950488867,
+              0
+            ],
+            "harmonic": [
+              0,
+              0.011018141580372686,
+              0.00980804079047743,
+              0.009971674619671477,
+              0.008808357456974466,
+              0.01132409130526089,
+              0.949069694247243,
+              0
+            ],
+            "mfcc": [
+              0,
+              0.020134807778644653,
+              0.01191681048284793,
+              0.015362050352161054,
+              0.03934967682357075,
+              0.03016140731894372,
+              0.8830752472438319,
+              0
+            ]
+          },
+          "pitchConfidence": 0.9784724222200267,
+          "capturedSamples": 36864,
+          "captureStartMs": 1671.8367346938776,
+          "captureStartReceivedWallMs": 1790826654550.0999,
+          "captureEndMs": 2507.7551020408164,
+          "inferenceMs": 138.29999995231628,
+          "workerDecisionWallMs": 1790826655448.7,
+          "onsetToAudioCompletionMs": 835.9183673469388,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s7_f24_normal_live.wav",
+      "trialId": "b05ffabe-2f69-4ca3-889c-3c7370029ef5",
+      "string": 7,
+      "fret": 24,
+      "midi": 82,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "347d6f9af6759a73ae6591dcdd32f03b880ab1da35c12baa525fa40483d3e48b",
+      "sourceAudioFile": "audio/b05ffabe-2f69-4ca3-889c-3c7370029ef5.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 82,
+          "string": 7,
+          "fret": 24,
+          "confidence": 1,
+          "model": "baseline",
+          "predictions": {
+            "baseline": 7,
+            "harmonic": 7,
+            "mfcc": 7
+          },
+          "masked": {
+            "baseline": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.9917576710207545,
+              0.008242328979245468
+            ],
+            "harmonic": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.9923641469501094,
+              0.007635853049890663
+            ],
+            "mfcc": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.8785489024223522,
+              0.12145109757764778
+            ]
+          },
+          "pitchConfidence": 0.995913043033283,
+          "capturedSamples": 36864,
+          "captureStartMs": 1486.077097505669,
+          "captureStartReceivedWallMs": 1790826674519.9,
+          "captureEndMs": 2321.9954648526077,
+          "inferenceMs": 149.10000002384186,
+          "workerDecisionWallMs": 1790826675426.2998,
+          "onsetToAudioCompletionMs": 835.9183673469388,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s8_f00_normal_live.wav",
+      "trialId": "481887aa-33c0-4467-8bad-d4c31cfcc3ec",
+      "string": 8,
+      "fret": 0,
+      "midi": 63,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "3f57a55bf940ef77465e00ed399a2068b001821e72924e4238432f08cdb85a13",
+      "sourceAudioFile": "audio/481887aa-33c0-4467-8bad-d4c31cfcc3ec.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 63,
+          "string": 8,
+          "fret": 0,
+          "confidence": 0.9852941176470589,
+          "model": "harmonic",
+          "predictions": {
+            "baseline": 8,
+            "harmonic": 8,
+            "mfcc": 8
+          },
+          "masked": {
+            "baseline": [
+              0,
+              0,
+              0.010781432660790449,
+              0.011098215107011294,
+              0.012304432577424276,
+              0.011518352350497392,
+              0.03173980681761637,
+              0.9225577604866603
+            ],
+            "harmonic": [
+              0,
+              0,
+              0.009374246174768258,
+              0.01308378299152711,
+              0.012973362653737594,
+              0.011703493213739603,
+              0.0392426779838061,
+              0.9136224369824213
+            ],
+            "mfcc": [
+              0,
+              0,
+              0.036877856628615396,
+              0.04236466581915393,
+              0.04334445016624806,
+              0.035525828367432975,
+              0.11029869863585141,
+              0.7315885003826982
+            ]
+          },
+          "pitchConfidence": 0.9856673038693956,
+          "capturedSamples": 36864,
+          "captureStartMs": 1578.9569160997733,
+          "captureStartReceivedWallMs": 1790826683529.7998,
+          "captureEndMs": 2414.8752834467123,
+          "inferenceMs": 144.69999992847443,
+          "workerDecisionWallMs": 1790826684587.0999,
+          "onsetToAudioCompletionMs": 835.918367346939,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s8_f12_normal_live.wav",
+      "trialId": "8900dc12-a834-4029-b97a-233f8e1063f1",
+      "string": 8,
+      "fret": 12,
+      "midi": 75,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "7ef90c3fa3d745ebc5e1d7f3e4cb1804a609479e4f18f35a4920d801e4c9a6b3",
+      "sourceAudioFile": "audio/8900dc12-a834-4029-b97a-233f8e1063f1.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 75,
+          "string": 8,
+          "fret": 12,
+          "confidence": 1,
+          "model": "harmonic",
+          "predictions": {
+            "baseline": 8,
+            "harmonic": 8,
+            "mfcc": 8
+          },
+          "masked": {
+            "baseline": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.018306891856743012,
+              0.041231166979493,
+              0.9404619411637639
+            ],
+            "harmonic": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.013808577076544783,
+              0.034052631961374175,
+              0.9521387909620811
+            ],
+            "mfcc": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.06823135491983778,
+              0.08868094444850107,
+              0.8430877006316612
+            ]
+          },
+          "pitchConfidence": 0.9839439281894852,
+          "capturedSamples": 36864,
+          "captureStartMs": 1486.077097505669,
+          "captureStartReceivedWallMs": 1790826691980.9,
+          "captureEndMs": 2321.9954648526077,
+          "inferenceMs": 137.20000004768372,
+          "workerDecisionWallMs": 1790826692878.9,
+          "onsetToAudioCompletionMs": 835.9183673469388,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "s8_f24_normal_live.wav",
+      "trialId": "146f4dbe-a22f-45af-acdc-633dac1ad333",
+      "string": 8,
+      "fret": 24,
+      "midi": 87,
+      "strength": "normal",
+      "sampleRate": 44100,
+      "sha256": "b16288ed252d2abbc25c9a8b29bff2efb581bfed4cb0b816ebf70d805892d869",
+      "sourceAudioFile": "audio/146f4dbe-a22f-45af-acdc-633dac1ad333.wav",
+      "hybridEvents": [
+        {
+          "route": "hybrid",
+          "midi": 87,
+          "string": 8,
+          "fret": 24,
+          "confidence": 1,
+          "model": "baseline",
+          "predictions": {
+            "baseline": 8,
+            "harmonic": 8,
+            "mfcc": 8
+          },
+          "masked": {
+            "baseline": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "harmonic": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "mfcc": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          "pitchConfidence": 0.9912848482051267,
+          "capturedSamples": 36864,
+          "captureStartMs": 1671.8367346938776,
+          "captureStartReceivedWallMs": 1790826701919.9,
+          "captureEndMs": 2507.7551020408164,
+          "inferenceMs": 142.40000009536743,
+          "workerDecisionWallMs": 1790826702823.5,
+          "onsetToAudioCompletionMs": 835.9183673469388,
+          "error": null
+        }
+      ]
+    }
+  ]
+}
