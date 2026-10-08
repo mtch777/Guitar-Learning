@@ -1150,6 +1150,85 @@ button.uiButton:disabled {
   justify-content: center;
 }
 
+/* =========================================================
+   TIME GUITAR SOLO
+   Multiple source-relative interval roles can occur at the
+   same physical fret under different harmony in the tab.
+   Preserve all of them as a compact colored cluster.
+   ========================================================= */
+
+.timeSoloNote {
+  overflow: visible;
+}
+
+.fretboardOpenStrings
+  .openStringNote.timeSoloNote {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.timeSoloIntervalCluster {
+  position: absolute !important;
+  left: 50%;
+  top: 50%;
+  width: 38px;
+  transform:
+    translate(-50%, -50%);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.timeSoloIntervalChip {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid
+    rgba(0, 0, 0, .35);
+  border-radius: 50%;
+  font: 700 9px/1
+    'DejaVu Sans Mono',
+    Consolas,
+    monospace;
+  box-shadow:
+    0 1px 2px
+    rgba(0, 0, 0, .26);
+}
+
+.timeSoloIntervalCluster.single {
+  width:
+    var(--fretboard-note-size);
+}
+
+.timeSoloIntervalCluster.single
+  .timeSoloIntervalChip {
+  width:
+    var(--fretboard-note-size);
+  height:
+    var(--fretboard-note-size);
+  flex-basis:
+    var(--fretboard-note-size);
+  font-size: 12px;
+}
+
+.timeSoloFallbackChip {
+  background:
+    var(--header-bg);
+  color:
+    var(--text-color);
+}
+
+.timeSoloPrompt {
+  white-space: nowrap;
+}
+
 .fretboardNote.revealed {
   border-color: rgba(0, 0, 0, .48);
   box-shadow: 0 2px 4px rgba(0, 0, 0, .32);

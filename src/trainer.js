@@ -1,4 +1,9 @@
 import { setupLiveGuitarInput } from "./input/live-guitar.js";
+import {
+  TIME_SOLO_DROP_E_TUNING,
+  TIME_SOLO_TAB_NOTES,
+  TIME_SOLO_INTERVAL_STYLES
+} from "./data/time-solo.js";
 
 // GitHub/Vite theme initialization added during migration.
 const themeButton = document.getElementById('themeToggle');
@@ -505,6 +510,11 @@ const lessonDefinitions = {
   modeInterval: {
     label: 'Mode Interval Matching',
     maxFret: 0,
+    hasStartCue: false
+  },
+  timeSolo: {
+    label: 'Time Guitar Solo',
+    maxFret: 17,
     hasStartCue: false
   },
   daily: {
@@ -1335,6 +1345,221 @@ function skipDailyCurrentLesson() {
   }
 
   return false;
+}
+
+function displayTimeSoloLesson(
+  allCells
+) {
+  const positions =
+    new Map();
+
+  TIME_SOLO_TAB_NOTES
+    .forEach(
+      note => {
+        const key =
+          makeCellKey(
+            note.stringIndex,
+            note.fret
+          );
+
+        let position =
+          positions.get(key);
+
+        if (!position) {
+          position = {
+            count: 0,
+            intervals: []
+          };
+
+          positions.set(
+            key,
+            position
+          );
+        }
+
+        position.count++;
+
+        if (
+          note.interval &&
+          !position.intervals.includes(
+            note.interval
+          )
+        ) {
+          position.intervals.push(
+            note.interval
+          );
+        }
+      }
+    );
+
+  allCells.forEach(
+    item => {
+      const key =
+        makeCellKey(
+          item.stringIndex,
+          item.fret
+        );
+
+      const position =
+        positions.get(key);
+
+      if (!position) {
+        item.element
+          .classList
+          .remove(
+            'timeSoloNote'
+          );
+
+        hideCell(
+          item.element
+        );
+
+        return;
+      }
+
+      const cell =
+        item.element;
+
+      clearCellStyle(
+        cell
+      );
+
+      cell.classList.remove(
+        'unknownInterval',
+        'revealed',
+        'correct',
+        'wrong',
+        'intervalCompleted'
+      );
+
+      cell.classList.add(
+        'timeSoloNote'
+      );
+
+      cell.innerHTML = '';
+
+      const cluster =
+        document.createElement(
+          'span'
+        );
+
+      cluster.className =
+        'timeSoloIntervalCluster';
+
+      if (
+        position.intervals.length <= 1
+      ) {
+        cluster.classList.add(
+          'single'
+        );
+      }
+
+      position.intervals
+        .forEach(
+          interval => {
+            const chip =
+              document.createElement(
+                'span'
+              );
+
+            chip.className =
+              'timeSoloIntervalChip';
+
+            chip.textContent =
+              interval;
+
+            const style =
+              TIME_SOLO_INTERVAL_STYLES[
+                interval
+              ];
+
+            if (style) {
+              chip.style.background =
+                style.background;
+
+              chip.style.color =
+                style.color;
+            }
+
+            cluster.appendChild(
+              chip
+            );
+          }
+        );
+
+      /*
+        Every unique physical position in the extracted tab has
+        at least one annotated interval somewhere in the song.
+        Keep a note-name fallback for source robustness.
+      */
+      if (
+        cluster.children.length === 0
+      ) {
+        const fallback =
+          document.createElement(
+            'span'
+          );
+
+        fallback.className =
+          'timeSoloIntervalChip timeSoloFallbackChip';
+
+        fallback.textContent =
+          cell.dataset.noteName;
+
+        cluster.appendChild(
+          fallback
+        );
+      }
+
+      cell.appendChild(
+        cluster
+      );
+
+      const intervalText =
+        position.intervals.length
+          ? position.intervals.join(
+              ', '
+            )
+          : 'no source interval';
+
+      cell.title =
+        cell.dataset.scientificPitch +
+        ' · String ' +
+        (item.stringIndex + 1) +
+        ' fret ' +
+        item.fret +
+        ' · ' +
+        position.count +
+        (
+          position.count === 1
+            ? ' tab occurrence'
+            : ' tab occurrences'
+        ) +
+        ' · intervals: ' +
+        intervalText;
+
+      cell.setAttribute(
+        'aria-label',
+        cell.title
+      );
+    }
+  );
+
+  const answerDisplay =
+    document.getElementById(
+      'answerNote'
+    );
+
+  if (answerDisplay) {
+    answerDisplay.className =
+      'timeSoloPrompt';
+
+    answerDisplay.textContent =
+      TIME_SOLO_TAB_NOTES.length +
+      ' tab notes · ' +
+      positions.size +
+      ' fretboard positions';
+  }
 }
 
 function getTuning() {
@@ -2240,6 +2465,9 @@ function updateLessonControls() {
   const modeInterval =
     lessonType === 'modeInterval';
 
+  const timeSolo =
+    lessonType === 'timeSolo';
+
   document
     .getElementById(
       'intervalLessonControls'
@@ -2247,7 +2475,8 @@ function updateLessonControls() {
     .hidden =
       daily ||
       pentatonicLesson ||
-      modeInterval;
+      modeInterval ||
+      timeSolo;
 
   document
     .getElementById(
@@ -2340,12 +2569,14 @@ function updateLessonControls() {
 
   if (rootDropdown) {
     rootDropdown.inert =
-      daily;
+      daily ||
+      timeSolo;
   }
 
   if (scaleDropdown) {
     scaleDropdown.inert =
-      daily;
+      daily ||
+      timeSolo;
   }
 
   const nextLessonButton =
@@ -6531,7 +6762,23 @@ function buildTrainer() {
 
   if (showAllButton) {
     showAllButton.hidden =
-      lessonType === 'modeInterval';
+      [
+        'modeInterval',
+        'timeSolo'
+      ].includes(
+        lessonType
+      );
+  }
+
+  const nextButton =
+    document.getElementById(
+      'nextButton'
+    );
+
+  if (nextButton) {
+    nextButton.hidden =
+      lessonType ===
+        'timeSolo';
   }
 
   const lessonDefinition =
@@ -7307,6 +7554,21 @@ function buildTrainer() {
         cell
       );
     }
+  }
+
+
+  /* =======================================================
+     TIME GUITAR SOLO — STATIC ALL-NOTES VIEW
+     ======================================================= */
+
+  if (
+    lessonType === 'timeSolo'
+  ) {
+    displayTimeSoloLesson(
+      allCells
+    );
+
+    return;
   }
 
 
@@ -8838,13 +9100,52 @@ document
   .addEventListener(
     'change',
     () => {
+      const selectedLesson =
+        getSelectedLessonType();
+
       if (
-        getSelectedLessonType() ===
+        selectedLesson ===
         'daily'
       ) {
         initializeDailyPractice();
       } else {
         dailyPracticeState = null;
+      }
+
+      if (
+        selectedLesson ===
+        'timeSolo'
+      ) {
+        currentTuning =
+          [
+            ...TIME_SOLO_DROP_E_TUNING
+          ];
+
+        const rootSelect =
+          document.getElementById(
+            'rootSelect'
+          );
+
+        const scaleSelect =
+          document.getElementById(
+            'scaleSelect'
+          );
+
+        rootSelect.value =
+          '4';
+
+        scaleSelect.value =
+          'aeolian';
+
+        syncSingleSelectDisplay(
+          'rootDropdown',
+          'rootSelect'
+        );
+
+        syncSingleSelectDisplay(
+          'scaleDropdown',
+          'scaleSelect'
+        );
       }
 
       updateLessonControls();
