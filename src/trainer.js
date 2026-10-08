@@ -1,8 +1,7 @@
 import { setupLiveGuitarInput } from "./input/live-guitar.js";
 import {
   TIME_SOLO_DROP_E_TUNING,
-  TIME_SOLO_TAB_NOTES,
-  TIME_SOLO_INTERVAL_STYLES
+  TIME_SOLO_TAB_NOTES
 } from "./data/time-solo.js";
 
 // GitHub/Vite theme initialization added during migration.
@@ -1350,6 +1349,10 @@ function skipDailyCurrentLesson() {
 function displayTimeSoloLesson(
   allCells
 ) {
+  /*
+    Collapse repeated tab events onto their physical fretboard
+    positions. The source file contributes ONLY string + fret.
+  */
   const positions =
     new Map();
 
@@ -1362,33 +1365,13 @@ function displayTimeSoloLesson(
             note.fret
           );
 
-        let position =
-          positions.get(key);
-
-        if (!position) {
-          position = {
-            count: 0,
-            intervals: []
-          };
-
-          positions.set(
-            key,
-            position
-          );
-        }
-
-        position.count++;
-
-        if (
-          note.interval &&
-          !position.intervals.includes(
-            note.interval
-          )
-        ) {
-          position.intervals.push(
-            note.interval
-          );
-        }
+        positions.set(
+          key,
+          (
+            positions.get(key) ||
+            0
+          ) + 1
+        );
       }
     );
 
@@ -1400,10 +1383,10 @@ function displayTimeSoloLesson(
           item.fret
         );
 
-      const position =
+      const occurrenceCount =
         positions.get(key);
 
-      if (!position) {
+      if (!occurrenceCount) {
         item.element
           .classList
           .remove(
@@ -1436,107 +1419,28 @@ function displayTimeSoloLesson(
         'timeSoloNote'
       );
 
-      cell.innerHTML = '';
-
-      const cluster =
-        document.createElement(
-          'span'
-        );
-
-      cluster.className =
-        'timeSoloIntervalCluster';
-
-      if (
-        position.intervals.length <= 1
-      ) {
-        cluster.classList.add(
-          'single'
-        );
-      }
-
-      position.intervals
-        .forEach(
-          interval => {
-            const chip =
-              document.createElement(
-                'span'
-              );
-
-            chip.className =
-              'timeSoloIntervalChip';
-
-            chip.textContent =
-              interval;
-
-            const style =
-              TIME_SOLO_INTERVAL_STYLES[
-                interval
-              ];
-
-            if (style) {
-              chip.style.background =
-                style.background;
-
-              chip.style.color =
-                style.color;
-            }
-
-            cluster.appendChild(
-              chip
-            );
-          }
-        );
-
       /*
-        Every unique physical position in the extracted tab has
-        at least one annotated interval somewhere in the song.
-        Keep a note-name fallback for source robustness.
+        Show the source fret number itself.
+        No interval inference or interval coloring is used.
       */
-      if (
-        cluster.children.length === 0
-      ) {
-        const fallback =
-          document.createElement(
-            'span'
-          );
-
-        fallback.className =
-          'timeSoloIntervalChip timeSoloFallbackChip';
-
-        fallback.textContent =
-          cell.dataset.noteName;
-
-        cluster.appendChild(
-          fallback
+      cell.textContent =
+        String(
+          item.fret
         );
-      }
-
-      cell.appendChild(
-        cluster
-      );
-
-      const intervalText =
-        position.intervals.length
-          ? position.intervals.join(
-              ', '
-            )
-          : 'no source interval';
 
       cell.title =
         cell.dataset.scientificPitch +
         ' · String ' +
         (item.stringIndex + 1) +
-        ' fret ' +
+        ' · fret ' +
         item.fret +
         ' · ' +
-        position.count +
+        occurrenceCount +
         (
-          position.count === 1
+          occurrenceCount === 1
             ? ' tab occurrence'
             : ' tab occurrences'
-        ) +
-        ' · intervals: ' +
-        intervalText;
+        );
 
       cell.setAttribute(
         'aria-label',
