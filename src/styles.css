@@ -1161,6 +1161,15 @@ button.uiButton:disabled {
   overflow: visible;
 }
 
+.physicalFretboard
+  .fretboardNote
+  > .timeSoloIntervalCluster,
+.fretboardOpenStrings
+  .openStringNote
+  > .timeSoloIntervalCluster {
+  position: absolute;
+}
+
 .fretboardOpenStrings
   .openStringNote.timeSoloNote {
   border-color: transparent;
@@ -1169,7 +1178,6 @@ button.uiButton:disabled {
 }
 
 .timeSoloIntervalCluster {
-  position: absolute !important;
   left: 50%;
   top: 50%;
   width: 38px;
