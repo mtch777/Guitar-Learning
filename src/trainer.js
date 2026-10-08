@@ -1350,8 +1350,12 @@ function displayTimeSoloLesson(
   allCells
 ) {
   /*
-    Collapse repeated tab events onto their physical fretboard
-    positions. The source file contributes ONLY string + fret.
+    The source tab contributes ONLY the physical positions:
+      source string + fret.
+
+    Once a position is selected, display it exactly like a normal
+    trainer note. Its interval/color is computed by the normal
+    fretboard engine from the lesson's fixed E Aeolian context.
   */
   const positions =
     new Map();
@@ -1403,33 +1407,24 @@ function displayTimeSoloLesson(
       const cell =
         item.element;
 
-      clearCellStyle(
-        cell
-      );
-
-      cell.classList.remove(
-        'unknownInterval',
-        'revealed',
-        'correct',
-        'wrong',
-        'intervalCompleted'
-      );
-
       cell.classList.add(
         'timeSoloNote'
       );
 
       /*
-        Show the source fret number itself.
-        No interval inference or interval coloring is used.
+        Normal trainer display:
+        - interval relative to E
+        - normal interval color
+        - normal octave display
       */
-      cell.textContent =
-        String(
-          item.fret
-        );
+      revealCell(
+        cell
+      );
 
       cell.title =
         cell.dataset.scientificPitch +
+        ' · E minor: ' +
+        cell.dataset.displayInterval +
         ' · String ' +
         (item.stringIndex + 1) +
         ' · fret ' +
@@ -1459,8 +1454,7 @@ function displayTimeSoloLesson(
       'timeSoloPrompt';
 
     answerDisplay.textContent =
-      TIME_SOLO_TAB_NOTES.length +
-      ' tab notes · ' +
+      'Time solo · E minor · ' +
       positions.size +
       ' fretboard positions';
   }

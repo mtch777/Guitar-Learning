@@ -1152,43 +1152,9 @@ button.uiButton:disabled {
 
 /* =========================================================
    TIME GUITAR SOLO
-   Static fret map extracted from the source tab.
-   No chord-relative interval data is used.
+   Uses the normal trainer note/interval rendering. The source
+   tab determines only which string+fret positions are visible.
    ========================================================= */
-
-.timeSoloNote {
-  overflow: visible;
-  color: var(--text-color);
-  font: 700 11px/1
-    'DejaVu Sans Mono',
-    Consolas,
-    monospace;
-}
-
-.physicalFretboard
-  .fretboardNote.timeSoloNote::before {
-  opacity: 1;
-  border-color:
-    rgba(0, 0, 0, .48);
-  background:
-    var(--header-bg);
-  box-shadow:
-    0 2px 4px
-    rgba(0, 0, 0, .32);
-}
-
-.fretboardOpenStrings
-  .openStringNote.timeSoloNote {
-  border-color:
-    rgba(0, 0, 0, .48);
-  background:
-    var(--header-bg);
-  color:
-    var(--text-color);
-  box-shadow:
-    0 2px 4px
-    rgba(0, 0, 0, .24);
-}
 
 .timeSoloPrompt {
   white-space: nowrap;
