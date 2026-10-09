@@ -61,6 +61,8 @@ def extract_score(path: str | Path) -> dict:
                 "voices": [],
             }
             for voice_id in _ids(bar, "Voices"):
+                if voice_id == "-1":
+                    continue
                 voice = voices[voice_id]
                 events = []
                 for beat_id in _ids(voice, "Beats"):
