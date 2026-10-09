@@ -10149,14 +10149,10 @@ function displaySongPlayerNotes(
     []
   ).forEach(
     note => {
-      /*
-        Keep the existing proven alphaTab -> 8-string mapping.
-      */
+      // Both alphaTab and the trainer number strings lowest to highest.
+      // alphaTab is 1-based; the trainer's internal index is 0-based.
       const stringIndex =
-        8 -
-        Number(
-          note.string
-        );
+        Number(note.string) - 1;
 
       const fret =
         Number(
