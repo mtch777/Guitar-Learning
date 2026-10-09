@@ -46,3 +46,18 @@ python -m unittest discover -s . -p "test_*.py" -v
 **Evidence:** Manual local tests on all three supplied source files succeeded for one-note changes and XML re-import. Automated GitHub tests use an independently generated fixture; source songs are not stored in the repository.
 
 **Still required:** Open the edited exports in Guitar Pro and alphaTab to confirm rendering/playback; implement generalized GPIF score generation (new notes, beats, measures and musical composition), not merely modifying an existing score.
+
+## Phase 2: First symbolic style-analysis milestone
+
+Run independently from the `composition-lab/` directory:
+
+```bash
+python analyze_style.py "Cloud Cascade (Tuned Down).gp" "Nocturne_ Lost Faith (Tuned Down).gp" "Immolation of Night (Tuned Down).gp" --output analysis.json
+python -m unittest discover -s . -p 'test_*.py' -v
+```
+
+`analyze_style.py` extracts **source-annotated section boundaries**, time signatures, pitched-fretted-note distributions, rhythmic note values, playing-technique markings, fret/string preferences, and exact 1- and 2-measure tab repetitions. The tool produces inspectable JSON, not generated music. Files and derived user-specific analyses stay out of the repo by default.
+
+**Honest limits:** Sections come from GPIF annotations, not automatic section inference. Exact riff fingerprints do not match transposed or varied phrases. Naive intervals may include simultaneous chord notes, tied notes are counted as written, and pitch histograms alone do not determine harmonic function or key. Percussion groove modeling and general learned guitarist-style models remain future work. Duplicate doubled rhythm tracks must be de-duplicated before deriving band-level statistics.
+
+Next: reconstruct timing and rests rigorously, recognize transposed/varied motifs and phrase boundaries, analyze harmony with appropriate uncertainty, compare against held-out songs or a contrasting guitarist.
