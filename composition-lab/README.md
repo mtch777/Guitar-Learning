@@ -32,3 +32,17 @@ python -m unittest discover -s . -p 'test_*.py' -v
 5. **Evaluation**: compare to held-out music and generic baseline; test novelty, structural coherence, valid export and human-listening impressions.
 
 Source songs remain local/test inputs and are **not committed** to the repository by default. The three initial test songs are Cloud Cascade, Nocturne: Lost Faith and Immolation of Night.
+
+## Phase 1b: real note editing and verified score re-import
+
+`edit_gp.py` now provides a **narrow, safe first musical edit** to a GP7/GP8-style archive. It shifts one un-tied, non-bent fretted guitar note by one semitone, updating its fret, MIDI number, ConcertPitch and TransposedPitch simultaneously. After writing, it re-opens the output and checks that the new note values persisted and that only `Content/score.gpif` changed. Unsupported notes are skipped rather than silently altered.
+
+```bash
+python edit_gp.py "input.gp" "note-up.gp"
+python edit_gp.py "input.gp" "note-down.gp" --semitones -1
+python -m unittest discover -s . -p "test_*.py" -v
+```
+
+**Evidence:** Manual local tests on all three supplied source files succeeded for one-note changes and XML re-import. Automated GitHub tests use an independently generated fixture; source songs are not stored in the repository.
+
+**Still required:** Open the edited exports in Guitar Pro and alphaTab to confirm rendering/playback; implement generalized GPIF score generation (new notes, beats, measures and musical composition), not merely modifying an existing score.
