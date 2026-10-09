@@ -481,6 +481,8 @@ let currentShapeExercise = null;
 let currentCagedExercise = null;
 let currentModeIntervalExercise = null;
 let songPlayerCells = new Map();
+let songPlayerActiveCells = new Set();
+let songPlayerBendOverlay = null;
 
 const lessonDefinitions = {
   intervals: {
@@ -7254,6 +7256,9 @@ function buildTrainer() {
     stringLine.className =
       'fretboardString';
 
+    stringLine.dataset.stringIndex =
+      stringIndex;
+
     const isBronzeString =
       displayIndex >= 3;
 
@@ -7355,6 +7360,9 @@ function buildTrainer() {
 
       stringCore.className =
         'fretboardStringCore';
+
+      stringCore.dataset.stringIndex =
+        stringIndex;
 
       stringCore.style.top =
         topPercent + '%';
@@ -7490,6 +7498,25 @@ function buildTrainer() {
   ) {
     songPlayerCells =
       new Map();
+
+    songPlayerActiveCells =
+      new Set();
+
+    songPlayerBendOverlay =
+      document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'svg'
+      );
+
+    songPlayerBendOverlay
+      .classList
+      .add(
+        'songPlayerBendOverlay'
+      );
+
+    fretboard.appendChild(
+      songPlayerBendOverlay
+    );
 
     allCells.forEach(
       item => {
@@ -9449,6 +9476,37 @@ window.addEventListener('guitar-note-detected', event => {
 
 
 
+function clearSongPlayerBendVisuals() {
+  document
+    .querySelectorAll(
+      '.fretboardString[data-string-index], .fretboardStringCore[data-string-index]'
+    )
+    .forEach(
+      stringElement => {
+        stringElement.style.visibility =
+          '';
+      }
+    );
+
+  songPlayerActiveCells
+    .forEach(
+      cell => {
+        cell.classList.remove(
+          'songPlayerBending'
+        );
+
+        cell.style.removeProperty(
+          '--song-player-bend-offset-y'
+        );
+      }
+    );
+
+  if (songPlayerBendOverlay) {
+    songPlayerBendOverlay.innerHTML =
+      '';
+  }
+}
+
 function clearSongPlayerFretboard() {
   if (
     getSelectedLessonType() !==
@@ -9457,13 +9515,528 @@ function clearSongPlayerFretboard() {
     return;
   }
 
-  songPlayerCells
+  songPlayerActiveCells
     .forEach(
-      cell =>
+      cell => {
+        cell.classList.remove(
+          'songPlayerBending'
+        );
+
+        cell.style.removeProperty(
+          '--song-player-bend-offset-y'
+        );
+
         hideCell(
           cell
-        )
+        );
+      }
     );
+
+  songPlayerActiveCells =
+    new Set();
+
+  clearSongPlayerBendVisuals();
+}
+
+function createBendIntervalLabel(
+  interval,
+  octave,
+  opacity,
+  color
+) {
+  const label =
+    document.createElement(
+      'span'
+    );
+
+  label.className =
+    'bendIntervalLabel';
+
+  label.style.opacity =
+    String(
+      opacity
+    );
+
+  label.style.color =
+    color;
+
+  label.appendChild(
+    document.createTextNode(
+      interval
+    )
+  );
+
+  const sub =
+    document.createElement(
+      'sub'
+    );
+
+  sub.textContent =
+    octave;
+
+  label.appendChild(
+    sub
+  );
+
+  return label;
+}
+
+function applyContinuousBendPitch(
+  cell,
+  bendSemitones
+) {
+  const basePitch =
+    Number(
+      cell.dataset.absolutePitch
+    );
+
+  const currentPitch =
+    basePitch +
+    bendSemitones;
+
+  const lowerPitch =
+    Math.floor(
+      currentPitch +
+      1e-7
+    );
+
+  const upperPitch =
+    Math.ceil(
+      currentPitch -
+      1e-7
+    );
+
+  const lowerInterval =
+    getIntervalForPitch(
+      midiToPitchClass(
+        lowerPitch
+      ),
+      Number(
+        document
+          .getElementById(
+            'rootSelect'
+          )
+          .value
+      ),
+      document
+        .getElementById(
+          'scaleSelect'
+        )
+        .value
+    );
+
+  const upperInterval =
+    getIntervalForPitch(
+      midiToPitchClass(
+        upperPitch
+      ),
+      Number(
+        document
+          .getElementById(
+            'rootSelect'
+          )
+          .value
+      ),
+      document
+        .getElementById(
+          'scaleSelect'
+        )
+        .value
+    );
+
+  const lowerStyle =
+    intervalStyles[
+      lowerInterval
+    ];
+
+  const upperStyle =
+    intervalStyles[
+      upperInterval
+    ];
+
+  const fraction =
+    lowerPitch === upperPitch
+      ? 0
+      : Math.max(
+          0,
+          Math.min(
+            1,
+            currentPitch -
+              lowerPitch
+          )
+        );
+
+  if (
+    lowerPitch === upperPitch ||
+    !upperStyle
+  ) {
+    cell.style.setProperty(
+      '--note-feedback-bg',
+      lowerStyle.background
+    );
+  } else {
+    const boundary =
+      (
+        1 -
+        fraction
+      ) *
+      100;
+
+    const fadeHalfWidth =
+      10;
+
+    const leftStop =
+      Math.max(
+        0,
+        boundary -
+          fadeHalfWidth
+      );
+
+    const rightStop =
+      Math.min(
+        100,
+        boundary +
+          fadeHalfWidth
+      );
+
+    cell.style.setProperty(
+      '--note-feedback-bg',
+      (
+        'linear-gradient(' +
+        '90deg,' +
+        lowerStyle.background +
+        ' 0%,' +
+        lowerStyle.background +
+        ' ' +
+        leftStop +
+        '%,' +
+        upperStyle.background +
+        ' ' +
+        rightStop +
+        '%,' +
+        upperStyle.background +
+        ' 100%)'
+      )
+    );
+  }
+
+  cell.innerHTML =
+    '';
+
+  const blend =
+    document.createElement(
+      'span'
+    );
+
+  blend.className =
+    'bendIntervalBlend';
+
+  if (
+    lowerPitch === upperPitch
+  ) {
+    blend.appendChild(
+      createBendIntervalLabel(
+        lowerInterval,
+        midiToOctave(
+          lowerPitch
+        ),
+        1,
+        lowerStyle.color
+      )
+    );
+  } else {
+    blend.append(
+      createBendIntervalLabel(
+        lowerInterval,
+        midiToOctave(
+          lowerPitch
+        ),
+        1 -
+          fraction,
+        lowerStyle.color
+      ),
+      createBendIntervalLabel(
+        upperInterval,
+        midiToOctave(
+          upperPitch
+        ),
+        fraction,
+        upperStyle.color
+      )
+    );
+  }
+
+  cell.appendChild(
+    blend
+  );
+
+  cell.title =
+    (
+      cell.dataset.scientificPitch +
+      ' · bend ' +
+      bendSemitones
+        .toFixed(2) +
+      ' semitones'
+    );
+}
+
+function getPhysicalBendOffset(
+  board,
+  cell,
+  bendSemitones
+) {
+  const magnitude =
+    Math.abs(
+      bendSemitones
+    );
+
+  if (
+    magnitude <
+      0.01
+  ) {
+    return 0;
+  }
+
+  const fullStepTensionDelta =
+    Math.pow(
+      2,
+      2 / 6
+    ) -
+    1;
+
+  const currentTensionDelta =
+    Math.pow(
+      2,
+      magnitude / 6
+    ) -
+    1;
+
+  const physicalRatio =
+    Math.sqrt(
+      Math.max(
+        0,
+        currentTensionDelta /
+          fullStepTensionDelta
+      )
+    );
+
+  const visibleStringSpacing =
+    (
+      board.clientHeight *
+      0.86 /
+      7
+    );
+
+  const fullStepPixels =
+    visibleStringSpacing *
+    0.72;
+
+  const centerY =
+    cell.offsetTop +
+    cell.offsetHeight /
+      2;
+
+  const direction =
+    centerY <
+      board.clientHeight /
+        2
+      ? 1
+      : -1;
+
+  return (
+    direction *
+    fullStepPixels *
+    Math.min(
+      1.5,
+      physicalRatio
+    )
+  );
+}
+
+function drawBentString(
+  stringIndex,
+  cell,
+  bendSemitones
+) {
+  if (
+    !songPlayerBendOverlay
+  ) {
+    return 0;
+  }
+
+  const board =
+    songPlayerBendOverlay
+      .closest(
+        '.physicalFretboard'
+      );
+
+  if (!board) {
+    return 0;
+  }
+
+  const stringLine =
+    board.querySelector(
+      '.fretboardString[data-string-index="' +
+      stringIndex +
+      '"]'
+    );
+
+  if (!stringLine) {
+    return 0;
+  }
+
+  const stringCore =
+    board.querySelector(
+      '.fretboardStringCore[data-string-index="' +
+      stringIndex +
+      '"]'
+    );
+
+  stringLine.style.visibility =
+    'hidden';
+
+  if (stringCore) {
+    stringCore.style.visibility =
+      'hidden';
+  }
+
+  const width =
+    board.clientWidth;
+
+  const height =
+    board.clientHeight;
+
+  songPlayerBendOverlay
+    .setAttribute(
+      'viewBox',
+      (
+        '0 0 ' +
+        width +
+        ' ' +
+        height
+      )
+    );
+
+  const centerX =
+    cell.offsetLeft +
+    cell.offsetWidth /
+      2;
+
+  const centerY =
+    cell.offsetTop +
+    cell.offsetHeight /
+      2;
+
+  const bendOffset =
+    getPhysicalBendOffset(
+      board,
+      cell,
+      bendSemitones
+    );
+
+  const path =
+    document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'path'
+    );
+
+  const firstControlX =
+    centerX *
+    0.62;
+
+  const secondControlX =
+    centerX +
+    (
+      width -
+      centerX
+    ) *
+    0.38;
+
+  path.setAttribute(
+    'd',
+    (
+      'M 0 ' +
+      centerY +
+      ' C ' +
+      firstControlX +
+      ' ' +
+      centerY +
+      ', ' +
+      centerX +
+      ' ' +
+      (
+        centerY +
+        bendOffset
+      ) +
+      ', ' +
+      centerX +
+      ' ' +
+      (
+        centerY +
+        bendOffset
+      ) +
+      ' C ' +
+      centerX +
+      ' ' +
+      (
+        centerY +
+        bendOffset
+      ) +
+      ', ' +
+      secondControlX +
+      ' ' +
+      centerY +
+      ', ' +
+      width +
+      ' ' +
+      centerY
+    )
+  );
+
+  path.setAttribute(
+    'fill',
+    'none'
+  );
+
+  path.setAttribute(
+    'stroke',
+    stringLine
+      .classList
+      .contains(
+        'bronzeString'
+      )
+      ? '#b66d3a'
+      : '#c6c9ca'
+  );
+
+  path.setAttribute(
+    'stroke-width',
+    String(
+      Math.max(
+        1,
+        parseFloat(
+          stringLine.style.height
+        ) ||
+        1
+      )
+    )
+  );
+
+  path.setAttribute(
+    'stroke-linecap',
+    'round'
+  );
+
+  path.classList.add(
+    'songPlayerBentString'
+  );
+
+  songPlayerBendOverlay
+    .appendChild(
+      path
+    );
+
+  return bendOffset;
 }
 
 function displaySongPlayerNotes(
@@ -9476,7 +10049,27 @@ function displaySongPlayerNotes(
     return;
   }
 
-  clearSongPlayerFretboard();
+  songPlayerActiveCells
+    .forEach(
+      cell => {
+        hideCell(
+          cell
+        );
+
+        cell.classList.remove(
+          'songPlayerBending'
+        );
+
+        cell.style.removeProperty(
+          '--song-player-bend-offset-y'
+        );
+      }
+    );
+
+  songPlayerActiveCells =
+    new Set();
+
+  clearSongPlayerBendVisuals();
 
   const activeLabels =
     [];
@@ -9493,10 +10086,6 @@ function displaySongPlayerNotes(
         Our internal numbering:
           0 = lowest string,
           7 = highest string.
-
-        Mapping an N-string source to the highest N strings of
-        the 8-string therefore becomes:
-          internalIndex = 8 - alphaTabString.
       */
       const stringIndex =
         8 -
@@ -9524,6 +10113,44 @@ function displaySongPlayerNotes(
       revealCell(
         cell
       );
+
+      songPlayerActiveCells.add(
+        cell
+      );
+
+      const bendSemitones =
+        Number(
+          note.bendSemitones ||
+          0
+        );
+
+      if (
+        Math.abs(
+          bendSemitones
+        ) >=
+          0.01
+      ) {
+        applyContinuousBendPitch(
+          cell,
+          bendSemitones
+        );
+
+        const offset =
+          drawBentString(
+            stringIndex,
+            cell,
+            bendSemitones
+          );
+
+        cell.classList.add(
+          'songPlayerBending'
+        );
+
+        cell.style.setProperty(
+          '--song-player-bend-offset-y',
+          offset + 'px'
+        );
+      }
 
       activeLabels.push(
         'S' +
