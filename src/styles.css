@@ -1685,6 +1685,31 @@ button.uiButton:disabled {
   font-size: 13px;
 }
 
+.songPlayerScrub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 0 100%;
+  min-width: min(520px, 100%);
+}
+
+.songPlayerScrub input[type="range"] {
+  flex: 1 1 auto;
+  min-width: 160px;
+}
+
+.songPlayerTime {
+  flex: 0 0 42px;
+  font:
+    600 12px/1
+    'DejaVu Sans Mono',
+    Consolas,
+    monospace;
+  font-variant-numeric:
+    tabular-nums;
+  text-align: center;
+}
+
 .songPlayerPrompt {
   white-space: nowrap;
 }

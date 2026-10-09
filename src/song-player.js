@@ -127,6 +127,21 @@ export function setupSongPlayer({
       'songPlayerStop'
     );
 
+  const progress =
+    document.getElementById(
+      'songPlayerProgress'
+    );
+
+  const currentTime =
+    document.getElementById(
+      'songPlayerCurrentTime'
+    );
+
+  const duration =
+    document.getElementById(
+      'songPlayerDuration'
+    );
+
   const status =
     document.getElementById(
       'songPlayerStatus'
@@ -142,6 +157,9 @@ export function setupSongPlayer({
     !trackSelect ||
     !playPauseButton ||
     !stopButton ||
+    !progress ||
+    !currentTime ||
+    !duration ||
     !status ||
     !surface
   ) {
@@ -153,6 +171,50 @@ export function setupSongPlayer({
   let selectedTrackIndex = null;
   let playerReady = false;
   let playing = false;
+  let endTimeMs = 0;
+  let scrubbing = false;
+
+  const formatTime =
+    milliseconds => {
+      const totalSeconds =
+        Math.max(
+          0,
+          Math.round(
+            Number(milliseconds || 0) /
+            1000
+          )
+        );
+
+      const minutes =
+        Math.floor(
+          totalSeconds /
+          60
+        );
+
+      const seconds =
+        String(
+          totalSeconds %
+          60
+        ).padStart(
+          2,
+          '0'
+        );
+
+      return (
+        minutes +
+        ':' +
+        seconds
+      );
+    };
+
+  const resetProgress =
+    () => {
+      endTimeMs = 0;
+      progress.value = '0';
+      progress.disabled = true;
+      currentTime.textContent = '0:00';
+      duration.textContent = '0:00';
+    };
 
   const setStatus =
     text => {
@@ -179,6 +241,10 @@ export function setupSongPlayer({
 
     stopButton.disabled =
       !canPlay;
+
+    progress.disabled =
+      !canPlay ||
+      endTimeMs <= 0;
 
     playPauseButton.textContent =
       playing
@@ -216,6 +282,7 @@ export function setupSongPlayer({
 
     alphaTabApi.stop();
     clearActiveNotes();
+    resetProgress();
 
     /*
       Rendering only this track also makes it the playback focus.
@@ -308,6 +375,8 @@ export function setupSongPlayer({
 
         playing =
           false;
+
+        resetProgress();
 
         trackSelect.innerHTML =
           '';
@@ -424,6 +493,60 @@ export function setupSongPlayer({
       args => {
         playing =
           args.state === 1;
+
+        updateTransport();
+      }
+    );
+
+    alphaTabApi.playerPositionChanged.on(
+      args => {
+        endTimeMs =
+          Math.max(
+            0,
+            Number(
+              args.endTime ||
+              0
+            )
+          );
+
+        const nowMs =
+          Math.max(
+            0,
+            Number(
+              args.currentTime ||
+              0
+            )
+          );
+
+        currentTime.textContent =
+          formatTime(
+            nowMs
+          );
+
+        duration.textContent =
+          formatTime(
+            endTimeMs
+          );
+
+        if (
+          !scrubbing &&
+          endTimeMs > 0
+        ) {
+          progress.value =
+            String(
+              Math.max(
+                0,
+                Math.min(
+                  1000,
+                  Math.round(
+                    nowMs /
+                    endTimeMs *
+                    1000
+                  )
+                )
+              )
+            );
+        }
 
         updateTransport();
       }
@@ -612,5 +735,70 @@ export function setupSongPlayer({
     }
   );
 
+  const seekFromProgress =
+    () => {
+      if (
+        !alphaTabApi ||
+        endTimeMs <= 0
+      ) {
+        return;
+      }
+
+      const fraction =
+        Math.max(
+          0,
+          Math.min(
+            1,
+            Number(
+              progress.value
+            ) /
+            1000
+          )
+        );
+
+      const targetMs =
+        fraction *
+        endTimeMs;
+
+      currentTime.textContent =
+        formatTime(
+          targetMs
+        );
+
+      alphaTabApi.timePosition =
+        targetMs;
+    };
+
+  progress.addEventListener(
+    'pointerdown',
+    () => {
+      scrubbing =
+        true;
+    }
+  );
+
+  progress.addEventListener(
+    'input',
+    seekFromProgress
+  );
+
+  progress.addEventListener(
+    'change',
+    () => {
+      seekFromProgress();
+      scrubbing =
+        false;
+    }
+  );
+
+  window.addEventListener(
+    'pointerup',
+    () => {
+      scrubbing =
+        false;
+    }
+  );
+
+  resetProgress();
   updateTransport();
 }

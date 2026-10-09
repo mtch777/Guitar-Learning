@@ -114,6 +114,11 @@
           <button id="songPlayerStop" class="uiButton" type="button" disabled>■ Stop</button>
         </span>
         <span id="songPlayerStatus" class="songPlayerStatus">Load a Guitar Pro file</span>
+        <label class="songPlayerScrub">
+          <span id="songPlayerCurrentTime" class="songPlayerTime">0:00</span>
+          <input id="songPlayerProgress" type="range" min="0" max="1000" value="0" step="1" disabled aria-label="Song position">
+          <span id="songPlayerDuration" class="songPlayerTime">0:00</span>
+        </label>
       </div>
 
       <div id="npsControls" class="lessonControls npsControlGrid" hidden>
