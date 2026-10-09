@@ -120,3 +120,23 @@ It also finds potential structural changes from differences in pitch-class distr
 **Initial three-song observations:** Cloud Cascade: 5/13 candidate cues within ±1 bar of a tab section start; Nocturne: 8/11; Immolation of Night: 7/8. Only Cloud Cascade has a separate bass track. No automatic chord-progressions or validated phrase boundaries are claimed.
 
 **Next:** human-audited boundary labels and chord/root annotations, held-out evaluation without using source boundary counts, robust double-tracking suppression, and proper drum analysis. The instrument tracks and proprietary music inputs are not committed to GitHub.
+
+
+## Phase 2e — boundary validation and harmonic hypotheses (2026-10-09)
+
+`validate_structure.py` addresses an important evaluation flaw in the earlier section detector: the number of boundary candidates is now based ONLY on song length (one per 12 measures), rather than the number of source section labels. Candidate locations use changes in pitch distribution and guitar event density, then source labels are consulted afterward for evaluation. This remains an **in-sample annotation comparison**, not held-out validation or verified phrase detection.
+
+It also fits ranked **chord hypotheses** per measure from guitar and available bass pitch-class counts. These are not authoritative chord progressions; melody notes, unclear roots, doubled parts and missing bass can skew the results.
+
+Usage:
+```bash
+python validate_structure.py "Cloud Cascade (Tuned Down).gp" "Nocturne_ Lost Faith (Tuned Down).gp" "Immolation of Night (Tuned Down).gp" --output structure_harmony_validation.json --audit-csv structure_boundary_audit.csv
+python -m unittest discover -s . -p 'test_*.py' -v
+```
+
+Three-song in-sample section overlap (±1 bar):
+- Cloud Cascade: 4/9 candidates near labels; 4/13 labels recalled.
+- Nocturne: Lost Faith: 6/9 candidates near labels; 6/11 labels recalled.
+- Immolation of Night: 7/8 candidates near labels; 7/8 labels recalled.
+
+The audit CSV includes predicted measures with blank fields for human review; original songs and analysis exports are not committed. Next: human-verified section and phrase labels, selected chord-reference annotations, and held-out tests before fitting a credible style model.
