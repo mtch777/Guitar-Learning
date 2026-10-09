@@ -173,6 +173,9 @@ export function setupSongPlayer({
   let playing = false;
   let endTimeMs = 0;
   let scrubbing = false;
+  let currentTick = 0;
+  let activeNotes = [];
+  let bendAnimationFrame = null;
 
   const formatTime =
     milliseconds => {
@@ -215,6 +218,228 @@ export function setupSongPlayer({
       currentTime.textContent = '0:00';
       duration.textContent = '0:00';
     };
+
+  function getBendSemitones(
+    note,
+    tick
+  ) {
+    const points =
+      Array.from(
+        note?.bendPoints ||
+        []
+      );
+
+    if (
+      points.length === 0
+    ) {
+      return 0;
+    }
+
+    const beat =
+      note.beat;
+
+    const startTick =
+      Number(
+        beat?.absolutePlaybackStart ??
+        0
+      );
+
+    const durationTick =
+      Math.max(
+        1,
+        Number(
+          beat?.playbackDuration ??
+          1
+        )
+      );
+
+    const relativePosition =
+      Math.max(
+        0,
+        Math.min(
+          1,
+          (
+            Number(tick) -
+            startTick
+          ) /
+          durationTick
+        )
+      );
+
+    /*
+      alphaTab BendPoint.offset runs from 0..60 across the
+      note duration. BendPoint.value is measured in quarter-tones,
+      so divide by 2 to convert to semitones.
+    */
+    const bendOffset =
+      relativePosition *
+      60;
+
+    const sortedPoints =
+      points
+        .slice()
+        .sort(
+          (a, b) =>
+            Number(a.offset) -
+            Number(b.offset)
+        );
+
+    if (
+      bendOffset <=
+      Number(
+        sortedPoints[0].offset
+      )
+    ) {
+      return (
+        Number(
+          sortedPoints[0].value
+        ) /
+        2
+      );
+    }
+
+    for (
+      let index = 1;
+      index <
+        sortedPoints.length;
+      index++
+    ) {
+      const previous =
+        sortedPoints[
+          index - 1
+        ];
+
+      const next =
+        sortedPoints[index];
+
+      const nextOffset =
+        Number(
+          next.offset
+        );
+
+      if (
+        bendOffset <=
+          nextOffset
+      ) {
+        const previousOffset =
+          Number(
+            previous.offset
+          );
+
+        const span =
+          Math.max(
+            0.0001,
+            nextOffset -
+              previousOffset
+          );
+
+        const amount =
+          (
+            bendOffset -
+              previousOffset
+          ) /
+          span;
+
+        const quarterTones =
+          Number(
+            previous.value
+          ) +
+          (
+            Number(
+              next.value
+            ) -
+            Number(
+              previous.value
+            )
+          ) *
+          amount;
+
+        return (
+          quarterTones /
+          2
+        );
+      }
+    }
+
+    return (
+      Number(
+        sortedPoints[
+          sortedPoints.length -
+          1
+        ].value
+      ) /
+      2
+    );
+  }
+
+  function emitActiveNotes(
+    tick =
+      currentTick
+  ) {
+    onActiveNotes?.(
+      activeNotes.map(
+        item => ({
+          ...item,
+          bendSemitones:
+            getBendSemitones(
+              item.note,
+              tick
+            )
+        })
+      )
+    );
+  }
+
+  function stopBendAnimation() {
+    if (
+      bendAnimationFrame !==
+        null
+    ) {
+      cancelAnimationFrame(
+        bendAnimationFrame
+      );
+    }
+
+    bendAnimationFrame =
+      null;
+  }
+
+  function startBendAnimation() {
+    stopBendAnimation();
+
+    const draw =
+      () => {
+        if (
+          !playing ||
+          !alphaTabApi
+        ) {
+          bendAnimationFrame =
+            null;
+          return;
+        }
+
+        currentTick =
+          Number(
+            alphaTabApi
+              .tickPosition ||
+            currentTick
+          );
+
+        emitActiveNotes(
+          currentTick
+        );
+
+        bendAnimationFrame =
+          requestAnimationFrame(
+            draw
+          );
+      };
+
+    bendAnimationFrame =
+      requestAnimationFrame(
+        draw
+      );
+  }
 
   const setStatus =
     text => {
@@ -281,6 +506,8 @@ export function setupSongPlayer({
     }
 
     alphaTabApi.stop();
+    stopBendAnimation();
+    activeNotes = [];
     clearActiveNotes();
     resetProgress();
 
@@ -494,6 +721,12 @@ export function setupSongPlayer({
         playing =
           args.state === 1;
 
+        if (playing) {
+          startBendAnimation();
+        } else {
+          stopBendAnimation();
+        }
+
         updateTransport();
       }
     );
@@ -509,6 +742,12 @@ export function setupSongPlayer({
             )
           );
 
+        currentTick =
+          Number(
+            args.currentTick ||
+            currentTick
+          );
+
         const nowMs =
           Math.max(
             0,
@@ -517,6 +756,10 @@ export function setupSongPlayer({
               0
             )
           );
+
+        emitActiveNotes(
+          currentTick
+        );
 
         currentTime.textContent =
           formatTime(
@@ -557,6 +800,8 @@ export function setupSongPlayer({
         playing =
           false;
 
+        stopBendAnimation();
+        activeNotes = [];
         clearActiveNotes();
         updateTransport();
       }
@@ -620,8 +865,11 @@ export function setupSongPlayer({
           }
         }
 
-        onActiveNotes?.(
-          notes
+        activeNotes =
+          notes;
+
+        emitActiveNotes(
+          currentTick
         );
       }
     );
@@ -649,6 +897,8 @@ export function setupSongPlayer({
           '…'
         );
 
+        stopBendAnimation();
+        activeNotes = [];
         clearActiveNotes();
 
         const buffer =
@@ -731,6 +981,8 @@ export function setupSongPlayer({
     'click',
     () => {
       alphaTabApi?.stop();
+      stopBendAnimation();
+      activeNotes = [];
       clearActiveNotes();
     }
   );

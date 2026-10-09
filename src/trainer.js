@@ -481,6 +481,8 @@ let currentShapeExercise = null;
 let currentCagedExercise = null;
 let currentModeIntervalExercise = null;
 let songPlayerCells = new Map();
+let songPlayerActiveCells = new Set();
+let songPlayerBendOverlay = null;
 
 const lessonDefinitions = {
   intervals: {
@@ -7254,6 +7256,9 @@ function buildTrainer() {
     stringLine.className =
       'fretboardString';
 
+    stringLine.dataset.stringIndex =
+      stringIndex;
+
     const isBronzeString =
       displayIndex >= 3;
 
@@ -7355,6 +7360,9 @@ function buildTrainer() {
 
       stringCore.className =
         'fretboardStringCore';
+
+      stringCore.dataset.stringIndex =
+        stringIndex;
 
       stringCore.style.top =
         topPercent + '%';
@@ -7490,6 +7498,25 @@ function buildTrainer() {
   ) {
     songPlayerCells =
       new Map();
+
+    songPlayerActiveCells =
+      new Set();
+
+    songPlayerBendOverlay =
+      document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'svg'
+      );
+
+    songPlayerBendOverlay
+      .classList
+      .add(
+        'songPlayerBendOverlay'
+      );
+
+    fretboard.appendChild(
+      songPlayerBendOverlay
+    );
 
     allCells.forEach(
       item => {
@@ -9449,6 +9476,25 @@ window.addEventListener('guitar-note-detected', event => {
 
 
 
+function clearSongPlayerBendVisuals() {
+  document
+    .querySelectorAll(
+      '.fretboardString[data-string-index], ' +
+      '.fretboardStringCore[data-string-index]'
+    )
+    .forEach(
+      stringElement => {
+        stringElement.style.visibility =
+          '';
+      }
+    );
+
+  if (songPlayerBendOverlay) {
+    songPlayerBendOverlay.innerHTML =
+      '';
+  }
+}
+
 function clearSongPlayerFretboard() {
   if (
     getSelectedLessonType() !==
@@ -9457,13 +9503,610 @@ function clearSongPlayerFretboard() {
     return;
   }
 
-  songPlayerCells
+  songPlayerActiveCells
     .forEach(
-      cell =>
+      cell => {
+        cell.classList.remove(
+          'songPlayerBending'
+        );
+
+        cell.style.removeProperty(
+          '--song-player-bend-offset-y'
+        );
+
         hideCell(
           cell
-        )
+        );
+      }
     );
+
+  songPlayerActiveCells =
+    new Set();
+
+  clearSongPlayerBendVisuals();
+}
+
+function hexToRgb(
+  hex
+) {
+  const value =
+    String(hex)
+      .replace(
+        '#',
+        ''
+      );
+
+  if (
+    value.length !== 6
+  ) {
+    return {
+      r: 255,
+      g: 255,
+      b: 255
+    };
+  }
+
+  return {
+    r:
+      parseInt(
+        value.slice(0, 2),
+        16
+      ),
+    g:
+      parseInt(
+        value.slice(2, 4),
+        16
+      ),
+    b:
+      parseInt(
+        value.slice(4, 6),
+        16
+      )
+  };
+}
+
+function mixHexColors(
+  first,
+  second,
+  amount
+) {
+  const a =
+    hexToRgb(
+      first
+    );
+
+  const b =
+    hexToRgb(
+      second
+    );
+
+  const mix =
+    channel =>
+      Math.round(
+        channel[0] +
+        (
+          channel[1] -
+          channel[0]
+        ) *
+        amount
+      );
+
+  return (
+    'rgb(' +
+    mix([a.r, b.r]) +
+    ', ' +
+    mix([a.g, b.g]) +
+    ', ' +
+    mix([a.b, b.b]) +
+    ')'
+  );
+}
+
+function createBendIntervalLabel(
+  interval,
+  octave,
+  opacity,
+  color
+) {
+  const label =
+    document.createElement(
+      'span'
+    );
+
+  label.className =
+    'bendIntervalLabel';
+
+  label.style.opacity =
+    String(
+      opacity
+    );
+
+  label.style.color =
+    color;
+
+  label.appendChild(
+    document.createTextNode(
+      interval
+    )
+  );
+
+  const sub =
+    document.createElement(
+      'sub'
+    );
+
+  sub.textContent =
+    octave;
+
+  label.appendChild(
+    sub
+  );
+
+  return label;
+}
+
+function applyContinuousBendPitch(
+  cell,
+  bendSemitones
+) {
+  const basePitch =
+    Number(
+      cell.dataset.absolutePitch
+    );
+
+  let currentPitch =
+    basePitch +
+    bendSemitones;
+
+  const nearestPitch =
+    Math.round(
+      currentPitch
+    );
+
+  if (
+    Math.abs(
+      currentPitch -
+      nearestPitch
+    ) <
+      0.001
+  ) {
+    currentPitch =
+      nearestPitch;
+  }
+
+  const lowerPitch =
+    Math.floor(
+      currentPitch
+    );
+
+  const upperPitch =
+    Math.ceil(
+      currentPitch
+    );
+
+  const root =
+    Number(
+      document
+        .getElementById(
+          'rootSelect'
+        )
+        .value
+    );
+
+  const scaleName =
+    document
+      .getElementById(
+        'scaleSelect'
+      )
+      .value;
+
+  const lowerInterval =
+    getIntervalForPitch(
+      midiToPitchClass(
+        lowerPitch
+      ),
+      root,
+      scaleName
+    );
+
+  const upperInterval =
+    getIntervalForPitch(
+      midiToPitchClass(
+        upperPitch
+      ),
+      root,
+      scaleName
+    );
+
+  const lowerStyle =
+    intervalStyles[
+      lowerInterval
+    ];
+
+  const upperStyle =
+    intervalStyles[
+      upperInterval
+    ];
+
+  const fraction =
+    lowerPitch ===
+      upperPitch
+      ? 0
+      : Math.max(
+          0,
+          Math.min(
+            1,
+            currentPitch -
+              lowerPitch
+          )
+        );
+
+  const background =
+    lowerPitch ===
+      upperPitch
+      ? lowerStyle.background
+      : mixHexColors(
+          lowerStyle.background,
+          upperStyle.background,
+          fraction
+        );
+
+  cell.style.setProperty(
+    '--note-feedback-bg',
+    background
+  );
+
+  cell.innerHTML =
+    '';
+
+  const blend =
+    document.createElement(
+      'span'
+    );
+
+  blend.className =
+    'bendIntervalBlend';
+
+  if (
+    lowerPitch ===
+      upperPitch
+  ) {
+    blend.appendChild(
+      createBendIntervalLabel(
+        lowerInterval,
+        midiToOctave(
+          lowerPitch
+        ),
+        1,
+        lowerStyle.color
+      )
+    );
+  } else {
+    blend.append(
+      createBendIntervalLabel(
+        lowerInterval,
+        midiToOctave(
+          lowerPitch
+        ),
+        1 -
+          fraction,
+        lowerStyle.color
+      ),
+      createBendIntervalLabel(
+        upperInterval,
+        midiToOctave(
+          upperPitch
+        ),
+        fraction,
+        upperStyle.color
+      )
+    );
+  }
+
+  cell.appendChild(
+    blend
+  );
+}
+
+function getPhysicalBendOffset(
+  board,
+  cell,
+  bendSemitones
+) {
+  const magnitude =
+    Math.abs(
+      bendSemitones
+    );
+
+  if (
+    magnitude <
+      0.01
+  ) {
+    return 0;
+  }
+
+  /*
+    String pitch is proportional to sqrt(tension).
+    Therefore a bend of n semitones needs:
+      T'/T = 2^(n/6)
+
+    For small sideways string deflections the added length, and
+    therefore added tension, grows approximately with displacement².
+    Normalize that curve so a 2-semitone/full-step bend is 100%.
+  */
+  const fullStepTensionDelta =
+    Math.pow(
+      2,
+      2 / 6
+    ) -
+    1;
+
+  const currentTensionDelta =
+    Math.pow(
+      2,
+      magnitude / 6
+    ) -
+    1;
+
+  const physicalRatio =
+    Math.sqrt(
+      Math.max(
+        0,
+        currentTensionDelta /
+          fullStepTensionDelta
+      )
+    );
+
+  const visibleStringSpacing =
+    (
+      board.clientHeight *
+      0.86 /
+      7
+    );
+
+  /*
+    Calibrate a full-step bend to 72% of one displayed
+    string-to-string spacing. Fractional bends follow the
+    nonlinear physical curve above instead of linear pixels.
+  */
+  const fullStepPixels =
+    visibleStringSpacing *
+    0.72;
+
+  const centerY =
+    cell.offsetTop +
+    cell.offsetHeight /
+      2;
+
+  /*
+    Push toward the middle of the neck so edge strings bend
+    inward, matching the usual practical direction on guitar.
+  */
+  const direction =
+    centerY <
+      board.clientHeight /
+        2
+      ? 1
+      : -1;
+
+  return (
+    direction *
+    fullStepPixels *
+    Math.min(
+      1.5,
+      physicalRatio
+    )
+  );
+}
+
+function drawBentString(
+  stringIndex,
+  cell,
+  bendSemitones
+) {
+  if (
+    !songPlayerBendOverlay
+  ) {
+    return 0;
+  }
+
+  const board =
+    songPlayerBendOverlay
+      .closest(
+        '.physicalFretboard'
+      );
+
+  if (!board) {
+    return 0;
+  }
+
+  const stringLine =
+    board.querySelector(
+      '.fretboardString' +
+      '[data-string-index="' +
+      stringIndex +
+      '"]'
+    );
+
+  if (!stringLine) {
+    return 0;
+  }
+
+  const stringCore =
+    board.querySelector(
+      '.fretboardStringCore' +
+      '[data-string-index="' +
+      stringIndex +
+      '"]'
+    );
+
+  stringLine.style.visibility =
+    'hidden';
+
+  if (stringCore) {
+    stringCore.style.visibility =
+      'hidden';
+  }
+
+  const width =
+    board.clientWidth;
+
+  const height =
+    board.clientHeight;
+
+  const nutWidth =
+    Number.parseFloat(
+      getComputedStyle(
+        board
+      ).getPropertyValue(
+        '--nut-width'
+      )
+    ) ||
+    11;
+
+  const startX =
+    -nutWidth;
+
+  const endX =
+    width;
+
+  songPlayerBendOverlay
+    .setAttribute(
+      'viewBox',
+      (
+        '0 0 ' +
+        width +
+        ' ' +
+        height
+      )
+    );
+
+  const centerX =
+    cell.offsetLeft +
+    cell.offsetWidth /
+      2;
+
+  const centerY =
+    cell.offsetTop +
+    cell.offsetHeight /
+      2;
+
+  const bendOffset =
+    getPhysicalBendOffset(
+      board,
+      cell,
+      bendSemitones
+    );
+
+  const path =
+    document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'path'
+    );
+
+  const leftControlX =
+    startX +
+    (
+      centerX -
+      startX
+    ) *
+    0.62;
+
+  const rightControlX =
+    centerX +
+    (
+      endX -
+      centerX
+    ) *
+    0.38;
+
+  path.setAttribute(
+    'd',
+    (
+      'M ' +
+      startX +
+      ' ' +
+      centerY +
+      ' C ' +
+      leftControlX +
+      ' ' +
+      centerY +
+      ', ' +
+      centerX +
+      ' ' +
+      (
+        centerY +
+        bendOffset
+      ) +
+      ', ' +
+      centerX +
+      ' ' +
+      (
+        centerY +
+        bendOffset
+      ) +
+      ' C ' +
+      centerX +
+      ' ' +
+      (
+        centerY +
+        bendOffset
+      ) +
+      ', ' +
+      rightControlX +
+      ' ' +
+      centerY +
+      ', ' +
+      endX +
+      ' ' +
+      centerY
+    )
+  );
+
+  path.setAttribute(
+    'fill',
+    'none'
+  );
+
+  path.setAttribute(
+    'stroke',
+    stringLine
+      .classList
+      .contains(
+        'bronzeString'
+      )
+      ? '#b66d3a'
+      : '#c6c9ca'
+  );
+
+  path.setAttribute(
+    'stroke-width',
+    String(
+      Math.max(
+        1,
+        Number.parseFloat(
+          stringLine.style.height
+        ) ||
+        1
+      )
+    )
+  );
+
+  path.setAttribute(
+    'stroke-linecap',
+    'round'
+  );
+
+  path.classList.add(
+    'songPlayerBentString'
+  );
+
+  songPlayerBendOverlay
+    .appendChild(
+      path
+    );
+
+  return bendOffset;
 }
 
 function displaySongPlayerNotes(
@@ -9476,7 +10119,27 @@ function displaySongPlayerNotes(
     return;
   }
 
-  clearSongPlayerFretboard();
+  songPlayerActiveCells
+    .forEach(
+      cell => {
+        cell.classList.remove(
+          'songPlayerBending'
+        );
+
+        cell.style.removeProperty(
+          '--song-player-bend-offset-y'
+        );
+
+        hideCell(
+          cell
+        );
+      }
+    );
+
+  songPlayerActiveCells =
+    new Set();
+
+  clearSongPlayerBendVisuals();
 
   const activeLabels =
     [];
@@ -9487,16 +10150,7 @@ function displaySongPlayerNotes(
   ).forEach(
     note => {
       /*
-        alphaTab string numbering:
-          1 = highest string.
-
-        Our internal numbering:
-          0 = lowest string,
-          7 = highest string.
-
-        Mapping an N-string source to the highest N strings of
-        the 8-string therefore becomes:
-          internalIndex = 8 - alphaTabString.
+        Keep the existing proven alphaTab -> 8-string mapping.
       */
       const stringIndex =
         8 -
@@ -9524,6 +10178,44 @@ function displaySongPlayerNotes(
       revealCell(
         cell
       );
+
+      songPlayerActiveCells.add(
+        cell
+      );
+
+      const bendSemitones =
+        Number(
+          note.bendSemitones ||
+          0
+        );
+
+      if (
+        Math.abs(
+          bendSemitones
+        ) >=
+          0.01
+      ) {
+        applyContinuousBendPitch(
+          cell,
+          bendSemitones
+        );
+
+        const bendOffset =
+          drawBentString(
+            stringIndex,
+            cell,
+            bendSemitones
+          );
+
+        cell.classList.add(
+          'songPlayerBending'
+        );
+
+        cell.style.setProperty(
+          '--song-player-bend-offset-y',
+          bendOffset + 'px'
+        );
+      }
 
       activeLabels.push(
         'S' +
