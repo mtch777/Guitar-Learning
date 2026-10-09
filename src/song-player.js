@@ -306,9 +306,6 @@ export function setupSongPlayer({
         score =
           loadedScore;
 
-        playerReady =
-          false;
-
         playing =
           false;
 
