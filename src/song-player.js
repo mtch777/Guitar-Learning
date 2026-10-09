@@ -127,6 +127,11 @@ export function setupSongPlayer({
       'songPlayerStop'
     );
 
+  const speedSelect =
+    document.getElementById(
+      'songPlayerSpeed'
+    );
+
   const progress =
     document.getElementById(
       'songPlayerProgress'
@@ -157,6 +162,7 @@ export function setupSongPlayer({
     !trackSelect ||
     !playPauseButton ||
     !stopButton ||
+    !speedSelect ||
     !progress ||
     !currentTime ||
     !duration ||
@@ -578,6 +584,8 @@ export function setupSongPlayer({
         }
       );
 
+    alphaTabApi.playbackSpeed = Number(speedSelect.value);
+
     alphaTabApi.error.on(
       error => {
         console.error(
@@ -973,6 +981,15 @@ export function setupSongPlayer({
             String(error)
           )
         );
+      }
+    }
+  );
+
+  speedSelect.addEventListener(
+    'change',
+    () => {
+      if (alphaTabApi) {
+        alphaTabApi.playbackSpeed = Number(speedSelect.value);
       }
     }
   );
