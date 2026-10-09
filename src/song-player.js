@@ -183,6 +183,13 @@ export function setupSongPlayer({
   let activeNotes = [];
   let bendAnimationFrame = null;
 
+  function applyPlaybackSpeed() {
+    if (!alphaTabApi) return;
+    const speed = Number(speedSelect.value);
+    if (!Number.isFinite(speed) || speed <= 0) return;
+    alphaTabApi.playbackSpeed = speed;
+  }
+
   const formatTime =
     milliseconds => {
       const totalSeconds =
@@ -523,6 +530,7 @@ export function setupSongPlayer({
     alphaTabApi.renderTracks(
       [track]
     );
+    applyPlaybackSpeed();
 
     onTrackChanged?.({
       index:
@@ -584,7 +592,7 @@ export function setupSongPlayer({
         }
       );
 
-    alphaTabApi.playbackSpeed = Number(speedSelect.value);
+    applyPlaybackSpeed();
 
     alphaTabApi.error.on(
       error => {
@@ -702,6 +710,7 @@ export function setupSongPlayer({
               .length
         });
 
+        applyPlaybackSpeed();
         updateTransport();
       }
     );
@@ -710,7 +719,7 @@ export function setupSongPlayer({
       () => {
         playerReady =
           true;
-
+        applyPlaybackSpeed();
         updateTransport();
 
         const track =
@@ -972,6 +981,7 @@ export function setupSongPlayer({
         const api =
           await ensureApi();
 
+        applyPlaybackSpeed();
         api.playPause();
       } catch (error) {
         setStatus(
@@ -985,14 +995,8 @@ export function setupSongPlayer({
     }
   );
 
-  speedSelect.addEventListener(
-    'change',
-    () => {
-      if (alphaTabApi) {
-        alphaTabApi.playbackSpeed = Number(speedSelect.value);
-      }
-    }
-  );
+  speedSelect.addEventListener('change', applyPlaybackSpeed);
+  speedSelect.addEventListener('input', applyPlaybackSpeed);
 
   stopButton.addEventListener(
     'click',
