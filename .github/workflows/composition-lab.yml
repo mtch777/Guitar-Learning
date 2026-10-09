@@ -1,0 +1,24 @@
+name: Composition Lab (isolated GP7 tests)
+
+on:
+  push:
+    paths:
+      - 'composition-lab/**'
+      - '.github/workflows/composition-lab.yml'
+  pull_request:
+    paths:
+      - 'composition-lab/**'
+      - '.github/workflows/composition-lab.yml'
+  workflow_dispatch:
+
+jobs:
+  gp7-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test independent GP7 module
+        working-directory: composition-lab
+        run: python -m unittest discover -s . -p 'test_*.py' -v
