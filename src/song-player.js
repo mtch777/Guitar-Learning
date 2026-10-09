@@ -19,17 +19,6 @@ const ALPHATAB_FONT_DIRECTORY =
   ALPHATAB_ROOT +
   'font/';
 
-const BUILT_IN_TIME_FILE =
-  'songs/time-solo-track.gp';
-
-const TIME_SOLO_START_MS =
-  3 * 60 * 1000 +
-  2 * 1000;
-
-const TIME_SOLO_END_MS =
-  4 * 60 * 1000 +
-  28 * 1000;
-
 let alphaTabLoadPromise = null;
 
 function loadAlphaTab() {
@@ -184,15 +173,6 @@ export function setupSongPlayer({
   let playing = false;
   let endTimeMs = 0;
   let scrubbing = false;
-  let builtInLoadStarted = false;
-  let sectionResolving = false;
-  let sectionStartTick = null;
-  let sectionEndTick = null;
-  let currentTick = 0;
-  let currentTimeMs = 0;
-  let activeBeatNotes = [];
-  let visualFrame = null;
-  let pendingSeekCapture = null;
 
   const formatTime =
     milliseconds => {
@@ -232,228 +212,9 @@ export function setupSongPlayer({
       endTimeMs = 0;
       progress.value = '0';
       progress.disabled = true;
-      currentTime.textContent =
-        formatTime(
-          TIME_SOLO_START_MS
-        );
-      duration.textContent =
-        formatTime(
-          TIME_SOLO_END_MS
-        );
+      currentTime.textContent = '0:00';
+      duration.textContent = '0:00';
     };
-
-  function getBendSemitones(
-    note,
-    tick
-  ) {
-    const points =
-      Array.from(
-        note?.bendPoints ||
-        []
-      );
-
-    if (
-      points.length === 0
-    ) {
-      const initial =
-        Number(
-          note?.initialBendValue ||
-          0
-        );
-
-      return initial / 2;
-    }
-
-    const beat =
-      note.beat;
-
-    const startTick =
-      Number(
-        beat?.absolutePlaybackStart ??
-        0
-      );
-
-    const durationTick =
-      Math.max(
-        1,
-        Number(
-          beat?.playbackDuration ??
-          1
-        )
-      );
-
-    const relative =
-      Math.max(
-        0,
-        Math.min(
-          1,
-          (
-            Number(tick) -
-            startTick
-          ) /
-          durationTick
-        )
-      );
-
-    const offset =
-      relative * 60;
-
-    const sorted =
-      [...points].sort(
-        (a, b) =>
-          Number(a.offset) -
-          Number(b.offset)
-      );
-
-    if (
-      offset <=
-      Number(
-        sorted[0].offset
-      )
-    ) {
-      return (
-        Number(
-          sorted[0].value
-        ) /
-        2
-      );
-    }
-
-    for (
-      let index = 1;
-      index <
-        sorted.length;
-      index++
-    ) {
-      const left =
-        sorted[index - 1];
-
-      const right =
-        sorted[index];
-
-      const rightOffset =
-        Number(
-          right.offset
-        );
-
-      if (
-        offset <=
-        rightOffset
-      ) {
-        const leftOffset =
-          Number(
-            left.offset
-          );
-
-        const span =
-          Math.max(
-            0.0001,
-            rightOffset -
-            leftOffset
-          );
-
-        const amount =
-          (
-            offset -
-            leftOffset
-          ) /
-          span;
-
-        const value =
-          Number(
-            left.value
-          ) +
-          (
-            Number(
-              right.value
-            ) -
-            Number(
-              left.value
-            )
-          ) *
-          amount;
-
-        return value / 2;
-      }
-    }
-
-    return (
-      Number(
-        sorted[
-          sorted.length - 1
-        ].value
-      ) /
-      2
-    );
-  }
-
-  function emitActiveNotes(
-    tick =
-      currentTick
-  ) {
-    onActiveNotes?.(
-      activeBeatNotes.map(
-        item => ({
-          ...item,
-          bendSemitones:
-            getBendSemitones(
-              item.note,
-              tick
-            )
-        })
-      )
-    );
-  }
-
-  function stopVisualLoop() {
-    if (
-      visualFrame !==
-        null
-    ) {
-      cancelAnimationFrame(
-        visualFrame
-      );
-    }
-
-    visualFrame = null;
-  }
-
-  function startVisualLoop() {
-    stopVisualLoop();
-
-    const draw =
-      () => {
-        if (
-          !playing ||
-          !alphaTabApi
-        ) {
-          visualFrame =
-            null;
-          return;
-        }
-
-        currentTick =
-          Number(
-            alphaTabApi
-              .tickPosition ||
-            currentTick
-          );
-
-        emitActiveNotes(
-          currentTick
-        );
-
-        visualFrame =
-          requestAnimationFrame(
-            draw
-          );
-      };
-
-    visualFrame =
-      requestAnimationFrame(
-        draw
-      );
-  }
 
   const setStatus =
     text => {
@@ -471,13 +232,6 @@ export function setupSongPlayer({
       Boolean(
         score &&
         playerReady &&
-        !sectionResolving &&
-        Number.isFinite(
-          sectionStartTick
-        ) &&
-        Number.isFinite(
-          sectionEndTick
-        ) &&
         selectedTrackIndex !==
           null
       );
@@ -527,12 +281,8 @@ export function setupSongPlayer({
     }
 
     alphaTabApi.stop();
-    stopVisualLoop();
-    activeBeatNotes = [];
     clearActiveNotes();
     resetProgress();
-    sectionStartTick = null;
-    sectionEndTick = null;
 
     /*
       Rendering only this track also makes it the playback focus.
@@ -627,9 +377,6 @@ export function setupSongPlayer({
           false;
 
         resetProgress();
-        sectionStartTick = null;
-        sectionEndTick = null;
-        activeBeatNotes = [];
 
         trackSelect.innerHTML =
           '';
@@ -725,38 +472,20 @@ export function setupSongPlayer({
     );
 
     alphaTabApi.playerReady.on(
-      async () => {
+      () => {
         playerReady =
           true;
+
+        updateTransport();
 
         const track =
           getSelectedTrack();
 
         if (track) {
           setStatus(
-            'Preparing 3:02–4:28…'
+            track.name
           );
-
-          try {
-            await resolveSoloSectionTicks();
-
-            setStatus(
-              track.name +
-              ' · 3:02–4:28'
-            );
-          } catch (error) {
-            console.error(
-              'Could not resolve solo section:',
-              error
-            );
-
-            setStatus(
-              'Could not prepare 3:02–4:28'
-            );
-          }
         }
-
-        updateTransport();
       }
     );
 
@@ -764,12 +493,6 @@ export function setupSongPlayer({
       args => {
         playing =
           args.state === 1;
-
-        if (playing) {
-          startVisualLoop();
-        } else {
-          stopVisualLoop();
-        }
 
         updateTransport();
       }
@@ -786,13 +509,7 @@ export function setupSongPlayer({
             )
           );
 
-        currentTick =
-          Number(
-            args.currentTick ||
-            0
-          );
-
-        currentTimeMs =
+        const nowMs =
           Math.max(
             0,
             Number(
@@ -801,95 +518,35 @@ export function setupSongPlayer({
             )
           );
 
-        if (
-          pendingSeekCapture &&
-          args.isSeek
-        ) {
-          const capture =
-            pendingSeekCapture;
-
-          pendingSeekCapture =
-            null;
-
-          capture.resolve({
-            tick:
-              currentTick,
-            time:
-              currentTimeMs
-          });
-        }
-
-        if (
-          Number.isFinite(
-            sectionStartTick
-          ) &&
-          Number.isFinite(
-            sectionEndTick
-          )
-        ) {
-          if (
-            playing &&
-            currentTick >=
-              sectionEndTick
-          ) {
-            alphaTabApi.pause();
-            alphaTabApi.tickPosition =
-              sectionStartTick;
-
-            currentTick =
-              sectionStartTick;
-
-            activeBeatNotes = [];
-            clearActiveNotes();
-          }
-
-          if (!scrubbing) {
-            const sectionSpan =
-              Math.max(
-                1,
-                sectionEndTick -
-                sectionStartTick
-              );
-
-            progress.value =
-              String(
-                Math.max(
-                  0,
-                  Math.min(
-                    1000,
-                    Math.round(
-                      (
-                        currentTick -
-                        sectionStartTick
-                      ) /
-                      sectionSpan *
-                      1000
-                    )
-                  )
-                )
-              );
-          }
-        }
-
         currentTime.textContent =
           formatTime(
-            Math.max(
-              TIME_SOLO_START_MS,
-              Math.min(
-                TIME_SOLO_END_MS,
-                currentTimeMs
-              )
-            )
+            nowMs
           );
 
         duration.textContent =
           formatTime(
-            TIME_SOLO_END_MS
+            endTimeMs
           );
 
-        emitActiveNotes(
-          currentTick
-        );
+        if (
+          !scrubbing &&
+          endTimeMs > 0
+        ) {
+          progress.value =
+            String(
+              Math.max(
+                0,
+                Math.min(
+                  1000,
+                  Math.round(
+                    nowMs /
+                    endTimeMs *
+                    1000
+                  )
+                )
+              )
+            );
+        }
 
         updateTransport();
       }
@@ -963,219 +620,13 @@ export function setupSongPlayer({
           }
         }
 
-        activeBeatNotes =
-          notes;
-
-        emitActiveNotes(
-          currentTick
+        onActiveNotes?.(
+          notes
         );
       }
     );
 
     return alphaTabApi;
-  }
-
-  function captureTickAtTime(
-    milliseconds
-  ) {
-    return new Promise(
-      (
-        resolve,
-        reject
-      ) => {
-        if (!alphaTabApi) {
-          reject(
-            new Error(
-              'alphaTab is not ready.'
-            )
-          );
-          return;
-        }
-
-        const timeout =
-          setTimeout(
-            () => {
-              if (
-                pendingSeekCapture
-              ) {
-                pendingSeekCapture =
-                  null;
-              }
-
-              reject(
-                new Error(
-                  'Seek did not resolve.'
-                )
-              );
-            },
-            3000
-          );
-
-        pendingSeekCapture = {
-          resolve:
-            value => {
-              clearTimeout(
-                timeout
-              );
-
-              resolve(
-                value
-              );
-            }
-        };
-
-        alphaTabApi.timePosition =
-          milliseconds;
-      }
-    );
-  }
-
-  async function resolveSoloSectionTicks() {
-    if (
-      sectionResolving ||
-      !alphaTabApi ||
-      !score
-    ) {
-      return;
-    }
-
-    sectionResolving =
-      true;
-
-    updateTransport();
-
-    try {
-      alphaTabApi.pause();
-
-      const start =
-        await captureTickAtTime(
-          TIME_SOLO_START_MS
-        );
-
-      const end =
-        await captureTickAtTime(
-          TIME_SOLO_END_MS
-        );
-
-      sectionStartTick =
-        Math.min(
-          start.tick,
-          end.tick
-        );
-
-      sectionEndTick =
-        Math.max(
-          start.tick,
-          end.tick
-        );
-
-      alphaTabApi.tickPosition =
-        sectionStartTick;
-
-      currentTick =
-        sectionStartTick;
-
-      progress.value =
-        '0';
-
-      currentTime.textContent =
-        formatTime(
-          TIME_SOLO_START_MS
-        );
-
-      duration.textContent =
-        formatTime(
-          TIME_SOLO_END_MS
-        );
-    } finally {
-      sectionResolving =
-        false;
-
-      updateTransport();
-    }
-  }
-
-  async function loadBuffer(
-    buffer,
-    filename
-  ) {
-    const api =
-      await ensureApi();
-
-    setStatus(
-      'Loading ' +
-      filename +
-      '…'
-    );
-
-    activeBeatNotes = [];
-    clearActiveNotes();
-
-    api.settings
-      .importer
-      .encoding =
-        /\.(gp3|gp4|gp5)$/i
-          .test(filename)
-          ? 'windows-1252'
-          : 'utf-8';
-
-    api.updateSettings();
-    api.load(
-      buffer
-    );
-  }
-
-  async function loadBuiltInTime() {
-    if (
-      builtInLoadStarted ||
-      score
-    ) {
-      return;
-    }
-
-    builtInLoadStarted =
-      true;
-
-    try {
-      setStatus(
-        'Loading saved Time GP…'
-      );
-
-      const baseUrl =
-        import.meta.env.BASE_URL;
-
-      const response =
-        await fetch(
-          baseUrl +
-          BUILT_IN_TIME_FILE
-        );
-
-      if (!response.ok) {
-        throw new Error(
-          'Saved Time GP was not found.'
-        );
-      }
-
-      const buffer =
-        await response.arrayBuffer();
-
-      await loadBuffer(
-        buffer,
-        'time-solo-track.gp'
-      );
-    } catch (error) {
-      builtInLoadStarted =
-        false;
-
-      console.error(
-        'Saved Time GP load error:',
-        error
-      );
-
-      setStatus(
-        'Saved Time GP failed to load'
-      );
-    }
   }
 
   fileInput.addEventListener(
@@ -1189,12 +640,31 @@ export function setupSongPlayer({
       }
 
       try {
+        const api =
+          await ensureApi();
+
+        setStatus(
+          'Loading ' +
+          file.name +
+          '…'
+        );
+
+        clearActiveNotes();
+
         const buffer =
           await file.arrayBuffer();
 
-        await loadBuffer(
-          buffer,
-          file.name
+        api.settings
+          .importer
+          .encoding =
+            /\.(gp3|gp4|gp5)$/i
+              .test(file.name)
+              ? 'windows-1252'
+              : 'utf-8';
+
+        api.updateSettings();
+        api.load(
+          buffer
         );
       } catch (error) {
         console.error(
@@ -1244,31 +714,6 @@ export function setupSongPlayer({
         const api =
           await ensureApi();
 
-        if (
-          Number.isFinite(
-            sectionStartTick
-          ) &&
-          Number.isFinite(
-            sectionEndTick
-          )
-        ) {
-          const tick =
-            Number(
-              api.tickPosition ||
-              0
-            );
-
-          if (
-            tick <
-              sectionStartTick ||
-            tick >=
-              sectionEndTick
-          ) {
-            api.tickPosition =
-              sectionStartTick;
-          }
-        }
-
         api.playPause();
       } catch (error) {
         setStatus(
@@ -1285,35 +730,8 @@ export function setupSongPlayer({
   stopButton.addEventListener(
     'click',
     () => {
-      if (!alphaTabApi) {
-        return;
-      }
-
-      alphaTabApi.pause();
-      stopVisualLoop();
-
-      if (
-        Number.isFinite(
-          sectionStartTick
-        )
-      ) {
-        alphaTabApi.tickPosition =
-          sectionStartTick;
-
-        currentTick =
-          sectionStartTick;
-      }
-
-      activeBeatNotes = [];
+      alphaTabApi?.stop();
       clearActiveNotes();
-
-      progress.value =
-        '0';
-
-      currentTime.textContent =
-        formatTime(
-          TIME_SOLO_START_MS
-        );
     }
   );
 
@@ -1322,17 +740,6 @@ export function setupSongPlayer({
       if (
         !alphaTabApi ||
         endTimeMs <= 0
-      ) {
-        return;
-      }
-
-      if (
-        !Number.isFinite(
-          sectionStartTick
-        ) ||
-        !Number.isFinite(
-          sectionEndTick
-        )
       ) {
         return;
       }
@@ -1349,19 +756,17 @@ export function setupSongPlayer({
           )
         );
 
-      const targetTick =
-        sectionStartTick +
-        (
-          sectionEndTick -
-          sectionStartTick
-        ) *
-        fraction;
+      const targetMs =
+        fraction *
+        endTimeMs;
 
-      alphaTabApi.tickPosition =
-        targetTick;
+      currentTime.textContent =
+        formatTime(
+          targetMs
+        );
 
-      currentTick =
-        targetTick;
+      alphaTabApi.timePosition =
+        targetMs;
     };
 
   progress.addEventListener(
@@ -1393,30 +798,6 @@ export function setupSongPlayer({
         false;
     }
   );
-
-  const lessonSelect =
-    document.getElementById(
-      'lessonTypeSelect'
-    );
-
-  lessonSelect?.addEventListener(
-    'change',
-    () => {
-      if (
-        lessonSelect.value ===
-          'songPlayer'
-      ) {
-        loadBuiltInTime();
-      }
-    }
-  );
-
-  if (
-    lessonSelect?.value ===
-      'songPlayer'
-  ) {
-    loadBuiltInTime();
-  }
 
   resetProgress();
   updateTransport();
