@@ -81,3 +81,24 @@ python -m unittest discover -s . -p 'test_*.py' -v
 **Limits:** Source section labels are not automatic segmentation. These are exact relative-interval signatures rather than general similarity search, transposition-equivalent motifs can include identical originals, and chord pitch-class groups are not functional harmonic analysis. Scores with unknown rhythmic values are rejected rather than misread. Tuplet and grace-note handling needs more rigorous validation.
 
 Next: avoid double-counting doubled guitar tracks; align phrases across sections; detect insertions/deletions and motif transformations; infer harmony cautiously from all parts; evaluate against held-out songs.
+
+
+## Phase 2c: approximate riff variants and phrase *candidates*
+
+Run:
+
+```bash
+python phrase_analysis.py "Cloud Cascade (Tuned Down).gp" "Nocturne_ Lost Faith (Tuned Down).gp" "Immolation of Night (Tuned Down).gp" --output phrases.json
+python -m unittest discover -s . -p 'test_*.py' -v
+```
+
+`phrase_analysis.py` compares 2- and 4-measure windows with dynamic-programming edit distance after normalizing starting pitch. It tolerates limited changes in notes, insertions, deletions and timing, and outputs ranked candidate pairs for inspection. Song section start points come directly from existing Guitar Pro labels; silence in the primary voice is flagged as another structural cue. The actual style model and genuine phrase segmentation **are not implemented yet**.
+
+The initial three-song run found approximate variant pairs (examples):
+- Cloud Cascade, lead I: measures 8 and 100 (4-bar windows, distance 0.0476).
+- Nocturne, lead: measures 31 and 35 (4-bar windows, distance 0.1484).
+- Immolation of Night, guitar 1: measures 37 and 80 (4-bar windows, distance 0.0228).
+
+These are **candidate similarities**, not automatically confirmed musically meaningful transformations. Doubled guitar tracks can produce duplicate evidence. The metric reads the principal voice and lowest note from a chord, and it does not compare harmony, orchestration, drum interaction, or expressive techniques. It treats source tab labels as provided metadata. Validate candidate pairs aurally/visually and evaluate the similarity metric against manually labeled examples before trusting it to drive generation.
+
+Next: annotation-assisted phrase-boundary validation, motif transformations across phrase lengths, accompaniment-conditioned harmony, and de-duplication of doubled tracks.
