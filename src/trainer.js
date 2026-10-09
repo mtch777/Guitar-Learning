@@ -1,4 +1,5 @@
 import { setupLiveGuitarInput } from "./input/live-guitar.js";
+import { setupSongPlayer } from "./song-player.js";
 import {
   TIME_SOLO_DROP_E_TUNING,
   TIME_SOLO_TAB_NOTES
@@ -479,6 +480,7 @@ let currentRrPentExercise = null;
 let currentShapeExercise = null;
 let currentCagedExercise = null;
 let currentModeIntervalExercise = null;
+let songPlayerCells = new Map();
 
 const lessonDefinitions = {
   intervals: {
@@ -514,6 +516,11 @@ const lessonDefinitions = {
   timeSolo: {
     label: 'Time Guitar Solo',
     maxFret: 17,
+    hasStartCue: false
+  },
+  songPlayer: {
+    label: 'Song Player',
+    maxFret: 24,
     hasStartCue: false
   },
   daily: {
@@ -2366,6 +2373,9 @@ function updateLessonControls() {
   const timeSolo =
     lessonType === 'timeSolo';
 
+  const songPlayer =
+    lessonType === 'songPlayer';
+
   document
     .getElementById(
       'intervalLessonControls'
@@ -2374,7 +2384,8 @@ function updateLessonControls() {
       daily ||
       pentatonicLesson ||
       modeInterval ||
-      timeSolo;
+      timeSolo ||
+      songPlayer;
 
   document
     .getElementById(
@@ -2442,6 +2453,16 @@ function updateLessonControls() {
     .hidden =
       daily ||
       lessonType !== 'intervals';
+
+  const songPlayerControls =
+    document.getElementById(
+      'songPlayerControls'
+    );
+
+  if (songPlayerControls) {
+    songPlayerControls.hidden =
+      !songPlayer;
+  }
 
   const intervalFieldLabel =
     document.querySelector(
@@ -6662,7 +6683,8 @@ function buildTrainer() {
     showAllButton.hidden =
       [
         'modeInterval',
-        'timeSolo'
+        'timeSolo',
+        'songPlayer'
       ].includes(
         lessonType
       );
@@ -6675,8 +6697,12 @@ function buildTrainer() {
 
   if (nextButton) {
     nextButton.hidden =
-      lessonType ===
-        'timeSolo';
+      [
+        'timeSolo',
+        'songPlayer'
+      ].includes(
+        lessonType
+      );
   }
 
   const lessonDefinition =
@@ -7452,6 +7478,52 @@ function buildTrainer() {
         cell
       );
     }
+  }
+
+
+  /* =======================================================
+     SONG PLAYER — ALPHATAB LIVE FRETBOARD
+     ======================================================= */
+
+  if (
+    lessonType === 'songPlayer'
+  ) {
+    songPlayerCells =
+      new Map();
+
+    allCells.forEach(
+      item => {
+        const key =
+          makeCellKey(
+            item.stringIndex,
+            item.fret
+          );
+
+        songPlayerCells.set(
+          key,
+          item.element
+        );
+
+        hideCell(
+          item.element
+        );
+      }
+    );
+
+    const answerDisplay =
+      document.getElementById(
+        'answerNote'
+      );
+
+    if (answerDisplay) {
+      answerDisplay.className =
+        'songPlayerPrompt';
+
+      answerDisplay.textContent =
+        'Load a Guitar Pro file';
+    }
+
+    return;
   }
 
 
@@ -9046,6 +9118,42 @@ document
         );
       }
 
+      if (
+        selectedLesson ===
+        'songPlayer'
+      ) {
+        currentTuning =
+          [
+            ...TIME_SOLO_DROP_E_TUNING
+          ];
+
+        const rootSelect =
+          document.getElementById(
+            'rootSelect'
+          );
+
+        const scaleSelect =
+          document.getElementById(
+            'scaleSelect'
+          );
+
+        rootSelect.value =
+          '4';
+
+        scaleSelect.value =
+          'aeolian';
+
+        syncSingleSelectDisplay(
+          'rootDropdown',
+          'rootSelect'
+        );
+
+        syncSingleSelectDisplay(
+          'scaleDropdown',
+          'scaleSelect'
+        );
+      }
+
       updateLessonControls();
       buildTrainer();
     }
@@ -9340,6 +9448,221 @@ window.addEventListener('guitar-note-detected', event => {
 });
 
 
+
+function clearSongPlayerFretboard() {
+  if (
+    getSelectedLessonType() !==
+      'songPlayer'
+  ) {
+    return;
+  }
+
+  songPlayerCells
+    .forEach(
+      cell =>
+        hideCell(
+          cell
+        )
+    );
+}
+
+function displaySongPlayerNotes(
+  notes
+) {
+  if (
+    getSelectedLessonType() !==
+      'songPlayer'
+  ) {
+    return;
+  }
+
+  clearSongPlayerFretboard();
+
+  const activeLabels =
+    [];
+
+  (
+    notes ||
+    []
+  ).forEach(
+    note => {
+      /*
+        alphaTab string numbering:
+          1 = highest string.
+
+        Our internal numbering:
+          0 = lowest string,
+          7 = highest string.
+
+        Mapping an N-string source to the highest N strings of
+        the 8-string therefore becomes:
+          internalIndex = 8 - alphaTabString.
+      */
+      const stringIndex =
+        8 -
+        Number(
+          note.string
+        );
+
+      const fret =
+        Number(
+          note.fret
+        );
+
+      const cell =
+        songPlayerCells.get(
+          makeCellKey(
+            stringIndex,
+            fret
+          )
+        );
+
+      if (!cell) {
+        return;
+      }
+
+      revealCell(
+        cell
+      );
+
+      activeLabels.push(
+        'S' +
+        (
+          stringIndex +
+          1
+        ) +
+        ':' +
+        fret
+      );
+    }
+  );
+
+  const answerDisplay =
+    document.getElementById(
+      'answerNote'
+    );
+
+  if (answerDisplay) {
+    answerDisplay.className =
+      'songPlayerPrompt';
+
+    answerDisplay.textContent =
+      activeLabels.length
+        ? activeLabels.join(' · ')
+        : '—';
+  }
+}
+
+function applySongPlayerTrack({
+  name,
+  tuningHighToLow
+}) {
+  if (
+    !Array.isArray(
+      tuningHighToLow
+    ) ||
+    tuningHighToLow.length ===
+      0
+  ) {
+    return;
+  }
+
+  const stringCount =
+    Math.min(
+      8,
+      tuningHighToLow.length
+    );
+
+  const lowToHigh =
+    tuningHighToLow
+      .slice(
+        0,
+        stringCount
+      )
+      .reverse();
+
+  const nextTuning =
+    [
+      ...currentTuning
+    ];
+
+  const firstInternalIndex =
+    8 -
+    stringCount;
+
+  lowToHigh.forEach(
+    (
+      midi,
+      index
+    ) => {
+      nextTuning[
+        firstInternalIndex +
+        index
+      ] =
+        Number(midi);
+    }
+  );
+
+  currentTuning =
+    nextTuning;
+
+  if (
+    getSelectedLessonType() ===
+      'songPlayer'
+  ) {
+    buildTrainer();
+
+    const answerDisplay =
+      document.getElementById(
+        'answerNote'
+      );
+
+    if (answerDisplay) {
+      answerDisplay.className =
+        'songPlayerPrompt';
+
+      answerDisplay.textContent =
+        name ||
+        'Ready';
+    }
+  }
+}
+
+setupSongPlayer({
+  onActiveNotes:
+    displaySongPlayerNotes,
+
+  onTrackChanged:
+    applySongPlayerTrack,
+
+  onScoreLoaded:
+    ({
+      title,
+      artist
+    }) => {
+      const answerDisplay =
+        document.getElementById(
+          'answerNote'
+        );
+
+      if (
+        answerDisplay &&
+        getSelectedLessonType() ===
+          'songPlayer'
+      ) {
+        answerDisplay.className =
+          'songPlayerPrompt';
+
+        answerDisplay.textContent =
+          [
+            title,
+            artist
+          ]
+            .filter(Boolean)
+            .join(' · ');
+      }
+    }
+});
 
 setupLiveGuitarInput();
 

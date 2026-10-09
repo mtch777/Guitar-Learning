@@ -24,6 +24,7 @@
             <label class="singleOption"><input type="radio" name="lessonType" value="caged"><span>CAGED pentatonic</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="modeInterval"><span>Mode Interval Matching</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="timeSolo"><span>Time Guitar Solo</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="songPlayer"><span>Song Player (MVP)</span></label>
           </div>
         </details>
         <span class="stateOnly"><select id="lessonTypeSelect" aria-hidden="true" tabindex="-1">
@@ -35,6 +36,7 @@
           <option value="caged">CAGED pentatonic</option>
           <option value="modeInterval">Mode Interval Matching</option>
           <option value="timeSolo">Time Guitar Solo</option>
+          <option value="songPlayer">Song Player (MVP)</option>
         </select></span>
         </div>
       </div>
@@ -96,6 +98,24 @@
         </div>
         </div>
 
+      <div id="songPlayerControls" class="lessonControls songPlayerControls" hidden>
+        <label class="songPlayerFileLabel">
+          <span class="fieldLabel">Guitar Pro</span>
+          <input id="songPlayerFile" type="file" accept=".gp,.gp3,.gp4,.gp5,.gpx">
+        </label>
+        <label class="controlField songPlayerTrackField">
+          <span class="fieldLabel">Track</span>
+          <select id="songPlayerTrack" disabled>
+            <option value="">Load a Guitar Pro file</option>
+          </select>
+        </label>
+        <span class="songPlayerTransport">
+          <button id="songPlayerPlayPause" class="uiButton" type="button" disabled>▶ Play</button>
+          <button id="songPlayerStop" class="uiButton" type="button" disabled>■ Stop</button>
+        </span>
+        <span id="songPlayerStatus" class="songPlayerStatus">Load a Guitar Pro file</span>
+      </div>
+
       <div id="npsControls" class="lessonControls npsControlGrid" hidden>
         <div class="controlField">
           <span class="fieldLabel">Mode</span>
@@ -146,6 +166,8 @@
     <section class="exercisePanel">
       <div id="chartDiv"></div>
     </section>
+
+    <div id="alphaTabSurface" class="alphaTabSurface" aria-hidden="true"></div>
 
     <section class="guitarInputPanel">
       <div class="guitarInputIdentity"><span class="guitarIcon">🎙️</span><strong>Guitar Input</strong></div>

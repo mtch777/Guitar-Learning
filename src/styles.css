@@ -1643,3 +1643,59 @@ button.uiButton:disabled {
     font-size: 11px;
   }
 }
+
+
+/* =========================================================
+   SONG PLAYER MVP
+   ========================================================= */
+
+.songPlayerControls {
+  align-items: end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.songPlayerFileLabel,
+.songPlayerTrackField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.songPlayerFileLabel input {
+  max-width: 260px;
+}
+
+.songPlayerTrackField select {
+  max-width: min(520px, 70vw);
+}
+
+.songPlayerTransport {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.songPlayerStatus {
+  max-width: min(520px, 70vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: .72;
+  font-size: 13px;
+}
+
+.songPlayerPrompt {
+  white-space: nowrap;
+}
+
+.alphaTabSurface {
+  position: absolute;
+  left: 0;
+  width: 1000px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
