@@ -61,3 +61,23 @@ python -m unittest discover -s . -p 'test_*.py' -v
 **Honest limits:** Sections come from GPIF annotations, not automatic section inference. Exact riff fingerprints do not match transposed or varied phrases. Naive intervals may include simultaneous chord notes, tied notes are counted as written, and pitch histograms alone do not determine harmonic function or key. Percussion groove modeling and general learned guitarist-style models remain future work. Duplicate doubled rhythm tracks must be de-duplicated before deriving band-level statistics.
 
 Next: reconstruct timing and rests rigorously, recognize transposed/varied motifs and phrase boundaries, analyze harmony with appropriate uncertainty, compare against held-out songs or a contrasting guitarist.
+
+## Phase 2b: transposition-invariant motif analysis
+
+`analyze_motifs.py` extends the original feature report without interacting with the existing web/audio application.
+
+```bash
+python analyze_motifs.py "Cloud Cascade (Tuned Down).gp" "Nocturne_ Lost Faith (Tuned Down).gp" "Immolation of Night (Tuned Down).gp" --output motif_harmony_report.json
+python -m unittest discover -s . -p 'test_*.py' -v
+```
+
+- Parses linked measures, voices, beats and MIDI pitches from GP7.
+- Builds **transposition-invariant signatures** (relative pitch with beat timing).
+- Finds same relative-pitch motifs when rhythms change (rhythm-flexible signature).
+- Finds repeated *two-bar* relative-pitch/rhythm sequences.
+- Reports pitch-class counts, unambiguous monophonic note-to-note leaps and simultaneous pitch-class sets.
+- Includes regression tests for transposition, rhythm changes, sparse measures and different interval patterns.
+
+**Limits:** Source section labels are not automatic segmentation. These are exact relative-interval signatures rather than general similarity search, transposition-equivalent motifs can include identical originals, and chord pitch-class groups are not functional harmonic analysis. Scores with unknown rhythmic values are rejected rather than misread. Tuplet and grace-note handling needs more rigorous validation.
+
+Next: avoid double-counting doubled guitar tracks; align phrases across sections; detect insertions/deletions and motif transformations; infer harmony cautiously from all parts; evaluate against held-out songs.
