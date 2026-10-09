@@ -102,3 +102,21 @@ The initial three-song run found approximate variant pairs (examples):
 These are **candidate similarities**, not automatically confirmed musically meaningful transformations. Doubled guitar tracks can produce duplicate evidence. The metric reads the principal voice and lowest note from a chord, and it does not compare harmony, orchestration, drum interaction, or expressive techniques. It treats source tab labels as provided metadata. Validate candidate pairs aurally/visually and evaluate the similarity metric against manually labeled examples before trusting it to drive generation.
 
 Next: annotation-assisted phrase-boundary validation, motif transformations across phrase lengths, accompaniment-conditioned harmony, and de-duplication of doubled tracks.
+
+
+## Phase 2d: ensemble pitch context and structural novelty
+
+Run:
+
+```bash
+python harmony_boundaries.py "Cloud Cascade (Tuned Down).gp" "Nocturne_ Lost Faith (Tuned Down).gp" "Immolation of Night (Tuned Down).gp" --output harmony_boundary_report.json
+python -m unittest discover -s . -p 'test_*.py' -v
+```
+
+This script reads pitches from all guitar and bass tracks, deduplicates *exactly identical* guitar tracks, and reports pitch-class presence weighted by duration for every measure. If an explicit bass track exists, its lowest note provides only a possible harmonic root (not a verified chord label).
+
+It also finds potential structural changes from differences in pitch-class distribution and guitar note density over neighboring four-measure windows. Labeled song-section changes are used **only to count candidates and inspect in-sample agreement**. Do not interpret overlap as independent model accuracy.
+
+**Initial three-song observations:** Cloud Cascade: 5/13 candidate cues within ±1 bar of a tab section start; Nocturne: 8/11; Immolation of Night: 7/8. Only Cloud Cascade has a separate bass track. No automatic chord-progressions or validated phrase boundaries are claimed.
+
+**Next:** human-audited boundary labels and chord/root annotations, held-out evaluation without using source boundary counts, robust double-tracking suppression, and proper drum analysis. The instrument tracks and proprietary music inputs are not committed to GitHub.
