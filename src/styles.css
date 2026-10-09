@@ -1763,6 +1763,16 @@ button.uiButton:disabled {
     );
 }
 
+/*
+  The generic fretboard rule
+    .physicalFretboard .fretboardNote > *
+  sets direct children to position: relative.
+
+  Bend labels are a direct child, so this selector must be at least
+  as specific or the blend container gets displaced out of the note.
+*/
+.physicalFretboard
+.fretboardNote >
 .bendIntervalBlend {
   position: absolute;
   left: 50%;
@@ -1787,6 +1797,7 @@ button.uiButton:disabled {
       )
     );
   pointer-events: none;
+  z-index: 2;
 }
 
 .bendIntervalLabel {
