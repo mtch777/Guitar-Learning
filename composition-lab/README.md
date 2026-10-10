@@ -140,3 +140,28 @@ Three-song in-sample section overlap (±1 bar):
 - Immolation of Night: 7/8 candidates near labels; 7/8 labels recalled.
 
 The audit CSV includes predicted measures with blank fields for human review; original songs and analysis exports are not committed. Next: human-verified section and phrase labels, selected chord-reference annotations, and held-out tests before fitting a credible style model.
+
+
+## Phase 2f — human-validation workflow
+
+This step does **not** claim that a motif/chord/section candidate is musically correct. Before training a style model on these labels, a reviewer should inspect and listen to representative examples.
+
+Use the existing local JSON artifacts from `phrase_analysis.py` and `validate_structure.py`:
+
+```bash
+python review_candidates.py create --motifs phrase_analysis_report.json --structure structure_harmony_validation.json --output composition_review_audit.csv
+python review_candidates.py score composition_review_audit.csv
+```
+
+The CSV includes song, guitar track, measure(s), hypothesis, supporting measurements, plus blank `review_label` and `reviewer_notes` fields.
+
+Human review label options: `confirmed`, `rejected`, `uncertain`. Do not treat blank or uncertain rows as accepted training data. The scoring command reports reviewed/unreviewed counts and the confirmed fraction **among decisive human reviews only**. It cannot produce ground truth on its own.
+
+Review guidelines:
+- **Motif:** Listen to both excerpts; confirm if they are meaningfully related despite variation, and reject superficial coincidences.
+- **Section boundary:** Confirm whether the proposed measure begins a musically distinct section or phrase (these are different annotation tasks).
+- **Chord:** Verify whether the nominated chord/root fits the arrangement; pitch-class coverage alone may confuse melody notes with chord tones.
+
+The first three-song audit dataset contains 79 rows: 30 motifs, 26 boundary candidates, 23 chord hypotheses. All are initially **unreviewed**. Source tab files remain outside GitHub.
+
+**Before any accuracy or learning claim:** Check that test fixtures and Github Actions pass, audit the parser's rhythm and track interpretation, and reserve at least one song for evaluation separate from parameter selection. Source annotations should not be treated as independent human-verified ground truth.
