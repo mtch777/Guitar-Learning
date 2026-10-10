@@ -165,3 +165,19 @@ Review guidelines:
 The first three-song audit dataset contains 79 rows: 30 motifs, 26 boundary candidates, 23 chord hypotheses. All are initially **unreviewed**. Source tab files remain outside GitHub.
 
 **Before any accuracy or learning claim:** Check that test fixtures and Github Actions pass, audit the parser's rhythm and track interpretation, and reserve at least one song for evaluation separate from parameter selection. Source annotations should not be treated as independent human-verified ground truth.
+
+
+## Interactive listening review (independent browser page)
+
+Open `https://mtch777.github.io/Guitar-Learning/composition-review/` after GitHub Pages deploys. This is **not** a new lesson or an extension of the existing guitar trainer: its UI, JavaScript, and candidate data reside exclusively in `public/composition-review/`. No imports from `src/`, `training/`, or the existing audio/classifier stack. The existing Vite build only copies the standalone public assets to the Pages output.
+
+- Choose the three original GP files when first opening. They remain **local** to your browser; IndexedDB stores copies on the same device when allowed.
+- The 79 candidates are sourced from the previous `composition_review_audit.csv` (30 riff comparisons, 26 section changes, 23 chord hypotheses); the code repository contains **metadata only, not any original music**.
+- For riffs, play A and B separately using alphaTab 1.8.4 score rendering and the player `playbackRange` of the specified measures.
+- For section changes, compare the four measures before and after a candidate boundary.
+- For chord questions, play the measure with its complete arrangement (rather than assuming one guitar part establishes a chord).
+- Choose relevant guitar vs full band (except chords, always full), speed 50%-125%, and Confirm/Reject/Unsure, optionally adding notes.
+- Feedback automatically persists in browser localStorage; **Export feedback JSON** is the portable record to share with the researcher. "Forget local song files" clears IndexedDB only, not feedback.
+- No requests are made to any custom upload server; alphaTab's JavaScript, worker assets and soundfont load from its public jsDelivr CDN.
+
+**Verification:** Static JavaScript syntax and JSON case-count validation passed locally. Browser rendering, playback ranges, deployment, and GitHub Actions must still be confirmed on the published site/device. If the original files include repeats, player tick positions may follow playback-order semantics rather than the notation bar-number order, which should be audited with listening tests.
