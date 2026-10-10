@@ -54,6 +54,21 @@ def parse(path):
         tracks.append({'name':track.findtext('Name') or '', 'measures':measures})
     return {'file':Path(path).name,'sections':sections,'tracks':tracks}
 
+
+def parsed_tracks(path):
+    """Compatibility adapter for ensemble harmony analyzers.
+
+    This invokes the common GPIF parser and supplies the legacy keys expected
+    by harmony_boundaries.py and validate_structure.py.
+    """
+    song=parse(path)
+    return {
+        'file':song['file'],
+        'tracks':[{'track':t['name'],'measures':t['measures']} for t in song['tracks']],
+        'meter':[None]*len(song['tracks'][0]['measures']) if song['tracks'] else [],
+        'sections':[(s['measure'],s['label']) for s in song['sections']],
+    }
+
 def representative(bars,start,span):
     return [(offset,time,duration,ps[0])
             for offset,bar in enumerate(bars[start:start+span])
