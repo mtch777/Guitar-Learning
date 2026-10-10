@@ -35,7 +35,7 @@ def audit_rows(motif_reports, structure_reports, motifs_per_track=3, chords_per_
             rows.append({"song":song["file"],"kind":"section_boundary","track":"",
                 "measure_a":item["measure"],"measure_b":"","length_bars":"",
                 "candidate":"structural boundary",
-                "algorithm_evidence":json.dumps({"novelty":item["score"],
+                "algorithm_evidence":json.dumps({"novelty":item["novelty_score"],
                     "harmonic_change":item["harmonic_change"],
                     "density_change":item["density_change"]})})
         # Choose varied measures (not simply the highest model-confidence chords).
