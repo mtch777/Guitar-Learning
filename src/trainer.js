@@ -481,6 +481,7 @@ let currentShapeExercise = null;
 let currentCagedExercise = null;
 let currentModeIntervalExercise = null;
 let songPlayerCells = new Map();
+let songPlayerStringOffset = 0;
 let songPlayerActiveCells = new Set();
 let songPlayerBendOverlay = null;
 
@@ -10150,9 +10151,10 @@ function displaySongPlayerNotes(
   ).forEach(
     note => {
       // Both alphaTab and the trainer number strings lowest to highest.
-      // alphaTab is 1-based; the trainer's internal index is 0-based.
+      // Align notes with the same upper strings used by applySongPlayerTrack.
+      // Six/seven-string tracks skip the extra two/one bass strings.
       const stringIndex =
-        Number(note.string) - 1;
+        songPlayerStringOffset + Number(note.string) - 1;
 
       const fret =
         Number(
@@ -10277,6 +10279,8 @@ function applySongPlayerTrack({
   const firstInternalIndex =
     8 -
     stringCount;
+
+  songPlayerStringOffset = firstInternalIndex;
 
   lowToHigh.forEach(
     (

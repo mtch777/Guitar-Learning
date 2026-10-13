@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify song string mapping
+        run: node --test tests/song-player-string-mapping.test.mjs
+
       - name: Build
         run: npm run build
 
