@@ -164,7 +164,9 @@ def tonal_candidates(measures,section_endings=(),weights=None):
  center_margin=centerlist[0]['evidence_share']-centerlist[1]['evidence_share']
  same=[v for v in ranked if v['tonic']==best['tonic']]
  mode_margin=same[0]['score']-same[1]['score']
- status=('weak_pitch_collection' if best['collection_coverage']<w['min_coverage'] else
+ has_direct_harmony=any(m['bass'] or m['clusters'] for m in measures)
+ status=('melody_only_weak_evidence' if not has_direct_harmony else
+         'weak_pitch_collection' if best['collection_coverage']<w['min_coverage'] else
          'ambiguous_tonic' if center_margin<w['min_margin'] or best['tonic']!=centerlist[0]['tonic'] else
          'ambiguous_mode' if mode_margin<w['min_margin'] else 'tentative')
  return {'status':status,'ranked':ranked[:10],'centers':centerlist[:5],
