@@ -26,6 +26,10 @@ class HarmonicInferenceTests(unittest.TestCase):
         result=tonal_candidates([self.measure([0,4,7],0)])
         self.assertGreater(len(result['ranked']),1)
         self.assertNotIn('confidence',result['ranked'][0])
+    def test_mode_never_creates_unobserved_chord(self):
+        from harmonic_inference import analyze_measure
+        m=self.measure([2])
+        self.assertEqual(analyze_measure(m,tonic='D',mode='Aeolian')['label'],'no_explicit_chord')
     def test_bad_settings(self):
         with self.assertRaises(ValueError):tonal_candidates([self.measure([0,4])],weights={'invalid':5})
     def test_duplicate_guitars(self):
