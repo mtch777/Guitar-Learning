@@ -99,6 +99,13 @@ def analyze_measure(measure,tonic=None,mode=None):
  if not votes:
   return {'label': 'no_explicit_chord','bass_note':name(basspc) if basspc is not None else None,
           'candidates':[],'confidence':'unresolved','reason':'no simultaneous chord evidence'}
+ # Use inferred scale as a small tie-breaker, never as evidence that a chord exists.
+ if tonic in NAMES and mode in MODES:
+  allowed={(NAMES.index(tonic)+n)%12 for n in MODES[mode]}
+  for key in list(votes):
+   root,quality=key
+   pcs={(root+i)%12 for i in CHORDS[quality]}
+   votes[key]*=(1+0.06*len(pcs & allowed)/len(pcs))
  ranked=sorted(votes.items(),key=lambda kv:-kv[1])
  options=[]
  for (root,quality),support in ranked[:5]:
@@ -185,7 +192,14 @@ def infer_score(score,weights=None):
   sections.append({'label':label,'start':start,'end':end-1,
                    'tonality':tonal_candidates(section,(len(section),),weights)})
  # Chords inferred from simultaneous notes, not an averaged 12-note bar bag.
- per_measure=[{'measure':m['measure'],'harmony':analyze_measure(m)} for m in measures]
+ per_measure=[]
+ for m in measures:
+  sectional=next((s['tonality'] for s in sections if s['start']<=m['measure']<=s['end']),overall)
+  candidate=sectional['ranked'][0] if sectional.get('status')=='tentative' and sectional.get('ranked') else None
+  h=analyze_measure(m,candidate['tonic'] if candidate else None,
+                       candidate['mode'] if candidate else None)
+  h['tonal_context_used']=candidate is not None
+  per_measure.append({'measure':m['measure'],'harmony':h})
  return {'song':score['song'],'overall':overall,'sections':sections,
          'measure_harmony':per_measure,'excluded_exact_doubles':excluded,
          'limitations':['No ground-truth key or chord labels','Rests/ties omitted by upstream parser',
