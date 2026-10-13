@@ -217,3 +217,25 @@ The 16-bar planner samples learned transition frequencies with smoothing and add
 Observed representative-track phrase counts: Cloud Cascade 22, Nocturne 21, Immolation of Night 18 (61 total). Leave-one-song-out coverage of transition TYPES, not musical fidelity: Cloud Cascade 14/21, Nocturne 19/20, Immolation of Night 7/17. These counts are small, source-dependent, and are not accuracy scores.
 
 Seed 17 example: measures 1–4 introduce A; 5–8 repeat A; 9–12 introduce B; 13–16 return to A. That coherent plan is partly enforced by constraints, not solely discovered. The next milestone is to **generate new notes and rhythms into playable modern .gp**, validate originality, and test musical results by ear.
+
+
+## Phase 3b — first generated playable guitar study
+
+`generate_composition.py` is the first original-score generator. It learns distributions of rhythmic durations, relative melodic leaps, and pitch classes from supplied .gp scores. Then it generates two independent four-bar phrases, makes a small pitched variation of A, and reprises A as the final phrase.
+
+```bash
+python generate_composition.py \
+  --template "Cloud Cascade (Tuned Down).gp" \
+  --sources "Cloud Cascade (Tuned Down).gp" "Nocturne_ Lost Faith (Tuned Down).gp" "Immolation of Night (Tuned Down).gp" \
+  --output "Original_16_Bar_Guitar_Study.gp" --seed 17
+```
+
+**A (bars 1–4) → varied A (5–8) → B (9–12) → return to A (13–16).**
+
+The script preserves one compatible 8-string source track *configuration* and ZIP packaging but replaces all original master bars, bars, voices, beats, rhythms and notes with newly authored material. It creates 16 measures of 4/4 music, writes a single 8-string guitar track, and reopens the resulting .gp XML for structural validation. A deterministic seed allows exact reproduction. No copyrighted source song or generated file is committed to this public repository.
+
+Local trial with the three source songs: **153 newly authored notes in 16 measures**. The existing `phrase_development.parse` parser successfully re-imported the result. Five source-independent generator smoke tests and three source-dependent local checks passed. **Manual alphaTab/Guitar Pro playback remains unverified.**
+
+Important limits: this is a *first experimental sketch*, not a high-quality style-transfer composition. Rhythm and note/interval choice are informed by corpus distributions, but melodic coherence, harmonic development, fretboard technique and natural phrasing need significant improvement. The long-range A/A-var/B/A structure is explicitly constructed, not autonomously learned. No polyphonic guitar chords or other instruments yet.
+
+**Next: audition the generated .gp**, diagnose timing/tone/playability issues in the song player, compare against copied-source and random baselines, and improve composition grammar before expanding to other instruments.
