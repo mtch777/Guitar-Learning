@@ -201,3 +201,19 @@ Local checks: 7 new tests passed; analysis completed on all three original tuned
 **Interpretation limits:** This is *candidate* phrase segmentation, not human-verified phrase boundaries. The prior riff listening review supported candidate similarity but did not validate the new boundary algorithm. Section annotations force hard breaks, the model compares the first voice's lowest note (not harmony/chord voicings), and double-tracked parts that differ slightly can still be double-counted. The motif family assignment is greedy and may be nontransitive. Phrase complexity varies; the length prior often favors four bars. These results are descriptive, **not yet a trained generative style model**.
 
 Next: build a section-to-phrase development grammar / arrangement model; compare repeated motif sequences across songs while holding at least one out for evaluation; prepare constrained 16-bar generation.
+
+
+## Phase 3a — phrase-development structure model
+
+`structure_model.py` builds empirical high-level transition counts from the provisional phrase families produced by `phrase_development.py`. It selects one representative (preferably rhythm) guitar track per source song to avoid interpreting two doubled rhythm guitars as two independent training songs. Actions are `introduce`, `repeat`, `vary`, `transpose`, and `return`.
+
+```bash
+python structure_model.py "Cloud Cascade (Tuned Down).gp" "Nocturne_ Lost Faith (Tuned Down).gp" "Immolation of Night (Tuned Down).gp" --bars 16 --seed 17 --output structure_model_report.json
+python -m unittest discover -s . -p "test_*.py" -v
+```
+
+The 16-bar planner samples learned transition frequencies with smoothing and adds explicit coherence constraints (at least two phrase families and a final return when the length permits). Repeated/varied phrases reference earlier phrase IDs. Output is a **plan only**; no new note sequence or playable GP file has yet been generated. The user's earlier positive listening feedback supports motif *similarity*, not the correctness of these learned composition decisions.
+
+Observed representative-track phrase counts: Cloud Cascade 22, Nocturne 21, Immolation of Night 18 (61 total). Leave-one-song-out coverage of transition TYPES, not musical fidelity: Cloud Cascade 14/21, Nocturne 19/20, Immolation of Night 7/17. These counts are small, source-dependent, and are not accuracy scores.
+
+Seed 17 example: measures 1–4 introduce A; 5–8 repeat A; 9–12 introduce B; 13–16 return to A. That coherent plan is partly enforced by constraints, not solely discovered. The next milestone is to **generate new notes and rhythms into playable modern .gp**, validate originality, and test musical results by ear.
