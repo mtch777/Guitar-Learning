@@ -9,6 +9,7 @@ const callbacks = source.slice(source.indexOf('function displaySongPlayerNotes('
 
 test('track tuning and active notes agree for 6, 7, and 8 strings, including track switches', () => {
   const shown = [];
+  const fields = { rootSelect: {value:"3"}, scaleSelect: {value:"dorian"} };
   const context = vm.createContext({
     songPlayerStringOffset: 0,
     currentTuning: [28, 35, 40, 45, 50, 55, 59, 64],
@@ -20,7 +21,8 @@ test('track tuning and active notes agree for 6, 7, and 8 strings, including tra
     hideCell() {},
     revealCell: cell => shown.push(cell),
     buildTrainer() {},
-    document: { getElementById: () => null },
+    document: { getElementById: id => fields[id] || null },
+    syncSingleSelectDisplay() {},
   });
   for (let s = 0; s < 8; s++) {
     for (let f = 0; f <= 24; f++) {
@@ -52,4 +54,12 @@ test('track tuning and active notes agree for 6, 7, and 8 strings, including tra
       assert.equal(context.currentTuning[shown[0].stringIndex] + 4, 54, 'F#3');
     }
   }
+  context.applySongPlayerTrack({name:'Time',timeProfile:true,tuningHighToLow:[64,59,55,50,45,40,35,28]});
+  assert.deepEqual(Array.from(context.currentTuning),[28,35,40,45,50,55,59,64]);
+  assert.equal(fields.rootSelect.value,'4');
+  assert.equal(fields.scaleSelect.value,'aeolian');
+  shown.length=0;
+  context.displaySongPlayerNotes([{string:5,fret:2}]);
+  assert.equal(shown[0].stringIndex,4);
+  assert.equal(context.currentTuning[4]+shown[0].fret,52);
 });

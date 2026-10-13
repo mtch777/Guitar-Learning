@@ -31,7 +31,7 @@ jobs:
         run: npm ci
 
       - name: Verify song string mapping
-        run: node --test tests/song-player-string-mapping.test.mjs
+        run: node --test tests/*.test.mjs
 
       - name: Build
         run: npm run build

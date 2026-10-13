@@ -9146,42 +9146,6 @@ document
         );
       }
 
-      if (
-        selectedLesson ===
-        'songPlayer'
-      ) {
-        currentTuning =
-          [
-            ...TIME_SOLO_DROP_E_TUNING
-          ];
-
-        const rootSelect =
-          document.getElementById(
-            'rootSelect'
-          );
-
-        const scaleSelect =
-          document.getElementById(
-            'scaleSelect'
-          );
-
-        rootSelect.value =
-          '4';
-
-        scaleSelect.value =
-          'aeolian';
-
-        syncSingleSelectDisplay(
-          'rootDropdown',
-          'rootSelect'
-        );
-
-        syncSingleSelectDisplay(
-          'scaleDropdown',
-          'scaleSelect'
-        );
-      }
-
       updateLessonControls();
       buildTrainer();
     }
@@ -10245,6 +10209,7 @@ function displaySongPlayerNotes(
 
 function applySongPlayerTrack({
   name,
+  timeProfile = false,
   tuningHighToLow
 }) {
   if (
@@ -10297,6 +10262,13 @@ function applySongPlayerTrack({
 
   currentTuning =
     nextTuning;
+
+  if (timeProfile) {
+    document.getElementById("rootSelect").value = "4";
+    document.getElementById("scaleSelect").value = "aeolian";
+    syncSingleSelectDisplay("rootDropdown", "rootSelect");
+    syncSingleSelectDisplay("scaleDropdown", "scaleSelect");
+  }
 
   if (
     getSelectedLessonType() ===

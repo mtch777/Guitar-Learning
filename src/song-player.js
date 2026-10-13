@@ -1,3 +1,6 @@
+import { isTimeFile, applySongPitch, timeNotePosition } from './song-profile.js';
+import { TIME_SOLO_DROP_E_TUNING } from './data/time-solo.js';
+
 const ALPHATAB_VERSION =
   '1.8.4';
 
@@ -174,6 +177,7 @@ export function setupSongPlayer({
 
   let alphaTabApi = null;
   let score = null;
+  let timeProfile = false;
   let selectedTrackIndex = null;
   let playerReady = false;
   let playing = false;
@@ -530,17 +534,17 @@ export function setupSongPlayer({
     alphaTabApi.renderTracks(
       [track]
     );
+    applySongPitch(alphaTabApi, score, timeProfile);
     applyPlaybackSpeed();
 
     onTrackChanged?.({
+      timeProfile,
       index:
         track.index,
       name:
         track.name,
       tuningHighToLow:
-        getTrackStringTuning(
-          track
-        )
+        timeProfile ? [...TIME_SOLO_DROP_E_TUNING].reverse() : getTrackStringTuning(track)
     });
 
     setStatus(
@@ -719,6 +723,7 @@ export function setupSongPlayer({
       () => {
         playerReady =
           true;
+        if (score) applySongPitch(alphaTabApi, score, timeProfile);
         applyPlaybackSpeed();
         updateTransport();
 
@@ -871,13 +876,8 @@ export function setupSongPlayer({
               ) &&
               note.string > 0
             ) {
-              notes.push({
-                string:
-                  note.string,
-                fret:
-                  note.fret,
-                note
-              });
+              const position = timeProfile ? timeNotePosition(note) : { string: note.string, fret: note.fret };
+              if (position) notes.push({ ...position, note });
             }
           }
         }
@@ -930,6 +930,7 @@ export function setupSongPlayer({
               : 'utf-8';
 
         api.updateSettings();
+        timeProfile = isTimeFile(file.name);
         api.load(
           buffer
         );
