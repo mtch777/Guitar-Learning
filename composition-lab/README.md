@@ -262,3 +262,20 @@ Steps:
 Caveats: GP written key signatures are not parsed by this module (never silently treated as tonic). It uses an upstream simplified event parser that does not preserve every rest/tie, and treats score-provided section boundaries as structural evidence. Mode coverage and tonal-center rankings are **heuristic scores, not calibrated probabilities**; missing drums and ambiguous chord-root vs pedal interpretation can change results. There is no independently validated ground truth.
 
 First run's leading candidates (unconfirmed): Cloud Cascade D Aeolian; Nocturne C# Aeolian; Immolation C Lydian. These are **not** established musical keys. Review them against the actual music before allowing inferred harmonic labels to influence generation.
+
+
+## Phase 3c — explicit-harmony and tonal-context inference
+
+`harmonic_inference.py` reads the existing GP7 phrase parser, separates bass events from simultaneous guitar pitch clusters, and ranks chord qualities without presuming the bass note is always the chord root. It reports root agreement, inversions, and possible pedal/non-chord bass notes. A section's inferred tonic/mode, **only if tentative**, contributes a weak tie-breaker to chord candidates. It cannot manufacture chords from melody-only sections. The earlier `infer_tonality.py` path is now a compatibility entrypoint, repairing a previously corrupted commit.
+
+```bash
+python harmonic_inference.py "Cloud Cascade (Tuned Down).gp" "Nocturne_ Lost Faith (Tuned Down).gp" "Immolation of Night (Tuned Down).gp" --output harmonic_inference_report.json
+python -m unittest discover -s . -p 'test_*.py' -v
+```
+
+Evidence audit on original tracks using the earlier chord heuristic:
+- Cloud Cascade: 70/111 measures have simultaneous chord-like note groups, 88/111 have a pitched bass track, 62 have both. In the 62 with both, leading chord candidate agrees with bass root in 27, has a possible inversion in 16, and conflicts in 19.
+- Nocturne: 82/108 measures have chord-like groups but no separate bass track.
+- Immolation of Night: 32/96 measures have chord-like groups but no separate bass track.
+
+These are **not ground-truth chord labels**; the counts motivate explicit handling of inversions and pedal tones. Future work must test upstream note timing, ties and rests, real chord duration, alignment of bass with chord onset, repeated-section harmonic transfer, and human-reviewed keys and chord labels. Do not treat heuristic output scores as statistical probabilities.
