@@ -239,3 +239,26 @@ Local trial with the three source songs: **153 newly authored notes in 16 measur
 Important limits: this is a *first experimental sketch*, not a high-quality style-transfer composition. Rhythm and note/interval choice are informed by corpus distributions, but melodic coherence, harmonic development, fretboard technique and natural phrasing need significant improvement. The long-range A/A-var/B/A structure is explicitly constructed, not autonomously learned. No polyphonic guitar chords or other instruments yet.
 
 **Next: audition the generated .gp**, diagnose timing/tone/playability issues in the song player, compare against copied-source and random baselines, and improve composition grammar before expanding to other instruments.
+
+
+## Phase 3b — reusable tonal-center and mode inference
+
+`infer_tonality.py` analyzes each modern GP source independently, with the same configurable, explainable rules across songs. It is a **hypothesis generator**, not a trained or validated key detector.
+
+```bash
+python infer_tonality.py "Cloud Cascade (Tuned Down).gp" "Nocturne_ Lost Faith (Tuned Down).gp" "Immolation of Night (Tuned Down).gp" --output tonality_inference_report.json
+python -m unittest test_infer_tonality -v
+```
+
+Optional repeatable weights: place any subset of `Settings` field names and numeric weights in a JSON file and run `--settings weights.json`. Unknown fields and negative weights fail fast. Tune weights on a **held-out manually labeled** corpus, not on these three songs.
+
+Steps:
+1. Read pitched events by song/track/measure; exclude percussion and exact doubled guitar tracks.
+2. Extract bass pitch-duration counts, explicit simultaneous guitar pitch clusters, melody endings at **annotated section boundaries**, and pitch-class distribution.
+3. For explicit chords, evaluate root/quality along with potential bass-root agreement, inversions, or non-chord/pedal bass. Agreement adds evidence; disagreement **does not reject** a chord.
+4. Rank 12 tonal centers using multiple evidence sources; compare the seven diatonic modes and their pitch coverage for every tonic; rerank tonic + mode jointly.
+5. Analyze annotated sections separately for possible changes. Preserve ambiguity and return scores, alternative interpretations, and evidence contributions.
+
+Caveats: GP written key signatures are not parsed by this module (never silently treated as tonic). It uses an upstream simplified event parser that does not preserve every rest/tie, and treats score-provided section boundaries as structural evidence. Mode coverage and tonal-center rankings are **heuristic scores, not calibrated probabilities**; missing drums and ambiguous chord-root vs pedal interpretation can change results. There is no independently validated ground truth.
+
+First run's leading candidates (unconfirmed): Cloud Cascade D Aeolian; Nocturne C# Aeolian; Immolation C Lydian. These are **not** established musical keys. Review them against the actual music before allowing inferred harmonic labels to influence generation.
