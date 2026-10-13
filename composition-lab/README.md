@@ -181,3 +181,23 @@ Open `https://mtch777.github.io/Guitar-Learning/composition-review/` after GitHu
 - No requests are made to any custom upload server; alphaTab's JavaScript, worker assets and soundfont load from its public jsDelivr CDN.
 
 **Verification:** Static JavaScript syntax and JSON case-count validation passed locally. Browser rendering, playback ranges, deployment, and GitHub Actions must still be confirmed on the published site/device. If the original files include repeats, player tick positions may follow playback-order semantics rather than the notation bar-number order, which should be audited with listening tests.
+
+## Phase 2g — candidate phrase boundaries and riff development
+
+Use the verified three-song GP files as local inputs (never commit them):
+
+```bash
+python phrase_development.py "Cloud Cascade (Tuned Down).gp" "Nocturne_ Lost Faith (Tuned Down).gp" "Immolation of Night (Tuned Down).gp" --output phrase_development_report.json
+python -m unittest test_phrase_development -v
+```
+
+The phrase analyzer partitions each track at **tab-annotated section boundaries**, then uses dynamic programming and local pitch/rhythm activity to propose smaller 1/2/3/4/6/8-bar phrases. It groups earlier phrases by relative melodic intervals and note timing (limited edit-distance changes), identifying candidate **repeat / transposed exact / varied / new material** relationships. It exports a per-track chronological phrase map including bars, section labels, motif-family IDs, prior phrase references, and comparison distance.
+
+Local checks: 7 new tests passed; analysis completed on all three original tuned-down GP files. Sample predictions:
+- Cloud Cascade, Leads I: phrase 1–4 recurs exactly at 9–12 and 17–20, and phrase 5–8 at 13–16 and 21–24; measures 29–32 appear as a variant of 25–28.
+- Nocturne, rhythm left: bars 30–33 recur at 34–37.
+- Immolation, Guitar 1: bars 20–23 appear as a variant of 16–19, then 24–27 recur.
+
+**Interpretation limits:** This is *candidate* phrase segmentation, not human-verified phrase boundaries. The prior riff listening review supported candidate similarity but did not validate the new boundary algorithm. Section annotations force hard breaks, the model compares the first voice's lowest note (not harmony/chord voicings), and double-tracked parts that differ slightly can still be double-counted. The motif family assignment is greedy and may be nontransitive. Phrase complexity varies; the length prior often favors four bars. These results are descriptive, **not yet a trained generative style model**.
+
+Next: build a section-to-phrase development grammar / arrangement model; compare repeated motif sequences across songs while holding at least one out for evaluation; prepare constrained 16-bar generation.
