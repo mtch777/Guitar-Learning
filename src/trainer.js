@@ -6586,20 +6586,17 @@ function buildIdentificationShapeExercise(type, cells, baseRoot, baseMode, tunin
       button.textContent = target === answerMode ? modeNames[value] : value;
       button.addEventListener('click', () => {
         if (isQuizTransitioning || completed) return;
+        if (value !== answer) {
+          button.classList.add('wrong');
+          window.setTimeout(() => button.classList.remove('wrong'), 450);
+          return;
+        }
         group.querySelectorAll('button').forEach(b => b.classList.remove('correct'));
         target.value = value;
         button.classList.add('correct');
         if (answerMode.value && (!isCaged || answerShape.value)) {
-          if (answerMode.value === mode && (!isCaged || answerShape.value === chosen.shapeName)) {
-            completed = true;
-            scheduleQuizTransition(completeCurrentExercise);
-          } else {
-            const previous = target.value;
-            button.classList.remove('correct');
-            button.classList.add('wrong');
-            window.setTimeout(() => button.classList.remove('wrong'), 450);
-            target.value = null;
-          }
+          completed = true;
+          scheduleQuizTransition(completeCurrentExercise);
         }
       });
       group.appendChild(button);
