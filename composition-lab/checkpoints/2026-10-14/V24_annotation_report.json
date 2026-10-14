@@ -1,0 +1,41 @@
+{
+  "source_chord_occurrences": 69,
+  "source_sections": 54,
+  "review_cases": 60,
+  "review_cases_with_source_chord": 3,
+  "conflicting_source_labels": 0,
+  "human_verified_cases": 0,
+  "source_annotations_are_ground_truth": false,
+  "by_song": [
+    {
+      "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+      "chords": 69,
+      "sections": 4,
+      "unmapped": 0
+    },
+    {
+      "file": "Sweet Child O' Mine.gp",
+      "chords": 0,
+      "sections": 15,
+      "unmapped": 0
+    },
+    {
+      "file": "Cloud Cascade (Tuned Down).gp",
+      "chords": 0,
+      "sections": 14,
+      "unmapped": 0
+    },
+    {
+      "file": "Nocturne_ Lost Faith (Tuned Down).gp",
+      "chords": 0,
+      "sections": 12,
+      "unmapped": 0
+    },
+    {
+      "file": "Immolation of Night (Tuned Down).gp",
+      "chords": 0,
+      "sections": 9,
+      "unmapped": 0
+    }
+  ]
+}
