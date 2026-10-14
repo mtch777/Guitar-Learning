@@ -21,6 +21,7 @@ from harmonic_relative import analyze_note, map_note
 from similarity_controls import Controls, transform
 from learned_patterns_v16 import plan_melody, plan_rhythm
 from relational_learning_v17 import plan_intervals
+from gp_occurrence_writer import apply_occurrence_edits
 
 
 def _events(score, track):
@@ -46,34 +47,33 @@ def _plan_pitches(score, track, windows, controls, seed, melody_offsets, learned
     # harmony is confidently known. Harmonic-role substitutions retain priority.
     relation_map, relation_stats = (plan_intervals(score, track, variation_strength, seed,
                                 exclude_events=learned_map.keys()) if learned else ({}, {}))
-    requested={};usage=Counter();original={}
-    for tr in score['tracks']:
-        for m in tr['measures']:
-            for v in m['voices']:
-                for e in v:
-                    for n in e['notes']:
-                        usage[n['note_id']]+=1;original[n['note_id']]=n['midi']
+    timing_by_identity={id(event):chosen['events'][j] for j,event in enumerate(source)}
     tuning=score['tracks'][track]['tunings'][0]
     skipped_unplayable=0
-    for event,result in zip(source, chosen['events']):
-        notes=[n for n in event['notes'] if n['midi'] is not None]
-        pitches=learned_map.get(id(event),relation_map.get(id(event),result['pitches']))
-        if len(notes)!=len(pitches):raise AssertionError('Incorrect note count')
-        positions=[];used=set()
-        for n,p in zip(notes,pitches):
-            pos=_position(p,tuning,n.get('string'),used=used)
-            if pos is None:break
-            used.add(pos[0]);positions.append((p,*pos))
-        if len(positions)!=len(notes):
-            skipped_unplayable+=1;continue
-        for n,p in zip(notes,positions):requested.setdefault(n['note_id'],[]).append(p)
-    changes={};shared=0
-    for nid,variants in requested.items():
-        if len(variants)==usage[nid] and len(set(variants))==1:
-            if variants[0][0]!=original[nid]:changes[nid]=variants[0]
-        elif any(p[0]!=original[nid] for p in variants):shared+=1
-    return changes, chosen, {'unplayable_events_skipped':skipped_unplayable,
-                             'shared_note_definitions_skipped':shared,**learned_stats,**relation_stats}
+    occurrence_edits={}
+    for mi,measure in enumerate(score['tracks'][track]['measures']):
+        for vi,voice in enumerate(measure['voices']):
+            for ei,event in enumerate(voice):
+                # The model uses object identity to label event-specific proposals.
+                # Respect each event's position even when its GPIF ID is shared.
+                # Lookup by identity, never structural equality.
+                result=timing_by_identity.get(id(event))
+                if result is None:raise AssertionError('Source event identity lost')
+                notes=[(ni,n) for ni,n in enumerate(event['notes']) if n['midi'] is not None]
+                pitches=learned_map.get(id(event),relation_map.get(id(event),result['pitches']))
+                if len(notes)!=len(pitches):raise AssertionError('Incorrect note count')
+                positions=[];used=set()
+                for (ni,n),pitch in zip(notes,pitches):
+                    pos=_position(pitch,tuning,n.get('string'),used=used)
+                    if pos is None:break
+                    used.add(pos[0]);positions.append((ni,n,(pitch,*pos)))
+                if len(positions)!=len(notes):
+                    skipped_unplayable+=1;continue
+                for ni,n,position in positions:
+                    if position[0]!=n['midi']:
+                        occurrence_edits[mi,vi,ei,ni]=position
+    return occurrence_edits, chosen, {'unplayable_events_skipped':skipped_unplayable,
+                             'shared_note_definitions_skipped':0,**learned_stats,**relation_stats}
 
 
 def _rhythm_swaps(score,track,windows, strength,seed):
@@ -121,17 +121,13 @@ def export(source, destination, *, chords=0,melody=0,rhythm=0,track=0,seed=17,
     pitches,chosen,safety=_plan_pitches(score,track,spans,pitch_controls,seed,melody_offsets,learned=learned,learned_melody_strength=melody)
     swaps,rstats=_rhythm_swaps(score,track,spans,rhythm,seed) if not learned else ([],{})
     learned_rhythm,learned_rstats=plan_rhythm(score,track,spans,rhythm,seed) if learned else ({},{})
+    clone_stats={'changed_note_occurrences':0,'cloned_notes':0,'cloned_beats':0,'cloned_voices':0,'cloned_bars':0}
     if not pitches and not swaps and not learned_rhythm:
         destination.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,destination)
     else:
         with zipfile.ZipFile(source) as zi:
             members=[(i,zi.read(i.filename)) for i in zi.infolist()]
             root=ET.fromstring(zi.read('Content/score.gpif'))
-        seen=set()
-        for note in root.findall('./Notes/Note'):
-            if note.get('id') in pitches:
-                _write_note(note,*pitches[note.get('id')]);seen.add(note.get('id'))
-        if seen!=set(pitches):raise ValueError('Missing GP note definitions')
         lookup={b.get('id'):b for b in root.findall('./Beats/Beat')}
         original_rhythm_refs={bid:node.find('Rhythm').get('ref') for bid,node in lookup.items() if node.find('Rhythm') is not None}
         for bid,source_bid in learned_rhythm.items():
@@ -141,6 +137,7 @@ def export(source, destination, *, chords=0,melody=0,rhythm=0,track=0,seed=17,
             if a is None or b is None:raise ValueError('Missing beat rhythm reference')
             old_a,old_b=a.get('ref'),b.get('ref')
             a.set('ref',old_b);b.set('ref',old_a)
+        clone_stats=apply_occurrence_edits(root,score,track,pitches,_write_note)
         xml=ET.tostring(root,encoding='utf-8',xml_declaration=True)
         destination.parent.mkdir(parents=True,exist_ok=True)
         with zipfile.ZipFile(destination,'w') as zo:
@@ -155,14 +152,14 @@ def export(source, destination, *, chords=0,melody=0,rhythm=0,track=0,seed=17,
             for ov,nv in zip(om['voices'],nm['voices']):
                 if len(ov)!=len(nv):raise AssertionError('Event count changed')
                 for a,b in zip(ov,nv):
-                    if [n['note_id'] for n in a['notes']]!=[n['note_id'] for n in b['notes']]:raise AssertionError('Note order changed')
+                    if len(a['notes'])!=len(b['notes']):raise AssertionError('Note count changed')
                     if index!=track or rhythm==0:
                         if (a['onset_q'],a['duration_q'])!=(b['onset_q'],b['duration_q']):raise AssertionError('Locked timing changed')
                     if index!=track:
                         if [n['midi'] for n in a['notes']]!=[n['midi'] for n in b['notes']]:raise AssertionError('Other track changed')
     return {'source':source.name,'output':str(destination),'track':track,'seed':seed,
             'controls':{'chords':chords,'melody':melody,'rhythm':rhythm},
-            'changed_note_definitions':len(pitches),'harmonic_windows':len(spans),
+            'changed_note_definitions':clone_stats['cloned_notes'],**clone_stats,'harmonic_windows':len(spans),
             'transformation':chosen['report'],**stats,**safety,**rstats,**learned_rstats,'learned':learned,
             'limitations':('Learned mode substitutes source-observed 2–4 event patterns only where compatible and safely exportable; ' if learned else 'Rhythm uses adjacent swaps; ')+'unknown harmony is preserved; strengths are probabilities, not calibrated musical distances'}
 
