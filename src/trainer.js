@@ -511,6 +511,8 @@ const lessonDefinitions = {
     maxFret: 24,
     hasStartCue: true
   },
+  identifyModeShape: { label: 'Identify Base Key by Shape', maxFret: 12, hasStartCue: false },
+  identifyCagedShape: { label: 'Identify Pentatonic CAGED by Shape', maxFret: 24, hasStartCue: false },
   modeInterval: {
     label: 'Mode Interval Matching',
     maxFret: 0,
@@ -536,7 +538,9 @@ const dailyPracticeLessonTypes = [
   'shape',
   'nps',
   'rrPent',
-  'caged'
+  'caged',
+  'identifyModeShape',
+  'identifyCagedShape'
 ];
 
 let dailyPracticeState = null;
@@ -2371,7 +2375,7 @@ function updateLessonControls() {
     nps || rrPent || caged;
 
   const modeInterval =
-    lessonType === 'modeInterval';
+    ['modeInterval', 'identifyModeShape', 'identifyCagedShape'].includes(lessonType);
 
   const timeSolo =
     lessonType === 'timeSolo';
@@ -6519,6 +6523,94 @@ function advanceShapeExercise() {
 }
 
 
+
+/* Shape recognition: the colors are evidence, never printed answers. */
+function buildIdentificationShapeExercise(type, cells, baseRoot, baseMode, tuning) {
+  const dailyPair = isDailyPracticeSelected() ? dailyPracticeState?.currentPair : null;
+  const mode = dailyPair?.lessonType === type
+    ? dailyPair.mode
+    : randomItem(npsModeOrder);
+  const isCaged = type === 'identifyCagedShape';
+  const modeRoot = isCaged
+    ? getRelativeModeRoot(baseRoot, baseMode, mode)
+    : mod12(tuning[0]);
+  const chart = document.getElementById('chartDiv');
+  const prompt = document.getElementById('answerNote');
+  const available = isCaged
+    ? getFittingCagedShapesForMode(cells, modeRoot, mode, cagedShapeOrder)
+    : [];
+  const chosen = isCaged && available.length ? randomItem(available) : null;
+  if (isCaged && !chosen) {
+    prompt.textContent = 'No CAGED template fits this tuning and key.';
+    return;
+  }
+
+  const selectedKeys = chosen ? chosen.requiredCellKeys : null;
+  for (const item of cells) {
+    const key = makeCellKey(item.stringIndex, item.fret);
+    const chromatic = mod12(item.absolutePitch - modeRoot);
+    const included = selectedKeys
+      ? selectedKeys.has(key)
+      : scales[mode].some(([semitones]) => semitones === chromatic);
+    if (!included) {
+      hideCell(item.element);
+      continue;
+    }
+    const interval = getIntervalForPitch(
+      midiToPitchClass(item.absolutePitch), modeRoot, mode
+    );
+    if (!interval) continue;
+    revealCell(item.element, interval);
+    item.element.textContent = '';
+    item.element.setAttribute('aria-label', 'Colored note, string ' + (item.stringIndex + 1) + ', fret ' + item.fret);
+    item.element.style.pointerEvents = 'none';
+  }
+
+  prompt.className = 'modeIntervalPrompt';
+  prompt.textContent = isCaged ? 'Identify mode and CAGED shape' : 'Identify mode relative to low string';
+  const choices = document.createElement('div');
+  choices.className = 'modeIntervalChoices';
+  // Mode buttons mirror the existing Mode Interval Matching answer style.
+  const answerMode = { value: null };
+  const answerShape = { value: null };
+  let completed = false;
+  const addChoices = (values, target, answer, heading) => {
+    const group = document.createElement('div');
+    group.className = 'modeIntervalChoices';
+    group.setAttribute('role', 'group');
+    group.setAttribute('aria-label', heading);
+    for (const value of values) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'modeIntervalChoice';
+      button.textContent = target === answerMode ? modeNames[value] : value;
+      button.addEventListener('click', () => {
+        if (isQuizTransitioning || completed) return;
+        group.querySelectorAll('button').forEach(b => b.classList.remove('correct'));
+        target.value = value;
+        button.classList.add('correct');
+        if (answerMode.value && (!isCaged || answerShape.value)) {
+          if (answerMode.value === mode && (!isCaged || answerShape.value === chosen.shapeName)) {
+            completed = true;
+            scheduleQuizTransition(completeCurrentExercise);
+          } else {
+            const previous = target.value;
+            button.classList.remove('correct');
+            button.classList.add('wrong');
+            window.setTimeout(() => button.classList.remove('wrong'), 450);
+            target.value = null;
+          }
+        }
+      });
+      group.appendChild(button);
+    }
+    choices.appendChild(group);
+  };
+  addChoices(npsModeOrder, answerMode, mode, 'Mode');
+  if (isCaged) addChoices(cagedShapeOrder, answerShape, chosen.shapeName, 'CAGED shape');
+  chart.appendChild(choices);
+}
+
 /* =========================================================
    MODE INTERVAL MATCHING
    ========================================================= */
@@ -6686,6 +6778,8 @@ function buildTrainer() {
     showAllButton.hidden =
       [
         'modeInterval',
+        'identifyModeShape',
+        'identifyCagedShape',
         'timeSolo',
         'songPlayer'
       ].includes(
@@ -7489,6 +7583,11 @@ function buildTrainer() {
     }
   }
 
+
+  if (lessonType === 'identifyModeShape' || lessonType === 'identifyCagedShape') {
+    buildIdentificationShapeExercise(lessonType, allCells, baseRoot, baseScaleName, tuning);
+    return;
+  }
 
   /* =======================================================
      SONG PLAYER — ALPHATAB LIVE FRETBOARD
