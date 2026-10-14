@@ -1,0 +1,1175 @@
+[
+  {
+    "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+    "chords": [
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 1,
+        "voice": 0,
+        "onset_q": "0",
+        "beat_id": "0",
+        "chord_symbol": "Em9",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 1,
+        "voice": 0,
+        "onset_q": "5/2",
+        "beat_id": "4",
+        "chord_symbol": "A7add13",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 2,
+        "voice": 0,
+        "onset_q": "4",
+        "beat_id": "9",
+        "chord_symbol": "D7M",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 2,
+        "voice": 0,
+        "onset_q": "7",
+        "beat_id": "12",
+        "chord_symbol": "D#dim7",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 3,
+        "voice": 0,
+        "onset_q": "17/2",
+        "beat_id": "16",
+        "chord_symbol": "C#\u00c3\u0098",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 3,
+        "voice": 0,
+        "onset_q": "10",
+        "beat_id": "19",
+        "chord_symbol": "F#7(#5)",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 4,
+        "voice": 0,
+        "onset_q": "12",
+        "beat_id": "23",
+        "chord_symbol": "Bm",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 4,
+        "voice": 0,
+        "onset_q": "15",
+        "beat_id": "25",
+        "chord_symbol": "Bm/A",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 5,
+        "voice": 0,
+        "onset_q": "16",
+        "beat_id": "27",
+        "chord_symbol": "C#\u00c3\u0098",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 5,
+        "voice": 0,
+        "onset_q": "18",
+        "beat_id": "30",
+        "chord_symbol": "F#7(#5)",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 6,
+        "voice": 0,
+        "onset_q": "22",
+        "beat_id": "35",
+        "chord_symbol": "Bm/A",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 7,
+        "voice": 0,
+        "onset_q": "49/2",
+        "beat_id": "43",
+        "chord_symbol": "C#",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 7,
+        "voice": 0,
+        "onset_q": "53/2",
+        "beat_id": "46",
+        "chord_symbol": "C#",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 8,
+        "voice": 0,
+        "onset_q": "28",
+        "beat_id": "52",
+        "chord_symbol": "F#7/C#",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 9,
+        "voice": 0,
+        "onset_q": "32",
+        "beat_id": "62",
+        "chord_symbol": "G#\u00c3\u0098",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 9,
+        "voice": 0,
+        "onset_q": "34",
+        "beat_id": "65",
+        "chord_symbol": "C#",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 10,
+        "voice": 0,
+        "onset_q": "36",
+        "beat_id": "69",
+        "chord_symbol": "F#",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 11,
+        "voice": 0,
+        "onset_q": "40",
+        "beat_id": "73",
+        "chord_symbol": "B",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 11,
+        "voice": 0,
+        "onset_q": "43",
+        "beat_id": "77",
+        "chord_symbol": "Adim7",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 12,
+        "voice": 0,
+        "onset_q": "44",
+        "beat_id": "79",
+        "chord_symbol": "Em",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 13,
+        "voice": 0,
+        "onset_q": "48",
+        "beat_id": "84",
+        "chord_symbol": "Bsus2/A",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 13,
+        "voice": 0,
+        "onset_q": "49",
+        "beat_id": "86",
+        "chord_symbol": "Gmadd9",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 13,
+        "voice": 0,
+        "onset_q": "50",
+        "beat_id": "88",
+        "chord_symbol": "F#m",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 14,
+        "voice": 0,
+        "onset_q": "52",
+        "beat_id": "94",
+        "chord_symbol": "F#dim7",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 14,
+        "voice": 0,
+        "onset_q": "53",
+        "beat_id": "95",
+        "chord_symbol": "Am/C",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 14,
+        "voice": 0,
+        "onset_q": "54",
+        "beat_id": "97",
+        "chord_symbol": "Em9(no5)",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 15,
+        "voice": 0,
+        "onset_q": "56",
+        "beat_id": "101",
+        "chord_symbol": "D/A",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 15,
+        "voice": 0,
+        "onset_q": "58",
+        "beat_id": "103",
+        "chord_symbol": "D",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 17,
+        "voice": 0,
+        "onset_q": "64",
+        "beat_id": "117",
+        "chord_symbol": "Em9(no5)",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 17,
+        "voice": 0,
+        "onset_q": "66",
+        "beat_id": "119",
+        "chord_symbol": "A#dim7",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 18,
+        "voice": 0,
+        "onset_q": "68",
+        "beat_id": "122",
+        "chord_symbol": "D7M",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 19,
+        "voice": 0,
+        "onset_q": "72",
+        "beat_id": "126",
+        "chord_symbol": "Bsus2/G#",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 19,
+        "voice": 0,
+        "onset_q": "74",
+        "beat_id": "127",
+        "chord_symbol": "C7/F#",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 20,
+        "voice": 0,
+        "onset_q": "76",
+        "beat_id": "132",
+        "chord_symbol": "Bm9(no5)",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 21,
+        "voice": 0,
+        "onset_q": "80",
+        "beat_id": "137",
+        "chord_symbol": "C#\u00c3\u0098",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 21,
+        "voice": 0,
+        "onset_q": "163/2",
+        "beat_id": "141",
+        "chord_symbol": "G7M/C#",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 21,
+        "voice": 0,
+        "onset_q": "165/2",
+        "beat_id": "143",
+        "chord_symbol": "Cdim7",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 22,
+        "voice": 0,
+        "onset_q": "84",
+        "beat_id": "146",
+        "chord_symbol": "Em",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 23,
+        "voice": 0,
+        "onset_q": "88",
+        "beat_id": "148",
+        "chord_symbol": "C#madd11(no5)",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 23,
+        "voice": 0,
+        "onset_q": "90",
+        "beat_id": "149",
+        "chord_symbol": "C(b5)",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 24,
+        "voice": 0,
+        "onset_q": "93",
+        "beat_id": "155",
+        "chord_symbol": "B7",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 25,
+        "voice": 0,
+        "onset_q": "96",
+        "beat_id": "158",
+        "chord_symbol": "G#",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 25,
+        "voice": 0,
+        "onset_q": "98",
+        "beat_id": "160",
+        "chord_symbol": "C#7",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 26,
+        "voice": 0,
+        "onset_q": "100",
+        "beat_id": "162",
+        "chord_symbol": "F#7",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 26,
+        "voice": 0,
+        "onset_q": "203/2",
+        "beat_id": "165",
+        "chord_symbol": "F#5/C#",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 27,
+        "voice": 0,
+        "onset_q": "104",
+        "beat_id": "168",
+        "chord_symbol": "F#\u00c3\u0098",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 27,
+        "voice": 0,
+        "onset_q": "106",
+        "beat_id": "171",
+        "chord_symbol": "B7",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 28,
+        "voice": 0,
+        "onset_q": "108",
+        "beat_id": "174",
+        "chord_symbol": "Em7",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 29,
+        "voice": 0,
+        "onset_q": "112",
+        "beat_id": "178",
+        "chord_symbol": "Bm7/E",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 29,
+        "voice": 0,
+        "onset_q": "114",
+        "beat_id": "181",
+        "chord_symbol": "Gm9",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 30,
+        "voice": 0,
+        "onset_q": "116",
+        "beat_id": "185",
+        "chord_symbol": "F#m7",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 30,
+        "voice": 0,
+        "onset_q": "118",
+        "beat_id": "188",
+        "chord_symbol": "Adim/B",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 31,
+        "voice": 0,
+        "onset_q": "241/2",
+        "beat_id": "191",
+        "chord_symbol": "Em9(no5)",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 31,
+        "voice": 0,
+        "onset_q": "122",
+        "beat_id": "193",
+        "chord_symbol": "Dadd11/A",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 32,
+        "voice": 0,
+        "onset_q": "124",
+        "beat_id": "195",
+        "chord_symbol": "D5",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 33,
+        "voice": 0,
+        "onset_q": "128",
+        "beat_id": "62",
+        "chord_symbol": "G#\u00c3\u0098",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 33,
+        "voice": 0,
+        "onset_q": "130",
+        "beat_id": "65",
+        "chord_symbol": "C#",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 34,
+        "voice": 0,
+        "onset_q": "132",
+        "beat_id": "197",
+        "chord_symbol": "F#7/C#",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 35,
+        "voice": 0,
+        "onset_q": "136",
+        "beat_id": "73",
+        "chord_symbol": "B",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 35,
+        "voice": 0,
+        "onset_q": "139",
+        "beat_id": "77",
+        "chord_symbol": "Adim7",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 36,
+        "voice": 0,
+        "onset_q": "140",
+        "beat_id": "79",
+        "chord_symbol": "Em",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 37,
+        "voice": 0,
+        "onset_q": "144",
+        "beat_id": "84",
+        "chord_symbol": "Bsus2/A",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 37,
+        "voice": 0,
+        "onset_q": "145",
+        "beat_id": "198",
+        "chord_symbol": "Gmadd9",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 37,
+        "voice": 0,
+        "onset_q": "146",
+        "beat_id": "88",
+        "chord_symbol": "F#m",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 38,
+        "voice": 0,
+        "onset_q": "148",
+        "beat_id": "94",
+        "chord_symbol": "F#dim7",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 38,
+        "voice": 0,
+        "onset_q": "149",
+        "beat_id": "199",
+        "chord_symbol": "Am/C",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 38,
+        "voice": 0,
+        "onset_q": "150",
+        "beat_id": "200",
+        "chord_symbol": "Em9(no5)",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 39,
+        "voice": 0,
+        "onset_q": "152",
+        "beat_id": "201",
+        "chord_symbol": "D/A",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "track": 0,
+        "measure": 41,
+        "voice": 0,
+        "onset_q": "160",
+        "beat_id": "215",
+        "chord_symbol": "Bm11/D",
+        "evidence": "source_authored_diagram_label",
+        "verified": false
+      }
+    ],
+    "sections": [
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "measure": 1,
+        "section": "Verse",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "measure": 17,
+        "section": "Solo",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "measure": 33,
+        "section": "Bridge",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+        "measure": 40,
+        "section": "Outro",
+        "evidence": "source_authored_section",
+        "verified": false
+      }
+    ],
+    "unmapped_chord_references": []
+  },
+  {
+    "file": "Sweet Child O' Mine.gp",
+    "chords": [],
+    "sections": [
+      {
+        "file": "Sweet Child O' Mine.gp",
+        "measure": 1,
+        "section": "Intro - 8 bars",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Sweet Child O' Mine.gp",
+        "measure": 9,
+        "section": "Bass Solo - 8 bars",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Sweet Child O' Mine.gp",
+        "measure": 17,
+        "section": "Main Riff - 8 bars",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Sweet Child O' Mine.gp",
+        "measure": 25,
+        "section": "[A] Verse 1 - 16 bars",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Sweet Child O' Mine.gp",
+        "measure": 41,
+        "section": "[B] Chorus - 8 bars",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Sweet Child O' Mine.gp",
+        "measure": 49,
+        "section": "[C] Interlude - 8 bars",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Sweet Child O' Mine.gp",
+        "measure": 57,
+        "section": "[A] Verse 2 - 16 bars",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Sweet Child O' Mine.gp",
+        "measure": 73,
+        "section": "[B] Chorus - 8 bars",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Sweet Child O' Mine.gp",
+        "measure": 81,
+        "section": "[C] Interlude - 16 bars",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Sweet Child O' Mine.gp",
+        "measure": 97,
+        "section": "[B] Chorus - 16 bars",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Sweet Child O' Mine.gp",
+        "measure": 113,
+        "section": "[D] Main Solo (I) - 17 bars",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Sweet Child O' Mine.gp",
+        "measure": 130,
+        "section": "[E] Main Solo (II) - 16 bars",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Sweet Child O' Mine.gp",
+        "measure": 146,
+        "section": "[F] Bridge - 16 bars",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Sweet Child O' Mine.gp",
+        "measure": 162,
+        "section": "[G] Outro Solo - 14 bars",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Sweet Child O' Mine.gp",
+        "measure": 176,
+        "section": "[H] Slowdown - 3 bars",
+        "evidence": "source_authored_section",
+        "verified": false
+      }
+    ],
+    "unmapped_chord_references": []
+  },
+  {
+    "file": "Cloud Cascade (Tuned Down).gp",
+    "chords": [],
+    "sections": [
+      {
+        "file": "Cloud Cascade (Tuned Down).gp",
+        "measure": 1,
+        "section": "Intro",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Cloud Cascade (Tuned Down).gp",
+        "measure": 17,
+        "section": "Verse",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Cloud Cascade (Tuned Down).gp",
+        "measure": 25,
+        "section": "Chorus A",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Cloud Cascade (Tuned Down).gp",
+        "measure": 33,
+        "section": "Chorus B",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Cloud Cascade (Tuned Down).gp",
+        "measure": 41,
+        "section": "Break",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Cloud Cascade (Tuned Down).gp",
+        "measure": 49,
+        "section": "Bridge",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Cloud Cascade (Tuned Down).gp",
+        "measure": 57,
+        "section": "Breakdown A",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Cloud Cascade (Tuned Down).gp",
+        "measure": 63,
+        "section": "HEAVENS BREAK",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Cloud Cascade (Tuned Down).gp",
+        "measure": 64,
+        "section": "CLOUD CASCADE",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Cloud Cascade (Tuned Down).gp",
+        "measure": 73,
+        "section": "Chorus A'",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Cloud Cascade (Tuned Down).gp",
+        "measure": 81,
+        "section": "Breakdown B",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Cloud Cascade (Tuned Down).gp",
+        "measure": 89,
+        "section": "Bridge",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Cloud Cascade (Tuned Down).gp",
+        "measure": 93,
+        "section": "Chorus B",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Cloud Cascade (Tuned Down).gp",
+        "measure": 101,
+        "section": "Outro",
+        "evidence": "source_authored_section",
+        "verified": false
+      }
+    ],
+    "unmapped_chord_references": []
+  },
+  {
+    "file": "Nocturne_ Lost Faith (Tuned Down).gp",
+    "chords": [],
+    "sections": [
+      {
+        "file": "Nocturne_ Lost Faith (Tuned Down).gp",
+        "measure": 1,
+        "section": "Clean Intro",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Nocturne_ Lost Faith (Tuned Down).gp",
+        "measure": 5,
+        "section": "Main Riff",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Nocturne_ Lost Faith (Tuned Down).gp",
+        "measure": 13,
+        "section": "Verse 1",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Nocturne_ Lost Faith (Tuned Down).gp",
+        "measure": 21,
+        "section": "Verse 2 / Breakdown",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Nocturne_ Lost Faith (Tuned Down).gp",
+        "measure": 30,
+        "section": "Chorus",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Nocturne_ Lost Faith (Tuned Down).gp",
+        "measure": 40,
+        "section": "Post-Chorus",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Nocturne_ Lost Faith (Tuned Down).gp",
+        "measure": 48,
+        "section": "Break",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Nocturne_ Lost Faith (Tuned Down).gp",
+        "measure": 64,
+        "section": "Build-up",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Nocturne_ Lost Faith (Tuned Down).gp",
+        "measure": 73,
+        "section": "Verse 3 / Breakdown",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Nocturne_ Lost Faith (Tuned Down).gp",
+        "measure": 85,
+        "section": "Chorus",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Nocturne_ Lost Faith (Tuned Down).gp",
+        "measure": 93,
+        "section": "Outro",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Nocturne_ Lost Faith (Tuned Down).gp",
+        "measure": 101,
+        "section": "Fade-out",
+        "evidence": "source_authored_section",
+        "verified": false
+      }
+    ],
+    "unmapped_chord_references": []
+  },
+  {
+    "file": "Immolation of Night (Tuned Down).gp",
+    "chords": [],
+    "sections": [
+      {
+        "file": "Immolation of Night (Tuned Down).gp",
+        "measure": 1,
+        "section": "[A] (0:08)",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Immolation of Night (Tuned Down).gp",
+        "measure": 13,
+        "section": "[B] (0:24)",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Immolation of Night (Tuned Down).gp",
+        "measure": 30,
+        "section": "[C] (0:59)",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Immolation of Night (Tuned Down).gp",
+        "measure": 38,
+        "section": "[D] (1:20)",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Immolation of Night (Tuned Down).gp",
+        "measure": 44,
+        "section": "[E] (1:37)",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Immolation of Night (Tuned Down).gp",
+        "measure": 48,
+        "section": "[F] (1:45)",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Immolation of Night (Tuned Down).gp",
+        "measure": 51,
+        "section": "[G] (1:55)",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Immolation of Night (Tuned Down).gp",
+        "measure": 55,
+        "section": "[B'] (2:05)",
+        "evidence": "source_authored_section",
+        "verified": false
+      },
+      {
+        "file": "Immolation of Night (Tuned Down).gp",
+        "measure": 81,
+        "section": "[D'] (2:59)",
+        "evidence": "source_authored_section",
+        "verified": false
+      }
+    ],
+    "unmapped_chord_references": []
+  }
+]
