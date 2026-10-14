@@ -20,6 +20,7 @@ from harmonic_continuity import expand_agreed_anchors, at_time
 from harmonic_relative import analyze_note, map_note
 from similarity_controls import Controls, transform
 from learned_patterns_v16 import plan_melody, plan_rhythm
+from relational_learning_v17 import plan_intervals
 
 
 def _events(score, track):
@@ -33,13 +34,18 @@ def _harmony(score, track):
     return spans, {**stats, **context, **continuity}
 
 
-def _plan_pitches(score, track, windows, controls, seed, melody_offsets, learned=False):
+def _plan_pitches(score, track, windows, controls, seed, melody_offsets, learned=False, learned_melody_strength=None):
     source=_events(score, track)
     timing=[{'onset':Fraction(e['onset_q']),'duration':Fraction(e['duration_q']),
              'pitches':tuple(n['midi'] for n in e['notes'] if n['midi'] is not None)} for e in source]
     chosen=transform(timing, windows, controls=Controls(controls.chords,controls.melody,0),
                      melody_offsets=melody_offsets,seed=seed)
-    learned_map,learned_stats=plan_melody(score,track,windows,chosen['harmony'],controls.melody,seed) if learned else ({},{})
+    variation_strength = (controls.melody if learned_melody_strength is None else learned_melody_strength)
+    learned_map,learned_stats=plan_melody(score,track,windows,chosen['harmony'],variation_strength,seed) if learned else ({},{})
+    # V17: all note sequences contribute interval relationships, whether or not
+    # harmony is confidently known. Harmonic-role substitutions retain priority.
+    relation_map, relation_stats = (plan_intervals(score, track, variation_strength, seed,
+                                exclude_events=learned_map.keys()) if learned else ({}, {}))
     requested={};usage=Counter();original={}
     for tr in score['tracks']:
         for m in tr['measures']:
@@ -51,7 +57,7 @@ def _plan_pitches(score, track, windows, controls, seed, melody_offsets, learned
     skipped_unplayable=0
     for event,result in zip(source, chosen['events']):
         notes=[n for n in event['notes'] if n['midi'] is not None]
-        pitches=learned_map.get(id(event),result['pitches'])
+        pitches=learned_map.get(id(event),relation_map.get(id(event),result['pitches']))
         if len(notes)!=len(pitches):raise AssertionError('Incorrect note count')
         positions=[];used=set()
         for n,p in zip(notes,pitches):
@@ -67,7 +73,7 @@ def _plan_pitches(score, track, windows, controls, seed, melody_offsets, learned
             if variants[0][0]!=original[nid]:changes[nid]=variants[0]
         elif any(p[0]!=original[nid] for p in variants):shared+=1
     return changes, chosen, {'unplayable_events_skipped':skipped_unplayable,
-                             'shared_note_definitions_skipped':shared,**learned_stats}
+                             'shared_note_definitions_skipped':shared,**learned_stats,**relation_stats}
 
 
 def _rhythm_swaps(score,track,windows, strength,seed):
@@ -112,7 +118,7 @@ def export(source, destination, *, chords=0,melody=0,rhythm=0,track=0,seed=17,
     if track not in range(len(score['tracks'])):raise ValueError('Track index out of bounds')
     spans,stats=_harmony(score,track)
     pitch_controls=Controls(chords,0 if learned else melody,0)
-    pitches,chosen,safety=_plan_pitches(score,track,spans,pitch_controls,seed,melody_offsets,learned=learned)
+    pitches,chosen,safety=_plan_pitches(score,track,spans,pitch_controls,seed,melody_offsets,learned=learned,learned_melody_strength=melody)
     swaps,rstats=_rhythm_swaps(score,track,spans,rhythm,seed) if not learned else ([],{})
     learned_rhythm,learned_rstats=plan_rhythm(score,track,spans,rhythm,seed) if learned else ({},{})
     if not pitches and not swaps and not learned_rhythm:
