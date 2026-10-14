@@ -1,0 +1,30 @@
+{
+  "schema": "V22 reviewed ground-truth evaluation",
+  "reviewed_rows_unique": 60,
+  "invalid_rows": [],
+  "chord": {
+    "reviewed": 0,
+    "top1_correct": 0,
+    "top1_accuracy": null,
+    "unlabeled_not_counted": true
+  },
+  "phrase_boundary": {
+    "reviewed": 0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "tn": 0,
+    "precision": null,
+    "recall": null,
+    "f1": null
+  },
+  "chord_score_bins_descriptive_only": [],
+  "by_song": {
+    "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp": {},
+    "Sweet Child O' Mine.gp": {},
+    "Cloud Cascade (Tuned Down).gp": {},
+    "Nocturne_ Lost Faith (Tuned Down).gp": {},
+    "Immolation of Night (Tuned Down).gp": {}
+  },
+  "caveat": "Metrics apply ONLY to human-reviewed examples, not all notes. Sampling is stratified; do not treat reviewed accuracy as population accuracy."
+}
