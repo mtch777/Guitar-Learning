@@ -19,13 +19,16 @@ def voice_streams(score, track):
     return [sorted(stream, key=lambda e: F(e['onset_q'])) for stream in streams.values()]
 
 
-def observed_windows(score, track, sizes=None):
+def observed_windows(score, track, sizes=None, *, joint=False):
     """Variable-length windows from evidence-based candidate gestures.
 
     The sizes argument is retained for backward compatibility with old tests;
     no fixed 2-4-note phrase boundaries are assumed by default.
     """
     from phrase_discovery_v19 import phrase_windows
+    if joint:
+        from joint_interpretation_v20 import joint_phrase_windows
+        phrase_windows=joint_phrase_windows
     if sizes is None:
         yield from phrase_windows(score, track, min_size=2, max_size=8)
     else:
@@ -43,15 +46,15 @@ def _intervals(group):
     return tuple(b - a for a, b in zip(p, p[1:]))
 
 
-def learn_relations(score, track):
+def learn_relations(score, track, *, joint=False):
     """Learn observed interval sequences, without making a harmony guess."""
     patterns = Counter()
-    for group in observed_windows(score, track):
+    for group in observed_windows(score, track, joint=joint):
         patterns[(len(group), _intervals(group))] += 1
     return patterns
 
 
-def plan_intervals(score, track, strength, seed=17, exclude_events=(), max_pitch_jump=24):
+def plan_intervals(score, track, strength, seed=17, exclude_events=(), max_pitch_jump=24, *, joint=False):
     """Generate pitch-only replacements from whole observed interval patterns.
 
     Preserves first note and exact note onsets/durations. Does not claim to
@@ -62,7 +65,7 @@ def plan_intervals(score, track, strength, seed=17, exclude_events=(), max_pitch
         raise ValueError('strength must be between 0 and 100')
     if strength == 0:
         return {}, {'relation_phrases': 0, 'relation_candidates_unavailable': 0, 'relation_vocabulary': 0}
-    vocab = learn_relations(score, track)
+    vocab = learn_relations(score, track, joint=joint)
     pool = {}
     for (size, intervals), count in vocab.items():
         pool.setdefault(size, []).append((intervals, count))
@@ -70,7 +73,7 @@ def plan_intervals(score, track, strength, seed=17, exclude_events=(), max_pitch
     occupied = set(exclude_events)
     planned = {}
     changed = unavailable = 0
-    for group in observed_windows(score, track):
+    for group in observed_windows(score, track, joint=joint):
         ids = tuple(id(e) for e in group)
         if any(i in occupied for i in ids):
             continue
