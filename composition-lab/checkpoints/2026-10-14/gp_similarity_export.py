@@ -19,6 +19,7 @@ from contextual_harmony import supplement_anchors
 from harmonic_continuity import expand_agreed_anchors, at_time
 from harmonic_relative import analyze_note, map_note
 from similarity_controls import Controls, transform
+from learned_patterns_v16 import plan_melody, plan_rhythm
 
 
 def _events(score, track):
@@ -32,12 +33,13 @@ def _harmony(score, track):
     return spans, {**stats, **context, **continuity}
 
 
-def _plan_pitches(score, track, windows, controls, seed, melody_offsets):
+def _plan_pitches(score, track, windows, controls, seed, melody_offsets, learned=False):
     source=_events(score, track)
     timing=[{'onset':Fraction(e['onset_q']),'duration':Fraction(e['duration_q']),
              'pitches':tuple(n['midi'] for n in e['notes'] if n['midi'] is not None)} for e in source]
     chosen=transform(timing, windows, controls=Controls(controls.chords,controls.melody,0),
                      melody_offsets=melody_offsets,seed=seed)
+    learned_map,learned_stats=plan_melody(score,track,windows,chosen['harmony'],controls.melody,seed) if learned else ({},{})
     requested={};usage=Counter();original={}
     for tr in score['tracks']:
         for m in tr['measures']:
@@ -49,7 +51,7 @@ def _plan_pitches(score, track, windows, controls, seed, melody_offsets):
     skipped_unplayable=0
     for event,result in zip(source, chosen['events']):
         notes=[n for n in event['notes'] if n['midi'] is not None]
-        pitches=result['pitches']
+        pitches=learned_map.get(id(event),result['pitches'])
         if len(notes)!=len(pitches):raise AssertionError('Incorrect note count')
         positions=[];used=set()
         for n,p in zip(notes,pitches):
@@ -65,7 +67,7 @@ def _plan_pitches(score, track, windows, controls, seed, melody_offsets):
             if variants[0][0]!=original[nid]:changes[nid]=variants[0]
         elif any(p[0]!=original[nid] for p in variants):shared+=1
     return changes, chosen, {'unplayable_events_skipped':skipped_unplayable,
-                             'shared_note_definitions_skipped':shared}
+                             'shared_note_definitions_skipped':shared,**learned_stats}
 
 
 def _rhythm_swaps(score,track,windows, strength,seed):
@@ -102,16 +104,18 @@ def _rhythm_swaps(score,track,windows, strength,seed):
 
 
 def export(source, destination, *, chords=0,melody=0,rhythm=0,track=0,seed=17,
-           melody_offsets=(-2,-1,1,2)):
+           melody_offsets=(-2,-1,1,2),learned=False):
     controls=Controls(chords,melody,rhythm)
     source=Path(source);destination=Path(destination)
     if source.resolve()==destination.resolve():raise ValueError('Cannot overwrite original GP')
     score=extract_score(source)
     if track not in range(len(score['tracks'])):raise ValueError('Track index out of bounds')
     spans,stats=_harmony(score,track)
-    pitches,chosen,safety=_plan_pitches(score,track,spans,controls,seed,melody_offsets)
-    swaps,rstats=_rhythm_swaps(score,track,spans,rhythm,seed)
-    if not pitches and not swaps:
+    pitch_controls=Controls(chords,0 if learned else melody,0)
+    pitches,chosen,safety=_plan_pitches(score,track,spans,pitch_controls,seed,melody_offsets,learned=learned)
+    swaps,rstats=_rhythm_swaps(score,track,spans,rhythm,seed) if not learned else ([],{})
+    learned_rhythm,learned_rstats=plan_rhythm(score,track,spans,rhythm,seed) if learned else ({},{})
+    if not pitches and not swaps and not learned_rhythm:
         destination.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,destination)
     else:
         with zipfile.ZipFile(source) as zi:
@@ -123,6 +127,9 @@ def export(source, destination, *, chords=0,melody=0,rhythm=0,track=0,seed=17,
                 _write_note(note,*pitches[note.get('id')]);seen.add(note.get('id'))
         if seen!=set(pitches):raise ValueError('Missing GP note definitions')
         lookup={b.get('id'):b for b in root.findall('./Beats/Beat')}
+        original_rhythm_refs={bid:node.find('Rhythm').get('ref') for bid,node in lookup.items() if node.find('Rhythm') is not None}
+        for bid,source_bid in learned_rhythm.items():
+            lookup[bid].find('Rhythm').set('ref',original_rhythm_refs[source_bid])
         for aid,bid in swaps:
             a=lookup[aid].find('Rhythm');b=lookup[bid].find('Rhythm')
             if a is None or b is None:raise ValueError('Missing beat rhythm reference')
@@ -150,8 +157,8 @@ def export(source, destination, *, chords=0,melody=0,rhythm=0,track=0,seed=17,
     return {'source':source.name,'output':str(destination),'track':track,'seed':seed,
             'controls':{'chords':chords,'melody':melody,'rhythm':rhythm},
             'changed_note_definitions':len(pitches),'harmonic_windows':len(spans),
-            'transformation':chosen['report'],**stats,**safety,**rstats,
-            'limitations':'Rhythm is restricted to safe adjacent duration exchanges; unknown harmony preserved; nonzero strengths are probabilities, not calibrated distances'}
+            'transformation':chosen['report'],**stats,**safety,**rstats,**learned_rstats,'learned':learned,
+            'limitations':('Learned mode substitutes source-observed 2–4 event patterns only where compatible and safely exportable; ' if learned else 'Rhythm uses adjacent swaps; ')+'unknown harmony is preserved; strengths are probabilities, not calibrated musical distances'}
 
 
 def main():
@@ -161,6 +168,7 @@ def main():
     p.add_argument('--track',type=int,default=0);p.add_argument('--chords',type=float,default=0)
     p.add_argument('--melody',type=float,default=0);p.add_argument('--rhythm',type=float,default=0)
     p.add_argument('--seed',type=int,default=17)
+    p.add_argument('--learned',action='store_true')
     a=p.parse_args();print(json.dumps(export(a.source,a.output,chords=a.chords,melody=a.melody,
-                              rhythm=a.rhythm,track=a.track,seed=a.seed),indent=2,default=str))
+                              rhythm=a.rhythm,track=a.track,seed=a.seed,learned=a.learned),indent=2,default=str))
 if __name__=='__main__':main()
