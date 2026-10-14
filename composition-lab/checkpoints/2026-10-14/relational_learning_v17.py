@@ -19,20 +19,19 @@ def voice_streams(score, track):
     return [sorted(stream, key=lambda e: F(e['onset_q'])) for stream in streams.values()]
 
 
-def observed_windows(score, track, sizes=(4, 3, 2)):
-    """Return contiguous, single-note windows even across bar/chord boundaries."""
-    for stream in voice_streams(score, track):
-        for size in sizes:
-            for i in range(len(stream) - size + 1):
-                group = stream[i:i + size]
-                if any(len([n for n in e['notes'] if n['midi'] is not None]) != 1 for e in group):
-                    continue
-                if any(n.get('tie') for e in group for n in e['notes']):
-                    continue
-                if any(F(a['onset_q']) + F(a['duration_q']) != F(b['onset_q'])
-                       for a, b in zip(group, group[1:])):
-                    continue
-                yield group
+def observed_windows(score, track, sizes=None):
+    """Variable-length windows from evidence-based candidate gestures.
+
+    The sizes argument is retained for backward compatibility with old tests;
+    no fixed 2-4-note phrase boundaries are assumed by default.
+    """
+    from phrase_discovery_v19 import phrase_windows
+    if sizes is None:
+        yield from phrase_windows(score, track, min_size=2, max_size=8)
+    else:
+        allowed=set(sizes)
+        for group in phrase_windows(score,track,min_size=min(allowed),max_size=max(allowed)):
+            if len(group) in allowed:yield group
 
 
 def _pitches(group):
