@@ -1,0 +1,329 @@
+{
+  "schema": "V21 musical evaluation / no ground truth yet",
+  "songs": [
+    {
+      "file": "Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp",
+      "available_tracks": [
+        {
+          "index": 0,
+          "name": "Acoustic Guitar (nylon)",
+          "pitched_events": 156,
+          "total_events": 167,
+          "tuning_available": true
+        }
+      ],
+      "selected": {
+        "index": 0,
+        "name": "Acoustic Guitar (nylon)",
+        "pitched_events": 156,
+        "total_events": 167,
+        "tuning_available": true
+      },
+      "measures_evaluated": 20,
+      "evaluation": {
+        "track_index": 0,
+        "track_name": "Acoustic Guitar (nylon)",
+        "attacks": 126,
+        "exact_template_matches_not_ground_truth": 48,
+        "unresolved_exact_template_match": 78,
+        "top_hypothesis_confidence_mean_not_calibrated": 0.203,
+        "top_hypothesis_confidence_below_half": 126,
+        "candidate_boundaries": 9,
+        "explicit_section_markers_after_start": 1,
+        "section_markers_at_note_attacks": 1,
+        "section_attack_recall_proxy": 0.0,
+        "section_markers_not_at_attacks": 0,
+        "unmarked_attacks_are_not_verified_non_boundaries": true,
+        "true_chord_accuracy": null,
+        "true_phrase_boundary_precision": null,
+        "reason_ground_truth_missing": "No human-verified, time-aligned chord and phrase boundary annotations"
+      }
+    },
+    {
+      "file": "Sweet Child O' Mine.gp",
+      "available_tracks": [
+        {
+          "index": 3,
+          "name": "Saul \"Slash\" Hudson | Kris Derrig Les Paul Standard | Lead Guitar - Distortion Guitar",
+          "pitched_events": 160,
+          "total_events": 160,
+          "tuning_available": true
+        },
+        {
+          "index": 8,
+          "name": "Steven Adler | Gretsch Drums - Drums",
+          "pitched_events": 89,
+          "total_events": 91,
+          "tuning_available": false
+        },
+        {
+          "index": 4,
+          "name": "Jeffrey \u00a8Izzy Stradlin\u00a8 Isbell | Gibson ES-175D | Rhythm Guitar - Overdriven Guitar",
+          "pitched_events": 75,
+          "total_events": 76,
+          "tuning_available": true
+        },
+        {
+          "index": 7,
+          "name": "Duff \"Rose\" McKagan | Fender Jazz Special | Bass - Electric Bass (pick)",
+          "pitched_events": 67,
+          "total_events": 69,
+          "tuning_available": true
+        },
+        {
+          "index": 2,
+          "name": "Saul \"Slash\" Hudson | Acoustic Guitar - Acoustic Guitar (steel)",
+          "pitched_events": 36,
+          "total_events": 36,
+          "tuning_available": true
+        },
+        {
+          "index": 0,
+          "name": "Axl Rose | Lead Vocals - Tenor Sax",
+          "pitched_events": 0,
+          "total_events": 0,
+          "tuning_available": true
+        },
+        {
+          "index": 1,
+          "name": "Axl Rose, Izzy Stradlin, & Duff \"Rose\" McKagan | Backing Vocals - Clarinet",
+          "pitched_events": 0,
+          "total_events": 0,
+          "tuning_available": true
+        },
+        {
+          "index": 5,
+          "name": "Saul \"Slash\" Hudson | Kris Derrig Les Paul Standard |  Clean Guitar - Electric Guitar (clean)",
+          "pitched_events": 0,
+          "total_events": 0,
+          "tuning_available": true
+        },
+        {
+          "index": 6,
+          "name": "Saul \"Slash\" Hudson | Kris Derrig Les Paul Standard | Rhythm Guitar - Distortion Guitar",
+          "pitched_events": 0,
+          "total_events": 0,
+          "tuning_available": true
+        }
+      ],
+      "selected": {
+        "index": 3,
+        "name": "Saul \"Slash\" Hudson | Kris Derrig Les Paul Standard | Lead Guitar - Distortion Guitar",
+        "pitched_events": 160,
+        "total_events": 160,
+        "tuning_available": true
+      },
+      "measures_evaluated": 20,
+      "evaluation": {
+        "track_index": 3,
+        "track_name": "Saul \"Slash\" Hudson | Kris Derrig Les Paul Standard | Lead Guitar - Distortion Guitar",
+        "attacks": 160,
+        "exact_template_matches_not_ground_truth": 0,
+        "unresolved_exact_template_match": 160,
+        "top_hypothesis_confidence_mean_not_calibrated": 0.1759,
+        "top_hypothesis_confidence_below_half": 160,
+        "candidate_boundaries": 5,
+        "explicit_section_markers_after_start": 2,
+        "section_markers_at_note_attacks": 2,
+        "section_attack_recall_proxy": 1.0,
+        "section_markers_not_at_attacks": 0,
+        "unmarked_attacks_are_not_verified_non_boundaries": true,
+        "true_chord_accuracy": null,
+        "true_phrase_boundary_precision": null,
+        "reason_ground_truth_missing": "No human-verified, time-aligned chord and phrase boundary annotations"
+      }
+    },
+    {
+      "file": "Cloud Cascade (Tuned Down).gp",
+      "available_tracks": [
+        {
+          "index": 2,
+          "name": "Rhythm I - Distortion Guitar",
+          "pitched_events": 137,
+          "total_events": 140,
+          "tuning_available": true
+        },
+        {
+          "index": 3,
+          "name": "Rhythm II - Distortion Guitar",
+          "pitched_events": 137,
+          "total_events": 140,
+          "tuning_available": true
+        },
+        {
+          "index": 0,
+          "name": "Leads I - Electric Guitar (clean)",
+          "pitched_events": 81,
+          "total_events": 81,
+          "tuning_available": true
+        },
+        {
+          "index": 5,
+          "name": "Drums",
+          "pitched_events": 78,
+          "total_events": 81,
+          "tuning_available": false
+        },
+        {
+          "index": 4,
+          "name": "Slap Bass 2",
+          "pitched_events": 44,
+          "total_events": 71,
+          "tuning_available": true
+        },
+        {
+          "index": 1,
+          "name": "Leads II - Electric Guitar (clean)",
+          "pitched_events": 12,
+          "total_events": 14,
+          "tuning_available": true
+        }
+      ],
+      "selected": {
+        "index": 2,
+        "name": "Rhythm I - Distortion Guitar",
+        "pitched_events": 137,
+        "total_events": 140,
+        "tuning_available": true
+      },
+      "measures_evaluated": 20,
+      "evaluation": {
+        "track_index": 2,
+        "track_name": "Rhythm I - Distortion Guitar",
+        "attacks": 137,
+        "exact_template_matches_not_ground_truth": 10,
+        "unresolved_exact_template_match": 127,
+        "top_hypothesis_confidence_mean_not_calibrated": 0.1585,
+        "top_hypothesis_confidence_below_half": 137,
+        "candidate_boundaries": 0,
+        "explicit_section_markers_after_start": 1,
+        "section_markers_at_note_attacks": 1,
+        "section_attack_recall_proxy": 0.0,
+        "section_markers_not_at_attacks": 0,
+        "unmarked_attacks_are_not_verified_non_boundaries": true,
+        "true_chord_accuracy": null,
+        "true_phrase_boundary_precision": null,
+        "reason_ground_truth_missing": "No human-verified, time-aligned chord and phrase boundary annotations"
+      }
+    },
+    {
+      "file": "Nocturne_ Lost Faith (Tuned Down).gp",
+      "available_tracks": [
+        {
+          "index": 4,
+          "name": "Drums",
+          "pitched_events": 247,
+          "total_events": 247,
+          "tuning_available": false
+        },
+        {
+          "index": 0,
+          "name": "Rhythm Left - Distortion Guitar",
+          "pitched_events": 216,
+          "total_events": 216,
+          "tuning_available": true
+        },
+        {
+          "index": 1,
+          "name": "Rhythm Right - Distortion Guitar",
+          "pitched_events": 216,
+          "total_events": 216,
+          "tuning_available": true
+        },
+        {
+          "index": 2,
+          "name": "Lead - Distortion Guitar",
+          "pitched_events": 128,
+          "total_events": 128,
+          "tuning_available": true
+        },
+        {
+          "index": 3,
+          "name": "Clean Lead - Electric Guitar (clean)",
+          "pitched_events": 64,
+          "total_events": 64,
+          "tuning_available": true
+        }
+      ],
+      "selected": {
+        "index": 0,
+        "name": "Rhythm Left - Distortion Guitar",
+        "pitched_events": 216,
+        "total_events": 216,
+        "tuning_available": true
+      },
+      "measures_evaluated": 20,
+      "evaluation": {
+        "track_index": 0,
+        "track_name": "Rhythm Left - Distortion Guitar",
+        "attacks": 216,
+        "exact_template_matches_not_ground_truth": 56,
+        "unresolved_exact_template_match": 160,
+        "top_hypothesis_confidence_mean_not_calibrated": 0.2001,
+        "top_hypothesis_confidence_below_half": 216,
+        "candidate_boundaries": 16,
+        "explicit_section_markers_after_start": 2,
+        "section_markers_at_note_attacks": 2,
+        "section_attack_recall_proxy": 0.0,
+        "section_markers_not_at_attacks": 0,
+        "unmarked_attacks_are_not_verified_non_boundaries": true,
+        "true_chord_accuracy": null,
+        "true_phrase_boundary_precision": null,
+        "reason_ground_truth_missing": "No human-verified, time-aligned chord and phrase boundary annotations"
+      }
+    },
+    {
+      "file": "Immolation of Night (Tuned Down).gp",
+      "available_tracks": [
+        {
+          "index": 2,
+          "name": "brody taylor smith- drums - Drums",
+          "pitched_events": 144,
+          "total_events": 144,
+          "tuning_available": false
+        },
+        {
+          "index": 0,
+          "name": "Guitar 1 - Distortion Guitar",
+          "pitched_events": 128,
+          "total_events": 128,
+          "tuning_available": true
+        },
+        {
+          "index": 1,
+          "name": "Guitar 2 - Distortion Guitar",
+          "pitched_events": 120,
+          "total_events": 120,
+          "tuning_available": true
+        }
+      ],
+      "selected": {
+        "index": 0,
+        "name": "Guitar 1 - Distortion Guitar",
+        "pitched_events": 128,
+        "total_events": 128,
+        "tuning_available": true
+      },
+      "measures_evaluated": 20,
+      "evaluation": {
+        "track_index": 0,
+        "track_name": "Guitar 1 - Distortion Guitar",
+        "attacks": 128,
+        "exact_template_matches_not_ground_truth": 0,
+        "unresolved_exact_template_match": 128,
+        "top_hypothesis_confidence_mean_not_calibrated": 0.176,
+        "top_hypothesis_confidence_below_half": 128,
+        "candidate_boundaries": 22,
+        "explicit_section_markers_after_start": 1,
+        "section_markers_at_note_attacks": 1,
+        "section_attack_recall_proxy": 1.0,
+        "section_markers_not_at_attacks": 0,
+        "unmarked_attacks_are_not_verified_non_boundaries": true,
+        "true_chord_accuracy": null,
+        "true_phrase_boundary_precision": null,
+        "reason_ground_truth_missing": "No human-verified, time-aligned chord and phrase boundary annotations"
+      }
+    }
+  ],
+  "interpretation_accuracy_claimed": false
+}
