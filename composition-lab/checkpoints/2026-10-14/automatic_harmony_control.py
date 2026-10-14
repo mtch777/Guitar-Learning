@@ -232,14 +232,14 @@ def export_changes(source,destination,changes):
 def run(source,output,track=0,change_probability=1.0,seed=17):
     score=extract_score(source)
     anchors,diagnostics=infer_harmony(score,track)
-    anchors,contextual=supplement_anchors(score,track,anchors,max_gap=4)
+    anchors,context_report=supplement_anchors(score,track,anchors,max_gap=4)
     windows,continuity=expand_agreed_anchors(anchors,max_gap=4)
     windows=selected_harmony(windows,change_probability,seed)
     changes,details=build_changes(score,track,windows)
     restored=export_changes(source,output,changes)
     return {'source':Path(source).name,'output':str(output),'track_index':track,
             'change_probability':change_probability,'seed':seed,
-            **diagnostics,**contextual,**continuity,**details,'changed_source_note_ids':len(changes),
+            **diagnostics,**context_report,**continuity,**details,'changed_source_note_ids':len(changes),
             'measure_count':restored['measure_count'],
             'status':'conservative full-vocabulary chord reharmonization, not calibrated chord similarity'}
 
