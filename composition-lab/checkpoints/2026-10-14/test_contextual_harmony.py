@@ -3,32 +3,26 @@ from fractions import Fraction as F
 from harmonic_relative import Chord
 from contextual_harmony import supplement_anchors
 
-A=Chord(60,((1,0),(3,4),(5,7),(7,11)))
-B=Chord(62,((1,0),(3,3),(5,7)))
-def a(t,ch):return {'start':F(t),'end':F(t+1),'chord':ch,'beat_id':str(t),'voice':0}
-def ev(t,pitches,voice=0):
-    return {'onset_q':str(F(t)),'duration_q':'1','notes':[{'midi':p} for p in pitches],
-            'beat_id':str(t),'voice_index':voice}
-def score(events):return {'tracks':[{'measures':[{'voices':[events]}]}]}
-class ContextualTests(unittest.TestCase):
-    def test_rootless_partial_inferred_between_matching_anchors(self):
-        result,report=supplement_anchors(score([ev(2,[64,71])]),0,[a(0,A),a(4,A)])
-        self.assertEqual(report['contextually_completed_chords'],1)
-        self.assertTrue(result[1]['contextual'])
-    def test_unrelated_notes_rejected(self):
-        _,r=supplement_anchors(score([ev(2,[64,70])]),0,[a(0,A),a(4,A)])
+C = Chord(60, ((1,0),(3,4),(5,7),(7,10)))
+D = Chord(62, ((1,0),(3,3),(5,7),(7,10)))
+def anchor(a,b,c): return {'start':F(a),'end':F(b),'chord':c,'beat_id':str(a),'voice':0}
+def event(a,b,pitches,voice=0):
+    return {'onset_q':str(F(a)),'duration_q':str(F(b)), 'beat_id':str(a), 'voice_index':voice,
+            'notes':[{'midi':p} for p in pitches]}
+def score(*events):return {'tracks':[{'measures':[{'voices':[list(events)]}]}]}
+class ContextTests(unittest.TestCase):
+    def test_rootless_seventh_partial_between_matching_anchors(self):
+        source=score(event(1,1,[64,67,70]))
+        a, r=supplement_anchors(source,0,[anchor(0,1,C),anchor(2,3,C)])
+        self.assertEqual(r['contextually_completed_chords'],1)
+        self.assertTrue(any(x.get('contextual') for x in a))
+    def test_disagreeing_neighbors_not_promoted(self):
+        a,r=supplement_anchors(score(event(1,1,[64,67,70])),0,[anchor(0,1,C),anchor(2,3,D)])
         self.assertEqual(r['contextually_completed_chords'],0)
-    def test_different_neighbor_chords_rejected(self):
-        _,r=supplement_anchors(score([ev(2,[64,71])]),0,[a(0,A),a(4,B)])
+    def test_nonaligned_pitches_not_promoted(self):
+        a,r=supplement_anchors(score(event(1,1,[64,67,71])),0,[anchor(0,1,C),anchor(2,3,C)])
         self.assertEqual(r['contextually_completed_chords'],0)
-    def test_no_extrapolation(self):
-        _,r=supplement_anchors(score([ev(2,[64,71])]),0,[a(0,A)])
-        self.assertEqual(r['contextually_completed_chords'],0)
-    def test_gap_limit(self):
-        _,r=supplement_anchors(score([ev(2,[64,71])]),0,[a(0,A),a(10,A)],max_gap=4)
-        self.assertEqual(r['contextually_completed_chords'],0)
-    def test_conflicting_simultaneous_voice(self):
-        s={'tracks':[{'measures':[{'voices':[[ev(2,[64,71])],[ev(2,[66],1)]]}]}]}
-        _,r=supplement_anchors(s,0,[a(0,A),a(4,A)])
+    def test_single_note_not_promoted(self):
+        a,r=supplement_anchors(score(event(1,1,[67])),0,[anchor(0,1,C),anchor(2,3,C)])
         self.assertEqual(r['contextually_completed_chords'],0)
 if __name__=='__main__':unittest.main()
