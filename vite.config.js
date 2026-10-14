@@ -6,6 +6,7 @@ export default defineConfig({
   build: { rollupOptions: { input: {
     main: resolve(import.meta.dirname, 'index.html'),
     liveYinTest: resolve(import.meta.dirname, 'live-yin-test.html'),
-    livePipelineTest: resolve(import.meta.dirname, 'live-pipeline-test.html')
+    livePipelineTest: resolve(import.meta.dirname, 'live-pipeline-test.html'),
+    compositionReview: resolve(import.meta.dirname, 'composition-review.html')
   } } }
 });
