@@ -25,3 +25,13 @@ Live pipeline:
 microphone → pitch → candidate strings → audio features → ringing-only classifier → physical string → fret
 
 Muted recordings are excluded from the current MVP.
+
+## Composition Lab — current handoff (2026-10-14)
+
+- [Handoff: architecture, latest V24 results, limitations, next steps](composition-lab/checkpoints/2026-10-14/HANDOFF_2026-10-14.md)
+- [Research checkpoint, source and tests](composition-lab/checkpoints/2026-10-14/)
+- [Listening review (GitHub Pages)](https://mtch777.github.io/Guitar-Learning/composition-review.html) ([HTML source](composition-review.html))
+- [V23 offline review app generator and tests](composition-lab/checkpoints/2026-10-14/v23-review/)
+- [V24 source-annotation results and review CSV](composition-lab/checkpoints/2026-10-14/V24_README.md)
+
+**Research caveat:** Source chord labels and chord-template matches are not verified ground truth; 60 review examples are unlabelled by humans. Similarity controls above zero are not yet calibrated musical-distance percentages. The trainer and research composition engine are separate features.
