@@ -35,7 +35,7 @@ def _harmony(score, track):
     return spans, {**stats, **context, **continuity}
 
 
-def _plan_pitches(score, track, windows, controls, seed, melody_offsets, learned=False, learned_melody_strength=None):
+def _plan_pitches(score, track, windows, controls, seed, melody_offsets, learned=False, learned_melody_strength=None, joint=False):
     source=_events(score, track)
     timing=[{'onset':Fraction(e['onset_q']),'duration':Fraction(e['duration_q']),
              'pitches':tuple(n['midi'] for n in e['notes'] if n['midi'] is not None)} for e in source]
@@ -45,7 +45,7 @@ def _plan_pitches(score, track, windows, controls, seed, melody_offsets, learned
     learned_map,learned_stats=plan_melody(score,track,windows,chosen['harmony'],variation_strength,seed) if learned else ({},{})
     # V17: all note sequences contribute interval relationships, whether or not
     # harmony is confidently known. Harmonic-role substitutions retain priority.
-    relation_map, relation_stats = (plan_intervals(score, track, variation_strength, seed,
+    relation_map, relation_stats = (plan_intervals(score, track, variation_strength, seed, joint=joint,
                                 exclude_events=learned_map.keys()) if learned else ({}, {}))
     timing_by_identity={id(event):chosen['events'][j] for j,event in enumerate(source)}
     tuning=score['tracks'][track]['tunings'][0]
@@ -110,7 +110,7 @@ def _rhythm_swaps(score,track,windows, strength,seed):
 
 
 def export(source, destination, *, chords=0,melody=0,rhythm=0,track=0,seed=17,
-           melody_offsets=(-2,-1,1,2),learned=False):
+           melody_offsets=(-2,-1,1,2),learned=False,joint=False):
     controls=Controls(chords,melody,rhythm)
     source=Path(source);destination=Path(destination)
     if source.resolve()==destination.resolve():raise ValueError('Cannot overwrite original GP')
@@ -118,7 +118,7 @@ def export(source, destination, *, chords=0,melody=0,rhythm=0,track=0,seed=17,
     if track not in range(len(score['tracks'])):raise ValueError('Track index out of bounds')
     spans,stats=_harmony(score,track)
     pitch_controls=Controls(chords,0 if learned else melody,0)
-    pitches,chosen,safety=_plan_pitches(score,track,spans,pitch_controls,seed,melody_offsets,learned=learned,learned_melody_strength=melody)
+    pitches,chosen,safety=_plan_pitches(score,track,spans,pitch_controls,seed,melody_offsets,learned=learned,learned_melody_strength=melody,joint=joint)
     swaps,rstats=_rhythm_swaps(score,track,spans,rhythm,seed) if not learned else ([],{})
     learned_rhythm,learned_rstats=plan_rhythm(score,track,spans,rhythm,seed) if learned else ({},{})
     clone_stats={'changed_note_occurrences':0,'cloned_notes':0,'cloned_beats':0,'cloned_voices':0,'cloned_bars':0}
@@ -160,7 +160,7 @@ def export(source, destination, *, chords=0,melody=0,rhythm=0,track=0,seed=17,
     return {'source':source.name,'output':str(destination),'track':track,'seed':seed,
             'controls':{'chords':chords,'melody':melody,'rhythm':rhythm},
             'changed_note_definitions':clone_stats['cloned_notes'],**clone_stats,'harmonic_windows':len(spans),
-            'transformation':chosen['report'],**stats,**safety,**rstats,**learned_rstats,'learned':learned,
+            'transformation':chosen['report'],**stats,**safety,**rstats,**learned_rstats,'learned':learned,'joint_phrase_refinement':joint,
             'limitations':('Learned mode substitutes source-observed 2–4 event patterns only where compatible and safely exportable; ' if learned else 'Rhythm uses adjacent swaps; ')+'unknown harmony is preserved; strengths are probabilities, not calibrated musical distances'}
 
 
@@ -172,6 +172,7 @@ def main():
     p.add_argument('--melody',type=float,default=0);p.add_argument('--rhythm',type=float,default=0)
     p.add_argument('--seed',type=int,default=17)
     p.add_argument('--learned',action='store_true')
+    p.add_argument('--joint',action='store_true',help='Use harmonic/motif joint phrase refinement')
     a=p.parse_args();print(json.dumps(export(a.source,a.output,chords=a.chords,melody=a.melody,
-                              rhythm=a.rhythm,track=a.track,seed=a.seed,learned=a.learned),indent=2,default=str))
+                              rhythm=a.rhythm,track=a.track,seed=a.seed,learned=a.learned,joint=a.joint),indent=2,default=str))
 if __name__=='__main__':main()
