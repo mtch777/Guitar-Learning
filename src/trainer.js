@@ -525,7 +525,7 @@ const lessonDefinitions = {
     maxFret: 17,
     hasStartCue: false
   },
-  timeSoloChords: {label:'Time Solo (with Chords)',maxFret:17,hasStartCue:false},
+  timeSoloChords: {label:'Time Solo (with Chords)',maxFret:24,hasStartCue:false},
   songPlayer: {
     label: 'Song Player',
     maxFret: 24,
