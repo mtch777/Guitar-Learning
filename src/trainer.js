@@ -10401,9 +10401,9 @@ function applySongPlayerTrack({
     8 -
     stringCount;
 
-  songPlayerStringOffset = firstInternalIndex;
+  songPlayerStringOffset = timeProfile ? 0 : firstInternalIndex;
   timeSoloLoadedPositions = placeholderPositions.map(note => ({
-    stringIndex: firstInternalIndex + Number(note.string) - 1,
+    stringIndex: songPlayerStringOffset + Number(note.string) - 1,
     fret: Number(note.fret)
   })).filter(note => note.stringIndex >= 0 && note.stringIndex < 8 &&
     note.fret >= 0 && note.fret <= 24);
