@@ -1845,6 +1845,7 @@ button.uiButton:disabled {
   opacity: .78;
 }
 .timeSoloTimelineTrack {
+  position: relative;
   display: flex;
   flex-wrap: nowrap;
   gap: 3px;
@@ -1870,3 +1871,15 @@ button.uiButton:disabled {
   background: color-mix(in srgb, #5a88c8 18%, var(--header-bg));
 }
 .timeSoloChordButton:focus-visible { outline: 2px solid #5a88c8; outline-offset: 2px; }
+
+.timeSoloChordPlayhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background: #ffd400;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.45), 0 0 7px rgba(255,212,0,.5);
+  pointer-events: none;
+  z-index: 10;
+}
