@@ -9736,7 +9736,8 @@ function createBendIntervalLabel(
 
 function applyContinuousBendPitch(
   cell,
-  bendSemitones
+  bendSemitones,
+  chord = null
 ) {
   const basePitch =
     Number(
@@ -9773,21 +9774,9 @@ function applyContinuousBendPitch(
       currentPitch
     );
 
-  const root =
-    Number(
-      document
-        .getElementById(
-          'rootSelect'
-        )
-        .value
-    );
-
-  const scaleName =
-    document
-      .getElementById(
-        'scaleSelect'
-      )
-      .value;
+  const root = chord ? chord.root : Number(document.getElementById('rootSelect').value);
+  const scaleName = chord ? (chord.quality === 'major' ? 'ionian' : 'aeolian') :
+    document.getElementById('scaleSelect').value;
 
   const lowerInterval =
     getIntervalForPitch(
@@ -10308,7 +10297,13 @@ function displaySongPlayerNotes(
         return;
       }
 
-      revealCell(cell);
+      const chord = getSelectedLessonType() === 'timeSoloChords' ? currentTimeSoloSection() : null;
+      const interval = chord ? getIntervalForPitch(
+        midiToPitchClass(Number(cell.dataset.absolutePitch)),
+        chord.root,
+        chord.quality === 'major' ? 'ionian' : 'aeolian'
+      ) : null;
+      revealCell(cell, interval);
       cell.classList.remove('timeSoloGrayNote', 'timeSoloCandidateNote');
       cell.classList.add('timeSoloSelectedNote');
 
@@ -10330,7 +10325,8 @@ function displaySongPlayerNotes(
       ) {
         applyContinuousBendPitch(
           cell,
-          bendSemitones
+          bendSemitones,
+          chord
         );
 
         const bendOffset =
@@ -10396,6 +10392,8 @@ function renderTimedTimeSoloSections(sections) {
   timeSoloSections = sections.map(section => ({
     start: Number(section.start),
     end: Number(section.end),
+    root: Number(section.root),
+    quality: section.quality,
     noteKeys: new Set(section.positions.map(position =>
       makeCellKey(songPlayerStringOffset + Number(position.string) - 1,
         Number(position.fret))))
