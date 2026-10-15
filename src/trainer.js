@@ -1422,6 +1422,9 @@ function displayTimeSoloLesson(allCells, playbackMode = false) {
     cell.textContent = '';
     cell.classList.add('timeSoloNote', 'timeSoloGrayNote');
     cell.classList.remove('timeSoloSelectedNote');
+    // Open-string circles use inline backgrounds, unlike fretted notes.
+    // Override the inline interval color while this is only a placeholder.
+    if (item.isOpenString) cell.style.backgroundColor = '#858a92';
     cell.title = 'String ' + (item.stringIndex + 1) + ' · fret ' + item.fret;
     cell.setAttribute('aria-label', cell.title);
   }
@@ -10207,7 +10210,7 @@ function displaySongPlayerNotes(
           '--song-player-bend-offset-y'
         );
 
-        if(getSelectedLessonType()==='timeSoloChords' && cell.classList.contains('timeSoloNote')) {cell.classList.add('timeSoloGrayNote');cell.classList.remove('timeSoloSelectedNote');cell.textContent='';}
+        if(getSelectedLessonType()==='timeSoloChords' && cell.classList.contains('timeSoloNote')) {cell.classList.add('timeSoloGrayNote');cell.classList.remove('timeSoloSelectedNote');cell.textContent='';if(cell.dataset.openString==='true')cell.style.backgroundColor='#858a92';}
         else hideCell(cell);
       }
     );
