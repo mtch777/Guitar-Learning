@@ -1,9 +1,10 @@
-name: Build and publish GitHub Pages branch
+name: Publish isolated regression preview
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+    paths:
+      - .github/workflows/deploy-pages.yml
   workflow_dispatch:
 
 permissions:
@@ -16,10 +17,26 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
+      - name: Checkout preview source
         uses: actions/checkout@v4
+        with:
+          ref: 3bfe9365b67f2bbfe186f9e386c6ad18bd3513ee
+
+      - name: Fix regression and assert exact source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('src/song-player.js')
+          src = path.read_text()
+          broken = 'if (isSoloRakeBeat(beat, barIndex)) continue;'
+          fixed = 'if (rakeBeats(voice).has(beat)) continue;'
+          assert src.count(broken) == 1, 'Expected broken call not found exactly once'
+          src = src.replace(broken, fixed)
+          assert 'isSoloRakeBeat(' not in src, 'Stale rake calls remain'
+          path.write_text(src)
+          print('Patched stale rake call and verified no remaining references')
+          PY
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -30,81 +47,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Verify song string mapping
-        run: node --test tests/*.test.mjs
-
-      - name: Build
-        run: npm run build
-
-      - name: Checkout last visually working version
-        uses: actions/checkout@v4
-        with:
-          ref: 20439e1cccbad8328a3376439dd27ed0a2df9c6a
-          path: _historical
-
-      - name: Build historical preview at its own URL
+      - name: Verify patch and existing tests
         run: |
-          npm ci --prefix _historical
-          npm run build --prefix _historical -- --base /Guitar-Learning/versions/20439e1/
-          mkdir -p dist/versions/20439e1
-          cp -a _historical/dist/. dist/versions/20439e1/
+          node --test tests/*.test.mjs
+          grep -q 'if (rakeBeats(voice).has(beat)) continue;' src/song-player.js
+          ! grep -q 'isSoloRakeBeat(' src/song-player.js
 
-      - name: Checkout midpoint version
-        uses: actions/checkout@v4
-        with:
-          ref: 59df16ef9d7b336dfc608e771fff5a0dea79ea90
-          path: _midpoint
+      - name: Build historical preview
+        run: npm run build -- --base /Guitar-Learning/versions/3bfe936/
 
-      - name: Build midpoint preview
-        run: |
-          npm ci --prefix _midpoint
-          npm run build --prefix _midpoint -- --base /Guitar-Learning/versions/59df16e/
-          mkdir -p dist/versions/59df16e
-          cp -a _midpoint/dist/. dist/versions/59df16e/
-
-      - name: Checkout second midpoint
-        uses: actions/checkout@v4
-        with:
-          ref: f8aef277fb0da9cc39ad4aa02e04cb23f61dc182
-          path: _midpoint2
-
-      - name: Build second midpoint preview
-        run: |
-          npm ci --prefix _midpoint2
-          npm run build --prefix _midpoint2 -- --base /Guitar-Learning/versions/f8aef27/
-          mkdir -p dist/versions/f8aef27
-          cp -a _midpoint2/dist/. dist/versions/f8aef27/
-
-      - name: Checkout bisection version 3bfe936
-        uses: actions/checkout@v4
-        with:
-          ref: 3bfe9365b67f2bbfe186f9e386c6ad18bd3513ee
-          path: _bisect3
-
-      - name: Build bisection preview 3bfe936
-        run: |
-          npm ci --prefix _bisect3
-          npm run build --prefix _bisect3 -- --base /Guitar-Learning/versions/3bfe936/
-          mkdir -p dist/versions/3bfe936
-          cp -a _bisect3/dist/. dist/versions/3bfe936/
-
-      - name: Checkout bisection version bcd9970
-        uses: actions/checkout@v4
-        with:
-          ref: bcd997086243bf6837d26ff8ae5e063c997366f3
-          path: _bisect4
-
-      - name: Build bisection preview bcd9970
-        run: |
-          npm ci --prefix _bisect4
-          npm run build --prefix _bisect4 -- --base /Guitar-Learning/versions/bcd9970/
-          mkdir -p dist/versions/bcd9970
-          cp -a _bisect4/dist/. dist/versions/bcd9970/
-
-      - name: Publish dist to gh-pages
+      - name: Update only the same preview URL
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           publish_branch: gh-pages
-          force_orphan: true
+          destination_dir: versions/3bfe936
+          keep_files: true
