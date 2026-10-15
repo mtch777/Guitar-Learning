@@ -10200,33 +10200,46 @@ function drawBentString(
 
 // The currently highlighted chord's candidate notes are black until played.
 // The original tab is event-ordered, so these sections are approximate in time.
+// Single source of truth: exactly one score-timed section at any moment.
+// Never derive candidate membership from old DOM classes or selected buttons.
+let timeSoloSections = [];
+let timeSoloCurrentTick = -1;
+
+function currentTimeSoloSection() {
+  return timeSoloSections.find(section =>
+    timeSoloCurrentTick >= section.start &&
+    timeSoloCurrentTick < section.end
+  ) || null;
+}
+
 function timeSoloChordCandidateKeys() {
-  const selected = document.querySelector('.timeSoloChordButton.selected');
-  if (!selected) return new Set();
-  try { return new Set(JSON.parse(selected.dataset.noteKeys || '[]')); }
-  catch { return new Set(); }
+  return currentTimeSoloSection()?.noteKeys || new Set();
 }
 
 function showTimeSoloInactiveCell(cell, candidate) {
+  // Always clear BOTH old note states before painting this exact state.
+  cell.classList.remove('timeSoloCandidateNote', 'timeSoloGrayNote',
+    'timeSoloSelectedNote', 'songPlayerBending');
   revealCell(cell);
   cell.textContent = '';
-  cell.classList.add('timeSoloNote');
-  cell.classList.remove('timeSoloSelectedNote', 'timeSoloGrayNote', 'timeSoloCandidateNote');
-  cell.classList.add(candidate ? 'timeSoloCandidateNote' : 'timeSoloGrayNote');
-  if (cell.dataset.openString === 'true') {
+  cell.classList.add('timeSoloNote',
+    candidate ? 'timeSoloCandidateNote' : 'timeSoloGrayNote');
+  if (cell.dataset.openString === 'true')
     cell.style.backgroundColor = candidate ? '#090909' : '#bfc3ca';
-  }
 }
 
 function updateTimeSoloChordCandidates() {
   if (getSelectedLessonType() !== 'timeSoloChords') return;
   const candidates = timeSoloChordCandidateKeys();
-  // Recompute all inactive markers from the current section on every update.
-  // Never preserve an old candidate class as an implicit state.
+  // Repaint EVERY placeholder. A note from a prior section must revert to gray.
   for (const [key, cell] of songPlayerCells) {
-    if (!cell.classList.contains('timeSoloNote') || songPlayerActiveCells.has(cell)) continue;
-    cell.classList.remove('timeSoloCandidateNote', 'timeSoloGrayNote');
-    showTimeSoloInactiveCell(cell, candidates.has(key));
+    if (!cell.classList.contains('timeSoloNote')) continue;
+    if (songPlayerActiveCells.has(cell)) {
+      cell.classList.remove('timeSoloGrayNote', 'timeSoloCandidateNote');
+      cell.classList.add('timeSoloSelectedNote');
+    } else {
+      showTimeSoloInactiveCell(cell, candidates.has(key));
+    }
   }
 }
 
@@ -10369,7 +10382,10 @@ function displaySongPlayerNotes(
 
 function renderTimedTimeSoloSections(sections) {
   const track=document.querySelector('.timeSoloTimelineTrack');
-  if (!track || !sections?.length) return;
+  if (!track) return;
+  timeSoloSections = [];
+  timeSoloCurrentTick = -1;
+  if (!sections?.length) { updateTimeSoloChordCandidates(); return; }
   track.querySelectorAll('button').forEach(button => button.remove());
   const heading=document.querySelector('.timeSoloTimelineHeading');
   if (heading) heading.remove();
@@ -10377,6 +10393,14 @@ function renderTimedTimeSoloSections(sections) {
     9:{major:'IV',minor:'iv'},11:{major:'V',minor:'v'},0:{major:'♭VI',minor:'♭vi'},
     2:{major:'♭VII',minor:'♭vii'}};
   const totalDuration = sections[sections.length-1].end - sections[0].start;
+  timeSoloSections = sections.map(section => ({
+    start: Number(section.start),
+    end: Number(section.end),
+    noteKeys: new Set(section.positions.map(position =>
+      makeCellKey(songPlayerStringOffset + Number(position.string) - 1,
+        Number(position.fret))))
+  }));
+  timeSoloCurrentTick = -1;
   for(const [index,section] of sections.entries()){
     const button=document.createElement('button');
     button.type='button';
@@ -10492,9 +10516,9 @@ setupSongPlayer({
     if (getSelectedLessonType()!=='timeSoloChords') return;
     const track=document.querySelector('.timeSoloTimelineTrack');
     if(!track)return;
+    timeSoloCurrentTick = Number(tick);
     const buttons=[...track.querySelectorAll('.timeSoloChordButton')];
     const active=buttons.find(b=>Number(tick)>=Number(b.dataset.startTick)&&Number(tick)<Number(b.dataset.endTick));
-    const previous=buttons.find(b=>b.classList.contains('selected'));
     buttons.forEach(b=>{b.classList.toggle('selected',b===active);b.setAttribute('aria-current',String(b===active));});
     updateTimeSoloChordCandidates();
     const first=buttons[0],last=buttons[buttons.length-1];
