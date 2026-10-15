@@ -541,6 +541,63 @@ export function setupSongPlayer({
     return positions;
   }
 
+  // Chords are derived from timed bass and accompaniment events in the
+  // loaded score, never inferred from the melody's interval annotations.
+  function collectTimedHarmony(selectedTrack) {
+    if (!score) return [];
+    const soloEvents = [];
+    const accompaniment = [];
+    const bassEvents = [];
+    for (const track of score.tracks) {
+      const name = (track.name || '').toLowerCase();
+      const bass = /bass/.test(name) && !/synthesizer|bass drum/.test(name);
+      const harmony = /rhythm guitar|organ|piano|keyboard|electric piano/.test(name);
+      const solo = track.index === selectedTrack.index;
+      if (!bass && !harmony && !solo) continue;
+      for (const staff of track.staves || [])
+        for (const bar of staff.bars || [])
+          for (const voice of bar.voices || [])
+            for (const beat of voice.beats || []) {
+              const start = Number(beat.absolutePlaybackStart);
+              const duration = Number(beat.playbackDuration);
+              if (!Number.isFinite(start) || !Number.isFinite(duration) || duration <= 0) continue;
+              for (const note of beat.notes || []) {
+                const midi = Number(note.realValue);
+                if (!Number.isFinite(midi)) continue;
+                const event = {start, end:start+duration, pitch:midi-(timeProfile?2:0)};
+                if (bass) bassEvents.push(event);
+                if (harmony) accompaniment.push(event);
+                if (solo) {
+                  const position = timeProfile ? timeNotePosition(note) : {string:note.string,fret:note.fret};
+                  if (position) soloEvents.push({...event,position});
+                }
+              }
+            }
+    }
+    if (!bassEvents.length) return [];
+    bassEvents.sort((a,b)=>a.start-b.start);
+    const boundaries=[...new Set(bassEvents.map(e=>e.start))].sort((a,b)=>a-b);
+    const sections=[];
+    for (let i=0;i<boundaries.length;i++) {
+      const start=boundaries[i],end=boundaries[i+1] ?? Math.max(...soloEvents.map(e=>e.end),start+1);
+      if (end<=start) continue;
+      const sounding=bassEvents.filter(e=>e.start<=start&&e.end>start);
+      const bass=sounding.length?sounding.reduce((a,b)=>a.pitch<b.pitch?a:b):bassEvents.filter(e=>e.start===start)[0];
+      if (!bass)continue;
+      const root=((bass.pitch%12)+12)%12;
+      const pitches=accompaniment.filter(e=>e.start<end&&e.end>start).map(e=>((e.pitch%12)+12)%12);
+      const unique=new Set(pitches);
+      const major=unique.has((root+4)%12),minor=unique.has((root+3)%12);
+      const quality=minor&&!major?'minor':major&&!minor?'major':'unknown';
+      const positions=soloEvents.filter(e=>e.start<end&&e.end>start).map(e=>e.position);
+      const current=sections[sections.length-1];
+      if(current&&current.root===root&&current.quality===quality&&Math.abs(current.end-start)<.01){
+        current.end=end;current.positions.push(...positions);
+      } else sections.push({start,end,root,quality,positions:[...positions]});
+    }
+    return sections;
+  }
+
   function applySelectedTrack() {
     const track =
       getSelectedTrack();
@@ -574,6 +631,7 @@ export function setupSongPlayer({
       name:
         track.name,
       placeholderPositions: collectTrackPositions(track),
+      chordSections: collectTimedHarmony(track),
       tuningHighToLow:
         timeProfile ? [...TIME_SOLO_DROP_E_TUNING].reverse() : getTrackStringTuning(track)
     });
