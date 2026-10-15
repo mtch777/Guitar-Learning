@@ -1414,6 +1414,10 @@ function displayTimeSoloLesson(allCells, playbackMode = false) {
   const track = document.createElement('div');
   track.className = 'timeSoloTimelineTrack';
   timeline.appendChild(track);
+  const playhead = document.createElement('div');
+  playhead.className = 'timeSoloChordPlayhead';
+  playhead.setAttribute('aria-hidden', 'true');
+  track.appendChild(playhead);
   stage.appendChild(timeline);
 
   function setGray(item) {
@@ -10408,6 +10412,18 @@ setupSongPlayer({
   onPositionChanged: ({fraction}) => {
     if (getSelectedLessonType() !== 'timeSoloChords') return;
     const buttons=[...document.querySelectorAll('.timeSoloChordButton')];
+    const track = document.querySelector('.timeSoloTimelineTrack');
+    const playhead = track?.querySelector('.timeSoloChordPlayhead');
+    if (track && playhead) {
+      const ratio = Math.max(0, Math.min(1, Number(fraction) || 0));
+      const width = track.scrollWidth;
+      playhead.style.left = (ratio * width) + 'px';
+      // Scroll chord strip only when playhead moves outside its visible viewport.
+      const x = ratio * width;
+      if (x < track.scrollLeft || x > track.scrollLeft + track.clientWidth) {
+        track.scrollLeft = Math.max(0, x - track.clientWidth / 2);
+      }
+    }
     const eventIndex=1+Math.floor(Math.max(0,Math.min(0.99999,fraction))*TIME_SOLO_TAB_NOTES.length);
     const active=buttons.find(b=>eventIndex>=Number(b.dataset.startEvent)&&eventIndex<=Number(b.dataset.endEvent));
     buttons.forEach(b=>{b.classList.toggle('selected',b===active);b.setAttribute('aria-current',String(b===active));});
