@@ -574,15 +574,23 @@ export function setupSongPlayer({
               }
             }
     }
-    if (!bassEvents.length) return [];
+    if (!bassEvents.length || !soloEvents.length) return [];
+    // The timeline covers the selected solo rather than the whole song.
+    const soloStart=Math.min(...soloEvents.map(e=>e.start));
+    const soloEnd=Math.max(...soloEvents.map(e=>e.end));
     bassEvents.sort((a,b)=>a.start-b.start);
-    const boundaries=[...new Set(bassEvents.map(e=>e.start))].sort((a,b)=>a-b);
+    const boundaries=[...new Set([
+      soloStart,
+      ...bassEvents.filter(e=>e.start>soloStart&&e.start<soloEnd).map(e=>e.start),
+      soloEnd
+    ])].sort((a,b)=>a-b);
     const sections=[];
     for (let i=0;i<boundaries.length;i++) {
-      const start=boundaries[i],end=boundaries[i+1] ?? Math.max(...soloEvents.map(e=>e.end),start+1);
+      const start=boundaries[i],end=boundaries[i+1] ?? soloEnd;
       if (end<=start) continue;
       const sounding=bassEvents.filter(e=>e.start<=start&&e.end>start);
-      const bass=sounding.length?sounding.reduce((a,b)=>a.pitch<b.pitch?a:b):bassEvents.filter(e=>e.start===start)[0];
+      const preceding=bassEvents.filter(e=>e.start<=start).at(-1);
+      const bass=sounding.length?sounding.reduce((a,b)=>a.pitch<b.pitch?a:b):preceding;
       if (!bass)continue;
       const root=((bass.pitch%12)+12)%12;
       const pitches=accompaniment.filter(e=>e.start<end&&e.end>start).map(e=>((e.pitch%12)+12)%12);
