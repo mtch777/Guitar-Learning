@@ -4,6 +4,7 @@ from fractions import Fraction as F
 from learned_phrase_adapter import token_time,view,encode,decode,encoder_tokens,make_score,examples
 from benchmarks.learned_organization import Grammar,unique
 from benchmarks.learned_phrase_chain import mask_motif
+from benchmarks.yinyang_official_test import tokenize
 from test_phrase_experiments import fixture
 
 
@@ -63,6 +64,11 @@ class AdapterTests(unittest.TestCase):
         self.assertEqual(control,'COR_PITCH_MASK');self.assertNotIn('Pitch_60',pitch)
         timing,control=mask_motif(tokens,'duration')
         self.assertEqual(control,'COR_DURATION_MASK');self.assertEqual(timing,['Bar_None','Pitch_60'])
+
+    def test_official_data_preserves_author_numeric_spellings(self):
+        v=vocab();v['Position_0']=len(v)+1
+        result=tokenize([[0,0,0,60,1.0,91],[1,0.0,0,60,1.0,91]],'TimeSig_4/4',v)
+        self.assertIn('Position_0',result);self.assertIn('Position_0.0',result)
 
 
 if __name__=='__main__':unittest.main()

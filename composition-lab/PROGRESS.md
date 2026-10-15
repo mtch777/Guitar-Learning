@@ -1,10 +1,17 @@
+### Official-domain model calibration follow-up
+
+- Author-provided official data archive obtained locally (111.7 MB); included annotation license inspected, corpus kept ignored. No data or upstream code redistributed.
+- Fixed an independent confirmation on remaining 80 test-list songs after the 20-song pilot: 76 eligible, 53 matched meter/key/mode negative controls. Generator real-context NLL 0.54374 vs wrong 0.99361 vs none 1.42736, 53/53 real-context wins; selector 48/53 correct rankings. Train/test filenames disjoint (23,733 train / 100 test), related melody-family overlap unknown.
+- This is evidence of learned phrase conditioning in folk-domain annotated phrases, not guitar transfer or learned global form. Retain the external pretrained architecture as a reference. Tiny GP adaptations and new listening promotion remain unapproved by evidence.
+- Implementation/source adaptation committed as `731b8ee`; calibration extension and final evidence follow in next commit. 93 source-free Python tests, 10 JS tests and production build verified.
+
 ### Learned experiment execution evidence
 
 - Official 32,050,686-parameter phrase generator loaded strictly; actual pretrained and 10-step paired/permuted adaptations run in both source-disjoint local folds. Pretraining overlap unknown.
 - Corrected source-token alias bug (Position_0 vs Position_0.0); superseded misleading initial gain. Corrected v3 overall NLL Sweet frozen/paired/permuted 1.04664/1.05648/1.06847; Cloud 1.63825/1.48743/1.48936. No reliable organization improvement.
 - Ran official pretrained refiner and selector too: exploratory G,G,R,R chains, not learned form. Selector pair rankings Sweet 6/8, Cloud 1/2; insufficient musical validation.
 - All 20 corrected GP files independently verified by alphaTab; MIDI/synthetic previews prepared locally. No listening review solicited or quality judgments invented. Artifacts: local-artifacts/learned-organization-v3 and learned-chain-v2.
-- 92 Python / 10 JS tests and build passed; archive preparation/hash verification executed. Read LEARNED_ORGANIZATION.md and aggregate JSON for methods, commands, actual results, corrections and limits.
+- 93 Python / 10 JS tests and build passed; archive preparation/hash verification executed. Read LEARNED_ORGANIZATION.md and aggregate JSON for methods, commands, actual results, corrections and limits.
 - Research/engineering test completed; musical organization acceptance gate NOT passed. Freeze small adaptations. Next substantial requirement is a less lossy sustained/voice-aware representation and larger rights-cleared song-disjoint corpus, not more ending heuristics.
 
 ## Learned organization milestone - 2026-10-15

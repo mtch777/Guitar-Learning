@@ -593,5 +593,59 @@
         }
       }
     ]
+  },
+  "official_calibration": {
+    "same_key_pilot": {
+      "archive_sha256": "3f1b11c8416eea63fd9bad9229877160dc5e518d0f22b026aaee7ae18964c4da",
+      "train_filenames": 23733,
+      "test_filenames": 100,
+      "filename_overlap": 0,
+      "eligible_selected": 20,
+      "evaluated": 7,
+      "token_weighted_nll": {
+        "real": 0.576942098374191,
+        "mismatched": 1.0818019720815844,
+        "none": 1.4519464392815866
+      },
+      "real_beats_mismatched": 7,
+      "selector_correct_rankings": 5,
+      "control_match": [
+        "meter",
+        "key signature",
+        "mode"
+      ],
+      "limitations": [
+        "Author-listed filename holdout only; melody-family overlap unknown",
+        "No adaptation; metadata provided",
+        "Small ordered sample; no perceptual accuracy claim"
+      ]
+    },
+    "remaining_song_confirmation": {
+      "archive_sha256": "3f1b11c8416eea63fd9bad9229877160dc5e518d0f22b026aaee7ae18964c4da",
+      "train_filenames": 23733,
+      "test_filenames": 100,
+      "filename_overlap": 0,
+      "test_list_start": 20,
+      "test_list_limit": 80,
+      "eligible_selected": 76,
+      "evaluated": 53,
+      "token_weighted_nll": {
+        "real": 0.5437438929527852,
+        "mismatched": 0.9936067660746347,
+        "none": 1.4273573210664245
+      },
+      "real_beats_mismatched": 53,
+      "selector_correct_rankings": 48,
+      "control_match": [
+        "meter",
+        "key signature",
+        "mode"
+      ],
+      "limitations": [
+        "Author-listed filename holdout only; melody-family overlap unknown",
+        "No adaptation; metadata provided",
+        "Small ordered sample; no perceptual accuracy claim"
+      ]
+    }
   }
 }
