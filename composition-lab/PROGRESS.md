@@ -2,7 +2,7 @@
 
 - [x] Sync main; rename thread to Idea development; split combined rating into Meaningful pauses/holds and Meaningful ending, all B relative to A.
 - [x] Retain existing thread judgments and legacy combined ending data; new fields start blank. Editing spreads existing records so legacy ratings are not discarded. Export v2 names each field explicitly; storage/dataset versions unchanged.
-- [ ] Verify UI, JS suite/build; push and verify Pages deployment.
+- [x] Browser QA verified independent ratings survive reload; 10 JS tests/build passed. Implementation `4f1ee57` pushed; Pages deployment `38793897213` succeeded and all three labels confirmed live.
 
 ## Audible passage experiment - 2026-10-15
 
