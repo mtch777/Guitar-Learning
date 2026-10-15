@@ -1,0 +1,597 @@
+{
+  "checkpoint_sha256": "e841ffcc3d3744532782543d1556c356875af70378c7253415ea6b8c5b0f35b2",
+  "tokenizer_sha256": "aff44ba399a51845bcb16d30da1a129f9dc6bb2a58178ed3f615d3c5c9fe2c28",
+  "parameters": 32050686,
+  "limitations": [
+    "Pretrained corpus song overlap unknown",
+    "Only local adaptation source-disjoint",
+    "Projected attacks and fixed windows are not human phrases",
+    "No quality claim from NLL or grammar",
+    "Source/adapted model weights and generated artifacts remain private"
+  ],
+  "folds": {
+    "cloud-to-sweet": {
+      "train_pairs": 32,
+      "evaluation_pairs": 8,
+      "conditions": {
+        "pretrained": {
+          "nll": {
+            "real": 1.0466396135057328,
+            "mismatched": 1.1101342942673347,
+            "none": 1.734420556208991
+          },
+          "family_nll": {
+            "real": {
+              "pitch": 2.378913530970321,
+              "duration": 0.36986731213070084,
+              "position": 0.7179650956016963
+            },
+            "mismatched": {
+              "pitch": 2.6027908972373197,
+              "duration": 0.41965808706157204,
+              "position": 0.65726437706825
+            },
+            "none": {
+              "pitch": 3.5855709307041823,
+              "duration": 0.8017567528375223,
+              "position": 0.8705735458943488
+            }
+          },
+          "usable_context_contrasts": 8,
+          "real_beats_mismatch": 5,
+          "generated": [
+            {
+              "sha256": "3f9871e3b72fe7bbb951992d13af5506f1f11b4112ff0115361609c0a2881a60",
+              "rejected": null,
+              "copying": {
+                "cloud": {
+                  "window_events": 8,
+                  "candidate_windows": 3,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                },
+                "sweet": {
+                  "window_events": 8,
+                  "candidate_windows": 3,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                }
+              },
+              "distinct_context_available": true,
+              "changed_context_same_seed_changes_output": false
+            },
+            {
+              "sha256": "294499bd8434036277310e1552201bc1b9f24323f93cbf1d99e649fb6b5e9c52",
+              "rejected": null,
+              "copying": {
+                "cloud": {
+                  "window_events": 8,
+                  "candidate_windows": 8,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                },
+                "sweet": {
+                  "window_events": 8,
+                  "candidate_windows": 8,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                }
+              },
+              "distinct_context_available": null,
+              "changed_context_same_seed_changes_output": null
+            }
+          ]
+        },
+        "paired": {
+          "nll": {
+            "real": 1.0564800569776855,
+            "mismatched": 1.1055276357714152,
+            "none": 1.3707408563939134
+          },
+          "family_nll": {
+            "real": {
+              "pitch": 2.27450058769946,
+              "duration": 0.39746960775022777,
+              "position": 0.7110926103880902
+            },
+            "mismatched": {
+              "pitch": 2.4267095772951257,
+              "duration": 0.4412457349039066,
+              "position": 0.6868702597187389
+            },
+            "none": {
+              "pitch": 2.980716977779772,
+              "duration": 0.6067656876117575,
+              "position": 0.8730584545889596
+            }
+          },
+          "usable_context_contrasts": 8,
+          "real_beats_mismatch": 4,
+          "generated": [
+            {
+              "sha256": "01a5819bd6bde0be347f7bea4deaa73edaeefa42f2bb12bc9bfe970e438f9e10",
+              "rejected": null,
+              "copying": {
+                "cloud": {
+                  "window_events": 8,
+                  "candidate_windows": 3,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                },
+                "sweet": {
+                  "window_events": 8,
+                  "candidate_windows": 3,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                }
+              },
+              "distinct_context_available": true,
+              "changed_context_same_seed_changes_output": false
+            },
+            {
+              "sha256": "5e543f8901b59a7e7c28919bc6d6f17344bba6ac962db0f8bd68ad7f321fe50c",
+              "rejected": null,
+              "copying": {
+                "cloud": {
+                  "window_events": 8,
+                  "candidate_windows": 16,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                },
+                "sweet": {
+                  "window_events": 8,
+                  "candidate_windows": 16,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                }
+              },
+              "distinct_context_available": null,
+              "changed_context_same_seed_changes_output": null
+            }
+          ]
+        },
+        "permuted": {
+          "nll": {
+            "real": 1.0684736545030782,
+            "mismatched": 1.1202426056641375,
+            "none": 1.3963292161853327
+          },
+          "family_nll": {
+            "real": {
+              "pitch": 2.3090936024399364,
+              "duration": 0.4189204543751354,
+              "position": 0.6359877905696539
+            },
+            "mismatched": {
+              "pitch": 2.475047954011197,
+              "duration": 0.4436742423545094,
+              "position": 0.6189192952285749
+            },
+            "none": {
+              "pitch": 3.0749465225666177,
+              "duration": 0.6224278189680156,
+              "position": 0.8106803661862881
+            }
+          },
+          "usable_context_contrasts": 8,
+          "real_beats_mismatch": 4,
+          "generated": [
+            {
+              "sha256": "db9970a60ca865388c45c63b466fccbc2f672675f254dfc84ca75f0e6a8f2852",
+              "rejected": null,
+              "copying": {
+                "cloud": {
+                  "window_events": 8,
+                  "candidate_windows": 3,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                },
+                "sweet": {
+                  "window_events": 8,
+                  "candidate_windows": 3,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                }
+              },
+              "distinct_context_available": true,
+              "changed_context_same_seed_changes_output": false
+            },
+            {
+              "sha256": "3b83060e0270fd9fcdc4462f969e6e925e7248d02b62046f1d0d6c4041982442",
+              "rejected": null,
+              "copying": {
+                "cloud": {
+                  "window_events": 8,
+                  "candidate_windows": 17,
+                  "exact_relative_match_share": 0.11764705882352941,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                },
+                "sweet": {
+                  "window_events": 8,
+                  "candidate_windows": 17,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                }
+              },
+              "distinct_context_available": null,
+              "changed_context_same_seed_changes_output": null
+            }
+          ]
+        }
+      }
+    },
+    "sweet-to-cloud": {
+      "train_pairs": 32,
+      "evaluation_pairs": 2,
+      "conditions": {
+        "pretrained": {
+          "nll": {
+            "real": 1.638254702091217,
+            "mismatched": null,
+            "none": 2.344846725463867
+          },
+          "family_nll": {
+            "real": {
+              "pitch": 3.2250644498401217,
+              "duration": 0.3377107727444834,
+              "position": 0.9571246868900845
+            },
+            "mismatched": {
+              "pitch": null,
+              "duration": null,
+              "position": null
+            },
+            "none": {
+              "pitch": 4.698766741487715,
+              "duration": 0.7109826041592492,
+              "position": 1.162084395086923
+            }
+          },
+          "usable_context_contrasts": 0,
+          "real_beats_mismatch": 0,
+          "generated": [
+            {
+              "sha256": "7d0e750683ea12f42092867ee2774e76a866a48f65f55b2a8fec20e1983a1061",
+              "rejected": null,
+              "copying": {
+                "cloud": {
+                  "window_events": 8,
+                  "candidate_windows": 2,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                },
+                "sweet": {
+                  "window_events": 8,
+                  "candidate_windows": 2,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                }
+              },
+              "distinct_context_available": false,
+              "changed_context_same_seed_changes_output": null
+            },
+            {
+              "sha256": "97bd1a1d89acabf1f748f7303e250cadc4c1299efb8537a64c06609795d6375d",
+              "rejected": null,
+              "copying": {
+                "cloud": {
+                  "window_events": 8,
+                  "candidate_windows": 9,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                },
+                "sweet": {
+                  "window_events": 8,
+                  "candidate_windows": 9,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                }
+              },
+              "distinct_context_available": null,
+              "changed_context_same_seed_changes_output": null
+            }
+          ]
+        },
+        "paired": {
+          "nll": {
+            "real": 1.4874337911605835,
+            "mismatched": null,
+            "none": 2.068786144256592
+          },
+          "family_nll": {
+            "real": {
+              "pitch": 2.924410753779941,
+              "duration": 0.441395103931427,
+              "position": 1.2381528050949175
+            },
+            "mismatched": {
+              "pitch": null,
+              "duration": null,
+              "position": null
+            },
+            "none": {
+              "pitch": 4.405657066239251,
+              "duration": 0.6382026506794823,
+              "position": 1.4921000020630244
+            }
+          },
+          "usable_context_contrasts": 0,
+          "real_beats_mismatch": 0,
+          "generated": [
+            {
+              "sha256": "094cea6e5033dfa4037ffdccb730b81e7b311e46a3f944961804eae16fc8a03c",
+              "rejected": null,
+              "copying": {
+                "cloud": {
+                  "window_events": 8,
+                  "candidate_windows": 0,
+                  "exact_relative_match_share": null,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                },
+                "sweet": {
+                  "window_events": 8,
+                  "candidate_windows": 0,
+                  "exact_relative_match_share": null,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                }
+              },
+              "distinct_context_available": false,
+              "changed_context_same_seed_changes_output": null
+            },
+            {
+              "sha256": "29aebe0d1aba557b5b921194eb68c7fb2e3cdb0bc7a25577026d9dfca6800117",
+              "rejected": null,
+              "copying": {
+                "cloud": {
+                  "window_events": 8,
+                  "candidate_windows": 5,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                },
+                "sweet": {
+                  "window_events": 8,
+                  "candidate_windows": 5,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                }
+              },
+              "distinct_context_available": null,
+              "changed_context_same_seed_changes_output": null
+            }
+          ]
+        },
+        "permuted": {
+          "nll": {
+            "real": 1.4893628358840942,
+            "mismatched": null,
+            "none": 2.0460546612739563
+          },
+          "family_nll": {
+            "real": {
+              "pitch": 2.9151213698916965,
+              "duration": 0.35565076933966744,
+              "position": 1.3087261946250994
+            },
+            "mismatched": {
+              "pitch": null,
+              "duration": null,
+              "position": null
+            },
+            "none": {
+              "pitch": 4.272257897588942,
+              "duration": 0.6617156945996814,
+              "position": 1.5038582900823612
+            }
+          },
+          "usable_context_contrasts": 0,
+          "real_beats_mismatch": 0,
+          "generated": [
+            {
+              "sha256": "83b3a8d072223b1165be8279bf434bf57cf640cf398b2d3b84fcbbbdc319c993",
+              "rejected": null,
+              "copying": {
+                "cloud": {
+                  "window_events": 8,
+                  "candidate_windows": 5,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                },
+                "sweet": {
+                  "window_events": 8,
+                  "candidate_windows": 5,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                }
+              },
+              "distinct_context_available": false,
+              "changed_context_same_seed_changes_output": null
+            },
+            {
+              "sha256": "eb4a3935fc069e1732f8f30528599826cee846c0468ef53a98e870417daa5de1",
+              "rejected": null,
+              "copying": {
+                "cloud": {
+                  "window_events": 8,
+                  "candidate_windows": 10,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                },
+                "sweet": {
+                  "window_events": 8,
+                  "candidate_windows": 10,
+                  "exact_relative_match_share": 0.0,
+                  "scope": "supplied reference only; not an originality or copyright determination"
+                }
+              },
+              "distinct_context_available": null,
+              "changed_context_same_seed_changes_output": null
+            }
+          ]
+        }
+      }
+    }
+  },
+  "chain": {
+    "checkpoints": {
+      "phrase_generation": "e841ffcc3d3744532782543d1556c356875af70378c7253415ea6b8c5b0f35b2",
+      "phrase_refinement": "463d49c5e5024c63e6ff037c88e06501630f37611ecdf6a0c0f77672fc81c1d7",
+      "phrase_selection": "21749bfc4a7e01901b3779fc65ccc55cbb1c97075df5fc76dd0f989ecf6b91e7"
+    },
+    "selector": {
+      "cloud": {
+        "correct_rankings": 1,
+        "pairs": 2
+      },
+      "sweet": {
+        "correct_rankings": 6,
+        "pairs": 8
+      }
+    },
+    "outputs": [
+      {
+        "file": "cloud-generator-only-17.gp",
+        "sha256": "95887b7cd513486d019abda37e8d7de53a616c38277b33b87117248ce8de75d4",
+        "copying": {
+          "cloud": {
+            "window_events": 8,
+            "candidate_windows": 33,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          },
+          "sweet": {
+            "window_events": 8,
+            "candidate_windows": 33,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          }
+        }
+      },
+      {
+        "file": "cloud-generator-only-29.gp",
+        "sha256": "83db7cc2c355f6af43e87fadfd232667f780018bd6ed86d30e22745193f7eb93",
+        "copying": {
+          "cloud": {
+            "window_events": 8,
+            "candidate_windows": 53,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          },
+          "sweet": {
+            "window_events": 8,
+            "candidate_windows": 53,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          }
+        }
+      },
+      {
+        "file": "cloud-refiner-selector-17.gp",
+        "sha256": "133ee017a1527b3e9796dfeb14071442011728f35fce3eae69906e88c02b0fa7",
+        "copying": {
+          "cloud": {
+            "window_events": 8,
+            "candidate_windows": 47,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          },
+          "sweet": {
+            "window_events": 8,
+            "candidate_windows": 47,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          }
+        }
+      },
+      {
+        "file": "cloud-refiner-selector-29.gp",
+        "sha256": "e6dc5182656c93c00d86c565d95ecfca01a974eb28c7422cc5d92fcdafce64c0",
+        "copying": {
+          "cloud": {
+            "window_events": 8,
+            "candidate_windows": 39,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          },
+          "sweet": {
+            "window_events": 8,
+            "candidate_windows": 39,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          }
+        }
+      },
+      {
+        "file": "sweet-generator-only-17.gp",
+        "sha256": "97c7b891a1190e644f7de26b56560b0beac4918ec25a6959ec22373f28b98639",
+        "copying": {
+          "cloud": {
+            "window_events": 8,
+            "candidate_windows": 34,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          },
+          "sweet": {
+            "window_events": 8,
+            "candidate_windows": 34,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          }
+        }
+      },
+      {
+        "file": "sweet-generator-only-29.gp",
+        "sha256": "287e7b01b2425a03796b81d8c5714ce9ae817afb3069fb68a12e29cd369829d4",
+        "copying": {
+          "cloud": {
+            "window_events": 8,
+            "candidate_windows": 41,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          },
+          "sweet": {
+            "window_events": 8,
+            "candidate_windows": 41,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          }
+        }
+      },
+      {
+        "file": "sweet-refiner-selector-17.gp",
+        "sha256": "58b92d7cd3acdd8645ef29102c1769d4563a2945a3de00738c4448502c0e6407",
+        "copying": {
+          "cloud": {
+            "window_events": 8,
+            "candidate_windows": 57,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          },
+          "sweet": {
+            "window_events": 8,
+            "candidate_windows": 57,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          }
+        }
+      },
+      {
+        "file": "sweet-refiner-selector-29.gp",
+        "sha256": "08100284ab532fb1e4d3ba9f7d4d12ea996f06bb6518dc6c99a376f726da3360",
+        "copying": {
+          "cloud": {
+            "window_events": 8,
+            "candidate_windows": 57,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          },
+          "sweet": {
+            "window_events": 8,
+            "candidate_windows": 57,
+            "exact_relative_match_share": 0.0,
+            "scope": "supplied reference only; not an originality or copyright determination"
+          }
+        }
+      }
+    ]
+  }
+}

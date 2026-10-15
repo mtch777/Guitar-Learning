@@ -1,3 +1,26 @@
+### Learned experiment execution evidence
+
+- Official 32,050,686-parameter phrase generator loaded strictly; actual pretrained and 10-step paired/permuted adaptations run in both source-disjoint local folds. Pretraining overlap unknown.
+- Corrected source-token alias bug (Position_0 vs Position_0.0); superseded misleading initial gain. Corrected v3 overall NLL Sweet frozen/paired/permuted 1.04664/1.05648/1.06847; Cloud 1.63825/1.48743/1.48936. No reliable organization improvement.
+- Ran official pretrained refiner and selector too: exploratory G,G,R,R chains, not learned form. Selector pair rankings Sweet 6/8, Cloud 1/2; insufficient musical validation.
+- All 20 corrected GP files independently verified by alphaTab; MIDI/synthetic previews prepared locally. No listening review solicited or quality judgments invented. Artifacts: local-artifacts/learned-organization-v3 and learned-chain-v2.
+- 92 Python / 10 JS tests and build passed; archive preparation/hash verification executed. Read LEARNED_ORGANIZATION.md and aggregate JSON for methods, commands, actual results, corrections and limits.
+- Research/engineering test completed; musical organization acceptance gate NOT passed. Freeze small adaptations. Next substantial requirement is a less lossy sustained/voice-aware representation and larger rights-cleared song-disjoint corpus, not more ending heuristics.
+
+## Learned organization milestone - 2026-10-15
+
+Decision: freeze all heuristic outputs/review datasets; no new listening battery until an end-to-end learned method has reproducible evidence.
+
+Acceptance criteria:
+- [x] Sync main and recover current instructions/code; inspect actual external method code and checkpoint availability, separate weights/data licensing.
+- [x] Compare at least three primary-source approaches; choose a runnable path, record restrictions and reject unsupported claims.
+- [x] Implement source-preserving adapter and learned generation, with source/weights/tokenization provenance; real local GP artifacts independently checked.
+- [x] Predeclare held-out split and metric before evaluation; compare context-aware prediction with matched shuffled/ablated context; no training or tuning on human reviews. Explicitly distinguish unknown pretrained corpus overlap from verified holdout.
+- [x] Train/test or run pretrained inference; test input-conditioning sensitivity, validity, copying and failures. Report negative results rather than relabeling them progress.
+- [ ] Regression and CI; commit/push code and aggregate evidence only. Keep learned weights/private source-derived artifacts outside Git. No website changes intended.
+
+Research started: official Yin-Yang repository cloned only into ignored .local at 59a2a001884a1f235ef9a0313565487874f6e3b9. It exposes phrase generator/refiner/selector and a public artifact download; code/weight redistribution license not established. Official MeloForm README describes expert-system scaffold plus neural refinement; full expert implementation not released there. AccoMontage targets piano accompaniment selection/style transfer, not source-native guitar phrase generation. Investigate dependencies/downloads before selecting.
+
 ## Passage feedback labels - 2026-10-15
 
 - [x] Sync main; rename thread to Idea development; split combined rating into Meaningful pauses/holds and Meaningful ending, all B relative to A.
