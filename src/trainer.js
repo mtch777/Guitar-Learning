@@ -10493,10 +10493,15 @@ setupSongPlayer({
     const first=buttons[0],last=buttons[buttons.length-1];
     const playhead=track.querySelector('.timeSoloChordPlayhead');
     if(first&&last&&playhead) {
-      const start=Number(first.dataset.startTick),end=Number(last.dataset.endTick);
-      const fraction=Math.max(0,Math.min(1,(Number(tick)-start)/Math.max(1,end-start)));
-      const width=track.scrollWidth;
-      const x=fraction*width;
+      // Position within the actual rendered chord button, so the playhead
+      // stays aligned even where min-widths make durations non-proportional.
+      const firstTick=Number(first.dataset.startTick);
+      const lastTick=Number(last.dataset.endTick);
+      const current=active || (Number(tick)<firstTick?first:last);
+      const from=Number(current.dataset.startTick);
+      const to=Number(current.dataset.endTick);
+      const within=Math.max(0,Math.min(1,(Number(tick)-from)/Math.max(1,to-from)));
+      const x=current.offsetLeft + current.offsetWidth*within;
       playhead.style.left=x+'px';
       if(x<track.scrollLeft||x>track.scrollLeft+track.clientWidth)
         track.scrollLeft=Math.max(0,x-track.clientWidth/2);
