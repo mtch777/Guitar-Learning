@@ -546,76 +546,121 @@ export function setupSongPlayer({
   // loaded score, never inferred from the melody's interval annotations.
   function collectTimedHarmony(selectedTrack) {
     if (!score) return [];
-    // This particular source score has the solo in measures 94–143.
-    // No accompaniment before or after those measures is admitted.
+    // Fixed solo passage for the original Time score: measures 94–143.
+    // Analyze actual sounding harmony; no individual bass attack creates a change.
     const firstBar = timeProfile ? 93 : 0;
-    const finalBar = timeProfile ? 142 : Infinity;
-    const bars = new Map();
-    const ensure = (index, start) => {
-      if (!bars.has(index)) bars.set(index, {index, start, end:start, bass:[], harmony:[], solo:[]});
-      return bars.get(index);
+    const lastBar = timeProfile ? 142 : Infinity;
+    const measures = new Map();
+    const ensure = (i, start) => {
+      if (!measures.has(i)) measures.set(i, {start, end:start, bass:[], harmony:[], melody:[]});
+      const m = measures.get(i);
+      m.start = Math.min(m.start, start);
+      return m;
     };
     for (const track of score.tracks) {
       const name = (track.name || '').toLowerCase();
-      const bass = /bass/.test(name) && !/synthesizer|bass drum/.test(name);
-      const harmony = /rhythm guitar|organ|piano|keyboard|electric piano/.test(name);
-      const solo = track.index === selectedTrack.index;
-      if (!bass && !harmony && !solo) continue;
+      const isBass = /bass/.test(name) && !/synthesizer|bass drum/.test(name);
+      const isHarmony = /rhythm guitar|organ|piano|keyboard|electric piano/.test(name);
+      const isSolo = track.index === selectedTrack.index;
+      if (!isBass && !isHarmony && !isSolo) continue;
       for (const staff of track.staves || [])
-        for (const [barIndex, bar] of (staff.bars || []).entries()) {
-          if (barIndex < firstBar || barIndex > finalBar) continue;
+        for (const [i, bar] of (staff.bars || []).entries()) {
+          if (i < firstBar || i > lastBar) continue;
           for (const voice of bar.voices || [])
             for (const beat of voice.beats || []) {
               const start = Number(beat.absolutePlaybackStart);
-              const duration = Number(beat.playbackDuration);
-              if (!Number.isFinite(start) || !Number.isFinite(duration) || duration <= 0) continue;
-              const record = ensure(barIndex, start);
-              record.start = Math.min(record.start, start);
-              record.end = Math.max(record.end, start + duration);
+              const dur = Number(beat.playbackDuration);
+              if (!Number.isFinite(start) || !Number.isFinite(dur) || dur <= 0) continue;
+              const m = ensure(i, start);
+              m.end = Math.max(m.end, start + dur);
               for (const note of beat.notes || []) {
                 const midi = Number(note.realValue);
                 if (!Number.isFinite(midi)) continue;
-                const event = {start, end:start+duration, pitch:midi-(timeProfile ? 2:0)};
-                if (bass) record.bass.push(event);
-                if (harmony) record.harmony.push(event);
-                if (solo) {
-                  const position = timeProfile ? timeNotePosition(note) :
-                    {string:note.string, fret:note.fret};
-                  if (position) record.solo.push({...event, position});
+                const event = {pitch:midi-(timeProfile?2:0),start,end:start+dur};
+                if (isBass) m.bass.push(event);
+                if (isHarmony) m.harmony.push(event);
+                if (isSolo) {
+                  const position = timeProfile ? timeNotePosition(note) : {string:note.string,fret:note.fret};
+                  if (position) m.melody.push({...event, position});
                 }
               }
             }
         }
     }
-    const ordered=[...bars.values()].sort((a,b)=>a.index-b.index);
-    if (!ordered.length) return [];
-    const allBass=ordered.flatMap(b=>b.bass).sort((a,b)=>a.start-b.start);
-    const sections=[];
-    const pc=p=>((p%12)+12)%12;
-    for (let i=0;i<ordered.length;i++) {
-      const bar=ordered[i];
-      const end=ordered[i+1]?.start ?? bar.end;
-      if (end<=bar.start) continue;
-      // Weighted bass pitch-class duration avoids passing notes creating new chords.
-      const weights=new Map();
-      const bassNotes=bar.bass.length ? bar.bass :
-        allBass.filter(e=>e.start<=bar.start && e.end>bar.start);
-      for (const n of bassNotes) {
-        const key=pc(n.pitch);
-        weights.set(key,(weights.get(key)||0)+Math.max(1,Math.min(end,n.end)-Math.max(bar.start,n.start)));
-      }
-      if (!weights.size) continue;
-      const root=[...weights].sort((a,b)=>b[1]-a[1])[0][0];
-      const pitches=new Set(bar.harmony.map(n=>pc(n.pitch)));
-      const major=pitches.has(pc(root+4)),minor=pitches.has(pc(root+3));
-      const quality=minor&&!major?'minor':major&&!minor?'major':'unknown';
-      const positions=bar.solo.map(n=>n.position);
-      const prev=sections[sections.length-1];
-      if (prev && prev.root===root && prev.quality===quality && prev.end<=bar.start) {
-        prev.end=end;
-        prev.positions.push(...positions);
-      } else sections.push({start:bar.start,end,root,quality,positions:[...positions]});
+    const bars = [...measures].sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+    if (!bars.length) return [];
+    // Two-measure harmonic windows suppress transient bass fills and passing tones.
+    // Dynamic programming favors an unchanged chord unless the combined tracks
+    // provide sustained evidence for a different triad.
+    const windows = [];
+    for (let i=0;i<bars.length;i+=2) {
+      const subset=bars.slice(i,i+2);
+      windows.push({
+        start:subset[0].start,
+        end:subset[subset.length-1].end,
+        bass:subset.flatMap(b=>b.bass),
+        harmony:subset.flatMap(b=>b.harmony),
+        melody:subset.flatMap(b=>b.melody)
+      });
     }
+    const pc=p=>((p%12)+12)%12;
+    const candidates = [ // E Aeolian, after the player's F#m -> Em transposition.
+      {root:4,quality:'minor'}, {root:6,quality:'diminished'},
+      {root:7,quality:'major'}, {root:9,quality:'minor'},
+      {root:11,quality:'minor'}, {root:0,quality:'major'},
+      {root:2,quality:'major'}
+    ];
+    function evaluate(win,chord) {
+      const r=chord.root;
+      const third=pc(r+(chord.quality==='major'?4:3));
+      const fifth=pc(r+(chord.quality==='diminished'?6:7));
+      const tones=new Set([r,third,fifth]);
+      const scoreEvents=(events,weight) => {
+        let total=0,good=0;
+        for (const e of events) {
+          const duration=Math.max(0,Math.min(win.end,e.end)-Math.max(win.start,e.start));
+          if(!duration)continue;
+          const w=weight*duration;
+          total+=w;
+          if (tones.has(pc(e.pitch))) good+=w;
+          else if (pc(e.pitch)===pc(r+2)||pc(e.pitch)===pc(r+5)) good+=0.12*w;
+        }
+        return total?good/total:0;
+      };
+      const harmonic=scoreEvents(win.harmony,1);
+      const bass=scoreEvents(win.bass,1);
+      const melody=scoreEvents(win.melody,1);
+      // Harmonic backing dominates; bass and solo are supporting context.
+      return 7*harmonic+1.5*bass+0.6*melody;
+    }
+    const transitionPenalty=1.55;
+    const dp=[], back=[];
+    for(let i=0;i<windows.length;i++) {
+      dp[i]=[];back[i]=[];
+      for(let c=0;c<candidates.length;c++) {
+        const evidence=evaluate(windows[i],candidates[c]);
+        if(i===0){dp[i][c]=evidence;back[i][c]=-1;continue;}
+        let best=-Infinity,previous=0;
+        for(let p=0;p<candidates.length;p++) {
+          const value=dp[i-1][p]-(p===c?0:transitionPenalty);
+          if(value>best){best=value;previous=p;}
+        }
+        dp[i][c]=best+evidence;
+        back[i][c]=previous;
+      }
+    }
+    let state=dp.at(-1).indexOf(Math.max(...dp.at(-1)));
+    const sequence=Array(windows.length);
+    for(let i=windows.length-1;i>=0;i--){sequence[i]=state;state=back[i][state];}
+    const sections=[];
+    windows.forEach((win,i)=>{
+      const chord=candidates[sequence[i]];
+      const prev=sections.at(-1);
+      const positions=win.melody.map(e=>e.position);
+      if(prev&&prev.root===chord.root&&prev.quality===chord.quality){
+        prev.end=win.end;prev.positions.push(...positions);
+      } else sections.push({start:win.start,end:win.end,...chord,positions:[...positions]});
+    });
     return sections;
   }
 
