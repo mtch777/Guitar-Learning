@@ -4,3 +4,7 @@ dist/
 __pycache__/
 *.pyc
 .DS_Store
+
+# Private third-party GP scores, local benchmarks, generated listening files
+composition-lab/private-sources/
+composition-lab/benchmarks/local-results/
