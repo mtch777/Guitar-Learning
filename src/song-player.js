@@ -569,7 +569,7 @@ export function setupSongPlayer({
     const lastBar = timeProfile ? 142 : Infinity;
     const measures = new Map();
     const ensure = (i, start) => {
-      if (!measures.has(i)) measures.set(i, {start, end:start, bass:[], harmony:[], melody:[]});
+      if (!measures.has(i)) measures.set(i, {start, end:start, bass:[], harmony:[], melody:[], rakes:[]});
       const m = measures.get(i);
       m.start = Math.min(m.start, start);
       return m;
@@ -590,6 +590,13 @@ export function setupSongPlayer({
               if (!Number.isFinite(start) || !Number.isFinite(dur) || dur <= 0) continue;
               const m = ensure(i, start);
               m.end = Math.max(m.end, start + dur);
+              if (isSolo && isSoloRakeBeat(beat, i)) {
+                for (const note of beat.notes || []) {
+                  const position = timeProfile ? timeNotePosition(note) : {string:note.string,fret:note.fret};
+                  if (position && Number.isFinite(position.string) && Number.isFinite(position.fret))
+                    m.rakes.push({start, end:start+dur, position});
+                }
+              }
               for (const note of beat.notes || []) {
                 const midi = Number(note.realValue);
                 if (!Number.isFinite(midi)) continue;
@@ -675,6 +682,15 @@ export function setupSongPlayer({
       if(prev&&prev.root===chord.root&&prev.quality===chord.quality){
         prev.end=bar.end;prev.positions.push(...positions);
       } else sections.push({start:bar.start,end:bar.end,root:chord.root,quality:chord.quality,positions});
+    }
+    // Exclude positions struck as a rake within each chord section, including
+    // positions also used by other notes in the same long harmonic section.
+    // This specifically removes the grouped rake attacks in measures 114/122.
+    const rakes = bars.flatMap(bar => bar.rakes);
+    for (const section of sections) {
+      const excluded = new Set(rakes.filter(r => r.start < section.end && r.end > section.start)
+        .map(r => r.position.string + ':' + r.position.fret));
+      section.positions = section.positions.filter(p => !excluded.has(p.string + ':' + p.fret));
     }
     return sections;
   }
