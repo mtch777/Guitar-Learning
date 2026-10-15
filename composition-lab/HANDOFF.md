@@ -407,3 +407,13 @@ The V21 60 cases were chosen via a stratified four-group sampler, not random pop
 - Added `composition-lab/checkpoints/2026-10-14/v23-review/audit_human_feedback.py` to reproduce confusion matrix from two CSVs without uploading private human notes. Commit `479881254984158d2e1d58d9f989a9792aa72304`.
 - **Next engineering work:** instrument/voice-aware error reproduction at nine onsets; compare local note-onset vs longer (2–8 bar) phrase evidence, assess off-by-one phrase timing; construct synthetic counterexamples for countermelody entrances, midphrase notes, phrase starts, and dyad-only harmony; then test a structural baseline against independent labeled cases. Do not optimize threshold to these nine pilot labels. Pause further manual annotation until an improvement is tested.
 - This turn adds diagnostics and handoff, **not a validated new phrase or harmony model**. No live model inference changes claimed.
+
+
+### V23 source-aware phrase-boundary baseline — 2026-10-14 follow-up
+
+- Executed actual source-score diagnostics using the original Chet Baker GP and both uploaded human-review CSVs (9 reviewed cases). No model threshold was fit to these judgments.
+- Original V23 boundary predictions: TP=1 FP=4 TN=3 FN=1, 4/9 agreement.
+- Compared conservative *barline/structural* baseline built on existing `phrase_development.analyze_track` candidate phrase starts: TP=0 FP=0 TN=7 FN=2, 7/9 agreement. This apparent gain is misleading: baseline predicts **no boundaries** on all nine and has **zero recall**. **Do not deploy this baseline as a model replacement** or claim improved detection.
+- Source timing audit: three case onsets (62/3, 77/2, 111/2) have no exact event in the legacy `phrase_development.parse` output at ±0.025 beats. This indicates parser/event-selection mismatch needing investigation; not proof that the original review times are wrong. Parser also omits some rests/ties and lacks explicit meter in this diagnostic.
+- Added read-only `composition-lab/review_structure_probe.py` (commit `50c26576102a983ac1c11b3f8bafc308a3dc84c8`) and deterministic tests `composition-lab/test_review_structure_probe.py` (commit `8452456244009a63eee0cd2e008367acc78159c9`). Locally ran three tests, all passed, against source-aware prototype; regression test file committed with same core assertions.
+- **Next:** reconcile GP event parser and V23 extractor at these three onsets; add within-measure melodic continuation, voice entry, rhythmic gap and longer-window phrase features; test on synthetic phrase/countermelody cases and separate held-out labels. Do not request additional manual reviews until tested. No live review UI/model changed in this step.
