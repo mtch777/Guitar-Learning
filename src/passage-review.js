@@ -3,7 +3,7 @@ const qa=new URLSearchParams(location.search).get('qa')==='1';
 let manifest,reviews={},active=a,epoch=0;
 const key=()=>`phrase-passages:${manifest.version}${qa?':qa':''}`;
 const id=()=>$('passage').value+':'+$('variant').value;
-const fields=['difference','preference','thread','ending','notes'];
+const fields=['difference','preference','thread','holds','resolution','notes'];
 function status(text){$('status').textContent=text;}
 function persist(){try{localStorage.setItem(key(),JSON.stringify(reviews));$('saved').textContent=qa?'QA storage · not human feedback':'Saved on this device';}catch{$('saved').textContent='Saving unavailable: export feedback.';}}
 function ready(player){return player.readyState?Promise.resolve():new Promise((resolve,reject)=>{
@@ -31,13 +31,13 @@ function load(preserve=false){
 fetch(root+'cases.json').then(r=>{if(!r.ok)throw new Error('Review unavailable');return r.json();}).then(data=>{
   manifest=data;try{reviews=JSON.parse(localStorage.getItem(key())||'{}');}catch{}
   for(const p of data.passages)$('passage').add(new Option(p.title,p.id));
-  for(const field of fields)$(field).oninput=()=>{reviews[id()]={...Object.fromEntries(fields.map(f=>[f,$(f).value])),updatedAt:new Date().toISOString(),lastMode:$('mode').value};persist();};
+  for(const field of fields)$(field).oninput=()=>{reviews[id()]={...reviews[id()],...Object.fromEntries(fields.map(f=>[f,$(f).value])),updatedAt:new Date().toISOString(),lastMode:$('mode').value};persist();};
   $('passage').onchange=()=>load();$('variant').onchange=()=>load();$('mode').onchange=()=>load(true);
   $('playA').onclick=()=>play(a).catch(e=>status(e.message));$('playB').onclick=()=>play(b).catch(e=>status(e.message));
   $('switch').onclick=()=>play(active===a?b:a).catch(e=>status(e.message));
   $('stop').onclick=()=>{a.pause();b.pause();a.currentTime=0;b.currentTime=0;status('Stopped');};
   $('loop').onchange=()=>{a.loop=b.loop=$('loop').checked;};
   for(const player of [a,b]){player.addEventListener('play',()=>{(player===a?b:a).pause();active=player;});player.addEventListener('error',()=>status('Audio unavailable; refresh and try again.'));}
-  $('export').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify({format:'phrase-passages-v1',version:manifest.version,testRun:qa,reviews},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='phrase-passage-feedback.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+  $('export').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify({format:'phrase-passages-v2',ratingLabels:{thread:'Idea development',holds:'Meaningful pauses/holds',resolution:'Meaningful ending',ending:'Legacy combined breathing/endings rating'},version:manifest.version,testRun:qa,reviews},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='phrase-passage-feedback.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
   load();
 }).catch(e=>status(e.message));

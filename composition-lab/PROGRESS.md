@@ -1,3 +1,9 @@
+## Passage feedback labels - 2026-10-15
+
+- [x] Sync main; rename thread to Idea development; split combined rating into Meaningful pauses/holds and Meaningful ending, all B relative to A.
+- [x] Retain existing thread judgments and legacy combined ending data; new fields start blank. Editing spreads existing records so legacy ratings are not discarded. Export v2 names each field explicitly; storage/dataset versions unchanged.
+- [ ] Verify UI, JS suite/build; push and verify Pages deployment.
+
 ## Audible passage experiment - 2026-10-15
 
 User found the pitch-only set too subtle to judge. No forced preference inferred.
