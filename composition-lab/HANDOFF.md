@@ -356,3 +356,12 @@ The V21 60 cases were chosen via a stratified four-group sampler, not random pop
 - Playback scheduling now accepts a normalized seek position, clips notes to the playback window, and restarts from the dragged position when seeking during playback. The same playhead applies to context and focused-track playback; reference chord audition remains independent.
 - Source commits: `4aefda4ece5bd1a9591ecfd98fabcdce6b9f2899` (template), `d4454632886ab94f10294e39ecbc552f97d71990` (review HTML).
 - **Unverified:** browser playback, dragging behavior, performance, and live GitHub Pages deployment. Follow up with real-browser regression tests and confirm Pages serves the updated build before claiming it is active.
+
+
+### V23 bounded harmony review — 2026-10-14
+
+- User correctly objected that the original chord question was underspecified: an arbitrary onset and long mixed-music excerpt are not a well-defined chord target.
+- Changed both the player template and root `composition-review.html`: highlight a green interval from the orange onset to the next sounding attack (clamped to 0.5–2 quarter-note beats), provide target-only playback, and explicitly ask for harmony across all tracks within the interval. The orange onset still asks the independent phrase-boundary question.
+- Added chord classification choices: identifiable chord, no identifiable chord, multiple chords, uncertain, or not reviewed. Existing CSV schema retained via `human_chord_label` values `unknown`, `multiple chords`, `uncertain`, or entered chord name. This loses the distinction between unknown and none in old exports; treat such entries as abstentions, not correct/incorrect chord identities. Existing saved labels map to the new selection.
+- The target window is a **heuristic** based on the next score note onset, not a musically validated chord segment; a short passage can still cross a harmonic boundary. This is an interface pilot, not validated ground truth. Follow up with independent listening and consider user-adjustable target boundaries.
+- Commits: template `08992afbae560225595f5df13012ad882c9f78aa`, root review `d7497ea4f4dc48873a1546ffd9a55d0f099c3c92`. Live deployment and playback **not verified**.
