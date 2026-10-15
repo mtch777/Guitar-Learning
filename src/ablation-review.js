@@ -5,6 +5,7 @@ const A=$('audioA'),B=$('audioB');
 const QA=new URLSearchParams(location.search).get('qa')==='1';
 const store=()=>storageKey(manifest.version)+(QA?':qa':'');
 let manifest,state={reviews:{},favorites:{}},family='cloud',selected=null,roll=null,rollRequest=0,hits=[],keys=[],flash=null,context=null;
+const rollPlayer=()=>$('rollPlayer').value==='B'?B:A;
 const current=()=>manifest?.cases.find(c=>c.id===selected);
 const familyCases=()=>manifest.cases.filter(c=>c.family===family);
 const answer=()=>state.reviews[selected]||{};
@@ -59,16 +60,29 @@ async function select(id,autoplay=false){
   $('notes').value=answer().notes||'';const index=familyCases().findIndex(c=>c.id===selected);
   $('prev').disabled=index===0;$('saveNext').textContent=index===familyCases().length-1?'Save · next study →':'Save and play next →';
   $('viewStart').value=0;$('viewStart').max=Math.max(0,c.seconds-8);playlist();progress();renderMethod();status('');draw();
-  const request=++rollRequest;
-  fetch(ROOT+c.roll).then(r=>{if(!r.ok)throw new Error('Piano roll unavailable');return r.json();}).then(data=>{
-    if(request!==rollRequest)return;roll=data;
-    $('part').replaceChildren(new Option('All parts','all'));
-    for(const part of [...new Set(roll.notes.map(n=>n.part))].sort((a,b)=>a-b))$('part').add(new Option('Part '+(part+1),String(part)));
-    draw();
-  }).catch(e=>{if(request===rollRequest)status(e.message);});
+  loadRoll();
   if(autoplay)await play(A);
 }
-function setComparison(){B.pause();const c=manifest.cases.find(c=>c.id===$('compare').value);if(c){B.src=ROOT+c.audio;B.load();}applyPlayback();}
+function loadRoll(){
+  const player=rollPlayer(),c=player===A?current():manifest.cases.find(c=>c.id===$('compare').value);
+  const request=++rollRequest;roll=null;hits=[];keys=[];flash=null;
+  $('part').replaceChildren(new Option('All parts','all'));
+  $('rollTitle').textContent=(player===A?'A':'B')+' / '+c.label;
+  $('roll').setAttribute('aria-label','Interactive piano roll for '+$('rollTitle').textContent);
+  $('viewStart').value=0;$('pitchStatus').textContent='';draw();
+  fetch(ROOT+c.roll).then(r=>{if(!r.ok)throw new Error('Piano roll unavailable');return r.json();}).then(data=>{
+    if(request!==rollRequest)return;roll=data;
+    for(const part of [...new Set(roll.notes.map(n=>n.part))].sort((a,b)=>a-b))$('part').add(new Option('Part '+(part+1),String(part)));
+    const span=$('zoom').value==='all'?Infinity:Number($('zoom').value);
+    if(Number.isFinite(span))$('viewStart').value=Math.floor(player.currentTime/span)*span;
+    draw();
+  }).catch(e=>{if(request===rollRequest)status(e.message);});
+}
+function followPlayer(player){
+  const value=player===A?'A':'B';
+  if($('rollPlayer').value!==value){$('rollPlayer').value=value;loadRoll();}
+}
+function setComparison(){B.pause();const c=manifest.cases.find(c=>c.id===$('compare').value);if(c){B.src=ROOT+c.audio;B.load();}applyPlayback();if($('rollPlayer').value==='B')loadRoll();}
 function applyPlayback(){for(const player of [A,B]){player.playbackRate=Number($('speed').value);player.loop=$('loop').checked;}}
 async function play(player){
   (player===A?B:A).pause();applyPlayback();
@@ -122,7 +136,8 @@ function draw(){
     ctx.fillStyle=flash?.note===n?'#ebf8ff':COLORS[n.part%COLORS.length];ctx.fillRect(nx,y,w,10);hits.push({note:n,x:nx,y:y-4,w,h:row});
   }
   if($('noteLabels').checked)for(const hit of hits){ctx.font='10px system-ui';ctx.lineWidth=3;ctx.strokeStyle='#0b141e';ctx.strokeText(noteName(hit.note.pitch),hit.x+1,hit.y+7);ctx.fillStyle='#eff6fc';ctx.fillText(noteName(hit.note.pitch),hit.x+1,hit.y+7);}
-  if(A.currentTime>=start&&A.currentTime<=end){ctx.strokeStyle='#ffcd81';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x(A.currentTime),top);ctx.lineTo(x(A.currentTime),height);ctx.stroke();}
+  const player=rollPlayer();
+  if(player.currentTime>=start&&player.currentTime<=end){ctx.strokeStyle='#ffcd81';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x(player.currentTime),top);ctx.lineTo(x(player.currentTime),height);ctx.stroke();}
   canvas._view={start,span,left,width};
 }
 function audition(pitch,note=null,keyboard=false){
@@ -136,15 +151,18 @@ $('roll').addEventListener('click',event=>{
   const hit=hits.find(h=>x>=h.x&&x<=h.x+h.w&&y>=h.y&&y<=h.y+h.h);
   if(hit){audition(hit.note.pitch,hit.note);return;}
   const key=keys.find(k=>x>=k.x&&x<=k.x+k.w&&y>=k.y&&y<=k.y+k.h);if(key){audition(key.pitch,null,true);return;}
-  const view=$('roll')._view;if(view&&x>=view.left&&Number.isFinite(A.duration))A.currentTime=Math.max(0,Math.min(A.duration,view.start+(x-view.left)/(view.width-view.left-10)*view.span));
+  const player=rollPlayer(),view=$('roll')._view;if(view&&x>=view.left&&Number.isFinite(player.duration))player.currentTime=Math.max(0,Math.min(player.duration,view.start+(x-view.left)/(view.width-view.left-10)*view.span));
 });
-A.addEventListener('timeupdate',()=>{
-  if(!$('rollDetails').open)return;
-  const span=$('zoom').value==='all'?Infinity:Number($('zoom').value),start=Number($('viewStart').value);
-  if(!A.paused&&(A.currentTime<start||A.currentTime>start+span))$('viewStart').value=Math.floor(A.currentTime/span)*span;
-  draw();
-});
-for(const player of [A,B]){player.addEventListener('play',()=>{(player===A?B:A).pause();});player.addEventListener('error',()=>status('Audio could not be loaded. Refresh the page or try another sketch.'));}
+for(const player of [A,B]){
+  player.addEventListener('timeupdate',()=>{
+    if(player!==rollPlayer()||!$('rollDetails').open)return;
+    const span=$('zoom').value==='all'?Infinity:Number($('zoom').value),start=Number($('viewStart').value);
+    if(!player.paused&&(player.currentTime<start||player.currentTime>start+span))$('viewStart').value=Math.floor(player.currentTime/span)*span;
+    draw();
+  });
+  player.addEventListener('play',()=>{(player===A?B:A).pause();followPlayer(player);});
+  player.addEventListener('error',()=>status('Audio could not be loaded. Refresh the page or try another sketch.'));
+}
 async function boot(){
   const response=await fetch(ROOT+'cases.json');if(!response.ok)throw new Error('Review set could not be loaded.');manifest=await response.json();
   try{const stored=JSON.parse(localStorage.getItem(store())||'null');if(stored){state={reviews:stored.reviews||{},favorites:stored.favorites||{}};family=stored.family||family;selected=stored.selected;}}catch{}
@@ -172,6 +190,7 @@ async function boot(){
       persist();await select(selected);status('Feedback restored. Newer local judgments were kept.');}
     catch(e){status('Restore failed: '+e.message);}event.target.value='';
   };
+  $('rollPlayer').onchange=loadRoll;
   $('rollDetails').addEventListener('toggle',draw);for(const id of ['zoom','part','noteLabels','viewStart'])$(id).addEventListener('input',draw);
   window.addEventListener('resize',draw);await select(selected);
 }

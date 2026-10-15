@@ -1,3 +1,11 @@
+## Piano roll A/B fix - 2026-10-15
+
+- [x] Fetch/fast-forward main without overwriting local work.
+- [x] Roll follows A or B automatically when playback starts, with explicit A/B selector and sketch label. Comparison changes reload B notes; seek/playhead/scroll follow the displayed player. Stale asynchronous loads are discarded; filters reset for the new score.
+- [x] Browser QA: B Sketch 02 loaded one part, changing B to Sketch 04 loaded three; empty-space seek advanced B to 6.2s while A stayed 0; Play A restored A roll. Feedback storage/version untouched.
+- [x] Node tests: 8 passed; production build passed; diff whitespace clean.
+- [ ] Push main and verify GitHub Pages deployment and live B selector.
+
 # Composition Lab execution ledger
 
 ## Current continuation — recovered inputs and interactive review
