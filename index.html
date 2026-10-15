@@ -18,9 +18,9 @@
         <div class="sectionTitle">Lesson</div>
         <div class="controlField lessonField">
         <details id="lessonTypeDropdown" class="singleSelect">
-          <summary id="lessonTypeSummary">Daily Practice</summary>
+          <summary id="lessonTypeSummary">Time Solo (with Chords)</summary>
           <div class="singleSelectMenu">
-            <label class="singleOption"><input type="radio" name="lessonType" value="daily" checked><span>Daily Practice</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="daily"><span>Daily Practice</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="intervals"><span>Intervals Relative to Low String</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="shape"><span>Closest interval</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="nps"><span>2/3 NPS Starting From Interval</span></label>
@@ -30,12 +30,12 @@
             <label class="singleOption"><input type="radio" name="lessonType" value="identifyModeShape"><span>Identify Base Key by Shape</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="identifyCagedShape"><span>Identify Pentatonic CAGED by Shape</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="timeSolo"><span>Time Guitar Solo</span></label>
-            <label class="singleOption"><input type="radio" name="lessonType" value="timeSoloChords"><span>Time Solo (with Chords)</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="timeSoloChords" checked><span>Time Solo (with Chords)</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="songPlayer"><span>Song Player (MVP)</span></label>
           </div>
         </details>
         <span class="stateOnly"><select id="lessonTypeSelect" aria-hidden="true" tabindex="-1">
-          <option value="daily" selected>Daily Practice</option>
+          <option value="daily">Daily Practice</option>
           <option value="intervals">Intervals Relative to Low String</option>
           <option value="shape">Closest interval</option>
           <option value="nps">2/3 NPS Starting From Interval</option>
@@ -45,7 +45,7 @@
           <option value="identifyModeShape">Identify Base Key by Shape</option>
           <option value="identifyCagedShape">Identify Pentatonic CAGED by Shape</option>
           <option value="timeSolo">Time Guitar Solo</option>
-          <option value="timeSoloChords">Time Solo (with Chords)</option>
+          <option value="timeSoloChords" selected>Time Solo (with Chords)</option>
           <option value="songPlayer">Song Player (MVP)</option>
         </select></span>
         </div>
