@@ -49,6 +49,19 @@ jobs:
           mkdir -p dist/versions/20439e1
           cp -a _historical/dist/. dist/versions/20439e1/
 
+      - name: Checkout midpoint version
+        uses: actions/checkout@v4
+        with:
+          ref: 59df16ef9d7b336dfc608e771fff5a0dea79ea90
+          path: _midpoint
+
+      - name: Build midpoint preview
+        run: |
+          npm ci --prefix _midpoint
+          npm run build --prefix _midpoint -- --base /Guitar-Learning/versions/59df16e/
+          mkdir -p dist/versions/59df16e
+          cp -a _midpoint/dist/. dist/versions/59df16e/
+
       - name: Publish dist to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
