@@ -10371,6 +10371,7 @@ function renderTimedTimeSoloSections(sections) {
   const chordMap={4:{major:'I',minor:'i'},6:{major:'II',minor:'ii'},7:{major:'♭III',minor:'♭iii'},
     9:{major:'IV',minor:'iv'},11:{major:'V',minor:'v'},0:{major:'♭VI',minor:'♭vi'},
     2:{major:'♭VII',minor:'♭vii'}};
+  const totalDuration = sections[sections.length-1].end - sections[0].start;
   for(const [index,section] of sections.entries()){
     const button=document.createElement('button');
     button.type='button';
@@ -10380,7 +10381,7 @@ function renderTimedTimeSoloSections(sections) {
     button.dataset.endTick=String(section.end);
     button.dataset.noteKeys=JSON.stringify([...new Set(section.positions.map(p=>
       makeCellKey(songPlayerStringOffset+Number(p.string)-1,Number(p.fret))))]);
-    button.style.flexGrow=String(Math.max(1,section.end-section.start));
+    button.style.flex='0 0 '+(100*(section.end-section.start)/Math.max(1,totalDuration))+'%';
     button.title='Chord ' +(index+1)+' · '+noteNames[section.root]+' '+section.quality;
     button.setAttribute('aria-label',button.title);
     track.appendChild(button);
