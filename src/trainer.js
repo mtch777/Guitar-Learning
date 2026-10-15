@@ -1461,20 +1461,27 @@ function displayTimeSoloLesson(allCells, playbackMode = false) {
       b.classList.toggle('selected', b === button);
       b.setAttribute('aria-pressed', String(b === button));
     });
-    prompt.textContent = noteNames[group.root] + ' chord · ' +
+    prompt.textContent = chordLabel(group.root) + ' (' + noteNames[group.root] + ') · ' +
       'notes ' + group.start + '–' + group.end +
       ' · ' + unique.size + ' fretboard positions';
   }
+
+  // Roman-numeral Nashville labels in the fixed E Aeolian context.
+  const nashvilleLabels = {
+    4: 'i', 6: 'ii°', 7: '♭III', 9: 'iv',
+    11: 'v', 0: '♭VI', 2: '♭VII'
+  };
+  const chordLabel = root => nashvilleLabels[root] || noteNames[root];
 
   for (const [index, group] of groups.entries()) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'timeSoloChordButton';
     button.style.flexGrow = String(Math.max(1, group.notes.length));
-    button.textContent = noteNames[group.root];
+    button.textContent = chordLabel(group.root);
     button.dataset.startEvent=String(group.start);
     button.dataset.endEvent=String(group.end);
-    button.title = 'Section ' + (index + 1) +
+    button.title = noteNames[group.root] + ' · Section ' + (index + 1) +
       ' · tab notes ' + group.start + '–' + group.end;
     button.setAttribute('aria-label', button.title);
     button.setAttribute('aria-pressed', 'false');
@@ -10402,7 +10409,7 @@ setupSongPlayer({
     const active=buttons.find(b=>eventIndex>=Number(b.dataset.startEvent)&&eventIndex<=Number(b.dataset.endEvent));
     buttons.forEach(b=>{b.classList.toggle('selected',b===active);b.setAttribute('aria-current',String(b===active));});
     const prompt=document.getElementById('answerNote');
-    if(active&&prompt)prompt.textContent=active.textContent+' chord · approximate tab position';
+    if(active&&prompt)prompt.textContent=active.textContent+' · approximate tab position';
   },
 
   onTrackChanged:
