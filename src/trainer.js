@@ -1420,7 +1420,7 @@ function displayTimeSoloLesson(allCells, playbackMode = false) {
     const cell = item.element;
     revealCell(cell);
     cell.textContent = '';
-    cell.classList.add('timeSoloGrayNote');
+    cell.classList.add('timeSoloNote', 'timeSoloGrayNote');
     cell.classList.remove('timeSoloSelectedNote');
     cell.title = 'String ' + (item.stringIndex + 1) + ' · fret ' + item.fret;
     cell.setAttribute('aria-label', cell.title);
