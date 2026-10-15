@@ -381,3 +381,11 @@ The V21 60 cases were chosen via a stratified four-group sampler, not random pop
 - Updated template and root review page with fixed 17px-per-semitone vertical pitch rows, chromatic black/white reference keys on the left, note-label foreground rendering after rectangles, and click hit-testing for individual notes and keys. Click audition synthesizes a single 0.57s pitch and does not intentionally stop existing context playback. Canvas height grows with actual pitch range, which may make tall passages scroll on mobile.
 - Source template commit `d940c39579f921a9cd4733576b05d1b0b0388752`, root HTML `dd77b3a1d73722762d8570a1585324e9a3775823`, regression contract commit `375031eab576a2340a32a59a0030ac4860d7be43`.
 - **Browser interactions, visual label overlap, audio playback and live GitHub Pages deployment not yet verified.** Add real browser QA and script syntax checks before claiming these are working on the published site.
+
+
+### V23 piano roll Android tap feedback — 2026-10-14
+
+- User reported tapping anywhere in the canvas caused the **entire roll** to flash blue. This is consistent with Android/WebKit tap-highlight behavior on a clickable canvas.
+- Disabled canvas tap highlight and selection (`-webkit-tap-highlight-color: transparent`, `user-select: none`, `touch-action: manipulation`) and added targeted 220ms light-blue flash for the clicked note rectangle or left keyboard row. Empty canvas taps do not trigger feedback.
+- Commits: template `1a89571133fa565e7d3a2ef55dd610105f371885`; root review HTML `0e449ed52c9d5e0d70cef5ac65fb0c61c787f140`.
+- Not yet verified in a real Android browser or as deployed GitHub Pages; validate tap feedback and playback independently.
