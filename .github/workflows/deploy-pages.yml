@@ -65,7 +65,7 @@ jobs:
       - name: Checkout second midpoint
         uses: actions/checkout@v4
         with:
-          ref: f8aef277
+          ref: f8aef277fb0da9cc39ad4aa02e04cb23f61dc182
           path: _midpoint2
 
       - name: Build second midpoint preview
