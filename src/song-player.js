@@ -565,7 +565,7 @@ export function setupSongPlayer({
         if (!(timeProfile || isTimeSoloChordsLesson?.()) || (barIndex >= 93 && barIndex <= 142))
         for(const voice of bar.voices||[])
           for(const beat of voice.beats||[]) {
-            if (isSoloRakeBeat(beat, barIndex)) continue;
+            if (rakeBeats(voice).has(beat)) continue;
             const start=Number(beat.absolutePlaybackStart);
             if(!Number.isFinite(start))continue;
             for(const note of beat.notes||[]) {
