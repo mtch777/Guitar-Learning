@@ -365,3 +365,10 @@ The V21 60 cases were chosen via a stratified four-group sampler, not random pop
 - Added chord classification choices: identifiable chord, no identifiable chord, multiple chords, uncertain, or not reviewed. Existing CSV schema retained via `human_chord_label` values `unknown`, `multiple chords`, `uncertain`, or entered chord name. This loses the distinction between unknown and none in old exports; treat such entries as abstentions, not correct/incorrect chord identities. Existing saved labels map to the new selection.
 - The target window is a **heuristic** based on the next score note onset, not a musically validated chord segment; a short passage can still cross a harmonic boundary. This is an interface pilot, not validated ground truth. Follow up with independent listening and consider user-adjustable target boundaries.
 - Commits: template `08992afbae560225595f5df13012ad882c9f78aa`, root review `d7497ea4f4dc48873a1546ffd9a55d0f099c3c92`. Live deployment and playback **not verified**.
+
+
+### V23 nearly identical adjacent cases / Save and next — 2026-10-14
+
+- User reported #2 appeared to play the same passage as #1. Verified embedded DATA: both are Chet Baker, track 0, measure 6, onset 20 vs 62/3 quarter beats (only 2/3 beat apart). At default +/-8 beats their listening contexts overlap ~95.8%; this is a **sampling/UI issue**, not proof that the case index failed to update.
+- Updated both root `composition-review.html` and `v23-review/player_template.html`: default context reduced from +/-8 to +/-4 beats; `Save and next` now starts the new case's highlighted target playback immediately (in the click gesture) after advancing, rather than leaving the listener hearing the previous context. Manual Next still navigates without autoplay. Commit root `73c56a2411543e98657a57142550d6d5503f6004`, template `cd3a27e29cae12e6a761b66d5c205877a012333b`.
+- **Not browser-verified**. Follow-up: test audible transitions and avoid near-duplicate adjacent evaluation targets in the case sampler; display an explicit case-specific target time and compare windows in a regression test.
