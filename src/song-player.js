@@ -107,6 +107,7 @@ function getTrackStringTuning(
 
 export function setupSongPlayer({
   onActiveNotes,
+  onPositionChanged,
   onTrackChanged,
   onScoreLoaded
 } = {}) {
@@ -769,6 +770,8 @@ export function setupSongPlayer({
             args.currentTick ||
             currentTick
           );
+
+        onPositionChanged?.({fraction: endTimeMs > 0 ? Number(args.currentTime || 0) / endTimeMs : 0, tick: currentTick});
 
         const nowMs =
           Math.max(
