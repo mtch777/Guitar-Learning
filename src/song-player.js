@@ -519,7 +519,10 @@ export function setupSongPlayer({
     // bendPoints are not separate fretted notes.
     const events=[];
     for(const staff of track.staves||[])
-      for(const bar of staff.bars||[])
+      for(const [barIndex, bar] of (staff.bars||[]).entries())
+        // The Time F#m score's guitar solo is measures 94–143 inclusive.
+        // Exclude all notes from that track before and after this passage.
+        if (!timeProfile || (barIndex >= 93 && barIndex <= 142))
         for(const voice of bar.voices||[])
           for(const beat of voice.beats||[]) {
             const start=Number(beat.absolutePlaybackStart);
@@ -531,12 +534,8 @@ export function setupSongPlayer({
             }
           }
     if(!events.length)return [];
-    // Scope the placeholder collection to the score's solo passage.
-    const start=Math.min(...events.map(e=>e.start));
-    const end=Math.max(...events.map(e=>e.start));
     const seen=new Set();
-    return events.filter(e=>e.start>=start&&e.start<=end)
-      .map(e=>e.position).filter(p=>{
+    return events.map(e=>e.position).filter(p=>{
         const key=p.string+':'+p.fret;
         if(seen.has(key))return false;
         seen.add(key);return true;
