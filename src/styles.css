@@ -1816,3 +1816,57 @@ button.uiButton:disabled {
   font-size: .62em;
   line-height: 1;
 }
+
+
+/* Time solo: all recorded locations stay as neutral circles until selected. */
+.physicalFretboard .fretboardNote.timeSoloGrayNote.revealed::before {
+  background: #858a92;
+  border-color: #858a92;
+  opacity: 1;
+}
+.physicalFretboard .fretboardNote.timeSoloGrayNote.revealed {
+  color: transparent;
+}
+.fretboardOpenStrings .openStringNote.timeSoloGrayNote.revealed {
+  background: #858a92;
+  border-color: #858a92;
+  color: transparent;
+}
+.timeSoloTimeline {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0 4px;
+  width: 100%;
+}
+.timeSoloTimelineHeading {
+  font-size: 12px;
+  color: var(--text-color);
+  opacity: .78;
+}
+.timeSoloTimelineTrack {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 3px;
+  overflow-x: auto;
+  padding: 4px 0 8px;
+  width: 100%;
+}
+.timeSoloChordButton {
+  flex-basis: 42px;
+  min-width: 42px;
+  border: 1px solid var(--border-color);
+  border-radius: 7px;
+  padding: 10px 5px;
+  font: 600 13px/1.1 inherit;
+  font-size: 13px;
+  color: var(--text-color);
+  background: var(--header-bg);
+  cursor: pointer;
+}
+.timeSoloChordButton:hover { filter: brightness(.94); }
+.timeSoloChordButton.selected {
+  border: 2px solid #5a88c8;
+  background: color-mix(in srgb, #5a88c8 18%, var(--header-bg));
+}
+.timeSoloChordButton:focus-visible { outline: 2px solid #5a88c8; outline-offset: 2px; }
