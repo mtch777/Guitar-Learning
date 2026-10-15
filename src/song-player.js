@@ -519,7 +519,9 @@ export function setupSongPlayer({
   // Skip its note events in placeholder/candidate extraction, not in audio.
   // Classify attacks, not fretboard coordinates. Neighboring quick strokes
   // form one rake gesture when the score annotates it or sweeps >=3 strings.
+  const rakeCache = new WeakMap();
   function rakeBeats(voice) {
+    if (rakeCache.has(voice)) return rakeCache.get(voice);
     const beats = voice.beats || [];
     const result = new Set();
     for (let i = 0; i < beats.length; i++) {
@@ -548,6 +550,7 @@ export function setupSongPlayer({
         }
       }
     }
+    rakeCache.set(voice, result);
     return result;
   }
 
