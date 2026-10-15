@@ -1,7 +1,7 @@
 import { TIME_SOLO_DROP_E_TUNING } from './data/time-solo.js';
 
 export function isTimeFile(name) {
-  return String(name).toLowerCase() === 'time.gp';
+  return /^time(?:\(\d+\))?\.gp$/i.test(String(name).trim());
 }
 
 export function applySongPitch(api, score, timeProfile) {
