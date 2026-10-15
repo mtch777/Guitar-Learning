@@ -339,3 +339,11 @@ The V21 60 cases were chosen via a stratified four-group sampler, not random pop
 - For rectangles wide enough, labels render inside; narrow rectangles place the label above. The underlying notes and playback are unchanged.
 - **Known limitation:** Dense polyphonic notes and short durations may produce overlapping labels; requires real-browser visual verification and may need adaptive decluttering.
 - The actual browser display and deployed page have not yet been verified. Keep code, published-source HTML, and handoff synchronized for later edits.
+
+
+### V23 playback failure after note-label change — 2026-10-14
+
+- User reported **all three playback buttons** (context, focused track, reference chord) stopped working after piano-roll note labels were added.
+- Inspected current template and published-source HTML. Found an extra `}` immediately after the narrow-note label branch (`y-12)}}}}x.strokeStyle`) which prematurely closed `paint()`, leaving drawing statements outside their intended function and breaking player initialization.
+- Corrected to `y-12)}}}x.strokeStyle` in both `composition-lab/checkpoints/2026-10-14/v23-review/player_template.html` and root `composition-review.html`.
+- Fix committed to `main` in source and deployed-source HTML. **Actual playback in the user's browser remains unverified**; confirm after GitHub Pages updates and reloads. Add a syntax-validation gate to the publishing workflow to prevent recurrence.
