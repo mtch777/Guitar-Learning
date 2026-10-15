@@ -517,17 +517,38 @@ export function setupSongPlayer({
   // transposition mapping that activeBeatsChanged uses during playback.
   // A multi-string sweep/rake is not an individually fretted melodic target.
   // Skip its note events in placeholder/candidate extraction, not in audio.
-  function isSoloRakeBeat(beat, barIndex) {
-    const fretted = (beat.notes || []).filter(note =>
-      Number.isFinite(note.string) && Number.isFinite(note.fret) && note.string > 0);
-    // Time F#m source: measure 114's rake is spread over three adjacent
-    // TWO-note, open-fret beats. The center beat explicitly says "rake".
-    // Count-based detection alone misses the surrounding two beats.
-    const timeRakeCluster = (timeProfile || isTimeSoloChordsLesson?.()) &&
-      barIndex === 113 && fretted.length >= 1 &&
-      fretted.every(note => note.fret === 0);
-    return timeRakeCluster || new Set(fretted.map(note => note.string)).size >= 3 ||
-      /\brake\b/i.test(String(beat.text || beat.freeText || ''));
+  // Classify attacks, not fretboard coordinates. Neighboring quick strokes
+  // form one rake gesture when the score annotates it or sweeps >=3 strings.
+  function rakeBeats(voice) {
+    const beats = voice.beats || [];
+    const result = new Set();
+    for (let i = 0; i < beats.length; i++) {
+      const beat = beats[i];
+      const notes = (beat.notes || []).filter(n => Number.isFinite(n.string) &&
+        Number.isFinite(n.fret) && n.string > 0);
+      if (new Set(notes.map(n => n.string)).size >= 3) result.add(beat);
+      if (!/\\brake\\b/i.test(String(beat.text || beat.freeText || ''))) continue;
+      // Expand the labeled rake across a contiguous run of short adjacent
+      // attacks; stop at a rhythmic gap or sustained melody note.
+      result.add(beat);
+      const center=Number(beat.absolutePlaybackStart);
+      for (const direction of [-1,1]) {
+        let anchor=center;
+        for (let j=i+direction; j>=0&&j<beats.length; j+=direction) {
+          const next=beats[j];
+          const onset=Number(next.absolutePlaybackStart);
+          const length=Number(next.playbackDuration);
+          const gap=Math.abs(onset-anchor);
+          const centerLength=Number(beat.playbackDuration);
+          if (!Number.isFinite(onset)||!Number.isFinite(length)||
+              gap>Math.max(1,centerLength*1.5)||
+              length>Math.max(1,centerLength*2)) break;
+          result.add(next);
+          anchor=onset;
+        }
+      }
+    }
+    return result;
   }
 
   function collectTrackPositions(track) {
@@ -590,7 +611,7 @@ export function setupSongPlayer({
               if (!Number.isFinite(start) || !Number.isFinite(dur) || dur <= 0) continue;
               const m = ensure(i, start);
               m.end = Math.max(m.end, start + dur);
-              if (isSolo && isSoloRakeBeat(beat, i)) {
+              if (isSolo && rakeBeats(voice).has(beat)) {
                 for (const note of beat.notes || []) {
                   const position = timeProfile ? timeNotePosition(note) : {string:note.string,fret:note.fret};
                   if (position && Number.isFinite(position.string) && Number.isFinite(position.fret))
@@ -603,7 +624,7 @@ export function setupSongPlayer({
                 const event = {pitch:midi-(timeProfile?2:0),start,end:start+dur};
                 if (isBass) m.bass.push(event);
                 if (isHarmony) m.harmony.push(event);
-                if (isSolo && !isSoloRakeBeat(beat, i)) {
+                if (isSolo && !rakeBeats(voice).has(beat)) {
                   const position = timeProfile ? timeNotePosition(note) : {string:note.string,fret:note.fret};
                   if (position) m.melody.push({...event, position});
                 }
@@ -682,15 +703,6 @@ export function setupSongPlayer({
       if(prev&&prev.root===chord.root&&prev.quality===chord.quality){
         prev.end=bar.end;prev.positions.push(...positions);
       } else sections.push({start:bar.start,end:bar.end,root:chord.root,quality:chord.quality,positions});
-    }
-    // Exclude positions struck as a rake within each chord section, including
-    // positions also used by other notes in the same long harmonic section.
-    // This specifically removes the grouped rake attacks in measures 114/122.
-    const rakes = bars.flatMap(bar => bar.rakes);
-    for (const section of sections) {
-      const excluded = new Set(rakes.filter(r => r.start < section.end && r.end > section.start)
-        .map(r => r.position.string + ':' + r.position.fret));
-      section.positions = section.positions.filter(p => !excluded.has(p.string + ':' + p.fret));
     }
     return sections;
   }
