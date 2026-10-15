@@ -590,78 +590,76 @@ export function setupSongPlayer({
     }
     const bars = [...measures].sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
     if (!bars.length) return [];
-    // Two-measure harmonic windows suppress transient bass fills and passing tones.
-    // Dynamic programming favors an unchanged chord unless the combined tracks
-    // provide sustained evidence for a different triad.
-    const windows = [];
-    for (let i=0;i<bars.length;i+=2) {
-      const subset=bars.slice(i,i+2);
-      windows.push({
-        start:subset[0].start,
-        end:subset[subset.length-1].end,
-        bass:subset.flatMap(b=>b.bass),
-        harmony:subset.flatMap(b=>b.harmony),
-        melody:subset.flatMap(b=>b.melody)
-      });
+    // Source reference: Time chord-tab solo uses the sequence
+    // D#m–F#–C#–D#m (x4), then Bmaj7–F#maj7–Bmaj7–F#maj7–
+    // Bmaj7–A#m7–G#m7–C#. These names are *not* assumed to match
+    // the GP file's pitch classes: evaluate the actual score instead.
+    const pc = value => ((value % 12) + 12) % 12;
+    const chordModels = [];
+    for (let root=0;root<12;root++) for (const quality of ['major','minor','diminished']) {
+      const offsets=quality==='major'?[0,4,7]:quality==='minor'?[0,3,7]:[0,3,6];
+      chordModels.push({root,quality,tones:offsets.map(x=>pc(root+x))});
     }
-    const pc=p=>((p%12)+12)%12;
-    const candidates = [ // E Aeolian, after the player's F#m -> Em transposition.
-      {root:4,quality:'minor'}, {root:6,quality:'diminished'},
-      {root:7,quality:'major'}, {root:9,quality:'minor'},
-      {root:11,quality:'minor'}, {root:0,quality:'major'},
-      {root:2,quality:'major'}
-    ];
-    function evaluate(win,chord) {
-      const r=chord.root;
-      const third=pc(r+(chord.quality==='major'?4:3));
-      const fifth=pc(r+(chord.quality==='diminished'?6:7));
-      const tones=new Set([r,third,fifth]);
-      const scoreEvents=(events,weight) => {
-        let total=0,good=0;
-        for (const e of events) {
-          const duration=Math.max(0,Math.min(win.end,e.end)-Math.max(win.start,e.start));
-          if(!duration)continue;
-          const w=weight*duration;
-          total+=w;
-          if (tones.has(pc(e.pitch))) good+=w;
-          else if (pc(e.pitch)===pc(r+2)||pc(e.pitch)===pc(r+5)) good+=0.12*w;
+    const result = bars.map(bar => {
+      // Duration-weighted bass note majority, the requested earlier method.
+      // Passing and repeated bass notes cannot each create an event boundary.
+      const bassWeight = new Map();
+      for (const e of bar.bass) {
+        const duration=Math.max(0,Math.min(bar.end,e.end)-Math.max(bar.start,e.start));
+        const key=pc(e.pitch);
+        bassWeight.set(key,(bassWeight.get(key)||0)+duration);
+      }
+      const bassRoot=[...bassWeight].sort((a,b)=>b[1]-a[1])[0]?.[0] ?? null;
+      const getSupport=(events,tones) => {
+        let on=0,total=0;
+        for(const e of events) {
+          const dur=Math.max(0,Math.min(bar.end,e.end)-Math.max(bar.start,e.start));
+          if(!dur)continue;
+          total+=dur;
+          if(tones.includes(pc(e.pitch)))on+=dur;
         }
-        return total?good/total:0;
+        return total?on/total:0;
       };
-      const harmonic=scoreEvents(win.harmony,1);
-      const bass=scoreEvents(win.bass,1);
-      const melody=scoreEvents(win.melody,1);
-      // Harmonic backing dominates; bass and solo are supporting context.
-      return 7*harmonic+1.5*bass+0.6*melody;
-    }
-    const transitionPenalty=1.55;
-    const dp=[], back=[];
-    for(let i=0;i<windows.length;i++) {
-      dp[i]=[];back[i]=[];
-      for(let c=0;c<candidates.length;c++) {
-        const evidence=evaluate(windows[i],candidates[c]);
-        if(i===0){dp[i][c]=evidence;back[i][c]=-1;continue;}
+      const ranked=chordModels.map(chord=>{
+        const harmony=getSupport(bar.harmony,chord.tones);
+        const melody=getSupport(bar.melody,chord.tones);
+        const bass=getSupport(bar.bass,chord.tones);
+        const rootBonus=bassRoot===chord.root?1:0;
+        return {...chord,score:4*harmony+1.6*bass+0.6*melody+1.4*rootBonus};
+      }).sort((a,b)=>b.score-a.score);
+      return {...bar,proposals:ranked,bassRoot};
+    });
+    // Modest smoothing between measures. Unlike the previous 2-bar windows,
+    // a change is allowed at every bar; a bass fill alone is insufficient.
+    const penalty=0.55;
+    const dp=[],from=[];
+    for(let i=0;i<result.length;i++) {
+      dp[i]=[];from[i]=[];
+      for(let j=0;j<chordModels.length;j++){
+        const chord=chordModels[j];
+        const evidence=result[i].proposals.find(c=>c.root===chord.root&&c.quality===chord.quality)?.score ?? 0;
+        if(i===0){dp[i][j]=evidence;from[i][j]=-1;continue;}
         let best=-Infinity,previous=0;
-        for(let p=0;p<candidates.length;p++) {
-          const value=dp[i-1][p]-(p===c?0:transitionPenalty);
-          if(value>best){best=value;previous=p;}
+        for(let k=0;k<chordModels.length;k++) {
+          const same=chordModels[k].root===chord.root&&chordModels[k].quality===chord.quality;
+          const value=dp[i-1][k]-(same?0:penalty);
+          if(value>best){best=value;previous=k;}
         }
-        dp[i][c]=best+evidence;
-        back[i][c]=previous;
+        dp[i][j]=best+evidence;from[i][j]=previous;
       }
     }
     let state=dp.at(-1).indexOf(Math.max(...dp.at(-1)));
-    const sequence=Array(windows.length);
-    for(let i=windows.length-1;i>=0;i--){sequence[i]=state;state=back[i][state];}
+    const sequence=Array(result.length);
+    for(let i=result.length-1;i>=0;i--){sequence[i]=state;state=from[i][state];}
     const sections=[];
-    windows.forEach((win,i)=>{
-      const chord=candidates[sequence[i]];
+    for(let i=0;i<result.length;i++){
+      const bar=result[i],chord=chordModels[sequence[i]];
+      const positions=bar.melody.map(e=>e.position);
       const prev=sections.at(-1);
-      const positions=win.melody.map(e=>e.position);
       if(prev&&prev.root===chord.root&&prev.quality===chord.quality){
-        prev.end=win.end;prev.positions.push(...positions);
-      } else sections.push({start:win.start,end:win.end,...chord,positions:[...positions]});
-    });
+        prev.end=bar.end;prev.positions.push(...positions);
+      } else sections.push({start:bar.start,end:bar.end,root:chord.root,quality:chord.quality,positions});
+    }
     return sections;
   }
 
