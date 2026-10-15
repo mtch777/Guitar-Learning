@@ -1,5 +1,7 @@
 # Composition Lab — isolated Guitar Pro composition research
 
+Current engineering prototype and its explicit limits: [relational pipeline](RELATIONAL_PIPELINE.md). Roadmap acceptance and execution evidence: [progress ledger](PROGRESS.md).
+
 **Scope:** Guitar Pro (.gp) input → music analysis → guitarist-style composition → new Guitar Pro (.gp) output.
 
 This is an **independent Python project** inside Guitar-Learning. It does not import from or modify `src/`, `training/`, the guitar trainer, the audio ML pipeline, or the web app. Python standard library only for the current compatibility tests.

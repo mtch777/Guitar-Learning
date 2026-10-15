@@ -5,13 +5,17 @@ quarter-beat onset/duration, source IDs, ties, beat/technique properties.
 """
 from __future__ import annotations
 import argparse
+import hashlib
 import json
 import zipfile
 from collections import Counter
 from fractions import Fraction
 from pathlib import Path
 from xml.etree import ElementTree as ET
-from music_events import duration, frac, meter_length, validate_events
+try:
+    from .music_events import duration, frac, meter_length, validate_events
+except ImportError:  # Standalone checkpoint scripts retain their original entrypoint.
+    from music_events import duration, frac, meter_length, validate_events
 
 
 def _ids(element, tag):
@@ -48,6 +52,7 @@ def extract_score(path: str | Path) -> dict:
     tracks=root.findall('./Tracks/Track')
     masters=root.findall('./MasterBars/MasterBar')
     output={'source_file':Path(path).name,'measure_count':len(masters),'tracks':[],
+            'source_sha256':hashlib.sha256(Path(path).read_bytes()).hexdigest(),
             'format':'gp7-quarter-beat-rational-v1'}
     song_start=Fraction(0)
     for mi,master in enumerate(masters):
@@ -61,14 +66,18 @@ def extract_score(path: str | Path) -> dict:
                     pitches=staff.findtext("./Properties/Property[@name='Tuning']/Pitches")
                     tunings.append([int(x) for x in pitches.split()] if pitches else [])
                 output['tracks'].append({'index':ti,'name':track.findtext('Name'),
+                                         'track_xml':ET.tostring(track,encoding='unicode'),
                                          'tunings':tunings,'measures':[]})
             barids=_ids(master,'Bars')
             if ti>=len(barids):raise ValueError(f'Missing bar for track {ti} measure {mi+1}')
             bar=bars[barids[ti]]
             m={'number':mi+1,'time_signature':meter,'section':master.findtext('./Section/Text'),
+               'master_bar_xml':ET.tostring(master,encoding='unicode'),'bar_xml':ET.tostring(bar,encoding='unicode'),
                'onset_q':frac(start),'bar_id':barids[ti],'voices':[]}
             for vi,voice_id in enumerate(_ids(bar,'Voices')):
-                if voice_id=='-1':continue
+                if voice_id=='-1':
+                    m['voices'].append([])
+                    continue
                 voice=voices[voice_id];events=[];offset=Fraction(0)
                 for beat_id in _ids(voice,'Beats'):
                     beat=beats[beat_id]
@@ -77,6 +86,8 @@ def extract_score(path: str | Path) -> dict:
                     dur=duration(rhythm)
                     note_ids=_ids(beat,'Notes')
                     ev={'beat_id':beat_id,'voice_index':vi,'onset_q':frac(start+offset),
+                        'voice_id':voice_id,'beat_xml':ET.tostring(beat,encoding='unicode'),
+                        'rhythm_xml':ET.tostring(rhythm,encoding='unicode'),
                         'local_onset_q':frac(offset),'duration_q':frac(dur),
                         'rhythm':rhythm.findtext('NoteValue'),
                         'dots':rhythm.find('AugmentationDot').get('count','1') if rhythm.find('AugmentationDot') is not None else None,
@@ -87,6 +98,7 @@ def extract_score(path: str | Path) -> dict:
                     for nid in note_ids:
                         note=notes[nid];props=note.find('Properties')
                         ev['notes'].append({'note_id':nid,'string':_numeric(_property(note,'String','String')),
+                            'note_xml':ET.tostring(note,encoding='unicode'),
                             'fret':_numeric(_property(note,'Fret','Fret')),'midi':_pitch_number(note),
                             'onset_q':ev['onset_q'],'duration_q':ev['duration_q'],
                             'tie':dict(note.find('Tie').attrib) if note.find('Tie') is not None else None,

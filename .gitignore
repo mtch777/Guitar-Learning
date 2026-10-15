@@ -3,6 +3,8 @@ dist/
 .venv/
 __pycache__/
 *.pyc
+.local/
+composition-lab/local-artifacts/
 .DS_Store
 
 # Private third-party GP scores, local benchmarks, generated listening files
