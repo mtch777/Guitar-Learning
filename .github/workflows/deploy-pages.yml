@@ -36,6 +36,19 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Checkout last visually working version
+        uses: actions/checkout@v4
+        with:
+          ref: 20439e1cccbad8328a3376439dd27ed0a2df9c6a
+          path: _historical
+
+      - name: Build historical preview at its own URL
+        run: |
+          npm ci --prefix _historical
+          npm run build --prefix _historical -- --base /Guitar-Learning/versions/20439e1/
+          mkdir -p dist/versions/20439e1
+          cp -a _historical/dist/. dist/versions/20439e1/
+
       - name: Publish dist to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
