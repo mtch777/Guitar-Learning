@@ -303,3 +303,22 @@ Recommended executable next iteration:
 ### Other facts easily lost between chats
 
 The V21 60 cases were chosen via a stratified four-group sampler, not random population sampling; 20-measure cutoff was convenience and biases intros. V24 has 69 Chet Baker chord-symbol occurrences (transcriber, not truth), 54 source section markers across five scores, and only 3 of 60 selected cases at annotated chord onset. V18 increased exported melody edits from 4–8 to 102 by cloning shared note definitions. V19 found 50 candidate gestures / 387 windows; V20 found 97 template-supported sonorities and 151 unresolved attacks on Chet Baker and reduced windows to 344; these counts do not establish phrase/chord accuracy. V21 found 114 unique-template matches over 767 attacks in five first-20-measure excerpts (14.9% coverage, not accuracy). Verify all historical numbers against their specific scripts and data before using them as a current benchmark.
+
+
+## V23 review-player verification and commit policy — 2026-10-14
+
+**User instruction:** Push ongoing Composition Lab changes to GitHub as work proceeds, including **both** the actual scripts/files and this handoff. Report commit links; never claim a change was pushed before the write succeeds.
+
+### Verification status (do not overclaim)
+
+- Earlier Chromium smoke testing was reported to pass 60-case data loading, navigation, in-page annotation/save, review counts, model reveal, piano-roll redraw, and 60-row/17-column CSV generation. The corresponding results were produced in the prior assistant runtime; **do not treat these as independently reproduced from a clean checkout**.
+- A later attempt to verify browser reload persistence, audio scheduling/audible playback, actual downloaded CSV, and live GitHub Pages interactions was **inconclusive** due to browser navigation restrictions/timeouts. These remain **unverified**.
+- Source review confirms the V23 template uses browser localStorage, Web Audio oscillator synthesis, and CSV Blob export. Presence of implementation is not proof of functional behavior in a real browser.
+- The live review URL is https://mtch777.github.io/Guitar-Learning/composition-review.html ; verify with real browser interaction before reporting success.
+- **No independent human chord or phrase labels have been collected.** Musical accuracy remains unknown; 114/767 template-supported attacks is coverage, not accuracy.
+
+### Committed regression baseline
+
+- `composition-lab/checkpoints/2026-10-14/v23-review/test_review_player_contract.py`: dependency-free static template contract tests for controls, handlers, payload marker, export fields, local persistence hooks, and blind prediction reveal. This is **not** an end-to-end browser test. Run the file with Python and report the actual outcome before claiming it passed.
+- Next: implement a repeatable real-browser test with reload persistence, real CSV download parsing, Web Audio scheduling, and mobile checks; collect a small set of blind human judgments from different source songs/roles, then run V22 scorer with provenance and abstention coverage.
+- For every subsequent increment, commit the implementation/test changes and append confirmed results, known failures, and next steps to this handoff.
