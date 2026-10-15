@@ -515,30 +515,32 @@ export function setupSongPlayer({
   // The placeholder set must be computed from the same alphaTab notes and
   // transposition mapping that activeBeatsChanged uses during playback.
   function collectTrackPositions(track) {
-    const seen = new Set();
-    const positions = [];
-    for (const staff of track.staves || []) {
-      for (const bar of staff.bars || []) {
-        for (const voice of bar.voices || []) {
-          for (const beat of voice.beats || []) {
-            for (const note of beat.notes || []) {
-              if (!Number.isFinite(note.string) || !Number.isFinite(note.fret) ||
-                  note.string < 1 || note.fret < 0) continue;
-              const position = timeProfile
-                ? timeNotePosition(note)
-                : {string: note.string, fret: note.fret};
-              if (!position) continue;
-              const key = position.string + ':' + position.fret;
-              if (!seen.has(key)) {
-                seen.add(key);
-                positions.push(position);
-              }
+    // Only the selected guitar-solo track, restricted to the solo note range.
+    // bendPoints are not separate fretted notes.
+    const events=[];
+    for(const staff of track.staves||[])
+      for(const bar of staff.bars||[])
+        for(const voice of bar.voices||[])
+          for(const beat of voice.beats||[]) {
+            const start=Number(beat.absolutePlaybackStart);
+            if(!Number.isFinite(start))continue;
+            for(const note of beat.notes||[]) {
+              if(!Number.isFinite(note.string)||!Number.isFinite(note.fret)||note.string<1||note.fret<0)continue;
+              const position=timeProfile?timeNotePosition(note):{string:note.string,fret:note.fret};
+              if(position)events.push({start,position});
             }
           }
-        }
-      }
-    }
-    return positions;
+    if(!events.length)return [];
+    // Scope the placeholder collection to the score's solo passage.
+    const start=Math.min(...events.map(e=>e.start));
+    const end=Math.max(...events.map(e=>e.start));
+    const seen=new Set();
+    return events.filter(e=>e.start>=start&&e.start<=end)
+      .map(e=>e.position).filter(p=>{
+        const key=p.string+':'+p.fret;
+        if(seen.has(key))return false;
+        seen.add(key);return true;
+      });
   }
 
   // Chords are derived from timed bass and accompaniment events in the
