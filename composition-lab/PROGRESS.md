@@ -12,13 +12,19 @@ Interactive review acceptance (user explicitly requested the previous UI be foun
 - [x] Unit tests, browser interaction/visual verification, JS/Python regression and production build.
 - [x] Commit/push without overwriting concurrent main changes; verify Pages workflow and live URL/assets; deliver link.
 
+### Published review evidence
+
+- Implementation `aeb89b3c89a7d5020c56936b03248697086f4a9f` pushed after fetching and confirming no concurrent divergence. Composition Lab CI `38777752444`, browser preflight `38777752422`, Pages publication `38777752443`, and actual Pages deployment `38777803832` all **success**.
+- Live https://mtch777.github.io/Guitar-Learning/composition-ablation-review.html opened in browser with **0 of 10 reviewed**, methods hidden and blank notes. Manifest exactly matches the ten-case package; live Cloud WAV (1,433,294 bytes) and Sweet GP (5,462 bytes) SHA256 match local assets.
+- Link is ready for human review. No preference or coherence claim is inferred from QA. Feedback remains browser-local until exported. Older initial checklist and blocker entries below are historical; current measured results supersede them.
+
 ### Review implementation verification
 
 - Browser QA used `?qa=1`, a separate storage namespace explicitly excluded from human feedback. A/B playback paused the other player; Save/next advanced and played; case notes and uncertainty survived reload; reveal unlocked the generated GP link; piano-key audition displayed F5; JSON export downloaded successfully; Sweet study opened with blank case-specific notes. Desktop layout and expanded piano roll inspected visually.
 - `python -m unittest discover -s . -p 'test_*.py' -q` in composition-lab: **79 passed**. `node --test tests/*.test.mjs`: **8 passed**. `npm run build`: success, includes new review entry. `git diff --check`: clean.
 - Reused useful behavior from the old chord/phrase and riff-pair UIs; both remain intact. New standalone page provides ten generated sketches, direct audio, piano roll, blind ratings, local autosave, reveal audit, JSON restore/export and CSV export. Homepage links to it.
 - Public package includes only generated GP, synthetic preview audio and their note timelines; source scores, private answer files, model weights and actual user feedback remain excluded. This is UI verification, not a musical judgment.
-- Next action: push this verified update, check both publication and Pages deployment, and confirm live page/assets before delivering the link. Human listening remains the next research gate.
+- Next action: collect real human listening feedback through the deployed review. Human listening remains the next research gate.
 
 ## Acceptance checklist — 2026-10-15
 
