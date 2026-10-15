@@ -546,9 +546,15 @@ export function setupSongPlayer({
   // loaded score, never inferred from the melody's interval annotations.
   function collectTimedHarmony(selectedTrack) {
     if (!score) return [];
-    const soloEvents = [];
-    const accompaniment = [];
-    const bassEvents = [];
+    // This particular source score has the solo in measures 94–143.
+    // No accompaniment before or after those measures is admitted.
+    const firstBar = timeProfile ? 93 : 0;
+    const finalBar = timeProfile ? 142 : Infinity;
+    const bars = new Map();
+    const ensure = (index, start) => {
+      if (!bars.has(index)) bars.set(index, {index, start, end:start, bass:[], harmony:[], solo:[]});
+      return bars.get(index);
+    };
     for (const track of score.tracks) {
       const name = (track.name || '').toLowerCase();
       const bass = /bass/.test(name) && !/synthesizer|bass drum/.test(name);
@@ -556,53 +562,59 @@ export function setupSongPlayer({
       const solo = track.index === selectedTrack.index;
       if (!bass && !harmony && !solo) continue;
       for (const staff of track.staves || [])
-        for (const bar of staff.bars || [])
+        for (const [barIndex, bar] of (staff.bars || []).entries()) {
+          if (barIndex < firstBar || barIndex > finalBar) continue;
           for (const voice of bar.voices || [])
             for (const beat of voice.beats || []) {
               const start = Number(beat.absolutePlaybackStart);
               const duration = Number(beat.playbackDuration);
               if (!Number.isFinite(start) || !Number.isFinite(duration) || duration <= 0) continue;
+              const record = ensure(barIndex, start);
+              record.start = Math.min(record.start, start);
+              record.end = Math.max(record.end, start + duration);
               for (const note of beat.notes || []) {
                 const midi = Number(note.realValue);
                 if (!Number.isFinite(midi)) continue;
-                const event = {start, end:start+duration, pitch:midi-(timeProfile?2:0)};
-                if (bass) bassEvents.push(event);
-                if (harmony) accompaniment.push(event);
+                const event = {start, end:start+duration, pitch:midi-(timeProfile ? 2:0)};
+                if (bass) record.bass.push(event);
+                if (harmony) record.harmony.push(event);
                 if (solo) {
-                  const position = timeProfile ? timeNotePosition(note) : {string:note.string,fret:note.fret};
-                  if (position) soloEvents.push({...event,position});
+                  const position = timeProfile ? timeNotePosition(note) :
+                    {string:note.string, fret:note.fret};
+                  if (position) record.solo.push({...event, position});
                 }
               }
             }
+        }
     }
-    if (!bassEvents.length || !soloEvents.length) return [];
-    // The timeline covers the selected solo rather than the whole song.
-    const soloStart=Math.min(...soloEvents.map(e=>e.start));
-    const soloEnd=Math.max(...soloEvents.map(e=>e.end));
-    bassEvents.sort((a,b)=>a.start-b.start);
-    const boundaries=[...new Set([
-      soloStart,
-      ...bassEvents.filter(e=>e.start>soloStart&&e.start<soloEnd).map(e=>e.start),
-      soloEnd
-    ])].sort((a,b)=>a-b);
+    const ordered=[...bars.values()].sort((a,b)=>a.index-b.index);
+    if (!ordered.length) return [];
+    const allBass=ordered.flatMap(b=>b.bass).sort((a,b)=>a.start-b.start);
     const sections=[];
-    for (let i=0;i<boundaries.length;i++) {
-      const start=boundaries[i],end=boundaries[i+1] ?? soloEnd;
-      if (end<=start) continue;
-      const sounding=bassEvents.filter(e=>e.start<=start&&e.end>start);
-      const preceding=bassEvents.filter(e=>e.start<=start).at(-1);
-      const bass=sounding.length?sounding.reduce((a,b)=>a.pitch<b.pitch?a:b):preceding;
-      if (!bass)continue;
-      const root=((bass.pitch%12)+12)%12;
-      const pitches=accompaniment.filter(e=>e.start<end&&e.end>start).map(e=>((e.pitch%12)+12)%12);
-      const unique=new Set(pitches);
-      const major=unique.has((root+4)%12),minor=unique.has((root+3)%12);
+    const pc=p=>((p%12)+12)%12;
+    for (let i=0;i<ordered.length;i++) {
+      const bar=ordered[i];
+      const end=ordered[i+1]?.start ?? bar.end;
+      if (end<=bar.start) continue;
+      // Weighted bass pitch-class duration avoids passing notes creating new chords.
+      const weights=new Map();
+      const bassNotes=bar.bass.length ? bar.bass :
+        allBass.filter(e=>e.start<=bar.start && e.end>bar.start);
+      for (const n of bassNotes) {
+        const key=pc(n.pitch);
+        weights.set(key,(weights.get(key)||0)+Math.max(1,Math.min(end,n.end)-Math.max(bar.start,n.start)));
+      }
+      if (!weights.size) continue;
+      const root=[...weights].sort((a,b)=>b[1]-a[1])[0][0];
+      const pitches=new Set(bar.harmony.map(n=>pc(n.pitch)));
+      const major=pitches.has(pc(root+4)),minor=pitches.has(pc(root+3));
       const quality=minor&&!major?'minor':major&&!minor?'major':'unknown';
-      const positions=soloEvents.filter(e=>e.start<end&&e.end>start).map(e=>e.position);
-      const current=sections[sections.length-1];
-      if(current&&current.root===root&&current.quality===quality&&Math.abs(current.end-start)<.01){
-        current.end=end;current.positions.push(...positions);
-      } else sections.push({start,end,root,quality,positions:[...positions]});
+      const positions=bar.solo.map(n=>n.position);
+      const prev=sections[sections.length-1];
+      if (prev && prev.root===root && prev.quality===quality && prev.end<=bar.start) {
+        prev.end=end;
+        prev.positions.push(...positions);
+      } else sections.push({start:bar.start,end,root,quality,positions:[...positions]});
     }
     return sections;
   }
