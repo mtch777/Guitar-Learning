@@ -331,3 +331,11 @@ The V21 60 cases were chosen via a stratified four-group sampler, not random pop
 - Reference audition is user-controlled and never populated by the model's prediction. It is intentionally a **listening aid**, not a validated automatic chord classifier. The available chord vocabulary is limited; users can still type arbitrary labels or `unknown`.
 - Added static regression checks for the reference controls in `v23-review/test_review_player_contract.py`. **Browser/audio interaction and actual deployed GitHub Pages remain unverified** until a live browser test. These commits were not accompanied by an executed automated test run.
 - The root HTML page is committed on `main`; GitHub Pages publication timing and cache behavior must be verified independently.
+
+
+### V23 piano-roll pitch labels (2026-10-14)
+
+- Added pitch-name and octave labels (scientific pitch notation, sharps only; e.g. C4, F#3) to every rendered note rectangle in both the V23 source template and root `composition-review.html`.
+- For rectangles wide enough, labels render inside; narrow rectangles place the label above. The underlying notes and playback are unchanged.
+- **Known limitation:** Dense polyphonic notes and short durations may produce overlapping labels; requires real-browser visual verification and may need adaptive decluttering.
+- The actual browser display and deployed page have not yet been verified. Keep code, published-source HTML, and handoff synchronized for later edits.
