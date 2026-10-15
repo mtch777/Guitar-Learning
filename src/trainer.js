@@ -10291,7 +10291,7 @@ function displaySongPlayerNotes(
       }
 
       revealCell(cell);
-      cell.classList.remove('timeSoloGrayNote');
+      cell.classList.remove('timeSoloGrayNote', 'timeSoloCandidateNote');
       cell.classList.add('timeSoloSelectedNote');
 
       songPlayerActiveCells.add(
