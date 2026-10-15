@@ -4,7 +4,7 @@
 - [x] Roll follows A or B automatically when playback starts, with explicit A/B selector and sketch label. Comparison changes reload B notes; seek/playhead/scroll follow the displayed player. Stale asynchronous loads are discarded; filters reset for the new score.
 - [x] Browser QA: B Sketch 02 loaded one part, changing B to Sketch 04 loaded three; empty-space seek advanced B to 6.2s while A stayed 0; Play A restored A roll. Feedback storage/version untouched.
 - [x] Node tests: 8 passed; production build passed; diff whitespace clean.
-- [ ] Push main and verify GitHub Pages deployment and live B selector.
+- [x] Pushed implementation `4491f92`; CI and Pages publication passed. Actual Pages deployment `38788256548` succeeded; live B playback selected B / Sketch 02 and displayed its notes. Existing ten human reviews remained intact.
 
 # Composition Lab execution ledger
 
