@@ -524,6 +524,7 @@ const lessonDefinitions = {
     maxFret: 17,
     hasStartCue: false
   },
+  timeSoloChords: {label:'Time Solo (with Chords)',maxFret:17,hasStartCue:false},
   songPlayer: {
     label: 'Song Player',
     maxFret: 24,
@@ -1361,7 +1362,7 @@ function skipDailyCurrentLesson() {
   return false;
 }
 
-function displayTimeSoloLesson(allCells) {
+function displayTimeSoloLesson(allCells, playbackMode = false) {
   // Every position remains visible; selecting a chord section reveals only
   // the notes recorded in that section of the original tab.
   const cellByKey = new Map(allCells.map(item => [
@@ -1436,6 +1437,7 @@ function displayTimeSoloLesson(allCells) {
   }
 
   function selectGroup(group, button) {
+    if (playbackMode) return;
     for (const item of allCells) {
       const key = makeCellKey(item.stringIndex, item.fret);
       if (occurrenceCounts.has(key)) setGray(item);
@@ -1470,11 +1472,13 @@ function displayTimeSoloLesson(allCells) {
     button.className = 'timeSoloChordButton';
     button.style.flexGrow = String(Math.max(1, group.notes.length));
     button.textContent = noteNames[group.root];
+    button.dataset.startEvent=String(group.start);
+    button.dataset.endEvent=String(group.end);
     button.title = 'Section ' + (index + 1) +
       ' · tab notes ' + group.start + '–' + group.end;
     button.setAttribute('aria-label', button.title);
     button.setAttribute('aria-pressed', 'false');
-    button.addEventListener('click', () => selectGroup(group, button));
+    if (!playbackMode) button.addEventListener('click', () => selectGroup(group, button));
     track.appendChild(button);
   }
 }
@@ -2383,10 +2387,10 @@ function updateLessonControls() {
     ['modeInterval', 'identifyModeShape', 'identifyCagedShape'].includes(lessonType);
 
   const timeSolo =
-    lessonType === 'timeSolo';
+    ['timeSolo','timeSoloChords'].includes(lessonType);
 
   const songPlayer =
-    lessonType === 'songPlayer';
+    ['songPlayer','timeSoloChords'].includes(lessonType);
 
   document
     .getElementById(
@@ -7596,7 +7600,7 @@ function buildTrainer() {
      ======================================================= */
 
   if (
-    lessonType === 'songPlayer'
+    ['songPlayer','timeSoloChords'].includes(lessonType)
   ) {
     songPlayerCells =
       new Map();
@@ -7638,6 +7642,8 @@ function buildTrainer() {
         );
       }
     );
+
+    if (lessonType === 'timeSoloChords') displayTimeSoloLesson(allCells, true);
 
     const answerDisplay =
       document.getElementById(
@@ -9212,8 +9218,7 @@ document
       }
 
       if (
-        selectedLesson ===
-        'timeSolo'
+        ['timeSolo','timeSoloChords'].includes(selectedLesson)
       ) {
         currentTuning =
           [
@@ -10179,8 +10184,7 @@ function displaySongPlayerNotes(
   notes
 ) {
   if (
-    getSelectedLessonType() !==
-      'songPlayer'
+    !['songPlayer','timeSoloChords'].includes(getSelectedLessonType())
   ) {
     return;
   }
@@ -10196,9 +10200,8 @@ function displaySongPlayerNotes(
           '--song-player-bend-offset-y'
         );
 
-        hideCell(
-          cell
-        );
+        if(getSelectedLessonType()==='timeSoloChords' && cell.classList.contains('timeSoloNote')) {cell.classList.add('timeSoloGrayNote');cell.classList.remove('timeSoloSelectedNote');cell.textContent='';}
+        else hideCell(cell);
       }
     );
 
@@ -10238,9 +10241,9 @@ function displaySongPlayerNotes(
         return;
       }
 
-      revealCell(
-        cell
-      );
+      revealCell(cell);
+      cell.classList.remove('timeSoloGrayNote');
+      cell.classList.add('timeSoloSelectedNote');
 
       songPlayerActiveCells.add(
         cell
@@ -10301,10 +10304,8 @@ function displaySongPlayerNotes(
     answerDisplay.className =
       'songPlayerPrompt';
 
-    answerDisplay.textContent =
-      activeLabels.length
-        ? activeLabels.join(' · ')
-        : '—';
+    if (getSelectedLessonType()!=='timeSoloChords') answerDisplay.textContent =
+      activeLabels.length ? activeLabels.join(' · ') : '—';
   }
 }
 
@@ -10372,8 +10373,7 @@ function applySongPlayerTrack({
   }
 
   if (
-    getSelectedLessonType() ===
-      'songPlayer'
+    ['songPlayer','timeSoloChords'].includes(getSelectedLessonType())
   ) {
     buildTrainer();
 
@@ -10394,8 +10394,16 @@ function applySongPlayerTrack({
 }
 
 setupSongPlayer({
-  onActiveNotes:
-    displaySongPlayerNotes,
+  onActiveNotes: displaySongPlayerNotes,
+  onPositionChanged: ({fraction}) => {
+    if (getSelectedLessonType() !== 'timeSoloChords') return;
+    const buttons=[...document.querySelectorAll('.timeSoloChordButton')];
+    const eventIndex=1+Math.floor(Math.max(0,Math.min(0.99999,fraction))*TIME_SOLO_TAB_NOTES.length);
+    const active=buttons.find(b=>eventIndex>=Number(b.dataset.startEvent)&&eventIndex<=Number(b.dataset.endEvent));
+    buttons.forEach(b=>{b.classList.toggle('selected',b===active);b.setAttribute('aria-current',String(b===active));});
+    const prompt=document.getElementById('answerNote');
+    if(active&&prompt)prompt.textContent=active.textContent+' chord · approximate tab position';
+  },
 
   onTrackChanged:
     applySongPlayerTrack,
