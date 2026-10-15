@@ -10368,7 +10368,7 @@ function renderTimedTimeSoloSections(sections) {
   track.querySelectorAll('button').forEach(button => button.remove());
   const heading=document.querySelector('.timeSoloTimelineHeading');
   if (heading) heading.remove();
-  const chordMap={4:{major:'I',minor:'i'},6:{major:'II',minor:'ii'},7:{major:'♭III',minor:'♭iii'},
+  const chordMap={4:{major:'I',minor:'i'},6:{major:'II',minor:'ii',diminished:'ii°'},7:{major:'♭III',minor:'♭iii'},
     9:{major:'IV',minor:'iv'},11:{major:'V',minor:'v'},0:{major:'♭VI',minor:'♭vi'},
     2:{major:'♭VII',minor:'♭vii'}};
   const totalDuration = sections[sections.length-1].end - sections[0].start;
