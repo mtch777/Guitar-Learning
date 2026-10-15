@@ -1428,7 +1428,7 @@ function displayTimeSoloLesson(allCells, playbackMode = false) {
     cell.classList.remove('timeSoloSelectedNote');
     // Open-string circles use inline backgrounds, unlike fretted notes.
     // Override the inline interval color while this is only a placeholder.
-    if (item.isOpenString) cell.style.backgroundColor = '#858a92';
+    if (item.isOpenString) cell.style.backgroundColor = '#bfc3ca';
     cell.title = 'String ' + (item.stringIndex + 1) + ' · fret ' + item.fret;
     cell.setAttribute('aria-label', cell.title);
   }
@@ -1488,6 +1488,7 @@ function displayTimeSoloLesson(allCells, playbackMode = false) {
     button.textContent = chordLabel(group.root);
     button.dataset.startEvent=String(group.start);
     button.dataset.endEvent=String(group.end);
+    button.dataset.noteKeys=JSON.stringify([...new Set(group.notes.map(note => makeCellKey(note.stringIndex,note.fret)))]);
     button.title = noteNames[group.root] + ' · Section ' + (index + 1) +
       ' · tab notes ' + group.start + '–' + group.end;
     button.setAttribute('aria-label', button.title);
@@ -10194,6 +10195,36 @@ function drawBentString(
   return bendOffset;
 }
 
+// The currently highlighted chord's candidate notes are black until played.
+// The original tab is event-ordered, so these sections are approximate in time.
+function timeSoloChordCandidateKeys() {
+  const selected = document.querySelector('.timeSoloChordButton.selected');
+  if (!selected) return new Set();
+  try { return new Set(JSON.parse(selected.dataset.noteKeys || '[]')); }
+  catch { return new Set(); }
+}
+
+function showTimeSoloInactiveCell(cell, candidate) {
+  revealCell(cell);
+  cell.textContent = '';
+  cell.classList.add('timeSoloNote');
+  cell.classList.remove('timeSoloSelectedNote', 'timeSoloGrayNote', 'timeSoloCandidateNote');
+  cell.classList.add(candidate ? 'timeSoloCandidateNote' : 'timeSoloGrayNote');
+  if (cell.dataset.openString === 'true') {
+    cell.style.backgroundColor = candidate ? '#090909' : '#bfc3ca';
+  }
+}
+
+function updateTimeSoloChordCandidates() {
+  if (getSelectedLessonType() !== 'timeSoloChords') return;
+  const candidates = timeSoloChordCandidateKeys();
+  for (const [key, cell] of songPlayerCells) {
+    if (!cell.classList.contains('timeSoloNote') ||
+        songPlayerActiveCells.has(cell)) continue;
+    showTimeSoloInactiveCell(cell, candidates.has(key));
+  }
+}
+
 function displaySongPlayerNotes(
   notes
 ) {
@@ -10214,7 +10245,11 @@ function displaySongPlayerNotes(
           '--song-player-bend-offset-y'
         );
 
-        if(getSelectedLessonType()==='timeSoloChords' && cell.classList.contains('timeSoloNote')) {cell.classList.add('timeSoloGrayNote');cell.classList.remove('timeSoloSelectedNote');cell.textContent='';if(cell.dataset.openString==='true')cell.style.backgroundColor='#858a92';}
+        if (getSelectedLessonType() === 'timeSoloChords' && cell.classList.contains('timeSoloNote')) {
+          const candidates = timeSoloChordCandidateKeys();
+          const key = makeCellKey(Number(cell.dataset.stringIndex), Number(cell.dataset.fret));
+          showTimeSoloInactiveCell(cell, candidates.has(key));
+        }
         else hideCell(cell);
       }
     );
@@ -10426,7 +10461,9 @@ setupSongPlayer({
     }
     const eventIndex=1+Math.floor(Math.max(0,Math.min(0.99999,fraction))*TIME_SOLO_TAB_NOTES.length);
     const active=buttons.find(b=>eventIndex>=Number(b.dataset.startEvent)&&eventIndex<=Number(b.dataset.endEvent));
+    const previous = buttons.find(b => b.classList.contains('selected'));
     buttons.forEach(b=>{b.classList.toggle('selected',b===active);b.setAttribute('aria-current',String(b===active));});
+    if (previous !== active) updateTimeSoloChordCandidates();
     const prompt=document.getElementById('answerNote');
     if(active&&prompt)prompt.textContent=active.textContent+' · approximate tab position';
   },
