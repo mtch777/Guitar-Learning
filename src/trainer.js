@@ -107,7 +107,7 @@ document
     'lessonTypeSelect'
   )
   .value =
-    'daily';
+    'timeSoloChords';
 
 document
   .getElementById(
