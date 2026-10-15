@@ -1,3 +1,7 @@
+### Remote verification for learned milestone
+
+`731b8ee` and `bc71c08` are on origin/main. Final source CI `38799052169`, Pages publication `38799052190` and deployment `38799112326` all succeeded. Working tree clean before this log update. No website/review content changed. Code and source-free aggregate reports published; checkpoints, upstream code/data, raw source tokens, private judgments and all newly learned GP/audio artifacts remain ignored/local. Learned phrase-conditioning demonstrated on original-domain author-listed held-out data; GP transfer and musical-quality gate still open.
+
 ### Official-domain model calibration follow-up
 
 - Author-provided official data archive obtained locally (111.7 MB); included annotation license inspected, corpus kept ignored. No data or upstream code redistributed.
@@ -24,7 +28,7 @@ Acceptance criteria:
 - [x] Implement source-preserving adapter and learned generation, with source/weights/tokenization provenance; real local GP artifacts independently checked.
 - [x] Predeclare held-out split and metric before evaluation; compare context-aware prediction with matched shuffled/ablated context; no training or tuning on human reviews. Explicitly distinguish unknown pretrained corpus overlap from verified holdout.
 - [x] Train/test or run pretrained inference; test input-conditioning sensitivity, validity, copying and failures. Report negative results rather than relabeling them progress.
-- [ ] Regression and CI; commit/push code and aggregate evidence only. Keep learned weights/private source-derived artifacts outside Git. No website changes intended.
+- [x] Regression and CI; commit/push code and aggregate evidence only. Keep learned weights/private source-derived artifacts outside Git. No website changes intended.
 
 Research started: official Yin-Yang repository cloned only into ignored .local at 59a2a001884a1f235ef9a0313565487874f6e3b9. It exposes phrase generator/refiner/selector and a public artifact download; code/weight redistribution license not established. Official MeloForm README describes expert-system scaffold plus neural refinement; full expert implementation not released there. AccoMontage targets piano accompaniment selection/style transfer, not source-native guitar phrase generation. Investigate dependencies/downloads before selecting.
 
