@@ -1,5 +1,25 @@
 # Composition Lab execution ledger
 
+## Current continuation — recovered inputs and interactive review
+
+Historical missing-input entries below were superseded: the private ZIP was found in Downloads after concurrent remote updates, extracted safely, and all manifest hashes verified. Real pretrained inference and source-conditioned ablations now run; see `benchmarks/RESULTS_2026-10-15.md`. Implementation commit `53531ec` was rebased on concurrent `5518966` and pushed; Composition Lab CI and Pages publication succeeded.
+
+Interactive review acceptance (user explicitly requested the previous UI be found/read/adapted and a deployed link):
+- [x] Inspect both older review UIs; preserve the chord/phrase and riff-pair tools and their storage keys.
+- [x] Package ten generated sketches (four ablations plus V2 for each source family); exclude commercial originals, source-derived timelines, private reviews and weights.
+- [x] Interactive blind A/B playback, seek/loop/speed, piano roll and note audition; no setup upload.
+- [x] Case-specific autosave, no stale-case notes, explicit uncertainty, reveal audit, JSON/CSV export and safe feedback restore.
+- [x] Unit tests, browser interaction/visual verification, JS/Python regression and production build.
+- [ ] Commit/push without overwriting concurrent main changes; verify Pages workflow and live URL/assets; deliver link.
+
+### Review implementation verification
+
+- Browser QA used `?qa=1`, a separate storage namespace explicitly excluded from human feedback. A/B playback paused the other player; Save/next advanced and played; case notes and uncertainty survived reload; reveal unlocked the generated GP link; piano-key audition displayed F5; JSON export downloaded successfully; Sweet study opened with blank case-specific notes. Desktop layout and expanded piano roll inspected visually.
+- `python -m unittest discover -s . -p 'test_*.py' -q` in composition-lab: **79 passed**. `node --test tests/*.test.mjs`: **8 passed**. `npm run build`: success, includes new review entry. `git diff --check`: clean.
+- Reused useful behavior from the old chord/phrase and riff-pair UIs; both remain intact. New standalone page provides ten generated sketches, direct audio, piano roll, blind ratings, local autosave, reveal audit, JSON restore/export and CSV export. Homepage links to it.
+- Public package includes only generated GP, synthetic preview audio and their note timelines; source scores, private answer files, model weights and actual user feedback remain excluded. This is UI verification, not a musical judgment.
+- Next action: push this verified update, check both publication and Pages deployment, and confirm live page/assets before delivering the link. Human listening remains the next research gate.
+
 ## Acceptance checklist — 2026-10-15
 
 - [x] Recover instructions and current main; clean checkout at `0a6886b`; `git pull --ff-only origin main`: already current.

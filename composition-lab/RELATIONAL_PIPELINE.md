@@ -2,6 +2,8 @@
 
 This implementation advances engineering prerequisites. **The five-step roadmap is not complete.** It is not a trained genre-agnostic composition model, a validated harmony/phrase detector, or a musical-quality result.
 
+The recovered private bundle was found and extracted later in the same run. Both source conversions and real pretrained inference now execute. See [measured results](benchmarks/RESULTS_2026-10-15.md) for current evidence; earlier missing-input/dependency entries in the ledger are historical.
+
 ## Source fidelity and inference
 
 `exact_score.py` loads the checkpoint extractor without accidentally importing the older top-level `extract.py`. Empty GP voice slots now retain their indices, so occurrence editing addresses the correct voice. The canonical output retains raw track, bar, master-bar, rhythm, beat and note XML plus a source hash. Timing stays rational. This is a supported GPIF view; multi-staff track mapping, grace timing, instrument-articulation pitch resolution and source-specific anomalies still require validation. Raw descriptors do not prove that inference consumes them.
@@ -46,4 +48,6 @@ Differences are shares of changed plan units: per-bar root/quality, per-role/bar
 
 Run `python -m unittest discover -s . -p 'test_*.py' -v` here. Historical checkpoint tests run separately from their own directory; many require unavailable private `/mnt/data` fixtures. Do not report those tests as passing or reinterpret fixture absence as successful validation.
 
-Next prerequisites: locate original source scores/MusicXML/V2 baseline; inspect every Sweet Child timing discrepancy against actual GPIF; provide a functioning GraphMuse native build; run the pretrained model; use adjudicated role/harmonic evidence to build source-conditioned plans; then generate the actual controlled role ablations, validate held-out songs, and collect blind listening judgments.
+`source_ablations.py` now fits separate checkpoint sequence models to explicitly selected source harmony/lead/bass tracks. It writes four same-seed feature ablations with native tunings and MIDI programs, using fresh GPIF tables. Source grace events remain in the canonical representation and are explicitly excluded from this limited training view. Written ties are still treated as training events; learned sustain/ornament generation is unfinished. The last stage uses a repeated-bar distance as a weak motif cue, not validated phrase segmentation. Voicing-anchor coordination is not functional harmonic modeling. These limits make it a baseline, not the finished composition engine.
+
+Remaining: validate harmonic/phrase model predictions independently, develop actual phrase and non-chord-tone relationships rather than repetition cues, couple calibrated controls to the learned multi-role engine, support sustain/technique/percussion generation, broaden held-out songs/seeds, and collect real blind listening judgments. Source/model/code license claims remain separate.

@@ -17,7 +17,8 @@ class PreflightTests(unittest.TestCase):
             def process(command, **kwargs):
                 if emit_csv:
                     target=Path(command[command.index('--output_dir')+1])/'predictions.csv'
-                    target.write_text('id,root\nn1,C\n')
+                    columns=runner.TASKS.split(',')
+                    target.write_text(','.join(columns)+'\n'+','.join('0' for _ in columns)+'\n')
                 return CompletedProcess(command,0,'','')
             with patch.object(runner,'probe_dependency',return_value=dict(importable=True,error=None)), \
                  patch.object(runner.subprocess,'run',side_effect=process), \

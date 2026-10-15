@@ -46,7 +46,8 @@ class RelationalTests(unittest.TestCase):
             path=Path(tmp)/'view.musicxml'; score=fixture()
             report=export_musicxml(score,path)
             self.assertTrue(report['exact_note_timing_pitch_voice'])
-            root=ET.parse(path); root.find('.//note/duration').text='2'; root.write(path)
+            root=ET.parse(path); duration=root.find('.//note/duration')
+            duration.text=str(int(duration.text)+1); root.write(path)
             self.assertFalse(audit_musicxml(score,path)['exact_note_timing_pitch_voice'])
 
     def test_overfull_rejected_not_stretched(self):
@@ -54,6 +55,37 @@ class RelationalTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(ValueError,'Overfull'):
                 export_musicxml(score,Path(tmp)/'bad.xml')
+
+    def test_grace_preserves_occurrence_without_stretching_meter(self):
+        root=ET.fromstring('''<GPIF><Tracks><Track id="0"><Name>Grace test</Name></Track></Tracks>
+        <MasterBars><MasterBar><Time>4/4</Time><Bars>0</Bars></MasterBar></MasterBars>
+        <Bars><Bar id="0"><Voices>0</Voices></Bar></Bars><Voices><Voice id="0"><Beats>0 1</Beats></Voice></Voices>
+        <Beats><Beat id="0"><GraceNotes>OnBeat</GraceNotes><Rhythm ref="0"/><Notes>0</Notes></Beat>
+        <Beat id="1"><Rhythm ref="1"/><Notes>1</Notes></Beat></Beats>
+        <Notes><Note id="0"><Properties><Property name="Midi"><Number>59</Number></Property></Properties></Note>
+        <Note id="1"><Properties><Property name="Midi"><Number>60</Number></Property></Properties></Note></Notes>
+        <Rhythms><Rhythm id="0"><NoteValue>Eighth</NoteValue></Rhythm><Rhythm id="1"><NoteValue>Whole</NoteValue></Rhythm></Rhythms></GPIF>''')
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'grace.gp'
+            with zipfile.ZipFile(path,'w') as z: z.writestr('Content/score.gpif',ET.tostring(root))
+            score=extract_score(path); voice=score['tracks'][0]['measures'][0]['voices'][0]
+            self.assertEqual([e['onset_q'] for e in voice],['0/1','0/1'])
+            self.assertEqual(voice[0]['duration_q'],'0/1')
+            self.assertEqual(voice[0]['notated_duration_q'],'1/2')
+            report=export_musicxml(score,Path(tmp)/'grace.musicxml')
+            self.assertTrue(report['exact_note_timing_pitch_voice'])
+            self.assertFalse(report['source_voice_findings'])
+            graph=build_graph(score)
+            self.assertTrue(any(e['relation']=='SIMULTANEOUS' for e in graph['edges']))
+            self.assertTrue(any(e['relation']=='GRACE_OF' for e in graph['edges']))
+            self.assertFalse(any(e['relation']=='OVERLAPS' for e in graph['edges']))
+
+    def test_empty_bar_has_explicit_inference_silence(self):
+        score=fixture(); score['tracks'][0]['measures'][0]['voices']=[[]]
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'empty.musicxml'; export_musicxml(score,path)
+            root=ET.parse(path)
+            self.assertIsNotNone(root.find('./part/measure/note/rest'))
 
     def test_sparse_voice_indices_and_raw_metadata(self):
         root=ET.fromstring('''<GPIF><Tracks><Track id="0"><Name>Test</Name></Track></Tracks>

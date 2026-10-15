@@ -15,6 +15,7 @@ def build_graph(score, hypotheses=()):
     timed = []
     signatures = defaultdict(list)
     relative_signatures = defaultdict(list)
+    pending_graces=defaultdict(list)
 
     def group(kind, key, **data):
         gid = kind + ':' + str(key)
@@ -39,8 +40,12 @@ def build_graph(score, hypotheses=()):
                         edges.add((bid,relation,target))
                     if section: edges.add((bid,'IN_SECTION',section))
                     onset, duration = Fraction(beat['onset_q']), Fraction(beat['duration_q'])
-                    if duration <= 0:
-                        raise ValueError('Non-positive duration; grace notes need explicit modeling')
+                    if duration < 0 or (duration == 0 and not beat.get('grace_type')):
+                        raise ValueError('Zero duration requires explicit grace notation')
+                    if beat.get('grace_type'):
+                        pending_graces[ti,vi].append(bid)
+                    else:
+                        for grace in pending_graces.pop((ti,vi),[]):edges.add((grace,'GRACE_OF',bid))
                     members = []
                     for ni, note in enumerate(beat['notes']):
                         nid = bid + f':n{ni}'
@@ -74,13 +79,19 @@ def build_graph(score, hypotheses=()):
                 for right in groups[b]:
                     edges.add((left, 'NEXT_IN_VOICE', right))
     active = []
+    simultaneous=defaultdict(list)
     for start, end, nid in sorted(timed):
+        simultaneous[start].append(nid)
         active = [(s,e,n) for s,e,n in active if e > start]
-        for s,e,other in active:
-            edges.add((other, 'OVERLAPS', nid))
-            if s == start:
-                edges.add((other, 'SIMULTANEOUS', nid))
-        active.append((start,end,nid))
+        if end>start:
+            for s,e,other in active:
+                edges.add((other, 'OVERLAPS', nid))
+                if s == start:
+                    edges.add((other, 'SIMULTANEOUS', nid))
+            active.append((start,end,nid))
+    for members in simultaneous.values():
+        for i,left in enumerate(members):
+            for right in members[i+1:]: edges.add((left,'SIMULTANEOUS',right))
 
     by_endpoint = defaultdict(list)
     for start, end, nid in sorted(timed):

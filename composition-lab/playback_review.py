@@ -12,9 +12,8 @@ import random
 import wave
 
 
-def render_midi(source, destination, sample_rate=22050):
+def read_midi_notes(source):
     import mido
-    import numpy as np
     midi=mido.MidiFile(source); now=0.; sounding={}; notes=[]
     for msg in midi:
         now+=msg.time
@@ -23,10 +22,16 @@ def render_midi(source, destination, sample_rate=22050):
         elif msg.type=='note_off' or (msg.type=='note_on' and not msg.velocity):
             queue=sounding.get((msg.channel,msg.note),[])
             if queue:
-                start,velocity=queue.pop(0); notes.append((start,now,msg.note,velocity))
+                start,velocity=queue.pop(0); notes.append((start,now,msg.note,velocity,msg.channel))
     if any(sounding.values()): raise ValueError('Unterminated MIDI note')
+    return now,notes
+
+
+def render_midi(source, destination, sample_rate=22050):
+    import numpy as np
+    now,notes=read_midi_notes(source)
     samples=np.zeros(int((now+.5)*sample_rate),dtype=np.float64)
-    for start,end,pitch,velocity in notes:
+    for start,end,pitch,velocity,channel in notes:
         size=max(1,int((end-start)*sample_rate)); t=np.arange(size)/sample_rate
         envelope=np.minimum(1,t/.008)*np.minimum(1,(end-start-t)/.04)
         tone=np.sin(2*np.pi*(440*2**((pitch-69)/12))*t)*np.maximum(0,envelope)*velocity/127

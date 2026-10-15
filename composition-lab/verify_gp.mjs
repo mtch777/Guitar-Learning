@@ -15,6 +15,7 @@ for (const file of files) {
     const fraction=x=>{const [a,b='1']=String(x).split('/');return Number(a)/Number(b);};
     if(score.tracks.length!==expected.tracks.length) throw new Error('Track count mismatch');
     for(const [ti,t] of expected.tracks.entries()) {
+      if(t.program!==undefined && t.program!==null && score.tracks[ti].playbackInfo.program!==t.program) throw new Error('Instrument program mismatch');
       const actual=score.tracks[ti].staves[0];
       if(JSON.stringify(actual.tuning)!==JSON.stringify([...t.tunings[0]].reverse())) throw new Error('Tuning mismatch');
       if(actual.bars.length!==t.measures.length) throw new Error('Bar count mismatch');
@@ -36,7 +37,7 @@ for (const file of files) {
   const handler = new at.midi.AlphaSynthMidiFileHandler(midi, true);
   new at.midi.MidiFileGenerator(score, null, handler).generate();
   fs.writeFileSync(file.replace(/\.gp$/i, '.mid'), midi.toBinary());
-  const tracks = score.tracks.map(t => ({ name:t.name, tuning:t.staves[0].tuning,
+  const tracks = score.tracks.map(t => ({ name:t.name, tuning:t.staves[0].tuning, program:t.playbackInfo.program,
     notes:t.staves.flatMap(s=>s.bars).flatMap(b=>b.voices).flatMap(v=>v.beats).reduce((n,b)=>n+b.notes.length,0) }));
   const report = { file, reader:'alphaTab', tracks, bars:score.masterBars.length,
     midiBytes:midi.toBinary().length, expected_pitch_timing_tuning_checked:compared, playback_listened:false };

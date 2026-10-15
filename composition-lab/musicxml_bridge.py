@@ -27,6 +27,9 @@ def export_musicxml(score, path):
     if overfull:
         raise ValueError('Overfull source voices require source-level reconciliation: ' + json.dumps(overfull))
     root = ET.Element('score-partwise', version='4.0')
+    # Partitura requires one divisions value per part for note-array inference.
+    divisions=math.lcm(*[Fraction(e['duration_q']).denominator for t in score['tracks']
+                         for m in t['measures'] for v in m['voices'] for e in v],1)
     parts = ET.SubElement(root, 'part-list')
     for track in score['tracks']:
         ti = track['index']; pid = f'P{ti}'
@@ -35,14 +38,23 @@ def export_musicxml(score, path):
         part = ET.SubElement(root, 'part', id=pid)
         for mi, measure in enumerate(track['measures']):
             bar = ET.SubElement(part, 'measure', number=str(mi+1))
-            durations = [Fraction(e['duration_q']) for v in measure['voices'] for e in v]
-            divisions = math.lcm(*[d.denominator for d in durations], 1)
             attrs = ET.SubElement(bar, 'attributes')
             ET.SubElement(attrs, 'divisions').text = str(divisions)
+            if measure.get('key_signature'):
+                key=ET.SubElement(attrs,'key')
+                ET.SubElement(key,'fifths').text=str(measure['key_signature']['fifths'])
+                ET.SubElement(key,'mode').text=(measure['key_signature']['mode'] or 'major').lower()
             time = ET.SubElement(attrs, 'time')
             num, den = measure['time_signature'].split('/')
             ET.SubElement(time, 'beats').text = num
             ET.SubElement(time, 'beat-type').text = den
+            if not any(measure['voices']):
+                # GP empty bar is implicit silence; MusicXML readers need its
+                # metrical extent. No source note occurrence is synthesized.
+                rest=ET.SubElement(bar,'note',id=f'implicit-rest-t{ti}m{mi}')
+                ET.SubElement(rest,'rest',measure='yes')
+                ET.SubElement(rest,'duration').text=str(int(Fraction(4*int(num),int(den))*divisions))
+                ET.SubElement(rest,'voice').text='1'
             previous_total = 0
             for vi, voice in enumerate(measure['voices']):
                 if not voice:
@@ -52,14 +64,14 @@ def export_musicxml(score, path):
                 total = 0
                 for ei, event in enumerate(voice):
                     raw = ET.fromstring(event.get('beat_xml', '<Beat/>'))
-                    if raw.find('GraceNotes') is not None:
-                        raise ValueError('Grace timing requires explicit reconciliation')
+                    grace_type=event.get('grace_type')
                     ticks = Fraction(event['duration_q']) * divisions
                     assert ticks.denominator == 1
                     total += int(ticks)
                     for ni, note in enumerate(event['notes'] or [None]):
                         nid = f't{ti}m{mi}v{vi}b{ei}n{ni}'
                         node = ET.SubElement(bar, 'note', id=nid)
+                        if grace_type: ET.SubElement(node,'grace')
                         if ni:
                             ET.SubElement(node, 'chord')
                         if note is None:
@@ -75,8 +87,12 @@ def export_musicxml(score, path):
                             if '#' in spelling:
                                 ET.SubElement(pitch, 'alter').text = '1'
                             ET.SubElement(pitch, 'octave').text = str(midi//12-1)
-                        ET.SubElement(node, 'duration').text = str(int(ticks))
+                        if not grace_type: ET.SubElement(node, 'duration').text = str(int(ticks))
                         ET.SubElement(node, 'voice').text = str(vi+1)
+                        if grace_type:
+                            types={'Whole':'whole','Half':'half','Quarter':'quarter','Eighth':'eighth',
+                                   '16th':'16th','32nd':'32nd','64th':'64th','128th':'128th','256th':'256th'}
+                            ET.SubElement(node,'type').text=types[event['rhythm']]
                         if note:
                             for attr, kind in [('destination','stop'), ('origin','start')]:
                                 if (note.get('tie') or {}).get(attr) == 'true':
@@ -97,12 +113,12 @@ def audit_musicxml(score, path):
             div = measure.findtext('./attributes/divisions')
             if div: divisions = int(div)
             cursor = Fraction(0); last = Fraction(0)
-            source_measure = score['tracks'][ti]['measures'][mi]
+            source_measure = next(t for t in score['tracks'] if t['index']==ti)['measures'][mi]
             for node in measure:
                 if node.tag in ('backup', 'forward'):
                     cursor += Fraction(int(node.findtext('duration')), divisions) * (-1 if node.tag == 'backup' else 1)
                 if node.tag != 'note': continue
-                dur = Fraction(int(node.findtext('duration')), divisions)
+                dur = Fraction(int(node.findtext('duration') or '0'), divisions)
                 onset = last if node.find('chord') is not None else cursor
                 if node.find('chord') is None:
                     last = cursor; cursor += dur

@@ -66,12 +66,18 @@ def extract_score(path: str | Path) -> dict:
                     pitches=staff.findtext("./Properties/Property[@name='Tuning']/Pitches")
                     tunings.append([int(x) for x in pitches.split()] if pitches else [])
                 output['tracks'].append({'index':ti,'name':track.findtext('Name'),
+                                         'program':_numeric(track.findtext('./GeneralMidi/Program') or track.findtext('.//MIDI/Program')),
                                          'track_xml':ET.tostring(track,encoding='unicode'),
+                                         'is_percussion':(track.find("./GeneralMidi[@table='Percussion']") is not None or
+                                                          track.findtext('./InstrumentSet/Type')=='drumKit'),
                                          'tunings':tunings,'measures':[]})
             barids=_ids(master,'Bars')
             if ti>=len(barids):raise ValueError(f'Missing bar for track {ti} measure {mi+1}')
             bar=bars[barids[ti]]
             m={'number':mi+1,'time_signature':meter,'section':master.findtext('./Section/Text'),
+               'key_signature':({'fifths':int(master.findtext('./Key/AccidentalCount')),
+                                 'mode':master.findtext('./Key/Mode')}
+                                if master.findtext('./Key/AccidentalCount') is not None else None),
                'master_bar_xml':ET.tostring(master,encoding='unicode'),'bar_xml':ET.tostring(bar,encoding='unicode'),
                'onset_q':frac(start),'bar_id':barids[ti],'voices':[]}
             for vi,voice_id in enumerate(_ids(bar,'Voices')):
@@ -83,11 +89,14 @@ def extract_score(path: str | Path) -> dict:
                     beat=beats[beat_id]
                     ref=beat.find('Rhythm')
                     rhythm=rhythms.get(ref.get('ref')) if ref is not None else None
-                    dur=duration(rhythm)
+                    notated_dur=duration(rhythm)
+                    grace_type=beat.findtext('GraceNotes')
+                    dur=Fraction(0) if grace_type in ('OnBeat','BeforeBeat') else notated_dur
                     note_ids=_ids(beat,'Notes')
                     ev={'beat_id':beat_id,'voice_index':vi,'onset_q':frac(start+offset),
                         'voice_id':voice_id,'beat_xml':ET.tostring(beat,encoding='unicode'),
                         'rhythm_xml':ET.tostring(rhythm,encoding='unicode'),
+                        'notated_duration_q':frac(notated_dur),'grace_type':grace_type,
                         'local_onset_q':frac(offset),'duration_q':frac(dur),
                         'rhythm':rhythm.findtext('NoteValue'),
                         'dots':rhythm.find('AugmentationDot').get('count','1') if rhythm.find('AugmentationDot') is not None else None,
@@ -101,6 +110,7 @@ def extract_score(path: str | Path) -> dict:
                             'note_xml':ET.tostring(note,encoding='unicode'),
                             'fret':_numeric(_property(note,'Fret','Fret')),'midi':_pitch_number(note),
                             'onset_q':ev['onset_q'],'duration_q':ev['duration_q'],
+                            'notated_duration_q':ev['notated_duration_q'],'grace_type':grace_type,
                             'tie':dict(note.find('Tie').attrib) if note.find('Tie') is not None else None,
                             'technique_tags':[x.tag for x in note if x.tag!='Properties'],
                             'property_names':[x.get('name') for x in props] if props is not None else [],

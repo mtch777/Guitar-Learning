@@ -49,6 +49,7 @@ def validate_events(score):
         for measure in track['measures']:
             expected=meter_length(measure['time_signature'])
             for vi,voice in enumerate(measure['voices']):
+                if not voice: continue  # Absent GP voice slot, not an underfull voice.
                 total=sum((Fraction(b['duration_q']) for b in voice),Fraction(0))
                 if total != expected:
                     findings.append({'track':track['index'],'measure':measure['number'],
