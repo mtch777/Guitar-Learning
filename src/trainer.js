@@ -10221,11 +10221,12 @@ function showTimeSoloInactiveCell(cell, candidate) {
 function updateTimeSoloChordCandidates() {
   if (getSelectedLessonType() !== 'timeSoloChords') return;
   const candidates = timeSoloChordCandidateKeys();
+  // Recompute all inactive markers from the current section on every update.
+  // Never preserve an old candidate class as an implicit state.
   for (const [key, cell] of songPlayerCells) {
     if (!cell.classList.contains('timeSoloNote') || songPlayerActiveCells.has(cell)) continue;
-    const candidate = candidates.has(key);
-    if (cell.classList.contains(candidate ? 'timeSoloCandidateNote' : 'timeSoloGrayNote')) continue;
-    showTimeSoloInactiveCell(cell, candidate);
+    cell.classList.remove('timeSoloCandidateNote', 'timeSoloGrayNote');
+    showTimeSoloInactiveCell(cell, candidates.has(key));
   }
 }
 
@@ -10352,6 +10353,10 @@ function displaySongPlayerNotes(
     document.getElementById(
       'answerNote'
     );
+
+  // Candidate state is derived from the currently selected chord, not
+  // accumulated from previously played/chosen chord sections.
+  if (getSelectedLessonType() === 'timeSoloChords') updateTimeSoloChordCandidates();
 
   if (answerDisplay) {
     answerDisplay.className =
