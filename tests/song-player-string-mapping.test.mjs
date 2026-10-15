@@ -28,7 +28,7 @@ test('track tuning and active notes agree for 6, 7, and 8 strings, including tra
     for (let f = 0; f <= 24; f++) {
       context.songPlayerCells.set(`${s}:${f}`, {
         stringIndex: s, fret: f,
-        classList: { remove() {} }, style: { removeProperty() {} },
+        classList: { add() {}, remove() {}, contains() { return false; } }, style: { removeProperty() {} },
       });
     }
   }
