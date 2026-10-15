@@ -512,6 +512,35 @@ export function setupSongPlayer({
     );
   }
 
+  // The placeholder set must be computed from the same alphaTab notes and
+  // transposition mapping that activeBeatsChanged uses during playback.
+  function collectTrackPositions(track) {
+    const seen = new Set();
+    const positions = [];
+    for (const staff of track.staves || []) {
+      for (const bar of staff.bars || []) {
+        for (const voice of bar.voices || []) {
+          for (const beat of voice.beats || []) {
+            for (const note of beat.notes || []) {
+              if (!Number.isFinite(note.string) || !Number.isFinite(note.fret) ||
+                  note.string < 1 || note.fret < 0) continue;
+              const position = timeProfile
+                ? timeNotePosition(note)
+                : {string: note.string, fret: note.fret};
+              if (!position) continue;
+              const key = position.string + ':' + position.fret;
+              if (!seen.has(key)) {
+                seen.add(key);
+                positions.push(position);
+              }
+            }
+          }
+        }
+      }
+    }
+    return positions;
+  }
+
   function applySelectedTrack() {
     const track =
       getSelectedTrack();
@@ -544,6 +573,7 @@ export function setupSongPlayer({
         track.index,
       name:
         track.name,
+      placeholderPositions: collectTrackPositions(track),
       tuningHighToLow:
         timeProfile ? [...TIME_SOLO_DROP_E_TUNING].reverse() : getTrackStringTuning(track)
     });
