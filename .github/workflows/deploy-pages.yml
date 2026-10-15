@@ -75,6 +75,19 @@ jobs:
           mkdir -p dist/versions/f8aef27
           cp -a _midpoint2/dist/. dist/versions/f8aef27/
 
+      - name: Checkout bisection version 3bfe936
+        uses: actions/checkout@v4
+        with:
+          ref: 3bfe9365b67f2bbfe186f9e386c6ad18bd3513ee
+          path: _bisect3
+
+      - name: Build bisection preview 3bfe936
+        run: |
+          npm ci --prefix _bisect3
+          npm run build --prefix _bisect3 -- --base /Guitar-Learning/versions/3bfe936/
+          mkdir -p dist/versions/3bfe936
+          cp -a _bisect3/dist/. dist/versions/3bfe936/
+
       - name: Publish dist to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
