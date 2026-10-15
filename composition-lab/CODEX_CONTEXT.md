@@ -48,3 +48,30 @@ Relevant research and code:
 
 ## Execution protocol
 Maintain a checked-in progress ledger with acceptance evidence, actual commands, artifacts and next action. Continue automatically after each successful test, within agent/runtime limits. Retry sensible failures, but never fake completion. If a prerequisite is blocked, record the blocker and work on other independent steps. Commit verified code, not private source scores. Avoid changing unrelated guitar-trainer UI. Summarize only when work is done or human input is truly required.
+
+## CRITICAL 2026-10-15 handoff correction: missing local inputs FOUND
+
+Previous assistant claimed the files were unavailable. They have now been recovered from this ChatGPT conversation's mounted artifacts, and a **private local input ZIP** was created for the user to download and extract into the local clone. Do not assume Codex has access to ChatGPT uploads. Do not commit the private ZIP or any original commercial score to the public repository.
+
+ZIP: `Composition_Lab_Codex_Private_Inputs.zip` (supplied to user as a ChatGPT attachment, NOT hosted on public GitHub). Extract into `G:\\Guitar-Learning\\composition-lab\\`. Archive paths start with `private-sources/`. The directory is now in the repository's `.gitignore`.
+
+Recovered contents:
+- `private-sources/Cloud Cascade (Tuned Down).gp` — original 6-track, 111-bar source, SHA256 `63cfae7762a5ac56b2f0521d8c01cbf6025fac74ea525c7a6b7d260703492f66`.
+- `private-sources/Sweet Child O' Mine.gp` — original 9-track, 185-bar source, SHA256 `17c5ecc0606a6334bf2818ba3f2d1f4a8574f0777cf6750565f644a0ee0b9e7f`.
+- `private-sources/experiments/cloud_experiment/` — `Cloud_Cascade_V2_Baseline.gp`, `Cloud_Cascade_Source_Conditioned.gp`, `source_conditioned.py`, `EXPERIMENT_REPORT.md`.
+- `private-sources/experiments/sweet_child_experiment/` — `Sweet_Child_V2_Baseline.gp`, `Sweet_Child_Source_Conditioned.gp`, `source_conditioned.py`, `EXPERIMENT_REPORT.md`.
+- `private-sources/analysisgnn/` — `gp7_to_musicxml.py`, `conversion_report.json`, `preflight/manifest.json`, and two converted MusicXML scores in `musicxml/`. These are experimental outputs and must be independently verified.
+- `private-sources/LOCAL_INPUTS_MANIFEST.json` — hashes of original and experiment GP files.
+
+The converted MusicXML export reported 5314/5314 notes and 0 invalid bars for Cloud, and 10138/10138 notes and 18 invalid bars for Sweet. These are **duration discrepancies**, not necessarily 18 missing notes. Investigate against source rational-time events and GP tuplets/voices. The previous preflight did not run pretrained AnalysisGNN inference because torch_geometric, partitura, graphmuse, and analysisgnn were unavailable. The ZIP contains the converter and exports; `composition-lab/benchmarks/analysisgnn_preflight.py` is already committed.
+
+**Critical remaining limitations/gaps**:
+1. Codex needs the user to extract the ZIP locally. A GitHub commit cannot transfer private copyrighted sources into a Windows local clone safely.
+2. Neither a runnable pretrained checkpoint nor trained inference predictions have been provided. Codex must install dependencies, obtain checkpoint under license, and run inference.
+3. The baseline experiment reports contain structural checks, not verified human blind listening; do not invent evaluations.
+4. Source-conditioned scripts may embed old machine-specific paths. Fix paths locally and preserve their prototype nature.
+5. GP/MusicXML fidelity (ties, techniques, fret/string, track role, tuplets) requires systematic validation; note counts alone are insufficient.
+6. The detailed handoff predates these experiments; this document is the latest correction.
+7. A persistent agent loop is subject to runtime limits; use checked-in progress and acceptance evidence, not false claims of indefinite execution.
+
+**Next action for Codex**: after `git pull` and local ZIP extraction, verify SHA256, inspect reports and converter, rerun the 18 discrepancy analysis, then run AnalysisGNN benchmark while progressing independent graph and generator work. Never publish the private sources.
