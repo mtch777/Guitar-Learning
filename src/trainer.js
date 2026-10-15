@@ -481,6 +481,7 @@ let currentRrPentExercise = null;
 let currentShapeExercise = null;
 let currentCagedExercise = null;
 let currentModeIntervalExercise = null;
+let timeSoloLoadedPositions = null;
 let songPlayerCells = new Map();
 let songPlayerStringOffset = 0;
 let songPlayerActiveCells = new Set();
@@ -1369,7 +1370,10 @@ function displayTimeSoloLesson(allCells, playbackMode = false) {
     makeCellKey(item.stringIndex, item.fret), item
   ]));
   const occurrenceCounts = new Map();
-  TIME_SOLO_TAB_NOTES.forEach(note => {
+  const displayedNotes = playbackMode
+    ? (timeSoloLoadedPositions || [])
+    : TIME_SOLO_TAB_NOTES;
+  displayedNotes.forEach(note => {
     const key = makeCellKey(note.stringIndex, note.fret);
     occurrenceCounts.set(key, (occurrenceCounts.get(key) || 0) + 1);
   });
@@ -10361,7 +10365,8 @@ function displaySongPlayerNotes(
 function applySongPlayerTrack({
   name,
   timeProfile = false,
-  tuningHighToLow
+  tuningHighToLow,
+  placeholderPositions = []
 }) {
   if (
     !Array.isArray(
@@ -10397,6 +10402,11 @@ function applySongPlayerTrack({
     stringCount;
 
   songPlayerStringOffset = firstInternalIndex;
+  timeSoloLoadedPositions = placeholderPositions.map(note => ({
+    stringIndex: firstInternalIndex + Number(note.string) - 1,
+    fret: Number(note.fret)
+  })).filter(note => note.stringIndex >= 0 && note.stringIndex < 8 &&
+    note.fret >= 0 && note.fret <= 24);
 
   lowToHigh.forEach(
     (
