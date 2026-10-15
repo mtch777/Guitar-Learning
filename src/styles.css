@@ -1818,18 +1818,30 @@ button.uiButton:disabled {
 }
 
 
-/* Time solo: all recorded locations stay as neutral circles until selected. */
+/* The three states: light gray inactive, black current-chord candidate,
+   normal interval styling while sounding. */
 .physicalFretboard .fretboardNote.timeSoloGrayNote.revealed::before {
-  background: #858a92;
-  border-color: #858a92;
+  background: #bfc3ca;
+  border-color: #bfc3ca;
   opacity: 1;
 }
-.physicalFretboard .fretboardNote.timeSoloGrayNote.revealed {
+.physicalFretboard .fretboardNote.timeSoloCandidateNote.revealed::before {
+  background: #090909;
+  border-color: #090909;
+  opacity: 1;
+}
+.physicalFretboard .fretboardNote.timeSoloGrayNote.revealed,
+.physicalFretboard .fretboardNote.timeSoloCandidateNote.revealed {
   color: transparent;
 }
 .fretboardOpenStrings .openStringNote.timeSoloGrayNote.revealed {
-  background: #858a92;
-  border-color: #858a92;
+  background: #bfc3ca;
+  border-color: #bfc3ca;
+  color: transparent;
+}
+.fretboardOpenStrings .openStringNote.timeSoloCandidateNote.revealed {
+  background: #090909;
+  border-color: #090909;
   color: transparent;
 }
 .timeSoloTimeline {
