@@ -5,7 +5,8 @@ No threshold tuning: this conservative structural comparator is diagnostic,
 NOT a replacement for the original model or a validated classifier.
 """
 from __future__ import annotations
-import argparse,csv
+import argparse,csv,zipfile
+from xml.etree import ElementTree as ET
 from collections import Counter
 from fractions import Fraction
 from pathlib import Path
@@ -22,16 +23,27 @@ def load_reviews(paths):
                     raise ValueError('Conflicting boundary judgments for '+repr(key))
                 reviews[key]=row
     return reviews
-def timeline(track):
-    cursor=0.;events=[]
-    for number,measure in enumerate(track['measures'],1):
-        # This V23 source is 4/4; the parser does not expose time signatures.
-        duration=max(4.,max((onset+dur for _,onset,dur,_ in measure),default=4.))
+def meter_lengths(path):
+    """Read authoritative measure durations from GPIF master-bar time signatures."""
+    with zipfile.ZipFile(path) as archive:
+        root=ET.fromstring(archive.read('Content/score.gpif'))
+    lengths=[]
+    for bar in root.findall('./MasterBars/MasterBar'):
+        signature=(bar.findtext('Time') or '').strip()
+        numerator,denominator=map(int,signature.split('/'))
+        lengths.append(4*numerator/denominator)
+    return lengths
+
+def timeline(track,bar_lengths):
+    cursor=0.;events=[];overflow=[]
+    for number,(measure,length) in enumerate(zip(track['measures'],bar_lengths),1):
         for voice,onset,dur,pitches in measure:
+            if onset+dur>length+.025:
+                overflow.append(dict(measure=number,voice=voice,onset=onset,duration=dur,bar_length=length))
             events.append(dict(t=round(cursor+onset,5),end=round(cursor+onset+dur,5),voice=voice,pitches=pitches,measure=number))
-        cursor+=duration
-    return events
-def features(row,events,phrase_starts,section_starts):
+        cursor+=length
+    return events,overflow
+def features(row,events,phrase_starts,section_starts,bar_starts):
     t=float(Fraction(row['onset_q']));near=[e for e in events if abs(e['t']-t)<.025]
     voices=sorted({e['voice'] for e in near})
     previous=[e for e in events if e['t']<t-.025 and e['voice'] in voices]
@@ -49,17 +61,25 @@ def confusion(pairs):
 def probe(score_path,csv_paths):
     song=parse(score_path);reviews=load_reviews(csv_paths)
     original=[];structural=[];details=[];sections={m for m,_ in song['sections']}
+    lengths=meter_lengths(score_path)
+    starts=[];cursor=0.
+    for length in lengths:
+        starts.append(cursor);cursor+=length
+    overflow=[]
     for key,row in reviews.items():
         if row['source_file']!=score_path.name:continue
         track=song['tracks'][int(row['track_index'])]
         phrases=analyze_track(track,song['sections'],song['measures'])['phrases']
-        starts={p['start_measure'] for p in phrases}
-        feat=features(row,timeline(track),starts,sections)
+        phrase_starts={p['start_measure'] for p in phrases}
+        bar_starts=starts
+        events,extra=timeline(track,lengths)
+        overflow.extend(extra)
+        feat=features(row,events,phrase_starts,sections,bar_starts=bar_starts)
         human=row['human_phrase_boundary'].lower()=='yes';pred=row['predicted_phrase_boundary'].lower()=='true'
         original.append((pred,human));structural.append((feat['structural_candidate'],human))
         details.append(dict(review_onset=row['onset_q'],human=human,original=pred,**feat))
-    return dict(reviewed=len(details),original=confusion(original),structural=confusion(structural),cases=details,
-                limitations=['4/4 timing assumption; validate against GP source meter','Source parser omits some ties/rests and may not match V23 event extraction',
+    return dict(reviewed=len(details),original=confusion(original),structural=confusion(structural),cases=details,overlong_voice_events=overflow,
+                limitations=['GPIF meter used for bar starts; voice durations exceeding bar are reported, not used to stretch bar','Source parser omits some ties/rests and may not match V23 event extraction',
                              'Nine selected reviews are not a held-out evaluation set',
                              'Barline-only baseline necessarily misses within-measure phrase starts'])
 def main():
@@ -67,5 +87,6 @@ def main():
     r=probe(args.score,args.csv)
     print('Reviewed:',r['reviewed'],'original:',r['original'],'structural baseline:',r['structural'])
     for case in r['cases']:print(case)
+    print('Overlong voice events:',r['overlong_voice_events'])
     print('Limitations:','; '.join(r['limitations']))
 if __name__=='__main__':main()
