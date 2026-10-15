@@ -347,3 +347,12 @@ The V21 60 cases were chosen via a stratified four-group sampler, not random pop
 - Inspected current template and published-source HTML. Found an extra `}` immediately after the narrow-note label branch (`y-12)}}}}x.strokeStyle`) which prematurely closed `paint()`, leaving drawing statements outside their intended function and breaking player initialization.
 - Corrected to `y-12)}}}x.strokeStyle` in both `composition-lab/checkpoints/2026-10-14/v23-review/player_template.html` and root `composition-review.html`.
 - Fix committed to `main` in source and deployed-source HTML. **Actual playback in the user's browser remains unverified**; confirm after GitHub Pages updates and reloads. Add a syntax-validation gate to the publishing workflow to prevent recurrence.
+
+
+### V23 piano-roll playback scrubber — 2026-10-14
+
+- User reported piano roll remained static while audio played and requested a scrubber.
+- Added a moving green playhead (orange onset marker remains fixed), playback-position range slider, and elapsed/total time display in both `composition-lab/checkpoints/2026-10-14/v23-review/player_template.html` and root `composition-review.html`.
+- Playback scheduling now accepts a normalized seek position, clips notes to the playback window, and restarts from the dragged position when seeking during playback. The same playhead applies to context and focused-track playback; reference chord audition remains independent.
+- Source commits: `4aefda4ece5bd1a9591ecfd98fabcdce6b9f2899` (template), `d4454632886ab94f10294e39ecbc552f97d71990` (review HTML).
+- **Unverified:** browser playback, dragging behavior, performance, and live GitHub Pages deployment. Follow up with real-browser regression tests and confirm Pages serves the updated build before claiming it is active.
