@@ -10486,6 +10486,7 @@ function applySongPlayerTrack({
 }
 
 setupSongPlayer({
+  isTimeSoloChordsLesson: () => getSelectedLessonType() === 'timeSoloChords',
   onActiveNotes: displaySongPlayerNotes,
   onPositionChanged: ({tick}) => {
     if (getSelectedLessonType()!=='timeSoloChords') return;
