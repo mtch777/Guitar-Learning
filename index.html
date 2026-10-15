@@ -110,8 +110,8 @@
 
       <div id="songPlayerControls" class="lessonControls songPlayerControls" hidden>
         <label class="songPlayerFileLabel">
-          <span class="fieldLabel">Guitar Pro</span>
-          <input id="songPlayerFile" type="file">
+          <span class="fieldLabel">Upload Guitar Pro (.gp)</span>
+          <input id="songPlayerFile" type="file" aria-label="Upload Guitar Pro file">
         </label>
         <label class="controlField songPlayerTrackField">
           <span class="fieldLabel">Track</span>
@@ -137,7 +137,7 @@
             <option value="2">2×</option>
           </select>
         </label>
-        <span id="songPlayerStatus" class="songPlayerStatus">Load a Guitar Pro file</span>
+        <span id="songPlayerStatus" class="songPlayerStatus">Choose a Guitar Pro file to enable Play</span>
         <label class="songPlayerScrub">
           <span id="songPlayerCurrentTime" class="songPlayerTime">0:00</span>
           <input id="songPlayerProgress" type="range" min="0" max="1000" value="0" step="1" disabled aria-label="Song position">
