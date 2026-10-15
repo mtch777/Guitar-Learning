@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-15",
+  "source_files_private": true,
+  "cloud": {
+    "tracks": 6,
+    "bars": 111,
+    "notes_exported": 5314,
+    "notes_source": 5314,
+    "duration_discrepancies": 0
+  },
+  "sweet": {
+    "tracks": 9,
+    "bars": 185,
+    "notes_exported": 10138,
+    "notes_source": 10138,
+    "duration_discrepancies": 18
+  },
+  "analysisgnn": {
+    "pretrained_inference_completed": false,
+    "model_accuracy_evaluated": false
+  },
+  "generated": {
+    "cloud_v2_notes": 137,
+    "cloud_conditioned_notes": 222,
+    "sweet_v2_notes": 137,
+    "sweet_conditioned_notes": 235
+  },
+  "warning": "Previous local reports; not independently rerun in this commit."
+}
