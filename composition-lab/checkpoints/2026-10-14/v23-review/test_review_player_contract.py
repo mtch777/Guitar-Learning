@@ -45,6 +45,14 @@ class ReviewPlayerContract(unittest.TestCase):
             with self.subTest(control=control):
                 self.assertIn(f"$('{control}').onclick=", self.html)
 
+    def test_listener_reference_chord_controls(self):
+        for control in ("refRoot", "refQuality", "refPlay", "refStop", "refUse"):
+            with self.subTest(control=control):
+                self.assertIn(control, self.ids)
+        self.assertIn("function playReference()", self.html)
+        self.assertIn("function stopReference()", self.html)
+        self.assertIn("function referenceName()", self.html)
+
     def test_export_columns_come_from_review_schema(self):
         self.assertIn("DATA.fields.map(cells)", self.html)
         self.assertIn("human_chord_label", self.html)
