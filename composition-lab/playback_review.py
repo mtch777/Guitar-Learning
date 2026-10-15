@@ -41,7 +41,7 @@ def render_midi(source, destination, sample_rate=22050):
     with wave.open(str(destination),'wb') as out:
         out.setnchannels(1); out.setsampwidth(2); out.setframerate(sample_rate)
         out.writeframes((samples*32767).astype('<i2').tobytes())
-    return dict(midi_notes=len(notes),seconds=now,nonzero_samples=int(np.count_nonzero(samples)),
+    return dict(midi_notes=len(notes),seconds=now,nonzero_samples=int(np.count_nonzero(samples)),raw_peak=peak,
                 renderer='sine MIDI approximation; no GP soundbank/techniques',listening_judgment=None)
 
 

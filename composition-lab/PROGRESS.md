@@ -1,3 +1,14 @@
+## Audible passage experiment - 2026-10-15
+
+User found the pitch-only set too subtle to judge. No forced preference inferred.
+
+- [x] Freeze previous generated roles/motif baseline; preserve old studies and feedback.
+- [x] Generate explicit 4/4 demonstrations: rhythm/breathing; rhythm plus shared contour and held answers. Accompaniment exact; lead timing/counts deliberately change. This is authored scaffolding, not learned phrase intelligence.
+- [x] Export full and melody-only GP for both families and all three conditions; all 12 independently verified by alphaTab for pitch, timing, tuning/programs and MIDI. New developed leads have 60 notes each versus baseline Cloud 96/Sweet 176; this is a multi-variable demonstration, not a clean causal estimate for melody alone.
+- [x] Package 4 opening/closing 8-second passages, full/solo modes and two experimental comparisons. One common gain per family/mode across all variants, no per-clip peak normalization. Old full GP baselines retained locally and in previous studies.
+- [x] 84 Python / 10 JS tests and build passed. Browser QA measured synchronized switch A=6.04424s, B=6.04423s; verified mode/download changes, separate blank feedback for second experiment, QA persistence. Browser policy may require Play after mode changes; UI gives that instruction.
+- [ ] Push verified changes and verify Pages + live assets. Musical difference/quality remains for human review.
+
 ## Targeted phrase experiment checklist - 2026-10-15
 
 - [x] Freeze prior roles/motif GP and V2 hashes; use private human feedback without publishing annotations.
