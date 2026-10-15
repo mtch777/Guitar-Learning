@@ -1,10 +1,15 @@
-name: Publish isolated regression preview
+name: Build and publish GitHub Pages branch
 
 on:
   push:
     branches: [main]
     paths:
-      - .github/workflows/deploy-pages.yml
+      - 'src/**'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.js'
+      - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -18,25 +23,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout preview source
+      - name: Checkout current main
         uses: actions/checkout@v4
-        with:
-          ref: 3bfe9365b67f2bbfe186f9e386c6ad18bd3513ee
-
-      - name: Fix regression and assert exact source
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          path = Path('src/song-player.js')
-          src = path.read_text()
-          broken = 'if (isSoloRakeBeat(beat, barIndex)) continue;'
-          fixed = 'if (rakeBeats(voice).has(beat)) continue;'
-          assert src.count(broken) == 1, 'Expected broken call not found exactly once'
-          src = src.replace(broken, fixed)
-          assert 'isSoloRakeBeat(' not in src, 'Stale rake calls remain'
-          path.write_text(src)
-          print('Patched stale rake call and verified no remaining references')
-          PY
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -47,20 +35,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Verify patch and existing tests
+      - name: Verify rake classifier and tests
         run: |
           node --test tests/*.test.mjs
           grep -q 'if (rakeBeats(voice).has(beat)) continue;' src/song-player.js
           ! grep -q 'isSoloRakeBeat(' src/song-player.js
 
-      - name: Build historical preview
-        run: npm run build -- --base /Guitar-Learning/versions/3bfe936/
+      - name: Build current site
+        run: npm run build
 
-      - name: Update only the same preview URL
+      - name: Publish current site without deleting historical previews
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           publish_branch: gh-pages
-          destination_dir: versions/3bfe936
           keep_files: true
