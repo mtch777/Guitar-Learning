@@ -10,7 +10,7 @@ Interactive review acceptance (user explicitly requested the previous UI be foun
 - [x] Interactive blind A/B playback, seek/loop/speed, piano roll and note audition; no setup upload.
 - [x] Case-specific autosave, no stale-case notes, explicit uncertainty, reveal audit, JSON/CSV export and safe feedback restore.
 - [x] Unit tests, browser interaction/visual verification, JS/Python regression and production build.
-- [ ] Commit/push without overwriting concurrent main changes; verify Pages workflow and live URL/assets; deliver link.
+- [x] Commit/push without overwriting concurrent main changes; verify Pages workflow and live URL/assets; deliver link.
 
 ### Review implementation verification
 
