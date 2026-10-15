@@ -1895,3 +1895,12 @@ button.uiButton:disabled {
   pointer-events: none;
   z-index: 10;
 }
+
+
+/* Time Solo stacking: inactive behind chord candidates behind sounding notes. */
+.fretboardNote.timeSoloGrayNote { z-index: 11; }
+.fretboardNote.timeSoloCandidateNote { z-index: 12; }
+.fretboardNote.timeSoloSelectedNote { z-index: 13; }
+.physicalFretboard .fretboardNote.timeSoloSelectedNote.revealed::before {
+  opacity: 1;
+}
