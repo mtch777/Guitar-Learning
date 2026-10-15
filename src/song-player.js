@@ -517,10 +517,17 @@ export function setupSongPlayer({
   // transposition mapping that activeBeatsChanged uses during playback.
   // A multi-string sweep/rake is not an individually fretted melodic target.
   // Skip its note events in placeholder/candidate extraction, not in audio.
-  function isSoloRakeBeat(beat) {
+  function isSoloRakeBeat(beat, barIndex) {
     const fretted = (beat.notes || []).filter(note =>
       Number.isFinite(note.string) && Number.isFinite(note.fret) && note.string > 0);
-    return new Set(fretted.map(note => note.string)).size >= 3;
+    // Time F#m source: measure 114's rake is spread over three adjacent
+    // TWO-note, open-fret beats. The center beat explicitly says "rake".
+    // Count-based detection alone misses the surrounding two beats.
+    const timeRakeCluster = (timeProfile || isTimeSoloChordsLesson?.()) &&
+      barIndex === 113 && fretted.length >= 1 &&
+      fretted.every(note => note.fret === 0);
+    return timeRakeCluster || new Set(fretted.map(note => note.string)).size >= 3 ||
+      /\brake\b/i.test(String(beat.text || beat.freeText || ''));
   }
 
   function collectTrackPositions(track) {
@@ -534,7 +541,7 @@ export function setupSongPlayer({
         if (!(timeProfile || isTimeSoloChordsLesson?.()) || (barIndex >= 93 && barIndex <= 142))
         for(const voice of bar.voices||[])
           for(const beat of voice.beats||[]) {
-            if (isSoloRakeBeat(beat)) continue;
+            if (isSoloRakeBeat(beat, barIndex)) continue;
             const start=Number(beat.absolutePlaybackStart);
             if(!Number.isFinite(start))continue;
             for(const note of beat.notes||[]) {
@@ -589,7 +596,7 @@ export function setupSongPlayer({
                 const event = {pitch:midi-(timeProfile?2:0),start,end:start+dur};
                 if (isBass) m.bass.push(event);
                 if (isHarmony) m.harmony.push(event);
-                if (isSolo && !isSoloRakeBeat(beat)) {
+                if (isSolo && !isSoloRakeBeat(beat, i)) {
                   const position = timeProfile ? timeNotePosition(note) : {string:note.string,fret:note.fret};
                   if (position) m.melody.push({...event, position});
                 }
