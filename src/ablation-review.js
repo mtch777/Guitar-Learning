@@ -1,6 +1,6 @@
 import {METRICS,storageKey,reviewed,recordReview,revealReview,mergeFeedback,csvFeedback} from './ablation-review-state.mjs';
 
-const $=id=>document.getElementById(id), ROOT='./composition-ablation-review/';
+const $=id=>document.getElementById(id), ROOT=new URLSearchParams(location.search).get('study')==='phrases'?'./composition-phrase-review/':'./composition-ablation-review/';
 const A=$('audioA'),B=$('audioB');
 const QA=new URLSearchParams(location.search).get('qa')==='1';
 const store=()=>storageKey(manifest.version)+(QA?':qa':'');
@@ -167,6 +167,7 @@ async function boot(){
   const response=await fetch(ROOT+'cases.json');if(!response.ok)throw new Error('Review set could not be loaded.');manifest=await response.json();
   try{const stored=JSON.parse(localStorage.getItem(store())||'null');if(stored){state={reviews:stored.reviews||{},favorites:stored.favorites||{}};family=stored.family||family;selected=stored.selected;}}catch{}
   if(!manifest.cases.some(c=>c.id===selected))selected=manifest.cases[0].id;
+  if(manifest.title){document.querySelector('h1').textContent=manifest.title;document.querySelector('.top p').textContent=manifest.intro;document.querySelector('aside .hint').textContent='Each study contains three pitch-only experiments, the unchanged previous roles baseline, and V2 in hidden order.';document.querySelector('#judgmentTitle').parentElement.nextElementSibling.textContent=manifest.guidance;}
   ratingFields();
   document.querySelectorAll('[data-family]').forEach(b=>b.onclick=()=>select(manifest.cases.find(c=>c.family===b.dataset.family).id));
   $('notes').oninput=()=>save({notes:$('notes').value});$('favorite').onchange=()=>{state.favorites[family]=$('favorite').value;persist();};

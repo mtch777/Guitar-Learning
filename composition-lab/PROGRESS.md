@@ -1,3 +1,14 @@
+## Targeted phrase experiment checklist - 2026-10-15
+
+- [x] Freeze prior roles/motif GP and V2 hashes; use private human feedback without publishing annotations.
+- [x] Implement a 2x2 pitch-only test: inherited baseline, linked contour, phrase-end chord-tone targeting, combined. Keep accompaniment, note counts, attacks/durations, tuning/programs unchanged. Predeclare unequal 3/5/3/5-bar phrase spans as experimental scaffolding, not learned boundaries.
+- [x] Verify invariants, playable writing, independent alphaTab GP/MIDI, copying and boundary metrics; report regressions without quality claims.
+- [x] Package a separate blind dataset with original baselines, isolated feedback version, preserved old review, and phrase-specific prompts.
+- [x] Python 82 tests and JS 9 tests passed; production build passed. Browser QA verified separate 0/10 state, phrase prompts and B piano roll/playback.
+- [ ] Push main and confirm actual Pages deployment. Human preference remains unmeasured until reviewed.
+
+See `PHRASE_EXPERIMENTS.md` for design, actual manipulation measurements and limits. Ten-case public set `5fd2e0965c77454d` preserves prior baseline GP/WAV byte hashes. AlphaTab independently verified all eight 16-bar controlled GP files, including unchanged 3-role counts, exact notation timing, tuning and programs. Original-source eight-event copying checks: Cloud all 0%; Sweet all 1.3746% against Sweet, 0% against Cloud. No musical quality inferred.
+
 ## Piano roll A/B fix - 2026-10-15
 
 - [x] Fetch/fast-forward main without overwriting local work.

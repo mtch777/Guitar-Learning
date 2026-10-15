@@ -45,3 +45,23 @@ test('published review contains exactly ten generated scores and matching media 
     assert.ok(roll.notes.every(n=>n.start>=0&&n.end>=n.start&&n.end<=roll.duration+.01));
   }
 });
+
+test('phrase study isolates feedback and preserves both previous baselines exactly',()=>{
+  const root=new URL('../public/composition-phrase-review/',import.meta.url);
+  const oldRoot=new URL('../public/composition-ablation-review/',import.meta.url);
+  const manifest=JSON.parse(fs.readFileSync(new URL('cases.json',root)));
+  const old=JSON.parse(fs.readFileSync(new URL('cases.json',oldRoot)));
+  assert.notEqual(storageKey(manifest.version),storageKey(old.version));
+  assert.equal(manifest.cases.length,10);assert.deepEqual(manifest.judgments,[]);
+  for(const c of manifest.cases){
+    for(const [file,hash] of [[c.gp,c.gpSha256],[c.audio,c.audioSha256]])assert.equal(crypto.createHash('sha256').update(fs.readFileSync(new URL(file,root))).digest('hex'),hash);
+    const roll=JSON.parse(fs.readFileSync(new URL(c.roll,root)));assert.ok(roll.notes.length>0);
+    assert.ok(roll.notes.every(n=>n.start>=0&&n.end>=n.start&&n.end<=roll.duration+.01));
+  }
+  for(const family of ['cloud','sweet']){
+    for(const [before,after] of [['Instrument roles + motif structure','Previous roles/motif baseline'],['V2 reference baseline','V2 reference baseline']]){
+      const a=old.cases.find(c=>c.family===family&&c.method===before),b=manifest.cases.find(c=>c.family===family&&c.method===after);
+      assert.equal(b.gpSha256,a.gpSha256);assert.equal(b.audioSha256,a.audioSha256);
+    }
+  }
+});
