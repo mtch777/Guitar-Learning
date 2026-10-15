@@ -1,0 +1,12 @@
+{
+  "created_utc":"2026-10-15T15:00:35.271416+00:00",
+  "upstream":"https://github.com/manoskary/analysisgnn",
+  "tasks":"cadence,localkey,romanNumeral",
+  "environment":{"python":"3.13.5","packages":{"torch":true,"torch_geometric":false,"partitura":false,"graphmuse":false,"analysisgnn":false},"predict_cli":null},
+  "results":[
+    {"score":"/mnt/data/analysisgnn_benchmark/musicxml/Cloud%20Cascade%20%28Tuned%20Down%29(1).musicxml","exists":true,"sha256":"14dc716d0b0a9fde6cd3eed8a3a1f099fbbd38ab926170f8ef3565401987877d","status":"blocked_missing_dependencies"},
+    {"score":"/mnt/data/analysisgnn_benchmark/musicxml/Sweet Child O' Mine(1).musicxml","exists":true,"sha256":"968085ec44eb5e00cc61afc25a63d1a8cb46b853c03fe331691fe3963efe3e62","status":"blocked_missing_dependencies"}
+  ],
+  "limitations":["MusicXML conversion can lose GP techniques/string/fret identity; keep original GP as ground truth.","Pretrained inference is not accuracy evaluation without independent reference annotations.","Classical-domain model predictions may not transfer to rock/metal."],
+  "model_inference_completed":false
+}
