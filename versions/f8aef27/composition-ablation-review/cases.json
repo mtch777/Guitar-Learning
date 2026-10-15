@@ -1,0 +1,248 @@
+{
+  "format": "composition-ablation-review-v1",
+  "version": "a73474cf6c2779ea",
+  "cases": [
+    {
+      "id": "cloud-case-01",
+      "family": "cloud",
+      "familyTitle": "Cloud study",
+      "label": "Sketch 01",
+      "audio": "cloud-case-01.wav",
+      "gp": "cloud-case-01.gp",
+      "roll": "cloud-case-01.json",
+      "gpSha256": "5687cc025eeea30f48d656c4df4d0358e7d93b9cf9bf981c13ce4348f5603bdf",
+      "audioSha256": "4c16c64f3c0ce4b9f05c2cf45650be79253d634e3e56ac01b80f49055b7d9d48",
+      "seconds": 32.0,
+      "method": "Harmony + rhythm + melody",
+      "seed": 17,
+      "tracks": [
+        {
+          "name": "Rhythm I - Distortion Guitar",
+          "strings": 8,
+          "program": 30
+        },
+        {
+          "name": "Leads I - Electric Guitar (clean)",
+          "strings": 8,
+          "program": 27
+        }
+      ]
+    },
+    {
+      "id": "cloud-case-02",
+      "family": "cloud",
+      "familyTitle": "Cloud study",
+      "label": "Sketch 02",
+      "audio": "cloud-case-02.wav",
+      "gp": "cloud-case-02.gp",
+      "roll": "cloud-case-02.json",
+      "gpSha256": "475e9bb66c0fd6f06b0f18495bbffa2a19fa8093725a27b45aa93ba589e66a36",
+      "audioSha256": "fdde7cdb6c3c05d4a7561955e6ee26a4b9d5a4391fb881f378aad790b36add53",
+      "seconds": 32.0,
+      "method": "Harmony only",
+      "seed": 17,
+      "tracks": [
+        {
+          "name": "Rhythm I - Distortion Guitar",
+          "strings": 8,
+          "program": 30
+        }
+      ]
+    },
+    {
+      "id": "cloud-case-03",
+      "family": "cloud",
+      "familyTitle": "Cloud study",
+      "label": "Sketch 03",
+      "audio": "cloud-case-03.wav",
+      "gp": "cloud-case-03.gp",
+      "roll": "cloud-case-03.json",
+      "gpSha256": "fbb1428b48a93dfd36778cd823f1e1a22c441dc87c0dd70914f74f7fbcd16dc6",
+      "audioSha256": "43f66bd7c8778975df44d3f3bd9de0c22e6918820b95da5a01d1de3ae28859df",
+      "seconds": 32.0,
+      "method": "Harmony + rhythm",
+      "seed": 17,
+      "tracks": [
+        {
+          "name": "Rhythm I - Distortion Guitar",
+          "strings": 8,
+          "program": 30
+        }
+      ]
+    },
+    {
+      "id": "cloud-case-04",
+      "family": "cloud",
+      "familyTitle": "Cloud study",
+      "label": "Sketch 04",
+      "audio": "cloud-case-04.wav",
+      "gp": "cloud-case-04.gp",
+      "roll": "cloud-case-04.json",
+      "gpSha256": "4465662154c55492b8c3d3d5ce6f841edc394cd91e3b2b36803f63832ab95c47",
+      "audioSha256": "0352ea9d898dc31262461246b007f690409d3940a2cb0b8a657a6638e886c143",
+      "seconds": 32.0,
+      "method": "Instrument roles + motif structure",
+      "seed": 17,
+      "tracks": [
+        {
+          "name": "Rhythm I - Distortion Guitar",
+          "strings": 8,
+          "program": 30
+        },
+        {
+          "name": "Leads I - Electric Guitar (clean)",
+          "strings": 8,
+          "program": 27
+        },
+        {
+          "name": "Slap Bass 2",
+          "strings": 6,
+          "program": 37
+        }
+      ]
+    },
+    {
+      "id": "cloud-case-05",
+      "family": "cloud",
+      "familyTitle": "Cloud study",
+      "label": "Sketch 05",
+      "audio": "cloud-case-05.wav",
+      "gp": "cloud-case-05.gp",
+      "roll": "cloud-case-05.json",
+      "gpSha256": "fb4580a914e7fa17f3c983a351453efad10ae2f4e9b0af20ad9b56771eefff90",
+      "audioSha256": "b3ed10399b6aafdc31dccb61539603287ddeb09dce8c2ec0dada8a440deedf5c",
+      "seconds": 33.10342399999996,
+      "method": "V2 reference baseline",
+      "seed": 17,
+      "tracks": [
+        {
+          "name": "Original 8-String Guitar",
+          "strings": 8,
+          "program": 30
+        }
+      ]
+    },
+    {
+      "id": "sweet-case-01",
+      "family": "sweet",
+      "familyTitle": "Sweet study",
+      "label": "Sketch 01",
+      "audio": "sweet-case-01.wav",
+      "gp": "sweet-case-01.gp",
+      "roll": "sweet-case-01.json",
+      "gpSha256": "937a64e28a11843bfcdc92b74186a61fb073e1ec1004e18edfb70ec5d603d78a",
+      "audioSha256": "a919698c12a0df98d44904f85e7b7af6eb7ecae70b49d9b01c52ef6fa488aeb0",
+      "seconds": 32.0,
+      "method": "Harmony + rhythm + melody",
+      "seed": 17,
+      "tracks": [
+        {
+          "name": "Jeffrey \u00a8Izzy Stradlin\u00a8 Isbell | Gibson ES-175D | Rhythm Guitar - Overdriven Guitar",
+          "strings": 6,
+          "program": 29
+        },
+        {
+          "name": "Saul \"Slash\" Hudson | Kris Derrig Les Paul Standard | Lead Guitar - Distortion Guitar",
+          "strings": 6,
+          "program": 30
+        }
+      ]
+    },
+    {
+      "id": "sweet-case-02",
+      "family": "sweet",
+      "familyTitle": "Sweet study",
+      "label": "Sketch 02",
+      "audio": "sweet-case-02.wav",
+      "gp": "sweet-case-02.gp",
+      "roll": "sweet-case-02.json",
+      "gpSha256": "7fe72301761603e3178aded0cf1d66920a0b0f497404e7dc294b007a49604844",
+      "audioSha256": "18d060422990a5c42fa9f4da9ce74595b0de37b214299d52c2656484d1152e7e",
+      "seconds": 32.0,
+      "method": "Harmony only",
+      "seed": 17,
+      "tracks": [
+        {
+          "name": "Jeffrey \u00a8Izzy Stradlin\u00a8 Isbell | Gibson ES-175D | Rhythm Guitar - Overdriven Guitar",
+          "strings": 6,
+          "program": 29
+        }
+      ]
+    },
+    {
+      "id": "sweet-case-03",
+      "family": "sweet",
+      "familyTitle": "Sweet study",
+      "label": "Sketch 03",
+      "audio": "sweet-case-03.wav",
+      "gp": "sweet-case-03.gp",
+      "roll": "sweet-case-03.json",
+      "gpSha256": "7a5c3ea9b07cc4776c78a3dc28ecfa16b193b09f80ae826fc7757bd3e6357f8a",
+      "audioSha256": "82ed2468599b926b62f49a41b61e24ae057ebf1835c21256a46a8dbe8c315a53",
+      "seconds": 32.0,
+      "method": "Harmony + rhythm",
+      "seed": 17,
+      "tracks": [
+        {
+          "name": "Jeffrey \u00a8Izzy Stradlin\u00a8 Isbell | Gibson ES-175D | Rhythm Guitar - Overdriven Guitar",
+          "strings": 6,
+          "program": 29
+        }
+      ]
+    },
+    {
+      "id": "sweet-case-04",
+      "family": "sweet",
+      "familyTitle": "Sweet study",
+      "label": "Sketch 04",
+      "audio": "sweet-case-04.wav",
+      "gp": "sweet-case-04.gp",
+      "roll": "sweet-case-04.json",
+      "gpSha256": "9660b8162de2c0f4ad23331232e51ae50fcee370c9b395f04c70ea6c7840a51c",
+      "audioSha256": "f4370fe388ef9575f9c6d624344630e7d3fa26c25fca0c8a4074e4b6bb75c37d",
+      "seconds": 32.0,
+      "method": "Instrument roles + motif structure",
+      "seed": 17,
+      "tracks": [
+        {
+          "name": "Jeffrey \u00a8Izzy Stradlin\u00a8 Isbell | Gibson ES-175D | Rhythm Guitar - Overdriven Guitar",
+          "strings": 6,
+          "program": 29
+        },
+        {
+          "name": "Saul \"Slash\" Hudson | Kris Derrig Les Paul Standard | Lead Guitar - Distortion Guitar",
+          "strings": 6,
+          "program": 30
+        },
+        {
+          "name": "Duff \"Rose\" McKagan | Fender Jazz Special | Bass - Electric Bass (pick)",
+          "strings": 4,
+          "program": 34
+        }
+      ]
+    },
+    {
+      "id": "sweet-case-05",
+      "family": "sweet",
+      "familyTitle": "Sweet study",
+      "label": "Sketch 05",
+      "audio": "sweet-case-05.wav",
+      "gp": "sweet-case-05.gp",
+      "roll": "sweet-case-05.json",
+      "gpSha256": "c79cb8cdb8128e56a6cff344cedb24cb88fe530d8bf602bf8bbd2dbc1736b99b",
+      "audioSha256": "b3ed10399b6aafdc31dccb61539603287ddeb09dce8c2ec0dada8a440deedf5c",
+      "seconds": 33.10342399999996,
+      "method": "V2 reference baseline",
+      "seed": 17,
+      "tracks": [
+        {
+          "name": "Original 8-String Guitar",
+          "strings": 8,
+          "program": 30
+        }
+      ]
+    }
+  ],
+  "audio": "Standardized sine MIDI preview; download GP for instrument playback",
+  "judgments": []
+}

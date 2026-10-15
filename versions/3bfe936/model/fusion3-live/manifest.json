@@ -1,0 +1,32 @@
+{
+  "schema": "fusion3-live-bundle-v1",
+  "id": "estimated-midi-jsraw-2026-09-30",
+  "tuning": [
+    27,
+    34,
+    39,
+    44,
+    49,
+    54,
+    58,
+    63
+  ],
+  "training_recordings": 384,
+  "feature_conditioning": "reference-YIN estimated MIDI",
+  "training_feature_sha256": "532acfeea6b43b0149d379d0dd7a38644eed98e7f0c92d9a5d814e00fff74b94",
+  "source_run": 36641228328,
+  "source_artifact": 11067105466,
+  "dependencies": {
+    "numpy": "2.3.5",
+    "scikit-learn": "1.8.0",
+    "xgboost": "3.4.1"
+  },
+  "calibration": "entire-MIDI-held-out OOF probabilities, estimated-MIDI feasibility mask; final curves fit on all OOF rows",
+  "note": "Final models fit all 384 training recordings. No in-sample accuracy claim. Independent live evaluation is pending.",
+  "sha256": {
+    "baseline.json": "9d747b952f6f7876da7f3329c85aaddc899f0deb67885e1d70f7a4ea5f27e242",
+    "harmonic.json": "9e8ebfafc1abee69b6f32d2d6e460f909084f47602a6e2dc3bf40e1d2a857812",
+    "mfcc.json": "2814fac134b9d8d2ab487cae61fec489aecd3642c6181c93904297d19b45ef4a",
+    "calibrators.json": "ba0295246d8203fc4e1a1614997d979500689d89a18a5bd6244028af405284ae"
+  }
+}

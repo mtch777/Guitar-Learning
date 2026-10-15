@@ -1,0 +1,71 @@
+{
+  "version": "2ac3c2c8e26a5bef",
+  "passages": [
+    {
+      "id": "cloud-1",
+      "title": "Cloud / bars 1-4",
+      "family": "cloud",
+      "bar": 1,
+      "seconds": 8
+    },
+    {
+      "id": "cloud-13",
+      "title": "Cloud / bars 13-16",
+      "family": "cloud",
+      "bar": 13,
+      "seconds": 8
+    },
+    {
+      "id": "sweet-1",
+      "title": "Sweet / bars 1-4",
+      "family": "sweet",
+      "bar": 1,
+      "seconds": 8
+    },
+    {
+      "id": "sweet-13",
+      "title": "Sweet / bars 13-16",
+      "family": "sweet",
+      "bar": 13,
+      "seconds": 8
+    }
+  ],
+  "media": {
+    "cloud-1-baseline-full.wav": "97010af89a16fbef4b17cf9222e7e81ddb33f50d7c3a1cce56d7cd5cec1d2e8f",
+    "cloud-1-baseline-solo.wav": "7f313c7a1ad45165e42097fea6f09df48da57ed58a1398501f3c4d5cedf764cb",
+    "cloud-1-developed-full.wav": "d973fba326b119ad3bf37dec73f4b49837c4d898d5e130c9c2d31334be3a727b",
+    "cloud-1-developed-solo.wav": "bd3b95fda004fa0c24337598e239c35819d6c8fd6aa2ec6792b47f985b2011cb",
+    "cloud-1-rhythm-full.wav": "22d3c5d60612592e159c30518db9fc3d1d2456fabf9c5225fb7598ac00575dc1",
+    "cloud-1-rhythm-solo.wav": "6e729fcb614d2c80ee0efd6e1e0d856b397af53c8e235286cff8f3083ef3f02c",
+    "cloud-13-baseline-full.wav": "b6713d9e7d220a7b3717ea6eef832e752eace6713af459fcf6fbbcecf120a1af",
+    "cloud-13-baseline-solo.wav": "a33149c178bb3213a22c2e05df1ada978a10bdf3becd488ff030ce6499c0a6ac",
+    "cloud-13-developed-full.wav": "4accd8f8b157b6f486a63657217737f3ef427bf5d2753b183f446b71ca3664de",
+    "cloud-13-developed-solo.wav": "17fdb49d84f828ccdf02cfd9be9e5d31a61751d92f5978dac3db777b11c350ec",
+    "cloud-13-rhythm-full.wav": "3e748a01b3b99b31bc2194d36028dc8c297a166444ab70606fd258503578d21d",
+    "cloud-13-rhythm-solo.wav": "7ca0ad799591c6755852d6f1ecfaea2071b8ec468996fea4928eeb2447c76d04",
+    "cloud-baseline-solo.gp": "7c4dd7cea0e433728f95270f7b34527205120d2af29d60822df759eb874c18d3",
+    "cloud-baseline.gp": "d969e07f7c9063e676f112b9bda6ebdc5d39206b960e6424cbc0beafffd71279",
+    "cloud-developed-solo.gp": "005f1588ea0bfa24a77c93c1315231c85f26263917a62eeefcc11700af15b38e",
+    "cloud-developed.gp": "e010a8bcb45b15dd7a46dfda5eae4119313019108c2f62e41855a2389e44acaf",
+    "cloud-rhythm-solo.gp": "06dabd92da3d2372099f2b50ebc7d9a68804843ec2a4ac77e73927b262a9efd3",
+    "cloud-rhythm.gp": "f77dd9d3c8b1440eb67d43183bbc068e3c2385a6909baba26bcb322d5bfcc67f",
+    "sweet-1-baseline-full.wav": "5eb0d0bcd81e4c6f8ac6d4aa605cfa0c5193ff272581497dd37f631e94d464e0",
+    "sweet-1-baseline-solo.wav": "24e52799d7e98c42bbd90f538e7d9dced980234358591b35473b9479b995a695",
+    "sweet-1-developed-full.wav": "43a76833b0228aee6c36d246d6ea0d9d8f5a65618a9f8400b7a7d03e88cb855e",
+    "sweet-1-developed-solo.wav": "7dd0a6e95d7fca362984ed65d96d888272a62b2ecfce99d587a8fd4280ff54d5",
+    "sweet-1-rhythm-full.wav": "f9b7d26a6b0125138b6a79b77f60952efcba7f9f8677de6fbe120706fd1d8b62",
+    "sweet-1-rhythm-solo.wav": "8fd6dc531d303576f114f902d0d291e70792cecbf8cc2cedb08cef6925154afb",
+    "sweet-13-baseline-full.wav": "b42342aea48491c5ed7191f79834aa63db9ce0e17bba9ccee2eaa124c3dfa8ed",
+    "sweet-13-baseline-solo.wav": "5d50670126f43b24fc9070398467b97807bc92b8d8ba2bd5d2fc7c7f083a9684",
+    "sweet-13-developed-full.wav": "d6389b3c9d819567bd610fa2dce5e0728e01b013d569f8e7f5de2c86a410e402",
+    "sweet-13-developed-solo.wav": "16ce175fe313321ac4fb9fcc37724f3833582aa5b0a1bf1500cc5c652b8fe304",
+    "sweet-13-rhythm-full.wav": "549a304dfcab6bdf966afa9eaff9004974eca3495b1415d46e5d5a07d82ec045",
+    "sweet-13-rhythm-solo.wav": "d4419a5140809dbe634c1fd92be1e1136cfcd11cde5faa1deb5360a631f61007",
+    "sweet-baseline-solo.gp": "1ba826121709ea6a44345b04d826cef2ea34b38ff1fa20eeadb2195690da55f6",
+    "sweet-baseline.gp": "2aa3be498edbbbef9b05aa45d76287922fd87bcdc3e91c789036d31935064556",
+    "sweet-developed-solo.gp": "a86c21cfde7b54427dc76ca77ba29c4d395ccc39382ee9b0b0723c8e7a3e039e",
+    "sweet-developed.gp": "19e069b925eefff149751be961655b9c2631ee88ee5f424f6098fe6f0c8cbdf7",
+    "sweet-rhythm-solo.gp": "f93b473fdbef17a0e6ffce36c24180738396238f70c0bd81307db5fec53b8cde",
+    "sweet-rhythm.gp": "574c8f4698fd8adb66e30202af5a4186696e49335f3e8fe1705739a3b7bef957"
+  }
+}
