@@ -389,3 +389,10 @@ The V21 60 cases were chosen via a stratified four-group sampler, not random pop
 - Disabled canvas tap highlight and selection (`-webkit-tap-highlight-color: transparent`, `user-select: none`, `touch-action: manipulation`) and added targeted 220ms light-blue flash for the clicked note rectangle or left keyboard row. Empty canvas taps do not trigger feedback.
 - Commits: template `1a89571133fa565e7d3a2ef55dd610105f371885`; root review HTML `0e449ed52c9d5e0d70cef5ac65fb0c61c787f140`.
 - Not yet verified in a real Android browser or as deployed GitHub Pages; validate tap feedback and playback independently.
+
+
+### V23 exclude first five reviewed cases — 2026-10-14
+
+- User explicitly requested removal of the five examples already answered in their uploaded `V23_reviewed_ground_truth.csv`. Matched cases by source file `Chet Baker - I Fall In Love Too Easily (ver 2 by omsoc1950).gp`, track 0, onset_q 20, 62/3, 77/2, 41, and 50. Removed from active UI queue only (60 -> 55), both root HTML and player template. Their submitted judgments remain in the user's CSV; the uploaded CSV is not committed publicly.
+- Preserve the old localStorage key `v23_review_60` through `originalReviewCount` to avoid losing any prior in-browser reviews. Future exports from the filtered queue include 55 rows and do not automatically merge the earlier five; retain the user's original CSV for consolidation.
+- Commits: root `4f4218c985afd19d821e37aa6a5a83f544e3c481`, template `bf66d131246f3257aaf854cea10d4a0e0e684207`. Live deployment unverified.
