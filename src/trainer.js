@@ -10362,11 +10362,37 @@ function displaySongPlayerNotes(
   }
 }
 
+function renderTimedTimeSoloSections(sections) {
+  const track=document.querySelector('.timeSoloTimelineTrack');
+  if (!track || !sections?.length) return;
+  track.querySelectorAll('button').forEach(button => button.remove());
+  const heading=document.querySelector('.timeSoloTimelineHeading');
+  if(heading)heading.textContent='Chord timeline · bass + rhythm guitar + keyboards · score timing';
+  const chordMap={4:{major:'I',minor:'i'},6:{major:'II',minor:'ii'},7:{major:'♭III',minor:'♭iii'},
+    9:{major:'IV',minor:'iv'},11:{major:'V',minor:'v'},0:{major:'♭VI',minor:'♭vi'},
+    2:{major:'♭VII',minor:'♭vii'}};
+  for(const [index,section] of sections.entries()){
+    const button=document.createElement('button');
+    button.type='button';
+    button.className='timeSoloChordButton';
+    button.textContent=chordMap[section.root]?.[section.quality] || noteNames[section.root];
+    button.dataset.startTick=String(section.start);
+    button.dataset.endTick=String(section.end);
+    button.dataset.noteKeys=JSON.stringify([...new Set(section.positions.map(p=>
+      makeCellKey(songPlayerStringOffset+Number(p.string)-1,Number(p.fret))))]);
+    button.style.flexGrow=String(Math.max(1,section.end-section.start));
+    button.title='Chord ' +(index+1)+' · '+noteNames[section.root]+' '+section.quality;
+    button.setAttribute('aria-label',button.title);
+    track.appendChild(button);
+  }
+}
+
 function applySongPlayerTrack({
   name,
   timeProfile = false,
   tuningHighToLow,
-  placeholderPositions = []
+  placeholderPositions = [],
+  chordSections = []
 }) {
   if (
     !Array.isArray(
@@ -10435,6 +10461,7 @@ function applySongPlayerTrack({
     ['songPlayer','timeSoloChords'].includes(getSelectedLessonType())
   ) {
     buildTrainer();
+    if (getSelectedLessonType()==='timeSoloChords') renderTimedTimeSoloSections(chordSections);
 
     const answerDisplay =
       document.getElementById(
@@ -10454,28 +10481,28 @@ function applySongPlayerTrack({
 
 setupSongPlayer({
   onActiveNotes: displaySongPlayerNotes,
-  onPositionChanged: ({fraction}) => {
-    if (getSelectedLessonType() !== 'timeSoloChords') return;
-    const buttons=[...document.querySelectorAll('.timeSoloChordButton')];
-    const track = document.querySelector('.timeSoloTimelineTrack');
-    const playhead = track?.querySelector('.timeSoloChordPlayhead');
-    if (track && playhead) {
-      const ratio = Math.max(0, Math.min(1, Number(fraction) || 0));
-      const width = track.scrollWidth;
-      playhead.style.left = (ratio * width) + 'px';
-      // Scroll chord strip only when playhead moves outside its visible viewport.
-      const x = ratio * width;
-      if (x < track.scrollLeft || x > track.scrollLeft + track.clientWidth) {
-        track.scrollLeft = Math.max(0, x - track.clientWidth / 2);
-      }
-    }
-    const eventIndex=1+Math.floor(Math.max(0,Math.min(0.99999,fraction))*TIME_SOLO_TAB_NOTES.length);
-    const active=buttons.find(b=>eventIndex>=Number(b.dataset.startEvent)&&eventIndex<=Number(b.dataset.endEvent));
-    const previous = buttons.find(b => b.classList.contains('selected'));
+  onPositionChanged: ({tick}) => {
+    if (getSelectedLessonType()!=='timeSoloChords') return;
+    const track=document.querySelector('.timeSoloTimelineTrack');
+    if(!track)return;
+    const buttons=[...track.querySelectorAll('.timeSoloChordButton')];
+    const active=buttons.find(b=>Number(tick)>=Number(b.dataset.startTick)&&Number(tick)<Number(b.dataset.endTick));
+    const previous=buttons.find(b=>b.classList.contains('selected'));
     buttons.forEach(b=>{b.classList.toggle('selected',b===active);b.setAttribute('aria-current',String(b===active));});
-    if (previous !== active) updateTimeSoloChordCandidates();
+    if(previous!==active)updateTimeSoloChordCandidates();
+    const first=buttons[0],last=buttons[buttons.length-1];
+    const playhead=track.querySelector('.timeSoloChordPlayhead');
+    if(first&&last&&playhead) {
+      const start=Number(first.dataset.startTick),end=Number(last.dataset.endTick);
+      const fraction=Math.max(0,Math.min(1,(Number(tick)-start)/Math.max(1,end-start)));
+      const width=track.scrollWidth;
+      const x=fraction*width;
+      playhead.style.left=x+'px';
+      if(x<track.scrollLeft||x>track.scrollLeft+track.clientWidth)
+        track.scrollLeft=Math.max(0,x-track.clientWidth/2);
+    }
     const prompt=document.getElementById('answerNote');
-    if(active&&prompt)prompt.textContent=active.textContent+' · approximate tab position';
+    if(active&&prompt)prompt.textContent=active.textContent+' · score-timed chord';
   },
 
   onTrackChanged:
