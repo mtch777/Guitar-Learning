@@ -322,3 +322,12 @@ The V21 60 cases were chosen via a stratified four-group sampler, not random pop
 - `composition-lab/checkpoints/2026-10-14/v23-review/test_review_player_contract.py`: dependency-free static template contract tests for controls, handlers, payload marker, export fields, local persistence hooks, and blind prediction reveal. This is **not** an end-to-end browser test. Run the file with Python and report the actual outcome before claiming it passed.
 - Next: implement a repeatable real-browser test with reload persistence, real CSV download parsing, Web Audio scheduling, and mobile checks; collect a small set of blind human judgments from different source songs/roles, then run V22 scorer with provenance and abstention coverage.
 - For every subsequent increment, commit the implementation/test changes and append confirmed results, known failures, and next steps to this handoff.
+
+
+### V23 listener-controlled reference chord audition (2026-10-14)
+
+- User requested alternatives to the free-text chord identity field and buttons to hear reference chords **while the example plays**.
+- Implemented independent chord audition controls in both `composition-lab/checkpoints/2026-10-14/v23-review/player_template.html` and the published-source `composition-review.html`. Users select any chromatic root and major, minor, diminished, augmented, dominant7, major7, minor7, sus2 or sus4; audition a sustained synthesized reference chord concurrently with the score context; stop it separately; or transfer its name to the chord-answer text field (without automatically saving).
+- Reference audition is user-controlled and never populated by the model's prediction. It is intentionally a **listening aid**, not a validated automatic chord classifier. The available chord vocabulary is limited; users can still type arbitrary labels or `unknown`.
+- Added static regression checks for the reference controls in `v23-review/test_review_player_contract.py`. **Browser/audio interaction and actual deployed GitHub Pages remain unverified** until a live browser test. These commits were not accompanied by an executed automated test run.
+- The root HTML page is committed on `main`; GitHub Pages publication timing and cache behavior must be verified independently.
