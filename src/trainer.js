@@ -2,7 +2,8 @@ import { setupLiveGuitarInput } from "./input/live-guitar.js";
 import { setupSongPlayer } from "./song-player.js";
 import {
   TIME_SOLO_DROP_E_TUNING,
-  TIME_SOLO_TAB_NOTES
+  TIME_SOLO_TAB_NOTES,
+  TIME_SOLO_SOURCE_EVENTS
 } from "./data/time-solo.js";
 
 // GitHub/Vite theme initialization added during migration.
@@ -1360,117 +1361,121 @@ function skipDailyCurrentLesson() {
   return false;
 }
 
-function displayTimeSoloLesson(
-  allCells
-) {
-  /*
-    The source tab contributes ONLY the physical positions:
-      source string + fret.
+function displayTimeSoloLesson(allCells) {
+  // Every position remains visible; selecting a chord section reveals only
+  // the notes recorded in that section of the original tab.
+  const cellByKey = new Map(allCells.map(item => [
+    makeCellKey(item.stringIndex, item.fret), item
+  ]));
+  const occurrenceCounts = new Map();
+  TIME_SOLO_TAB_NOTES.forEach(note => {
+    const key = makeCellKey(note.stringIndex, note.fret);
+    occurrenceCounts.set(key, (occurrenceCounts.get(key) || 0) + 1);
+  });
 
-    Once a position is selected, display it exactly like a normal
-    trainer note. Its interval/color is computed by the normal
-    fretboard engine from the lesson's fixed E Aeolian context.
-  */
-  const positions =
-    new Map();
-
-  TIME_SOLO_TAB_NOTES
-    .forEach(
-      note => {
-        const key =
-          makeCellKey(
-            note.stringIndex,
-            note.fret
-          );
-
-        positions.set(
-          key,
-          (
-            positions.get(key) ||
-            0
-          ) + 1
-        );
-      }
-    );
-
-  allCells.forEach(
-    item => {
-      const key =
-        makeCellKey(
-          item.stringIndex,
-          item.fret
-        );
-
-      const occurrenceCount =
-        positions.get(key);
-
-      if (!occurrenceCount) {
-        item.element
-          .classList
-          .remove(
-            'timeSoloNote'
-          );
-
-        hideCell(
-          item.element
-        );
-
-        return;
-      }
-
-      const cell =
-        item.element;
-
-      cell.classList.add(
-        'timeSoloNote'
-      );
-
-      /*
-        Normal trainer display:
-        - interval relative to E
-        - normal interval color
-        - normal octave display
-      */
-      revealCell(
-        cell
-      );
-
-      cell.title =
-        cell.dataset.scientificPitch +
-        ' · E minor: ' +
-        cell.dataset.displayInterval +
-        ' · String ' +
-        (item.stringIndex + 1) +
-        ' · fret ' +
-        item.fret +
-        ' · ' +
-        occurrenceCount +
-        (
-          occurrenceCount === 1
-            ? ' tab occurrence'
-            : ' tab occurrences'
-        );
-
-      cell.setAttribute(
-        'aria-label',
-        cell.title
-      );
+  const rootOffsets = {R: 0, b2: 1, 2: 2, 3: 4, 4: 5,
+    b5: 6, 5: 7, b6: 8, 6: 9, b7: 10, 7: 11};
+  const tuning = getTuning();
+  const events = TIME_SOLO_SOURCE_EVENTS.map(note => {
+    const offset = rootOffsets[note.interval];
+    return {...note, root: offset === undefined ? null :
+      mod12(tuning[note.stringIndex] + note.fret - offset)};
+  });
+  const groups = [];
+  let current = null;
+  events.forEach((note, index) => {
+    // Missing source annotations retain the previous chord.
+    const root = note.root === null ? (current?.root ?? 4) : note.root;
+    if (!current || root !== current.root) {
+      current = {root, start: index + 1, end: index + 1, notes: []};
+      groups.push(current);
     }
-  );
+    current.end = index + 1;
+    current.notes.push(note);
+  });
 
-  const answerDisplay =
-    document.getElementById(
-      'answerNote'
-    );
+  const prompt = document.getElementById('answerNote');
+  prompt.className = 'timeSoloPrompt';
+  prompt.textContent = 'Time solo · Select a chord section';
 
-  if (answerDisplay) {
-    answerDisplay.className =
-      'timeSoloPrompt';
+  const stage = document.getElementById('chartDiv');
+  const timeline = document.createElement('div');
+  timeline.className = 'timeSoloTimeline';
+  timeline.setAttribute('role', 'group');
+  timeline.setAttribute('aria-label', 'Chord sequence by tab note order');
 
-    answerDisplay.textContent =
-      'Time solo · E minor · ' +
-      positions.size +
-      ' fretboard positions';
+  const subtitle = document.createElement('div');
+  subtitle.className = 'timeSoloTimelineHeading';
+  subtitle.textContent =
+    'Chord sequence · source note order (exact timestamps unavailable)';
+  timeline.appendChild(subtitle);
+
+  const track = document.createElement('div');
+  track.className = 'timeSoloTimelineTrack';
+  timeline.appendChild(track);
+  stage.appendChild(timeline);
+
+  function setGray(item) {
+    const cell = item.element;
+    revealCell(cell);
+    cell.textContent = '';
+    cell.classList.add('timeSoloGrayNote');
+    cell.classList.remove('timeSoloSelectedNote');
+    cell.title = 'String ' + (item.stringIndex + 1) + ' · fret ' + item.fret;
+    cell.setAttribute('aria-label', cell.title);
+  }
+
+  for (const item of allCells) {
+    const key = makeCellKey(item.stringIndex, item.fret);
+    if (!occurrenceCounts.has(key)) {
+      hideCell(item.element);
+      item.element.classList.remove('timeSoloGrayNote','timeSoloSelectedNote');
+    } else {
+      setGray(item);
+    }
+  }
+
+  function selectGroup(group, button) {
+    for (const item of allCells) {
+      const key = makeCellKey(item.stringIndex, item.fret);
+      if (occurrenceCounts.has(key)) setGray(item);
+    }
+    const unique = new Set(group.notes.map(note =>
+      makeCellKey(note.stringIndex, note.fret)));
+    for (const key of unique) {
+      const item = cellByKey.get(key);
+      if (!item) continue;
+      const interval = getBaseKeyIntervalName(
+        item.absolutePitch - group.root, 'ionian');
+      item.element.dataset.displayInterval = interval;
+      revealCell(item.element, interval);
+      item.element.classList.remove('timeSoloGrayNote');
+      item.element.classList.add('timeSoloSelectedNote');
+      item.element.title = noteNames[group.root] + ' chord · ' +
+        item.element.dataset.scientificPitch + ' · ' + interval;
+      item.element.setAttribute('aria-label', item.element.title);
+    }
+    track.querySelectorAll('button').forEach(b => {
+      b.classList.toggle('selected', b === button);
+      b.setAttribute('aria-pressed', String(b === button));
+    });
+    prompt.textContent = noteNames[group.root] + ' chord · ' +
+      'notes ' + group.start + '–' + group.end +
+      ' · ' + unique.size + ' fretboard positions';
+  }
+
+  for (const [index, group] of groups.entries()) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'timeSoloChordButton';
+    button.style.flexGrow = String(Math.max(1, group.notes.length));
+    button.textContent = noteNames[group.root];
+    button.title = 'Section ' + (index + 1) +
+      ' · tab notes ' + group.start + '–' + group.end;
+    button.setAttribute('aria-label', button.title);
+    button.setAttribute('aria-pressed', 'false');
+    button.addEventListener('click', () => selectGroup(group, button));
+    track.appendChild(button);
   }
 }
 
