@@ -1411,9 +1411,8 @@ function displayTimeSoloLesson(allCells, playbackMode = false) {
 
   const subtitle = document.createElement('div');
   subtitle.className = 'timeSoloTimelineHeading';
-  subtitle.textContent =
-    'Chord sequence · source note order (exact timestamps unavailable)';
-  timeline.appendChild(subtitle);
+  subtitle.textContent = playbackMode ? '' : 'Chord sequence · source note order (exact timestamps unavailable)';
+  if (!playbackMode) timeline.appendChild(subtitle);
 
   const track = document.createElement('div');
   track.className = 'timeSoloTimelineTrack';
@@ -10223,9 +10222,10 @@ function updateTimeSoloChordCandidates() {
   if (getSelectedLessonType() !== 'timeSoloChords') return;
   const candidates = timeSoloChordCandidateKeys();
   for (const [key, cell] of songPlayerCells) {
-    if (!cell.classList.contains('timeSoloNote') ||
-        songPlayerActiveCells.has(cell)) continue;
-    showTimeSoloInactiveCell(cell, candidates.has(key));
+    if (!cell.classList.contains('timeSoloNote') || songPlayerActiveCells.has(cell)) continue;
+    const candidate = candidates.has(key);
+    if (cell.classList.contains(candidate ? 'timeSoloCandidateNote' : 'timeSoloGrayNote')) continue;
+    showTimeSoloInactiveCell(cell, candidate);
   }
 }
 
@@ -10367,7 +10367,7 @@ function renderTimedTimeSoloSections(sections) {
   if (!track || !sections?.length) return;
   track.querySelectorAll('button').forEach(button => button.remove());
   const heading=document.querySelector('.timeSoloTimelineHeading');
-  if(heading)heading.textContent='Chord timeline · bass + rhythm guitar + keyboards · score timing';
+  if (heading) heading.remove();
   const chordMap={4:{major:'I',minor:'i'},6:{major:'II',minor:'ii'},7:{major:'♭III',minor:'♭iii'},
     9:{major:'IV',minor:'iv'},11:{major:'V',minor:'v'},0:{major:'♭VI',minor:'♭vi'},
     2:{major:'♭VII',minor:'♭vii'}};
@@ -10489,7 +10489,7 @@ setupSongPlayer({
     const active=buttons.find(b=>Number(tick)>=Number(b.dataset.startTick)&&Number(tick)<Number(b.dataset.endTick));
     const previous=buttons.find(b=>b.classList.contains('selected'));
     buttons.forEach(b=>{b.classList.toggle('selected',b===active);b.setAttribute('aria-current',String(b===active));});
-    if(previous!==active)updateTimeSoloChordCandidates();
+    updateTimeSoloChordCandidates();
     const first=buttons[0],last=buttons[buttons.length-1];
     const playhead=track.querySelector('.timeSoloChordPlayhead');
     if(first&&last&&playhead) {
