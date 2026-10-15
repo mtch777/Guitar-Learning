@@ -1,0 +1,4 @@
+[
+  {"tracks":6,"measures":111,"source_note_references":5314,"exported_notes":5314,"missing_pitch":0,"invalid_bars":0,"output":"/mnt/data/analysisgnn_benchmark/musicxml/Cloud%20Cascade%20%28Tuned%20Down%29(1).musicxml","source":"/mnt/data/Cloud%20Cascade%20%28Tuned%20Down%29(1).gp"},
+  {"tracks":9,"measures":185,"source_note_references":10138,"exported_notes":10138,"missing_pitch":0,"invalid_bars":18,"output":"/mnt/data/analysisgnn_benchmark/musicxml/Sweet Child O' Mine(1).musicxml","source":"/mnt/data/Sweet Child O' Mine(1).gp"}
+]
