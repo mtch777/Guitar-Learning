@@ -53,6 +53,14 @@ class ReviewPlayerContract(unittest.TestCase):
         self.assertIn("function stopReference()", self.html)
         self.assertIn("function referenceName()", self.html)
 
+    def test_chromatic_piano_and_note_audition(self):
+        self.assertIn("const PIANO_KEYS=48,NOTE_ROW=17", self.html)
+        self.assertIn("function auditionPitch(p)", self.html)
+        self.assertIn("pianoKeyboard.push(", self.html)
+        self.assertIn("pianoHits.push(", self.html)
+        self.assertIn("addEventListener('click'", self.html)
+        self.assertIn("for(const hit of pianoHits)", self.html)
+
     def test_export_columns_come_from_review_schema(self):
         self.assertIn("DATA.fields.map(cells)", self.html)
         self.assertIn("human_chord_label", self.html)
