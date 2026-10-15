@@ -108,6 +108,7 @@ function getTrackStringTuning(
 export function setupSongPlayer({
   onActiveNotes,
   onPositionChanged,
+  isTimeSoloChordsLesson,
   onTrackChanged,
   onScoreLoaded
 } = {}) {
@@ -522,7 +523,7 @@ export function setupSongPlayer({
       for(const [barIndex, bar] of (staff.bars||[]).entries())
         // The Time F#m score's guitar solo is measures 94–143 inclusive.
         // Exclude all notes from that track before and after this passage.
-        if (!timeProfile || (barIndex >= 93 && barIndex <= 142))
+        if (!(timeProfile || isTimeSoloChordsLesson?.()) || (barIndex >= 93 && barIndex <= 142))
         for(const voice of bar.voices||[])
           for(const beat of voice.beats||[]) {
             const start=Number(beat.absolutePlaybackStart);
