@@ -1918,15 +1918,15 @@ button.uiButton:disabled {
   z-index: 0;
   pointer-events: none;
 }
-.timeCagedSpot {
+.timeCagedRegion {
   position: absolute;
+  inset: 0;
   opacity: 0;
   pointer-events: none;
   background: rgba(210, 215, 224, .40);
-  border-radius: 12px;
 }
-.physicalFretboard[data-time-caged-shape="low-e"] .timeCagedSpot[data-shape="low-e"],
-.physicalFretboard[data-time-caged-shape="a"] .timeCagedSpot[data-shape="a"],
-.physicalFretboard[data-time-caged-shape="high-e"] .timeCagedSpot[data-shape="high-e"] {
+.physicalFretboard[data-time-caged-shape="low-e"] .timeCagedRegion[data-shape="low-e"],
+.physicalFretboard[data-time-caged-shape="a"] .timeCagedRegion[data-shape="a"],
+.physicalFretboard[data-time-caged-shape="high-e"] .timeCagedRegion[data-shape="high-e"] {
   opacity: 1;
 }
