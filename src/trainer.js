@@ -7055,6 +7055,11 @@ function buildTrainer() {
 
   fretboard.className =
     'physicalFretboard';
+  // A dedicated low-z layer: CAGED blobs are behind the dots, frets,
+  // strings, and note hit targets, never pseudo-elements inside note cells.
+  const timeCagedOverlay = document.createElement('div');
+  timeCagedOverlay.className = 'timeCagedOverlay';
+  fretboard.appendChild(timeCagedOverlay);
   if (lessonType === 'timeSoloChords' || lessonType === 'timeSolo') {
     fretboard.dataset.timeCagedShape = 'low-e';
   }
@@ -7616,9 +7621,19 @@ function buildTrainer() {
       if (lessonType === 'timeSoloChords' || lessonType === 'timeSolo') {
         const pitchClass = ((absolutePitch % 12) + 12) % 12;
         if ([6, 9, 11, 1, 4].includes(pitchClass) && stringIndex >= 2) {
-          if (fret >= 2 && fret <= 5) cell.classList.add('timeCagedLowE');
-          if (fret >= 9 && fret <= 12) cell.classList.add('timeCagedA');
-          if (fret >= 14 && fret <= 17) cell.classList.add('timeCagedHighE');
+          const shape = fret >= 2 && fret <= 5 ? 'low-e' :
+            fret >= 9 && fret <= 12 ? 'a' :
+            fret >= 14 && fret <= 17 ? 'high-e' : null;
+          if (shape) {
+            const spot = document.createElement('div');
+            spot.className = 'timeCagedSpot';
+            spot.dataset.shape = shape;
+            spot.style.left = cell.style.left;
+            spot.style.top = cell.style.top;
+            spot.style.width = cell.style.width;
+            spot.style.height = cell.style.height;
+            timeCagedOverlay.appendChild(spot);
+          }
         }
       }
 
