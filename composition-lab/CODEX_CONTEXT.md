@@ -1,5 +1,7 @@
 # Composition Lab — Codex context and autonomous execution plan
 
+**Current goal, 2026-10-16:** extend scripted analysis and exact-lock experiments to fretted/open-string HOPO, separate vibrato/tremolo, pedal patterns, close dyads, power/extended power chords and double stops. Execution checklist and precise definitions: `TECHNIQUE_ROADMAP.md`. Bends remain preserved baseline. Three scope clarifications pending; execute independent prework without silently deciding ambiguous terms. Raw beat-level arm-vibrato property exists in Time despite earlier absence of note-level vibrato tags.
+
 **2026-10-16 control contract correction:** latest user instruction supersedes older difference-target language: 0% is a literal selected-feature lock; 100% removes direct reference constraints, without forcing difference. Performance and arrangement are separate. First working bend-only lever, verified endpoints and private audio comparison: `LEVER_IMPLEMENTATION.md`. Other levers are not claimed implemented under this revised contract.
 
 Updated 2026-10-15. Read `composition-lab/HANDOFF.md` for full historical detail (it is long). Verify against current main.

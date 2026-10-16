@@ -200,3 +200,10 @@ Targets for stages 2/3 were rhythm/melody 25; target harmony for stage 4 was 75.
 - Actual private Time experiment: three distinct 28.657-second excerpts, nine bent sustains each; 34 full-track selections and displacement targets identical. All non-bend locks/reference-perturbation checks pass. Private feedback from v2 preserved without public annotations.
 - 129 Python tests, 16 JS tests, Vite build pass; browser playback advances without errors. Version675391ec9a09b75b; local-artifacts/time-bend-levers-v3; localhost5179. No website modification/deployment. Human quality unjudged.
 - Limits: scripted choices, no artist fitting, base pitches remain literal locks, accompaniment observations are not adjudicated harmony. Pre-bends requiring re-fingering and broader vocabulary remain outside this isolated test. Next: listen to timing alternatives, retain supported improvements before broadening methods.
+
+## 2026-10-16 — Current goal expanded to techniques and guitar patterns
+
+- User requested a current tracked goal and execution steps. Created TECHNIQUE_ROADMAP.md with 12 steps, testable acceptance criteria, provisional definitions, locks/edit permissions, rendering/listening gates and source/privacy boundaries; active goal registered.
+- Read handoff/context/AGENTS and pulled main ff-only (already current). Audited three private source XMLs: HOPO origin/destination property counts Time87/87, Cloud50/50, Sweet154/154. These are raw definition counts, not validated directed transitions.
+- Found beat-level VibratoWTremBar in Time and Sweet (one each). Earlier note-tag-only absence was not complete vibrato coverage. Mapping beat effects is required prework.
+- Clarifications requested for fretted pull-off meaning, tremolo type, double-stop category overlap. Independent preflight may continue. No feature-generation quality/completion claim. Documentation-only change; no website build/deployment required.
