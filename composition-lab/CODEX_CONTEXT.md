@@ -1,5 +1,7 @@
 # Composition Lab — Codex context and autonomous execution plan
 
+**2026-10-16 control contract correction:** latest user instruction supersedes older difference-target language: 0% is a literal selected-feature lock; 100% removes direct reference constraints, without forcing difference. Performance and arrangement are separate. First working bend-only lever, verified endpoints and private audio comparison: `LEVER_IMPLEMENTATION.md`. Other levers are not claimed implemented under this revised contract.
+
 Updated 2026-10-15. Read `composition-lab/HANDOFF.md` for full historical detail (it is long). Verify against current main.
 
 **External comparison 2026-10-16:** read `EXTERNAL_COMPARISON.md` and the source-free external comparison/copying JSON reports. Actual upstream Yin-Yang generator/refiner/selector and AMT accompaniment ran on source-conditioned inputs. Nineteen GPs independently verified; six phrase and four arrangement cases loaded privately in separate review tabs. Earlier identical four-second openings confirmed. One upstream negative duration rejected with paired retry; two no-future AMT controls hit explicit resource caps. Sweet motif returns include 16-event source matches. No artist fitting, learned global-form success, originality certification or new human listening verdict is claimed. Previous baselines/ratings preserved.

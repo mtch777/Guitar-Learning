@@ -176,3 +176,11 @@ Targets for stages 2/3 were rhythm/melody 25; target harmony for stage 4 was 75.
 - Independent alphaTab agrees on all 15 track note/attack/bend-segment counts. Exact explicit ties fully linked. Solo 37/153 bend-containing sustains; median duration 2 vs 2/3 quarter beats. Vocal bends, absent vibrato tags and absent solo rests limit interpretations.
 - Actual verification: 112 Python tests, 16 JS tests and npm build pass. No website modifications; no Pages deployment required.
 - Unresolved: artist-level corpus rates, validated phrase/harmonic relationships and performance interpretation. Reports explicitly retain unknowns. Next: extend tested relational queries and corpus coverage, without substituting AI labels.
+
+## 2026-10-16 — Reference-freedom bend lever
+
+- Implemented reusable fail-closed note-property edit transaction and scripted bend methods; canonical revised semantics in LEVER_IMPLEMENTATION.md and CODEX_CONTEXT.md.
+- Actual Time run: seven private full GP outputs and six unique solo previews, bars 95–110. All unrelated XML and non-score archive entries preserved; zero output byte-identical. 100% choices invariant to removing all reference bends.
+- Methods are generic frequency/duration/polyphony baselines, not an artist-trained model. Intermediate 25% retained original at seed17; no forced-difference or perceptual calibration claim.
+- Validation: all seven alphaTab imports, 120 Python tests, 16 JS tests, Vite build. FFT test verifies rendered bend frequency; browser playback advances without errors. No listening judgments made.
+- Private review served on loopback 127.0.0.1:5177; directory local-artifacts/time-bend-levers-v1. No public score/audio or website changes. Pending human judgments; other lever families remain future work.
