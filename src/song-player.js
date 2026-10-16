@@ -624,7 +624,7 @@ export function setupSongPlayer({
               for (const note of beat.notes || []) {
                 const midi = Number(note.realValue);
                 if (!Number.isFinite(midi)) continue;
-                const event = {pitch:midi-(timeProfile?2:0),start,end:start+dur};
+                const event = {pitch:midi,start,end:start+dur};
                 if (isBass) m.bass.push(event);
                 if (isHarmony) m.harmony.push(event);
                 if (isSolo && !rakeBeats(voice).has(beat)) {
