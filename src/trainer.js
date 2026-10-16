@@ -9254,7 +9254,7 @@ document
           );
 
         rootSelect.value =
-          '4';
+          '6';
 
         scaleSelect.value =
           'aeolian';
@@ -10479,7 +10479,7 @@ function applySongPlayerTrack({
     nextTuning;
 
   if (timeProfile) {
-    document.getElementById("rootSelect").value = "4";
+    document.getElementById("rootSelect").value = "6";
     document.getElementById("scaleSelect").value = "aeolian";
     syncSingleSelectDisplay("rootDropdown", "rootSelect");
     syncSingleSelectDisplay("scaleDropdown", "scaleSelect");
