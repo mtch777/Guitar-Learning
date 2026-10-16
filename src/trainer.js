@@ -7647,33 +7647,35 @@ function buildTrainer() {
   }
 
 
-  // Trace ONE enclosed silhouette per CAGED position, instead of disconnected
-  // spots. Its top/bottom edge follows each string row's valid pentatonic
-  // fret span, similar to the continuous regions in a CAGED diagram.
+  // Use one fully connected, closed region for each CAGED position.
+  // Unlike per-note patches, this spans the entire hand-position rectangle,
+  // including the gaps between pentatonic notes (as in a CAGED shape chart).
   for (const [shape, rows] of timeCagedRows) {
-    const ordered = [...rows.entries()].sort((a, b) => a[0] - b[0]);
-    if (!ordered.length) continue;
-    const edges = ordered.map(([displayIndex, range]) => {
-      const bounds = getStringHitBounds(displayIndex);
-      return {
-        left: 100 * (range.min - 1) / maxFret,
-        right: 100 * range.max / maxFret,
-        top: bounds.top,
-        bottom: bounds.top + bounds.height
-      };
-    });
-    const right = edges.flatMap(row => [[row.right, row.top], [row.right, row.bottom]]);
-    const left = edges.slice().reverse().flatMap(row => [[row.left, row.bottom], [row.left, row.top]]);
+    const entries = [...rows.entries()];
+    if (!entries.length) continue;
+    const minFret = Math.min(...entries.map(([, range]) => range.min));
+    const maxFret = Math.max(...entries.map(([, range]) => range.max));
+    const topRow = Math.min(...entries.map(([row]) => row));
+    const bottomRow = Math.max(...entries.map(([row]) => row));
+    const top = getStringHitBounds(topRow).top;
+    const bottomBounds = getStringHitBounds(bottomRow);
+    const bottom = bottomBounds.top + bottomBounds.height;
+    const left = 100 * (minFret - 1) / maxFret;
+    const right = 100 * maxFret / maxFret;
+
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.classList.add('timeCagedRegion');
     svg.dataset.shape = shape;
     svg.setAttribute('viewBox', '0 0 100 100');
     svg.setAttribute('preserveAspectRatio', 'none');
     svg.setAttribute('aria-hidden', 'true');
-    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    polygon.setAttribute('points', [...right, ...left]
-      .map(([x, y]) => x.toFixed(3) + ',' + y.toFixed(3)).join(' '));
-    svg.appendChild(polygon);
+    const outline = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    outline.setAttribute('x', left.toFixed(3));
+    outline.setAttribute('y', top.toFixed(3));
+    outline.setAttribute('width', (right - left).toFixed(3));
+    outline.setAttribute('height', (bottom - top).toFixed(3));
+    outline.setAttribute('rx', '0.8');
+    svg.appendChild(outline);
     timeCagedOverlay.appendChild(svg);
   }
 
