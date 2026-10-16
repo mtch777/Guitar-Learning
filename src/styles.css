@@ -1922,12 +1922,8 @@ button.uiButton:disabled {
   position: absolute;
   opacity: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse at center,
-    rgba(223, 228, 238, .28) 0%,
-    rgba(223, 228, 238, .18) 45%,
-    rgba(223, 228, 238, 0) 87%);
-  filter: blur(4px);
-  border-radius: 45%;
+  background: rgba(210, 215, 224, .40);
+  border-radius: 12px;
 }
 .physicalFretboard[data-time-caged-shape="low-e"] .timeCagedSpot[data-shape="low-e"],
 .physicalFretboard[data-time-caged-shape="a"] .timeCagedSpot[data-shape="a"],
