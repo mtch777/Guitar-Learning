@@ -167,3 +167,12 @@ Targets for stages 2/3 were rhythm/melody 25; target harmony for stage 4 was 75.
 - Final `analysisgnn_preflight.py --run --out local-artifacts/analysisgnn-final-preflight` — blocked/nonzero: GraphMuse not importable, AnalysisGNN transitively fails on GraphMuse, no source MusicXML inputs. Local JSON manifest retained. No pretrained predictions, comparison or accuracy result produced.
 - Source locations requested from user while independent work continued. Required: original Cloud/Sweet GP, historical MusicXML (if retained), Cloud V2 GP, and held-out source material. No private source/annotation/checkpoint artifacts staged for publication.
 - P1 source benchmark, actual P3 source ablations, P4 learned role/phrase engine and P5 held-out listening remain **open**. Next action is source-level discrepancy reproduction and functioning native inference environment, followed by source-conditioned plans and actual listening comparisons.
+
+## 2026-10-16 — Time scripted bend test
+
+- Pulled main ff-only from 18a4217 to fe762d9, preserving concurrent Songsterr work.
+- Implemented standard-library-only bend_analysis.py and six tests; no AI/model calls for measurements or labels. Checklist, definitions and measured results: BEND_ANALYSIS.md.
+- Ran supplied Downloads/time.gp; private occurrence report and generated Markdown under local-artifacts/time-bends/. Source SHA256 bd656f927c89b00fbc366b8659879d606937e4ff33fef60367023802c53aa89b.
+- Independent alphaTab agrees on all 15 track note/attack/bend-segment counts. Exact explicit ties fully linked. Solo 37/153 bend-containing sustains; median duration 2 vs 2/3 quarter beats. Vocal bends, absent vibrato tags and absent solo rests limit interpretations.
+- Actual verification: 112 Python tests, 16 JS tests and npm build pass. No website modifications; no Pages deployment required.
+- Unresolved: artist-level corpus rates, validated phrase/harmonic relationships and performance interpretation. Reports explicitly retain unknowns. Next: extend tested relational queries and corpus coverage, without substituting AI labels.
