@@ -7059,6 +7059,7 @@ function buildTrainer() {
   // strings, and note hit targets, never pseudo-elements inside note cells.
   const timeCagedOverlay = document.createElement('div');
   timeCagedOverlay.className = 'timeCagedOverlay';
+  const timeCagedRows = new Map();
   fretboard.appendChild(timeCagedOverlay);
   if (lessonType === 'timeSoloChords' || lessonType === 'timeSolo') {
     fretboard.dataset.timeCagedShape = 'low-e';
@@ -7625,14 +7626,12 @@ function buildTrainer() {
             fret >= 9 && fret <= 12 ? 'a' :
             fret >= 14 && fret <= 17 ? 'high-e' : null;
           if (shape) {
-            const spot = document.createElement('div');
-            spot.className = 'timeCagedSpot';
-            spot.dataset.shape = shape;
-            spot.style.left = cell.style.left;
-            spot.style.top = cell.style.top;
-            spot.style.width = cell.style.width;
-            spot.style.height = cell.style.height;
-            timeCagedOverlay.appendChild(spot);
+            const rows = timeCagedRows.get(shape) || new Map();
+            const row = rows.get(displayIndex) || {min: fret, max: fret};
+            row.min = Math.min(row.min, fret);
+            row.max = Math.max(row.max, fret);
+            rows.set(displayIndex, row);
+            timeCagedRows.set(shape, rows);
           }
         }
       }
@@ -7647,6 +7646,31 @@ function buildTrainer() {
     }
   }
 
+
+  // Trace ONE enclosed silhouette per CAGED position, instead of disconnected
+  // spots. Its top/bottom edge follows each string row's valid pentatonic
+  // fret span, similar to the continuous regions in a CAGED diagram.
+  for (const [shape, rows] of timeCagedRows) {
+    const ordered = [...rows.entries()].sort((a, b) => a[0] - b[0]);
+    if (!ordered.length) continue;
+    const edges = ordered.map(([displayIndex, range]) => {
+      const bounds = getStringHitBounds(displayIndex);
+      return {
+        left: 100 * (range.min - 1) / maxFret,
+        right: 100 * range.max / maxFret,
+        top: bounds.top,
+        bottom: bounds.top + bounds.height
+      };
+    });
+    const right = edges.flatMap(row => [[row.right, row.top], [row.right, row.bottom]]);
+    const left = edges.slice().reverse().flatMap(row => [[row.left, row.bottom], [row.left, row.top]]);
+    const outline = document.createElement('div');
+    outline.className = 'timeCagedRegion';
+    outline.dataset.shape = shape;
+    outline.style.clipPath = 'polygon(' + [...right, ...left]
+      .map(([x, y]) => x.toFixed(3) + '% ' + y.toFixed(3) + '%').join(', ') + ')';
+    timeCagedOverlay.appendChild(outline);
+  }
 
   if (lessonType === 'identifyModeShape' || lessonType === 'identifyCagedShape') {
     buildIdentificationShapeExercise(lessonType, allCells, baseRoot, baseScaleName, tuning);
