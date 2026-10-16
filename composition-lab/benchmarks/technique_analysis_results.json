@@ -1,0 +1,72 @@
+{
+  "scope": "Scripted source-free aggregate; provisional definitions, no performance quality verdict",
+  "scores": [
+    {
+      "source": "time",
+      "source_sha256": "bd656f927c89b00fbc366b8659879d606937e4ff33fef60367023802c53aa89b",
+      "occurrences": 6442,
+      "all_track_explicit_hopo": 87,
+      "guitar_bass_hopo_counts": {
+        "pull_off_fretted": 12,
+        "hammer_on_fretted": 6,
+        "hammer_on_from_open": 25,
+        "pull_off_to_open": 1
+      },
+      "guitar_bass_group_interval_counts": {
+        "double_stop": 184,
+        "power_chord": 37,
+        "extended_power_chord": 61,
+        "close_interval_texture": 12
+      },
+      "guitar_bass_effect_counts": {
+        "beat:VibratoWTremBar": 1
+      },
+      "guitar_bass_pedal_windows": 215,
+      "voice_meter_discrepancies": 0
+    },
+    {
+      "source": "cloud",
+      "source_sha256": "63cfae7762a5ac56b2f0521d8c01cbf6025fac74ea525c7a6b7d260703492f66",
+      "occurrences": 5314,
+      "all_track_explicit_hopo": 50,
+      "guitar_bass_hopo_counts": {
+        "pull_off_fretted": 4,
+        "hammer_on_fretted": 26,
+        "hammer_on_from_open": 16,
+        "pull_off_to_open": 4
+      },
+      "guitar_bass_group_interval_counts": {
+        "double_stop": 492,
+        "power_chord": 38,
+        "extended_power_chord": 126,
+        "close_interval_texture": 418
+      },
+      "guitar_bass_effect_counts": {},
+      "guitar_bass_pedal_windows": 0,
+      "voice_meter_discrepancies": 0
+    },
+    {
+      "source": "sweet",
+      "source_sha256": "17c5ecc0606a6334bf2818ba3f2d1f4a8574f0777cf6750565f644a0ee0b9e7f",
+      "occurrences": 10138,
+      "all_track_explicit_hopo": 154,
+      "guitar_bass_hopo_counts": {
+        "pull_off_fretted": 116,
+        "hammer_on_fretted": 36,
+        "pull_off_to_open": 1,
+        "hammer_on_from_open": 1
+      },
+      "guitar_bass_group_interval_counts": {
+        "extended_power_chord": 271,
+        "double_stop": 135,
+        "power_chord": 436
+      },
+      "guitar_bass_effect_counts": {
+        "beat:PickStroke": 8,
+        "beat:VibratoWTremBar": 1
+      },
+      "guitar_bass_pedal_windows": 37,
+      "voice_meter_discrepancies": 0
+    }
+  ]
+}

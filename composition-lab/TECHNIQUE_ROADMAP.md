@@ -29,7 +29,7 @@ Analysis and musical decisions use repeatable scripts, not AI-filled labels. Obs
 - [ ] **1. Finalize schema and definitions.** Resolve the three scoped questions; version all definitions. Positive/negative fixtures for every family, including ties, grace events, polyphony, alternate tuning and ambiguous markers. Defaults remain labeled until confirmed.
 - [x] **2a. Initial private-source inventory.** Inspect Time, Cloud Cascade and Sweet Child for source technique encodings; retain aggregate counts only publicly.
 - [ ] **2b. Complete extraction/notation coverage audit.** Read note properties, note tags, beat properties, beat tags, staff effects and linked transitions; preserve exact rational timing, occurrences, fret/string/tuning. Every detected effect is mapped or explicitly unsupported. Audit parser/independent-import agreement. This is necessary before interpreting absence.
-- [ ] **3. Implement directed HOPO relationship analysis.** Match explicit origins/destinations in same track/voice/string using timing and source links; classify upward/downward and open/fretted pairs; report unmatched/ambiguous markers. Tests ensure no cross-string, cross-track or arbitrary skipped-note links. Measures report attacks/transitions separately from tied segments.
+- [x] **3. Implement directed HOPO relationship analysis.** Match explicit origins/destinations in same track/voice/string using timing and source links; classify upward/downward and open/fretted pairs; report unmatched/ambiguous markers. Tests ensure no cross-string, cross-track or arbitrary skipped-note links. Measures report attacks/transitions separately from tied segments. Evidence below; higher-neck naming remains provisional.
 - [ ] **4. Implement vibrato and tremolo analysis.** Separate finger vibrato, arm effects, tremolo picking and any volume effect; preserve available speed/width/rate/subdivision and report unknowns. Do not infer a performed waveform from a generic marker. Validate synthetic examples plus available annotated sources; absence of corpus examples does not count as validated detection.
 - [ ] **5. Implement simultaneous-note vocabulary.** Exact rational sounding groups with string identity; classify dyads, power and extended power chords using definitions above. Tests cover inversions, octaves, extra thirds, held overlaps, cross-voice groups and duplicate unisons. Labels may overlap; report exclusions and co-attack versus overlap.
 - [ ] **6. Implement recurring pedal-pattern analysis.** Identify anchor/contrast alternation, relative register, rhythm signatures, repetitions and transformations within/across sections. Include counterexamples: isolated repeated pitch, chord root frequency, unrelated open strings. Threshold sensitivity and evidence links required; no automatic emotional/function claims.
@@ -55,3 +55,21 @@ Raw XML property inventory (counts are definitions containing the property, not 
 | Sweet Child | 154 | 154 | 1 |
 
 Equal origin/destination totals do not prove pair linkage. Earlier “no vibrato tags” observation concerned note tags; it did not establish absence of beat-level arm vibrato. This coverage gap must be corrected in the unified analysis. No completed implementation or listening quality is claimed by this roadmap.
+
+## First analysis implementation
+
+`technique_analysis.py` now reports occurrence-level note/beat inventories, explicitly paired and eligible-but-unmarked HOPO, directional/open/fretted counts, source-section counts, effect XML, simultaneous vocabulary groups and alternating-return pedal candidates. Guitar/bass MIDI programs are distinguished from notation-only tracks; e.g. vocal HOPO/slurs are not silently called guitar technique. Beat arm-vibrato is retained. Summarized marker absence still does not establish performance absence.
+
+Independent `verify_technique_links.mjs` agrees with every directed alphaTab HOPO link: Time 87, Cloud 50, Sweet 154. No unmatched markers, zero source timing discrepancies. Guitar/bass-only observed transitions:
+
+| Source | Fretted hammer-on | Fretted pull-off | Hammer-on from open | Pull-off to open |
+|---|---:|---:|---:|---:|
+| Time | 6 | 12 | 25 | 1 |
+| Cloud | 26 | 4 | 16 | 4 |
+| Sweet | 36 | 116 | 1 | 1 |
+
+Private reports: `local-artifacts/techniques-v1/{time,cloud,sweet}.json`. Public source-free aggregates: `benchmarks/technique_analysis_results.json`. CLI: `python composition-lab/technique_analysis.py SOURCE.gp --output PRIVATE_REPORT.json`; independent linkage check: `node composition-lab/verify_technique_links.mjs ALPHATAB_MODULE SOURCE.gp PRIVATE_REPORT.json`.
+
+Simultaneous classification uses rational onset AND end boundaries, not just attacks, and excludes percussion; it distinguishes co-attacks from sustained overlap. Labels describe notated base pitches, flag bend/harmonic/beat-pitch effects for further resolution, and do not establish acoustic dissonance. Pattern counts are intervals, not distinct riffs. Extended power follows the user definition and can include ordinary major/minor triads as root/fifth/one-color collections. Exact alternating six-event pedal windows are exploratory, overlap each other, and are not verified pedal roles. Cloud currently has zero under this narrow monophonic detector; this is not evidence Cloud has no pedal material. Steps 4–7 remain partial; no new technique generation/playback acceptance yet.
+
+Verification: 142 Python tests (13 new technique tests), 16 JS tests and Vite build pass. No website changes. Next: broaden notation-effect mapping and pedal-pattern coverage, then controlled performance edits with a renderer that can audibly distinguish legato from picking.

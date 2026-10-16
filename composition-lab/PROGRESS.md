@@ -207,3 +207,12 @@ Targets for stages 2/3 were rhythm/melody 25; target harmony for stage 4 was 75.
 - Read handoff/context/AGENTS and pulled main ff-only (already current). Audited three private source XMLs: HOPO origin/destination property counts Time87/87, Cloud50/50, Sweet154/154. These are raw definition counts, not validated directed transitions.
 - Found beat-level VibratoWTremBar in Time and Sweet (one each). Earlier note-tag-only absence was not complete vibrato coverage. Mapping beat effects is required prework.
 - Clarifications requested for fretted pull-off meaning, tremolo type, double-stop category overlap. Independent preflight may continue. No feature-generation quality/completion claim. Documentation-only change; no website build/deployment required.
+
+## 2026-10-16 — First technique and pattern analyzer
+
+- Previous goal turn classified as progress: persistent goal/roadmap committed. This continuation implemented actual scripted analysis, not just planning.
+- New technique_analysis.py: exact occurrence inventories, directed HOPO relationships, open/fretted classification, explicit-vs-eligible distinction, source-section counts, raw effect payloads, simultaneous vocabulary intervals and exploratory pedal windows. Source notes and raw XML remain private.
+- Actual Time/Cloud/Sweet marked HOPO totals 87/50/154. All directed links independently agree with alphaTab, no unmatched markers. Guitar/bass-only transition breakdown and source-free summaries recorded in TECHNIQUE_ROADMAP.md and benchmarks/technique_analysis_results.json.
+- Simultaneity uses half-open rational onset/end boundaries across voices; same-string conflicts excluded; percussion excluded. Dyad/chord labels are notated-base-pitch observations, with unresolved pitch-effect qualifiers. Pedal detector remains partial (especially polyphonic Cloud material); no artist/function inference claim.
+- Verification: 142 Python tests, 16 JS tests, Vite build pass. Added independent verify_technique_links.mjs. No website changes/deployment needed. Active goal remains incomplete: technique-effect mapping, broader patterns, exact-lock generation, suitable playback and human validation remain.
+- Three user definition questions still pending; no dependent scope silently settled. Next independent work: effect normalization and broader pedal evidence, then controlled fretted/open HOPO experiments with honest audio capability checks.
