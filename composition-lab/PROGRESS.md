@@ -184,3 +184,11 @@ Targets for stages 2/3 were rhythm/melody 25; target harmony for stage 4 was 75.
 - Methods are generic frequency/duration/polyphony baselines, not an artist-trained model. Intermediate 25% retained original at seed17; no forced-difference or perceptual calibration claim.
 - Validation: all seven alphaTab imports, 120 Python tests, 16 JS tests, Vite build. FFT test verifies rendered bend frequency; browser playback advances without errors. No listening judgments made.
 - Private review served on loopback 127.0.0.1:5177; directory local-artifacts/time-bend-levers-v1. No public score/audio or website changes. Pending human judgments; other lever families remain future work.
+
+## 2026-10-16 — Generated-only contextual bends, round 2
+
+- User excluded original/no-bend controls and final-resolution issue. Built three generated-only variants: destination-aware, varied trajectories, and sparser placement. Exact locked base score preserved.
+- Added contextual_bends.py, build_bend_v2.py and four regression tests. No AI inference. Targets use observed accompaniment support and following-note proximity; placement excludes overlapping solo sustains. Curves vary with duration and split continuously across ties.
+- Three unique private WAV/GP cases, no original/no-bend review case. All independent alphaTab imports, locked XML/archive checks and reference-bend perturbation checks pass; zero encoding fallbacks.
+- 124 Python tests, 16 JS tests and build pass. Browser playback verified mechanically; quality awaits listening. Private version0113f9d3324a61c8, directory local-artifacts/time-bend-levers-v2, port5178. No website deployment changes.
+- Limits: engineering budgets/spacing and limited one/two-semitone vocabulary, unverified harmonic interpretation, no artist fitting or physical performance certification. Next: assess user feedback on destinations, timing/interaction, trajectory.

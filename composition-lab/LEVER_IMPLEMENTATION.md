@@ -24,3 +24,18 @@ Private review uses bars 95–110, isolated solo track, original tempo map: 28.6
 Verification: 120 Python tests pass locally, including authored-GP endpoint/perturbation tests and FFT verification of 440 Hz bending to approximately 493.88 Hz. Optional NumPy signal test skips when NumPy is absent; lock tests are standard-library only. 16 JS tests and Vite build pass. Browser audio progressed without media errors. No public website edits: review HTML and commercial source-bearing artifacts stay local, so no Pages deployment required.
 
 Next: human comparison, then fit/validate richer contextual methods and extend the shared edit boundary to other feature families. Other generation levers remain unimplemented.
+
+## Bend-only follow-up, 2026-10-16
+
+User: ignore weak final resolution; generated bend versions only, no original/no-bend controls.
+
+Acceptance checklist:
+- [x] Scripted destination scores use surrounding pitched accompaniment and following solo note; source bend annotations excluded from proposal context.
+- [x] Reject overlapping solo sustains; vary whole-sustain curves and split exactly over ties.
+- [x] Generate three distinct nonempty bend previews and independently import all GP outputs.
+- [x] Verify locked data and full-freedom reference perturbation; run tests/build.
+- [x] Private review ready; code/progress pushed to main. Human quality remains unjudged.
+
+Implementation: contextual_bends.py and build_bend_v2.py. Priors are engineering heuristics, not learned artist technique. Accompaniment selection uses explicit MIDI program ranges for piano, organ, guitar and bass; pitch support is not verified harmonic function. Selection budget and spacing are transparent experimental parameters. Only bends change; base pitches, rhythm, arrangement, ties and all other techniques stay locked. Bends are 1/2 semitone choices; this limits stylistic variety and does not certify physical execution. Curve encoding rejects unrepresentable interior shapes; any fallback is counted. No phrase-end quality objective is used. Existing v1 feedback stays private and v1 outputs are preserved.
+
+Bend v2 completion evidence: three distinct previews with 6/9/9 bent sustains; 18/34/34 selected across the full solo track. Zero curve fallbacks. All three GP files independently imported; all locked-data checks pass. Running each method on the bend-removed source yields identical bend-property output. Actual verification: 124 Python tests, 16 JS tests, Vite build pass. Browser preview advances without media errors. Private comparison: local-artifacts/time-bend-levers-v2, loopback port5178. No public website changes or Pages deployment needed. Human musical quality remains unjudged. Earlier unchecked bend-v2 acceptance items are satisfied by this evidence and the associated main commit/push.
