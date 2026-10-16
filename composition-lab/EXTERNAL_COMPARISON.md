@@ -22,7 +22,7 @@ model name, import, score export or metric for musical success.
       and consistent preview rendering; keep source-bearing review artifacts private.
 - [x] Package a small review set with conditions/provenance concealed until
       judgment; human quality/style judgments remain unfilled.
-- [ ] Run Python/JS/build checks as applicable, commit/push source and aggregates
+- [x] Run Python/JS/build checks as applicable, commit/push source and aggregates
       to main without concurrent overwrite; verify Pages for website changes.
 
 ## Execution log
@@ -164,3 +164,16 @@ Browser A/B decoding is 16s, B piano roll follows B, both studies load without
 console errors, old ratings preserved, and new human judgments remain blank.
 No website source changed; the current Pages UI was reused rather than
 publishing private musical content.
+
+## Remote verification
+
+Final implementation/results commit **fc4d03386be2d667b81dca6e0b13efeb738a27bf**
+is on origin/main; [Composition CI 38937715731](https://github.com/mtch777/Guitar-Learning/actions/runs/38937715731)
+completed successfully. Working tree clean and all 19 archived GP bytes match
+the independently checked local exports. Existing live review returns HTTP 200
+with unchanged deployed asset `compositionAblationReview-B2Qs4nac.js`; no Pages
+redeployment was necessary because no website source or public media changed.
+Both private studies loaded in separate browser tabs, 0/6 and 0/4 human reviews,
+16s A/B decoding, B piano roll following B, no browser console errors. The older
+22-case review and its existing human ratings were left untouched. Technical
+comparison acceptance is complete; musical/style judgments remain pending.
