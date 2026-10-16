@@ -6,15 +6,24 @@ import random
 from pathlib import Path
 from contextual_bends import apply
 from bend_lever_experiment import render
+from bend_analysis import extract_score,bend_shape
 
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('source',type=Path);p.add_argument('--out',type=Path,required=True);p.add_argument('--track',type=int,required=True)
+    p.add_argument('--round',type=int,choices=(2,3),default=2)
     a=p.parse_args();a.out.mkdir(parents=True,exist_ok=False)
-    variants=['destinations','trajectories','spaced'];random.Random(20261017).shuffle(variants);records=[]
+    variants=['destinations','trajectories','spaced'] if a.round==2 else ['pulse','delayed','response']
+    apply_fn=apply
+    if a.round==3:
+        from bend_timing import apply as apply_fn
+    random.Random(20261017).shuffle(variants);records=[]
     for i,variant in enumerate(variants,1):
         ident=f'bend-{i:02d}';gp=a.out/(ident+'.gp');wav=a.out/(ident+'.wav')
-        audit=apply(a.source,gp,a.track,variant);audio=render(gp,wav,a.track,95,110)
+        audit=apply_fn(a.source,gp,a.track,variant);audio=render(gp,wav,a.track,95,110)
+        track=extract_score(gp)['tracks'][a.track]
+        expected=[[[[bend_shape(n['note_xml']) for n in e['notes']] for e in v] for v in m['voices']] for m in track['measures']]
+        gp.with_suffix('.curves.json').write_text(json.dumps(expected),encoding='utf-8')
         if not audio['bent_sustains']:raise AssertionError('No-bend preview excluded')
         records.append(dict(id=ident,method=variant,audit=audit,audio=audio,
                             gp_sha256=hashlib.sha256(gp.read_bytes()).hexdigest(),
@@ -33,6 +42,9 @@ const version=VERSION, cases=CASES, key='bend-v2-'+version, fields=[...document.
 const old=JSON.parse(localStorage.getItem(key)||'{}');for(const f of fields){f.value=old[f.id]||'';f.oninput=()=>localStorage.setItem(key,JSON.stringify(Object.fromEntries(fields.map(x=>[x.id,x.value]))));}
 document.querySelector('#export').onclick=()=>{const data={format:'bend-feedback-v2',version,cases,exportedAt:new Date().toISOString(),reviews:Object.fromEntries(fields.map(x=>[x.id,x.value]))};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='bend-v2-feedback.json';a.click();};</script>'''
     html=html.replace('VERSION',json.dumps(version)).replace('CASES',json.dumps([{k:r[k] for k in ('id','gp_sha256','wav_sha256')} for r in records]))
+    if a.round==3:
+        html=html.replace('round 2','round 3: timing').replace('bend-v2-','bend-v3-').replace('bend-feedback-v2','bend-feedback-v3').replace('bend-v2-feedback.json','bend-v3-feedback.json')
+        html=html.replace('Only bends change.','The same notes receive bends to the same peak pitches. Only bend start, arrival, hold and release timing change.')
     (a.out/'index.html').write_text(html,encoding='utf-8');print(json.dumps(dict(cases=3,version=version)))
 
 

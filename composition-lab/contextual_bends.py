@@ -73,6 +73,7 @@ def trajectory(peak,duration,varied=False):
 
 
 def interpolate(points,x):
+    if x<=points[0][0]:return points[0][1]
     for (a,v),(b,w) in zip(points,points[1:]):
         if a<=x<=b:return v+(w-v)*(x-a)/(b-a)
     return points[-1][1]
@@ -80,11 +81,18 @@ def interpolate(points,x):
 
 def segment_properties(points,left,right):
     """GPIF has at most two interior points sharing one value. Reject loss."""
-    inside=[(x,y) for x,y in points if left<x<right]
+    clipped=[(left,interpolate(points,left))]+[(x,y) for x,y in points if left<x<right]+[(right,interpolate(points,right))]
+    if all(y==0 for x,y in clipped):return []
+    # GPIF origin/destination offsets can encode a delay or an early finish.
+    # Remove only constant tails, preserving the exact piecewise-linear curve.
+    if len({y for x,y in clipped})>1:
+        while len(clipped)>2 and clipped[0][1]==clipped[1][1]:clipped.pop(0)
+        while len(clipped)>2 and clipped[-1][1]==clipped[-2][1]:clipped.pop()
+    inside=clipped[1:-1]
     if len(inside)>2 or len({y for x,y in inside})>1:raise ValueError('Curve not exactly representable in GPIF segment')
-    origin=interpolate(points,left);end=interpolate(points,right)
-    values={'Bended':None,'BendOriginOffset':0,'BendOriginValue':origin*50,
-            'BendDestinationOffset':100,'BendDestinationValue':end*50}
+    origin=clipped[0][1];end=clipped[-1][1]
+    values={'Bended':None,'BendOriginOffset':(clipped[0][0]-left)/(right-left)*100,'BendOriginValue':origin*50,
+            'BendDestinationOffset':(clipped[-1][0]-left)/(right-left)*100,'BendDestinationValue':end*50}
     if inside:
         values.update(BendMiddleOffset1=(inside[0][0]-left)/(right-left)*100,
                       BendMiddleOffset2=(inside[-1][0]-left)/(right-left)*100,

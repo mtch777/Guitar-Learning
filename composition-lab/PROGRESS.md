@@ -192,3 +192,11 @@ Targets for stages 2/3 were rhythm/melody 25; target harmony for stage 4 was 75.
 - Three unique private WAV/GP cases, no original/no-bend review case. All independent alphaTab imports, locked XML/archive checks and reference-bend perturbation checks pass; zero encoding fallbacks.
 - 124 Python tests, 16 JS tests and build pass. Browser playback verified mechanically; quality awaits listening. Private version0113f9d3324a61c8, directory local-artifacts/time-bend-levers-v2, port5178. No website deployment changes.
 - Limits: engineering budgets/spacing and limited one/two-semitone vocabulary, unverified harmonic interpretation, no artist fitting or physical performance certification. Next: assess user feedback on destinations, timing/interaction, trajectory.
+
+## 2026-10-16 — Explicit bend timing, round 3
+
+- Added bend_timing.py and five focused tests. Research/feedback now informs explicit bend start, arrival, hold and release. Meter-aware arrival candidates scored with per-track-normalized pitch support at that instant. Selected notes/peaks held fixed across modes; no final-resolution objective or original/no-bend review cases.
+- Enhanced GPIF property encoder to preserve delayed origins/early finishes; quarter-tone-safe tie seams. Independent verify_bend_curves.mjs confirms all 204 solo-note curves per case match alphaTab within 1.4e-15 semitone.
+- Actual private Time experiment: three distinct 28.657-second excerpts, nine bent sustains each; 34 full-track selections and displacement targets identical. All non-bend locks/reference-perturbation checks pass. Private feedback from v2 preserved without public annotations.
+- 129 Python tests, 16 JS tests, Vite build pass; browser playback advances without errors. Version675391ec9a09b75b; local-artifacts/time-bend-levers-v3; localhost5179. No website modification/deployment. Human quality unjudged.
+- Limits: scripted choices, no artist fitting, base pitches remain literal locks, accompaniment observations are not adjudicated harmony. Pre-bends requiring re-fingering and broader vocabulary remain outside this isolated test. Next: listen to timing alternatives, retain supported improvements before broadening methods.
