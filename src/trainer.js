@@ -482,6 +482,19 @@ let currentShapeExercise = null;
 let currentCagedExercise = null;
 let currentModeIntervalExercise = null;
 let timeSoloLoadedPositions = null;
+let timeSoloCagedShapeTicks = [];
+
+function setTimeSoloCagedShape(tick = -1) {
+  const fretboard = document.querySelector('.physicalFretboard');
+  if (!fretboard) return;
+  let barIndex = 93;
+  for (const item of timeSoloCagedShapeTicks) {
+    if (Number(tick) >= item.start) barIndex = item.barIndex;
+  }
+  fretboard.dataset.timeCagedShape = barIndex >= 110 && barIndex < 126
+    ? 'high-e' : barIndex >= 104 && barIndex < 110 ? 'a' : 'low-e';
+}
+
 let songPlayerCells = new Map();
 let songPlayerStringOffset = 0;
 let songPlayerActiveCells = new Set();
@@ -7042,6 +7055,9 @@ function buildTrainer() {
 
   fretboard.className =
     'physicalFretboard';
+  if (lessonType === 'timeSoloChords' || lessonType === 'timeSolo') {
+    fretboard.dataset.timeCagedShape = 'low-e';
+  }
 
   if (
     maxFret >= 20
@@ -7596,6 +7612,15 @@ function buildTrainer() {
         fret,
         false
       );
+
+      if (lessonType === 'timeSoloChords' || lessonType === 'timeSolo') {
+        const pitchClass = ((absolutePitch % 12) + 12) % 12;
+        if ([6, 9, 11, 1, 4].includes(pitchClass) && stringIndex >= 2) {
+          if (fret >= 2 && fret <= 5) cell.classList.add('timeCagedLowE');
+          if (fret >= 9 && fret <= 12) cell.classList.add('timeCagedA');
+          if (fret >= 14 && fret <= 17) cell.classList.add('timeCagedHighE');
+        }
+      }
 
       fretboard.appendChild(
         cell
@@ -10420,7 +10445,8 @@ function applySongPlayerTrack({
   timeProfile = false,
   tuningHighToLow,
   placeholderPositions = [],
-  chordSections = []
+  chordSections = [],
+  cagedShapeTicks = []
 }) {
   if (
     !Array.isArray(
@@ -10456,6 +10482,7 @@ function applySongPlayerTrack({
     stringCount;
 
   songPlayerStringOffset = timeProfile ? 0 : firstInternalIndex;
+  timeSoloCagedShapeTicks = timeProfile ? cagedShapeTicks : [];
   timeSoloLoadedPositions = placeholderPositions.map(note => ({
     stringIndex: songPlayerStringOffset + Number(note.string) - 1,
     fret: Number(note.fret)
@@ -10489,6 +10516,7 @@ function applySongPlayerTrack({
     ['songPlayer','timeSoloChords'].includes(getSelectedLessonType())
   ) {
     buildTrainer();
+    if (timeProfile) setTimeSoloCagedShape();
     if (getSelectedLessonType()==='timeSoloChords') renderTimedTimeSoloSections(chordSections);
 
     const answerDisplay =
@@ -10515,6 +10543,7 @@ setupSongPlayer({
     const track=document.querySelector('.timeSoloTimelineTrack');
     if(!track)return;
     timeSoloCurrentTick = Number(tick);
+    setTimeSoloCagedShape(tick);
     const buttons=[...track.querySelectorAll('.timeSoloChordButton')];
     const active=buttons.find(b=>Number(tick)>=Number(b.dataset.startTick)&&Number(tick)<Number(b.dataset.endTick));
     buttons.forEach(b=>{b.classList.toggle('selected',b===active);b.setAttribute('aria-current',String(b===active));});
