@@ -1,0 +1,519 @@
+{
+  "format": "external-pipeline-comparison-v1",
+  "prior_opening_audit": {
+    "4s_melody_duplicate_groups": [
+      [
+        "final-01",
+        "final-02",
+        "final-03",
+        "final-06",
+        "final-11"
+      ],
+      [
+        "final-05",
+        "final-09"
+      ]
+    ],
+    "8s_melody_duplicate_groups": [
+      [
+        "final-02",
+        "final-03"
+      ]
+    ],
+    "reported_sweet_cases": [
+      "final-01",
+      "final-02",
+      "final-06",
+      "final-11"
+    ],
+    "reported_sweet_first_8s_melody_all_equal": false
+  },
+  "comparison_checks": {
+    "phrases": {
+      "cloud": {
+        "cases": 3,
+        "distinct_post_prefix_event_streams": 3
+      },
+      "sweet": {
+        "cases": 3,
+        "distinct_post_prefix_event_streams": 3
+      }
+    },
+    "arrangement": {
+      "cloud": {
+        "cases": 2,
+        "distinct_post_prefix_event_streams": 2,
+        "fixed_lead_identical": true,
+        "independent_midi_lead_checked": true
+      },
+      "sweet": {
+        "cases": 2,
+        "distinct_post_prefix_event_streams": 2,
+        "fixed_lead_identical": true,
+        "independent_midi_lead_checked": true
+      }
+    }
+  },
+  "runs": [
+    {
+      "id": "cloud-cached",
+      "family": "cloud",
+      "study": "phrases",
+      "method": "Controlled cached-pool baseline: identical source motif for two bars, then prior source-independent cached continuation; explicit splice, not contextual generation",
+      "bars": 8,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      }
+    },
+    {
+      "id": "cloud-selector-off-1701-attempt1",
+      "family": "cloud",
+      "study": null,
+      "inference": {
+        "status": "inference_succeeded",
+        "seed": 1701,
+        "calls": {
+          "generate_phrase": 3,
+          "refine_phrase": 4
+        },
+        "form": "supplied ABA, three phrases per section",
+        "upstream_sha": "b43f12c0e2288e94341bf746bc8b1695df5f4b76259424fc11e2cc30e89b715f"
+      },
+      "status": "gp_export_rejected",
+      "invalid_timing_events": 1,
+      "method": "Upstream inference completed but emitted invalid timing; raw output retained, no GP/listening sample fabricated"
+    },
+    {
+      "id": "cloud-no-selector-seed1702-full",
+      "family": "cloud",
+      "study": null,
+      "method": "Official contextual Yin-Yang no-selector; source-seeded, supplied form, not learned form; full raw inference retained",
+      "bars": 14,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      },
+      "inference": {
+        "status": "inference_succeeded",
+        "seed": 1702,
+        "calls": {
+          "generate_phrase": 3,
+          "refine_phrase": 4
+        },
+        "form": "supplied ABA, three phrases per section",
+        "upstream_sha": "b43f12c0e2288e94341bf746bc8b1695df5f4b76259424fc11e2cc30e89b715f"
+      },
+      "max_quantization_error_q": 0
+    },
+    {
+      "id": "cloud-no-selector",
+      "family": "cloud",
+      "study": "phrases",
+      "method": "Official contextual Yin-Yang no-selector; source-seeded, supplied form, not learned form; full raw inference retained",
+      "bars": 8,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      },
+      "seed_prefix_is_source": true,
+      "seed": 1702
+    },
+    {
+      "id": "cloud-full-aba-seed1701-full",
+      "family": "cloud",
+      "study": null,
+      "method": "Official contextual Yin-Yang full-aba; source-seeded, supplied form, not learned form; full raw inference retained",
+      "bars": 15,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      },
+      "inference": {
+        "status": "inference_succeeded",
+        "seed": 1701,
+        "calls": {
+          "generate_phrase": 15,
+          "select_phrase": 30,
+          "refine_phrase": 16
+        },
+        "form": "supplied ABA, three phrases per section",
+        "upstream_sha": "b43f12c0e2288e94341bf746bc8b1695df5f4b76259424fc11e2cc30e89b715f"
+      },
+      "max_quantization_error_q": 0
+    },
+    {
+      "id": "cloud-full-abc-seed1701-full",
+      "family": "cloud",
+      "study": null,
+      "method": "Official contextual Yin-Yang full-abc; source-seeded, supplied form, not learned form; full raw inference retained",
+      "bars": 18,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      },
+      "inference": {
+        "status": "inference_succeeded",
+        "seed": 1701,
+        "calls": {
+          "generate_phrase": 15,
+          "select_phrase": 30,
+          "refine_phrase": 17
+        },
+        "form": "supplied ABC, three phrases per section",
+        "upstream_sha": "b43f12c0e2288e94341bf746bc8b1695df5f4b76259424fc11e2cc30e89b715f"
+      },
+      "max_quantization_error_q": 0
+    },
+    {
+      "id": "cloud-full-aba-seed1702-full",
+      "family": "cloud",
+      "study": null,
+      "method": "Official contextual Yin-Yang full-aba; source-seeded, supplied form, not learned form; full raw inference retained",
+      "bars": 10,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      },
+      "inference": {
+        "status": "inference_succeeded",
+        "seed": 1702,
+        "calls": {
+          "generate_phrase": 15,
+          "select_phrase": 30,
+          "refine_phrase": 16
+        },
+        "form": "supplied ABA, three phrases per section",
+        "upstream_sha": "b43f12c0e2288e94341bf746bc8b1695df5f4b76259424fc11e2cc30e89b715f"
+      },
+      "max_quantization_error_q": 0
+    },
+    {
+      "id": "cloud-full-aba",
+      "family": "cloud",
+      "study": "phrases",
+      "method": "Official contextual Yin-Yang full-aba; source-seeded, supplied form, not learned form; full raw inference retained",
+      "bars": 8,
+      "repairs": {
+        "octave_adjusted_notes": 0,
+        "notes_clipped_at_excerpt_end": 1
+      },
+      "seed_prefix_is_source": true,
+      "seed": 1702
+    },
+    {
+      "id": "cloud-quarter-grid",
+      "family": "cloud",
+      "study": "arrangement",
+      "method": "Local joint-role quarter-grid baseline, fixed eight-bar source lead and five-second source accompaniment prefix",
+      "bars": 8,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      }
+    },
+    {
+      "id": "cloud-amt-future",
+      "family": "cloud",
+      "study": "arrangement",
+      "method": "Official AMT amt-future; fixed lead retained by construction; raw MIDI kept; masked variant explicitly restricts generated instruments to guitar/bass",
+      "bars": 8,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      },
+      "inference": {
+        "status": "inference_succeeded",
+        "seed": 1701,
+        "condition": "future",
+        "roles": "native",
+        "api": "controls",
+        "prefix_seconds": 5,
+        "seconds": 16,
+        "calls": 103,
+        "lead_events": 20,
+        "lead_event_identity": true,
+        "support_events": 102,
+        "generated_support_after_prefix": 44,
+        "source_projection": {
+          "grace_excluded": 0,
+          "extra_chord_notes_excluded": 42,
+          "other_voice_events_excluded": 0,
+          "tie_continuations_excluded": 13
+        },
+        "checkpoint_conversion": "Levanter base keys prefixed; None output embedding tied to exact wte tensor",
+        "compatibility_removed_nonlearned_buffers": [],
+        "elapsed_seconds": 260.7030000000086,
+        "limitations": [
+          "10ms model timing",
+          "source monophonic attack projection, not full source performance",
+          "programs mapped to lead80/guitar25/bass32",
+          "fixed lead retained explicitly; sampled extra lead excluded",
+          "prefix support is source material, not generated",
+          "masked variant adds an explicit guitar/bass output-logit constraint; not an upstream trained role-control claim"
+        ]
+      },
+      "max_support_quantization_error_q": 0.01
+    },
+    {
+      "id": "cloud-amt-prefix-1701-attempt2-controls",
+      "family": "cloud",
+      "study": null,
+      "inference": {
+        "status": "failed",
+        "condition": "prefix",
+        "api": "controls",
+        "roles": "native",
+        "calls": 125,
+        "max_calls": 128,
+        "max_seconds": 300,
+        "elapsed_seconds": 300.3600000000006,
+        "error": "Explicit inference resource limit reached"
+      },
+      "method": "Prefix-only AMT did not complete within exploratory resource bounds; no GP or listening case fabricated"
+    },
+    {
+      "id": "cloud-amt-masked",
+      "family": "cloud",
+      "study": null,
+      "method": "Official AMT amt-masked; fixed lead retained by construction; raw MIDI kept; masked variant explicitly restricts generated instruments to guitar/bass",
+      "bars": 8,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      },
+      "inference": {
+        "status": "inference_succeeded",
+        "seed": 1701,
+        "condition": "future",
+        "roles": "masked",
+        "seconds": 16,
+        "calls": 24,
+        "lead_events": 20,
+        "lead_event_identity": true,
+        "support_events": 60,
+        "generated_support_after_prefix": 10,
+        "source_projection": {
+          "grace_excluded": 0,
+          "extra_chord_notes_excluded": 42,
+          "other_voice_events_excluded": 0,
+          "tie_continuations_excluded": 13
+        },
+        "checkpoint_conversion": "Levanter base keys prefixed; None output embedding tied to exact wte tensor",
+        "compatibility_removed_nonlearned_buffers": [],
+        "elapsed_seconds": 38.11000000000058,
+        "limitations": [
+          "10ms model timing",
+          "source monophonic attack projection, not full source performance",
+          "programs mapped to lead80/guitar25/bass32",
+          "fixed lead retained explicitly; sampled extra lead excluded",
+          "prefix support is source material, not generated",
+          "masked variant adds an explicit guitar/bass output-logit constraint; not an upstream trained role-control claim"
+        ]
+      },
+      "max_support_quantization_error_q": 0.01
+    },
+    {
+      "id": "sweet-cached",
+      "family": "sweet",
+      "study": "phrases",
+      "method": "Controlled cached-pool baseline: identical source motif for two bars, then prior source-independent cached continuation; explicit splice, not contextual generation",
+      "bars": 8,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      }
+    },
+    {
+      "id": "sweet-no-selector-seed1701-full",
+      "family": "sweet",
+      "study": null,
+      "method": "Official contextual Yin-Yang no-selector; source-seeded, supplied form, not learned form; full raw inference retained",
+      "bars": 19,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      },
+      "inference": {
+        "status": "inference_succeeded",
+        "seed": 1701,
+        "calls": {
+          "generate_phrase": 3,
+          "refine_phrase": 4
+        },
+        "form": "supplied ABA, three phrases per section",
+        "upstream_sha": "b43f12c0e2288e94341bf746bc8b1695df5f4b76259424fc11e2cc30e89b715f"
+      },
+      "max_quantization_error_q": 0
+    },
+    {
+      "id": "sweet-no-selector",
+      "family": "sweet",
+      "study": "phrases",
+      "method": "Official contextual Yin-Yang no-selector; source-seeded, supplied form, not learned form; full raw inference retained",
+      "bars": 8,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      },
+      "seed_prefix_is_source": true,
+      "seed": 1701
+    },
+    {
+      "id": "sweet-full-aba-seed1701-full",
+      "family": "sweet",
+      "study": null,
+      "method": "Official contextual Yin-Yang full-aba; source-seeded, supplied form, not learned form; full raw inference retained",
+      "bars": 21,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      },
+      "inference": {
+        "status": "inference_succeeded",
+        "seed": 1701,
+        "calls": {
+          "generate_phrase": 15,
+          "select_phrase": 30,
+          "refine_phrase": 16
+        },
+        "form": "supplied ABA, three phrases per section",
+        "upstream_sha": "b43f12c0e2288e94341bf746bc8b1695df5f4b76259424fc11e2cc30e89b715f"
+      },
+      "max_quantization_error_q": 0
+    },
+    {
+      "id": "sweet-full-aba",
+      "family": "sweet",
+      "study": "phrases",
+      "method": "Official contextual Yin-Yang full-aba; source-seeded, supplied form, not learned form; full raw inference retained",
+      "bars": 8,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      },
+      "seed_prefix_is_source": true,
+      "seed": 1701
+    },
+    {
+      "id": "sweet-full-abc-seed1701-full",
+      "family": "sweet",
+      "study": null,
+      "method": "Official contextual Yin-Yang full-abc; source-seeded, supplied form, not learned form; full raw inference retained",
+      "bars": 22,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      },
+      "inference": {
+        "status": "inference_succeeded",
+        "seed": 1701,
+        "calls": {
+          "generate_phrase": 15,
+          "select_phrase": 30,
+          "refine_phrase": 17
+        },
+        "form": "supplied ABC, three phrases per section",
+        "upstream_sha": "b43f12c0e2288e94341bf746bc8b1695df5f4b76259424fc11e2cc30e89b715f"
+      },
+      "max_quantization_error_q": 0
+    },
+    {
+      "id": "sweet-quarter-grid",
+      "family": "sweet",
+      "study": "arrangement",
+      "method": "Local joint-role quarter-grid baseline, fixed eight-bar source lead and five-second source accompaniment prefix",
+      "bars": 8,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      }
+    },
+    {
+      "id": "sweet-amt-future",
+      "family": "sweet",
+      "study": "arrangement",
+      "method": "Official AMT amt-future; fixed lead retained by construction; raw MIDI kept; masked variant explicitly restricts generated instruments to guitar/bass",
+      "bars": 8,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      },
+      "inference": {
+        "status": "inference_succeeded",
+        "seed": 1701,
+        "condition": "future",
+        "roles": "native",
+        "api": "controls",
+        "prefix_seconds": 5,
+        "seconds": 16,
+        "calls": 68,
+        "lead_events": 64,
+        "lead_event_identity": true,
+        "support_events": 60,
+        "generated_support_after_prefix": 23,
+        "source_projection": {
+          "grace_excluded": 0,
+          "extra_chord_notes_excluded": 0,
+          "other_voice_events_excluded": 0,
+          "tie_continuations_excluded": 0
+        },
+        "checkpoint_conversion": "Levanter base keys prefixed; None output embedding tied to exact wte tensor",
+        "compatibility_removed_nonlearned_buffers": [],
+        "elapsed_seconds": 180.51600000000326,
+        "limitations": [
+          "10ms model timing",
+          "source monophonic attack projection, not full source performance",
+          "programs mapped to lead80/guitar25/bass32",
+          "fixed lead retained explicitly; sampled extra lead excluded",
+          "prefix support is source material, not generated",
+          "masked variant adds an explicit guitar/bass output-logit constraint; not an upstream trained role-control claim"
+        ]
+      },
+      "max_support_quantization_error_q": 0.0
+    },
+    {
+      "id": "sweet-amt-prefix-1701-attempt1-controls",
+      "family": "sweet",
+      "study": null,
+      "inference": {
+        "status": "failed",
+        "condition": "prefix",
+        "api": "controls",
+        "roles": "native",
+        "calls": 129,
+        "max_calls": 128,
+        "max_seconds": 300,
+        "elapsed_seconds": 276.2030000000086,
+        "error": "Explicit inference resource limit reached"
+      },
+      "method": "Prefix-only AMT did not complete within exploratory resource bounds; no GP or listening case fabricated"
+    },
+    {
+      "id": "sweet-amt-masked",
+      "family": "sweet",
+      "study": null,
+      "method": "Official AMT amt-masked; fixed lead retained by construction; raw MIDI kept; masked variant explicitly restricts generated instruments to guitar/bass",
+      "bars": 8,
+      "repairs": {
+        "octave_adjusted_notes": 0
+      },
+      "inference": {
+        "status": "inference_succeeded",
+        "seed": 1701,
+        "condition": "future",
+        "roles": "masked",
+        "seconds": 16,
+        "calls": 16,
+        "lead_events": 64,
+        "lead_event_identity": true,
+        "support_events": 26,
+        "generated_support_after_prefix": 0,
+        "source_projection": {
+          "grace_excluded": 0,
+          "extra_chord_notes_excluded": 0,
+          "other_voice_events_excluded": 0,
+          "tie_continuations_excluded": 0
+        },
+        "checkpoint_conversion": "Levanter base keys prefixed; None output embedding tied to exact wte tensor",
+        "compatibility_removed_nonlearned_buffers": [],
+        "elapsed_seconds": 26.062000000005355,
+        "limitations": [
+          "10ms model timing",
+          "source monophonic attack projection, not full source performance",
+          "programs mapped to lead80/guitar25/bass32",
+          "fixed lead retained explicitly; sampled extra lead excluded",
+          "prefix support is source material, not generated",
+          "masked variant adds an explicit guitar/bass output-logit constraint; not an upstream trained role-control claim"
+        ]
+      },
+      "max_support_quantization_error_q": 0.0
+    }
+  ],
+  "human_judgments": null,
+  "scope": "small seeded two-source pilot; Cloud paired selector retry at seed1702 after invalid seed1701 output; no artist-specific fitting; supplied form; selector candidate budget differs; raw predictions retained privately",
+  "independent_gp_import": "all exported GPs verified before bundle packaging"
+}

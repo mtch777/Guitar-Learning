@@ -37,7 +37,7 @@ for (const file of files) {
   const handler = new at.midi.AlphaSynthMidiFileHandler(midi, true);
   new at.midi.MidiFileGenerator(score, null, handler).generate();
   fs.writeFileSync(file.replace(/\.gp$/i, '.mid'), midi.toBinary());
-  const tracks = score.tracks.map(t => ({ name:t.name, tuning:t.staves[0].tuning, program:t.playbackInfo.program,
+  const tracks = score.tracks.map(t => ({ name:t.name, tuning:t.staves[0].tuning, program:t.playbackInfo.program, channel:t.playbackInfo.primaryChannel,
     notes:t.staves.flatMap(s=>s.bars).flatMap(b=>b.voices).flatMap(v=>v.beats).reduce((n,b)=>n+b.notes.length,0) }));
   const report = { file, reader:'alphaTab', tracks, bars:score.masterBars.length,
     midiBytes:midi.toBinary().length, expected_pitch_timing_tuning_checked:compared, playback_listened:false };

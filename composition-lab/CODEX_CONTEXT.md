@@ -2,6 +2,8 @@
 
 Updated 2026-10-15. Read `composition-lab/HANDOFF.md` for full historical detail (it is long). Verify against current main.
 
+**External comparison 2026-10-16:** read `EXTERNAL_COMPARISON.md` and the source-free external comparison/copying JSON reports. Actual upstream Yin-Yang generator/refiner/selector and AMT accompaniment ran on source-conditioned inputs. Nineteen GPs independently verified; six phrase and four arrangement cases loaded privately in separate review tabs. Earlier identical four-second openings confirmed. One upstream negative duration rejected with paired retry; two no-future AMT controls hit explicit resource caps. Sweet motif returns include 16-event source matches. No artist fitting, learned global-form success, originality certification or new human listening verdict is claimed. Previous baselines/ratings preserved.
+
 **Latest autonomous continuation:** read `EXECUTION_16.md` and `AUTONOMOUS_RESULTS.md` before the historical missing-input notes below. Inputs and pretrained inference were recovered in earlier commits. The current run generated 100 full-length experimental GP compositions and 15 control outputs, with a private 22-case consolidated review. Structural/form and guitar-transfer acceptance gates remain failed/partial; no new human musical judgments exist. Private artifacts and weights remain outside Git. Current code and recorded measured evidence supersede earlier blockers.
 
 ## Objective

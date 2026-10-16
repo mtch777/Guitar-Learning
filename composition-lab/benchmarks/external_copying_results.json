@@ -1,0 +1,120 @@
+{
+  "scope": "transposition-relative timed melody attack windows; supplied first two bars excluded, later motif returns counted; GP highest-note voice0 attack projection; processed MTC phrase timings rationalized to denominator<=24; neither proof nor legal certification of originality",
+  "gp_sources": 2,
+  "folk_pieces": 2000,
+  "runs": [
+    {
+      "run": "cloud-selector-off-1702-attempt1",
+      "post_seed_attacks": 59,
+      "matches": {
+        "8": {
+          "windows": 52,
+          "gp": 0,
+          "folk": 0
+        },
+        "16": {
+          "windows": 44,
+          "gp": 0,
+          "folk": 0
+        }
+      }
+    },
+    {
+      "run": "cloud-selector-on-1701-attempt1",
+      "post_seed_attacks": 42,
+      "matches": {
+        "8": {
+          "windows": 35,
+          "gp": 0,
+          "folk": 0
+        },
+        "16": {
+          "windows": 27,
+          "gp": 0,
+          "folk": 0
+        }
+      }
+    },
+    {
+      "run": "cloud-selector-on-1701-attempt1-ABC",
+      "post_seed_attacks": 57,
+      "matches": {
+        "8": {
+          "windows": 50,
+          "gp": 0,
+          "folk": 0
+        },
+        "16": {
+          "windows": 42,
+          "gp": 0,
+          "folk": 0
+        }
+      }
+    },
+    {
+      "run": "cloud-selector-on-1702-attempt1",
+      "post_seed_attacks": 35,
+      "matches": {
+        "8": {
+          "windows": 28,
+          "gp": 0,
+          "folk": 0
+        },
+        "16": {
+          "windows": 20,
+          "gp": 0,
+          "folk": 0
+        }
+      }
+    },
+    {
+      "run": "sweet-selector-off-1701-attempt1",
+      "post_seed_attacks": 119,
+      "matches": {
+        "8": {
+          "windows": 112,
+          "gp": 17,
+          "folk": 1
+        },
+        "16": {
+          "windows": 104,
+          "gp": 1,
+          "folk": 0
+        }
+      }
+    },
+    {
+      "run": "sweet-selector-on-1701-attempt1",
+      "post_seed_attacks": 130,
+      "matches": {
+        "8": {
+          "windows": 123,
+          "gp": 11,
+          "folk": 1
+        },
+        "16": {
+          "windows": 115,
+          "gp": 1,
+          "folk": 0
+        }
+      }
+    },
+    {
+      "run": "sweet-selector-on-1701-attempt1-ABC",
+      "post_seed_attacks": 116,
+      "matches": {
+        "8": {
+          "windows": 109,
+          "gp": 1,
+          "folk": 0
+        },
+        "16": {
+          "windows": 101,
+          "gp": 0,
+          "folk": 0
+        }
+      }
+    }
+  ],
+  "quality_judgment": null
+}

@@ -7,6 +7,11 @@ from sounding_graph import build_sounding,audit_sounding
 
 
 class ExternalExportTests(unittest.TestCase):
+    def test_copying_screen_retains_gaps_and_durations_under_transposition(self):
+        from benchmarks.external_copying_audit import key
+        a=[(F(0),F(1),60),(F(2),F(1,2),62)]
+        self.assertEqual(key(a),key([(F(8),F(1),65),(F(10),F(1,2),67)]))
+        self.assertNotEqual(key(a),key([(F(8),F(1),65),(F(9),F(1,2),67)]))
     def test_polyphony_cross_bar_sustain_survives_gp(self):
         info={25:dict(name='guitar',program=25,tunings=[[64,59,55,50,45,40]])}
         score,repairs=project([(F(7,2),F(5,4),60,25),(F(7,2),F(1,2),64,25)],info,2)
