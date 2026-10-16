@@ -744,6 +744,13 @@ export function setupSongPlayer({
         track.name,
       placeholderPositions: collectTrackPositions(track),
       chordSections: collectTimedHarmony(track),
+      cagedShapeTicks: timeProfile ? [93,104,110,126].map(barIndex => {
+        const bar = track.staves?.[0]?.bars?.[barIndex];
+        const beats = (bar?.voices || []).flatMap(voice => voice.beats || []);
+        const start = beats.map(beat => Number(beat.absolutePlaybackStart))
+          .find(Number.isFinite);
+        return { barIndex, start };
+      }).filter(item => Number.isFinite(item.start)) : [],
       tuningHighToLow:
         timeProfile ? [...TIME_SOLO_DROP_E_TUNING].reverse() : getTrackStringTuning(track)
     });
