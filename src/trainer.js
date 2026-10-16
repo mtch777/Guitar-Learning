@@ -7664,12 +7664,17 @@ function buildTrainer() {
     });
     const right = edges.flatMap(row => [[row.right, row.top], [row.right, row.bottom]]);
     const left = edges.slice().reverse().flatMap(row => [[row.left, row.bottom], [row.left, row.top]]);
-    const outline = document.createElement('div');
-    outline.className = 'timeCagedRegion';
-    outline.dataset.shape = shape;
-    outline.style.clipPath = 'polygon(' + [...right, ...left]
-      .map(([x, y]) => x.toFixed(3) + '% ' + y.toFixed(3) + '%').join(', ') + ')';
-    timeCagedOverlay.appendChild(outline);
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.classList.add('timeCagedRegion');
+    svg.dataset.shape = shape;
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.setAttribute('preserveAspectRatio', 'none');
+    svg.setAttribute('aria-hidden', 'true');
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', [...right, ...left]
+      .map(([x, y]) => x.toFixed(3) + ',' + y.toFixed(3)).join(' '));
+    svg.appendChild(polygon);
+    timeCagedOverlay.appendChild(svg);
   }
 
   if (lessonType === 'identifyModeShape' || lessonType === 'identifyCagedShape') {
