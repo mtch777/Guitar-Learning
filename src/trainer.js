@@ -10516,7 +10516,7 @@ function applySongPlayerTrack({
     ['songPlayer','timeSoloChords'].includes(getSelectedLessonType())
   ) {
     buildTrainer();
-    if (timeProfile) setTimeSoloCagedShape();
+    if (timeProfile && typeof setTimeSoloCagedShape === 'function') setTimeSoloCagedShape();
     if (getSelectedLessonType()==='timeSoloChords') renderTimedTimeSoloSections(chordSections);
 
     const answerDisplay =
