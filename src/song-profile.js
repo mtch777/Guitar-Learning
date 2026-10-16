@@ -22,9 +22,31 @@ export function timeNotePosition(note) {
     const fret = pitch - open;
     return fret >= 0 && fret <= 24 ? [{ index, fret }] : [];
   });
-  // Keep the original string whenever possible. Open/first-fret notes may
-  // need the next lower string when source tuning differs; never clamp their pitch.
-  candidates.sort((a, b) => Math.abs(a.index - preferred) - Math.abs(b.index - preferred));
+  // Preserve the original concert pitch and octave. Only the visual fingering
+  // changes: optimize for the active F# minor CAGED hand position. Rakes are
+  // filtered by the caller, and alphaTab retains the source bend/slide events.
+  const barIndex = staff.bars?.indexOf(note.beat.voice.bar) ?? -1;
+  const shape = timeCagedShapeForBar(barIndex);
+  const range = shape === 'a' ? [9, 12] : shape === 'high-e' ? [14, 17] : [2, 5];
+  const distance = fret => fret < range[0] ? range[0] - fret :
+    fret > range[1] ? fret - range[1] : 0;
+  // Prefer pentatonic frets inside the hand position, but never silently
+  // change a pitch. For non-pentatonic passing notes, choose the nearest fret.
+  const pentatonic = new Set([6, 9, 11, 1, 4]);
+  candidates.sort((a, b) => {
+    const score = c => distance(c.fret) * 100 +
+      (c.index < 2 ? 40 : 0) +
+      (pentatonic.has(((pitch % 12) + 12) % 12) ? 0 : 4) +
+      Math.abs(c.index - preferred);
+    return score(a) - score(b);
+  });
   const position = candidates[0];
   return position ? { string: position.index + 1, fret: position.fret } : null;
+}
+
+/** Source score uses zero-based bar numbers; return the assigned hand position. */
+export function timeCagedShapeForBar(barIndex) {
+  if (barIndex >= 104 && barIndex <= 109) return 'a';
+  if (barIndex >= 110 && barIndex <= 125) return 'high-e';
+  return 'low-e';
 }
