@@ -35,3 +35,12 @@ Started 2026-10-15, baseline main b236c98. User authorized independent execution
 ## Open gates for consolidated collaboration
 
 No routine user input was required during implementation. The remaining human task is musical judgment; the remaining engineering/research gaps are substantive (multi-style rights-appropriate data, guitar structural truth, form beating its baseline, independent structure/roles, learned accompaniment timing and voice leading). They are not marked complete by an export, a passing parser, or deployment. Review outputs first; use evidence to choose the next training intervention.
+
+## Verified release
+
+- Source commit **05ebae7ca27d80045ff05768bdca02c1869bd1d3**, pushed to origin/main after non-conflicting rebase onto concurrent main **b1e23c6**. Concurrent guitar UI and deployment changes retained. Post-integration: **102 Python tests, 16 JS tests, site build pass**. The fresh CLI reproduction also completed all stages with zero subprocess failures.
+- [Composition CI 38839360124](https://github.com/mtch777/Guitar-Learning/actions/runs/38839360124): success.
+- [Build/publish 38839360119](https://github.com/mtch777/Guitar-Learning/actions/runs/38839360119): success.
+- [Actual Pages build/deployment 38839387529](https://github.com/mtch777/Guitar-Learning/actions/runs/38839387529): success, gh-pages SHA 92b8731484b14f0fa44ee75d0f9b830a02a385c5.
+- Live HTTP 200; review asset `compositionAblationReview-B2Qs4nac.js` matches local build. [Consolidated review](https://mtch777.github.io/Guitar-Learning/composition-ablation-review.html?study=final) loaded all 22 private cases using paste fallback, zero browser console errors, **0 of 22 reviewed**. The delivered browser tab contains no automated human ratings. Private bundle must be loaded again after a page reload; human feedback persists separately by dataset version.
+- Private proof screenshot: `local-artifacts/autonomous-v1/consolidated-review-live.jpg`. Public Git contains source code, tests, docs and aggregate measurements only. The 115 GP outputs and review bundle remain locally preserved for the user's consolidated review.

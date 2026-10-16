@@ -1,3 +1,9 @@
+### Autonomous 16-workstream continuation — 2026-10-15
+
+Latest source release **05ebae7**, rebased onto concurrent main b1e23c6 and pushed. Full measured status and acceptance criteria: [EXECUTION_16.md](EXECUTION_16.md), [AUTONOMOUS_RESULTS.md](AUTONOMOUS_RESULTS.md), and [aggregate results](benchmarks/autonomous_results.json). Generated 100 independently verified 64-bar, three-role GPs plus 15 control GPs. All 757 frozen earlier files unchanged. Grouped 2,000-piece MTC corpus; actual scratch training and pretrained inference; form/boundary/guitar transfer failures remain explicit. Independent structure/role controls remain unsupported. No human judgments fabricated.
+
+Post-integration **102 Python / 16 JS tests / Vite build pass**. Composition CI **38839360124**, publisher **38839360119**, actual Pages deployment **38839387529** all succeeded. Live review HTTP 200 and expected built asset verified; 22-case private bundle loaded in delivered browser tab, 0 human cases reviewed. File-picker crash worked around with verified paste-JSON input. Generated-only review ZIP and raw results remain ignored locally. Next action: consolidated musical review, then substantive data/model decisions based on the failed gates rather than further tiny pitch-only experiments.
+
 ### Remote verification for learned milestone
 
 `731b8ee` and `bc71c08` are on origin/main. Final source CI `38799052169`, Pages publication `38799052190` and deployment `38799112326` all succeeded. Working tree clean before this log update. No website/review content changed. Code and source-free aggregate reports published; checkpoints, upstream code/data, raw source tokens, private judgments and all newly learned GP/audio artifacts remain ignored/local. Learned phrase-conditioning demonstrated on original-domain author-listed held-out data; GP transfer and musical-quality gate still open.
