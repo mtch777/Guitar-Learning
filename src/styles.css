@@ -1910,28 +1910,27 @@ button.uiButton:disabled {
   opacity: 1;
 }
 
-/* F# minor CAGED guide: deliberately beneath gray/black/played note circles.
-   Each translucent, blurred spot joins its neighbors into a quiet hand-position
-   silhouette. The active shape follows the original score's measure boundaries. */
-.physicalFretboard .fretboardNote.timeCagedLowE::after,
-.physicalFretboard .fretboardNote.timeCagedA::after,
-.physicalFretboard .fretboardNote.timeCagedHighE::after {
-  content: "";
+/* F# minor CAGED guide: separate fretboard layer, physically below all
+   frets, strings, existing position dots, and played/gray/black note circles. */
+.timeCagedOverlay {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 90%;
-  height: 75%;
-  border-radius: 48%;
-  transform: translate(-50%, -50%);
-  background: rgba(226, 230, 238, 0.15);
-  filter: blur(8px);
+  inset: 0;
+  z-index: 0;
   pointer-events: none;
-  z-index: -2;
-  opacity: 0;
 }
-.physicalFretboard[data-time-caged-shape="low-e"] .timeCagedLowE::after,
-.physicalFretboard[data-time-caged-shape="a"] .timeCagedA::after,
-.physicalFretboard[data-time-caged-shape="high-e"] .timeCagedHighE::after {
+.timeCagedSpot {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center,
+    rgba(223, 228, 238, .28) 0%,
+    rgba(223, 228, 238, .18) 45%,
+    rgba(223, 228, 238, 0) 87%);
+  filter: blur(4px);
+  border-radius: 45%;
+}
+.physicalFretboard[data-time-caged-shape="low-e"] .timeCagedSpot[data-shape="low-e"],
+.physicalFretboard[data-time-caged-shape="a"] .timeCagedSpot[data-shape="a"],
+.physicalFretboard[data-time-caged-shape="high-e"] .timeCagedSpot[data-shape="high-e"] {
   opacity: 1;
 }
