@@ -2,6 +2,8 @@
 
 Updated 2026-10-15. Read `composition-lab/HANDOFF.md` for full historical detail (it is long). Verify against current main.
 
+**Latest autonomous continuation:** read `EXECUTION_16.md` and `AUTONOMOUS_RESULTS.md` before the historical missing-input notes below. Inputs and pretrained inference were recovered in earlier commits. The current run generated 100 full-length experimental GP compositions and 15 control outputs, with a private 22-case consolidated review. Structural/form and guitar-transfer acceptance gates remain failed/partial; no new human musical judgments exist. Private artifacts and weights remain outside Git. Current code and recorded measured evidence supersede earlier blockers.
+
 ## Objective
 Analyze symbolic music in Guitar Pro (.gp) files, learn relationships among harmony, melody, rhythm, phrasing, structure, instrument roles and guitar techniques, and generate genuinely original, coherent, playable multi-track Guitar Pro compositions. Genre agnostic, not hard-coded to one song, key, tuning or instrument count.
 

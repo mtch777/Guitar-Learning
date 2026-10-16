@@ -1,10 +1,15 @@
 import {METRICS,storageKey,reviewed,recordReview,revealReview,mergeFeedback,csvFeedback} from './ablation-review-state.mjs';
+import {preparePrivateMedia} from './private-review-bundle.mjs';
 
 const $=id=>document.getElementById(id), ROOT=new URLSearchParams(location.search).get('study')==='phrases'?'./composition-phrase-review/':'./composition-ablation-review/';
 const A=$('audioA'),B=$('audioB');
 const QA=new URLSearchParams(location.search).get('qa')==='1';
 const store=()=>storageKey(manifest.version)+(QA?':qa':'');
 let manifest,state={reviews:{},favorites:{}},family='cloud',selected=null,roll=null,rollRequest=0,hits=[],keys=[],flash=null,context=null;
+let privateMedia=null;
+const asset=name=>privateMedia?privateMedia.asset(name):ROOT+name;
+const audioAsset=name=>privateMedia?privateMedia.audio(name):Promise.resolve(ROOT+name);
+const metrics=()=>manifest?.ratingMetrics||METRICS;
 const rollPlayer=()=>$('rollPlayer').value==='B'?B:A;
 const current=()=>manifest?.cases.find(c=>c.id===selected);
 const familyCases=()=>manifest.cases.filter(c=>c.family===family);
@@ -22,7 +27,7 @@ function progress(){
 }
 function save(patch){state.reviews[selected]=recordReview(answer(),patch);persist();progress();}
 function ratingFields(){
-  for(const [key,label] of METRICS){
+  for(const [key,label] of metrics()){
     const field=document.createElement('label');field.textContent=label;const select=document.createElement('select');select.id='rating-'+key;select.setAttribute('aria-label',label);
     const options=[['','Not rated'],['1','1 · Very weak'],['2','2 · Weak'],['3','3 · Mixed'],['4','4 · Good'],['5','5 · Strong'],['uncertain','Cannot judge']];
     if(key!=='coherence') options.push(['absent','Not present / not applicable']);
@@ -36,7 +41,7 @@ function renderMethod(){
   if(!revealed)return;
   const c=current(),title=document.createElement('strong');title.textContent=c.method;$('method').append(title);
   const text=document.createElement('p');text.textContent=c.tracks.map(t=>`${t.strings}-string ${t.name}`).join(' · ');$('method').append(text);
-  const link=document.createElement('a');link.href=ROOT+c.gp;link.download=c.gp;link.textContent='Download Guitar Pro score';$('method').append(link);
+  const link=document.createElement('a');link.href=asset(c.gp);link.download=c.gp;link.textContent='Download Guitar Pro score';$('method').append(link);
 }
 function playlist(){
   $('playlist').replaceChildren();
@@ -49,14 +54,15 @@ async function select(id,autoplay=false){
   A.pause();B.pause();selected=id;const c=current();family=c.family;roll=null;hits=[];keys=[];persist();
   $('listenTitle').textContent=c.label;$('studyTitle').textContent=c.familyTitle;
   document.querySelectorAll('[data-family]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.family===family)));
-  A.src=ROOT+c.audio;A.load();
+  $('playA').disabled=true;A.removeAttribute('src');A.load();
+  const audioUrl=await audioAsset(c.audio);if(selected!==id)return;A.src=audioUrl;A.load();$('playA').disabled=false;
   $('compare').replaceChildren();$('favorite').replaceChildren(new Option('Not chosen',''));
   for(const other of familyCases()){
     if(other.id!==id)$('compare').add(new Option(other.label,other.id));
     $('favorite').add(new Option(other.label,other.id));
   }
   $('favorite').value=state.favorites[family]||'';setComparison();
-  for(const [key] of METRICS)$('rating-'+key).value=answer()[key]||'';
+  for(const [key] of metrics())$('rating-'+key).value=answer()[key]||'';
   $('notes').value=answer().notes||'';const index=familyCases().findIndex(c=>c.id===selected);
   $('prev').disabled=index===0;$('saveNext').textContent=index===familyCases().length-1?'Save · next study →':'Save and play next →';
   $('viewStart').value=0;$('viewStart').max=Math.max(0,c.seconds-8);playlist();progress();renderMethod();status('');draw();
@@ -70,7 +76,7 @@ function loadRoll(){
   $('rollTitle').textContent=(player===A?'A':'B')+' / '+c.label;
   $('roll').setAttribute('aria-label','Interactive piano roll for '+$('rollTitle').textContent);
   $('viewStart').value=0;$('pitchStatus').textContent='';draw();
-  fetch(ROOT+c.roll).then(r=>{if(!r.ok)throw new Error('Piano roll unavailable');return r.json();}).then(data=>{
+  fetch(asset(c.roll)).then(r=>{if(!r.ok)throw new Error('Piano roll unavailable');return r.json();}).then(data=>{
     if(request!==rollRequest)return;roll=data;
     for(const part of [...new Set(roll.notes.map(n=>n.part))].sort((a,b)=>a-b))$('part').add(new Option('Part '+(part+1),String(part)));
     const span=$('zoom').value==='all'?Infinity:Number($('zoom').value);
@@ -82,7 +88,7 @@ function followPlayer(player){
   const value=player===A?'A':'B';
   if($('rollPlayer').value!==value){$('rollPlayer').value=value;loadRoll();}
 }
-function setComparison(){B.pause();const c=manifest.cases.find(c=>c.id===$('compare').value);if(c){B.src=ROOT+c.audio;B.load();}applyPlayback();if($('rollPlayer').value==='B')loadRoll();}
+async function setComparison(){B.pause();$('playB').disabled=true;B.removeAttribute('src');B.load();const selection=selected,c=manifest.cases.find(c=>c.id===$('compare').value);if(c){try{const url=await audioAsset(c.audio);if(selected!==selection||$('compare').value!==c.id)return;B.src=url;B.load();$('playB').disabled=false;}catch(e){status(e.message);return;}}applyPlayback();if($('rollPlayer').value==='B')loadRoll();}
 function applyPlayback(){for(const player of [A,B]){player.playbackRate=Number($('speed').value);player.loop=$('loop').checked;}}
 async function play(player){
   (player===A?B:A).pause();applyPlayback();
@@ -106,7 +112,7 @@ async function switchPlayer(){
 function download(body,name,type){const url=URL.createObjectURL(new Blob([body],{type})),link=document.createElement('a');link.href=url;link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 function payload(){return {format:'composition-ablation-feedback-v1',version:manifest.version,exportedAt:new Date().toISOString(),reviews:state.reviews,favorites:state.favorites,
   testRun:QA,
-  cases:manifest.cases.map(c=>({id:c.id,gpSha256:c.gpSha256,audioSha256:c.audioSha256}))};}
+  cases:manifest.cases.map(c=>({id:c.id,gpSha256:c.gpSha256,audioSha256:c.audioSha256,notesSha256:c.notesSha256}))};}
 const noteName=p=>['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][p%12]+(Math.floor(p/12)-1);
 const COLORS=['#91d1e0','#d9b6ed','#9fd4a5','#f0c98c'];
 function draw(){
@@ -163,12 +169,12 @@ for(const player of [A,B]){
   player.addEventListener('play',()=>{(player===A?B:A).pause();followPlayer(player);});
   player.addEventListener('error',()=>status('Audio could not be loaded. Refresh the page or try another sketch.'));
 }
-async function boot(){
-  const response=await fetch(ROOT+'cases.json');if(!response.ok)throw new Error('Review set could not be loaded.');manifest=await response.json();
+async function activate(){
+  state={reviews:{},favorites:{}};family='cloud';selected=null;
   try{const stored=JSON.parse(localStorage.getItem(store())||'null');if(stored){state={reviews:stored.reviews||{},favorites:stored.favorites||{}};family=stored.family||family;selected=stored.selected;}}catch{}
   if(!manifest.cases.some(c=>c.id===selected))selected=manifest.cases[0].id;
-  if(manifest.title){document.querySelector('h1').textContent=manifest.title;document.querySelector('.top p').textContent=manifest.intro;document.querySelector('aside .hint').textContent='Each study contains three pitch-only experiments, the unchanged previous roles baseline, and V2 in hidden order.';document.querySelector('#judgmentTitle').parentElement.nextElementSibling.textContent=manifest.guidance;}
-  ratingFields();
+  if(manifest.title){document.querySelector('h1').textContent=manifest.title;document.querySelector('.top p').textContent=manifest.intro;document.querySelector('aside .hint').textContent=manifest.asideIntro||'Each study contains three pitch-only experiments, the unchanged previous roles baseline, and V2 in hidden order.';document.querySelector('#judgmentTitle').parentElement.nextElementSibling.textContent=manifest.guidance;}
+  $('ratings').replaceChildren();ratingFields();
   document.querySelectorAll('[data-family]').forEach(b=>b.onclick=()=>select(manifest.cases.find(c=>c.family===b.dataset.family).id));
   $('notes').oninput=()=>save({notes:$('notes').value});$('favorite').onchange=()=>{state.favorites[family]=$('favorite').value;persist();};
   $('playA').onclick=()=>play(A);$('playB').onclick=()=>play(B);$('switch').onclick=()=>switchPlayer().catch(()=>status('Comparison audio is not ready. Tap Play B.'));
@@ -192,7 +198,24 @@ async function boot(){
     catch(e){status('Restore failed: '+e.message);}event.target.value='';
   };
   $('rollPlayer').onchange=loadRoll;
-  $('rollDetails').addEventListener('toggle',draw);for(const id of ['zoom','part','noteLabels','viewStart'])$(id).addEventListener('input',draw);
-  window.addEventListener('resize',draw);await select(selected);
+  $('rollDetails').ontoggle=draw;for(const id of ['zoom','part','noteLabels','viewStart'])$(id).oninput=draw;
+  window.onresize=draw;await select(selected);
+}
+async function boot(){
+  if(new URLSearchParams(location.search).get('study')==='final'){
+    document.querySelector('h1').textContent='Consolidated composition review';
+    document.querySelector('.top p').textContent='Load the private generated review bundle. Music stays on this device; nothing is uploaded.';
+    $('progress').textContent='Waiting for private review bundle';
+    const label=document.createElement('label');label.textContent='Load private review bundle ';const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.id='privateBundle';label.append(input);document.querySelector('.toolbar').prepend(label);
+    const load=async text=>{A.pause();B.pause();
+      try{status('Checking local bundle and preparing previews…');const next=await preparePrivateMedia(JSON.parse(text));privateMedia?.dispose();privateMedia=next;manifest=next.manifest;await activate();}
+      catch(e){status('Bundle could not be loaded: '+e.message);}};
+    input.onchange=async()=>{const file=input.files?.[0];if(file)await load(await file.text());};
+    const fallback=document.createElement('details'),summary=document.createElement('summary');summary.textContent='File picker unavailable? Paste review JSON';fallback.append(summary);
+    const pasted=document.createElement('textarea');pasted.id='pastedBundle';pasted.setAttribute('aria-label','Private review JSON');pasted.placeholder='Paste the contents of your generated review bundle';fallback.append(pasted);
+    const loadButton=document.createElement('button');loadButton.textContent='Load pasted bundle';loadButton.onclick=async()=>{await load(pasted.value);pasted.value='';fallback.open=false;};fallback.append(loadButton);document.querySelector('.toolbar').after(fallback);
+    return;
+  }
+  const response=await fetch(ROOT+'cases.json');if(!response.ok)throw new Error('Review set could not be loaded.');manifest=await response.json();await activate();
 }
 boot().catch(e=>{status(e.message);$('progress').textContent='Review unavailable';});

@@ -54,6 +54,10 @@ def extract_score(path: str | Path) -> dict:
     output={'source_file':Path(path).name,'measure_count':len(masters),'tracks':[],
             'source_sha256':hashlib.sha256(Path(path).read_bytes()).hexdigest(),
             'format':'gp7-quarter-beat-rational-v1'}
+    # Global tempo/automation and repeat/display settings must survive extraction
+    # even when a downstream model does not support them.
+    output['global_xml']={node.tag:ET.tostring(node,encoding='unicode') for node in root
+                          if node.tag not in ('Tracks','MasterBars','Bars','Voices','Beats','Notes','Rhythms')}
     song_start=Fraction(0)
     for mi,master in enumerate(masters):
         meter=master.findtext('Time')
