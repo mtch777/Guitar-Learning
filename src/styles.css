@@ -1928,7 +1928,7 @@ button.uiButton:disabled {
   opacity: 0;
   pointer-events: none;
 }
-.timeCagedRegion rect {
+.timeCagedRegion polygon {
   fill: rgba(210, 215, 224, .42);
   stroke: rgba(237, 241, 247, .9);
   stroke-width: 2px;
