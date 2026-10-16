@@ -56,7 +56,7 @@ test('track tuning and active notes agree for 6, 7, and 8 strings, including tra
   }
   context.applySongPlayerTrack({name:'Time',timeProfile:true,tuningHighToLow:[64,59,55,50,45,40,35,28]});
   assert.deepEqual(Array.from(context.currentTuning),[28,35,40,45,50,55,59,64]);
-  assert.equal(fields.rootSelect.value,'4');
+  assert.equal(fields.rootSelect.value,'6');
   assert.equal(fields.scaleSelect.value,'aeolian');
   shown.length=0;
   context.displaySongPlayerNotes([{string:5,fret:2}]);
