@@ -5,9 +5,9 @@ export function isTimeFile(name) {
 }
 
 export function applySongPitch(api, score, timeProfile) {
-  // Reset every track on every load; percussion must never be pitch-shifted.
+  // Time is played in the source score's F# minor key; reset any previous
+  // transposition on every track when a new score is uploaded.
   for (const track of score.tracks) {
-    const percussion = track.staves.some(staff => staff.isPercussion);
     api.changeTrackTranspositionPitch([track], 0);
   }
 }
