@@ -55,6 +55,8 @@ class TechniqueEditTests(unittest.TestCase):
         from technique_edits import generate_vibrato
         p=self.root/'vib.gp';audit=generate_vibrato(self.source,p,0)
         self.assertEqual(audit['selected'],2);self.assertTrue(audit['locked_xml_verified']);self.assertIsNone(audit['rate_hz'])
+        import json
+        self.assertEqual(json.loads(p.with_suffix('.playback.json').read_text()),dict(noteSlightLength=360,noteSlightAmplitude=.25))
     def test_vibrato_full_freedom_ignores_existing_width_and_invalid_open_marker(self):
         from technique_edits import generate_vibrato
         marked=self.root/'marked.gp'

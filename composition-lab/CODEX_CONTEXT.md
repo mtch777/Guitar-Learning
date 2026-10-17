@@ -1,3 +1,5 @@
+**Latest user correction:** Authored blind study retired as unhelpful/source-unrelated. Fretted HOPO listening excluded; retain open-string cases. Vibrato preferred Slight speed, half depth via explicit playback profile (360 ticks / 0.25 semitones). Close texture now EXACTLY one semitone. Corrected labeled diagnostics: technique-corrections-v1, port 5180. No further ratings requested. Older v6/35-pair delivery below is historical.
+
 # Composition Lab — Codex context and autonomous execution plan
 
 **Latest technique execution:** Read TECHNIQUE_RESULTS.md and newest TECHNIQUE_ROADMAP.md entry. Intermediate controls, five construction families, 30 guitar cases, 80 authored GP/audio probes, 35-pair local review implemented. Private technique-review-v6 at port 5180; 5179 is old bends. Human acceptance/authentic HOPO pending. No artist-learning claim.

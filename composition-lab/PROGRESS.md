@@ -242,3 +242,14 @@ Targets for stages 2/3 were rhythm/melody 25; target harmony for stage 4 was 75.
 - Final notation/pattern checks: Time and Sweet arm-vibrato markers both independently match alphaTab. Exact transposition/time-scaling relationships added for alternating pedal candidates, retaining uncertainty about motif function. Tests:169 pass.
 
 - Delivery commit 96fcbd126d31a848c069b05ca26eb4d58329b926 pushed to origin/main after pulling concurrent remote 301639a. Composition Lab CI run 39004239874 completed successfully: https://github.com/mtch777/Guitar-Learning/actions/runs/39004239874 . Final explanatory review text and this verification record follow in a small delivery commit.
+
+
+## User-directed diagnostic corrections
+
+- Pulled concurrent main d55ba40. User rejected source-unrelated authored study and opaque A/B; acknowledged mismatch. No new listening study or invented source/style claim.
+- Inspected actual close demos: A all32 whole steps, B24 whole/8 half; shared classifier now accepts exactly one semitone, construction verified both corrected cases32/32 half steps.
+- Removed fretted HOPO audio comparisons, kept open-string examples; methods visible by name. Removed rating questions.
+- Former vibrato A=Slight (360ticks, amplitude0.5semitones), B=Wide (240ticks, amplitude1). Corrected preferred preview profile360ticks/.25semitones; new Slight generation emits explicit profile. GP marker remains qualitative. Independent MIDI comparison:1148 pitch-event ticks identical, offsets halved within2.4e-7 raw units.
+- Corrected private bundle technique-corrections-v1 has8families/15clips, preserved old artifacts/feedback. This is a bounded correction before a different source-grounded path, not evidence of musical/style success.
+
+- Correction verification:169 Python tests,16 JS tests,build pass. Actual alphaTab imports verify32/32 half-step dyads in each corrected texture clip. Fifteen WAV exports finite/nonzero/unclipped. Browser confirms removed fretted items/questions and explicit method labels. No public website changes.

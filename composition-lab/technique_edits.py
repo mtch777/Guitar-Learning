@@ -169,7 +169,15 @@ def generate_vibrato(source,destination,track_index,strength=100,width='Slight')
                     if released(n['note_id'],strength):edits[key]=[f'<Vibrato>{width}</Vibrato>'] if eligible else []
                     else:edits[key]=[ET.tostring(x,encoding='unicode') for x in ET.fromstring(n['note_xml']).findall('Vibrato')]
                     if eligible:selected.append(n['note_id'])
-    return dict(**transact(source,destination,edits,permissions),eligible=len(selected),selected=sum(bool(v) for v in edits.values()),strength=strength,width=width,
+    profile_path=Path(destination).with_suffix('.playback.json')
+    if width=='Slight' and profile_path.exists():raise FileExistsError(profile_path)
+    audit=transact(source,destination,edits,permissions)
+    profile=dict(noteSlightLength=360,noteSlightAmplitude=.25) if width=='Slight' else None
+    if profile is not None:
+        import json
+        profile_path.write_text(json.dumps(profile),encoding='utf-8')
+    return dict(**audit,eligible=len(selected),selected=sum(bool(v) for v in edits.values()),strength=strength,width=width,
+                preview_profile=profile,preview_profile_scope='External renderer setting; GP marker does not encode exact depth/rate',
                 reference_annotations_used=strength<100,rate_hz=None,rate_provenance='GP marker contains strength only; playback-engine interpretation',
                 limitations=['Fretted single-note segments of at least one quarter beat','No open-string finger vibrato','No certified physical performance or inferred source vibrato rate'])
 

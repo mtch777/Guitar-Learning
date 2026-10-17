@@ -11,6 +11,7 @@ def r(i,pitch=60,string=0,fret=5,onset=0,duration=1,**extra):
 class TechniqueTests(unittest.TestCase):
     def test_nonexclusive_dyad_labels(self):
         self.assertEqual(classify_group([r(0),r(1,61,1)]),['double_stop','close_interval_texture'])
+        self.assertNotIn('close_interval_texture',classify_group([r(0),r(1,62,1)]))
         self.assertEqual(classify_group([r(0),r(1,67,1)]),['double_stop','power_chord'])
     def test_close_dyad_requires_absolute_distance_and_distinct_strings(self):
         self.assertNotIn('close_interval_texture',classify_group([r(0),r(1,73,1)]))

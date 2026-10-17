@@ -12,8 +12,15 @@ for(const file of files){
   const target=file.replace(/\.gp$/i,'.instrument.wav');
   if(fs.existsSync(target))throw new Error('Refusing to overwrite '+target);
   const score=at.importer.ScoreLoader.loadScoreFromBytes(new Uint8Array(fs.readFileSync(file)));
+  const profilePath=file.replace(/\.gp$/i,'.playback.json');
+  const profile=fs.existsSync(profilePath)?JSON.parse(fs.readFileSync(profilePath,'utf8')):{};
+  const settings=new at.Settings();
+  for(const [key,value] of Object.entries(profile)){
+    if(!['noteSlightAmplitude','noteSlightLength'].includes(key)||!Number.isFinite(value)||value<=0)throw new Error('Invalid explicit vibrato playback profile');
+    settings.player.vibrato[key]=value;
+  }
   const midi=new at.midi.MidiFile();
-  new at.midi.MidiFileGenerator(score,null,new at.midi.AlphaSynthMidiFileHandler(midi,false)).generate();
+  new at.midi.MidiFileGenerator(score,settings,new at.midi.AlphaSynthMidiFileHandler(midi,false)).generate();
   const output={sampleRate:44100,ready:{on(){}},sampleRequest:{on(){}},samplesPlayed:{on(){}},open(){},destroy(){},pause(){},play(){},resetSamples(){},activate(){},addSamples(){}};
   const synth=new at.synth.AlphaSynth(output,100);
   const options=new at.synth.AudioExportOptions();Object.assign(options,{soundFonts:[font],sampleRate:44100,masterVolume:.5,metronomeVolume:0,useSyncPoints:false});
@@ -34,7 +41,7 @@ for(const file of files){
   const bytes=Buffer.alloc(44+frames*2);bytes.write('RIFF');bytes.writeUInt32LE(bytes.length-8,4);bytes.write('WAVEfmt ',8);bytes.writeUInt32LE(16,16);bytes.writeUInt16LE(1,20);bytes.writeUInt16LE(1,22);bytes.writeUInt32LE(44100,24);bytes.writeUInt32LE(88200,28);bytes.writeUInt16LE(2,32);bytes.writeUInt16LE(16,34);bytes.write('data',36);bytes.writeUInt32LE(frames*2,40);
   let pos=44;for(const chunk of chunks)for(const v of chunk){bytes.writeInt16LE(Math.round(v*32767),pos);pos+=2;}
   fs.writeFileSync(target,bytes);
-  const report={renderer:'alphaTab 1.8.4 internal MIDI / Sonivox SF2, fixed gain .5',seconds:frames/44100,peak,nonzeroSamples:nonzero,
+  const report={renderer:'alphaTab 1.8.4 internal MIDI / Sonivox SF2, fixed gain .5',playbackProfile:profile,seconds:frames/44100,peak,nonzeroSamples:nonzero,
     finite:true,clipped:false,fontSha256:crypto.createHash('sha256').update(font).digest('hex'),audioSha256:crypto.createHash('sha256').update(bytes).digest('hex'),
     limitations:['GM sampled instrument, not physical string model or Guitar Pro RSE','HOPO engine rendering primarily changes destination dynamics; authentic legato attack not certified'],listeningJudgment:null};
   fs.writeFileSync(target+'.json',JSON.stringify(report,null,2));console.log(JSON.stringify({file,...report}));

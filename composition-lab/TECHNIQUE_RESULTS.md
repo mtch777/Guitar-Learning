@@ -1,5 +1,7 @@
 # Guitar technique controls — execution results
 
+**Superseding correction:** The authored blind study below is retired. Current corrected diagnostics remove fretted HOPO comparisons, retain open-string cases, use preferred Slight vibrato speed with half preview range, and constrain close textures to exactly one semitone. Methods are visible and rating questions removed. Private bundle: technique-corrections-v1 at port 5180. This does not establish source/style fidelity.
+
 2026-10-16. Current implementation supersedes the earlier endpoint-only milestone. This is an analysis/control experiment system, **not a trained artist-style composer**. Human musical acceptance is pending.
 
 ## Delivered and measured

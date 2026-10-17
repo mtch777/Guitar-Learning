@@ -1,0 +1,18 @@
+{
+  "close_interval_semitones": 1,
+  "independent_half_step_events_per_case": 32,
+  "half_step_cases": 2,
+  "preferred_vibrato_cycle_ticks": 360,
+  "previous_amplitude_semitones": 0.5,
+  "new_amplitude_semitones": 0.25,
+  "vibrato_event_ticks_unchanged": 1148,
+  "pitch_offset_ratio": 0.5,
+  "fretted_hopo_listening": false,
+  "open_string_hopo_retained": true,
+  "authored_blind_study_retired": true,
+  "corrected_clips": 15,
+  "python_tests": 169,
+  "js_tests": 16,
+  "build": "passed",
+  "gp_exact_vibrato_depth_encoded": false
+}

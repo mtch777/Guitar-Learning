@@ -19,7 +19,7 @@ Analysis and musical decisions use repeatable scripts, not AI-filled labels. Obs
 | Vibrato | Oscillating pitch on a sustain; distinguish finger and arm notation | Preserve source type; encoded width/rate may be absent |
 | “Tremolo” as requested | User clarified bending-based vibrato | Rapid tremolo picking is outside the requested generation scope; recognize its notation to avoid misclassification |
 | Pedal-note patterns | Recurring mid/low anchor interleaved with contrasting notes, with recurring temporal organization | Detect recurring anchors/patterns, not just most frequent pitch; include lower accents, register changes and cross-phrase/section recurrence |
-| Close-interval texture | Exactly two notes on distinct strings sounding simultaneously, absolute pitch separation exactly 1 or 2 semitones | “Inharmonic” is user's category name; measurable observation is a close dyad, not acoustic inharmonicity. Distinguish co-attack from incidental sustain overlap |
+| Close-interval texture | Exactly two notes on distinct strings sounding simultaneously, absolute pitch separation exactly 1 semitone | “Inharmonic” is user's category name; measurable observation is a close dyad, not acoustic inharmonicity. Distinguish co-attack from incidental sustain overlap |
 | Power chords | At least two simultaneous notes; lowest pitch defines root; pitch classes are exactly root and perfect fifth, both present; octave doublings allowed | Root+octave alone is excluded; no third/extra pitch class |
 | Extended power chords | Power-chord core plus one distinct color pitch class, neither root nor fifth, above the lowest root | Track color occurrences/doublings separately; this exact-class interpretation is explicit and can be revised |
 | Double stops | Exactly two simultaneous notes on distinct strings, any interval | Plain user-facing definition. Internal descriptions may also name their interval/chord content; user need not choose exclusive labels |
@@ -109,3 +109,12 @@ Acceptance evidence and reproduction commands: TECHNIQUE_RESULTS.md. Earlier end
 - [ ] Human musical/physical acceptance, authentic HOPO tone, validated pedal/phrase function and learned artist-conditioned transfer remain open.
 
 Final private review: local-artifacts/technique-review-v6 at http://127.0.0.1:5180/. Guitar batch: pattern-edits-v3. Earlier diagnostic rounds retained: review v1/v4 failed family coverage, v2/v5 exposed identical methods, v3 valid lower-position bundle; v6 includes higher positions and passes final gate. Pattern v2 selected bass where it maximized coverage; v3 deliberately selects guitars. No original/no-technique listening control offered. 169 Python tests, 16 JS tests, build pass. No public website changes.
+
+
+## User correction — retire authored blind study
+
+- [x] Remove fretted hammer/pull listening comparisons; retain open-string HOPO only. Fretted analysis remains available, not an audible acceptance test.
+- [x] Preferred vibrato: former A/Slight cycle 360 ticks unchanged, amplitude 0.5 -> 0.25 semitones in explicit preview profile. GP qualitative marker cannot encode that precision.
+- [x] Close texture exactly one semitone; whole steps excluded in shared classification/construction. Earlier counts under v1 included one/two semitones and are historical.
+- [x] Reveal methods and state authored origin; remove rating questions. This is a correction, not another musical study.
+- [ ] Different path: return to source-grounded work when scoped with the user; do not expand this authored diagnostic exercise.

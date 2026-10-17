@@ -22,7 +22,7 @@ def classify_group(rows):
     core={root%12,(root+7)%12};labels=[]
     if len(rows)==2:
         labels.append('double_stop')
-        if pitches[1]-pitches[0] in (1,2):labels.append('close_interval_texture')
+        if pitches[1]-pitches[0] == 1:labels.append('close_interval_texture')
     if pcs==core:labels.append('power_chord')
     elif core<=pcs and len(pcs-core)==1:labels.append('extended_power_chord')
     return labels
@@ -182,7 +182,7 @@ def analyze(score):
                            pedal_period_sensitivity=sensitivity,
                            pedal_burst_candidates=detect_bursts(rows) if not t['is_percussion'] else [],
                            unresolved_ties=unresolved,unmatched_tie_origins=dangling))
-    return dict(schema='gp-technique-analysis-v1',source_sha256=score['source_sha256'],source_file=score['source_file'],
+    return dict(schema='gp-technique-analysis-v2',close_interval_texture_semitones=1,source_sha256=score['source_sha256'],source_file=score['source_file'],
                 measure_count=score['measure_count'],voice_meter_discrepancies=len(validate_events(score)),tracks=tracks,
                 limitations=['Written score order, repeats not unfolded','HOPO eligibility does not prove use or physical feasibility',
                              'Double stops mean two notes together; requested tremolo means pitch vibrato, not rapid picking',
