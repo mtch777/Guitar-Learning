@@ -1,6 +1,10 @@
 name: Songsterr API connectivity
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/songsterr-api-smoke.yml'
   workflow_dispatch:
     inputs:
       include_extras:
