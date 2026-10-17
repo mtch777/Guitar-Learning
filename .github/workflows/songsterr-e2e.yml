@@ -1,0 +1,58 @@
+name: Songsterr end-to-end conversion
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/songsterr-e2e.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install conversion tool
+        run: |
+          python -m pip install uv pyguitarpro
+          git clone --depth 1 https://github.com/6801318d8d/songsterr-dl.git /tmp/songsterr-dl
+          python -m pip install /tmp/songsterr-dl
+      - name: Search Songsterr, download notation and reconstruct Guitar Pro
+        id: conversion
+        shell: bash
+        run: |
+          mkdir -p songsterr-e2e
+          set +e
+          songsterr-dl 153 --tracks 2 -f gp5 -o songsterr-e2e --overwrite 2>&1 | tee songsterr-e2e/conversion.log
+          result=${PIPESTATUS[0]}
+          echo "exit_code=$result" >> "$GITHUB_OUTPUT"
+          set -e
+      - name: Parse and validate resulting file
+        id: validation
+        continue-on-error: true
+        shell: bash
+        run: |
+          python composition-lab/songsterr_automation/songsterr_api/validate_conversion.py songsterr-e2e 2>&1 | tee songsterr-e2e/validation.log
+      - name: Commit machine-readable report
+        if: always()
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add composition-lab/songsterr_automation/results/e2e_conversion_report.json 2>/dev/null || true
+          git diff --cached --quiet || (git commit -m "Record Songsterr end-to-end conversion results" && git push)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: songsterr-e2e-conversion
+          path: |
+            songsterr-e2e/
+            composition-lab/songsterr_automation/results/e2e_conversion_report.json
+          retention-days: 30
+      - name: Enforce conversion success
+        if: steps.conversion.outputs.exit_code != '0' || steps.validation.outcome != 'success'
+        run: exit 1
