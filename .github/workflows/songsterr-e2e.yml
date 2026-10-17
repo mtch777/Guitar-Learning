@@ -44,13 +44,19 @@ jobs:
         run: |
           npm install --no-save @coderline/alphatab@1.8.1
           node composition-lab/songsterr_automation/songsterr_api/gp7_roundtrip.mjs songsterr-e2e 2>&1 | tee songsterr-e2e/gp7_validation.log
+      - name: Compare original Songsterr notation directly to converted GP5
+        id: source
+        continue-on-error: true
+        shell: bash
+        run: |
+          python composition-lab/songsterr_automation/songsterr_api/validate_source.py 2>&1 | tee songsterr-e2e/source_fidelity.log
       - name: Commit machine-readable report
         if: always()
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add composition-lab/songsterr_automation/results/e2e_conversion_report.json composition-lab/songsterr_automation/results/gp7_roundtrip_report.json 2>/dev/null || true
+          git add composition-lab/songsterr_automation/results/e2e_conversion_report.json composition-lab/songsterr_automation/results/gp7_roundtrip_report.json composition-lab/songsterr_automation/results/source_fidelity_report.json 2>/dev/null || true
           git diff --cached --quiet || (git commit -m "Record Songsterr end-to-end conversion results" && git push)
       - uses: actions/upload-artifact@v4
         if: always()
@@ -60,7 +66,8 @@ jobs:
             songsterr-e2e/
             composition-lab/songsterr_automation/results/e2e_conversion_report.json
             composition-lab/songsterr_automation/results/gp7_roundtrip_report.json
+            composition-lab/songsterr_automation/results/source_fidelity_report.json
           retention-days: 30
       - name: Enforce conversion success
-        if: steps.conversion.outputs.exit_code != '0' || steps.validation.outcome != 'success' || steps.gp7.outcome != 'success'
+        if: steps.conversion.outputs.exit_code != '0' || steps.validation.outcome != 'success' || steps.gp7.outcome != 'success' || steps.source.outcome != 'success'
         run: exit 1
