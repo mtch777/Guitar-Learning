@@ -1,0 +1,100 @@
+name: Songsterr configurable downloader
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/songsterr-download.yml'
+  workflow_dispatch:
+    inputs:
+      artist:
+        description: Artist name (optional with song ID)
+        type: string
+        default: ''
+      song:
+        description: Song title, or ALL
+        type: string
+        default: ''
+      song_id:
+        description: Exact Songsterr ID or URL (overrides search)
+        type: string
+        default: '153'
+      tracks:
+        description: all, guitar, bass, drums, vocals or comma-separated indices
+        type: string
+        default: '2'
+      output:
+        description: Relative destination inside composition-lab/songsterr_automation/downloads
+        type: string
+        default: 'composition-lab/songsterr_automation/downloads'
+      existing:
+        description: skip or overwrite
+        type: choice
+        options: [skip, overwrite]
+        default: overwrite
+      max_songs:
+        description: Maximum matching songs (1-100)
+        type: number
+        default: 10
+      save_to_repo:
+        description: Commit generated GP files to main (only if you have rights)
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: songsterr-download-main
+  cancel-in-progress: false
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ARTIST: ${{ inputs.artist || '' }}
+      SONG: ${{ inputs.song || '' }}
+      SONG_ID: ${{ inputs.song_id || '153' }}
+      TRACKS: ${{ inputs.tracks || '2' }}
+      OUTPUT: ${{ inputs.output || 'composition-lab/songsterr_automation/downloads' }}
+      EXISTING: ${{ inputs.existing || 'overwrite' }}
+      MAX_SONGS: ${{ inputs.max_songs || '10' }}
+      SAVE_TO_REPO: ${{ inputs.save_to_repo || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install tools
+        run: |
+          python -m pip install pyguitarpro
+          git clone --depth 1 https://github.com/6801318d8d/songsterr-dl.git /tmp/songsterr-dl
+          python -m pip install /tmp/songsterr-dl
+          npm install --no-save @coderline/alphatab@1.8.1
+      - name: Search, download and reconstruct GP5
+        run: |
+          python composition-lab/songsterr_automation/songsterr_api/download_configurable.py \
+            --artist "$ARTIST" --song "$SONG" --song-id "$SONG_ID" \
+            --tracks "$TRACKS" --output "$OUTPUT" --existing "$EXISTING" \
+            --max-songs "$MAX_SONGS" 2>&1 | tee songsterr-download.log
+      - name: Convert GP5 to GP7 and reopen
+        run: |
+          node composition-lab/songsterr_automation/songsterr_api/export_gp7_batch.mjs "$OUTPUT" 2>&1 | tee gp7-export.log
+      - name: Persist files to repository if requested
+        if: env.SAVE_TO_REPO == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "$OUTPUT"
+          git diff --cached --quiet || (git commit -m "Save Songsterr converted scores" && git push)
+      - name: Upload generated scores and reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: songsterr-downloaded-scores
+          path: |
+            composition-lab/songsterr_automation/downloads/
+            songsterr-run/
+            songsterr-download.log
+            gp7-export.log
+          retention-days: 30
