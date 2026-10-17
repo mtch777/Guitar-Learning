@@ -1,0 +1,18 @@
+{
+  "gp5_files": [
+    {
+      "path": "songsterr-e2e/Pink Floyd - Wish You Were Here.gp5",
+      "bytes": 5675,
+      "tracks": [
+        {
+          "name": "David Gilmour | Martin D-35 | Lead Guita",
+          "measures": 81,
+          "beats": 294,
+          "notes": 218,
+          "strings": 6
+        }
+      ]
+    }
+  ],
+  "success": true
+}
