@@ -14,7 +14,7 @@ on:
         default: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   smoke:
@@ -79,6 +79,23 @@ jobs:
         shell: bash
         run: |
           python composition-lab/songsterr_automation/songsterr_api/inspect_metadata.py 2>&1 | tee songsterr-diagnostics/inspection.log
+
+      - name: Inspect revision and notation metadata
+        shell: bash
+        run: |
+          python composition-lab/songsterr_automation/songsterr_api/inspect_notation.py 2>&1 | tee songsterr-diagnostics/notation.log
+
+      - name: Commit diagnostic summaries to repository
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p composition-lab/songsterr_automation/results
+          cp songsterr-diagnostics/metadata_inventory.json composition-lab/songsterr_automation/results/ 2>/dev/null || true
+          cp songsterr-diagnostics/notation_inventory.json composition-lab/songsterr_automation/results/ 2>/dev/null || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add composition-lab/songsterr_automation/results/
+          git diff --cached --quiet || (git commit -m "Record Songsterr API metadata inspection" && git push)
 
       - name: Upload diagnostics even if probes fail
         if: always()
