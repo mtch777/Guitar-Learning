@@ -1,0 +1,4391 @@
+{
+  "schema": "songsterr-api-field-coverage-v1",
+  "analyzer_sha256": "8c3b6aa36223fa723cbe29f2c7fcfceee12b57ef7cb8b1d637b2e1509fb33c2c",
+  "entries": 98,
+  "response_counts": {
+    "metadata": 98,
+    "track": 495
+  },
+  "observed_paths": 218,
+  "status_counts": {
+    "analyzed": 65,
+    "retained_only": 83,
+    "not_applicable": 16,
+    "unsupported": 54
+  },
+  "review_required_paths": [],
+  "declared_but_unobserved_paths": [
+    "track.measures[].voices[].beats[].leftHandVibrato"
+  ],
+  "fields": [
+    {
+      "path": "metadata",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "response_documents",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "object": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "analyzed",
+      "analysis_level": "structural_traversal",
+      "current_use": "Traversed to preserve source occurrence and scope identity.",
+      "remaining_gap": "Container traversal does not imply analysis of all its children.",
+      "code_evidence": "analyze; occurrences",
+      "review_required": false
+    },
+    {
+      "path": "metadata.aiGenerated",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 11,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "analyzed",
+      "analysis_level": "catalog_cohort",
+      "current_use": "Separate cohorts without silently dropping entries.",
+      "remaining_gap": "Flags are not verified transcription-quality labels.",
+      "code_evidence": "analyze",
+      "review_required": false
+    },
+    {
+      "path": "metadata.artist",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "string": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "analyzed",
+      "analysis_level": "provenance_and_grouping",
+      "current_use": "Source identity, exact artist-label grouping and provisional title families.",
+      "remaining_gap": "No automatic revision-history comparison or confirmed composition identity.",
+      "code_evidence": "analyze; family",
+      "review_required": false
+    },
+    {
+      "path": "metadata.artistId",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "number": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audio",
+      "present_count": 7,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 7.142857142857143,
+      "nonnull_count": 7,
+      "truthy_value_count": 7,
+      "types": {
+        "string": 7
+      },
+      "entries_with_field": 7,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audioV2",
+      "present_count": 11,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 11.224489795918368,
+      "nonnull_count": 11,
+      "truthy_value_count": 11,
+      "types": {
+        "string": 11
+      },
+      "entries_with_field": 11,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audioV2Generated",
+      "present_count": 11,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 11.224489795918368,
+      "nonnull_count": 11,
+      "truthy_value_count": 11,
+      "types": {
+        "string": 11
+      },
+      "entries_with_field": 11,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audioV2Midi",
+      "present_count": 11,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 11.224489795918368,
+      "nonnull_count": 11,
+      "truthy_value_count": 11,
+      "types": {
+        "string": 11
+      },
+      "entries_with_field": 11,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audioV4",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "string": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audioV4Generated",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "string": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audioV4Meta",
+      "present_count": 85,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 86.73469387755102,
+      "nonnull_count": 85,
+      "truthy_value_count": 85,
+      "types": {
+        "object": 85
+      },
+      "entries_with_field": 85,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audioV4Meta.hasMixLayout",
+      "present_count": 85,
+      "parent_denominator": 85,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 85,
+      "truthy_value_count": 85,
+      "types": {
+        "boolean": 85
+      },
+      "entries_with_field": 85,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audioV4Meta.hasQuickMix",
+      "present_count": 85,
+      "parent_denominator": 85,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 85,
+      "truthy_value_count": 85,
+      "types": {
+        "boolean": 85
+      },
+      "entries_with_field": 85,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audioV4Midi",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "string": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audios",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "object": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audios.current",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "object": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audios.current.hash",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "string": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audios.current.meta",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "object": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audios.current.meta.hasMixLayout",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 85,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audios.current.meta.hasQuickMix",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 85,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audios.v4",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "object": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audios.v4.hash",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "string": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audios.v4.meta",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "object": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audios.v4.meta.hasMixLayout",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 85,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.audios.v4.meta.hasQuickMix",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 85,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.author",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "object": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Contributor provenance retained privately.",
+      "remaining_gap": "No contributor reliability model or provenance-weighted technique estimate.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.author.isModerator",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 6,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Contributor provenance retained privately.",
+      "remaining_gap": "No contributor reliability model or provenance-weighted technique estimate.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.author.name",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "string": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Contributor provenance retained privately.",
+      "remaining_gap": "No contributor reliability model or provenance-weighted technique estimate.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.author.personId",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "number": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Contributor provenance retained privately.",
+      "remaining_gap": "No contributor reliability model or provenance-weighted technique estimate.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.author.profileName",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "string": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Contributor provenance retained privately.",
+      "remaining_gap": "No contributor reliability model or provenance-weighted technique estimate.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.createdAt",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "string": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.createdVia",
+      "present_count": 86,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 87.75510204081633,
+      "nonnull_count": 86,
+      "truthy_value_count": 86,
+      "types": {
+        "string": 86
+      },
+      "entries_with_field": 86,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.defaultTrack",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 30,
+      "types": {
+        "number": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.description",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "string": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.favoritesCount",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 95,
+      "types": {
+        "number": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "not_applicable",
+      "analysis_level": "catalog_or_service_state",
+      "current_use": "Outside symbolic technique measurement; retained in raw captures.",
+      "remaining_gap": "Access/publication/popularity state does not establish musical correctness.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.fingerstyle",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 0,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.hasChords",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 0,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.hasPlayer",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.hasTracks",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.image",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "string": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "not_applicable",
+      "analysis_level": "catalog_or_service_state",
+      "current_use": "Outside symbolic technique measurement; retained in raw captures.",
+      "remaining_gap": "Access/publication/popularity state does not establish musical correctness.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.isBlank",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 0,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "not_applicable",
+      "analysis_level": "catalog_or_service_state",
+      "current_use": "Outside symbolic technique measurement; retained in raw captures.",
+      "remaining_gap": "Access/publication/popularity state does not establish musical correctness.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.isBlocked",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 0,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "not_applicable",
+      "analysis_level": "catalog_or_service_state",
+      "current_use": "Outside symbolic technique measurement; retained in raw captures.",
+      "remaining_gap": "Access/publication/popularity state does not establish musical correctness.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.isCollaborative",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 49,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.isJunk",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 4,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "analyzed",
+      "analysis_level": "catalog_cohort",
+      "current_use": "Separate cohorts without silently dropping entries.",
+      "remaining_gap": "Flags are not verified transcription-quality labels.",
+      "code_evidence": "analyze",
+      "review_required": false
+    },
+    {
+      "path": "metadata.isNextRevisionPremoderated",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 55,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "not_applicable",
+      "analysis_level": "catalog_or_service_state",
+      "current_use": "Outside symbolic technique measurement; retained in raw captures.",
+      "remaining_gap": "Access/publication/popularity state does not establish musical correctness.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.isOnModeration",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 0,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "not_applicable",
+      "analysis_level": "catalog_or_service_state",
+      "current_use": "Outside symbolic technique measurement; retained in raw captures.",
+      "remaining_gap": "Access/publication/popularity state does not establish musical correctness.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.isPopular",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 55,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "not_applicable",
+      "analysis_level": "catalog_or_service_state",
+      "current_use": "Outside symbolic technique measurement; retained in raw captures.",
+      "remaining_gap": "Access/publication/popularity state does not establish musical correctness.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.isPublished",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "not_applicable",
+      "analysis_level": "catalog_or_service_state",
+      "current_use": "Outside symbolic technique measurement; retained in raw captures.",
+      "remaining_gap": "Access/publication/popularity state does not establish musical correctness.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.isRestricted",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 0,
+      "types": {
+        "boolean": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "not_applicable",
+      "analysis_level": "catalog_or_service_state",
+      "current_use": "Outside symbolic technique measurement; retained in raw captures.",
+      "remaining_gap": "Access/publication/popularity state does not establish musical correctness.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.latestRevisionId",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "number": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.lyrics",
+      "present_count": 66,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 67.34693877551021,
+      "nonnull_count": 66,
+      "truthy_value_count": 1,
+      "types": {
+        "boolean": 66
+      },
+      "entries_with_field": 66,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.moderationType",
+      "present_count": 86,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 87.75510204081633,
+      "nonnull_count": 86,
+      "truthy_value_count": 86,
+      "types": {
+        "string": 86
+      },
+      "entries_with_field": 86,
+      "track_responses_with_field": 0,
+      "status": "not_applicable",
+      "analysis_level": "catalog_or_service_state",
+      "current_use": "Outside symbolic technique measurement; retained in raw captures.",
+      "remaining_gap": "Access/publication/popularity state does not establish musical correctness.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.popularTrack",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 30,
+      "types": {
+        "number": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.popularTrackBass",
+      "present_count": 42,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 42.857142857142854,
+      "nonnull_count": 42,
+      "truthy_value_count": 41,
+      "types": {
+        "number": 42
+      },
+      "entries_with_field": 42,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.popularTrackDrum",
+      "present_count": 57,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 58.16326530612245,
+      "nonnull_count": 57,
+      "truthy_value_count": 57,
+      "types": {
+        "number": 57
+      },
+      "entries_with_field": 57,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.popularTrackGuitar",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 27,
+      "types": {
+        "number": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.popularTrackVocals",
+      "present_count": 5,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 5.1020408163265305,
+      "nonnull_count": 5,
+      "truthy_value_count": 5,
+      "types": {
+        "number": 5
+      },
+      "entries_with_field": 5,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.prevRevisionId",
+      "present_count": 59,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 60.204081632653065,
+      "nonnull_count": 59,
+      "truthy_value_count": 59,
+      "types": {
+        "number": 59
+      },
+      "entries_with_field": 59,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Available in cached metadata; not consumed by the relational analyzer.",
+      "remaining_gap": "No timestamp/history, track-selection, lyric or declared-capability analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.restriction",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 0,
+      "types": {
+        "string": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "not_applicable",
+      "analysis_level": "catalog_or_service_state",
+      "current_use": "Outside symbolic technique measurement; retained in raw captures.",
+      "remaining_gap": "Access/publication/popularity state does not establish musical correctness.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.revisionId",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "number": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "analyzed",
+      "analysis_level": "provenance_and_grouping",
+      "current_use": "Source identity, exact artist-label grouping and provisional title families.",
+      "remaining_gap": "No automatic revision-history comparison or confirmed composition identity.",
+      "code_evidence": "analyze; family",
+      "review_required": false
+    },
+    {
+      "path": "metadata.songId",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "number": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "analyzed",
+      "analysis_level": "provenance_and_grouping",
+      "current_use": "Source identity, exact artist-label grouping and provisional title families.",
+      "remaining_gap": "No automatic revision-history comparison or confirmed composition identity.",
+      "code_evidence": "analyze; family",
+      "review_required": false
+    },
+    {
+      "path": "metadata.tags",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 46,
+      "types": {
+        "array": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Tags retained privately.",
+      "remaining_gap": "No semantic tag interpretation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.tags[]",
+      "present_count": 233,
+      "parent_denominator": 233,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 233,
+      "truthy_value_count": 233,
+      "types": {
+        "string": 233
+      },
+      "entries_with_field": 46,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Tags retained privately.",
+      "remaining_gap": "No semantic tag interpretation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.title",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "string": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "analyzed",
+      "analysis_level": "provenance_and_grouping",
+      "current_use": "Source identity, exact artist-label grouping and provisional title families.",
+      "remaining_gap": "No automatic revision-history comparison or confirmed composition identity.",
+      "code_evidence": "analyze; family",
+      "review_required": false
+    },
+    {
+      "path": "metadata.tracks",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "array": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Metadata track catalog retained; actual part payloads drive analysis.",
+      "remaining_gap": "Catalog track-role/empty/vocal flags and difficulty are not integrated; views are not quality scores.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.tracks[]",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 495,
+      "types": {
+        "object": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Metadata track catalog retained; actual part payloads drive analysis.",
+      "remaining_gap": "Catalog track-role/empty/vocal flags and difficulty are not integrated; views are not quality scores.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.tracks[].difficulty",
+      "present_count": 472,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 95.35353535353535,
+      "nonnull_count": 472,
+      "truthy_value_count": 472,
+      "types": {
+        "number": 472
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Metadata track catalog retained; actual part payloads drive analysis.",
+      "remaining_gap": "Catalog track-role/empty/vocal flags and difficulty are not integrated; views are not quality scores.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.tracks[].hash",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 495,
+      "types": {
+        "string": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Metadata track catalog retained; actual part payloads drive analysis.",
+      "remaining_gap": "Catalog track-role/empty/vocal flags and difficulty are not integrated; views are not quality scores.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.tracks[].instrument",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 495,
+      "types": {
+        "string": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Metadata track catalog retained; actual part payloads drive analysis.",
+      "remaining_gap": "Catalog track-role/empty/vocal flags and difficulty are not integrated; views are not quality scores.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.tracks[].instrumentId",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 494,
+      "types": {
+        "number": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Metadata track catalog retained; actual part payloads drive analysis.",
+      "remaining_gap": "Catalog track-role/empty/vocal flags and difficulty are not integrated; views are not quality scores.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.tracks[].isEmpty",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 3,
+      "types": {
+        "boolean": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Metadata track catalog retained; actual part payloads drive analysis.",
+      "remaining_gap": "Catalog track-role/empty/vocal flags and difficulty are not integrated; views are not quality scores.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.tracks[].isVocalTrack",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 5,
+      "types": {
+        "boolean": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Metadata track catalog retained; actual part payloads drive analysis.",
+      "remaining_gap": "Catalog track-role/empty/vocal flags and difficulty are not integrated; views are not quality scores.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.tracks[].name",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 367,
+      "types": {
+        "string": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Metadata track catalog retained; actual part payloads drive analysis.",
+      "remaining_gap": "Catalog track-role/empty/vocal flags and difficulty are not integrated; views are not quality scores.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.tracks[].tuning",
+      "present_count": 438,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 88.48484848484848,
+      "nonnull_count": 438,
+      "truthy_value_count": 438,
+      "types": {
+        "array": 438
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Metadata track catalog retained; actual part payloads drive analysis.",
+      "remaining_gap": "Catalog track-role/empty/vocal flags and difficulty are not integrated; views are not quality scores.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.tracks[].tuning[]",
+      "present_count": 2933,
+      "parent_denominator": 2933,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 2933,
+      "truthy_value_count": 2933,
+      "types": {
+        "number": 2933
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Metadata track catalog retained; actual part payloads drive analysis.",
+      "remaining_gap": "Catalog track-role/empty/vocal flags and difficulty are not integrated; views are not quality scores.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.tracks[].views",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 449,
+      "types": {
+        "number": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Metadata track catalog retained; actual part payloads drive analysis.",
+      "remaining_gap": "Catalog track-role/empty/vocal flags and difficulty are not integrated; views are not quality scores.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.videos",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 93,
+      "types": {
+        "array": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.videos[]",
+      "present_count": 296,
+      "parent_denominator": 296,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 296,
+      "truthy_value_count": 296,
+      "types": {
+        "object": 296
+      },
+      "entries_with_field": 93,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.videos[].feature",
+      "present_count": 296,
+      "parent_denominator": 296,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 203,
+      "truthy_value_count": 203,
+      "types": {
+        "null": 93,
+        "string": 203
+      },
+      "entries_with_field": 93,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.videos[].id",
+      "present_count": 296,
+      "parent_denominator": 296,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 296,
+      "truthy_value_count": 296,
+      "types": {
+        "number": 296
+      },
+      "entries_with_field": 93,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.videos[].status",
+      "present_count": 296,
+      "parent_denominator": 296,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 296,
+      "truthy_value_count": 296,
+      "types": {
+        "string": 296
+      },
+      "entries_with_field": 93,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.videos[].videoId",
+      "present_count": 296,
+      "parent_denominator": 296,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 296,
+      "truthy_value_count": 296,
+      "types": {
+        "string": 296
+      },
+      "entries_with_field": 93,
+      "track_responses_with_field": 0,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Playback references/metadata retained without fetching or alignment.",
+      "remaining_gap": "No audio/video performance analysis, playback verification or score alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "metadata.views",
+      "present_count": 98,
+      "parent_denominator": 98,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 98,
+      "truthy_value_count": 98,
+      "types": {
+        "number": 98
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 0,
+      "status": "not_applicable",
+      "analysis_level": "catalog_or_service_state",
+      "current_use": "Outside symbolic technique measurement; retained in raw captures.",
+      "remaining_gap": "Access/publication/popularity state does not establish musical correctness.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "response_documents",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 495,
+      "types": {
+        "object": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "structural_traversal",
+      "current_use": "Traversed to preserve source occurrence and scope identity.",
+      "remaining_gap": "Container traversal does not imply analysis of all its children.",
+      "code_evidence": "analyze; occurrences",
+      "review_required": false
+    },
+    {
+      "path": "track.anacrusis",
+      "present_count": 10,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 2.0202020202020203,
+      "nonnull_count": 10,
+      "truthy_value_count": 10,
+      "types": {
+        "boolean": 10
+      },
+      "entries_with_field": 1,
+      "track_responses_with_field": 10,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Musically relevant source field is retained but not interpreted.",
+      "remaining_gap": "No fret-limit/string-count validation, pickup/key/alternate tuning semantics or mix model.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.automations",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 495,
+      "types": {
+        "object": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.automations.tempo",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 495,
+      "types": {
+        "array": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.automations.tempo[]",
+      "present_count": 638,
+      "parent_denominator": 638,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 638,
+      "truthy_value_count": 638,
+      "types": {
+        "object": 638
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.automations.tempo[].bpm",
+      "present_count": 638,
+      "parent_denominator": 638,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 638,
+      "truthy_value_count": 638,
+      "types": {
+        "number": 638
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.automations.tempo[].linear",
+      "present_count": 113,
+      "parent_denominator": 638,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 17.711598746081506,
+      "nonnull_count": 113,
+      "truthy_value_count": 0,
+      "types": {
+        "boolean": 113
+      },
+      "entries_with_field": 19,
+      "track_responses_with_field": 99,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.automations.tempo[].measure",
+      "present_count": 638,
+      "parent_denominator": 638,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 638,
+      "truthy_value_count": 192,
+      "types": {
+        "number": 638
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.automations.tempo[].position",
+      "present_count": 638,
+      "parent_denominator": 638,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 638,
+      "truthy_value_count": 9,
+      "types": {
+        "number": 638
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.automations.tempo[].text",
+      "present_count": 18,
+      "parent_denominator": 638,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 2.8213166144200628,
+      "nonnull_count": 18,
+      "truthy_value_count": 18,
+      "types": {
+        "string": 18
+      },
+      "entries_with_field": 2,
+      "track_responses_with_field": 18,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.automations.tempo[].type",
+      "present_count": 638,
+      "parent_denominator": 638,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 638,
+      "truthy_value_count": 638,
+      "types": {
+        "number": 638
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.automations.tempo[].visible",
+      "present_count": 166,
+      "parent_denominator": 638,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 26.018808777429467,
+      "nonnull_count": 166,
+      "truthy_value_count": 11,
+      "types": {
+        "boolean": 166
+      },
+      "entries_with_field": 27,
+      "track_responses_with_field": 148,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.balance",
+      "present_count": 465,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 93.93939393939394,
+      "nonnull_count": 465,
+      "truthy_value_count": 12,
+      "types": {
+        "number": 465
+      },
+      "entries_with_field": 93,
+      "track_responses_with_field": 465,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Musically relevant source field is retained but not interpreted.",
+      "remaining_gap": "No fret-limit/string-count validation, pickup/key/alternate tuning semantics or mix model.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.capo",
+      "present_count": 66,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 13.333333333333334,
+      "nonnull_count": 66,
+      "truthy_value_count": 0,
+      "types": {
+        "number": 66
+      },
+      "entries_with_field": 11,
+      "track_responses_with_field": 66,
+      "status": "analyzed",
+      "analysis_level": "written_pitch",
+      "current_use": "Written base pitch from tuning/string/fret/capo.",
+      "remaining_gap": "No bend-adjusted or harmonic sounding-pitch model.",
+      "code_evidence": "pitch",
+      "review_required": false
+    },
+    {
+      "path": "track.frets",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 491,
+      "types": {
+        "number": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Musically relevant source field is retained but not interpreted.",
+      "remaining_gap": "No fret-limit/string-count validation, pickup/key/alternate tuning semantics or mix model.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.instrument",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 495,
+      "types": {
+        "string": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Retained in raw track; top-level metadata supplies song/revision identity.",
+      "remaining_gap": "No cross-response revision consistency check or top-level voice-catalog interpretation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.instrumentId",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 494,
+      "types": {
+        "number": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "scope_filter",
+      "current_use": "Programs24..39 define the guitar/bass aggregate scope.",
+      "remaining_gap": "Instrument program is not an inferred role; metadata vocal flags are not integrated.",
+      "code_evidence": "track_analysis",
+      "review_required": false
+    },
+    {
+      "path": "track.key",
+      "present_count": 3,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.6060606060606061,
+      "nonnull_count": 3,
+      "truthy_value_count": 3,
+      "types": {
+        "string": 3
+      },
+      "entries_with_field": 2,
+      "track_responses_with_field": 3,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Musically relevant source field is retained but not interpreted.",
+      "remaining_gap": "No fret-limit/string-count validation, pickup/key/alternate tuning semantics or mix model.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 495,
+      "types": {
+        "array": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "structural_traversal",
+      "current_use": "Traversed to preserve source occurrence and scope identity.",
+      "remaining_gap": "Container traversal does not imply analysis of all its children.",
+      "code_evidence": "analyze; occurrences",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[]",
+      "present_count": 58930,
+      "parent_denominator": 58930,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 58930,
+      "truthy_value_count": 58930,
+      "types": {
+        "object": 58930
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "structural_traversal",
+      "current_use": "Traversed to preserve source occurrence and scope identity.",
+      "remaining_gap": "Container traversal does not imply analysis of all its children.",
+      "code_evidence": "analyze; occurrences",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].alternateEnding",
+      "present_count": 355,
+      "parent_denominator": 58930,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.6024096385542169,
+      "nonnull_count": 355,
+      "truthy_value_count": 355,
+      "types": {
+        "array": 355
+      },
+      "entries_with_field": 17,
+      "track_responses_with_field": 70,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Written flags retained but not expanded or reconciled.",
+      "remaining_gap": "No performed repeat order or whole-measure-rest interpretation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].alternateEnding[]",
+      "present_count": 355,
+      "parent_denominator": 355,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 355,
+      "truthy_value_count": 355,
+      "types": {
+        "number": 355
+      },
+      "entries_with_field": 17,
+      "track_responses_with_field": 70,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Written flags retained but not expanded or reconciled.",
+      "remaining_gap": "No performed repeat order or whole-measure-rest interpretation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].doubleBarline",
+      "present_count": 635,
+      "parent_denominator": 58930,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 1.0775496351603597,
+      "nonnull_count": 635,
+      "truthy_value_count": 635,
+      "types": {
+        "boolean": 635
+      },
+      "entries_with_field": 24,
+      "track_responses_with_field": 88,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Retained notation metadata; array position supplies analysis bar identity.",
+      "remaining_gap": "Double barlines are not used as phrase/section evidence; source index not cross-checked.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].index",
+      "present_count": 5838,
+      "parent_denominator": 58930,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 9.906668929238078,
+      "nonnull_count": 5838,
+      "truthy_value_count": 5838,
+      "types": {
+        "number": 5838
+      },
+      "entries_with_field": 9,
+      "track_responses_with_field": 49,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Retained notation metadata; array position supplies analysis bar identity.",
+      "remaining_gap": "Double barlines are not used as phrase/section evidence; source index not cross-checked.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].marker",
+      "present_count": 3673,
+      "parent_denominator": 58930,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 6.23281859833701,
+      "nonnull_count": 3673,
+      "truthy_value_count": 3673,
+      "types": {
+        "object": 3673
+      },
+      "entries_with_field": 54,
+      "track_responses_with_field": 308,
+      "status": "analyzed",
+      "analysis_level": "partial_source_label",
+      "current_use": "The whole marker value is stringified as a section label.",
+      "remaining_gap": "Text is not normalized separately from object layout fields; labels are not verified form/phrase functions.",
+      "code_evidence": "occurrences str(marker)",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].marker.text",
+      "present_count": 3673,
+      "parent_denominator": 3673,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 3673,
+      "truthy_value_count": 3673,
+      "types": {
+        "string": 3673
+      },
+      "entries_with_field": 54,
+      "track_responses_with_field": 308,
+      "status": "analyzed",
+      "analysis_level": "partial_source_label",
+      "current_use": "The whole marker value is stringified as a section label.",
+      "remaining_gap": "Text is not normalized separately from object layout fields; labels are not verified form/phrase functions.",
+      "code_evidence": "occurrences str(marker)",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].marker.width",
+      "present_count": 3673,
+      "parent_denominator": 3673,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 3673,
+      "truthy_value_count": 3673,
+      "types": {
+        "number": 3673
+      },
+      "entries_with_field": 54,
+      "track_responses_with_field": 308,
+      "status": "not_applicable",
+      "analysis_level": "layout",
+      "current_use": "Layout width has no musical technique meaning.",
+      "remaining_gap": "Current str(marker) can leak width into the raw section display label; it should be separated.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].repeat",
+      "present_count": 397,
+      "parent_denominator": 58930,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.6736806380451383,
+      "nonnull_count": 397,
+      "truthy_value_count": 397,
+      "types": {
+        "number": 397
+      },
+      "entries_with_field": 26,
+      "track_responses_with_field": 110,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Written flags retained but not expanded or reconciled.",
+      "remaining_gap": "No performed repeat order or whole-measure-rest interpretation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].repeatStart",
+      "present_count": 397,
+      "parent_denominator": 58930,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.6736806380451383,
+      "nonnull_count": 397,
+      "truthy_value_count": 397,
+      "types": {
+        "boolean": 397
+      },
+      "entries_with_field": 26,
+      "track_responses_with_field": 110,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Written flags retained but not expanded or reconciled.",
+      "remaining_gap": "No performed repeat order or whole-measure-rest interpretation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].rest",
+      "present_count": 26300,
+      "parent_denominator": 58930,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 44.62922110979128,
+      "nonnull_count": 26300,
+      "truthy_value_count": 26300,
+      "types": {
+        "boolean": 26300
+      },
+      "entries_with_field": 94,
+      "track_responses_with_field": 488,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Written flags retained but not expanded or reconciled.",
+      "remaining_gap": "No performed repeat order or whole-measure-rest interpretation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].signature",
+      "present_count": 1769,
+      "parent_denominator": 58930,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 3.0018666214152385,
+      "nonnull_count": 1769,
+      "truthy_value_count": 1769,
+      "types": {
+        "array": 1769
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "rational_meter",
+      "current_use": "Exact bar spans and inherited meter drive rational onsets.",
+      "remaining_gap": "Not a performed tempo or pickup/repeat expansion.",
+      "code_evidence": "occurrences",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].signature[]",
+      "present_count": 3538,
+      "parent_denominator": 3538,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 3538,
+      "truthy_value_count": 3538,
+      "types": {
+        "number": 3538
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "rational_meter",
+      "current_use": "Exact bar spans and inherited meter drive rational onsets.",
+      "remaining_gap": "Not a performed tempo or pickup/repeat expansion.",
+      "code_evidence": "occurrences",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices",
+      "present_count": 58930,
+      "parent_denominator": 58930,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 58930,
+      "truthy_value_count": 58930,
+      "types": {
+        "array": 58930
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "structural_traversal",
+      "current_use": "Traversed to preserve source occurrence and scope identity.",
+      "remaining_gap": "Container traversal does not imply analysis of all its children.",
+      "code_evidence": "analyze; occurrences",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[]",
+      "present_count": 59021,
+      "parent_denominator": 59021,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 59021,
+      "truthy_value_count": 59021,
+      "types": {
+        "object": 59021
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "structural_traversal",
+      "current_use": "Traversed to preserve source occurrence and scope identity.",
+      "remaining_gap": "Container traversal does not imply analysis of all its children.",
+      "code_evidence": "analyze; occurrences",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats",
+      "present_count": 59021,
+      "parent_denominator": 59021,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 59021,
+      "truthy_value_count": 59021,
+      "types": {
+        "array": 59021
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "structural_traversal",
+      "current_use": "Traversed to preserve source occurrence and scope identity.",
+      "remaining_gap": "Container traversal does not imply analysis of all its children.",
+      "code_evidence": "analyze; occurrences",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[]",
+      "present_count": 318888,
+      "parent_denominator": 318888,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 318888,
+      "truthy_value_count": 318888,
+      "types": {
+        "object": 318888
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "structural_traversal",
+      "current_use": "Traversed to preserve source occurrence and scope identity.",
+      "remaining_gap": "Container traversal does not imply analysis of all its children.",
+      "code_evidence": "analyze; occurrences",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].beamStart",
+      "present_count": 71114,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 22.3006196532952,
+      "nonnull_count": 71114,
+      "truthy_value_count": 71114,
+      "types": {
+        "boolean": 71114
+      },
+      "entries_with_field": 94,
+      "track_responses_with_field": 388,
+      "status": "not_applicable",
+      "analysis_level": "engraving",
+      "current_use": "Engraving beam flags are not technique measurements.",
+      "remaining_gap": "They are not used as phrasing evidence.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].beamStop",
+      "present_count": 71114,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 22.3006196532952,
+      "nonnull_count": 71114,
+      "truthy_value_count": 71114,
+      "types": {
+        "boolean": 71114
+      },
+      "entries_with_field": 94,
+      "track_responses_with_field": 388,
+      "status": "not_applicable",
+      "analysis_level": "engraving",
+      "current_use": "Engraving beam flags are not technique measurements.",
+      "remaining_gap": "They are not used as phrasing evidence.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].brushStroke",
+      "present_count": 132,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.0413938436065327,
+      "nonnull_count": 132,
+      "truthy_value_count": 132,
+      "types": {
+        "object": 132
+      },
+      "entries_with_field": 13,
+      "track_responses_with_field": 14,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Marker presence is counted; detailed rate/direction/envelope mechanics are not interpreted.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].brushStroke.direction",
+      "present_count": 132,
+      "parent_denominator": 132,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 132,
+      "truthy_value_count": 132,
+      "types": {
+        "string": 132
+      },
+      "entries_with_field": 13,
+      "track_responses_with_field": 14,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Field values retained beyond any parent marker presence.",
+      "remaining_gap": "No brush mechanics, tremolo rate, beat-tempo or beat-rest reconciliation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].brushStroke.duration",
+      "present_count": 132,
+      "parent_denominator": 132,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 132,
+      "truthy_value_count": 132,
+      "types": {
+        "number": 132
+      },
+      "entries_with_field": 13,
+      "track_responses_with_field": 14,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Field values retained beyond any parent marker presence.",
+      "remaining_gap": "No brush mechanics, tremolo rate, beat-tempo or beat-rest reconciliation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].brushStroke.shift",
+      "present_count": 132,
+      "parent_denominator": 132,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 132,
+      "truthy_value_count": 132,
+      "types": {
+        "number": 132
+      },
+      "entries_with_field": 13,
+      "track_responses_with_field": 14,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Field values retained beyond any parent marker presence.",
+      "remaining_gap": "No brush mechanics, tremolo rate, beat-tempo or beat-rest reconciliation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].dots",
+      "present_count": 15397,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 4.828340984922606,
+      "nonnull_count": 15397,
+      "truthy_value_count": 15397,
+      "types": {
+        "number": 15397
+      },
+      "entries_with_field": 85,
+      "track_responses_with_field": 355,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Redundant duration notation retained; duration fraction drives analysis.",
+      "remaining_gap": "No type/dot-to-duration consistency check.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].dotted",
+      "present_count": 2652,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.831639948822157,
+      "nonnull_count": 2652,
+      "truthy_value_count": 2652,
+      "types": {
+        "boolean": 2652
+      },
+      "entries_with_field": 10,
+      "track_responses_with_field": 47,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Redundant duration notation retained; duration fraction drives analysis.",
+      "remaining_gap": "No type/dot-to-duration consistency check.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].duration",
+      "present_count": 318888,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 318888,
+      "truthy_value_count": 318888,
+      "types": {
+        "array": 318888
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "rational_written_timing",
+      "current_use": "Declared fraction sets exact written duration and onset advancement.",
+      "remaining_gap": "Duration notation is not cross-validated against type/dots/tuplet; no seconds mapping.",
+      "code_evidence": "occurrences",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].duration[]",
+      "present_count": 637776,
+      "parent_denominator": 637776,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 637776,
+      "truthy_value_count": 637776,
+      "types": {
+        "number": 637776
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "rational_written_timing",
+      "current_use": "Declared fraction sets exact written duration and onset advancement.",
+      "remaining_gap": "Duration notation is not cross-validated against type/dots/tuplet; no seconds mapping.",
+      "code_evidence": "occurrences",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].fadeIn",
+      "present_count": 188,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.058954868166879906,
+      "nonnull_count": 188,
+      "truthy_value_count": 188,
+      "types": {
+        "boolean": 188
+      },
+      "entries_with_field": 5,
+      "track_responses_with_field": 12,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Presence/relationships do not establish performance mechanics or musical function.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].graceNote",
+      "present_count": 103,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.03229974160206718,
+      "nonnull_count": 103,
+      "truthy_value_count": 103,
+      "types": {
+        "string": 103
+      },
+      "entries_with_field": 14,
+      "track_responses_with_field": 18,
+      "status": "analyzed",
+      "analysis_level": "separate_occurrence_scope",
+      "current_use": "Grace notes are retained separately and block certain HOPO transitions.",
+      "remaining_gap": "No grace performance timing or grace-specific conditional corpus statistics.",
+      "code_evidence": "occurrences; hopo",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].gradualVelocity",
+      "present_count": 1394,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.4371440756629287,
+      "nonnull_count": 1394,
+      "truthy_value_count": 1394,
+      "types": {
+        "string": 1394
+      },
+      "entries_with_field": 13,
+      "track_responses_with_field": 27,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Marker presence is counted; detailed rate/direction/envelope mechanics are not interpreted.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].harmonic",
+      "present_count": 38,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.011916409523092747,
+      "nonnull_count": 38,
+      "truthy_value_count": 38,
+      "types": {
+        "boolean": 38
+      },
+      "entries_with_field": 2,
+      "track_responses_with_field": 4,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Presence/relationships do not establish performance mechanics or musical function.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].letRing",
+      "present_count": 12900,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 4.0453074433656955,
+      "nonnull_count": 12900,
+      "truthy_value_count": 12900,
+      "types": {
+        "boolean": 12900
+      },
+      "entries_with_field": 39,
+      "track_responses_with_field": 91,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Presence/relationships do not establish performance mechanics or musical function.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes",
+      "present_count": 318888,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 318888,
+      "truthy_value_count": 318888,
+      "types": {
+        "array": 318888
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "structural_traversal",
+      "current_use": "Traversed to preserve source occurrence and scope identity.",
+      "remaining_gap": "Container traversal does not imply analysis of all its children.",
+      "code_evidence": "analyze; occurrences",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[]",
+      "present_count": 472779,
+      "parent_denominator": 472779,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 472779,
+      "truthy_value_count": 472779,
+      "types": {
+        "object": 472779
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "structural_traversal",
+      "current_use": "Traversed to preserve source occurrence and scope identity.",
+      "remaining_gap": "Container traversal does not imply analysis of all its children.",
+      "code_evidence": "analyze; occurrences",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].accentuated",
+      "present_count": 2544,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.5380949661469735,
+      "nonnull_count": 2544,
+      "truthy_value_count": 2544,
+      "types": {
+        "number": 2544
+      },
+      "entries_with_field": 19,
+      "track_responses_with_field": 32,
+      "status": "analyzed",
+      "analysis_level": "presence_and_raw_value_summary",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Presence/relationships do not establish performance mechanics or musical function.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].bend",
+      "present_count": 866,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.18317226441952794,
+      "nonnull_count": 866,
+      "truthy_value_count": 866,
+      "types": {
+        "object": 866
+      },
+      "entries_with_field": 63,
+      "track_responses_with_field": 110,
+      "status": "analyzed",
+      "analysis_level": "presence_and_partial_curve_values",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Presence/relationships do not establish performance mechanics or musical function.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].bend.points",
+      "present_count": 866,
+      "parent_denominator": 866,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 866,
+      "truthy_value_count": 866,
+      "types": {
+        "array": 866
+      },
+      "entries_with_field": 63,
+      "track_responses_with_field": 110,
+      "status": "analyzed",
+      "analysis_level": "partial_curve_values",
+      "current_use": "Exact initial/peak/final tone/25 and first-peak position/60 statistics.",
+      "remaining_gap": "No complete curve similarity, precise-position override, per-point vibrato or performed bend-rate analysis.",
+      "code_evidence": "summary",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].bend.points[]",
+      "present_count": 3221,
+      "parent_denominator": 3221,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 3221,
+      "truthy_value_count": 3221,
+      "types": {
+        "object": 3221
+      },
+      "entries_with_field": 63,
+      "track_responses_with_field": 110,
+      "status": "analyzed",
+      "analysis_level": "partial_curve_values",
+      "current_use": "Exact initial/peak/final tone/25 and first-peak position/60 statistics.",
+      "remaining_gap": "No complete curve similarity, precise-position override, per-point vibrato or performed bend-rate analysis.",
+      "code_evidence": "summary",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].bend.points[].position",
+      "present_count": 3221,
+      "parent_denominator": 3221,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 3221,
+      "truthy_value_count": 2324,
+      "types": {
+        "number": 3221
+      },
+      "entries_with_field": 63,
+      "track_responses_with_field": 110,
+      "status": "analyzed",
+      "analysis_level": "partial_curve_values",
+      "current_use": "Exact initial/peak/final tone/25 and first-peak position/60 statistics.",
+      "remaining_gap": "No complete curve similarity, precise-position override, per-point vibrato or performed bend-rate analysis.",
+      "code_evidence": "summary",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].bend.points[].precisePosition",
+      "present_count": 216,
+      "parent_denominator": 3221,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 6.705991927972679,
+      "nonnull_count": 216,
+      "truthy_value_count": 154,
+      "types": {
+        "number": 216
+      },
+      "entries_with_field": 8,
+      "track_responses_with_field": 15,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Curve metadata retained without interpretation.",
+      "remaining_gap": "Declared tone vs curve consistency, precise timing and per-point vibrato are not modeled.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].bend.points[].tone",
+      "present_count": 3221,
+      "parent_denominator": 3221,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 3221,
+      "truthy_value_count": 1856,
+      "types": {
+        "number": 3221
+      },
+      "entries_with_field": 63,
+      "track_responses_with_field": 110,
+      "status": "analyzed",
+      "analysis_level": "partial_curve_values",
+      "current_use": "Exact initial/peak/final tone/25 and first-peak position/60 statistics.",
+      "remaining_gap": "No complete curve similarity, precise-position override, per-point vibrato or performed bend-rate analysis.",
+      "code_evidence": "summary",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].bend.points[].vibrato",
+      "present_count": 34,
+      "parent_denominator": 3221,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 1.055572803477181,
+      "nonnull_count": 34,
+      "truthy_value_count": 0,
+      "types": {
+        "number": 34
+      },
+      "entries_with_field": 3,
+      "track_responses_with_field": 6,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Curve metadata retained without interpretation.",
+      "remaining_gap": "Declared tone vs curve consistency, precise timing and per-point vibrato are not modeled.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].bend.tone",
+      "present_count": 866,
+      "parent_denominator": 866,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 866,
+      "truthy_value_count": 841,
+      "types": {
+        "number": 866
+      },
+      "entries_with_field": 63,
+      "track_responses_with_field": 110,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Curve metadata retained without interpretation.",
+      "remaining_gap": "Declared tone vs curve consistency, precise timing and per-point vibrato are not modeled.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].dead",
+      "present_count": 1946,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.41160880665173366,
+      "nonnull_count": 1946,
+      "truthy_value_count": 1946,
+      "types": {
+        "boolean": 1946
+      },
+      "entries_with_field": 62,
+      "track_responses_with_field": 107,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Presence/relationships do not establish performance mechanics or musical function.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].fret",
+      "present_count": 420091,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 88.85568098413847,
+      "nonnull_count": 420091,
+      "truthy_value_count": 330992,
+      "types": {
+        "number": 420091
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 489,
+      "status": "analyzed",
+      "analysis_level": "written_note_relationships",
+      "current_use": "String/fret/base pitch, tied-attack exclusion and contiguous HOPO tie chaining.",
+      "remaining_gap": "No complete sustained-sonority or tied-gesture-duration analysis.",
+      "code_evidence": "pitch; occurrences; hopo; track_analysis",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].ghost",
+      "present_count": 2897,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.6127598730062037,
+      "nonnull_count": 2897,
+      "truthy_value_count": 2897,
+      "types": {
+        "boolean": 2897
+      },
+      "entries_with_field": 50,
+      "track_responses_with_field": 72,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Presence/relationships do not establish performance mechanics or musical function.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].harmonic",
+      "present_count": 524,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.11083402604599613,
+      "nonnull_count": 524,
+      "truthy_value_count": 524,
+      "types": {
+        "string": 524
+      },
+      "entries_with_field": 34,
+      "track_responses_with_field": 47,
+      "status": "analyzed",
+      "analysis_level": "presence_and_raw_value_summary",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Presence/relationships do not establish performance mechanics or musical function.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].harmonicFret",
+      "present_count": 478,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.1011043214694392,
+      "nonnull_count": 478,
+      "truthy_value_count": 478,
+      "types": {
+        "number": 478
+      },
+      "entries_with_field": 31,
+      "track_responses_with_field": 41,
+      "status": "analyzed",
+      "analysis_level": "raw_value_summary",
+      "current_use": "Histogram of explicitly supplied harmonic node/fret value.",
+      "remaining_gap": "No physical harmonic-type or sounding-pitch interpretation.",
+      "code_evidence": "summary marker_value_histograms",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].hp",
+      "present_count": 10064,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 2.128690149097147,
+      "nonnull_count": 10064,
+      "truthy_value_count": 10064,
+      "types": {
+        "boolean": 10064
+      },
+      "entries_with_field": 81,
+      "track_responses_with_field": 169,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Origin-marker transition candidates only; not independently adjudicated technique truth.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].leftHandVibrato",
+      "present_count": 1,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.00021151531688167198,
+      "nonnull_count": 1,
+      "truthy_value_count": 1,
+      "types": {
+        "string": 1
+      },
+      "entries_with_field": 1,
+      "track_responses_with_field": 1,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "No measured physical oscillation rate/depth or source audio validation.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].rest",
+      "present_count": 52660,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 11.138396586988847,
+      "nonnull_count": 52660,
+      "truthy_value_count": 52660,
+      "types": {
+        "boolean": 52660
+      },
+      "entries_with_field": 95,
+      "track_responses_with_field": 492,
+      "status": "analyzed",
+      "analysis_level": "rest_filter",
+      "current_use": "Explicit note-rest entries are omitted from note counts while beat duration advances.",
+      "remaining_gap": "No separate rest-pattern statistics or higher-level rest-flag reconciliation.",
+      "code_evidence": "occurrences",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].slide",
+      "present_count": 3061,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.647448384974798,
+      "nonnull_count": 3061,
+      "truthy_value_count": 3061,
+      "types": {
+        "string": 3061
+      },
+      "entries_with_field": 81,
+      "track_responses_with_field": 199,
+      "status": "analyzed",
+      "analysis_level": "presence_and_raw_value_summary",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Presence/relationships do not establish performance mechanics or musical function.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].staccato",
+      "present_count": 638,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.13494677217050674,
+      "nonnull_count": 638,
+      "truthy_value_count": 638,
+      "types": {
+        "boolean": 638
+      },
+      "entries_with_field": 20,
+      "track_responses_with_field": 26,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Presence/relationships do not establish performance mechanics or musical function.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].string",
+      "present_count": 420119,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 88.86160341301115,
+      "nonnull_count": 420119,
+      "truthy_value_count": 395641,
+      "types": {
+        "number": 420119
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 489,
+      "status": "analyzed",
+      "analysis_level": "written_note_relationships",
+      "current_use": "String/fret/base pitch, tied-attack exclusion and contiguous HOPO tie chaining.",
+      "remaining_gap": "No complete sustained-sonority or tied-gesture-duration analysis.",
+      "code_evidence": "pitch; occurrences; hopo; track_analysis",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].tie",
+      "present_count": 24015,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 5.079540334913353,
+      "nonnull_count": 24015,
+      "truthy_value_count": 24015,
+      "types": {
+        "boolean": 24015
+      },
+      "entries_with_field": 93,
+      "track_responses_with_field": 346,
+      "status": "analyzed",
+      "analysis_level": "written_note_relationships",
+      "current_use": "String/fret/base pitch, tied-attack exclusion and contiguous HOPO tie chaining.",
+      "remaining_gap": "No complete sustained-sonority or tied-gesture-duration analysis.",
+      "code_evidence": "pitch; occurrences; hopo; track_analysis",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].tremolo",
+      "present_count": 494,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.10448856653954595,
+      "nonnull_count": 494,
+      "truthy_value_count": 494,
+      "types": {
+        "array": 442,
+        "boolean": 52
+      },
+      "entries_with_field": 11,
+      "track_responses_with_field": 16,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Marker presence is counted; detailed rate/direction/envelope mechanics are not interpreted.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].tremolo[]",
+      "present_count": 884,
+      "parent_denominator": 884,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 884,
+      "truthy_value_count": 884,
+      "types": {
+        "number": 884
+      },
+      "entries_with_field": 10,
+      "track_responses_with_field": 15,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Tremolo value/rate retained; parent marker presence is counted.",
+      "remaining_gap": "No picking-rate or rate-change analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].velocity",
+      "present_count": 12,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.002538183802580064,
+      "nonnull_count": 12,
+      "truthy_value_count": 12,
+      "types": {
+        "string": 12
+      },
+      "entries_with_field": 2,
+      "track_responses_with_field": 2,
+      "status": "analyzed",
+      "analysis_level": "raw_value_summary",
+      "current_use": "Explicit velocity histogram; note value overrides beat value.",
+      "remaining_gap": "No imputation, dynamic-envelope reconstruction or tempo/loudness calibration.",
+      "code_evidence": "summary",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].vibrato",
+      "present_count": 13,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.0027496991194617356,
+      "nonnull_count": 13,
+      "truthy_value_count": 13,
+      "types": {
+        "boolean": 13
+      },
+      "entries_with_field": 5,
+      "track_responses_with_field": 9,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "No measured physical oscillation rate/depth or source audio validation.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].notes[].wideVibrato",
+      "present_count": 8,
+      "parent_denominator": 472779,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.0016921225350533759,
+      "nonnull_count": 8,
+      "truthy_value_count": 8,
+      "types": {
+        "boolean": 8
+      },
+      "entries_with_field": 4,
+      "track_responses_with_field": 4,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "No measured physical oscillation rate/depth or source audio validation.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].palmMute",
+      "present_count": 32656,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 10.240586036476756,
+      "nonnull_count": 32656,
+      "truthy_value_count": 32656,
+      "types": {
+        "boolean": 32656
+      },
+      "entries_with_field": 87,
+      "track_responses_with_field": 160,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Presence/relationships do not establish performance mechanics or musical function.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].pickStroke",
+      "present_count": 16,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.00501743558867063,
+      "nonnull_count": 16,
+      "truthy_value_count": 16,
+      "types": {
+        "string": 16
+      },
+      "entries_with_field": 2,
+      "track_responses_with_field": 2,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Marker presence is counted; detailed rate/direction/envelope mechanics are not interpreted.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].rest",
+      "present_count": 52660,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 16.513634881212212,
+      "nonnull_count": 52660,
+      "truthy_value_count": 52660,
+      "types": {
+        "boolean": 52660
+      },
+      "entries_with_field": 95,
+      "track_responses_with_field": 492,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Field values retained beyond any parent marker presence.",
+      "remaining_gap": "No brush mechanics, tremolo rate, beat-tempo or beat-rest reconciliation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].tapping",
+      "present_count": 3465,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 1.0865883946714834,
+      "nonnull_count": 3465,
+      "truthy_value_count": 3465,
+      "types": {
+        "boolean": 3465
+      },
+      "entries_with_field": 60,
+      "track_responses_with_field": 97,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Presence/relationships do not establish performance mechanics or musical function.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].tempo",
+      "present_count": 49,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.015365896490303805,
+      "nonnull_count": 49,
+      "truthy_value_count": 49,
+      "types": {
+        "object": 49
+      },
+      "entries_with_field": 9,
+      "track_responses_with_field": 49,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Field values retained beyond any parent marker presence.",
+      "remaining_gap": "No brush mechanics, tremolo rate, beat-tempo or beat-rest reconciliation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].tempo.bpm",
+      "present_count": 49,
+      "parent_denominator": 49,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 49,
+      "truthy_value_count": 49,
+      "types": {
+        "number": 49
+      },
+      "entries_with_field": 9,
+      "track_responses_with_field": 49,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Field values retained beyond any parent marker presence.",
+      "remaining_gap": "No brush mechanics, tremolo rate, beat-tempo or beat-rest reconciliation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].tempo.type",
+      "present_count": 49,
+      "parent_denominator": 49,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 49,
+      "truthy_value_count": 49,
+      "types": {
+        "number": 49
+      },
+      "entries_with_field": 9,
+      "track_responses_with_field": 49,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Field values retained beyond any parent marker presence.",
+      "remaining_gap": "No brush mechanics, tremolo rate, beat-tempo or beat-rest reconciliation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].text",
+      "present_count": 529,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.16588896415042273,
+      "nonnull_count": 529,
+      "truthy_value_count": 529,
+      "types": {
+        "object": 529
+      },
+      "entries_with_field": 40,
+      "track_responses_with_field": 102,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Free text retained privately; not interpreted as technique instruction.",
+      "remaining_gap": "No free-text instruction parser or trusted-label treatment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].text.text",
+      "present_count": 529,
+      "parent_denominator": 529,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 529,
+      "truthy_value_count": 529,
+      "types": {
+        "string": 529
+      },
+      "entries_with_field": 40,
+      "track_responses_with_field": 102,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Free text retained privately; not interpreted as technique instruction.",
+      "remaining_gap": "No free-text instruction parser or trusted-label treatment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].text.width",
+      "present_count": 529,
+      "parent_denominator": 529,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 529,
+      "truthy_value_count": 529,
+      "types": {
+        "number": 529
+      },
+      "entries_with_field": 40,
+      "track_responses_with_field": 102,
+      "status": "not_applicable",
+      "analysis_level": "layout",
+      "current_use": "Text layout width is outside musical technique analysis.",
+      "remaining_gap": "",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].tremolo",
+      "present_count": 368,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.1154010185394245,
+      "nonnull_count": 368,
+      "truthy_value_count": 368,
+      "types": {
+        "array": 368
+      },
+      "entries_with_field": 9,
+      "track_responses_with_field": 12,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Marker presence is counted; detailed rate/direction/envelope mechanics are not interpreted.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].tremoloBar",
+      "present_count": 427,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.13390281227264744,
+      "nonnull_count": 427,
+      "truthy_value_count": 427,
+      "types": {
+        "object": 427
+      },
+      "entries_with_field": 8,
+      "track_responses_with_field": 9,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Only presence and unresolved-pitch flag; curve values are not interpreted.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].tremoloBar.points",
+      "present_count": 427,
+      "parent_denominator": 427,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 427,
+      "truthy_value_count": 427,
+      "types": {
+        "array": 427
+      },
+      "entries_with_field": 8,
+      "track_responses_with_field": 9,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Raw whammy curve retained; parent marker presence is counted.",
+      "remaining_gap": "No whammy curve or sounding-pitch relationship analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].tremoloBar.points[]",
+      "present_count": 625,
+      "parent_denominator": 625,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 625,
+      "truthy_value_count": 625,
+      "types": {
+        "object": 625
+      },
+      "entries_with_field": 8,
+      "track_responses_with_field": 9,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Raw whammy curve retained; parent marker presence is counted.",
+      "remaining_gap": "No whammy curve or sounding-pitch relationship analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].tremoloBar.points[].position",
+      "present_count": 625,
+      "parent_denominator": 625,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 625,
+      "truthy_value_count": 198,
+      "types": {
+        "number": 625
+      },
+      "entries_with_field": 8,
+      "track_responses_with_field": 9,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Raw whammy curve retained; parent marker presence is counted.",
+      "remaining_gap": "No whammy curve or sounding-pitch relationship analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].tremoloBar.points[].tone",
+      "present_count": 625,
+      "parent_denominator": 625,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 625,
+      "truthy_value_count": 539,
+      "types": {
+        "number": 625
+      },
+      "entries_with_field": 8,
+      "track_responses_with_field": 9,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Raw whammy curve retained; parent marker presence is counted.",
+      "remaining_gap": "No whammy curve or sounding-pitch relationship analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].tremoloBar.tone",
+      "present_count": 427,
+      "parent_denominator": 427,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 427,
+      "truthy_value_count": 313,
+      "types": {
+        "number": 427
+      },
+      "entries_with_field": 8,
+      "track_responses_with_field": 9,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Raw whammy curve retained; parent marker presence is counted.",
+      "remaining_gap": "No whammy curve or sounding-pitch relationship analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].tremolo[]",
+      "present_count": 736,
+      "parent_denominator": 736,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 736,
+      "truthy_value_count": 736,
+      "types": {
+        "number": 736
+      },
+      "entries_with_field": 9,
+      "track_responses_with_field": 12,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Field values retained beyond any parent marker presence.",
+      "remaining_gap": "No brush mechanics, tremolo rate, beat-tempo or beat-rest reconciliation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].tuplet",
+      "present_count": 14607,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 4.580605102731994,
+      "nonnull_count": 14607,
+      "truthy_value_count": 14607,
+      "types": {
+        "number": 14607
+      },
+      "entries_with_field": 66,
+      "track_responses_with_field": 168,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Tuplet annotations retained; their declared duration is used separately.",
+      "remaining_gap": "No tuplet-group identity, grouping or accent-pattern analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].tupletStart",
+      "present_count": 4895,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 1.535021700408921,
+      "nonnull_count": 4895,
+      "truthy_value_count": 4895,
+      "types": {
+        "boolean": 4895
+      },
+      "entries_with_field": 66,
+      "track_responses_with_field": 168,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Tuplet annotations retained; their declared duration is used separately.",
+      "remaining_gap": "No tuplet-group identity, grouping or accent-pattern analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].tupletStop",
+      "present_count": 4895,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 1.535021700408921,
+      "nonnull_count": 4895,
+      "truthy_value_count": 4895,
+      "types": {
+        "boolean": 4895
+      },
+      "entries_with_field": 66,
+      "track_responses_with_field": 168,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Tuplet annotations retained; their declared duration is used separately.",
+      "remaining_gap": "No tuplet-group identity, grouping or accent-pattern analysis.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].type",
+      "present_count": 318888,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 318888,
+      "truthy_value_count": 318888,
+      "types": {
+        "number": 318888
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Redundant duration notation retained; duration fraction drives analysis.",
+      "remaining_gap": "No type/dot-to-duration consistency check.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].upStroke",
+      "present_count": 296,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.09282255839040666,
+      "nonnull_count": 296,
+      "truthy_value_count": 296,
+      "types": {
+        "number": 296
+      },
+      "entries_with_field": 21,
+      "track_responses_with_field": 27,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "Marker presence is counted; detailed rate/direction/envelope mechanics are not interpreted.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].velocity",
+      "present_count": 1992,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.6246707307894935,
+      "nonnull_count": 1992,
+      "truthy_value_count": 1992,
+      "types": {
+        "string": 1992
+      },
+      "entries_with_field": 94,
+      "track_responses_with_field": 464,
+      "status": "analyzed",
+      "analysis_level": "raw_value_summary",
+      "current_use": "Explicit velocity histogram; note value overrides beat value.",
+      "remaining_gap": "No imputation, dynamic-envelope reconstruction or tempo/loudness calibration.",
+      "code_evidence": "summary",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].vibrato",
+      "present_count": 9,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.0028223075186272297,
+      "nonnull_count": 9,
+      "truthy_value_count": 9,
+      "types": {
+        "boolean": 9
+      },
+      "entries_with_field": 4,
+      "track_responses_with_field": 7,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "No measured physical oscillation rate/depth or source audio validation.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].beats[].wideVibrato",
+      "present_count": 8,
+      "parent_denominator": 318888,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.002508717794335315,
+      "nonnull_count": 8,
+      "truthy_value_count": 8,
+      "types": {
+        "boolean": 8
+      },
+      "entries_with_field": 4,
+      "track_responses_with_field": 4,
+      "status": "analyzed",
+      "analysis_level": "presence_and_conditionals",
+      "current_use": "Technique marker shares and conditional notation statistics.",
+      "remaining_gap": "No measured physical oscillation rate/depth or source audio validation.",
+      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "review_required": false
+    },
+    {
+      "path": "track.measures[].voices[].rest",
+      "present_count": 23136,
+      "parent_denominator": 59021,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 39.199606919571,
+      "nonnull_count": 23136,
+      "truthy_value_count": 23136,
+      "types": {
+        "boolean": 23136
+      },
+      "entries_with_field": 86,
+      "track_responses_with_field": 440,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Whole-voice rest flag is retained.",
+      "remaining_gap": "Analyzer consumes beats and note-rest flags; it does not expand this flag.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.name",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 367,
+      "types": {
+        "string": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "occurrence_identity",
+      "current_use": "Part identity and display name label source observations.",
+      "remaining_gap": "Names are not validated musical roles.",
+      "code_evidence": "occurrences; track_analysis",
+      "review_required": false
+    },
+    {
+      "path": "track.newLyrics",
+      "present_count": 420,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 84.84848484848484,
+      "nonnull_count": 420,
+      "truthy_value_count": 420,
+      "types": {
+        "array": 420
+      },
+      "entries_with_field": 84,
+      "track_responses_with_field": 420,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Lyric information retained privately.",
+      "remaining_gap": "No lyric-to-phrase alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.newLyrics[]",
+      "present_count": 2100,
+      "parent_denominator": 2100,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 2100,
+      "truthy_value_count": 2100,
+      "types": {
+        "object": 2100
+      },
+      "entries_with_field": 84,
+      "track_responses_with_field": 420,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Lyric information retained privately.",
+      "remaining_gap": "No lyric-to-phrase alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.newLyrics[].line",
+      "present_count": 2100,
+      "parent_denominator": 2100,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 2100,
+      "truthy_value_count": 2100,
+      "types": {
+        "number": 2100
+      },
+      "entries_with_field": 84,
+      "track_responses_with_field": 420,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Lyric information retained privately.",
+      "remaining_gap": "No lyric-to-phrase alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.newLyrics[].offset",
+      "present_count": 2050,
+      "parent_denominator": 2100,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 97.61904761904762,
+      "nonnull_count": 2050,
+      "truthy_value_count": 2050,
+      "types": {
+        "number": 2050
+      },
+      "entries_with_field": 83,
+      "track_responses_with_field": 410,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Lyric information retained privately.",
+      "remaining_gap": "No lyric-to-phrase alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.newLyrics[].text",
+      "present_count": 2100,
+      "parent_denominator": 2100,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 2100,
+      "truthy_value_count": 5,
+      "types": {
+        "string": 2100
+      },
+      "entries_with_field": 84,
+      "track_responses_with_field": 420,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Lyric information retained privately.",
+      "remaining_gap": "No lyric-to-phrase alignment.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.partId",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 397,
+      "types": {
+        "number": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "analyzed",
+      "analysis_level": "occurrence_identity",
+      "current_use": "Part identity and display name label source observations.",
+      "remaining_gap": "Names are not validated musical roles.",
+      "code_evidence": "occurrences; track_analysis",
+      "review_required": false
+    },
+    {
+      "path": "track.revisionId",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 495,
+      "types": {
+        "number": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Retained in raw track; top-level metadata supplies song/revision identity.",
+      "remaining_gap": "No cross-response revision consistency check or top-level voice-catalog interpretation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.songId",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 495,
+      "types": {
+        "number": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Retained in raw track; top-level metadata supplies song/revision identity.",
+      "remaining_gap": "No cross-response revision consistency check or top-level voice-catalog interpretation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.sounds",
+      "present_count": 6,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 1.2121212121212122,
+      "nonnull_count": 6,
+      "truthy_value_count": 6,
+      "types": {
+        "array": 6
+      },
+      "entries_with_field": 4,
+      "track_responses_with_field": 6,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.sounds[]",
+      "present_count": 12,
+      "parent_denominator": 12,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 12,
+      "truthy_value_count": 12,
+      "types": {
+        "object": 12
+      },
+      "entries_with_field": 4,
+      "track_responses_with_field": 6,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.sounds[].instrumentId",
+      "present_count": 12,
+      "parent_denominator": 12,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 12,
+      "truthy_value_count": 12,
+      "types": {
+        "number": 12
+      },
+      "entries_with_field": 4,
+      "track_responses_with_field": 6,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.sounds[].label",
+      "present_count": 12,
+      "parent_denominator": 12,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 12,
+      "truthy_value_count": 12,
+      "types": {
+        "string": 12
+      },
+      "entries_with_field": 4,
+      "track_responses_with_field": 6,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.strings",
+      "present_count": 495,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 495,
+      "truthy_value_count": 490,
+      "types": {
+        "number": 495
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 495,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Musically relevant source field is retained but not interpreted.",
+      "remaining_gap": "No fret-limit/string-count validation, pickup/key/alternate tuning semantics or mix model.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.title",
+      "present_count": 8,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 1.6161616161616161,
+      "nonnull_count": 8,
+      "truthy_value_count": 8,
+      "types": {
+        "string": 8
+      },
+      "entries_with_field": 4,
+      "track_responses_with_field": 8,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Retained in raw track; top-level metadata supplies song/revision identity.",
+      "remaining_gap": "No cross-response revision consistency check or top-level voice-catalog interpretation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.trackAutomations",
+      "present_count": 6,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 1.2121212121212122,
+      "nonnull_count": 6,
+      "truthy_value_count": 6,
+      "types": {
+        "object": 6
+      },
+      "entries_with_field": 4,
+      "track_responses_with_field": 6,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.trackAutomations.trackSoundAutomations",
+      "present_count": 6,
+      "parent_denominator": 6,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 6,
+      "truthy_value_count": 6,
+      "types": {
+        "array": 6
+      },
+      "entries_with_field": 4,
+      "track_responses_with_field": 6,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.trackAutomations.trackSoundAutomations[]",
+      "present_count": 12,
+      "parent_denominator": 12,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 12,
+      "truthy_value_count": 12,
+      "types": {
+        "object": 12
+      },
+      "entries_with_field": 4,
+      "track_responses_with_field": 6,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.trackAutomations.trackSoundAutomations[].measure",
+      "present_count": 12,
+      "parent_denominator": 12,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 12,
+      "truthy_value_count": 11,
+      "types": {
+        "number": 12
+      },
+      "entries_with_field": 4,
+      "track_responses_with_field": 6,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.trackAutomations.trackSoundAutomations[].position",
+      "present_count": 12,
+      "parent_denominator": 12,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 12,
+      "truthy_value_count": 2,
+      "types": {
+        "number": 12
+      },
+      "entries_with_field": 4,
+      "track_responses_with_field": 6,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.trackAutomations.trackSoundAutomations[].soundId",
+      "present_count": 12,
+      "parent_denominator": 12,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 100.0,
+      "nonnull_count": 12,
+      "truthy_value_count": 6,
+      "types": {
+        "number": 12
+      },
+      "entries_with_field": 4,
+      "track_responses_with_field": 6,
+      "status": "unsupported",
+      "analysis_level": "hash_only",
+      "current_use": "Included in selected-content duplicate hashes, not musical interpretation.",
+      "remaining_gap": "No tempo-ramp/seconds mapping, sound-switch timeline or automated arrangement analysis.",
+      "code_evidence": "analyze content digest",
+      "review_required": false
+    },
+    {
+      "path": "track.tuning",
+      "present_count": 438,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 88.48484848484848,
+      "nonnull_count": 438,
+      "truthy_value_count": 438,
+      "types": {
+        "array": 438
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 438,
+      "status": "analyzed",
+      "analysis_level": "written_pitch",
+      "current_use": "Written base pitch from tuning/string/fret/capo.",
+      "remaining_gap": "No bend-adjusted or harmonic sounding-pitch model.",
+      "code_evidence": "pitch",
+      "review_required": false
+    },
+    {
+      "path": "track.tuningFlat",
+      "present_count": 58,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 11.717171717171718,
+      "nonnull_count": 58,
+      "truthy_value_count": 57,
+      "types": {
+        "boolean": 58
+      },
+      "entries_with_field": 53,
+      "track_responses_with_field": 58,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Musically relevant source field is retained but not interpreted.",
+      "remaining_gap": "No fret-limit/string-count validation, pickup/key/alternate tuning semantics or mix model.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.tuningShortDrone",
+      "present_count": 1,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 0.20202020202020202,
+      "nonnull_count": 1,
+      "truthy_value_count": 0,
+      "types": {
+        "boolean": 1
+      },
+      "entries_with_field": 1,
+      "track_responses_with_field": 1,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Musically relevant source field is retained but not interpreted.",
+      "remaining_gap": "No fret-limit/string-count validation, pickup/key/alternate tuning semantics or mix model.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.tuning[]",
+      "present_count": 2933,
+      "parent_denominator": 2933,
+      "denominator_kind": "observed_array_element_slots",
+      "presence_percent": 100.0,
+      "nonnull_count": 2933,
+      "truthy_value_count": 2933,
+      "types": {
+        "number": 2933
+      },
+      "entries_with_field": 98,
+      "track_responses_with_field": 438,
+      "status": "analyzed",
+      "analysis_level": "written_pitch",
+      "current_use": "Written base pitch from tuning/string/fret/capo.",
+      "remaining_gap": "No bend-adjusted or harmonic sounding-pitch model.",
+      "code_evidence": "pitch",
+      "review_required": false
+    },
+    {
+      "path": "track.version",
+      "present_count": 465,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 93.93939393939394,
+      "nonnull_count": 465,
+      "truthy_value_count": 465,
+      "types": {
+        "number": 465
+      },
+      "entries_with_field": 93,
+      "track_responses_with_field": 465,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Retained in raw track; top-level metadata supplies song/revision identity.",
+      "remaining_gap": "No cross-response revision consistency check or top-level voice-catalog interpretation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.voices",
+      "present_count": 145,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 29.292929292929294,
+      "nonnull_count": 145,
+      "truthy_value_count": 145,
+      "types": {
+        "number": 145
+      },
+      "entries_with_field": 31,
+      "track_responses_with_field": 145,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Retained in raw track; top-level metadata supplies song/revision identity.",
+      "remaining_gap": "No cross-response revision consistency check or top-level voice-catalog interpretation.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.volume",
+      "present_count": 469,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 94.74747474747475,
+      "nonnull_count": 469,
+      "truthy_value_count": 469,
+      "types": {
+        "number": 469
+      },
+      "entries_with_field": 93,
+      "track_responses_with_field": 469,
+      "status": "unsupported",
+      "analysis_level": "raw_capture",
+      "current_use": "Musically relevant source field is retained but not interpreted.",
+      "remaining_gap": "No fret-limit/string-count validation, pickup/key/alternate tuning semantics or mix model.",
+      "code_evidence": "",
+      "review_required": false
+    },
+    {
+      "path": "track.withLyrics",
+      "present_count": 5,
+      "parent_denominator": 495,
+      "denominator_kind": "parent_object_instances",
+      "presence_percent": 1.0101010101010102,
+      "nonnull_count": 5,
+      "truthy_value_count": 4,
+      "types": {
+        "boolean": 5
+      },
+      "entries_with_field": 5,
+      "track_responses_with_field": 5,
+      "status": "retained_only",
+      "analysis_level": "raw_capture",
+      "current_use": "Lyric information retained privately.",
+      "remaining_gap": "No lyric-to-phrase alignment.",
+      "code_evidence": "",
+      "review_required": false
+    }
+  ],
+  "limitations": [
+    "Observed captured responses only, not an exhaustive upstream API specification",
+    "Presence counts include false/null/zero values and containers; they are not performed technique counts",
+    "Analyzed can be partial: inspect analysis_level and remaining_gap; raw storage and hashing are not functional analysis",
+    "Not applicable means outside this symbolic technique audit, not permanently useless",
+    "All source values and per-source identities remain private"
+  ]
+}
