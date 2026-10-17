@@ -1,0 +1,258 @@
+{
+  "meta": {
+    "url": "https://www.songsterr.com/api/meta/153",
+    "status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "schema": {
+      "aiGenerated": "bool",
+      "fingerstyle": "bool",
+      "createdAt": "str",
+      "revisionId": "int",
+      "songId": "int",
+      "artist": "str",
+      "artistId": "int",
+      "title": "str",
+      "author": {
+        "personId": "int",
+        "name": "str",
+        "profileName": "str",
+        "isModerator": "bool"
+      },
+      "description": "str",
+      "restriction": "str",
+      "hasPlayer": "bool",
+      "hasTracks": "bool",
+      "hasChords": "bool",
+      "tracks": {
+        "length": 11,
+        "first": {
+          "instrumentId": "int",
+          "instrument": "str",
+          "views": "int",
+          "name": "str",
+          "tuning": {
+            "length": 6,
+            "first": "int"
+          },
+          "hash": "str",
+          "isVocalTrack": "bool",
+          "isEmpty": "bool"
+        }
+      },
+      "defaultTrack": "int",
+      "popularTrack": "int",
+      "isPublished": "bool",
+      "isBlank": "bool",
+      "isPopular": "bool",
+      "isJunk": "bool",
+      "videos": {
+        "length": 59,
+        "first": {
+          "id": "int",
+          "status": "str",
+          "feature": "str",
+          "videoId": "str"
+        }
+      },
+      "popularTrackGuitar": "int",
+      "popularTrackBass": "int",
+      "popularTrackDrum": "int",
+      "popularTrackVocals": "int",
+      "prevRevisionId": "int",
+      "latestRevisionId": "int",
+      "tags": {
+        "length": 20,
+        "first": "str"
+      },
+      "views": "int",
+      "image": "str",
+      "audioV4": "str",
+      "audioV4Generated": "str",
+      "audioV4Midi": "str",
+      "audioV4Meta": {
+        "hasQuickMix": "bool",
+        "hasMixLayout": "bool"
+      },
+      "nextAudio": "str",
+      "nextAudioGenerated": "str",
+      "nextMidi": "str",
+      "nextAudioMeta": {
+        "hasQuickMix": "bool",
+        "hasMixLayout": "bool"
+      },
+      "audios": {
+        "current": {
+          "hash": "str",
+          "meta": {
+            "hasQuickMix": "bool",
+            "hasMixLayout": "bool"
+          }
+        },
+        "next": {
+          "hash": "str",
+          "meta": {
+            "hasQuickMix": "bool",
+            "hasMixLayout": "bool"
+          }
+        },
+        "v4": {
+          "hash": "str",
+          "meta": {
+            "hasQuickMix": "bool",
+            "hasMixLayout": "bool"
+          }
+        }
+      },
+      "moderationType": "str",
+      "isBlocked": "bool",
+      "isOnModeration": "bool",
+      "createdVia": "str",
+      "favoritesCount": "int",
+      "isNextRevisionPremoderated": "bool",
+      "isCollaborative": "bool",
+      "isRestricted": "bool"
+    },
+    "meta_fields": [
+      "aiGenerated",
+      "fingerstyle",
+      "createdAt",
+      "revisionId",
+      "songId",
+      "artist",
+      "artistId",
+      "title",
+      "author",
+      "description",
+      "restriction",
+      "hasPlayer",
+      "hasTracks",
+      "hasChords",
+      "tracks",
+      "defaultTrack",
+      "popularTrack",
+      "isPublished",
+      "isBlank",
+      "isPopular",
+      "isJunk",
+      "videos",
+      "popularTrackGuitar",
+      "popularTrackBass",
+      "popularTrackDrum",
+      "popularTrackVocals",
+      "prevRevisionId",
+      "latestRevisionId",
+      "tags",
+      "views",
+      "image",
+      "audioV4",
+      "audioV4Generated",
+      "audioV4Midi",
+      "audioV4Meta",
+      "nextAudio",
+      "nextAudioGenerated",
+      "nextMidi",
+      "nextAudioMeta",
+      "audios",
+      "moderationType",
+      "isBlocked",
+      "isOnModeration",
+      "createdVia",
+      "favoritesCount",
+      "isNextRevisionPremoderated",
+      "isCollaborative",
+      "isRestricted"
+    ],
+    "current": null,
+    "revisionId": 7824020,
+    "image": "v0-3-2-8NvwLPEQ_v2dnudq"
+  },
+  "revisions": {
+    "url": "https://www.songsterr.com/api/meta/153/revisions",
+    "status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "schema": {
+      "length": 75,
+      "first": {
+        "songId": "int",
+        "revisionId": "int",
+        "createdAt": "str",
+        "artist": "str",
+        "title": "str",
+        "author": {
+          "personId": "int",
+          "name": "str",
+          "profileName": "str",
+          "hasPlus": "bool",
+          "isModerator": "bool"
+        },
+        "description": "str",
+        "tracksCount": "int",
+        "commentsCount": "int",
+        "isDeleted": "bool",
+        "isBlocked": "bool",
+        "isOnModeration": "bool",
+        "reports": {
+          "length": 1,
+          "first": {
+            "kind": "str",
+            "summary": "str",
+            "byModerator": "bool"
+          }
+        },
+        "gpImport": "bool",
+        "aiGenerated": "bool",
+        "createdVia": "str",
+        "person": "str",
+        "personId": "int",
+        "moderationType": "str",
+        "reviewed": {
+          "person": "str",
+          "conclusion": "str",
+          "createdAt": "str",
+          "profileName": "str"
+        }
+      }
+    },
+    "count": 75,
+    "first_revision": {
+      "songId": 153,
+      "revisionId": 9397165,
+      "createdAt": "2026-09-29T03:28:53.466Z",
+      "artist": "Pink Floyd",
+      "title": "Wish You Were Here",
+      "author": {
+        "personId": 4895104,
+        "name": "Charlie Reis",
+        "profileName": "Charlie-Reis2",
+        "hasPlus": false,
+        "isModerator": false
+      },
+      "description": "12 string",
+      "tracksCount": 11,
+      "commentsCount": 0,
+      "isDeleted": false,
+      "isBlocked": true,
+      "isOnModeration": false,
+      "reports": [
+        {
+          "kind": "unclear",
+          "summary": "It probably did not make the tab more accurate to the original performance.",
+          "byModerator": true
+        }
+      ],
+      "gpImport": false,
+      "aiGenerated": false,
+      "createdVia": "Editor",
+      "person": "Charlie Reis",
+      "personId": 4895104,
+      "moderationType": "pre",
+      "reviewed": {
+        "person": "Evgeny",
+        "conclusion": "rejected",
+        "createdAt": "2026-10-01T08:46:59.072Z",
+        "profileName": "Evgeny62"
+      }
+    }
+  },
+  "notation_status": "Cannot identify current revision from metadata."
+}

@@ -1,0 +1,3385 @@
+{
+  "search_size_5": {
+    "url": "https://www.songsterr.com/api/songs?pattern=Pink+Floyd&size=5",
+    "status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "elapsed_ms": 241,
+    "count": 5,
+    "schema": {
+      "songId": "int",
+      "artistId": "int",
+      "artist": "str",
+      "title": "str",
+      "hasChords": "bool",
+      "hasPlayer": "bool",
+      "tracks": {
+        "type": "array",
+        "length": 11,
+        "element": {
+          "instrumentId": "int",
+          "instrument": "str",
+          "views": "int",
+          "name": "str",
+          "tuning": {
+            "type": "array",
+            "length": 6,
+            "element": "int"
+          },
+          "hash": "str"
+        }
+      },
+      "defaultTrack": "int",
+      "popularTrack": "int",
+      "isJunk": "bool",
+      "popularTrackGuitar": "int",
+      "popularTrackBass": "int",
+      "popularTrackDrum": "int",
+      "popularTrackVocals": "int"
+    },
+    "sample": [
+      {
+        "songId": 153,
+        "artistId": 79,
+        "artist": "Pink Floyd",
+        "title": "Wish You Were Here",
+        "hasChords": true,
+        "hasPlayer": true,
+        "tracks": [
+          {
+            "instrumentId": 67,
+            "instrument": "Baritone Sax",
+            "views": 1382,
+            "name": "David Gilmour | Lead Vocals",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "vocals_Sg2MQN5Y"
+          },
+          {
+            "instrumentId": 67,
+            "instrument": "Baritone Sax",
+            "views": 10207,
+            "name": "David Gilmour | Backing Vocals",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "vocals_ravhAa3s"
+          },
+          {
+            "instrumentId": 25,
+            "instrument": "Acoustic Guitar (steel)",
+            "views": 481183,
+            "name": "David Gilmour | Martin D-35 | Lead Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 3,
+            "hash": "guitar_FAcm1gM9"
+          },
+          {
+            "instrumentId": 25,
+            "instrument": "Acoustic Guitar (steel)",
+            "views": 52938,
+            "name": "David Gilmour | Martin D-35 | Rhythm Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 2,
+            "hash": "guitar_TgPXytap"
+          },
+          {
+            "instrumentId": 25,
+            "instrument": "Acoustic Guitar (steel)",
+            "views": 158421,
+            "name": "David Gilmour | Martin D12-28 | 12-String Effect",
+            "tuning": [
+              64,
+              59,
+              67,
+              62,
+              57,
+              52
+            ],
+            "difficulty": 2,
+            "hash": "guitar_2zZEllYa"
+          },
+          {
+            "instrumentId": 25,
+            "instrument": "Acoustic Guitar (steel)",
+            "views": 9506,
+            "name": "David Gilmour | Martin D12-28 | Rhythm Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 2,
+            "hash": "guitar_qj5t4mXW"
+          },
+          {
+            "instrumentId": 26,
+            "instrument": "Electric Guitar (jazz)",
+            "views": 7032,
+            "name": "David Gilmour | Fender 1000 | Pedal Steel Guitar",
+            "tuning": [
+              62,
+              59,
+              55,
+              50,
+              43,
+              38
+            ],
+            "difficulty": 2,
+            "hash": "guitar_t25qGDAY"
+          },
+          {
+            "instrumentId": 34,
+            "instrument": "Electric Bass (pick)",
+            "views": 155430,
+            "name": "Roger Waters | Fender Precision | Bass",
+            "tuning": [
+              43,
+              38,
+              33,
+              28
+            ],
+            "difficulty": 2,
+            "hash": "bass_7nwfftI1"
+          },
+          {
+            "instrumentId": 63,
+            "instrument": "Synth Brass 2",
+            "views": 930,
+            "name": "Richard Wright | Minimoog Model D | Keyboard",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_6Z6vQgQm"
+          },
+          {
+            "instrumentId": 0,
+            "instrument": "Acoustic Grand Piano",
+            "views": 3471,
+            "name": "Richard Wright | Steinway Baby Grand | Piano",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_SfLBiUcP"
+          },
+          {
+            "instrumentId": 1024,
+            "instrument": "Drums",
+            "views": 56722,
+            "name": "Nick Mason | Ludwig Classic Maple Silver Sparkle | Drums",
+            "difficulty": 2,
+            "hash": "drums_yPoMW1x3"
+          }
+        ],
+        "defaultTrack": 2,
+        "popularTrack": 2,
+        "isJunk": false,
+        "popularTrackGuitar": 2,
+        "popularTrackBass": 7,
+        "popularTrackDrum": 10,
+        "popularTrackVocals": 1
+      },
+      {
+        "songId": 271,
+        "artistId": 79,
+        "artist": "Pink Floyd",
+        "title": "Comfortably Numb",
+        "hasChords": true,
+        "hasPlayer": true,
+        "tracks": [
+          {
+            "instrumentId": 66,
+            "instrument": "Tenor Sax",
+            "views": 1924,
+            "name": "David Gilmour & Roger Waters | Lead Vocals",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "vocals_rVVraIHU"
+          },
+          {
+            "instrumentId": 66,
+            "instrument": "Tenor Sax",
+            "views": 449,
+            "name": "Roger Waters & David Gilmour | Echo/Backing Vocals",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "vocals_MnZEZo3N"
+          },
+          {
+            "instrumentId": 25,
+            "instrument": "Acoustic Guitar (steel)",
+            "views": 64272,
+            "name": "Lee Ritenour & David Gilmour | Ovation Custom Legend 1619-4 | High-Strung Acoustic Guitar",
+            "tuning": [
+              64,
+              59,
+              67,
+              62,
+              57,
+              64
+            ],
+            "difficulty": 2,
+            "hash": "guitar_Tfupaua9"
+          },
+          {
+            "instrumentId": 30,
+            "instrument": "Distortion Guitar",
+            "views": 1919903,
+            "name": "David Gilmour | Fender \"The Black Strat\" Stratocaster | Lead Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 4,
+            "hash": "guitar_aWNwpRwe"
+          },
+          {
+            "instrumentId": 30,
+            "instrument": "Distortion Guitar",
+            "views": 9643,
+            "name": "David Gilmour | Fender \"The Black Strat\" Stratocaster | Rhythm Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 2,
+            "hash": "guitar_fyYQvuTm"
+          },
+          {
+            "instrumentId": 27,
+            "instrument": "Electric Guitar (clean)",
+            "views": 6575,
+            "name": "David Gilmour | ZB Custom S10 | Pedal Steel Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 4,
+            "hash": "guitar_DD20ls8K"
+          },
+          {
+            "instrumentId": 33,
+            "instrument": "Electric Bass (finger)",
+            "views": 177486,
+            "name": "Roger Waters & David Gilmour | Fender Precision Bass & Fretless Bass",
+            "tuning": [
+              43,
+              38,
+              33,
+              28
+            ],
+            "difficulty": 2,
+            "hash": "bass_VJ6zJzuT"
+          },
+          {
+            "instrumentId": 89,
+            "instrument": "Pad 2 (warm)",
+            "views": 501,
+            "name": "David Gilmour | Prophet-5 | Synthesizer (LH)",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_DO8cPoEY"
+          },
+          {
+            "instrumentId": 89,
+            "instrument": "Pad 2 (warm)",
+            "views": 479,
+            "name": "David Gilmour | Prophet-5 | Synthesizer (RH)",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_u4a2sMgl"
+          },
+          {
+            "instrumentId": 48,
+            "instrument": "String Ensemble 1",
+            "views": 3730,
+            "name": "Michael Kamen | Violas",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_Gy4ngref"
+          },
+          {
+            "instrumentId": 48,
+            "instrument": "String Ensemble 1",
+            "views": 962,
+            "name": "Michael Kamen | Violins 1",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_pmAdDw0k"
+          },
+          {
+            "instrumentId": 48,
+            "instrument": "String Ensemble 1",
+            "views": 913,
+            "name": "Michael Kamen | Violins 2",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_OOz9Skty"
+          },
+          {
+            "instrumentId": 18,
+            "instrument": "Rock Organ",
+            "views": 80,
+            "name": "Richard Wright | Hammond C-3 | Organ (LH)",
+            "tuning": [
+              43,
+              38,
+              33,
+              28,
+              23
+            ],
+            "hash": "other_xmTaU4jM"
+          },
+          {
+            "instrumentId": 18,
+            "instrument": "Rock Organ",
+            "views": 190,
+            "name": "Richard Wright | Hammond C-3 | Organ (RH)",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_W031ESCU"
+          },
+          {
+            "instrumentId": 60,
+            "instrument": "French Horn",
+            "views": 790,
+            "name": "Michael Kamen | 1st Horn in F",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_07GGQTzH"
+          },
+          {
+            "instrumentId": 60,
+            "instrument": "French Horn",
+            "views": 324,
+            "name": "Michael Kamen | 2nd Horns in F",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_8fmB34XX"
+          },
+          {
+            "instrumentId": 56,
+            "instrument": "Trumpet",
+            "views": 204,
+            "name": "Michael Kamen | 1st Trumpets",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_lgHBnHwl"
+          },
+          {
+            "instrumentId": 56,
+            "instrument": "Trumpet",
+            "views": 80,
+            "name": "Michael Kamen | 2nd Trumpets",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_zLOw3eHD"
+          },
+          {
+            "instrumentId": 57,
+            "instrument": "Trombone",
+            "views": 161,
+            "name": "Michael Kamen | Trombones",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_P9TSRbOC"
+          },
+          {
+            "instrumentId": 57,
+            "instrument": "Trombone",
+            "views": 82,
+            "name": "Michael Kamen | Bass Trombone",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_uj5gzGpY"
+          },
+          {
+            "instrumentId": 9,
+            "instrument": "Glockenspiel",
+            "views": 241,
+            "name": "Michael Kamen | Glockenspiel",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_1pW3o3CU"
+          },
+          {
+            "instrumentId": 58,
+            "instrument": "Tuba",
+            "views": 221,
+            "name": "Michael Kamen | Tubas",
+            "tuning": [
+              48,
+              43,
+              38,
+              33,
+              28,
+              23
+            ],
+            "hash": "other_FFwEDqsP"
+          },
+          {
+            "instrumentId": 42,
+            "instrument": "Cello",
+            "views": 865,
+            "name": "Michael Kamen | Cellos",
+            "tuning": [
+              43,
+              38,
+              33,
+              28
+            ],
+            "hash": "other_8z9YBTbO"
+          },
+          {
+            "instrumentId": 43,
+            "instrument": "Contrabass",
+            "views": 596,
+            "name": "Michael Kamen | Contrabass",
+            "tuning": [
+              43,
+              38,
+              33,
+              28
+            ],
+            "hash": "other_ymsmBvoo"
+          },
+          {
+            "instrumentId": 1024,
+            "instrument": "Drums",
+            "views": 70441,
+            "name": "Nick Mason | Ludwig Cortex Maple Custom | Drums",
+            "difficulty": 2,
+            "hash": "drums_qqOGiR7S"
+          }
+        ],
+        "defaultTrack": 3,
+        "popularTrack": 3,
+        "isJunk": false,
+        "popularTrackGuitar": 3,
+        "popularTrackBass": 6,
+        "popularTrackDrum": 24,
+        "popularTrackVocals": 0
+      }
+    ],
+    "song_ids": [
+      153,
+      271,
+      15761,
+      303,
+      15873
+    ]
+  },
+  "search_size_25": {
+    "url": "https://www.songsterr.com/api/songs?pattern=Pink+Floyd&size=25",
+    "status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "elapsed_ms": 267,
+    "count": 25,
+    "schema": {
+      "songId": "int",
+      "artistId": "int",
+      "artist": "str",
+      "title": "str",
+      "hasChords": "bool",
+      "hasPlayer": "bool",
+      "tracks": {
+        "type": "array",
+        "length": 11,
+        "element": {
+          "instrumentId": "int",
+          "instrument": "str",
+          "views": "int",
+          "name": "str",
+          "tuning": {
+            "type": "array",
+            "length": 6,
+            "element": "int"
+          },
+          "hash": "str"
+        }
+      },
+      "defaultTrack": "int",
+      "popularTrack": "int",
+      "isJunk": "bool",
+      "popularTrackGuitar": "int",
+      "popularTrackBass": "int",
+      "popularTrackDrum": "int",
+      "popularTrackVocals": "int"
+    },
+    "sample": [
+      {
+        "songId": 153,
+        "artistId": 79,
+        "artist": "Pink Floyd",
+        "title": "Wish You Were Here",
+        "hasChords": true,
+        "hasPlayer": true,
+        "tracks": [
+          {
+            "instrumentId": 67,
+            "instrument": "Baritone Sax",
+            "views": 1382,
+            "name": "David Gilmour | Lead Vocals",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "vocals_Sg2MQN5Y"
+          },
+          {
+            "instrumentId": 67,
+            "instrument": "Baritone Sax",
+            "views": 10207,
+            "name": "David Gilmour | Backing Vocals",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "vocals_ravhAa3s"
+          },
+          {
+            "instrumentId": 25,
+            "instrument": "Acoustic Guitar (steel)",
+            "views": 481183,
+            "name": "David Gilmour | Martin D-35 | Lead Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 3,
+            "hash": "guitar_FAcm1gM9"
+          },
+          {
+            "instrumentId": 25,
+            "instrument": "Acoustic Guitar (steel)",
+            "views": 52938,
+            "name": "David Gilmour | Martin D-35 | Rhythm Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 2,
+            "hash": "guitar_TgPXytap"
+          },
+          {
+            "instrumentId": 25,
+            "instrument": "Acoustic Guitar (steel)",
+            "views": 158421,
+            "name": "David Gilmour | Martin D12-28 | 12-String Effect",
+            "tuning": [
+              64,
+              59,
+              67,
+              62,
+              57,
+              52
+            ],
+            "difficulty": 2,
+            "hash": "guitar_2zZEllYa"
+          },
+          {
+            "instrumentId": 25,
+            "instrument": "Acoustic Guitar (steel)",
+            "views": 9506,
+            "name": "David Gilmour | Martin D12-28 | Rhythm Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 2,
+            "hash": "guitar_qj5t4mXW"
+          },
+          {
+            "instrumentId": 26,
+            "instrument": "Electric Guitar (jazz)",
+            "views": 7032,
+            "name": "David Gilmour | Fender 1000 | Pedal Steel Guitar",
+            "tuning": [
+              62,
+              59,
+              55,
+              50,
+              43,
+              38
+            ],
+            "difficulty": 2,
+            "hash": "guitar_t25qGDAY"
+          },
+          {
+            "instrumentId": 34,
+            "instrument": "Electric Bass (pick)",
+            "views": 155430,
+            "name": "Roger Waters | Fender Precision | Bass",
+            "tuning": [
+              43,
+              38,
+              33,
+              28
+            ],
+            "difficulty": 2,
+            "hash": "bass_7nwfftI1"
+          },
+          {
+            "instrumentId": 63,
+            "instrument": "Synth Brass 2",
+            "views": 930,
+            "name": "Richard Wright | Minimoog Model D | Keyboard",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_6Z6vQgQm"
+          },
+          {
+            "instrumentId": 0,
+            "instrument": "Acoustic Grand Piano",
+            "views": 3471,
+            "name": "Richard Wright | Steinway Baby Grand | Piano",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_SfLBiUcP"
+          },
+          {
+            "instrumentId": 1024,
+            "instrument": "Drums",
+            "views": 56722,
+            "name": "Nick Mason | Ludwig Classic Maple Silver Sparkle | Drums",
+            "difficulty": 2,
+            "hash": "drums_yPoMW1x3"
+          }
+        ],
+        "defaultTrack": 2,
+        "popularTrack": 2,
+        "isJunk": false,
+        "popularTrackGuitar": 2,
+        "popularTrackBass": 7,
+        "popularTrackDrum": 10,
+        "popularTrackVocals": 1
+      },
+      {
+        "songId": 271,
+        "artistId": 79,
+        "artist": "Pink Floyd",
+        "title": "Comfortably Numb",
+        "hasChords": true,
+        "hasPlayer": true,
+        "tracks": [
+          {
+            "instrumentId": 66,
+            "instrument": "Tenor Sax",
+            "views": 1924,
+            "name": "David Gilmour & Roger Waters | Lead Vocals",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "vocals_rVVraIHU"
+          },
+          {
+            "instrumentId": 66,
+            "instrument": "Tenor Sax",
+            "views": 449,
+            "name": "Roger Waters & David Gilmour | Echo/Backing Vocals",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "vocals_MnZEZo3N"
+          },
+          {
+            "instrumentId": 25,
+            "instrument": "Acoustic Guitar (steel)",
+            "views": 64272,
+            "name": "Lee Ritenour & David Gilmour | Ovation Custom Legend 1619-4 | High-Strung Acoustic Guitar",
+            "tuning": [
+              64,
+              59,
+              67,
+              62,
+              57,
+              64
+            ],
+            "difficulty": 2,
+            "hash": "guitar_Tfupaua9"
+          },
+          {
+            "instrumentId": 30,
+            "instrument": "Distortion Guitar",
+            "views": 1919903,
+            "name": "David Gilmour | Fender \"The Black Strat\" Stratocaster | Lead Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 4,
+            "hash": "guitar_aWNwpRwe"
+          },
+          {
+            "instrumentId": 30,
+            "instrument": "Distortion Guitar",
+            "views": 9643,
+            "name": "David Gilmour | Fender \"The Black Strat\" Stratocaster | Rhythm Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 2,
+            "hash": "guitar_fyYQvuTm"
+          },
+          {
+            "instrumentId": 27,
+            "instrument": "Electric Guitar (clean)",
+            "views": 6575,
+            "name": "David Gilmour | ZB Custom S10 | Pedal Steel Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 4,
+            "hash": "guitar_DD20ls8K"
+          },
+          {
+            "instrumentId": 33,
+            "instrument": "Electric Bass (finger)",
+            "views": 177486,
+            "name": "Roger Waters & David Gilmour | Fender Precision Bass & Fretless Bass",
+            "tuning": [
+              43,
+              38,
+              33,
+              28
+            ],
+            "difficulty": 2,
+            "hash": "bass_VJ6zJzuT"
+          },
+          {
+            "instrumentId": 89,
+            "instrument": "Pad 2 (warm)",
+            "views": 501,
+            "name": "David Gilmour | Prophet-5 | Synthesizer (LH)",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_DO8cPoEY"
+          },
+          {
+            "instrumentId": 89,
+            "instrument": "Pad 2 (warm)",
+            "views": 479,
+            "name": "David Gilmour | Prophet-5 | Synthesizer (RH)",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_u4a2sMgl"
+          },
+          {
+            "instrumentId": 48,
+            "instrument": "String Ensemble 1",
+            "views": 3730,
+            "name": "Michael Kamen | Violas",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_Gy4ngref"
+          },
+          {
+            "instrumentId": 48,
+            "instrument": "String Ensemble 1",
+            "views": 962,
+            "name": "Michael Kamen | Violins 1",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_pmAdDw0k"
+          },
+          {
+            "instrumentId": 48,
+            "instrument": "String Ensemble 1",
+            "views": 913,
+            "name": "Michael Kamen | Violins 2",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_OOz9Skty"
+          },
+          {
+            "instrumentId": 18,
+            "instrument": "Rock Organ",
+            "views": 80,
+            "name": "Richard Wright | Hammond C-3 | Organ (LH)",
+            "tuning": [
+              43,
+              38,
+              33,
+              28,
+              23
+            ],
+            "hash": "other_xmTaU4jM"
+          },
+          {
+            "instrumentId": 18,
+            "instrument": "Rock Organ",
+            "views": 190,
+            "name": "Richard Wright | Hammond C-3 | Organ (RH)",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_W031ESCU"
+          },
+          {
+            "instrumentId": 60,
+            "instrument": "French Horn",
+            "views": 790,
+            "name": "Michael Kamen | 1st Horn in F",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_07GGQTzH"
+          },
+          {
+            "instrumentId": 60,
+            "instrument": "French Horn",
+            "views": 324,
+            "name": "Michael Kamen | 2nd Horns in F",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_8fmB34XX"
+          },
+          {
+            "instrumentId": 56,
+            "instrument": "Trumpet",
+            "views": 204,
+            "name": "Michael Kamen | 1st Trumpets",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_lgHBnHwl"
+          },
+          {
+            "instrumentId": 56,
+            "instrument": "Trumpet",
+            "views": 80,
+            "name": "Michael Kamen | 2nd Trumpets",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_zLOw3eHD"
+          },
+          {
+            "instrumentId": 57,
+            "instrument": "Trombone",
+            "views": 161,
+            "name": "Michael Kamen | Trombones",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_P9TSRbOC"
+          },
+          {
+            "instrumentId": 57,
+            "instrument": "Trombone",
+            "views": 82,
+            "name": "Michael Kamen | Bass Trombone",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_uj5gzGpY"
+          },
+          {
+            "instrumentId": 9,
+            "instrument": "Glockenspiel",
+            "views": 241,
+            "name": "Michael Kamen | Glockenspiel",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_1pW3o3CU"
+          },
+          {
+            "instrumentId": 58,
+            "instrument": "Tuba",
+            "views": 221,
+            "name": "Michael Kamen | Tubas",
+            "tuning": [
+              48,
+              43,
+              38,
+              33,
+              28,
+              23
+            ],
+            "hash": "other_FFwEDqsP"
+          },
+          {
+            "instrumentId": 42,
+            "instrument": "Cello",
+            "views": 865,
+            "name": "Michael Kamen | Cellos",
+            "tuning": [
+              43,
+              38,
+              33,
+              28
+            ],
+            "hash": "other_8z9YBTbO"
+          },
+          {
+            "instrumentId": 43,
+            "instrument": "Contrabass",
+            "views": 596,
+            "name": "Michael Kamen | Contrabass",
+            "tuning": [
+              43,
+              38,
+              33,
+              28
+            ],
+            "hash": "other_ymsmBvoo"
+          },
+          {
+            "instrumentId": 1024,
+            "instrument": "Drums",
+            "views": 70441,
+            "name": "Nick Mason | Ludwig Cortex Maple Custom | Drums",
+            "difficulty": 2,
+            "hash": "drums_qqOGiR7S"
+          }
+        ],
+        "defaultTrack": 3,
+        "popularTrack": 3,
+        "isJunk": false,
+        "popularTrackGuitar": 3,
+        "popularTrackBass": 6,
+        "popularTrackDrum": 24,
+        "popularTrackVocals": 0
+      }
+    ],
+    "song_ids": [
+      153,
+      271,
+      15761,
+      303,
+      15873,
+      15518,
+      60758,
+      15557,
+      350,
+      15668,
+      384505,
+      50540,
+      15765,
+      15564,
+      15437,
+      14873,
+      185,
+      391952,
+      15133,
+      34743,
+      23345,
+      15245,
+      381866,
+      393885,
+      6715
+    ]
+  },
+  "search_size_100": {
+    "url": "https://www.songsterr.com/api/songs?pattern=Pink+Floyd&size=100",
+    "status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "elapsed_ms": 375,
+    "count": 100,
+    "schema": {
+      "songId": "int",
+      "artistId": "int",
+      "artist": "str",
+      "title": "str",
+      "hasChords": "bool",
+      "hasPlayer": "bool",
+      "tracks": {
+        "type": "array",
+        "length": 11,
+        "element": {
+          "instrumentId": "int",
+          "instrument": "str",
+          "views": "int",
+          "name": "str",
+          "tuning": {
+            "type": "array",
+            "length": 6,
+            "element": "int"
+          },
+          "hash": "str"
+        }
+      },
+      "defaultTrack": "int",
+      "popularTrack": "int",
+      "isJunk": "bool",
+      "popularTrackGuitar": "int",
+      "popularTrackBass": "int",
+      "popularTrackDrum": "int",
+      "popularTrackVocals": "int"
+    },
+    "sample": [
+      {
+        "songId": 153,
+        "artistId": 79,
+        "artist": "Pink Floyd",
+        "title": "Wish You Were Here",
+        "hasChords": true,
+        "hasPlayer": true,
+        "tracks": [
+          {
+            "instrumentId": 67,
+            "instrument": "Baritone Sax",
+            "views": 1382,
+            "name": "David Gilmour | Lead Vocals",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "vocals_Sg2MQN5Y"
+          },
+          {
+            "instrumentId": 67,
+            "instrument": "Baritone Sax",
+            "views": 10207,
+            "name": "David Gilmour | Backing Vocals",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "vocals_ravhAa3s"
+          },
+          {
+            "instrumentId": 25,
+            "instrument": "Acoustic Guitar (steel)",
+            "views": 481183,
+            "name": "David Gilmour | Martin D-35 | Lead Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 3,
+            "hash": "guitar_FAcm1gM9"
+          },
+          {
+            "instrumentId": 25,
+            "instrument": "Acoustic Guitar (steel)",
+            "views": 52938,
+            "name": "David Gilmour | Martin D-35 | Rhythm Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 2,
+            "hash": "guitar_TgPXytap"
+          },
+          {
+            "instrumentId": 25,
+            "instrument": "Acoustic Guitar (steel)",
+            "views": 158421,
+            "name": "David Gilmour | Martin D12-28 | 12-String Effect",
+            "tuning": [
+              64,
+              59,
+              67,
+              62,
+              57,
+              52
+            ],
+            "difficulty": 2,
+            "hash": "guitar_2zZEllYa"
+          },
+          {
+            "instrumentId": 25,
+            "instrument": "Acoustic Guitar (steel)",
+            "views": 9506,
+            "name": "David Gilmour | Martin D12-28 | Rhythm Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 2,
+            "hash": "guitar_qj5t4mXW"
+          },
+          {
+            "instrumentId": 26,
+            "instrument": "Electric Guitar (jazz)",
+            "views": 7032,
+            "name": "David Gilmour | Fender 1000 | Pedal Steel Guitar",
+            "tuning": [
+              62,
+              59,
+              55,
+              50,
+              43,
+              38
+            ],
+            "difficulty": 2,
+            "hash": "guitar_t25qGDAY"
+          },
+          {
+            "instrumentId": 34,
+            "instrument": "Electric Bass (pick)",
+            "views": 155430,
+            "name": "Roger Waters | Fender Precision | Bass",
+            "tuning": [
+              43,
+              38,
+              33,
+              28
+            ],
+            "difficulty": 2,
+            "hash": "bass_7nwfftI1"
+          },
+          {
+            "instrumentId": 63,
+            "instrument": "Synth Brass 2",
+            "views": 930,
+            "name": "Richard Wright | Minimoog Model D | Keyboard",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_6Z6vQgQm"
+          },
+          {
+            "instrumentId": 0,
+            "instrument": "Acoustic Grand Piano",
+            "views": 3471,
+            "name": "Richard Wright | Steinway Baby Grand | Piano",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_SfLBiUcP"
+          },
+          {
+            "instrumentId": 1024,
+            "instrument": "Drums",
+            "views": 56722,
+            "name": "Nick Mason | Ludwig Classic Maple Silver Sparkle | Drums",
+            "difficulty": 2,
+            "hash": "drums_yPoMW1x3"
+          }
+        ],
+        "defaultTrack": 2,
+        "popularTrack": 2,
+        "isJunk": false,
+        "popularTrackGuitar": 2,
+        "popularTrackBass": 7,
+        "popularTrackDrum": 10,
+        "popularTrackVocals": 1
+      },
+      {
+        "songId": 271,
+        "artistId": 79,
+        "artist": "Pink Floyd",
+        "title": "Comfortably Numb",
+        "hasChords": true,
+        "hasPlayer": true,
+        "tracks": [
+          {
+            "instrumentId": 66,
+            "instrument": "Tenor Sax",
+            "views": 1924,
+            "name": "David Gilmour & Roger Waters | Lead Vocals",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "vocals_rVVraIHU"
+          },
+          {
+            "instrumentId": 66,
+            "instrument": "Tenor Sax",
+            "views": 449,
+            "name": "Roger Waters & David Gilmour | Echo/Backing Vocals",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "vocals_MnZEZo3N"
+          },
+          {
+            "instrumentId": 25,
+            "instrument": "Acoustic Guitar (steel)",
+            "views": 64272,
+            "name": "Lee Ritenour & David Gilmour | Ovation Custom Legend 1619-4 | High-Strung Acoustic Guitar",
+            "tuning": [
+              64,
+              59,
+              67,
+              62,
+              57,
+              64
+            ],
+            "difficulty": 2,
+            "hash": "guitar_Tfupaua9"
+          },
+          {
+            "instrumentId": 30,
+            "instrument": "Distortion Guitar",
+            "views": 1919903,
+            "name": "David Gilmour | Fender \"The Black Strat\" Stratocaster | Lead Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 4,
+            "hash": "guitar_aWNwpRwe"
+          },
+          {
+            "instrumentId": 30,
+            "instrument": "Distortion Guitar",
+            "views": 9643,
+            "name": "David Gilmour | Fender \"The Black Strat\" Stratocaster | Rhythm Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 2,
+            "hash": "guitar_fyYQvuTm"
+          },
+          {
+            "instrumentId": 27,
+            "instrument": "Electric Guitar (clean)",
+            "views": 6575,
+            "name": "David Gilmour | ZB Custom S10 | Pedal Steel Guitar",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "difficulty": 4,
+            "hash": "guitar_DD20ls8K"
+          },
+          {
+            "instrumentId": 33,
+            "instrument": "Electric Bass (finger)",
+            "views": 177486,
+            "name": "Roger Waters & David Gilmour | Fender Precision Bass & Fretless Bass",
+            "tuning": [
+              43,
+              38,
+              33,
+              28
+            ],
+            "difficulty": 2,
+            "hash": "bass_VJ6zJzuT"
+          },
+          {
+            "instrumentId": 89,
+            "instrument": "Pad 2 (warm)",
+            "views": 501,
+            "name": "David Gilmour | Prophet-5 | Synthesizer (LH)",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_DO8cPoEY"
+          },
+          {
+            "instrumentId": 89,
+            "instrument": "Pad 2 (warm)",
+            "views": 479,
+            "name": "David Gilmour | Prophet-5 | Synthesizer (RH)",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_u4a2sMgl"
+          },
+          {
+            "instrumentId": 48,
+            "instrument": "String Ensemble 1",
+            "views": 3730,
+            "name": "Michael Kamen | Violas",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_Gy4ngref"
+          },
+          {
+            "instrumentId": 48,
+            "instrument": "String Ensemble 1",
+            "views": 962,
+            "name": "Michael Kamen | Violins 1",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_pmAdDw0k"
+          },
+          {
+            "instrumentId": 48,
+            "instrument": "String Ensemble 1",
+            "views": 913,
+            "name": "Michael Kamen | Violins 2",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_OOz9Skty"
+          },
+          {
+            "instrumentId": 18,
+            "instrument": "Rock Organ",
+            "views": 80,
+            "name": "Richard Wright | Hammond C-3 | Organ (LH)",
+            "tuning": [
+              43,
+              38,
+              33,
+              28,
+              23
+            ],
+            "hash": "other_xmTaU4jM"
+          },
+          {
+            "instrumentId": 18,
+            "instrument": "Rock Organ",
+            "views": 190,
+            "name": "Richard Wright | Hammond C-3 | Organ (RH)",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_W031ESCU"
+          },
+          {
+            "instrumentId": 60,
+            "instrument": "French Horn",
+            "views": 790,
+            "name": "Michael Kamen | 1st Horn in F",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_07GGQTzH"
+          },
+          {
+            "instrumentId": 60,
+            "instrument": "French Horn",
+            "views": 324,
+            "name": "Michael Kamen | 2nd Horns in F",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_8fmB34XX"
+          },
+          {
+            "instrumentId": 56,
+            "instrument": "Trumpet",
+            "views": 204,
+            "name": "Michael Kamen | 1st Trumpets",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_lgHBnHwl"
+          },
+          {
+            "instrumentId": 56,
+            "instrument": "Trumpet",
+            "views": 80,
+            "name": "Michael Kamen | 2nd Trumpets",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_zLOw3eHD"
+          },
+          {
+            "instrumentId": 57,
+            "instrument": "Trombone",
+            "views": 161,
+            "name": "Michael Kamen | Trombones",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_P9TSRbOC"
+          },
+          {
+            "instrumentId": 57,
+            "instrument": "Trombone",
+            "views": 82,
+            "name": "Michael Kamen | Bass Trombone",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_uj5gzGpY"
+          },
+          {
+            "instrumentId": 9,
+            "instrument": "Glockenspiel",
+            "views": 241,
+            "name": "Michael Kamen | Glockenspiel",
+            "tuning": [
+              64,
+              59,
+              55,
+              50,
+              45,
+              40
+            ],
+            "hash": "other_1pW3o3CU"
+          },
+          {
+            "instrumentId": 58,
+            "instrument": "Tuba",
+            "views": 221,
+            "name": "Michael Kamen | Tubas",
+            "tuning": [
+              48,
+              43,
+              38,
+              33,
+              28,
+              23
+            ],
+            "hash": "other_FFwEDqsP"
+          },
+          {
+            "instrumentId": 42,
+            "instrument": "Cello",
+            "views": 865,
+            "name": "Michael Kamen | Cellos",
+            "tuning": [
+              43,
+              38,
+              33,
+              28
+            ],
+            "hash": "other_8z9YBTbO"
+          },
+          {
+            "instrumentId": 43,
+            "instrument": "Contrabass",
+            "views": 596,
+            "name": "Michael Kamen | Contrabass",
+            "tuning": [
+              43,
+              38,
+              33,
+              28
+            ],
+            "hash": "other_ymsmBvoo"
+          },
+          {
+            "instrumentId": 1024,
+            "instrument": "Drums",
+            "views": 70441,
+            "name": "Nick Mason | Ludwig Cortex Maple Custom | Drums",
+            "difficulty": 2,
+            "hash": "drums_qqOGiR7S"
+          }
+        ],
+        "defaultTrack": 3,
+        "popularTrack": 3,
+        "isJunk": false,
+        "popularTrackGuitar": 3,
+        "popularTrackBass": 6,
+        "popularTrackDrum": 24,
+        "popularTrackVocals": 0
+      }
+    ],
+    "song_ids": [
+      153,
+      271,
+      15761,
+      303,
+      15873,
+      15518,
+      60758,
+      15557,
+      350,
+      15668,
+      384505,
+      50540,
+      15765,
+      15564,
+      15437,
+      14873,
+      185,
+      391952,
+      15133,
+      34743,
+      23345,
+      15245,
+      381866,
+      393885,
+      6715,
+      38446,
+      15798,
+      15627,
+      23861,
+      50544,
+      401932,
+      446590,
+      14966,
+      14919,
+      15543,
+      14851,
+      14964,
+      453092,
+      50548,
+      15419,
+      469129,
+      59867,
+      165,
+      563552,
+      15550,
+      34754,
+      50525,
+      50531,
+      15293,
+      406853,
+      490665,
+      469699,
+      90897,
+      357861,
+      50545,
+      15399,
+      14928,
+      381133,
+      15722,
+      461881,
+      92688,
+      15635,
+      15626,
+      50511,
+      33561,
+      50502,
+      15403,
+      90108,
+      1591162,
+      16139,
+      463864,
+      16070,
+      14961,
+      692163,
+      15457,
+      50532,
+      14981,
+      387930,
+      388919,
+      384548,
+      404304,
+      653205,
+      487234,
+      23862,
+      668299,
+      78013,
+      14878,
+      385140,
+      50542,
+      14941,
+      50524,
+      15185,
+      86772,
+      50533,
+      15502,
+      50519,
+      91679,
+      16098,
+      50526,
+      1101984
+    ]
+  },
+  "meta_153": {
+    "url": "https://www.songsterr.com/api/meta/153",
+    "status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "elapsed_ms": 171,
+    "schema": {
+      "aiGenerated": "bool",
+      "fingerstyle": "bool",
+      "createdAt": "str",
+      "revisionId": "int",
+      "songId": "int",
+      "artist": "str",
+      "artistId": "int",
+      "title": "str",
+      "author": {
+        "personId": "int",
+        "name": "str",
+        "profileName": "str",
+        "isModerator": "bool"
+      },
+      "description": "str",
+      "restriction": "str",
+      "hasPlayer": "bool",
+      "hasTracks": "bool",
+      "hasChords": "bool",
+      "tracks": {
+        "type": "array",
+        "length": 11,
+        "element": {
+          "instrumentId": "int",
+          "instrument": "str",
+          "views": "int",
+          "name": "str",
+          "tuning": {
+            "type": "array",
+            "length": 6,
+            "element": "int"
+          },
+          "hash": "str",
+          "isVocalTrack": "bool",
+          "isEmpty": "bool"
+        }
+      },
+      "defaultTrack": "int",
+      "popularTrack": "int",
+      "isPublished": "bool",
+      "isBlank": "bool",
+      "isPopular": "bool",
+      "isJunk": "bool",
+      "videos": {
+        "type": "array",
+        "length": 59,
+        "element": {
+          "id": "int",
+          "status": "str",
+          "feature": "str",
+          "videoId": "str"
+        }
+      },
+      "popularTrackGuitar": "int",
+      "popularTrackBass": "int",
+      "popularTrackDrum": "int",
+      "popularTrackVocals": "int",
+      "prevRevisionId": "int",
+      "latestRevisionId": "int",
+      "tags": {
+        "type": "array",
+        "length": 20,
+        "element": "str"
+      },
+      "views": "int",
+      "image": "str",
+      "audioV4": "str",
+      "audioV4Generated": "str",
+      "audioV4Midi": "str",
+      "audioV4Meta": {
+        "hasQuickMix": "bool",
+        "hasMixLayout": "bool"
+      },
+      "nextAudio": "str",
+      "nextAudioGenerated": "str",
+      "nextMidi": "str",
+      "nextAudioMeta": {
+        "hasQuickMix": "bool",
+        "hasMixLayout": "bool"
+      },
+      "audios": {
+        "current": {
+          "hash": "str",
+          "meta": {
+            "hasQuickMix": "bool",
+            "hasMixLayout": "bool"
+          }
+        },
+        "next": {
+          "hash": "str",
+          "meta": {
+            "hasQuickMix": "bool",
+            "hasMixLayout": "bool"
+          }
+        },
+        "v4": {
+          "hash": "str",
+          "meta": {
+            "hasQuickMix": "bool",
+            "hasMixLayout": "bool"
+          }
+        }
+      },
+      "moderationType": "str",
+      "isBlocked": "bool",
+      "isOnModeration": "bool",
+      "createdVia": "str",
+      "favoritesCount": "int",
+      "isNextRevisionPremoderated": "bool",
+      "isCollaborative": "bool",
+      "isRestricted": "bool"
+    },
+    "sample": {
+      "aiGenerated": false,
+      "fingerstyle": false,
+      "createdAt": "2026-07-10T12:19:02.863Z",
+      "revisionId": 7824020,
+      "songId": 153,
+      "artist": "Pink Floyd",
+      "artistId": 79,
+      "title": "Wish You Were Here",
+      "author": {
+        "personId": 3382154,
+        "name": "chers06",
+        "profileName": "chers06",
+        "isModerator": false
+      },
+      "description": "Changelog:\n\n- Fixed 12-string guitar",
+      "restriction": "",
+      "hasPlayer": true,
+      "hasTracks": true,
+      "hasChords": true,
+      "tracks": [
+        {
+          "instrumentId": 67,
+          "instrument": "Baritone Sax",
+          "views": 1382,
+          "name": "David Gilmour | Lead Vocals",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ],
+          "hash": "vocals_Sg2MQN5Y",
+          "isVocalTrack": true,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 67,
+          "instrument": "Baritone Sax",
+          "views": 10207,
+          "name": "David Gilmour | Backing Vocals",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ],
+          "hash": "vocals_ravhAa3s",
+          "isVocalTrack": true,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 25,
+          "instrument": "Acoustic Guitar (steel)",
+          "views": 481258,
+          "name": "David Gilmour | Martin D-35 | Lead Guitar",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ],
+          "difficulty": 3,
+          "hash": "guitar_FAcm1gM9",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 25,
+          "instrument": "Acoustic Guitar (steel)",
+          "views": 52948,
+          "name": "David Gilmour | Martin D-35 | Rhythm Guitar",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ],
+          "difficulty": 2,
+          "hash": "guitar_TgPXytap",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 25,
+          "instrument": "Acoustic Guitar (steel)",
+          "views": 158425,
+          "name": "David Gilmour | Martin D12-28 | 12-String Effect",
+          "tuning": [
+            64,
+            59,
+            67,
+            62,
+            57,
+            52
+          ],
+          "difficulty": 2,
+          "hash": "guitar_2zZEllYa",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 25,
+          "instrument": "Acoustic Guitar (steel)",
+          "views": 9510,
+          "name": "David Gilmour | Martin D12-28 | Rhythm Guitar",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ],
+          "difficulty": 2,
+          "hash": "guitar_qj5t4mXW",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 26,
+          "instrument": "Electric Guitar (jazz)",
+          "views": 7032,
+          "name": "David Gilmour | Fender 1000 | Pedal Steel Guitar",
+          "tuning": [
+            62,
+            59,
+            55,
+            50,
+            43,
+            38
+          ],
+          "difficulty": 2,
+          "hash": "guitar_t25qGDAY",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 34,
+          "instrument": "Electric Bass (pick)",
+          "views": 155433,
+          "name": "Roger Waters | Fender Precision | Bass",
+          "tuning": [
+            43,
+            38,
+            33,
+            28
+          ],
+          "difficulty": 2,
+          "hash": "bass_7nwfftI1",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 63,
+          "instrument": "Synth Brass 2",
+          "views": 930,
+          "name": "Richard Wright | Minimoog Model D | Keyboard",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ],
+          "hash": "other_6Z6vQgQm",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 0,
+          "instrument": "Acoustic Grand Piano",
+          "views": 3471,
+          "name": "Richard Wright | Steinway Baby Grand | Piano",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ],
+          "hash": "other_SfLBiUcP",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 1024,
+          "instrument": "Drums",
+          "views": 56722,
+          "name": "Nick Mason | Ludwig Classic Maple Silver Sparkle | Drums",
+          "difficulty": 2,
+          "hash": "drums_yPoMW1x3",
+          "isVocalTrack": false,
+          "isEmpty": false
+        }
+      ],
+      "defaultTrack": 2,
+      "popularTrack": 2,
+      "isPublished": true,
+      "isBlank": false,
+      "isPopular": true,
+      "isJunk": false,
+      "videos": [
+        {
+          "id": 1647,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "rKT6Ye-aaqg"
+        },
+        {
+          "id": 1648,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "1tGO1Y4FGpI"
+        },
+        {
+          "id": 1649,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "yqdoHPFW_5M"
+        },
+        {
+          "id": 1650,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "84Tq-eAJIk4"
+        },
+        {
+          "id": 1651,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "2W25veMClcU"
+        },
+        {
+          "id": 1652,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "K22qJ-VikTo"
+        },
+        {
+          "id": 1653,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "yvtDnXotr-s"
+        },
+        {
+          "id": 1654,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "9P16xvwMQ5A"
+        },
+        {
+          "id": 1655,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "YNyYRVB2Mr8"
+        },
+        {
+          "id": 1656,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "ZVcU9m488e4"
+        },
+        {
+          "id": 1657,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "01izSmWzgeI"
+        },
+        {
+          "id": 1658,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "l7uegEl1mNk"
+        },
+        {
+          "id": 1659,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "5awbl3fOBnY"
+        },
+        {
+          "id": 1660,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "5awbl3fOBnY"
+        },
+        {
+          "id": 1663,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "KmIkJgHISMo"
+        },
+        {
+          "id": 1664,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "DPL_SV3n7IU"
+        },
+        {
+          "id": 1665,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "uEPVqJjMiAc"
+        },
+        {
+          "id": 1666,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "IoAeYros81c"
+        },
+        {
+          "id": 1667,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "jxTXV4J4eUY"
+        },
+        {
+          "id": 1669,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "m0H6upLy12c"
+        },
+        {
+          "id": 1671,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "WRNum8uMolE"
+        },
+        {
+          "id": 1673,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "6qQA7ZqmSr8"
+        },
+        {
+          "id": 1151624,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "RzlesqrpLok"
+        },
+        {
+          "id": 1165010,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "SsvQJnZu77U"
+        },
+        {
+          "id": 1174564,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "tuTX3VOr5oo"
+        },
+        {
+          "id": 1330741,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "c2cRV4RY_TQ"
+        },
+        {
+          "id": 1385829,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "3e_zWTREwjk"
+        },
+        {
+          "id": 1386045,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "WsbodMcsug4"
+        },
+        {
+          "id": 1430385,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "RYhcfuiAdrA"
+        },
+        {
+          "id": 1450787,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "VKpNi5SenXE"
+        },
+        {
+          "id": 1456844,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "nr8ASrToL1I"
+        },
+        {
+          "id": 1458506,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "EodytPmki5s"
+        },
+        {
+          "id": 1460731,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "Bm4sDyCW0k8"
+        },
+        {
+          "id": 1508975,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "B7gJnUMxgQ8"
+        },
+        {
+          "id": 1514311,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "XQvDZE0z5tE"
+        },
+        {
+          "id": 1571456,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "ck0OUuCiEFk"
+        },
+        {
+          "id": 1609015,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "2IYKw9Y7180"
+        },
+        {
+          "id": 1706305,
+          "status": "done",
+          "feature": "backing",
+          "videoId": "641Qt-VKxgo"
+        },
+        {
+          "id": 1706307,
+          "status": "done",
+          "feature": "backing",
+          "videoId": "QiHKcCIjdAY"
+        },
+        {
+          "id": 1706308,
+          "status": "done",
+          "feature": "solo",
+          "videoId": "EgQ8d3MOwjo"
+        },
+        {
+          "id": 1706309,
+          "status": "done",
+          "feature": "backing",
+          "videoId": "yUcSn5sG0Pg"
+        },
+        {
+          "id": 1706310,
+          "status": "done",
+          "feature": "solo",
+          "videoId": "9lpkEgrnHmo"
+        },
+        {
+          "id": 1787931,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "BjFFNoKAgeQ"
+        },
+        {
+          "id": 1807114,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "s6Uu2lQ9rYo"
+        },
+        {
+          "id": 1921637,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "IXdNnw99-Ic"
+        },
+        {
+          "id": 1935942,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "yvPr9YV7-Xw"
+        },
+        {
+          "id": 1950942,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "Jp0QF2QCkqE"
+        },
+        {
+          "id": 1980157,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "aNLI_S4Vp4c"
+        },
+        {
+          "id": 2166159,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "-0MQXbcw-co"
+        },
+        {
+          "id": 2171542,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "MHWLBxSdP9U"
+        },
+        {
+          "id": 2189142,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "Yi8EjAHoIjM"
+        },
+        {
+          "id": 2835901,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "SSwN90lOcNU"
+        },
+        {
+          "id": 3027672,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "bRdM6B2Uoto"
+        },
+        {
+          "id": 3110514,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "K6qj09OHvjw"
+        },
+        {
+          "id": 3222093,
+          "status": "done",
+          "feature": "backing",
+          "videoId": "NtiGjrEhwtc"
+        },
+        {
+          "id": 3222099,
+          "status": "done",
+          "feature": "backing",
+          "videoId": "NtiGjrEhwtc"
+        },
+        {
+          "id": 3228056,
+          "status": "done",
+          "feature": "backing",
+          "videoId": "Um9V4eVHdvg"
+        },
+        {
+          "id": 3228059,
+          "status": "done",
+          "feature": "backing",
+          "videoId": "uMiYxdh1WIE"
+        },
+        {
+          "id": 5011071,
+          "status": "done",
+          "feature": null,
+          "videoId": "K6qj09OHvjw"
+        }
+      ],
+      "popularTrackGuitar": 2,
+      "popularTrackBass": 7,
+      "popularTrackDrum": 10,
+      "popularTrackVocals": 1,
+      "prevRevisionId": 7823354,
+      "latestRevisionId": 7824020,
+      "tags": [
+        "classic rock",
+        "progressive rock",
+        "rock",
+        "psychedelic rock",
+        "70s",
+        "psychedelic",
+        "album rock",
+        "ambient",
+        "art rock",
+        "classical",
+        "covered by 8",
+        "electronic",
+        "experimental rock",
+        "jazz",
+        "pop/rock",
+        "prog rock",
+        "prog-rock",
+        "psychadelic",
+        "rock/pop",
+        "should be public domain"
+      ],
+      "views": 937318,
+      "image": "v0-3-2-8NvwLPEQ_v2dnudq",
+      "audioV4": "v4-gpXr40345tHnRlJLFi7pB",
+      "audioV4Generated": "1783686469943",
+      "audioV4Midi": "v4-gpXr40345tHnRlJLFi7pB",
+      "audioV4Meta": {
+        "hasQuickMix": true,
+        "hasMixLayout": true
+      },
+      "nextAudio": "v777-QegbCus7um7UtKXwKYq00",
+      "nextAudioGenerated": "1792143979310",
+      "nextMidi": "v777-QegbCus7um7UtKXwKYq00",
+      "nextAudioMeta": {
+        "hasQuickMix": true,
+        "hasMixLayout": true
+      },
+      "audios": {
+        "current": {
+          "hash": "v4-gpXr40345tHnRlJLFi7pB",
+          "meta": {
+            "hasQuickMix": true,
+            "hasMixLayout": true
+          }
+        },
+        "next": {
+          "hash": "v777-QegbCus7um7UtKXwKYq00",
+          "meta": {
+            "hasQuickMix": true,
+            "hasMixLayout": true
+          }
+        },
+        "v4": {
+          "hash": "v4-gpXr40345tHnRlJLFi7pB",
+          "meta": {
+            "hasQuickMix": true,
+            "hasMixLayout": true
+          }
+        }
+      },
+      "moderationType": "pre",
+      "isBlocked": false,
+      "isOnModeration": false,
+      "createdVia": "Editor",
+      "favoritesCount": 67597,
+      "isNextRevisionPremoderated": true,
+      "isCollaborative": true,
+      "isRestricted": false
+    }
+  },
+  "meta_79": {
+    "url": "https://www.songsterr.com/api/meta/79",
+    "status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "elapsed_ms": 168,
+    "schema": {
+      "aiGenerated": "bool",
+      "fingerstyle": "bool",
+      "createdAt": "str",
+      "revisionId": "int",
+      "songId": "int",
+      "artist": "str",
+      "artistId": "int",
+      "title": "str",
+      "author": {
+        "personId": "int",
+        "name": "str",
+        "profileName": "str",
+        "isModerator": "bool"
+      },
+      "description": "str",
+      "restriction": "str",
+      "hasPlayer": "bool",
+      "hasTracks": "bool",
+      "hasChords": "bool",
+      "tracks": {
+        "type": "array",
+        "length": 15,
+        "element": {
+          "instrumentId": "int",
+          "instrument": "str",
+          "views": "int",
+          "name": "str",
+          "tuning": {
+            "type": "array",
+            "length": 6,
+            "element": "int"
+          },
+          "hash": "str",
+          "isVocalTrack": "bool",
+          "isEmpty": "bool"
+        }
+      },
+      "defaultTrack": "int",
+      "popularTrack": "int",
+      "isPublished": "bool",
+      "isBlank": "bool",
+      "isPopular": "bool",
+      "isJunk": "bool",
+      "videos": {
+        "type": "array",
+        "length": 43,
+        "element": {
+          "id": "int",
+          "status": "str",
+          "feature": "str",
+          "videoId": "str"
+        }
+      },
+      "popularTrackGuitar": "int",
+      "popularTrackBass": "int",
+      "popularTrackDrum": "int",
+      "popularTrackVocals": "int",
+      "prevRevisionId": "int",
+      "latestRevisionId": "int",
+      "tags": {
+        "type": "array",
+        "length": 9,
+        "element": "str"
+      },
+      "views": "int",
+      "image": "str",
+      "audioV4": "str",
+      "audioV4Generated": "str",
+      "audioV4Midi": "str",
+      "audioV4Meta": {
+        "hasQuickMix": "bool",
+        "hasMixLayout": "bool"
+      },
+      "audios": {
+        "current": {
+          "hash": "str",
+          "meta": {
+            "hasQuickMix": "bool",
+            "hasMixLayout": "bool"
+          }
+        },
+        "v4": {
+          "hash": "str",
+          "meta": {
+            "hasQuickMix": "bool",
+            "hasMixLayout": "bool"
+          }
+        }
+      },
+      "moderationType": "str",
+      "isBlocked": "bool",
+      "isOnModeration": "bool",
+      "createdVia": "str",
+      "favoritesCount": "int",
+      "isNextRevisionPremoderated": "bool",
+      "isCollaborative": "bool",
+      "isRestricted": "bool"
+    },
+    "sample": {
+      "aiGenerated": false,
+      "fingerstyle": false,
+      "createdAt": "2026-10-11T14:51:06.353Z",
+      "revisionId": 9674136,
+      "songId": 79,
+      "artist": "The Beatles",
+      "artistId": 19,
+      "title": "Let It Be",
+      "author": {
+        "personId": 4645715,
+        "name": "蒼",
+        "profileName": "蒼7",
+        "isModerator": false
+      },
+      "description": "音部記号の変更",
+      "restriction": "",
+      "hasPlayer": true,
+      "hasTracks": true,
+      "hasChords": true,
+      "tracks": [
+        {
+          "instrumentId": 66,
+          "instrument": "Tenor Sax",
+          "views": 8943,
+          "name": "Paul McCartney | Lead Vocals",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ],
+          "hash": "vocals_kk7eK3zG",
+          "isVocalTrack": true,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 73,
+          "instrument": "Flute",
+          "views": 642,
+          "name": "Paul McCartney, Linda McCartney, George Harrison & John Lennon | Backing Vocals",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ],
+          "hash": "other_QPoH7SkS",
+          "isVocalTrack": true,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 29,
+          "instrument": "Overdriven Guitar",
+          "views": 299975,
+          "name": "George Harrison | Epiphone ES-230TD Casino | Lead Guitar",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ],
+          "difficulty": 4,
+          "hash": "guitar_n0oPlSIj",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 27,
+          "instrument": "Electric Guitar (clean)",
+          "views": 4767,
+          "name": "George Harrison | Fender Rosewood Telecaster | Original Guitar Track",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ],
+          "difficulty": 3,
+          "hash": "guitar_PHPdUqn3",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 34,
+          "instrument": "Electric Bass (pick)",
+          "views": 934,
+          "name": "John Lennon | Fender Bass VI | Original Bass Line",
+          "tuning": [
+            52,
+            47,
+            43,
+            38,
+            33,
+            28
+          ],
+          "difficulty": 2,
+          "hash": "bass_i67a3p8v",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 34,
+          "instrument": "Electric Bass (pick)",
+          "views": 73494,
+          "name": "Paul McCartney | Rickenbacker 4001s | Bass",
+          "tuning": [
+            43,
+            38,
+            33,
+            28
+          ],
+          "difficulty": 3,
+          "hash": "bass_0eSbKAVY",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 16,
+          "instrument": "Drawbar Organ",
+          "views": 2488,
+          "name": "Billy Preston | Lowrey DSO-1 Heritage Deluxe | Organ",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ],
+          "hash": "other_s2lbeNRW",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 0,
+          "instrument": "Acoustic Grand Piano",
+          "views": 2590,
+          "name": "Paul McCartney | Blüthner Grand | Piano (LH)",
+          "tuning": [
+            52,
+            47,
+            43,
+            38,
+            33,
+            24
+          ],
+          "hash": "other_dCUxDH68",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 0,
+          "instrument": "Acoustic Grand Piano",
+          "views": 10197,
+          "name": "Paul McCartney | Blüthner Grand | Piano (RH)",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ],
+          "hash": "other_TrPWaWEv",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 2,
+          "instrument": "Electric Grand Piano",
+          "views": 1137,
+          "name": "Paul McCartney | Fender Rhodes Suitcase 73 Silver Sparkle | Electric Piano",
+          "tuning": [
+            52,
+            47,
+            43,
+            38,
+            33,
+            24
+          ],
+          "hash": "other_IgAJl1sS",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 61,
+          "instrument": "Brass Section",
+          "views": 452,
+          "name": "Richard Hewson | Orchestral Arrangement | Brass",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ],
+          "hash": "other_IuaqPGZB",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 42,
+          "instrument": "Cello",
+          "views": 70,
+          "name": "Richard Hewson | Orchestral Arrangement | Cellos",
+          "tuning": [
+            57,
+            50,
+            43,
+            36
+          ],
+          "hash": "other_DNMy3qGG",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 1024,
+          "instrument": "Drums",
+          "views": 98,
+          "name": "Paul McCartney | Maracas",
+          "difficulty": 1,
+          "hash": "drums_wQdAXW7P",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 1024,
+          "instrument": "Drums",
+          "views": 192,
+          "name": "Ringo Starr | Ludwig Hollywood Maple | Drum Overdub",
+          "difficulty": 1,
+          "hash": "drums_4MSGwLlI",
+          "isVocalTrack": false,
+          "isEmpty": false
+        },
+        {
+          "instrumentId": 1024,
+          "instrument": "Drums",
+          "views": 22567,
+          "name": "Ringo Starr | Ludwig Hollywood Maple | Drums",
+          "difficulty": 2,
+          "hash": "drums_v2JNI0Zz",
+          "isVocalTrack": false,
+          "isEmpty": false
+        }
+      ],
+      "defaultTrack": 2,
+      "popularTrack": 2,
+      "isPublished": true,
+      "isBlank": false,
+      "isPopular": true,
+      "isJunk": false,
+      "videos": [
+        {
+          "id": 1047,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "5AnNkJ_VK9E"
+        },
+        {
+          "id": 1050,
+          "status": "pending",
+          "feature": "backing",
+          "videoId": "pn7MwmLMWXo"
+        },
+        {
+          "id": 1051,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "qAa3od3Ze2Q"
+        },
+        {
+          "id": 1052,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "qAa3od3Ze2Q"
+        },
+        {
+          "id": 1053,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "CTcb_33-DiI"
+        },
+        {
+          "id": 1054,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "FntXOHZyHA4"
+        },
+        {
+          "id": 1055,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "r8fLUF0QIDM"
+        },
+        {
+          "id": 1058,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "QfB09CeGpAU"
+        },
+        {
+          "id": 1059,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "AW55J2zE3N4"
+        },
+        {
+          "id": 1060,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "BTDLIG0RbMQ"
+        },
+        {
+          "id": 1061,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "16-lt83P2yI"
+        },
+        {
+          "id": 1062,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "egCy1KoE1Ss"
+        },
+        {
+          "id": 1063,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "CmoCwwZWIcU"
+        },
+        {
+          "id": 1064,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "hR-3ajVftG4"
+        },
+        {
+          "id": 1065,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "8QIN7SfSRyI"
+        },
+        {
+          "id": 1066,
+          "status": "done",
+          "feature": "backing",
+          "videoId": "V7Xfp1bXId0"
+        },
+        {
+          "id": 1067,
+          "status": "done",
+          "feature": "backing",
+          "videoId": "QDYfEBY9NM4"
+        },
+        {
+          "id": 1055325,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "hlhN0PSOI9g"
+        },
+        {
+          "id": 1216887,
+          "status": "done",
+          "feature": null,
+          "videoId": "AbNFLI720_U"
+        },
+        {
+          "id": 1339197,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "wvU7QkrCCLw"
+        },
+        {
+          "id": 1353376,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "VL35k2q6xSU"
+        },
+        {
+          "id": 1470394,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "bFs-OeLfASg"
+        },
+        {
+          "id": 1501051,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "PZZHtalmw_I"
+        },
+        {
+          "id": 1507977,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "vwLouuYSveM"
+        },
+        {
+          "id": 1537886,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "lcA-qlMP11s"
+        },
+        {
+          "id": 1539878,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "atLK2RIZzWk"
+        },
+        {
+          "id": 1560904,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "HzvDofigTKQ"
+        },
+        {
+          "id": 1578159,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "rI2-cq5Gf_I"
+        },
+        {
+          "id": 1629432,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "EaKKflhZMpc"
+        },
+        {
+          "id": 1713175,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "e-juuaiFmjs"
+        },
+        {
+          "id": 1717198,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "f9uVX7SPIb4"
+        },
+        {
+          "id": 1733902,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "DFwBRHm_lNg"
+        },
+        {
+          "id": 1936779,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "ajCYQL8ouqw"
+        },
+        {
+          "id": 2108783,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "85u7my78ng0"
+        },
+        {
+          "id": 2303486,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "3jiTlIE5znQ"
+        },
+        {
+          "id": 2303517,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "WcBnJw-H2wQ"
+        },
+        {
+          "id": 2324904,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "V2nr_lrK1k4"
+        },
+        {
+          "id": 2373397,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "dSSqHhAqxrk"
+        },
+        {
+          "id": 2512751,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "CGj85pVzRJs"
+        },
+        {
+          "id": 2512760,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "OhRUYf_yn_s"
+        },
+        {
+          "id": 2512763,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "OhRUYf_yn_s"
+        },
+        {
+          "id": 2512765,
+          "status": "done",
+          "feature": "alternative",
+          "videoId": "OhRUYf_yn_s"
+        },
+        {
+          "id": 3502180,
+          "status": "done",
+          "feature": "backing",
+          "videoId": "1fr2arR3rc4"
+        }
+      ],
+      "popularTrackGuitar": 2,
+      "popularTrackBass": 5,
+      "popularTrackDrum": 14,
+      "popularTrackVocals": 0,
+      "prevRevisionId": 9054674,
+      "latestRevisionId": 9674136,
+      "tags": [
+        "classic rock",
+        "rock",
+        "60s",
+        "pop",
+        "british",
+        "oldies",
+        "pop rock",
+        "psychedelic rock",
+        "remark/well-known"
+      ],
+      "views": 428546,
+      "image": "v0-3-2-gAS9DY3JH0AkzpAL",
+      "audioV4": "v4-TC42XbNRZygwtyihLItnF",
+      "audioV4Generated": "1791730602469",
+      "audioV4Midi": "v4-TC42XbNRZygwtyihLItnF",
+      "audioV4Meta": {
+        "hasQuickMix": true,
+        "hasMixLayout": true
+      },
+      "audios": {
+        "current": {
+          "hash": "v4-TC42XbNRZygwtyihLItnF",
+          "meta": {
+            "hasQuickMix": true,
+            "hasMixLayout": true
+          }
+        },
+        "v4": {
+          "hash": "v4-TC42XbNRZygwtyihLItnF",
+          "meta": {
+            "hasQuickMix": true,
+            "hasMixLayout": true
+          }
+        }
+      },
+      "moderationType": "pre",
+      "isBlocked": false,
+      "isOnModeration": false,
+      "createdVia": "Editor",
+      "favoritesCount": 24520,
+      "isNextRevisionPremoderated": true,
+      "isCollaborative": true,
+      "isRestricted": false
+    }
+  }
+}
