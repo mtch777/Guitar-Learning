@@ -253,3 +253,14 @@ Targets for stages 2/3 were rhythm/melody 25; target harmony for stage 4 was 75.
 - Corrected private bundle technique-corrections-v1 has8families/15clips, preserved old artifacts/feedback. This is a bounded correction before a different source-grounded path, not evidence of musical/style success.
 
 - Correction verification:169 Python tests,16 JS tests,build pass. Actual alphaTab imports verify32/32 half-step dyads in each corrected texture clip. Fifteen WAV exports finite/nonzero/unclipped. Browser confirms removed fretted items/questions and explicit method labels. No public website changes.
+
+
+## 2026-10-17 — acquire CSV corpus using Songsterr automation
+
+- Read current main automation/usage/workflows, pulled8700931 safely; later resumed after automatic approval infrastructure usage-limit failure stopped execution. User status request resumed task. No completed files discarded.
+- Added resumable CSV capture using existing pinned songsterr-dl backend, reversible seven-string GP5 bridge, native GP7 restore/export, source/model/serialized-source checks, independent reimport, named private score catalog and source-only technique inventory.
+- Actual98/98 CSV entries/IDs captured,495tracks,98native GP7s. Fixed8string negative shifts, temporary metadata encoding, comparator None sorting errors (reported, not silently passed), exact source rhythm restoration, percussion grace mapping and importer omitted-voice bug. Full-bar silent voice rests allow all98 final GPs to reopen without patches.
+-74/98 tested detailed GP7 roundtrip fields pass;24 conversion-difference files remain flagged.98/98 regular source-note/timing/tuning comparisons have zero detected differences in scope; dead notes compared as unpitched. Upstream serialized-source comparator489/495pass,4differences,2errors. Raw JSON/revision data retained as technique authority.
+- Source inventory:415guitar/bass tracks,339385regular note segments,316030attacks,10064HOPO markers,858bend markers,2949slide markers,3349half-step coattacks. Not validated musical/function labels. Pedal burst lengths come from actual notation; no preset3/5 generation rule or artist-feel claim.
+- Private deliverables: local-artifacts/invent-animate-corpus-v1/gp-files, catalog.csv, source-techniques.json, raw sources and validation reports. Only wrapper code/tests/docs/aggregate results staged. No public website change/Pages deployment needed.
+- Tests:172main suite (171pass,1optional skip); all3 corpus-specific tests pass in isolated Python3.13environment. Standalone unmodified alphaTab reader:98pass/0fail. Next acceptance gates and detailed limits in songsterr_automation/CORPUS_RESULTS.md.

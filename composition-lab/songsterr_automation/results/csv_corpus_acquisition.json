@@ -1,0 +1,48 @@
+{
+  "schema": "csv-source-corpus-acquisition-v1",
+  "csv_rows": 98,
+  "unique_tab_ids": 98,
+  "captured_tabs": 98,
+  "gp7_files": 98,
+  "gp7_detailed_roundtrip_pass": 74,
+  "gp7_regular_source_zero_differences": 98,
+  "serialized_source_tracks_checked": 495,
+  "serialized_source_tracks_pass": 489,
+  "serialized_source_comparator_errors": 2,
+  "all_tracks": 495,
+  "guitar_bass_tracks": 415,
+  "guitar_bass_notation_counts": {
+    "beats": 252563,
+    "note_segments": 339385,
+    "attacks": 316030,
+    "note_marker:dead": 1939,
+    "note_marker:hp": 10064,
+    "note_marker:slide": 2949,
+    "note_marker:ghost": 928,
+    "note_marker:bend": 858,
+    "grace_beats": 70,
+    "note_marker:harmonic": 524,
+    "note_marker:wideVibrato": 8,
+    "vibrato_marked_note_segments": 23,
+    "note_marker:vibrato": 13,
+    "note_marker:leftHandVibrato": 1
+  },
+  "guitar_bass_coattack_groups": {
+    "extended_power_chord": 12825,
+    "double_stop": 32159,
+    "power_chord": 18911,
+    "close_interval_texture": 3349
+  },
+  "converter_commits": [
+    "a5e6ec76bd30bb626f4381bb78baef7e20ec2c21"
+  ],
+  "alphatab_version": "1.8.4",
+  "limitations": [
+    "Reconstructed GP7, not original uploader binaries",
+    "Detailed GP7 comparison includes notes/rhythm/selected effects, not every possible source field",
+    "Conversion warnings and failures remain in private catalog; do not treat losses as absent techniques",
+    "Raw-source inventory is independent of conversion",
+    "Different versions, collaborations and AI-labeled entries are not independent verified artist examples",
+    "No recreation or artist-feel validation claimed"
+  ]
+}

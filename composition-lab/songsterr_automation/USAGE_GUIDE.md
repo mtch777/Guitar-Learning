@@ -162,3 +162,8 @@ Its report is written at `results/gp7_roundtrip_report.json`. This is a GP5-vs-G
 3. Compare **live Songsterr JSON directly to GP7**, field-by-field for pitch, timing, rhythm, tuning, instruments, bends/curves, slides, hammer/pull, grace notes, tremolo, dynamics and structural metadata.
 4. Add clear mismatch categories and test a pinned corpus with more unusual rhythmic and expressive features.
 5. Pin external converter/tool versions and integrate a configurable frontend or Composition Lab import path only after fidelity requirements are met.
+
+
+## CSV corpus acquisition (2026-10-17)
+
+Read CORPUS_RESULTS.md and CORPUS_PROGRESS.md for the new private CSV batch adapter and its actual98-entry results. It reuses the existing converter but adds a reversible8-string bridge, exact source-rhythm restoration, native GP7 export, serialized-source and detailed roundtrip checks, and an independent raw-notation technique inventory. The legacy GP5 downloader fails on8-string notes and its count-only GP7 smoke report is insufficient for technique fidelity. Generated scores/raw JSON/CSV stay under ignored local-artifacts; never use save_to_repo for this corpus.74/98 detailed roundtrip passes are not a claim of lossless conversion; all98 regular-note source checks and vanilla GP7 imports pass in their narrower scopes. No new source-derived musical-feel result is claimed.
