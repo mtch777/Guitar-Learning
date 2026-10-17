@@ -226,3 +226,17 @@ Targets for stages 2/3 were rhythm/melody 25; target harmony for stage 4 was 75.
 - Pedal queries now accept repeated anchor bursts separated by fills, support polyphonic co-attacks and respect annotated section boundaries. Cloud candidates observed; no inference of confirmed musical purpose. Synthetic counterexamples and tolerance probes added.
 - First partial benchmark intentionally stopped for indexed-lookup optimization, preserved in technique-edits-v1. Profile retained privately; optimized v2 completed. No restart based merely on polling timeout.
 - Tests: 158 Python, 16 JS, Vite build pass. No public website changes. Goal active; arrangement-pattern controls, broader validation, suitable technique playback and human listening remain open. Next: pattern construction/lock contracts and improved review rendering; retain all bend and technique baselines.
+
+
+## 2026-10-16 — execute remaining technique engineering and review
+
+- Pulled main ff-only c337e42 to 3d37d1f, preserved concurrent workflow changes. Sources/private annotations remain private.
+- Added nested 0–100 release, paired HOPO flags/actual selection reporting, explicit pitch/voicing permissions and occurrence-cloned construction for all five pattern families. Original tables, rational timing, untouched events and archive assets verified.
+- Pattern v1 rejected overly strict metadata eligibility; admitted only preserved stem metadata/empty XProperties. v2 completed thirty cases but sometimes selected bass; v3 thirty guitar-only cases independently imported. Time/Cloud/Sweet: 104/706/505 safe events per variant. Verifier explicitly separates written pitch from harmonic sounding pitch and excludes percussion.
+- Multiscale reports retain track/section denominators, conditional distributions, staff inventory and unknown phrase/artist identity. Time arm-vibrato independently verified. Alternating pedal windows now also respect sections.
+- Final technique-review-v6: eighty GPs/eighty finite/unclipped/nonzero instrument WAVs, higher-neck examples, 35 distinct A/B pairs. Earlier fixture/gate failures and baselines retained. One empty-strength pair and four identical-audio pairs withheld. No original/no-technique control offered, no human ratings invented.
+- Browser verified ten selectors/both rolls, actual A/B playback, persisted QA feedback/export. Download check unexpectedly slow. Basic HTTP seeking reset to zero; added loopback byte-range server and verified synchronized timestamps. QA data explicitly isolated/labeled.
+- unittest discovery:169 pass; JS tests:16 pass; Vite build:pass. Reproduction in TECHNIQUE_RESULTS.md. Public aggregate technique_construction_results.json contains no notes/annotations. No website change/Pages deployment needed. GitHub CI checked after push separately.
+- Remaining human/physical acceptance, authentic legato, pedal/phrase labels and learned artist transfer. Generic rules are not style learning or originality certification. Next: consolidated review feedback and targeted fixes.
+
+- Final notation/pattern checks: Time and Sweet arm-vibrato markers both independently match alphaTab. Exact transposition/time-scaling relationships added for alternating pedal candidates, retaining uncertainty about motif function. Tests:169 pass.

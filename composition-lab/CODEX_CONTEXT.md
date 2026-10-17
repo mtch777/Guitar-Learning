@@ -1,5 +1,7 @@
 # Composition Lab — Codex context and autonomous execution plan
 
+**Latest technique execution:** Read TECHNIQUE_RESULTS.md and newest TECHNIQUE_ROADMAP.md entry. Intermediate controls, five construction families, 30 guitar cases, 80 authored GP/audio probes, 35-pair local review implemented. Private technique-review-v6 at port 5180; 5179 is old bends. Human acceptance/authentic HOPO pending. No artist-learning claim.
+
 **Current goal, 2026-10-16:** extend scripted analysis and exact-lock experiments to fretted/open-string HOPO, finger vibrato, pedal patterns, close dyads, power/extended power chords and double stops. Execution checklist and precise definitions: `TECHNIQUE_ROADMAP.md`. Bends remain preserved baseline. User confirmed higher-position fretted pull-offs and clarified that “tremolo” meant bending-based vibrato, not rapid picking. Double stops use the plain definition of two notes together; no further category-choice question needed. Raw beat-level arm-vibrato property exists in Time despite earlier absence of note-level vibrato tags.
 
 **2026-10-16 control contract correction:** latest user instruction supersedes older difference-target language: 0% is a literal selected-feature lock; 100% removes direct reference constraints, without forcing difference. Performance and arrangement are separate. First working bend-only lever, verified endpoints and private audio comparison: `LEVER_IMPLEMENTATION.md`. Other levers are not claimed implemented under this revised contract.

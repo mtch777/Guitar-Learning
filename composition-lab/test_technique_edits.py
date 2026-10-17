@@ -66,5 +66,23 @@ class TechniqueEditTests(unittest.TestCase):
             return [(n.get('id'),n.findtext('Vibrato')) for n in r.findall('./Notes/Note')]
         self.assertEqual(tags(a),tags(b))
 
+    def test_intermediate_hopo_keeps_complete_relationships(self):
+        from technique_analysis import analyze
+        from exact_score import extract_score
+        for strength in (25,50,75):
+            out=self.root/f'hopo-{strength}.gp'
+            generate_hopo(self.source,out,0,'hammer_on_from_open',strength)
+            track=analyze(extract_score(out))['tracks'][0]
+            self.assertEqual(track['hopo_warnings'],[])
+            self.assertEqual(track['hopo_origin_markers'],track['hopo_destination_markers'])
+
+    def test_intermediate_vibrato_retains_locked_source_tag(self):
+        from technique_edits import generate_vibrato
+        from technique_strength import released
+        out=self.root/'middle.gp';generate_vibrato(self.source,out,0,50)
+        with zipfile.ZipFile(out) as z:r=ET.fromstring(z.read('Content/score.gpif'))
+        for ident in ('1','2'):
+            self.assertEqual(r.findtext(f'./Notes/Note[@id="{ident}"]/Vibrato'),'Slight' if released(ident,50) else None)
+
 
 if __name__=='__main__':unittest.main()

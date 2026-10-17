@@ -1,6 +1,6 @@
 # Current goal: performance techniques and guitar patterns
 
-Started 2026-10-16. Status: active; specification and preflight in progress. This extends, rather than replaces, the verified bend baseline. Authoritative branch: origin/main. Private scores, annotations, rendered source excerpts and checkpoints remain outside Git.
+Started 2026-10-16. Status: active; scripted controls and engineering review delivered; human musical acceptance pending. This extends, rather than replaces, the verified bend baseline. Authoritative branch: origin/main. Private scores, annotations, rendered source excerpts and checkpoints remain outside Git.
 
 ## Contract
 
@@ -93,3 +93,19 @@ Reproducible authored diagnostics: `python composition-lab/build_technique_diagn
 `pedal_patterns.py` adds co-attack-group and repeated-anchor-burst queries. Repeated chugs before fills no longer require strict single-note alternation. Cloud source now yields 48/23/58/58/3 burst candidates across its five pitched guitar/bass tracks, versus zero under the earlier monophonic rule. These are overlapping candidates under a stated period tolerance, not adjudicated musical roles. Constant roots without contrasting returns are excluded; section boundaries respected; source evidence retained. Recurrence/variation validation and pattern generation remain open.
 
 Verification at this milestone: 158 Python tests, 16 JS tests, Vite build; independent imports for all 30 real-score variants plus six authored modified scores. No website changes, no Pages deployment required. Remaining: full effect coverage, broader pedal/phrase validation, arrangement-pattern edit levers, physical/authentic playback and human review. Goal stays active.
+
+
+## 2026-10-16 — construction controls and consolidated review
+
+Acceptance evidence and reproduction commands: TECHNIQUE_RESULTS.md. Earlier endpoint-only statements above are historical.
+
+- [x] Integer 0–100 release for HOPO/vibrato; paired flags, literal zero copies, actual/proposed selection reporting.
+- [x] Separately authorized pedal/dyad/power/extended-power/double-stop construction; immutable original definitions, occurrence clones, exact timing, untouched-occurrence and archive checks. Incompatible locks reject.
+- [x] Full-freedom reference-pitch perturbation tests in two tunings; all five construction families and nested release subsets checked.
+- [x] Thirty real-score guitar-only cases; independent written stringed pitch/string/fret verification on all thirty.
+- [x] Multiscale descriptive reports with section/track denominators and conditional distributions; artist/phrase truth unknown; staff inventory retained. Time arm-vibrato independently checked.
+- [x] Eighty authored GP/audio probes including higher-neck positions; all independently imported and rendered finite/nonzero/unclipped. Final review offers 35 distinct A/B pairs across ten families; empty/identical pairs withheld.
+- [x] Browser-check ten groups/both rolls, playback, saved QA feedback and exported JSON. Range-server fix verified synchronized A/B seeking. QA isolated from musical judgments.
+- [ ] Human musical/physical acceptance, authentic HOPO tone, validated pedal/phrase function and learned artist-conditioned transfer remain open.
+
+Final private review: local-artifacts/technique-review-v6 at http://127.0.0.1:5180/. Guitar batch: pattern-edits-v3. Earlier diagnostic rounds retained: review v1/v4 failed family coverage, v2/v5 exposed identical methods, v3 valid lower-position bundle; v6 includes higher positions and passes final gate. Pattern v2 selected bass where it maximized coverage; v3 deliberately selects guitars. No original/no-technique listening control offered. 169 Python tests, 16 JS tests, build pass. No public website changes.

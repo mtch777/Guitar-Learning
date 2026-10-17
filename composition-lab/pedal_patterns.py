@@ -11,6 +11,7 @@ def detect(rows,period_tolerance=F(1,4)):
     events=sorted(starts.items());out=[]
     for i in range(len(events)-5):
         group=events[i:i+6];sets=[{r['midi'] for r in ns} for q,ns in group]
+        if len({r.get('section_start',r['section']) for q,ns in group for r in ns})!=1:continue
         anchors=sets[0]&sets[2]&sets[4]
         periods=[group[2][0]-group[0][0],group[4][0]-group[2][0]]
         if not min(periods):continue
@@ -64,4 +65,22 @@ def detect_bursts(rows,period_tolerance=F(1,2)):
                             burst_offsets_q=[str(q-times[0]) for q in times],relative_period_error=str(error),
                             members=[[[n['occurrence'] for n in ns] for q,ns in r['events']] for r in group],
                             interpretation='three anchor attack-bursts alternating with contrasting bursts; overlapping candidate, not verified pedal role'))
+    return out
+
+
+def transformation_groups(candidates):
+    """Exact pitch-shape match with rational time scaling; not phrase identity."""
+    groups=defaultdict(list)
+    for i,c in enumerate(candidates):
+        offsets=list(map(F,c['offsets_q']))
+        unit=next((q for q in offsets if q>0),None)
+        if unit is None:continue
+        signature=(tuple(map(tuple,c['relative_pitch_sets'])),tuple(q/unit for q in offsets))
+        groups[signature].append((i,c,unit))
+    out=[]
+    for members in groups.values():
+        if len(members)<2:continue
+        first,base,unit=members[0]
+        out.append(dict(reference_candidate=first,members=[dict(candidate=i,transpose_semitones=c['anchor_midi']-base['anchor_midi'],time_scale=str(u/unit),source_bar=c['source_bar'],section=c['section']) for i,c,u in members],
+                        interpretation='same relative pitch sets and proportionally scaled attack offsets; not verified motif/phrase identity'))
     return out

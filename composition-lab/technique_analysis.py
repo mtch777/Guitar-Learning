@@ -119,7 +119,7 @@ def analyze(score):
                     beat_root=ET.fromstring(e['beat_xml'])
                     inventory['beat_properties'].update(p.get('name') for p in beat_root.findall('./Properties/Property'))
                     inventory['beat_tags'].update(c.tag for c in beat_root if c.tag not in ('Notes','Rhythm','Properties'))
-                    for effect in effect_inventory(e['beat_xml']):effects.append(dict(scope='beat',bar=m['number'],voice=vi,beat=e['beat_id'],**effect))
+                    for effect in effect_inventory(e['beat_xml']):effects.append(dict(scope='beat',bar=m['number'],voice=vi,beat=e['beat_id'],beat_occurrence=f"{t['index']}:{m['number']}:{vi}:{ei}",**effect))
                     for ni,n in enumerate(e['notes']):
                         inventory['note_properties'].update(n['property_names'])
                         inventory['note_tags'].update(n['technique_tags'])
@@ -130,7 +130,7 @@ def analyze(score):
                                string=n['string'],fret=n['fret'],tie_destination=tie.get('destination')=='true',
                                tie_origin=tie.get('origin')=='true',hopo_origin=enabled(n['note_xml'],'HopoOrigin'),
                                hopo_destination=enabled(n['note_xml'],'HopoDestination'),
-                               pitch_effects=any(x in n['property_names'] for x in ('Bended','HarmonicType')) or any(s in e['beat_xml'] for s in ('Whammy','Vibrato')),
+                               pitch_effects=any(x in n['property_names'] for x in ('Bended','HarmonicType')) or any(s in e['beat_xml'] for s in ('Whammy','Vibrato')) or '<Vibrato>' in n['note_xml'],
                                grace_type=n['grace_type'])
                         rows.append(r)
                         for effect in effect_inventory(n['note_xml']):effects.append(dict(scope='note',occurrence=r['occurrence'],**effect))
@@ -158,7 +158,7 @@ def analyze(score):
                                    members=[r['occurrence'] for r in active]))
                 hist.update(labels)
         pedal,recurrences=pedal_runs(sustains)
-        from pedal_patterns import detect,detect_bursts
+        from pedal_patterns import detect,detect_bursts,transformation_groups
         poly_pedal,poly_recurrences=detect(rows) if not t['is_percussion'] else ([],[])
         sensitivity={str(tolerance):len(detect(rows,tolerance)[0]) for tolerance in (F(0),F(1,8),F(1,4))} if not t['is_percussion'] else {}
         section_counts=defaultdict(Counter)
@@ -178,6 +178,7 @@ def analyze(score):
                            simultaneous_groups=groups,group_label_counts=dict(hist),
                            pedal_candidates=pedal,pedal_recurrence_groups=recurrences,
                            polyphonic_pedal_candidates=poly_pedal,polyphonic_pedal_recurrence_groups=poly_recurrences,
+                           pedal_transformation_groups=transformation_groups(poly_pedal),
                            pedal_period_sensitivity=sensitivity,
                            pedal_burst_candidates=detect_bursts(rows) if not t['is_percussion'] else [],
                            unresolved_ties=unresolved,unmatched_tie_origins=dangling))

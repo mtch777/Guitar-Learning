@@ -1,6 +1,6 @@
 import unittest
 from fractions import Fraction as F
-from pedal_patterns import detect,detect_bursts
+from pedal_patterns import detect,detect_bursts,transformation_groups
 
 
 def rows(groups,times=None):
@@ -26,6 +26,11 @@ class PedalPatternTests(unittest.TestCase):
         r=rows([[40],[64],[40],[67],[40],[69]]*2)
         candidates,recurrences=detect(r)
         self.assertTrue(recurrences);self.assertEqual(len(candidates[0]['members']),6)
+    def test_transposed_time_scaled_candidates_retain_exact_relationship(self):
+        a=detect(rows([[40],[64],[40],[67],[40],[69]]))[0][0]
+        b=detect(rows([[42],[66],[42],[69],[42],[71]],[0,2,4,6,8,10]))[0][0]
+        relation=transformation_groups([a,b])[0]['members'][1]
+        self.assertEqual(relation['transpose_semitones'],2);self.assertEqual(relation['time_scale'],'2')
     def test_multiple_anchor_attacks_then_fills(self):
         r=rows([[40,47],[40,47],[64],[40,47],[40,47],[67],[40,47],[40,47],[69]])
         c=detect_bursts(r)
@@ -34,6 +39,7 @@ class PedalPatternTests(unittest.TestCase):
         r=rows([[40],[64],[40],[67],[40],[69]])
         for n in r[4:]:n['section']='B'
         self.assertEqual(detect_bursts(r),[])
+        self.assertEqual(detect(r)[0],[])
 
 
 if __name__=='__main__':unittest.main()
