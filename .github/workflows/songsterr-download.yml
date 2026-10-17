@@ -17,11 +17,11 @@ on:
       song_id:
         description: Exact Songsterr ID or URL (overrides search)
         type: string
-        default: '153'
+        default: ''
       tracks:
         description: all, guitar, bass, drums, vocals or comma-separated indices
         type: string
-        default: '2'
+        default: 'all'
       output:
         description: Relative destination inside composition-lab/songsterr_automation/downloads
         type: string
@@ -51,8 +51,8 @@ jobs:
     env:
       ARTIST: ${{ inputs.artist || '' }}
       SONG: ${{ inputs.song || '' }}
-      SONG_ID: ${{ inputs.song_id || '153' }}
-      TRACKS: ${{ inputs.tracks || '2' }}
+      SONG_ID: ${{ inputs.song_id || (github.event_name == 'push' && '153') || '' }}
+      TRACKS: ${{ inputs.tracks || (github.event_name == 'push' && '2') || 'all' }}
       OUTPUT: ${{ inputs.output || 'composition-lab/songsterr_automation/downloads' }}
       EXISTING: ${{ inputs.existing || 'overwrite' }}
       MAX_SONGS: ${{ inputs.max_songs || '10' }}
@@ -80,6 +80,16 @@ jobs:
       - name: Convert GP5 to GP7 and reopen
         run: |
           node composition-lab/songsterr_automation/songsterr_api/export_gp7_batch.mjs "$OUTPUT" 2>&1 | tee gp7-export.log
+      - name: Commit successful smoke-test summary
+        if: github.event_name == 'push'
+        run: |
+          mkdir -p composition-lab/songsterr_automation/results
+          cp songsterr-run/selection.json composition-lab/songsterr_automation/results/configurable_download_selection.json
+          cp songsterr-run/exports.json composition-lab/songsterr_automation/results/configurable_download_exports.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add composition-lab/songsterr_automation/results/configurable_download_*.json
+          git diff --cached --quiet || (git commit -m "Record verified configurable Songsterr download smoke test" && git push)
       - name: Persist files to repository if requested
         if: env.SAVE_TO_REPO == 'true'
         run: |
