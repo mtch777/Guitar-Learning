@@ -10,7 +10,7 @@ permissions:
 jobs:
   convert:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -50,13 +50,19 @@ jobs:
         shell: bash
         run: |
           python composition-lab/songsterr_automation/songsterr_api/validate_source.py 2>&1 | tee songsterr-e2e/source_fidelity.log
+      - name: Compare multi-song multi-instrument source corpus
+        id: corpus
+        continue-on-error: true
+        shell: bash
+        run: |
+          python composition-lab/songsterr_automation/songsterr_api/validate_corpus.py 2>&1 | tee songsterr-e2e/corpus_validation.log
       - name: Commit machine-readable report
         if: always()
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add composition-lab/songsterr_automation/results/e2e_conversion_report.json composition-lab/songsterr_automation/results/gp7_roundtrip_report.json composition-lab/songsterr_automation/results/source_fidelity_report.json 2>/dev/null || true
+          git add composition-lab/songsterr_automation/results/e2e_conversion_report.json composition-lab/songsterr_automation/results/gp7_roundtrip_report.json composition-lab/songsterr_automation/results/source_fidelity_report.json composition-lab/songsterr_automation/results/source_corpus_report.json 2>/dev/null || true
           git diff --cached --quiet || (git commit -m "Record Songsterr end-to-end conversion results" && git push)
       - uses: actions/upload-artifact@v4
         if: always()
@@ -67,7 +73,8 @@ jobs:
             composition-lab/songsterr_automation/results/e2e_conversion_report.json
             composition-lab/songsterr_automation/results/gp7_roundtrip_report.json
             composition-lab/songsterr_automation/results/source_fidelity_report.json
+            composition-lab/songsterr_automation/results/source_corpus_report.json
           retention-days: 30
       - name: Enforce conversion success
-        if: steps.conversion.outputs.exit_code != '0' || steps.validation.outcome != 'success' || steps.gp7.outcome != 'success' || steps.source.outcome != 'success'
+        if: steps.conversion.outputs.exit_code != '0' || steps.validation.outcome != 'success' || steps.gp7.outcome != 'success' || steps.source.outcome != 'success' || steps.corpus.outcome != 'success'
         run: exit 1
