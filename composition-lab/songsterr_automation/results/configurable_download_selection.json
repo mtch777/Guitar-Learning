@@ -1,0 +1,31 @@
+{
+  "args": {
+    "artist": "",
+    "song": "",
+    "song_id": "153",
+    "tracks": "2",
+    "output": "composition-lab/songsterr_automation/downloads",
+    "existing": "overwrite",
+    "max_songs": 10,
+    "report": "songsterr-run/selection.json"
+  },
+  "songs": [
+    {
+      "song_id": 153,
+      "artist": "Pink Floyd",
+      "title": "Wish You Were Here",
+      "revision_id": 7824020,
+      "selected_tracks": [
+        2
+      ],
+      "folder": "composition-lab/songsterr_automation/downloads/153",
+      "status": "ok",
+      "returncode": 0,
+      "output": "  Pink Floyd - Wish You Were Here (song 153, revision 7824020, 1 of 11 tracks)\n  wrote composition-lab/songsterr_automation/downloads/153/Pink Floyd - Wish You Were Here.gp5 (5,675 bytes, 218 notes, 81 measures)\n    note: lyrics are not carried over (1x)\n  wrote composition-lab/songsterr_automation/downloads/153/Pink Floyd - Wish You Were Here_report.txt\n",
+      "gp5": [
+        "composition-lab/songsterr_automation/downloads/153/Pink Floyd - Wish You Were Here.gp5"
+      ]
+    }
+  ],
+  "errors": []
+}

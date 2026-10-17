@@ -1,0 +1,15 @@
+{
+  "files": [
+    {
+      "source": "composition-lab/songsterr_automation/downloads/153/Pink Floyd - Wish You Were Here.gp5",
+      "gp7": "composition-lab/songsterr_automation/downloads/153/Pink Floyd - Wish You Were Here.gp",
+      "bytes": 12209,
+      "originalNotes": 232,
+      "finalNotes": 232,
+      "bars": 81,
+      "tracks": 1,
+      "pass": true
+    }
+  ],
+  "success": true
+}
