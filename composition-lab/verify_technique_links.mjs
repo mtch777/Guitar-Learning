@@ -17,4 +17,7 @@ const actual=new Set(notes.filter(n=>n.hammerPullDestination).map(n=>`${location
 const expected=new Set(report.tracks.flatMap(t=>t.explicit_hopo).map(p=>`${p.origin_markers[0]}>${p.destination}`));
 const missing=[...expected].filter(x=>!actual.has(x)),extra=[...actual].filter(x=>!expected.has(x));
 if(missing.length||extra.length)throw new Error(JSON.stringify({missing,extra}));
-console.log(JSON.stringify({source,explicitPairs:expected.size,independentPairs:actual.size,allDirectedLinksAgree:true}));
+const expectedVibrato=new Map(report.tracks.flatMap(t=>t.effects).filter(e=>e.scope==='note'&&e.name==='Vibrato').map(e=>[e.occurrence,e.xml.includes('Wide')?2:e.xml.includes('Slight')?1:0]));
+let vibratoNotes=0;
+for(const n of notes){const value=expectedVibrato.get(locations.get(n))??0;if(n.vibrato!==value)throw new Error('Vibrato mapping mismatch '+locations.get(n));if(value)vibratoNotes++;}
+console.log(JSON.stringify({source,explicitPairs:expected.size,independentPairs:actual.size,allDirectedLinksAgree:true,vibratoNotes,noteVibratoMappingAgrees:true}));

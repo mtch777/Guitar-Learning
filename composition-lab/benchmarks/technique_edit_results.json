@@ -1,0 +1,231 @@
+{
+  "scope": "Mechanical exact-lock/edit/engine verification; not artist-style or musical-quality validation",
+  "source_cases": [
+    {
+      "source_sha256": "bd656f927c89b00fbc366b8659879d606937e4ff33fef60367023802c53aa89b",
+      "family": "hammer_on_fretted",
+      "track": 4,
+      "selected": 44,
+      "method": "short_intervals"
+    },
+    {
+      "source_sha256": "bd656f927c89b00fbc366b8659879d606937e4ff33fef60367023802c53aa89b",
+      "family": "hammer_on_fretted",
+      "track": 4,
+      "selected": 41,
+      "method": "long_arrivals"
+    },
+    {
+      "source_sha256": "bd656f927c89b00fbc366b8659879d606937e4ff33fef60367023802c53aa89b",
+      "family": "pull_off_fretted",
+      "track": 4,
+      "selected": 72,
+      "method": "short_intervals"
+    },
+    {
+      "source_sha256": "bd656f927c89b00fbc366b8659879d606937e4ff33fef60367023802c53aa89b",
+      "family": "pull_off_fretted",
+      "track": 4,
+      "selected": 66,
+      "method": "long_arrivals"
+    },
+    {
+      "source_sha256": "bd656f927c89b00fbc366b8659879d606937e4ff33fef60367023802c53aa89b",
+      "family": "hammer_on_from_open",
+      "track": 4,
+      "selected": 47,
+      "method": "short_intervals"
+    },
+    {
+      "source_sha256": "bd656f927c89b00fbc366b8659879d606937e4ff33fef60367023802c53aa89b",
+      "family": "hammer_on_from_open",
+      "track": 4,
+      "selected": 49,
+      "method": "long_arrivals"
+    },
+    {
+      "source_sha256": "bd656f927c89b00fbc366b8659879d606937e4ff33fef60367023802c53aa89b",
+      "family": "pull_off_to_open",
+      "track": 4,
+      "selected": 27,
+      "method": "short_intervals"
+    },
+    {
+      "source_sha256": "bd656f927c89b00fbc366b8659879d606937e4ff33fef60367023802c53aa89b",
+      "family": "pull_off_to_open",
+      "track": 4,
+      "selected": 21,
+      "method": "long_arrivals"
+    },
+    {
+      "source_sha256": "bd656f927c89b00fbc366b8659879d606937e4ff33fef60367023802c53aa89b",
+      "family": "finger_vibrato",
+      "track": 4,
+      "selected": 35,
+      "width": "Slight"
+    },
+    {
+      "source_sha256": "bd656f927c89b00fbc366b8659879d606937e4ff33fef60367023802c53aa89b",
+      "family": "finger_vibrato",
+      "track": 4,
+      "selected": 35,
+      "width": "Wide"
+    },
+    {
+      "source_sha256": "63cfae7762a5ac56b2f0521d8c01cbf6025fac74ea525c7a6b7d260703492f66",
+      "family": "hammer_on_fretted",
+      "track": 0,
+      "selected": 34,
+      "method": "short_intervals"
+    },
+    {
+      "source_sha256": "63cfae7762a5ac56b2f0521d8c01cbf6025fac74ea525c7a6b7d260703492f66",
+      "family": "hammer_on_fretted",
+      "track": 0,
+      "selected": 57,
+      "method": "long_arrivals"
+    },
+    {
+      "source_sha256": "63cfae7762a5ac56b2f0521d8c01cbf6025fac74ea525c7a6b7d260703492f66",
+      "family": "pull_off_fretted",
+      "track": 0,
+      "selected": 7,
+      "method": "short_intervals"
+    },
+    {
+      "source_sha256": "63cfae7762a5ac56b2f0521d8c01cbf6025fac74ea525c7a6b7d260703492f66",
+      "family": "pull_off_fretted",
+      "track": 0,
+      "selected": 7,
+      "method": "long_arrivals"
+    },
+    {
+      "source_sha256": "63cfae7762a5ac56b2f0521d8c01cbf6025fac74ea525c7a6b7d260703492f66",
+      "family": "hammer_on_from_open",
+      "track": 0,
+      "selected": 21,
+      "method": "short_intervals"
+    },
+    {
+      "source_sha256": "63cfae7762a5ac56b2f0521d8c01cbf6025fac74ea525c7a6b7d260703492f66",
+      "family": "hammer_on_from_open",
+      "track": 0,
+      "selected": 21,
+      "method": "long_arrivals"
+    },
+    {
+      "source_sha256": "63cfae7762a5ac56b2f0521d8c01cbf6025fac74ea525c7a6b7d260703492f66",
+      "family": "pull_off_to_open",
+      "track": 0,
+      "selected": 17,
+      "method": "short_intervals"
+    },
+    {
+      "source_sha256": "63cfae7762a5ac56b2f0521d8c01cbf6025fac74ea525c7a6b7d260703492f66",
+      "family": "pull_off_to_open",
+      "track": 0,
+      "selected": 13,
+      "method": "long_arrivals"
+    },
+    {
+      "source_sha256": "63cfae7762a5ac56b2f0521d8c01cbf6025fac74ea525c7a6b7d260703492f66",
+      "family": "finger_vibrato",
+      "track": 3,
+      "selected": 7,
+      "width": "Slight"
+    },
+    {
+      "source_sha256": "63cfae7762a5ac56b2f0521d8c01cbf6025fac74ea525c7a6b7d260703492f66",
+      "family": "finger_vibrato",
+      "track": 3,
+      "selected": 7,
+      "width": "Wide"
+    },
+    {
+      "source_sha256": "17c5ecc0606a6334bf2818ba3f2d1f4a8574f0777cf6750565f644a0ee0b9e7f",
+      "family": "hammer_on_fretted",
+      "track": 3,
+      "selected": 75,
+      "method": "short_intervals"
+    },
+    {
+      "source_sha256": "17c5ecc0606a6334bf2818ba3f2d1f4a8574f0777cf6750565f644a0ee0b9e7f",
+      "family": "hammer_on_fretted",
+      "track": 3,
+      "selected": 79,
+      "method": "long_arrivals"
+    },
+    {
+      "source_sha256": "17c5ecc0606a6334bf2818ba3f2d1f4a8574f0777cf6750565f644a0ee0b9e7f",
+      "family": "pull_off_fretted",
+      "track": 3,
+      "selected": 155,
+      "method": "short_intervals"
+    },
+    {
+      "source_sha256": "17c5ecc0606a6334bf2818ba3f2d1f4a8574f0777cf6750565f644a0ee0b9e7f",
+      "family": "pull_off_fretted",
+      "track": 3,
+      "selected": 175,
+      "method": "long_arrivals"
+    },
+    {
+      "source_sha256": "17c5ecc0606a6334bf2818ba3f2d1f4a8574f0777cf6750565f644a0ee0b9e7f",
+      "family": "hammer_on_from_open",
+      "track": 4,
+      "selected": 101,
+      "method": "short_intervals"
+    },
+    {
+      "source_sha256": "17c5ecc0606a6334bf2818ba3f2d1f4a8574f0777cf6750565f644a0ee0b9e7f",
+      "family": "hammer_on_from_open",
+      "track": 4,
+      "selected": 244,
+      "method": "long_arrivals"
+    },
+    {
+      "source_sha256": "17c5ecc0606a6334bf2818ba3f2d1f4a8574f0777cf6750565f644a0ee0b9e7f",
+      "family": "pull_off_to_open",
+      "track": 4,
+      "selected": 124,
+      "method": "short_intervals"
+    },
+    {
+      "source_sha256": "17c5ecc0606a6334bf2818ba3f2d1f4a8574f0777cf6750565f644a0ee0b9e7f",
+      "family": "pull_off_to_open",
+      "track": 4,
+      "selected": 51,
+      "method": "long_arrivals"
+    },
+    {
+      "source_sha256": "17c5ecc0606a6334bf2818ba3f2d1f4a8574f0777cf6750565f644a0ee0b9e7f",
+      "family": "finger_vibrato",
+      "track": 4,
+      "selected": 13,
+      "width": "Slight"
+    },
+    {
+      "source_sha256": "17c5ecc0606a6334bf2818ba3f2d1f4a8574f0777cf6750565f644a0ee0b9e7f",
+      "family": "finger_vibrato",
+      "track": 4,
+      "selected": 13,
+      "width": "Wide"
+    }
+  ],
+  "case_count": 30,
+  "independent_imports_and_links_verified": 30,
+  "nonempty_cases": 30,
+  "all_unrelated_xml_locked": true,
+  "zero_hopo_source_cases": 12,
+  "hopo_source_reference_perturbations": 24,
+  "vibrato_width_source_perturbations": 3,
+  "authored_diagnostic_gps": 7,
+  "finite_unclipped_instrument_previews": 7,
+  "soundfont_sha256": "4978cf37e7164206f2d22dc4fdf4020ffe040787210bf781e31bdc79961f59ef",
+  "human_listening_judgments_collected": 0,
+  "limitations": [
+    "HOPO synth playback changes dynamics; physical legato timbre remains unverified",
+    "Vibrato marker encodes qualitative strength, not measured source rate/width",
+    "Pedal burst detections are overlapping candidates, not confirmed musical roles"
+  ]
+}

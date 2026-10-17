@@ -53,7 +53,7 @@ def hopo_pairs(rows):
                 continue
             direction='hammer_on' if b['fret']>a['fret'] else 'pull_off'
             open_kind='from_open' if a['fret']==0 else 'to_open' if b['fret']==0 else 'fretted'
-            record=dict(origin=a['occurrence'],destination=b['occurrence'],direction=direction,
+            record=dict(origin=a['occurrence'],origin_terminal=lane[j]['occurrence'],destination=b['occurrence'],direction=direction,
                         context=open_kind,fret_distance=abs(b['fret']-a['fret']),
                         origin_fret=a['fret'],destination_fret=b['fret'],string=a['string'],
                         source_bar=a['bar'],destination_bar=b['bar'],
@@ -111,9 +111,9 @@ def effect_inventory(xml):
 def analyze(score):
     tracks=[]
     for t in score['tracks']:
-        rows=[];effects=[];section='(unlabeled)';order=0;inventory=defaultdict(Counter)
+        rows=[];effects=[];section='(unlabeled)';section_start=0;order=0;inventory=defaultdict(Counter)
         for m in t['measures']:
-            if m['section']:section=m['section']
+            if m['section']:section=m['section'];section_start=m['number']
             for vi,v in enumerate(m['voices']):
                 for ei,e in enumerate(v):
                     beat_root=ET.fromstring(e['beat_xml'])
@@ -125,7 +125,7 @@ def analyze(score):
                         inventory['note_tags'].update(n['technique_tags'])
                         tie=n['tie'] or {};order+=1
                         r=dict(occurrence=f"{t['index']}:{m['number']}:{vi}:{ei}:{ni}",order=order,
-                               note_id=n['note_id'],bar=m['number'],section=section,voice=vi,
+                               note_id=n['note_id'],bar=m['number'],section=section,section_start=section_start,voice=vi,
                                onset_q=n['onset_q'],duration_q=n['duration_q'],midi=n['midi'],
                                string=n['string'],fret=n['fret'],tie_destination=tie.get('destination')=='true',
                                tie_origin=tie.get('origin')=='true',hopo_origin=enabled(n['note_xml'],'HopoOrigin'),
@@ -158,6 +158,9 @@ def analyze(score):
                                    members=[r['occurrence'] for r in active]))
                 hist.update(labels)
         pedal,recurrences=pedal_runs(sustains)
+        from pedal_patterns import detect,detect_bursts
+        poly_pedal,poly_recurrences=detect(rows) if not t['is_percussion'] else ([],[])
+        sensitivity={str(tolerance):len(detect(rows,tolerance)[0]) for tolerance in (F(0),F(1,8),F(1,4))} if not t['is_percussion'] else {}
         section_counts=defaultdict(Counter)
         by_occurrence={r['occurrence']:r for r in rows}
         for p in observed:section_counts[by_occurrence[p['origin']]['section']].update([p['direction']+'_'+p['context']])
@@ -174,11 +177,14 @@ def analyze(score):
                            effects=effects,effect_counts=dict(Counter(e['scope']+':'+e['name'] for e in effects)),
                            simultaneous_groups=groups,group_label_counts=dict(hist),
                            pedal_candidates=pedal,pedal_recurrence_groups=recurrences,
+                           polyphonic_pedal_candidates=poly_pedal,polyphonic_pedal_recurrence_groups=poly_recurrences,
+                           pedal_period_sensitivity=sensitivity,
+                           pedal_burst_candidates=detect_bursts(rows) if not t['is_percussion'] else [],
                            unresolved_ties=unresolved,unmatched_tie_origins=dangling))
     return dict(schema='gp-technique-analysis-v1',source_sha256=score['source_sha256'],source_file=score['source_file'],
                 measure_count=score['measure_count'],voice_meter_discrepancies=len(validate_events(score)),tracks=tracks,
                 limitations=['Written score order, repeats not unfolded','HOPO eligibility does not prove use or physical feasibility',
-                             'Double-stop/tremolo scope definitions remain provisional pending user reply',
+                             'Double stops mean two notes together; requested tremolo means pitch vibrato, not rapid picking',
                              'Simultaneous labels use notated base MIDI pitches, not bend/harmonic-adjusted audio',
                              'Effect XML preserved; marker absence and unspecified speed/width remain unknown',
                              'Pedal candidates use three alternating returns, not validated musical-role/phrase inference',
@@ -189,5 +195,7 @@ def analyze(score):
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('source',type=Path);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
     r=analyze(extract_score(a.source));a.output.parent.mkdir(parents=True,exist_ok=True)
+    from technique_effects import normalize_report
+    r=normalize_report(r)
     a.output.write_text(json.dumps(r,indent=2),encoding='utf-8')
     print(json.dumps(dict(source=r['source_file'],tracks=len(r['tracks']),hopo=sum(len(t['explicit_hopo']) for t in r['tracks']),warnings=sum(len(t['hopo_warnings']) for t in r['tracks']))))
