@@ -1,0 +1,30 @@
+{
+  "song_id": 153,
+  "track_index": 2,
+  "success": true,
+  "revision_id": 7824020,
+  "source_top_keys": [
+    "automations",
+    "balance",
+    "frets",
+    "instrument",
+    "instrumentId",
+    "measures",
+    "name",
+    "newLyrics",
+    "partId",
+    "revisionId",
+    "songId",
+    "strings",
+    "tuning",
+    "version",
+    "volume"
+  ],
+  "source_measures": 81,
+  "source_notes": 218,
+  "gp5_notes": 218,
+  "gp5_measures": 81,
+  "difference_count": 0,
+  "differences": [],
+  "truncated_differences": false
+}
