@@ -28,8 +28,11 @@ def main():
     inventory=json.loads((a.root/'source-techniques.json').read_text());tracks=[t for s in inventory['songs'] for t in s['tracks'] if t['guitar_or_bass']];counts=Counter();groups=Counter()
     for t in tracks:counts.update(t['counts']);groups.update(t['coattack_groups'])
     source_checks=[t for c in captures for t in c.get('serialized_source_comparison',[])]
+    vanilla_path=a.root/'vanilla-imports.json'
+    vanilla=json.loads(vanilla_path.read_text()) if vanilla_path.exists() else None
     summary=dict(schema='csv-source-corpus-acquisition-v1',csv_rows=len(rows),unique_tab_ids=len(captures),captured_tabs=sum(c.get('capture_complete',False) for c in captures),
                  gp7_files=len(list(destination.glob('*.gp'))),gp7_detailed_roundtrip_pass=sum(r.get('roundtripPass',False) for r in reports),
+                 unmodified_gp7_reader_pass=vanilla['passed'] if vanilla else None,unmodified_gp7_reader_failures=len(vanilla['fail']) if vanilla else None,
                  gp7_regular_source_zero_differences=sum(r.get('directSource',{}).get('differences')==0 for r in reports),
                  serialized_source_tracks_checked=len(source_checks),serialized_source_tracks_pass=sum(t.get('differences')==0 for t in source_checks),serialized_source_comparator_errors=sum('error' in t for t in source_checks),
                  all_tracks=sum(len(s['tracks']) for s in inventory['songs']),guitar_bass_tracks=len(tracks),guitar_bass_notation_counts=dict(counts),guitar_bass_coattack_groups=dict(groups),

@@ -44,6 +44,7 @@ Use the existing pinned backend in an isolated Python >=3.13 environment with Py
 python composition-lab/songsterr_automation/songsterr_api/download_csv.py PRIVATE_CSV --out composition-lab/local-artifacts/invent-animate-corpus-v1/songs --upstream LOCAL_PINNED_SONGSTERR_DL
 node composition-lab/songsterr_automation/songsterr_api/export_csv_gp7.mjs ALPHATAB_MODULE composition-lab/local-artifacts/invent-animate-corpus-v1/songs
 python composition-lab/songsterr_automation/songsterr_api/analyze_corpus_sources.py composition-lab/local-artifacts/invent-animate-corpus-v1/songs --out composition-lab/local-artifacts/invent-animate-corpus-v1/source-techniques.json
+node composition-lab/songsterr_automation/songsterr_api/verify_csv_gp7.mjs ALPHATAB_MODULE composition-lab/local-artifacts/invent-animate-corpus-v1
 python composition-lab/songsterr_automation/songsterr_api/catalog_csv_corpus.py composition-lab/local-artifacts/invent-animate-corpus-v1 --summary composition-lab/songsterr_automation/results/csv_corpus_acquisition.json
 ```
 
@@ -60,3 +61,5 @@ GP7 export skips already passing reports; `--recheck` explicitly regenerates own
 No new generic authored listening exercise, invented emotional labels, or successful feel-transfer claim accompanies this acquisition.
 
 Verification: main Python suite 172 tests (171 passed, one optional PyGuitarPro test skipped); isolated converter environment runs all three corpus-specific tests successfully. Actual corpus import/comparison results are stored separately from those tests. Public result JSON contains aggregates only. No public website changes or Pages deployment required.
+
+Delivery: implementation commit c0621ec pushed to origin/main; Composition Lab CI run39045738118 succeeded (https://github.com/mtch777/Guitar-Learning/actions/runs/39045738118). Reusable ordinary-reader verification and its aggregate counts follow in the delivery-evidence commit. Local JS tests16/16 and Vite build also passed.

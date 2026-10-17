@@ -5,6 +5,8 @@
   "captured_tabs": 98,
   "gp7_files": 98,
   "gp7_detailed_roundtrip_pass": 74,
+  "unmodified_gp7_reader_pass": 98,
+  "unmodified_gp7_reader_failures": 0,
   "gp7_regular_source_zero_differences": 98,
   "serialized_source_tracks_checked": 495,
   "serialized_source_tracks_pass": 489,

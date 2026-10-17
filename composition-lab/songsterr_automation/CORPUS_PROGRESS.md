@@ -8,7 +8,7 @@ Current task: acquire every CSV-listed tab privately as reconstructed GP7, then 
 - [ ] Audit source-to-GP fidelity, especially HOPO, vibrato, bends, ties, dyads and exact rhythm. Distinguish unsupported notation/conversion losses from genuine absence.
 - [ ] Run existing scripted technique analysis; retain song/track/section occurrence evidence and corpus denominators. Candidate patterns are not validated musical functions.
 - [ ] Build source-grounded identification examples and controlled transfer tests: exact recreation first, then changed context, then constrained novelty using measured source relationships. No claim of preserving feel without listening evidence.
-- [ ] Commit code, tests and source-free aggregate evidence; keep scores/raw notation/CSV/private annotations outside Git. Verify CI, preserve baselines.
+- [x] Commit code, tests and source-free aggregate evidence; keep scores/raw notation/CSV/private annotations outside Git. Verify CI, preserve baselines.
 
 Preflight: main pulled to 8700931. Read current usage guide, downloader/exporter and source validators. CSV has 98 entries. Upstream converter pinned locally to a5e6ec76bd30bb626f4381bb78baef7e20ec2c21 (songsterr-dl1.2.0), Python3.13.16 installed in ignored workspace environment. First song1627918 downloaded but GP5 write failed `negative shift count` for string8; invalid probe file is retained privately and is not accepted as a score.
 
@@ -18,3 +18,5 @@ Preflight: main pulled to 8700931. Read current usage guide, downloader/exporter
 Interruption/resume: earlier automatic approval review hit a usage limit after56 attempts/54 completed captures and rejected the restart before execution. User's next-turn status request resumed the authorized task once execution was available. Cached data preserved. Encoding/comparator/importer defects were diagnosed and retried; final98 captures succeeded. No private scores/raw notation/CSV/annotations are staged.
 
 Commands/results and reproduction are in CORPUS_RESULTS.md. Full local suite172tests (171pass/1optional skip); isolated Python3.13 converter tests3/3pass. Source-free aggregate csv_corpus_acquisition.json. Pending: push verified code/evidence and confirm CI, then source-grounded identification/transfer gates above.
+
+Delivery: c0621ec pushed; CI39045738118 successful. All98 files rechecked using reusable unmodified-reader CLI. Main JS tests16pass/buildpass. Source-grounded identification/feel gates remain pending, not silently marked complete.

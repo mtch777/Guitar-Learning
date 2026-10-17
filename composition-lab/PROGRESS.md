@@ -264,3 +264,5 @@ Targets for stages 2/3 were rhythm/melody 25; target harmony for stage 4 was 75.
 - Source inventory:415guitar/bass tracks,339385regular note segments,316030attacks,10064HOPO markers,858bend markers,2949slide markers,3349half-step coattacks. Not validated musical/function labels. Pedal burst lengths come from actual notation; no preset3/5 generation rule or artist-feel claim.
 - Private deliverables: local-artifacts/invent-animate-corpus-v1/gp-files, catalog.csv, source-techniques.json, raw sources and validation reports. Only wrapper code/tests/docs/aggregate results staged. No public website change/Pages deployment needed.
 - Tests:172main suite (171pass,1optional skip); all3 corpus-specific tests pass in isolated Python3.13environment. Standalone unmodified alphaTab reader:98pass/0fail. Next acceptance gates and detailed limits in songsterr_automation/CORPUS_RESULTS.md.
+
+- Acquisition delivery c0621ec pushed to origin/main; Composition Lab CI39045738118 completed success. Reusable vanilla-import gate confirms98pass/0fail. JS16pass and buildpass. Follow-up delivery evidence records commands and keeps analysis/recreation acceptance open.
