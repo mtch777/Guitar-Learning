@@ -1,0 +1,40 @@
+{
+  "source_gp5": "Pink Floyd - Wish You Were Here.gp5",
+  "export_gp7": "Pink Floyd - Wish You Were Here.gp",
+  "gp7_bytes": 12209,
+  "source": {
+    "tracks": 1,
+    "bars": 81,
+    "notes": 232,
+    "effects": {
+      "bend": 8,
+      "slide": 68,
+      "hammerPull": 19,
+      "vibrato": 22,
+      "palmMute": 0,
+      "dead": 0,
+      "ghost": 2,
+      "harmonic": 0,
+      "letRing": 0
+    }
+  },
+  "roundtrip": {
+    "tracks": 1,
+    "bars": 81,
+    "notes": 232,
+    "effects": {
+      "bend": 8,
+      "slide": 68,
+      "hammerPull": 19,
+      "vibrato": 22,
+      "palmMute": 0,
+      "dead": 0,
+      "ghost": 2,
+      "harmonic": 0,
+      "letRing": 0
+    }
+  },
+  "event_mismatch_count": 0,
+  "first_mismatches": [],
+  "success": true
+}
