@@ -10,7 +10,47 @@ Directory: `composition-lab/songsterr_automation/`
 
 **Verified:** `results/source_corpus_report.json` reports 8/8 tracks passing across five song IDs and 5,606 source notes, with zero detected differences under the independent source-vs-GP5 comparator. `results/source_fidelity_report.json` reports 218/218 notes, 81/81 measures, zero differences for Wish You Were Here lead guitar. `results/gp7_roundtrip_report.json` reports 0 mismatched compared events between GP5 and reimported GP7, preserving its counted effects. Note object counts in alphaTab (232) are not directly comparable to PyGuitarPro's 218 without normalization.
 
-**Not yet established:** direct original-JSON-to-GP7 fidelity across the corpus; end-user browser integration; a configurable GitHub Actions input for arbitrary song IDs/tracks; permanence of generated GP files in Git history; absence of all possible unsupported notation fields.
+**Not yet established:** direct original-JSON-to-GP7 fidelity across the corpus; end-user browser integration; full validation of all configurable downloader input combinations; permanence of generated GP files in Git history; absence of all possible unsupported notation fields.
+
+## Configurable downloader — verified smoke test (2026-10-16)
+
+Workflow: https://github.com/mtch777/Guitar-Learning/actions/workflows/songsterr-download.yml
+
+**Verified on GitHub:** A push-triggered smoke test downloaded song ID `153`, track index `2`, reconstructed GP5 and exported/reopened GP7. The committed `results/configurable_download_selection.json` reports downloader status `ok`, return code `0`, and no errors. The committed `results/configurable_download_exports.json` reports `success: true`, 232/232 alphaTab note objects retained, 81 measures, one track and a 12,209-byte GP7 file.
+
+- Selection report: https://github.com/mtch777/Guitar-Learning/blob/main/composition-lab/songsterr_automation/results/configurable_download_selection.json
+- Export report: https://github.com/mtch777/Guitar-Learning/blob/main/composition-lab/songsterr_automation/results/configurable_download_exports.json
+
+### How to use
+
+Open the configurable workflow and choose **Run workflow** on `main`. Supply either an exact `song_id` (number or Songsterr URL) **or** artist and optional song title. Leave `song_id` empty when using artist/title search. Use `song=ALL` to retrieve search matches for an artist (bounded by `max_songs`). The inputs are:
+
+| Input | Usage |
+| --- | --- |
+| `artist` | Artist name for search |
+| `song` | Title substring or `ALL` |
+| `song_id` | Songsterr numeric ID or tab URL; overrides search |
+| `tracks` | `all`, `guitar`, `bass`, `drums`, `vocals` or zero-based comma-separated indices such as `2,7` |
+| `output` | Repository-relative folder under `composition-lab/songsterr_automation/downloads` |
+| `existing` | `skip` or `overwrite` |
+| `max_songs` | 1–100 results for search |
+| `save_to_repo` | Commit generated files to `main` when true; use only with appropriate rights |
+
+Example: `song_id=153`, `tracks=2`, `existing=overwrite`, `save_to_repo=false`. Output: `downloads/153/Pink Floyd - Wish You Were Here.gp5` and `.gp`, accessible from the run's `songsterr-downloaded-scores` Actions artifact, retained for 30 days.
+
+For artist selection, set `artist=Pink Floyd`, `song=Comfortably Numb`, `song_id=` (empty), `tracks=guitar`, `max_songs=10`. This configuration is supported by the code but **not yet individually verified in CI**.
+
+The workflow's push trigger is primarily for smoke testing and uses fixed `153` / track `2` defaults. A manual `workflow_dispatch` uses supplied inputs. The current script uses third-party `songsterr-dl`, installed from its upstream default branch at execution time, and `@coderline/alphatab@1.8.1` for GP7 export. `download_configurable.py` handles selection and GP5 generation; `export_gp7_batch.mjs` converts each resulting GP5 and checks that note and measure counts survive reimport.
+
+### Limits to note before reusing
+
+- The verified configurable smoke test covered one exact song ID and one selected guitar track, **not** every input combination.
+- Song/title discovery uses a search request capped at 100 results and then truncates to `max_songs`; `ALL` is therefore **not a proven exhaustive artist catalog crawl**.
+- The current batch export validates GP5-vs-GP7 **counts**, not full effect-by-effect fidelity for arbitrary songs. Use the existing dedicated source corpus validator where needed.
+- `skip` currently skips an entire song folder if it contains any GP5, not an individual track-specific revision.
+- All selected tracks are combined into one score per song by the underlying converter; categorical selection is based on track name/instrument text.
+- Generated files live in temporary run artifacts by default. `save_to_repo=true` attempts to commit them into the output folder on `main`.
+- Workflow credentials need `contents: write` for optional commits and diagnostic results. Respect transcription copyrights and Songsterr terms.
 
 ## Quick links
 
@@ -115,9 +155,9 @@ Its report is written at `results/gp7_roundtrip_report.json`. This is a GP5-vs-G
 - Results JSON are committed; generated GP5/GP7 score files are uploaded as **temporary Actions artifacts**, not automatically persisted into the GitHub repository.
 - The workflow uses `contents: write` because it commits result summaries. Another chat should avoid unnecessary workflow edits, secrets, and unreviewed remote code changes.
 
-## Immediate next improvements
+## Further improvements
 
-1. Add manual inputs `song_id`, `track_indices`, `format` and output naming to the workflow and scripts.
+1. Test artist/song discovery and all track-selector categories, and add clearer GP7 fidelity validation to the configurable workflow.
 2. Persist an optional user-selected generated score to a GitHub-managed destination instead of only an expiring artifact (subject to rights and repository size policies).
 3. Compare **live Songsterr JSON directly to GP7**, field-by-field for pitch, timing, rhythm, tuning, instruments, bends/curves, slides, hammer/pull, grace notes, tremolo, dynamics and structural metadata.
 4. Add clear mismatch categories and test a pinned corpus with more unusual rhythmic and expressive features.
