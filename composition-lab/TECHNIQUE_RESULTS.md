@@ -46,4 +46,4 @@ Multiscale reports retain counts/denominators, track and source-section coverage
 - Unmodeled staff/effect semantics, sounding intervals under bends/harmonics, and phrase-conditioned learned proposals remain explicit limitations. Source metadata is preserved rather than silently rewritten.
 - Current experiments deliberately retain much source material under locks. They do not establish originality of a new composition or multi-song artist learning.
 
-Verification at this milestone: 169 Python tests, 16 JS tests and Vite build pass. GitHub CI is checked separately after push. QA-only feedback is labeled and isolated from the blank human review.
+Verification at this milestone: 169 Python tests, 16 JS tests and Vite build pass. Implementation commit `96fcbd1` is on origin/main; [GitHub CI run 39004239874](https://github.com/mtch777/Guitar-Learning/actions/runs/39004239874) succeeded. QA-only feedback is labeled and isolated from the blank human review.
