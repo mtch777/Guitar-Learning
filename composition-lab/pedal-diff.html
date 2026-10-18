@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Pedals: before and after</title>
+<style>body{margin:0;background:#111b24;color:#edf3f7;font:17px system-ui}main{max-width:1180px;margin:auto;padding:24px}button,select,input{font:inherit;padding:10px;background:#203746;color:inherit;border:1px solid #6a8293;border-radius:6px}button{cursor:pointer}button[aria-pressed=true]{background:#386984}button:disabled{opacity:.5;cursor:default}nav{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}select{width:100%;margin:10px 0}p{line-height:1.5}.muted{color:#bacbd5}.panel{border:1px solid #40576a;border-radius:10px;padding:18px;margin:18px 0}audio{width:100%;margin:8px 0}.roll{width:100%;height:340px;background:#182934}.cursor{stroke:white;stroke-width:2;pointer-events:none}.note{cursor:pointer}.note:hover,.note:focus{stroke:white;stroke-width:2;outline:none}.active{stroke:#91ffa8;stroke-width:3}.small{font-size:14px}a{color:#88d4ff}.tag{background:#503a25;padding:8px}</style>
+<main><h1>Pedals: before and after</h1><p id="counts"></p><p class="muted">Every changed tagged span across the corpus—not just the 16 review examples. A source section can contain several changes. Boundary extensions and retractions are included and labeled; these are not automatically inferred musical phrases.</p>
+<nav><button id="lost" aria-pressed="true">Counted before, not now</button><button id="gained" aria-pressed="false">Not counted before, counted now</button></nav>
+<label>Find a song or track <input id="search" type="search" placeholder="Song or track name"></label>
+<p><label><input id="whole" type="checkbox"> Only sections that completely changed yes/no</label></p><p id="shown"></p>
+<label for="passage">Changed passage</label><select id="passage"></select>
+<section class="panel"><h2 id="source"></h2><p id="change" class="tag"></p><p id="scope" class="small muted"></p><p id="quality" class="small muted"></p>
+<label for="window">Listen / inspect this part</label><select id="window"></select>
+<nav><button id="previous">Previous part</button><button id="next">Next part</button></nav>
+<nav><button id="before" aria-pressed="true">Before highlights</button><button id="after" aria-pressed="false">After highlights</button></nav>
+<p id="legend">Gold = pedal. Blue = response (after analysis). Gray = other source notes. Shaded background = changed time range.</p>
+<p id="range" class="small"></p><svg id="roll" class="roll" preserveAspectRatio="none" role="group" aria-label="Before and after source notes"></svg><p id="note-info" class="small">Click a note to inspect it and seek.</p>
+<button id="prepare">Load audio for this part</button><p id="status" class="small" aria-live="polite"></p>
+<p>Selected track</p><audio id="focused" controls preload="metadata"></audio><p>Full arrangement</p><audio id="context" controls preload="metadata"></audio>
+<p class="small muted">Both highlight modes use the same unchanged source audio. Playback is a synthetic preview. Long passages are divided into consecutive parts; every part remains available.</p>
+<a id="gp">Open the unchanged full source GP</a></section>
+<details><summary>What this comparison includes</summary><p id="definition"></p><p>Before: frozen region tagger. After: corrected register-exchange analysis. Same source occurrence IDs and exact rational time. Gold highlights compare anchor membership; absence of an after label is an abstention, not proof that the music cannot be a pedal. A retained tag with a different chosen anchor is not a gained/lost passage and is outside these two lists.</p></details>
+</main><script type="module" src="pedal-diff.js"></script></html>
