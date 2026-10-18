@@ -142,3 +142,19 @@ musical intention. Step2pedal identification accepted, dialogue implemented;
 step3partial,4partial,5experimental,6partial,7prototype,8release verification next.
 
 Call/response release211e3fd pushed. Remote CI39101152171 success; private artifact/source directories untracked, working tree clean before this delivery-note update.
+
+## Breadth explorer
+
+User requested broad easy/unique/edge examples to understand the logic, not a new
+identification gate. Built dialogue-explorer-v1 on port5189:16examples/15candidate
+families/32WAVs, including13script-property categories and3outside contrasts.
+Complete continuing source-region coloring, selected-exchange rows, click-note
+inspection/seek and synchronized playhead; plain explanations and musical data,
+no internal hash dumps. Mixed/unknown interruptions explained without asserting
+phrase endings. Selection broad within captured corpus, not genre-general truth.
+
+All16GPs byte-identical to actual corpus source files;32audio finite readable,
+26newrenders hash-checked,6priorcontrast clips preserved. Browser playback jump,
+playhead advance, edge/outside filters and pause-on-change pass.225Python(oneoptional
+skip),21JS/build pass. Source/audio/private measurement values remain untracked.
+Reproduction and acceptance: DIALOGUE_EXPLORER.md. Release verification next.
