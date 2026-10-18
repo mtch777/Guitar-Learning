@@ -160,3 +160,5 @@ skip),21JS/build pass. Source/audio/private measurement values remain untracked.
 Reproduction and acceptance: DIALOGUE_EXPLORER.md. Release verification next.
 
 Breadth explorer release d1409b0 pushed; CI39101712323 success. All source/artifact paths untracked; private user-facing port5189.
+
+Explorer wording correction: use user category names verbatim; added category Clearly not pedals. Individual titles now describe musical function. Text only; grouping, measurements, source GP/audio and feedback unchanged.

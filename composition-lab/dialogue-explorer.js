@@ -55,7 +55,7 @@ function load(id){
  ].join('\n')).join('\n\n'):'No exchange assigned. Source notes remain individually inspectable.');
  update();
 }
-function group(c){if(c.category.startsWith('outside'))return 'outside';if(['minimal','censored','mixed','overlap'].includes(c.category))return 'edge';return c.category==='regular'?'regular':'variety';}
+function group(c){if(c.category.startsWith('outside'))return 'outside';if(['minimal','censored'].includes(c.category))return 'edge';return c.category==='regular'?'regular':'variety';}
 function filter(kind){const list=kind==='all'?data:data.filter(c=>group(c)===kind);$('#example').replaceChildren(...list.map(c=>{const o=element('option',`${c.heading} — ${c.song}`);o.value=c.id;return o;}));if(list.length)load(list[0].id);}
 for(const button of document.querySelectorAll('[data-filter]'))button.onclick=()=>{for(const b of document.querySelectorAll('[data-filter]'))b.setAttribute('aria-pressed',String(b===button));filter(button.dataset.filter);};
 $('#example').onchange=e=>load(e.target.value);

@@ -9,19 +9,19 @@ import shutil
 from source_semantics import seconds_between
 
 CATEGORIES={
- 'regular':('Regular returns','Neighboring calls and replies repeat their pitches and rhythm.'),
- 'varied':('Same call, different answer','The anchor burst repeats while the following answer changes.'),
- 'interval':('An interval as the anchor','The returning anchor contains two pitches rather than one.'),
- 'long_answer':('A short call, a longer answer','The response spans at least twice as long as the call.'),
- 'short_answer':('A long call, a brief answer','The response spans at most half as long as the call.'),
- 'rhythm':('Changing the answer’s rhythm','Response pitches repeat but their timing changes.'),
- 'polyphony':('Answers with several notes together','The response contains simultaneous notes; no single melody is invented.'),
- 'close':('Close-interval color','A response includes a two-pitch semitone collection, using written pitches.'),
- 'overlap':('The call rings into the answer','The anchor’s written sustain overlaps the response.'),
- 'subdivision':('Uneven subdivisions','The excerpt includes exact thirds or other non-binary note durations.'),
- 'mixed':('Anchor and contrast together','At least one attack combines anchor and other notes, outside the pure call/response labels.'),
- 'minimal':('Only a few returns','The region contains only two operational exchanges: sparse evidence, not a confidence claim.'),
- 'censored':('No clean return to the anchor','No anchor-only return closes this exchange. A mixed/unknown attack or the analysis boundary can interrupt it; this is not a claimed phrase ending.'),
+ 'regular':('One low note, the same answer each time','Neighboring calls and replies repeat their pitches and rhythm.'),
+ 'varied':('Same pedal, changing answers','The anchor burst repeats while the following answer changes.'),
+ 'interval':('Two notes acting as the pedal','The returning anchor contains two pitches rather than one.'),
+ 'long_answer':('Short pedal bursts, long replies','The response spans at least twice as long as the call.'),
+ 'short_answer':('Long pedal bursts, short replies','The response spans at most half as long as the call.'),
+ 'rhythm':('Same reply notes, different rhythm','Response pitches repeat but their timing changes.'),
+ 'polyphony':('Chords or double stops answering the pedal','The response contains simultaneous notes; no single melody is invented.'),
+ 'close':('Half-step pairs answering the pedal','A response includes a two-pitch semitone collection, using written pitches.'),
+ 'overlap':('Pedal keeps ringing under the reply','The anchor’s written sustain overlaps the response.'),
+ 'subdivision':('Triplets and other uneven rhythms','The excerpt includes exact thirds or other non-binary note durations.'),
+ 'mixed':('Pedal and reply played together','At least one attack combines anchor and other notes, outside the pure call/response labels.'),
+ 'minimal':('Barely enough repeats to establish a pedal','The region contains only two operational exchanges: sparse evidence, not a confidence claim.'),
+ 'censored':('Unclear where the pedal pattern ends','No anchor-only return closes this exchange. A mixed/unknown attack or the analysis boundary can interrupt it; this is not a claimed phrase ending.'),
 }
 
 
@@ -112,15 +112,15 @@ def build(report,dialogues,corpus,out):
                           song_id=song['song_id'],source_sha256=hashlib.sha256(gp.read_bytes()).hexdigest(),anchor=selection['anchor'],
                           base_q=selection['base_q'],end_q=selection['end_q'],
                           notes=notes,time_map=time_map,cycles=selection['cycles'],seconds=seconds_between(base,limit,song['timeline']),
-                          caveat='Script-selected notation example. The category is not an independent musical judgment. Section bounds may include extra context.'))
+                          caveat='Listen for whether the highlighted pedal and replies match what you hear. The excerpt may include surrounding material.'))
         ti=next(i for i,t in enumerate(song['tracks']) if t['part_id']==selection['part_id'])
         for mode in ('context','focused'):
             jobs.append(dict(case_id=ident,method='unchanged_source',mode=mode,file=str(gp.resolve()),track=ti,
                              start_bar=selection['start_bar'],end_bar=selection['end_bar'],target_bar=selection['start_bar'],target_offset_q='0',out=str((out/(ident+'.'+mode+'.wav')).resolve())))
     old_root=corpus.parent.parent
-    outside=[('pedal-revision-v1','case-09','outside_arpeggio','Outside: regular chord arpeggio','Previously reviewed as an arpeggio-like chord cycle rather than a pedal. The current rule abstains.'),
-             ('pedal-revision-v1','case-05','outside_chords','Outside: changing chords','Previously reviewed as chord playing without an alternating pedal/response relationship.'),
-             ('pedal-fresh-v2','case-01','outside_single_departure','Outside: repetition with too little contrast','Previously accepted as not enough recurring departures and returns to form a pedaling section.')]
+    outside=[('pedal-revision-v1','case-09','outside_arpeggio','An arpeggio, not a pedal','Previously reviewed as an arpeggio-like chord cycle rather than a pedal. The current rule abstains.'),
+             ('pedal-revision-v1','case-05','outside_chords','Changing chords, not a pedal','Previously reviewed as chord playing without an alternating pedal/response relationship.'),
+             ('pedal-fresh-v2','case-01','outside_single_departure','Repeated low notes, but only one reply','Previously accepted as not enough recurring departures and returns to form a pedaling section.')]
     for directory,old_id,category,heading,explanation in outside:
         root=old_root/directory
         if not (root/'cases.json').exists():continue
