@@ -49,8 +49,6 @@ def support_regions(analysis, rows, sustain_chains=()):
 
 
 def build(report,fixtures,before,after,corpus,out):
-    out.mkdir(parents=True,exist_ok=False)
-    for name in ['cases','scores','audio']:(out/name).mkdir()
     songs={s['song_id']:s for s in report['songs']}
     old={(s['song_id'],s['part_id'],s['section_start']):s for s in before}
     new={(s['song_id'],s['part_id'],s['section_start']):s for s in after}
@@ -86,6 +84,13 @@ def build(report,fixtures,before,after,corpus,out):
         requests.append(dict(song_id=key[0],part_id=key[1],song=song['title'],track=track['name'].strip() or 'Unnamed track',
             bars=[min(n['bar'] for n in rows),max(n['bar'] for n in rows)],direction=direction,before=b,after=a,
             review_message='Complete source analysis scope. This can contain several musical phrases. Compare the highlighted occurrences; section boundaries are not inferred phrase boundaries.'))
+    return write_requests(report,requests,corpus,out,fixtures=fixtures,after=after)
+
+
+def write_requests(report,requests,corpus,out,*,fixtures=(),after=(),metadata=None,template='pedal-evidence'):
+    out.mkdir(parents=True,exist_ok=False)
+    for name in ['cases','scores','audio']:(out/name).mkdir()
+    songs={s['song_id']:s for s in report['songs']}
     catalogue=[];jobs={};counts=Counter();copied=set()
     for index,request in enumerate(requests):
         sid=request['song_id'];song=songs[sid];track=next(t for t in song['tracks'] if t['part_id']==request['part_id']);ti=song['tracks'].index(track)
@@ -96,7 +101,8 @@ def build(report,fixtures,before,after,corpus,out):
             copied.add(sid)
         windows=[];start=first
         b,a=request['before'],request['after']
-        returns=set().union(*(r['return_members'] for r in support_regions(a,track['rows']) if a['accepted'])) if a['accepted'] else set()
+        returns=request.get('return_members')
+        if returns is None:returns=set().union(*(r['return_members'] for r in support_regions(a,track['rows']) if a['accepted'])) if a['accepted'] else set()
         while start<=last:
             end=start;base=F(layout[start-1]['start_q'])
             while end<last:
@@ -128,6 +134,8 @@ def build(report,fixtures,before,after,corpus,out):
             roundtrip_pass=True,review_message=request['review_message'],before_accepted=b['accepted'],after_accepted=a['accepted'])
         entry['initial_window']=next((i for i,w in enumerate(windows) if w['start_bar']<=request.get('focus_bar',first)<=w['end_bar']),0)
         entry['reported_bars']=request.get('reported_bars')
+        for key in ['original_bounds','expanded_bounds','seed_ids','added_exchanges']:
+            if key in request:entry[key]=request[key]
         # Preserve real fidelity status rather than inferring it from serialization.
         quality=json.loads((corpus/str(sid)/'gp7-validation.json').read_text(encoding='utf-8-sig'))
         entry['roundtrip_pass']=quality.get('roundtripPass')
@@ -140,9 +148,10 @@ def build(report,fixtures,before,after,corpus,out):
         algorithm_sha256=hashlib.sha256((Path(__file__).resolve().parents[2]/'pedal_evidence.py').read_bytes()).hexdigest(),
         summary=f"{counts['checked']} recorded cases · {counts['scope']} full supporting patterns · {counts['lost']} scopes removed · {counts['gained']} added · {counts['changed']} with changed highlights. Source audio is unchanged.",
         definition='Before: frozen register detector. After: experimental local-evidence correction. Recorded excerpts and complete source scopes are separate queues. This is software and source-evidence validation; listening acceptance is pending.')
+    if metadata:manifest.update(metadata)
     (out/'catalogue.json').write_text(json.dumps(manifest,separators=(',',':')),encoding='utf-8')
     (out/'render-index.json').write_text(json.dumps(jobs,separators=(',',':')),encoding='utf-8')
-    for name in ['pedal-evidence.html','pedal-evidence.js']:shutil.copyfile(Path(__file__).resolve().parents[2]/name,out/('index.html' if name.endswith('.html') else name))
+    for name in [template+'.html',template+'.js']:shutil.copyfile(Path(__file__).resolve().parents[2]/name,out/('index.html' if name.endswith('.html') else name))
     print(json.dumps(dict(counts)))
 
 

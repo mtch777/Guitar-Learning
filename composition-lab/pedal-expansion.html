@@ -1,0 +1,53 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Pedals: phrase expansion</title>
+<style>body{margin:0;background:#111b24;color:#edf3f7;font:17px system-ui}main{max-width:1180px;margin:auto;padding:24px}button,select,input{font:inherit;padding:10px;background:#203746;color:inherit;border:1px solid #6a8293;border-radius:6px}button{cursor:pointer}button[aria-pressed=true]{background:#386984}button:disabled{opacity:.5;cursor:default}nav{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}select{width:100%;margin:10px 0}p{line-height:1.5}.muted{color:#bacbd5}.panel{border:1px solid #40576a;border-radius:10px;padding:18px;margin:18px 0}audio{width:100%;margin:8px 0}.roll{width:100%;height:340px;background:#182934}.cursor{stroke:white;stroke-width:2;pointer-events:none}.note{cursor:pointer}.note:hover,.note:focus{stroke:white;stroke-width:2;outline:none}.active{stroke:#91ffa8;stroke-width:3}.small{font-size:14px}a{color:#88d4ff}.tag{background:#503a25;padding:8px}</style>
+<section id="launch-help" style="max-width:1180px;margin:auto;padding:24px"><h1>Open the populated pedal comparison</h1><p><a href="http://127.0.0.1:5196/">Open the running private review</a></p><p>This source template loads its song data from the local review server. If this message stays visible, use the link above.</p></section>
+<main hidden><h1>Pedals: phrase expansion</h1><p id="counts"></p><p class="muted">Only existing patterns are expanded or combined here. The detector and its original highlights are preserved. Choose a category, then compare the original bounds with the added continuation.</p>
+<nav><button id="cat-before" aria-pressed="false">Continuation BEFORE</button><button id="cat-after" aria-pressed="true">Continuation AFTER</button><button id="cat-both" aria-pressed="false">Continuation BEFORE AND AFTER</button><button id="cat-combined" aria-pressed="false">Continuation COMBINED phrases</button></nav>
+<label>Find a song or track <input id="search" type="search" placeholder="Song or track name"></label>
+<p><label><input id="whole" type="checkbox"> Only sections that completely changed yes/no</label></p><p id="shown"></p>
+<label for="passage">Passage</label><select id="passage"></select>
+<section class="panel"><h2 id="source"></h2><p id="change" class="tag"></p><p id="scope" class="small muted"></p><p id="quality" class="small muted"></p>
+<label for="window">Listen / inspect this part</label><select id="window"></select>
+<nav><button id="previous">Previous part</button><button id="next">Next part</button></nav>
+<nav><button id="before" aria-pressed="false">Original phrase</button><button id="after" aria-pressed="true">Expanded phrase</button></nav>
+<p id="legend">Orange outlines = original phrase bounds. Green outline = expanded phrase bounds. Gold = pedal notes: calls and closing returns. Dim, dashed gold = tied sustain, not another call. Blue = response. Gray = other source notes.</p>
+<p><label><input id="whole-roll" type="checkbox" checked> Show the whole passage</label></p>
+<p id="range" class="small"></p><p id="audio-scope" class="small muted"></p><svg id="roll" class="roll" preserveAspectRatio="none" role="group" aria-label="Before and after source notes"></svg><p id="note-info" class="small">Click a note to inspect it and seek.</p>
+<button id="prepare">Load audio for this part</button><p id="status" class="small" aria-live="polite"></p>
+<div id="players" hidden><p>Selected track</p><audio id="focused" controls preload="metadata"></audio><p>Full arrangement</p><audio id="context" controls preload="metadata"></audio></div>
+<p class="small muted">Both highlight modes use the same unchanged source audio. Playback is a synthetic preview. Long passages are divided into consecutive parts; every part remains available.</p>
+<a id="gp">Open the unchanged full source GP</a>
+<details><summary>Show the actual calls and answers</summary><div id="evidence"></div></details>
+<h3>Your review</h3><label id="context-question" hidden>Does the added continuation belong to the same pedal idea? <select id="judge-context"><option value="">Not reviewed</option><option>Same idea continues</option><option>Separate ideas; reject the connection</option><option>Unsure</option></select></label><p id="review-question"></p>
+<label>Repeating anchor <select id="judge-anchor"><option value="">Not reviewed</option><option>Correct</option><option>Some notes are wrong or missing</option><option>Wrong anchor</option><option>This is not a pedal</option><option>Unsure</option></select></label>
+<label>Answering notes <select id="judge-response"><option value="">Not reviewed</option><option>Correct</option><option>Some notes are wrong or missing</option><option>There is no answer</option><option>Unsure</option></select></label>
+<label>Does the expanded phrase show the whole idea? <select id="judge-boundary"><option value="">Not reviewed</option><option>Yes</option><option>Starts too late</option><option>Stops too early</option><option>Includes unrelated material</option><option>Unsure</option></select></label>
+<button id="mark" aria-pressed="false">Mark the notes that should be pedals</button><p id="marked"></p>
+<label>Anything else? <input id="judge-notes" style="width:90%"></label>
+<p id="saved" aria-live="polite"></p><button id="export">Download my feedback</button></section>
+<details><summary>What this comparison includes</summary><p id="definition"></p><p>Before and after use identical source notes and audio. Original patterns are never removed or shortened. Only continuations of established anchors are considered; connected patterns are merged once. Listening acceptance of these new boundaries remains open.</p></details>
+</main><script>
+// This source template has no private dataset beside it. File opens must reach
+// the local review, rather than attempting browser-blocked file:// JSON fetches.
+(() => {
+ const target='http://127.0.0.1:5196/'+location.search+location.hash;
+ function startupMessage(message){
+  document.querySelector('main').hidden=true;
+  const help=document.getElementById('launch-help');if(help)help.hidden=true;
+  let panel=document.getElementById('startup-message');
+  if(!panel){panel=document.createElement('main');panel.id='startup-message';document.body.append(panel);}
+  panel.replaceChildren();const heading=document.createElement('h1');heading.textContent='Open the populated pedal comparison';
+  const explanation=document.createElement('p');explanation.textContent=message;
+  const link=document.createElement('a');link.href=target;link.textContent='Open the local review';
+  panel.append(heading,explanation,link);
+ }
+ if(location.protocol==='file:'){
+  startupMessage('Opening the running private review. This source HTML does not contain the song data.');
+  location.replace(target);return;
+ }
+ addEventListener('unhandledrejection',()=>startupMessage('The comparison data could not be loaded. Open the local review using the link below.'));
+ import('./pedal-expansion.js').then(()=>{
+  document.querySelector('main').hidden=false;document.getElementById('launch-help').hidden=true;
+ }).catch(()=>startupMessage('The comparison could not start. Open the local review using the link below.'));
+})();
+</script><noscript><p>JavaScript is required. <a href="http://127.0.0.1:5196/">Open the local review</a>.</p></noscript></html>

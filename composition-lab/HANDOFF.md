@@ -1,3 +1,13 @@
+## Additive pedal continuation (2026-10-18)
+
+Latest user direction: keep detection unchanged; expand established phrases only.
+Read songsterr_automation/PEDAL_EXPANSION.md and PEDAL_EXPANSION_PROGRESS.md.
+Separate pass: pedal_expansion.py; exact anchor, later answers/returns, stronger
+earlier-evidence requirement, disjoint merges. All 2,239 support chains retained;
+178 expanded/combined outputs in four private review queues on loopback5196.
+No seed deletion/shortening or original-role changes. Detector hash unchanged.
+Prior port5195 review remains intact. Listening acceptance of expansion is pending.
+
 ## Pedal evidence correction (2026-10-18)
 
 Read songsterr_automation/PEDAL_EVIDENCE_CORRECTION.md and

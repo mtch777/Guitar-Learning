@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 
-for(const [file,port] of [['pedal-diff.html',5191],['pedal-evidence.html',5195]]) test(`${file}: file opening redirects before module loading`,()=>{
+for(const [file,port] of [['pedal-diff.html',5191],['pedal-evidence.html',5195],['pedal-expansion.html',5196]]) test(`${file}: file opening redirects before module loading`,()=>{
  const html=fs.readFileSync(new URL('../composition-lab/'+file,import.meta.url),'utf8');
  const source=html.match(/<script>([\s\S]*?)<\/script>/)[1];
  const element=()=>({children:[],append(...items){this.children.push(...items);},replaceChildren(...items){this.children=items;}});
