@@ -158,3 +158,5 @@ All16GPs byte-identical to actual corpus source files;32audio finite readable,
 playhead advance, edge/outside filters and pause-on-change pass.225Python(oneoptional
 skip),21JS/build pass. Source/audio/private measurement values remain untracked.
 Reproduction and acceptance: DIALOGUE_EXPLORER.md. Release verification next.
+
+Breadth explorer release d1409b0 pushed; CI39101712323 success. All source/artifact paths untracked; private user-facing port5189.

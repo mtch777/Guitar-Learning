@@ -22,7 +22,7 @@ outside-rule contrasts added. Scope is the captured corpus, not all music genres
   exchange playback jumps, group filters, exact musical measurements and GP links.
 - [x] Verify16sourceGPs against actual corpus bytes;32audio files valid;
  26newrendered hashes verified and6contrast clips copied from prior studies.
-- [ ] Commit/push and remote CI: delivery evidence in MUSICAL_FIELDS_PROGRESS.md.
+- [x] Commit/push and remote CI: delivery evidence in MUSICAL_FIELDS_PROGRESS.md.
 
 ## Selected example categories
 
@@ -52,3 +52,5 @@ Verification:225Python tests(224pass/1optionalskip),21JS/build pass. Browser che
 exchange jump advances audio/playhead; edge filter stops previous audio; outside
 filter clears the exchange table and shows exclusion explanation. Note inspection
 and full-source/media accounting checked. Screenshot kept privately.
+
+Release d1409b0 pushed; Composition CI39101712323 success: https://github.com/mtch777/Guitar-Learning/actions/runs/39101712323 . No public website changes; source examples remain private.
