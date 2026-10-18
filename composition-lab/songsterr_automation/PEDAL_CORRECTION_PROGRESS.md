@@ -18,7 +18,7 @@ Baseline: main `33b8136`. Private frozen detector and source-result references:
   changed roles and boundaries, not only favorable positive-note coverage.
 - [x] Self-QA review output, browser rendering and interactions. Acceptance: full
   note range, populated controls, accurate source context, understandable reasons.
-- [ ] Run relevant Python/JS tests and build; commit/push verified changes; inspect
+- [x] Run relevant Python/JS tests and build; commit/push verified changes; inspect
   CI and Pages if website changes. Acceptance: actual remote success documented.
 
 No claim of perfect musical classification follows from passing software tests.
@@ -73,3 +73,25 @@ for that listening gate. Do not claim global precision or musical perfection.
   covered by executable JS tests instead of a false browser-verification claim.
 
 Remote publication/check results are recorded after the verified commit is pushed.
+
+## Remote publication
+
+- Implementation `1e78024c532d41160dfa5dae01a9445290ea96e6` committed and pushed
+  to `origin/main`, after a fresh `pull --rebase` confirmed no concurrent updates.
+- [Composition Lab CI](https://github.com/mtch777/Guitar-Learning/actions/runs/39161919873): success on that exact commit.
+- [Existing Pages build/publish workflow](https://github.com/mtch777/Guitar-Learning/actions/runs/39161919886): success on that exact commit. The private source review is not included in Pages.
+- No GP source, private feedback, corpus notes, rendered commercial-source audio,
+  dependencies, model weights or secrets were staged or published.
+
+Engineering implementation and reproducible checks are complete for this review
+candidate. Musical acceptance is intentionally not marked complete. The baseline
+remains available/default; the prepared correction is opt-in pending listening.
+
+- Live public site returned HTTP200. Published JS/CSS asset references match the
+  tested build; HTML differs only by blank lines/platform formatting. No private
+  review data is present in the public build.
+- Final browser deliverable is on port5195 without QA mode; human comments and
+  marks verified empty. QA export/download data remains isolated. A screenshot
+  is preserved privately in `review-release/review-proof.png`.
+- GitHub CLI is unavailable on PATH; remote runs were verified through the
+  connected GitHub API rather than assumed from a successful push.
