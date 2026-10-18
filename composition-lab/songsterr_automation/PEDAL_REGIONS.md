@@ -1,3 +1,23 @@
+## Latest correction after revised study
+
+The older rules below are historical v1. V2 prioritizes the lowest qualifying
+concurrent anchor, keeps nonoverlapping changes of anchor, includes reduced
+standalone voicings of a qualifying dyad, and abstains on uniform fixed-triad
+monophonic cycles. Candidates above the midpoint of the source-section observed
+pitch range are excluded. These are transparent notation heuristics; outliers,
+independent simultaneous roles and weak section boundaries can defeat them.
+
+The frozen detector on three newly reviewed families covered21/21 marked notes
+but added28 unselected notes. After using this feedback, all134 exhaustive marked
+notes across9cases are covered with zero extra predictions in those excerpts.
+This is development fit, not held-out/general accuracy. Previously reviewed cases
+and new-source cases are kept separate privately; blank/Unclear fields are not
+invented labels, and pre-reveal snapshots remain preserved.
+
+Latest source-free corpus report: results/pedal_regions_v2.json; historical v1
+results/pedal_regions.json and private reports remain preserved. Corpus counts
+are hypotheses, not independent phrases or functional correctness.
+
 # Pedal identification correction
 
 The earlier burst-window detector remains preserved as a historical baseline.

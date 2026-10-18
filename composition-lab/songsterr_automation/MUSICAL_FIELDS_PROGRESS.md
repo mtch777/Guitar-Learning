@@ -92,3 +92,17 @@ verified in QA mode. Actual deliverable starts with no ratings or reveals.
 21JS tests incl persistence/reveal/tempo mapping,215Python(oneoptional skip),build pass.
 Sampling is selective, not a population precision/recall benchmark. New source
 families have no prior human ratings; they are not claimed untouched model test data.
+
+## Revised-study feedback incorporation
+
+Verified v3study94dd02c1f682123e, qaFalse, all selected ID/pitch/bar identities.
+Feedback and original pre-reveal snapshots copied privately to pedal-feedback-v2.
+Frozen new-source cohort:21selected covered,28extra predictions. Corrections:
+lowest concurrent anchor, changing adjacent anchors preserved, reduced interval
+voicing, regular chord-cycle abstention, explicit section-register gate. Nine-case
+development fit134/134notes/zeroextras; not held-out accuracy. Corpus rerun to
+pedal_regions_v2.json; prior results preserved. No new listening verdict invented.
+Added regression cases for equal repetition, transposition, chord cycle vs rhythmic
+returns, reduced voicing extent, and sequential anchors.219Python(oneoptionalskip),
+21JS/build pass. Remaining: independent evidence beyond these now-used9passages,
+robust phrase extents and independent musical roles. No further ratings requested.

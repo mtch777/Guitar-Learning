@@ -34,5 +34,29 @@ class PedalRegionTests(unittest.TestCase):
         from evaluate_pedal_regions import feedback_audit
         with self.assertRaises(ValueError):feedback_audit(dict(study='different-study'),[])
 
+    def test_regular_chord_cycle_abstains_but_rhythmic_returns_survive(self):
+        data=rows([[40],[44],[47],[44]]*3)
+        self.assertFalse(detect_regions(data))
+        for n in data:
+            if n['midi']==40:n['duration_q']='1/2'
+        self.assertEqual([r['anchor_pitches'] for r in detect_regions(data)],[[40]])
+
+    def test_equal_repetition_prefers_lower_and_transposes(self):
+        data=rows([[40],[41],[52]]*4)
+        self.assertEqual([r['anchor_pitches'] for r in detect_regions(data)],[[40]])
+        for n in data:n['midi']+=5
+        self.assertEqual([r['anchor_pitches'] for r in detect_regions(data)],[[45]])
+
+    def test_reduced_interval_voicing_is_retained(self):
+        data=rows([[28,35],[55],[28,35],[59],[28,35],[60],[28]])
+        detected=detect_regions(data)[0]
+        self.assertEqual(detected['partial_voicing_attacks'],1)
+        self.assertEqual(len(detected['anchor_occurrences']),7)
+        self.assertEqual(detected['end_q'],'7')
+
+    def test_sequential_low_anchors_are_not_suppressed(self):
+        data=rows([[45],[57],[45],[59],[45],[57],[40],[52],[40],[55],[40]])
+        self.assertEqual([r['anchor_pitches'] for r in detect_regions(data)],[[40],[45]])
+
 
 if __name__=='__main__':unittest.main()

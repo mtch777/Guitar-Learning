@@ -1,0 +1,18 @@
+{
+  "schema": "pedal-region-observations-v2",
+  "counts": {
+    "eligible_tracks": 393,
+    "region_hypotheses": 1563,
+    "single_note": 1231,
+    "anchor_occurrences": 75477,
+    "interval": 332
+  },
+  "limitations": [
+    "Rules revised using nine reviewed passages: this is development evidence, not held-out accuracy.",
+    "Standalone single/dyad anchors and temporal separation are operational hypotheses.",
+    "Section-wide extension can span unrelated material; phrase segmentation remains unresolved.",
+    "Exact dyads support standalone reduced voicings; octave-equivalent or unmarked ties remain limited.",
+    "Lowest concurrent anchor preference and uniform-triad abstention are explicit heuristics, not universal musical rules."
+  ],
+  "input_sha256": "a9a20d884fc5b47fe20974e435c26dad4fe105ce7a1436f34924aba7a305df8a"
+}
