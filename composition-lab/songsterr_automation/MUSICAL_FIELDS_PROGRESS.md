@@ -73,3 +73,22 @@ Reran393tracks:3733hypotheses (3274single/459interval). Selected-note developmen
 coverage18->129/130; not held-out accuracy. One partial-dyad note missed; additional
 hypotheses unreviewed. No new listening study requested. See PEDAL_REGIONS.md.
 Tests215Python (one optional skip),18JS and Vite build pass after final checks.
+
+## Revised identification study
+
+Built private pedal-revision-v1 at port5186: revised hypotheses on6earlier cases
+plus3new source families first, including a revised-detector rejection when available.
+All9GPs byte-identical source copies;18boundedWAVs. New clips4.14/3.75/7.56seconds,
+nonzero/unclipped; earlier12audio copied unchanged. No generated music.
+
+Review separates pedal presence, actual note markings, completeness of user marks,
+anchor identity and detection extent. Initial highlights concealed; first reveal
+snapshots independent markings/judgment and time, retaining them after later edits.
+New fingerprint/key preserves prior study separately; QA suffix isolates tests.
+Pink user notes and gold detector fill/outlines can overlap visibly. Playhead retained.
+
+Browser:9cards/18media readyState4/errornull; note/reveal and additional questions
+verified in QA mode. Actual deliverable starts with no ratings or reveals.
+21JS tests incl persistence/reveal/tempo mapping,215Python(oneoptional skip),build pass.
+Sampling is selective, not a population precision/recall benchmark. New source
+families have no prior human ratings; they are not claimed untouched model test data.
