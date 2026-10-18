@@ -13,13 +13,17 @@ for (const file of files) {
   if(fs.existsSync(expectedPath)) {
     const expected=JSON.parse(fs.readFileSync(expectedPath,'utf8'));
     const fraction=x=>{const [a,b='1']=String(x).split('/');return Number(a)/Number(b);};
+    if(expected.tempo_bpm!==undefined && Math.abs(score.tempo-fraction(expected.tempo_bpm))>1e-6) throw new Error('Tempo mismatch');
     if(score.tracks.length!==expected.tracks.length) throw new Error('Track count mismatch');
     for(const [ti,t] of expected.tracks.entries()) {
       if(t.program!==undefined && t.program!==null && score.tracks[ti].playbackInfo.program!==t.program) throw new Error('Instrument program mismatch');
       const actual=score.tracks[ti].staves[0];
       if(JSON.stringify(actual.tuning)!==JSON.stringify([...t.tunings[0]].reverse())) throw new Error('Tuning mismatch');
       if(actual.bars.length!==t.measures.length) throw new Error('Bar count mismatch');
-      for(const [mi,m] of t.measures.entries()) for(const [vi,v] of m.voices.entries()) {
+      for(const [mi,m] of t.measures.entries()) {
+       const [numerator,denominator]=m.time_signature.split('/').map(Number),master=score.masterBars[mi];
+       if(master.timeSignatureNumerator!==numerator || master.timeSignatureDenominator!==denominator) throw new Error('Meter mismatch');
+       for(const [vi,v] of m.voices.entries()) {
         const beats=actual.bars[mi].voices[vi].beats;
         if(beats.length!==v.length) throw new Error('Beat count mismatch');
         for(const [ei,e] of v.entries()) {
@@ -28,7 +32,12 @@ for (const file of files) {
             throw new Error(`Timing mismatch at ${ti}/${mi}/${vi}/${ei}`);
           if(JSON.stringify(b.notes.map(n=>n.realValue).sort((a,b)=>a-b))!==JSON.stringify(e.notes.map(n=>n.midi).sort((a,b)=>a-b)))
             throw new Error(`Pitch mismatch at ${ti}/${mi}/${vi}/${ei}`);
+          const sorted=xs=>xs.sort((a,b)=>a[0]-b[0]||a[1]-b[1]||a[2]-b[2]);
+          const physical=sorted(b.notes.map(n=>[n.stringTuning+n.fret,n.string-1,n.fret]));
+          const wanted=sorted(e.notes.map(n=>[n.midi,n.string,n.fret]));
+          if(JSON.stringify(physical)!==JSON.stringify(wanted)) throw new Error(`Physical string/fret mismatch at ${ti}/${mi}/${vi}/${ei}`);
         }
+      }
       }
     }
     compared=true;

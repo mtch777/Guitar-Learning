@@ -21,7 +21,9 @@ def write_gp(score, destination, title='Composition Lab experiment'):
     meta=ET.SubElement(root,'Score'); text(meta,'Title',title); text(meta,'Artist','Composition Lab')
     master=ET.SubElement(root,'MasterTrack'); text(master,'Tracks',' '.join(str(i) for i in range(len(score['tracks']))))
     automations=ET.SubElement(master,'Automations'); automation=ET.SubElement(automations,'Automation')
-    for tag,value in [('Type','Tempo'),('Linear','false'),('Bar',0),('Position',0),('Visible','true'),('Value','120 2')]: text(automation,tag,value)
+    tempo=Fraction(str(score.get('tempo_bpm',120)))
+    if not 0<tempo<=600:raise ValueError('Tempo outside supported range')
+    for tag,value in [('Type','Tempo'),('Linear','false'),('Bar',0),('Position',0),('Visible','true'),('Value',f'{float(tempo):.15g} 2')]: text(automation,tag,value)
     tables={name:ET.SubElement(root,name) for name in ['Tracks','MasterBars','Bars','Voices','Beats','Notes','Rhythms']}
     for ti,track in enumerate(score['tracks']):
         if ti>=15: raise ValueError('At most 15 pitched MIDI channels; percussion is not supported')
