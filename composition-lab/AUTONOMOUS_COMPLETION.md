@@ -171,3 +171,46 @@ a later human gate, not a reason to interrupt independent implementation now.
   validation hardened. Three dedicated rhythm tests pass. All prior outputs and
   pedal modules remain unchanged. Broader form/instrumentation controls and
   phrase/role modeling remain incomplete; do not mark the roadmap finished.
+
+## Development-selected role-pitch checkpoint (work continues)
+
+- Rhythm controls committed/pushed as29dc7664f920901679f494a7b77ef3952b50e140;
+  isolated GP7 CI succeeded: actions/runs/39169251245. No website changes.
+- New normalized128-pitch model compares absolute written pitch, contiguous
+  within-bar motion and harmony-relative alignment. Five inner development
+  connected-family folds select among15 convex mixtures, equal-family then
+  equal-song within family.44,419 development observations; no outer outcomes
+  used for selection. Source-composer semantic hash binds exact training input.
+- Selected weights absolute/motion/alignment: melody0/.75/.25, bass0/.5/.5.
+  Outer diagnostic4028 observations: melody2713 across8songs, bass1315 across2.
+  Melody selected NLL3.03247 vs absolute3.83756, motion3.02956, alignment3.96730;
+  the mixture is NOT better than motion alone. Bass1.10098 vs absolute3.52963,
+  motion1.42467, alignment2.59369. These are teacher-forced written-root scores,
+  not generated rollout, harmonic-function, artist-feel or musical-quality proof.
+  Outer songs were already examined in earlier diagnostics, not pristine tests.
+- QABot found nonfinite-weight acceptance, inconsistent within-family selection
+  weighting, multivoice harmony ambiguity and weak source revision provenance;
+  repaired/tested. Five model tests and four transfer tests independently pass.
+- Controlled transfer hides original target pitch/fret/string and arbitrary
+  metadata; locked harmony, event timing/count, form, tuning and instrument data
+  remain available. Model conditions on generated previous notes. Playable roots
+  are sampled with normalized restricted support; source voicing cardinality
+  unsupported after50tries fails closed. No forced difference. Main-voice only;
+  multivoice source input fails closed instead of arbitrary voice projection.
+- role-pitch-v1/v2 superseded by reproducible role-pitch-v3. role-transfer-v1 is
+  unsealed diagnostic (code-change guard fired during QA); role-transfer-v2 is
+  final bounded batch:36GPs at0/50/100. All36 native imports preserve expected
+  pitch/time/tuning/string/fret/meter/program/tempo. Twelve100% renders finite,
+  nonzero/unclipped. QABot independently checked allGP/code/model/audio hashes
+  and approved. No listening judgment fabricated.335Python tests run/334pass/
+  1optional skip; prior24JS/build remain green (no website changes).
+- Prior external benchmark is already completed, not currently login-blocked:
+  benchmarks/RESULTS_2026-10-15.md documents official AnalysisGNN weights/inference,
+  exact Sweet grace timing repair and model disagreement measurements. Existing
+  .local/models/analysisgnn-official/model.ckpt stays private. EXTERNAL_COMPARISON.md
+  documents actual Yin-Yang and AMT runs and their failed/limited gates. Preserve
+  those results; the current Invent Animate corpus pipeline is a distinct method.
+
+Next: combined role-pitch/performance exports and source-copy screens; remaining
+technique/style and form/instrumentation control coverage. Independent engineering
+continues without reopening approved pedals or requesting another tiny review.
