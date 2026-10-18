@@ -21,7 +21,7 @@ without counting overlapping phrases twice. Never delete or shorten a seed.
   full-range source notes, unchanged playback and precise marking/export.
 - [x] Verify every UI note against source; inspect real browser controls,
   playback and cursor. No synthetic judgments entered as human feedback.
-- [ ] Run Python/JS tests and build; commit/push verified public code/docs only;
+- [x] Run Python/JS tests and build; commit/push verified public code/docs only;
   check CI and existing Pages deployment where triggered.
 
 Only scripted/evidence validation can be completed autonomously. Listening
@@ -59,3 +59,14 @@ musical verdict. Private score-specific diagnoses stay in local-artifacts.
 
 Remote publication and workflow results are recorded after push. New phrase
 connections remain listening candidates; no human musical judgments invented.
+
+## Remote publication
+
+- Implementation 33642217b22d71d702dd215e4f04850d60a467d9 pushed to origin/main
+  after pull --rebase confirmed no concurrent changes.
+- Composition Lab CI: success, https://github.com/mtch777/Guitar-Learning/actions/runs/39164175767
+- Existing Pages workflow: success, https://github.com/mtch777/Guitar-Learning/actions/runs/39164175822
+- Live public site HTTP200; prior port5195 catalogue HTTP200/906 cases and new
+  port5196 release HTTP200/178 cases. Commercial-source material stays local.
+- Final release source audit passed. The source-only implementation, test and
+  progress checklist are published; listening acceptance remains open.
