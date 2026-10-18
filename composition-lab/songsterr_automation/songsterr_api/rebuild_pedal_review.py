@@ -13,6 +13,7 @@ import shutil
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from pedal_register import analyze_register
+from pedal_evidence import analyze_evidence
 from pedal_dialogue import describe
 
 
@@ -27,15 +28,16 @@ def events_for(rows,roles,kind,start,stop,chains):
                  notes=ns,pitches=sorted({n['midi'] for n in ns})) for q,ns in sorted(grouped.items())]
 
 
-def rebuild(report,source,out,corpus_audit=False):
+def rebuild(report,source,out,corpus_audit=False,evidence=False):
     out.mkdir(parents=True,exist_ok=False)
     songs={s['song_id']:s for s in report['songs']};cases=json.loads((source/'cases.json').read_text(encoding='utf-8'))
     records=[];result=[]
+    analyze = analyze_evidence if evidence else analyze_register
     for case in cases:
         part=int(case['notes'][0]['id'].split(':')[0]);track=next(t for t in songs[case['song_id']]['tracks'] if t['part_id']==part)
         base,limit=F(case['base_q']),F(case['end_q'])
         rows=[n for n in track['rows'] if base<=F(n['onset_q'])<limit]
-        prediction=analyze_register(rows);roles=prediction['roles']
+        prediction=analyze(rows);roles=prediction['roles']
         chains={c['origin']:c for c in track.get('sustain_relationships',{}).get('chains',[])}
         tie_roles={member:roles[c['origin']]+'_sustain' for c in chains.values() if c['origin'] in roles
                    for member in c['members'][1:] if roles[c['origin']]=='call'}
@@ -44,8 +46,10 @@ def rebuild(report,source,out,corpus_audit=False):
         revised['notes']=[dict(n,role=roles.get(n['id'],tie_roles.get(n['id'],'context'))) for n in case['notes']]
         revised['heading']='Following the repeating low part' if prediction['accepted'] else 'No repeated pedal exchange identified here'
         revised['category']='register_review' if prediction['accepted'] else 'outside_current_rule'
-        revised['explanation']=('Gold marks the proposed pedal; blue marks the answering notes. '
-            'The low part may change pitch or voicing. Notes played together are labeled individually.' if prediction['accepted'] else prediction['reason'])
+        revised['explanation']=('Gold marks the proposed pedal; blue marks answers that start later. '
+            'A simultaneous upper note is not an answer. Different pedals need independent evidence.' if prediction['accepted'] else prediction['reason'])
+        if not evidence and prediction['accepted']:
+            revised['explanation']='Frozen register baseline: upper coattacks may be labeled as responses. Compare against the evidence method before interpreting these labels.'
         revised['caveat']='Unchanged source audio. This is a bounded excerpt, not a claimed phrase ending. These revised hypotheses need listening review.'
         for c in prediction['cycles']:
             start,answer,end=F(c['call_start_q']),F(c['response_start_q']),F(c['return_q'])
@@ -67,8 +71,8 @@ def rebuild(report,source,out,corpus_audit=False):
         result.append(revised)
         records.append(dict(id=case['id'],accepted=prediction['accepted'],anchor=prediction['anchor_pitches'],
             cycles=len(prediction['cycles']),attack_roles=len(roles),source_notes=len(case['notes'])))
-    manifest=dict(cases=len(result),unavailable_categories=[],review_version='pedal-register-v1',
-        algorithm_sha256=hashlib.sha256((Path(__file__).parents[2]/'pedal_register.py').read_bytes()).hexdigest(),
+    manifest=dict(cases=len(result),unavailable_categories=[],review_version='pedal-evidence-v1' if evidence else 'pedal-register-v1',
+        algorithm_sha256=hashlib.sha256((Path(__file__).parents[2]/('pedal_evidence.py' if evidence else 'pedal_register.py')).read_bytes()).hexdigest(),
         dataset_sha256=hashlib.sha256(json.dumps(result,separators=(',',':')).encode()).hexdigest(),
         sampling='Same private passages and byte-identical audio; revised source-derived analysis, not new compositions.')
     (out/'cases.json').write_text(json.dumps(result,separators=(',',':')),encoding='utf-8')
@@ -84,7 +88,7 @@ def rebuild(report,source,out,corpus_audit=False):
                 counts['tracks']+=1;sections=defaultdict(list)
                 for n in track['rows']:sections[n['section_start']].append(n)
                 for rows in sections.values():
-                    p=analyze_register(rows);counts['source_scopes']+=1
+                    p=analyze(rows);counts['source_scopes']+=1
                     counts['accepted_scopes']+=p['accepted'];counts['closed_exchanges']+=len(p['cycles'])
                     counts['assigned_attack_occurrences']+=len(p['roles'])
                     byid={n['occurrence']:n for n in rows}
@@ -102,6 +106,8 @@ def rebuild(report,source,out,corpus_audit=False):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('report',type=Path);p.add_argument('source',type=Path);p.add_argument('out',type=Path)
-    p.add_argument('--corpus-audit',action='store_true');a=p.parse_args()
+    p.add_argument('--corpus-audit',action='store_true')
+    p.add_argument('--evidence',action='store_true',help='Evaluate the corrected evidence method; baseline remains the default until acceptance')
+    a=p.parse_args()
     if 'local-artifacts' not in a.out.resolve().parts:p.error('Source evidence stays private')
-    rebuild(json.loads(a.report.read_text(encoding='utf-8')),a.source,a.out,a.corpus_audit)
+    rebuild(json.loads(a.report.read_text(encoding='utf-8')),a.source,a.out,a.corpus_audit,a.evidence)

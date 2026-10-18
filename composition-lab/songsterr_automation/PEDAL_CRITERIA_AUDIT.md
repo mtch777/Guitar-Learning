@@ -1,3 +1,5 @@
+Latest implementation and evidence: [PEDAL_EVIDENCE_CORRECTION.md](PEDAL_EVIDENCE_CORRECTION.md). The audit below describes the preserved baseline.
+
 # Pedal criteria audit: acceptance is reopened
 
 The current after-results are register hypotheses, not accepted musical pedal

@@ -1,3 +1,16 @@
+## Pedal evidence correction (2026-10-18)
+
+Read songsterr_automation/PEDAL_EVIDENCE_CORRECTION.md and
+PEDAL_CORRECTION_PROGRESS.md. `pedal_evidence.py` adds strict later-answer timing,
+local anchor proof, written-chord/tie handling and final role validation. Baseline
+`pedal_register.py` and old artifacts remain unchanged. New runner option:
+`rebuild_pedal_review.py --evidence`; do not silently promote the experiment.
+Sealed evaluation: 28/28 bounded decisions and 176/176 marked notes; 1,854 scopes
+fully audited. Two short excerpts differ from their complete support context;
+three complete patterns expose the evidence rather than cropping it. Human
+musical acceptance remains pending. Private review is loopback-only; sources,
+feedback and commercial-source playback must not be published.
+
 ## Pedal acceptance reopened (2026-10-18)
 
 Latest: read songsterr_automation/PEDAL_CRITERIA_AUDIT.md. New feedback exposes
