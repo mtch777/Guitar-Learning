@@ -11,7 +11,7 @@ from pedal_regions import detect_regions
 
 def feedback_audit(feedback,cases):
     fingerprint=hashlib.sha256(json.dumps([(c['source_sha256'],c['target_ids']) for c in cases]).encode()).hexdigest()[:16]
-    if feedback.get('qa') or feedback.get('study') not in ('pedal-identification-'+fingerprint,'pedal-revision-'+fingerprint):raise ValueError('Feedback belongs to another source study or QA')
+    if feedback.get('qa') or feedback.get('study') not in tuple(prefix+fingerprint for prefix in ('pedal-identification-','pedal-revision-','pedal-fresh-')):raise ValueError('Feedback belongs to another source study or QA')
     records=[]
     for case in cases:
         judgment=feedback.get('judgments',{}).get(case['id'],{})

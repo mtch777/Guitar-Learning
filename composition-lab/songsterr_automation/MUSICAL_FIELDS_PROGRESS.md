@@ -106,3 +106,20 @@ Added regression cases for equal repetition, transposition, chord cycle vs rhyth
 returns, reduced voicing extent, and sequential anchors.219Python(oneoptionalskip),
 21JS/build pass. Remaining: independent evidence beyond these now-used9passages,
 robust phrase extents and independent musical roles. No further ratings requested.
+
+## Fresh-song validation review
+
+User requested new passages from new songs. Built pedal-fresh-v2, port5188,
+6different source families excluded from prior9sourceIDs and near-title matches.
+Detector frozen SHA256dab77b124a652cd5e81425c242531c59393173ae91c371da2c8a760fcf6011ff;
+no detector changes while selecting review.4detection passages,2different-section
+no-detection probes (not assumed negative truth). Frozen manifest records exclusions,
+sourceIDs and detector hash privately. GP bytes unchanged,12audio hashes verified,
+finite/nonzero/unclipped renders. All12browsermedia ready without errors. QA reveal
+verified explicit no-detection text; actual review starts blank/unrevealed.
+
+Same interactive playhead, note marking, independent-first reveal, completeness,
+identity and extent judgments. Feedback new fingerprint separate; QA suffix excluded.
+Selective probe sampling cannot estimate population accuracy. Newsource families
+are not claimed absent from every analysis stage.219Python(oneoptionalskip),21JS,
+Vite build pass. Prior outputs/feedback and rejected first sampling bundle retained.
