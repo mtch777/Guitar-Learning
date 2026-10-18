@@ -45,3 +45,5 @@
 - Tests:211Python(210pass/1optional skip),18JS/build pass. No unrelated UI edits.
 - Persistent detailed results/reproduction: PATTERN_ROBUSTNESS.md. Next acceptance:
   human anchor-function judgments; never substitute brush parameter ratings.
+
+- Release779b84f pushed to origin/main. Composition CI39096189976 success: https://github.com/mtch777/Guitar-Learning/actions/runs/39096189976 . Working tree clean after release; no private source/artifact paths tracked. No public website changes in this continuation. Human gate is the six unchanged-source identification cases at loopback5185; all judgments blank.
