@@ -148,3 +148,26 @@ Next independent work: broaden rhythm/form/instrumentation controls without
 violating literal locks; improve phrase/role methods against development baselines;
 reconcile remaining source-technique/control coverage. Musical acceptance remains
 a later human gate, not a reason to interrupt independent implementation now.
+
+## Rhythm control checkpoint (work continues)
+
+- Performance/copy/joint diagnostics committed/pushed as78361d72a66cad0fde254c71e32dbb7adda2f628.
+  GitHub isolated GP7 CI succeeded: actions/runs/39169062040. No website changes.
+- Reproducible performance-v5 fit matches performance-v4 model/shapes/evaluation
+  exactly; fitted code/source hashes recorded privately. Ten technique tests pass.
+- New rhythm proposer sees only role, meter and locked event cardinalities, never
+  reference note timings. Uses family→song→compatible-pattern sampling; no forced
+  difference.0 literal canonical identity (GP byte-copy in runner),100 invariant
+  to reference timing perturbation;25/50/75 nested release masks. Unsupported
+  event/rest/voicing topology fails closed. Tempo, meter, pitches, voicing and
+  event count remain locked. Changed timing can change intertrack simultaneity;
+  this is explicitly not an independent lock of sounding chord relationships.
+- rhythm-v1 superseded by hardened rhythm-v2:60GPs (12pieces×5strengths). All60
+  independently imported with exact pitch/timing/tuning/fret/string/meter/tempo.
+  Released bar-voice units at25/50/75/100:264/648/960/1152; actual changed units
+  54/137/206/250. Coincidence is allowed, so100 does not force every unit to differ.
+  Twelve100% previews finite/nonzero/unclipped. No listening judgment fabricated.
+- QABot approved bounded rhythm logic; empty voice opportunities and0% role
+  validation hardened. Three dedicated rhythm tests pass. All prior outputs and
+  pedal modules remain unchanged. Broader form/instrumentation controls and
+  phrase/role modeling remain incomplete; do not mark the roadmap finished.
