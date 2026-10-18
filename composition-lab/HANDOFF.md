@@ -1,3 +1,12 @@
+## Pedals approved — complete (2026-10-18)
+
+User approved the additive continuation review and explicitly said “done with
+pedals.” Pedal identification, call/response boundaries and additive phrase
+expansion are accepted for the current milestone. Do not reopen generic pedal
+identification/listening work. Preserve the accepted detector and expansion pass
+as a regression baseline. Next work belongs to broader artist profiles, technique
+methods/transfer, levers and composition; approval is not validation of those.
+
 ## Additive pedal continuation (2026-10-18)
 
 Latest user direction: keep detection unchanged; expand established phrases only.

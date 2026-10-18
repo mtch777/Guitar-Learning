@@ -70,3 +70,10 @@ connections remain listening candidates; no human musical judgments invented.
   port5196 release HTTP200/178 cases. Commercial-source material stays local.
 - Final release source audit passed. The source-only implementation, test and
   progress checklist are published; listening acceptance remains open.
+
+## Human acceptance — complete
+
+2026-10-18: user: “nice work. approved. done with pedals”. This closes the pedal
+identification and expansion milestone. Preserve the accepted implementation and
+regressions; do not request another generic pedal review. This approval does not
+close the remaining artist-profile, transfer, lever or composition milestones.
