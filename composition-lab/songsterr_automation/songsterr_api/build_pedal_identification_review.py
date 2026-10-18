@@ -91,6 +91,8 @@ document.querySelector('#export').onclick=()=>{const a=document.createElement('a
 for(const audio of document.querySelectorAll('audio'))audio.onplay=()=>{for(const other of document.querySelectorAll('audio'))if(other!==audio)other.pause()};
 </script></html>'''
     (out/'index.html').write_text(page.replace('FINGERPRINT',fingerprint),encoding='utf-8')
+    from upgrade_pedal_review import upgrade
+    upgrade(out, report)
     return dict(cases=len(selected),source_copies_byte_identical=True,source_song_ids=[c['song_id'] for c in selected],fingerprint=fingerprint)
 
 

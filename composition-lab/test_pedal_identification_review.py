@@ -2,9 +2,11 @@ import importlib.util
 import json
 from pathlib import Path
 import tempfile
+import sys
 import unittest
 
 ROOT=Path(__file__).parent/'songsterr_automation/songsterr_api'
+sys.path.insert(0,str(ROOT))
 spec=importlib.util.spec_from_file_location('pedal_review',ROOT/'build_pedal_identification_review.py')
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 
@@ -23,6 +25,7 @@ class ReviewTests(unittest.TestCase):
                            bar=1,bar_offset_q=str(j/2)) for j in range(6)]
                 candidate=dict(relative_period_error='0' if i<3 else '1/4',anchor_midi=40,members=[[[str(j)]] for j in range(6)])
                 songs.append(dict(song_id=i,title='<source>',revision_id=1,candidate_work_family=family,
+                                  timeline=dict(tempo=[dict(onset_q='0',quarter_bpm=120,linear=False),dict(onset_q='2',quarter_bpm=60,linear=False)],warnings=[]),
                                   playback=dict(order=[dict(bar=1)]),shared_layout=[dict(start_q='0',span_q='4')],
                                   tracks=[dict(guitar_or_bass=True,temporal_relationships_eligible=True,name='',rows=rows,pedal_candidates=[candidate])]))
             out=Path(tmp)/'out';result=m.build(dict(songs=songs),corpus,out)
@@ -32,6 +35,13 @@ class ReviewTests(unittest.TestCase):
             self.assertIn('&lt;source&gt;',page)
             self.assertIn('Does the gold note act as a repeating anchor',page)
             self.assertNotIn('brush',page)
+            self.assertIn('class="playhead"',page)
+            self.assertIn('class="source-note"',page)
+            self.assertIn('data-time-map=',page)
+            self.assertTrue((out/'pedal-review.js').exists())
+            import html,re
+            mapping=json.loads(html.unescape(re.search(r'data-time-map="([^"]+)"',page)[1]))
+            self.assertEqual(mapping,[dict(x=0.0,seconds=0.0),dict(x=480.0,seconds=1.0),dict(x=960.0,seconds=3.0)])
             self.assertEqual(len(json.loads((out/'render-jobs.json').read_text())),12)
             with self.assertRaises(FileExistsError):m.build(dict(songs=songs),corpus,out)
 

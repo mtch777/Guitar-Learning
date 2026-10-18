@@ -47,3 +47,18 @@
   human anchor-function judgments; never substitute brush parameter ratings.
 
 - Release779b84f pushed to origin/main. Composition CI39096189976 success: https://github.com/mtch777/Guitar-Learning/actions/runs/39096189976 . Working tree clean after release; no private source/artifact paths tracked. No public website changes in this continuation. Human gate is the six unchanged-source identification cases at loopback5185; all judgments blank.
+
+## Requested piano-roll annotation update
+
+- Added a white audio-synchronized playhead and green sounding-note outlines for
+  both playback modes, including scrubbing and exact step-tempo changes.
+- Click/Enter/Space toggles individual source-note anchor selections (pink).
+  Export includes exact occurrence ID, pitch and source bar. Same study key keeps
+  existing ratings/notes. Clear control affects only note selections.
+- Upgrader backs up prior HTML and changes no GP/audio. New builds include feature.
+- Browser verified click, reload persistence and exported JSON for occurrence
+  0:29:0:1:0. Test selection undone; test export archived privately as QA only.
+  Playhead observed x18.61 at0.185s and x413.78 at3.760s; sounding note highlighted.
+- 211Python(210pass/1optional skip),18JS/build pass; JS syntax pass. Tempo-change
+  fixture verifies x0/480/960 at0/1/3seconds. No public site assets changed.
+- User-facing URL remains http://127.0.0.1:5185/ . Screenshot tracking.png private.
