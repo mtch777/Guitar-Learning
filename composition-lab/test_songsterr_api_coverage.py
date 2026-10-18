@@ -44,23 +44,23 @@ class ApiCoverageTests(unittest.TestCase):
         self.assertEqual(row['status'],'retained_only')
         self.assertTrue(row['review_required'])
 
-    def test_marker_presence_does_not_claim_child_or_curve_interpretation(self):
+    def test_new_native_mechanics_and_partial_curve_support_are_explicit(self):
         rules=a.registry()
         self.assertEqual(rules[a.B+'.brushStroke']['status'],'analyzed')
-        self.assertEqual(rules[a.B+'.brushStroke.direction']['status'],'unsupported')
+        self.assertEqual(rules[a.B+'.brushStroke.direction']['status'],'analyzed')
         self.assertEqual(rules[a.N+'.bend.points[].position']['status'],'analyzed')
-        self.assertEqual(rules[a.N+'.bend.points[].precisePosition']['status'],'unsupported')
-        self.assertEqual(rules[a.N+'.bend.points[].vibrato']['status'],'unsupported')
+        self.assertEqual(rules[a.N+'.bend.points[].precisePosition']['status'],'analyzed')
+        self.assertEqual(rules[a.N+'.bend.points[].vibrato']['status'],'analyzed')
         self.assertEqual(rules[a.B+'.tremoloBar']['status'],'analyzed')
-        self.assertEqual(rules[a.B+'.tremoloBar.points[].tone']['status'],'unsupported')
+        self.assertEqual(rules[a.B+'.tremoloBar.points[].tone']['status'],'analyzed')
 
-    def test_hash_only_and_catalog_copies_are_not_functional_analysis(self):
+    def test_timeline_is_now_modeled_but_unused_catalog_copies_are_not(self):
         rules=a.registry()
-        self.assertEqual(rules['track.automations.tempo[].bpm']['analysis_level'],'hash_only')
-        self.assertEqual(rules['track.automations.tempo[].bpm']['status'],'unsupported')
+        self.assertEqual(rules['track.automations.tempo[].bpm']['analysis_level'],'step_tempo_timeline')
+        self.assertEqual(rules['track.automations.tempo[].bpm']['status'],'analyzed')
         self.assertEqual(rules['metadata.tracks[].instrumentId']['status'],'retained_only')
         self.assertEqual(rules['track.instrumentId']['status'],'analyzed')
-        self.assertEqual(rules['track.revisionId']['status'],'retained_only')
+        self.assertEqual(rules['track.revisionId']['status'],'analyzed')
         self.assertEqual(rules['metadata.revisionId']['status'],'analyzed')
 
     def test_public_report_has_no_response_values_or_private_source_identity(self):
@@ -79,7 +79,7 @@ class ApiCoverageTests(unittest.TestCase):
         for base,fields in [(a.N,a.NOTE_FIELDS),(a.B,a.BEAT_FIELDS)]:
             for field in fields:
                 self.assertEqual(rules[base+'.'+field]['status'],'analyzed')
-                self.assertIn('summary',rules[base+'.'+field]['code_evidence'])
+                self.assertTrue(any(name in rules[base+'.'+field]['code_evidence'] for name in ('summary','source_semantics')))
 
 
 if __name__=='__main__':unittest.main()

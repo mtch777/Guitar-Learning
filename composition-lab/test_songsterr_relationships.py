@@ -84,9 +84,9 @@ class RelationshipsTests(unittest.TestCase):
         curve=dict(points=[dict(position=0,tone=0),dict(position=30,tone=50),dict(position=60,tone=25)])
         t=a.track_analysis(part([measure(beat(note(bend=curve),palmMute=True,velocity=70),beat(note(fret=2)))]))
         hist=t['summary']['marker_value_histograms']
-        self.assertEqual(hist['bend_peak_semitones'],{'2':1})
+        self.assertEqual(hist['bend_peak_semitones'],{'1':1})
         self.assertEqual(hist['bend_first_peak_fraction_of_written_segment'],{'1/2':1})
-        self.assertEqual(hist['bend_final_semitones'],{'1':1})
+        self.assertEqual(hist['bend_final_semitones'],{'1/2':1})
         self.assertEqual(hist['explicit_velocity'],{'70':1})
         shares=t['summary']['conditional']['bend']['marked']['other_marker_shares']
         self.assertEqual(shares['palmMute'],dict(numerator=1,denominator=1,percent=100))

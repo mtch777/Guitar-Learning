@@ -11,8 +11,10 @@ from pathlib import Path
 import re
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from technique_analysis import classify_group
 from pedal_patterns import detect_bursts
+from source_semantics import marker_text, layout, playback_order, rests, mechanics, timeline, seconds_between, sustain_context
 
 NOTE_FIELDS = ('hp', 'bend', 'slide', 'harmonic', 'dead', 'ghost', 'staccato',
                'accentuated', 'tremolo', 'vibrato', 'wideVibrato', 'leftHandVibrato')
@@ -45,14 +47,15 @@ def pitch(part, n):
     return tuning[s] + f + (part.get('capo') or 0)
 
 
-def occurrences(part):
+def occurrences(part, headers=None):
     rows, grace, warnings, sections = [], [], [], []
+    if headers is None:headers=layout([part])[0]
     offset, signature, section = F(0), [4, 4], None
     for mi, measure in enumerate(part.get('measures', []), 1):
         signature = measure.get('signature') or signature
-        span = F(4*signature[0], signature[1])
+        span = F(headers[mi-1]['span_q']);offset=F(headers[mi-1]['start_q'])
         if section is None or measure.get('marker'):
-            section = dict(id=mi, label=measure.get('marker') or '(unannotated)', start_q=str(offset))
+            section = dict(id=mi, label=marker_text(measure.get('marker')), start_q=str(offset))
             sections.append(section)
         for vi, voice in enumerate(measure.get('voices', [])):
             local = F(0)
@@ -130,11 +133,12 @@ def summary(rows):
             points=bend['points']
             if all('tone' in p and 'position' in p for p in points):
                 peak=max(p['tone'] for p in points)
-                values['bend_peak_semitones'][str(F(str(peak))/25)]+=1
-                values['bend_initial_semitones'][str(F(str(points[0]['tone']))/25)]+=1
-                values['bend_final_semitones'][str(F(str(points[-1]['tone']))/25)]+=1
-                first_peak=next(p['position'] for p in points if p['tone']==peak)
-                values['bend_first_peak_fraction_of_written_segment'][str(F(str(first_peak))/60)]+=1
+                values['bend_peak_semitones'][str(F(str(peak))/50)]+=1
+                values['bend_initial_semitones'][str(F(str(points[0]['tone']))/50)]+=1
+                values['bend_final_semitones'][str(F(str(points[-1]['tone']))/50)]+=1
+                first_peak=next(p for p in points if p['tone']==peak)
+                fraction=F(str(first_peak['precisePosition']))/100 if first_peak.get('precisePosition') is not None else F(str(first_peak['position']))/60
+                values['bend_first_peak_fraction_of_written_segment'][str(fraction)]+=1
     return dict(note_segments=len(rows), attacks=sum(not r['tie_destination'] for r in rows),
                 unknown_written_pitch=sum(r['midi'] is None for r in rows),
                 marker_shares={k:ratio(v,len(rows)) for k,v in sorted(counts.items())},
@@ -178,9 +182,14 @@ def hopo(rows, grace):
     return out, unresolved
 
 
-def track_analysis(part):
-    rows, grace, sections, warnings = occurrences(part)
-    temporal_valid = not warnings
+def track_analysis(part, headers=None, catalog=None, identity_warnings=None, shared_warnings=None):
+    if headers is None:headers=layout([part])[0]
+    rows, grace, sections, warnings = occurrences(part,headers)
+    rest_rows,rest_warnings=rests(part,headers)
+    warnings.extend(rest_warnings)
+    identity_warnings=identity_warnings or []
+    temporal_valid = not warnings and not identity_warnings and not shared_warnings
+    catalog=catalog or {}
     lanes = defaultdict(lambda: defaultdict(list))
     for r in rows:
         if temporal_valid and not r['tie_destination']:
@@ -192,7 +201,8 @@ def track_analysis(part):
             if len(a)==len(b)==1 and a[0]['midi'] is not None and b[0]['midi'] is not None and a[0]['section_start']==b[0]['section_start']:
                 a[0]['next_monophonic_interval']=b[0]['midi']-a[0]['midi']
                 a[0]['next_attack_gap_q']=str(nq-q)
-    guitar = isinstance(part.get('instrumentId'),int) and 24<=part['instrumentId']<=39
+    program_guitar = isinstance(part.get('instrumentId'),int) and 24<=part['instrumentId']<=39
+    guitar = program_guitar and not catalog.get('isVocalTrack') and not catalog.get('isEmpty')
     groups, attacks = [], defaultdict(list)
     if guitar and temporal_valid:
         for r in rows:
@@ -204,6 +214,12 @@ def track_analysis(part):
                 groups.append(dict(onset_q=str(q),members=[r['occurrence'] for r in active],labels=labels,
                                    pitch_effects_unresolved=any(r['pitch_effects'] for r in active)))
     pairs, unresolved = hopo(rows, grace) if guitar and temporal_valid else ([],[])
+    technique_values,value_histograms=mechanics(rows)
+    sustained=sustain_context(rows,technique_values) if temporal_valid else dict(chains=[],technique_contexts=[],warnings=[],held_neighbor_contexts=0,excluded_for_timing=True)
+    physical=Counter()
+    for r in rows:
+        if isinstance(r['fret'],(int,float)) and (r['fret']<0 or part.get('frets') is not None and r['fret']>part['frets']):physical['outside_declared_fret_range']+=1
+        if isinstance(r['string'],int) and not 0<=r['string']<len(part.get('tuning') or []):physical['outside_declared_tuning']+=1
     # Pedal detector operates on attacks across voices within a track.
     pedals = detect_bursts(rows) if guitar and temporal_valid else []
     by_section = []
@@ -224,6 +240,8 @@ def track_analysis(part):
             distance=abs(active[0]['midi']-active[1]['midi'])
             if distance==2 and len(near)<4:near.append(dict(members=[r['occurrence'] for r in active],written_semitones=distance,reason='whole_step_not_close_texture'))
     return dict(part_id=part.get('partId'),name=part.get('name'),guitar_or_bass=guitar,
+                program_guitar_or_bass=program_guitar,catalog_flags={k:catalog.get(k) for k in ('isVocalTrack','isEmpty')},identity_warnings=identity_warnings,
+                rest_spans=rest_rows,technique_values=technique_values,technique_value_histograms=value_histograms,sustain_relationships=sustained,physical_notation_flags=dict(physical),
                 temporal_relationships_eligible=temporal_valid,
                 summary=summary(rows),sections=by_section,rows=rows,grace_rows=grace,timing_warnings=warnings,
                 coattack_groups=groups,hopo_transition_candidates=pairs,unresolved_hp=unresolved,
@@ -236,16 +254,43 @@ def analyze(root, progress=False):
         if not folder.is_dir() or not (folder/'metadata.json').exists():continue
         meta=json.loads((folder/'metadata.json').read_text(encoding='utf-8-sig'))
         if progress:print(f"Analyzing entry {len(songs)+1}: {meta['songId']}",flush=True)
-        parts=[json.loads(p.read_text(encoding='utf-8-sig')) for p in sorted(folder.glob('track-*.json'))]
+        source_files=sorted(folder.glob('track-*.json'),key=lambda p:int(p.stem.split('-')[-1]))
+        parts=[json.loads(p.read_text(encoding='utf-8-sig')) for p in source_files]
         # Exact representation duplicate only; no fuzzy musical-equivalence claim.
         content=digest([{k:p[k] for k in ('measures','tuning','capo','instrumentId','automations','sounds','trackAutomations') if k in p} for p in parts])
         key=family(meta);sid=meta['songId'];families[key].append(sid);contents[content].append(sid)
-        tracks=[track_analysis(p) for p in parts]
+        headers,header_warnings=layout(parts);time=timeline(parts,headers)
+        tracks=[]
+        for i,p in enumerate(parts):
+            identity=[]
+            for field,expected in [('songId',meta['songId']),('revisionId',meta['revisionId']),('partId',int(source_files[i].stem.split('-')[-1]))]:
+                if field in p and p[field]!=expected:identity.append(dict(reason='mismatched_'+field,expected=expected,observed=p[field]))
+            catalog=(meta.get('tracks') or [])
+            track=track_analysis(p,headers,catalog[i] if i<len(catalog) else None,identity,header_warnings)
+            tracks.append(track)
+        order=playback_order(headers)
+        for ti,track in enumerate(tracks):
+            by_id={r['occurrence']:r for r in track['rows']}
+            visits=Counter(p['bar'] for p in order['order'])
+            part=parts[ti];rest_before={};rest_after={}
+            for rest in track['rest_spans']:
+                start=F(rest['onset_q']);duration=F(rest['duration_q'])
+                rest_before[rest['voice'],start+duration]=max(rest_before.get((rest['voice'],start+duration),F(0)),duration)
+                rest_after[rest['voice'],start]=max(rest_after.get((rest['voice'],start),F(0)),duration)
+            for context in track['sustain_relationships']['technique_contexts']:
+                row=by_id[context['occurrence']];q=F(row['onset_q']);context['written_gesture_seconds']=seconds_between(q,q+F(context['sustain_duration_q']),time)
+                changes=[c for c in time['sound_changes'] if c['track']==ti and F(c['onset_q'])<=q]
+                context['program_at_attack']=changes[-1]['program'] if changes else part.get('instrumentId')
+                context['playback_visits_to_source_bar']=visits[row['bar']] if order['complete'] else None
+                context['preceding_rest_q']=str(rest_before.get((row['voice'],q),F(0)))
+                end=q+F(context['sustain_duration_q'])
+                context['following_rest_q']=str(rest_after.get((row['voice'],end),F(0)))
         rows=[r for t in tracks if t['guitar_or_bass'] for r in t['rows']]
         songs.append(dict(song_id=sid,revision_id=meta['revisionId'],artist=meta.get('artist'),title=meta.get('title'),
                           ai_generated=meta.get('aiGenerated'),is_junk=meta.get('isJunk'),
                           candidate_work_family=key,provisional_partition='held_out' if int(digest(key)[:8],16)%5==0 else 'development',
                           notation_hash=content,tracks=tracks,summary=summary(rows)))
+        songs[-1].update(shared_layout=headers,layout_warnings=header_warnings,playback=order,timeline=time)
     # Keep both known exact duplicates and candidate title families in one split.
     parent={s['song_id']:s['song_id'] for s in songs}
     def find(sid):
@@ -267,15 +312,15 @@ def analyze(root, progress=False):
         if s['ai_generated'] is True:cohort_rows['ai_flagged'].extend(rows)
         if s['is_junk'] is True:cohort_rows['junk_flagged'].extend(rows)
         artist_rows[s['artist']].extend(rows)
-    return dict(schema='songsterr-relational-observations-v1',songs=songs,
+    return dict(schema='songsterr-relational-observations-v2',songs=songs,
                 candidate_family_groups=[v for v in families.values() if len(v)>1],
                 exact_notation_duplicate_groups=[v for v in contents.values() if len(v)>1],
                 cohorts={k:summary(v) for k,v in cohort_rows.items()},
                 artists={k:summary(v) for k,v in artist_rows.items()},
-                limitations=['Written score-order occurrences, not expanded repeat playback or recorded performance',
+                limitations=['Written occurrence statistics; repeat/ending playback order is an additional view, not duplicated training occurrences or recorded performance',
                              'Candidate title families require adjudication; provisional partitions are not validated held-out evaluation',
                              'hp-origin interpretation follows upstream GP convention, not independent technique ground truth',
-                             'Coattacks combine voices; sustained sonorities and bend-adjusted sounding intervals are not classified',
+                             'Coattacks combine voices; sustained-neighbor intervals are notated pitch-center hypotheses, not inferred chord function',
                              'Technique percentages use regular written note segments, not distinct sustained gestures',
                              'Tracks with malformed or overflowing written timing retain notation counts but are excluded from temporal relationship candidates',
                              'Marker absence is not observed performance absence; no phrase, intent, chord-function or feel labels'])
@@ -286,6 +331,26 @@ def aggregate(report):
     grouped=Counter(label for t in guitars for g in t['coattack_groups'] for label in g['labels'])
     pairs=Counter(p['direction']+'_'+p['context'] for t in guitars for p in t['hopo_transition_candidates'])
     effects=Counter(k for s in songs for k in s['summary']['marker_shares'])
+    values=defaultdict(Counter)
+    for t in guitars:
+        for key,hist in t['technique_value_histograms'].items():values[key].update(hist)
+    contexts=[c for t in guitars for c in t['sustain_relationships']['technique_contexts']]
+    upgraded=dict(pickup_entries=sum(any(h['pickup'] for h in s['shared_layout']) for s in songs),
+                  identity_warnings=dict(Counter(w['reason'] for t in tracks for w in t['identity_warnings'])),
+                  layout_warnings=dict(Counter(w['reason'] for s in songs for w in s['layout_warnings'])),
+                  timeline_warnings=dict(Counter(w['reason'] for s in songs for w in s['timeline']['warnings'])),
+                  rest_spans=sum(len(t['rest_spans']) for t in tracks),
+                  tempo_points=sum(len(s['timeline']['tempo']) for s in songs),sound_changes=sum(len(s['timeline']['sound_changes']) for s in songs),
+                  repeat_expansions_complete=sum(s['playback']['complete'] for s in songs),
+                  written_bars=sum(len(s['shared_layout']) for s in songs),playback_bar_visits=sum(len(s['playback']['order']) for s in songs),
+                  curve_units='raw tone/50 semitones; precisePosition/100 when supplied, otherwise position/60',
+                  technique_value_histograms_note_scope={k:dict(v) for k,v in values.items()},
+                  sustained_guitar_gestures=sum(len(t['sustain_relationships']['chains']) for t in guitars),
+                  technique_gestures=len(contexts),technique_gestures_with_held_neighbors=sum(bool(c['held_neighbors']) for c in contexts),
+                  technique_gestures_with_seconds=sum(c['written_gesture_seconds'] is not None for c in contexts),
+                  notated_center_intervals=dict(Counter(n['notated_center_interval_from_target'] for c in contexts for n in c['held_neighbors'] if n['notated_center_interval_from_target'] is not None)),
+                  unresolved_neighbor_intervals=sum(n['notated_center_interval_from_target'] is None for c in contexts for n in c['held_neighbors']),
+                  physical_notation_flags=dict(sum((Counter(t['physical_notation_flags']) for t in guitars),Counter())))
     distributions={}
     for effect in effects:
         rates=[];family_rates=defaultdict(list)
@@ -298,6 +363,7 @@ def aggregate(report):
                                   minimum_song_percent=min(rates) if rates else None,maximum_song_percent=max(rates) if rates else None,
                                   candidate_family_balanced_mean_percent=sum(sum(v)/len(v) for v in family_rates.values())/len(family_rates) if family_rates else None)
     return dict(schema=report['schema'],entries=len(songs),tracks=len(tracks),guitar_bass_tracks=len(guitars),
+                musical_fields=upgraded,
                 ai_flagged=sum(s['ai_generated'] is True for s in songs),junk_flagged=sum(s['is_junk'] is True for s in songs),
                 candidate_family_group_sizes=[len(g) for g in report['candidate_family_groups']],
                 exact_notation_duplicate_group_sizes=[len(g) for g in report['exact_notation_duplicate_groups']],

@@ -125,6 +125,53 @@ def registry():
     fields(B,'text text.text','retained_only','raw_capture','Free text retained privately; not interpreted as technique instruction.',
            'No free-text instruction parser or trusted-label treatment.')
     fields(B,'text.width','not_applicable','layout','Text layout width is outside musical technique analysis.')
+    # Current source_semantics.py implementation supersedes the original audit.
+    def upgrade(paths,level,use,gap,evidence):
+        for path in paths:
+            rules[path].update(status='analyzed',analysis_level=level,current_use=use,remaining_gap=gap,code_evidence=evidence)
+    upgrade(['metadata.tracks','metadata.tracks[]','metadata.tracks[].isVocalTrack','metadata.tracks[].isEmpty'],
+            'catalog_scope_filter','Vocal/empty flags exclude tracks from guitar aggregation while retaining observations.',
+            'Catalog flags are not inferred musical roles or verified accuracy.','analyze; track_analysis')
+    upgrade(['track.songId','track.revisionId','track.partId'],'identity_validation','Track identities checked against metadata and filename part index.',
+            'No automatic upstream revision-history comparison.','analyze')
+    upgrade(['track.anacrusis'],'shared_pickup_layout','Flagged short first bar measured across tracks; shared rational bar layout.',
+            'Ambiguous/full-length flagged bars are not shortened by guesswork.','source_semantics.layout')
+    upgrade(['track.frets'],'physical_notation_check','Note frets checked against declared range.',
+            'Range compliance is not certified hand playability.','track_analysis')
+    upgrade([M+'.marker',M+'.marker.text'],'normalized_source_label','Marker text separated from layout width; section instances remain distinct.',
+            'Not verified phrase/form functions.','source_semantics.marker_text')
+    rules[M+'.marker.width']['remaining_gap']='Layout width is excluded from the normalized section label.'
+    upgrade([M+'.repeat',M+'.repeatStart',M+'.alternateEnding',M+'.alternateEnding[]'],'bounded_playback_order',
+            'Nested repeats and alternate endings produce a separate source-bar visit map.',
+            'Ambiguous/unclosed repeats and expansion limits are reported; written occurrences are not duplicated.','source_semantics.playback_order')
+    upgrade([M+'.rest',V+'.rest',B+'.rest'],'rest_spans_and_conflicts',
+            'Explicit whole/voice/beat rests produce rational spans; contradictory notes are flagged.',
+            'No artistic pause/phrase-end interpretation.','source_semantics.rests')
+    upgrade([N+'.bend.tone'],'curve_consistency','Declared peak checked against point-curve maximum.',
+            'Does not certify a physically performed bend.','source_semantics.curve')
+    upgrade([N+'.bend.points[].precisePosition'],'exact_curve_fraction',
+            'Observed percent encoding uses precisePosition/100 instead of coarse position/60 when present.',
+            'Undocumented API encoding inferred from captured values; invalid/unsorted offsets flagged.','source_semantics.curve')
+    upgrade([N+'.bend.points[].vibrato'],'point_vibrato_observation','Point-level vibrato flags retained and counted; affected pitch centers remain unresolved.',
+            'Flag does not encode physical rate/depth.','source_semantics.curve; sustain_context')
+    for base in [N,B]:
+        upgrade([base+'.tremolo',base+'.tremolo[]'],'exact_notated_rate',
+                'Fraction supplies rational picking period and attacks per quarter.',
+                'Not actual performed picking precision.','source_semantics.mechanics')
+    upgrade([B+'.brushStroke',B+'.brushStroke.direction',B+'.brushStroke.duration',B+'.brushStroke.shift'],
+            'native_brush_values','Direction and native duration/shift distributions, linked to source occurrences.',
+            'Duration/shift time units remain unverified; no guessed milliseconds or per-string attack offsets.','source_semantics.mechanics')
+    upgrade([B+'.tremoloBar',B+'.tremoloBar.points',B+'.tremoloBar.points[]',B+'.tremoloBar.points[].position',B+'.tremoloBar.points[].tone',B+'.tremoloBar.tone'],
+            'exact_notated_curve','Whammy point curves, excursions and notated pitch-center hypotheses use raw tone/50 semitones.',
+            'Performed vibrato/physical trem-bar behavior not reconstructed.','source_semantics.curve; mechanics; sustain_context')
+    tempo_paths=['track.automations','track.automations.tempo','track.automations.tempo[]']+['track.automations.tempo[].'+k for k in ('bpm','type','position','measure','linear')]+[B+'.tempo',B+'.tempo.bpm',B+'.tempo.type']
+    upgrade(tempo_paths,'step_tempo_timeline','Tempo locations/BPM/beat unit yield exact step-tempo seconds; conflicts are flagged.',
+            'Linear ramp convention remains unresolved; seconds abstain for such timelines. No linear ramps observed here.','source_semantics.timeline; seconds_between')
+    sound_paths=['track.sounds','track.sounds[]','track.sounds[].instrumentId','track.sounds[].label','track.trackAutomations','track.trackAutomations.trackSoundAutomations','track.trackAutomations.trackSoundAutomations[]']+['track.trackAutomations.trackSoundAutomations[].'+k for k in ('measure','position','soundId')]
+    upgrade(sound_paths,'sound_timeline','Sound IDs resolve programs/labels at source locations; technique contexts record attack program.',
+            'Program identity is not musical role; no synthesized instrument-quality judgment.','source_semantics.timeline; analyze')
+    for path in (N+'.bend',N+'.bend.points',N+'.bend.points[]',N+'.bend.points[].position',N+'.bend.points[].tone'):
+        rules[path].update(analysis_level='exact_notated_curve',current_use='Curve summaries use correct tone/50 semitones and precise percent positions when present.',remaining_gap='Not performed sound, physical vibrato or inferred artistic intent.',code_evidence='summary; source_semantics.curve')
     return rules
 
 
@@ -174,6 +221,7 @@ def scan_documents(documents):
                          entries_with_field=len(s['songs']),track_responses_with_field=len(s['tracks']),**rule))
     source=Path(__file__).with_name('analyze_relationships.py')
     return dict(schema='songsterr-api-field-coverage-v1',analyzer_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
+                semantics_sha256=hashlib.sha256(source.with_name('source_semantics.py').read_bytes()).hexdigest(),
                 entries=len(private),response_counts=dict(doc_counts),observed_paths=len(rows),
                 status_counts=dict(Counter(r['status'] for r in rows)),review_required_paths=[r['path'] for r in rows if r['review_required']],
                 declared_but_unobserved_paths=sorted(set(rules)-set(stats)),fields=rows,
@@ -199,12 +247,10 @@ def markdown(report):
     for status in STATUSES:lines.append(f"| {status} | {report['status_counts'].get(status,0)} |")
     lines+=['',f"Unreviewed observed fields: {len(report['review_required_paths'])}. Analyzer SHA256: `{report['analyzer_sha256']}`.",'',
             '## What the gaps mean','',
-            '- Technique mechanics: brush direction/duration/shift, tremolo rate arrays and whammy curves are not interpreted despite parent marker counts. Harmonic node/type histograms do not resolve sounding pitch.',
-            '- Bend detail: point `position`/`tone` is summarized; `precisePosition`, per-point `vibrato` and declared `bend.tone` consistency are not. Marker presence is not full curve interpretation.',
-            '- Musical time/form: tempo ramps and beat tempo, pickups, repeat order, alternate endings, whole-rest flags and tuplet-group identity are not modeled. Declared fractions still supply rational written timing.',
-            '- Arrangement/identity: sound switches, mix automations, metadata vocal/empty flags, physical fret/string limits and cross-response revision consistency checks are missing. Hashing automation payloads does not implement these features.',
-            '- Section-label defect: dictionary markers are stringified whole, so layout width can enter a section display label. Text should be separated from layout; this audit records the defect without changing the analyzer.',
-            '- Retained metadata and layout/service fields do not all need technique metrics. Author history, playback references and catalog state are separate from observed note technique.',
+            '- Implemented: normalized marker text, cross-response identity checks, vocal/empty scope flags, shared pickups, rest spans, bounded nested repeats/endings, step-tempo/sound timelines, precise bend and whammy curves, point-vibrato observations, tremolo fractions and brush native values.',
+            '- Corrected: raw tone/25 is quarter-tone units, not semitones. Current semitone summaries use tone/50; prior v1 semitone labels were doubled. The GP conversion/audio was not changed by that labeling error.',
+            '- Remaining: brush duration/shift units, performed vibrato rate/depth, harmonic sounding-pitch interpretation, physical playability, tuplets as musical groups and inferred phrase/function/roles. Linear-tempo ramps remain unresolved and cause seconds to abstain; none were observed in this capture.',
+            '- Retained metadata and layout/service fields do not all need technique metrics. Contributor history, playback-reference alignment and catalog state remain separate from observed note technique.',
             '',
             'Field-presence numerators include false/null/zero values. For scalar/object fields the denominator is parent object instances; for `[]` paths it is observed element slots. Entry/track coverage is deduplicated by response identity. Empty arrays are present fields but have no observed child slots. Values, source identities and private annotations are not included.','',
             '## Complete observed matrix','', '| Field | Present / parent scope | Entries | Tracks | Status / level | Current use; remaining gap |', '|---|---:|---:|---:|---|---|']

@@ -14,12 +14,12 @@ def strip(root,permissions):
     for (kind,ident,domain),names in permissions.items():
         node=tables[kind].get(ident)
         if node is None:raise ValueError('Unknown occurrence definition')
-        container=node.find('Properties') if domain=='property' else node
+        container=node.find('Properties') if domain=='property' else node.find('XProperties') if domain=='xproperty' else node
         if container is None:continue
         for c in list(container):
-            key=c.get('name') if domain=='property' else c.tag
+            key=c.get('name') if domain=='property' else c.get('id') if domain=='xproperty' else c.tag
             if key in names:container.remove(c)
-        if domain=='property' and not len(container) and not container.attrib and not (container.text or '').strip():node.remove(container)
+        if domain in ('property','xproperty') and not len(container) and not container.attrib and not (container.text or '').strip():node.remove(container)
     return ET.tostring(out)
 
 
@@ -27,7 +27,7 @@ def transact(source,destination,edits,permissions):
     source,destination=Path(source),Path(destination)
     if destination.exists():raise FileExistsError(destination)
     for key,names in permissions.items():
-        if len(key)!=3 or key[0] not in ('note','beat') or key[2] not in ('property','tag'):raise ValueError('Invalid permission domain')
+        if len(key)!=3 or key[0] not in ('note','beat') or key[2] not in ('property','xproperty','tag'):raise ValueError('Invalid permission domain')
         if not names or key[2]=='tag' and any(n in ('Properties','Notes','Rhythm','Tie') for n in names):raise ValueError('Structural edits prohibited')
     if set(edits)-set(permissions):raise ValueError('Undeclared edit')
     with zipfile.ZipFile(source) as src:
@@ -38,13 +38,13 @@ def transact(source,destination,edits,permissions):
             node=tables[kind].get(ident)
             if node is None:raise ValueError('Unknown occurrence definition')
             parsed=[ET.fromstring(x) for x in replacements]
-            if any((p.tag!='Property' or p.get('name') not in names) if domain=='property' else p.tag not in names for p in parsed):raise ValueError('Locked field edit')
-            container=node.find('Properties') if domain=='property' else node
-            old=[] if container is None else [ET.tostring(c,encoding='unicode') for c in container if (c.get('name') if domain=='property' else c.tag) in names]
+            if any((p.tag!='Property' or p.get('name') not in names) if domain=='property' else (p.tag!='XProperty' or p.get('id') not in names) if domain=='xproperty' else p.tag not in names for p in parsed):raise ValueError('Locked field edit')
+            container=node.find('Properties') if domain=='property' else node.find('XProperties') if domain=='xproperty' else node
+            old=[] if container is None else [ET.tostring(c,encoding='unicode') for c in container if (c.get('name') if domain=='property' else c.get('id') if domain=='xproperty' else c.tag) in names]
             if old==replacements:continue
-            if container is None:container=ET.SubElement(node,'Properties')
+            if container is None:container=ET.SubElement(node,'Properties' if domain=='property' else 'XProperties')
             for c in list(container):
-                if (c.get('name') if domain=='property' else c.tag) in names:container.remove(c)
+                if (c.get('name') if domain=='property' else c.get('id') if domain=='xproperty' else c.tag) in names:container.remove(c)
             container.extend(parsed)
         if strip(original,permissions)!=strip(root,permissions):raise AssertionError('Locked score data changed')
         destination.parent.mkdir(parents=True,exist_ok=True)

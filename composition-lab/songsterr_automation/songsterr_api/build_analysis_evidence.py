@@ -91,10 +91,12 @@ def markdown(report, pack):
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('corpus',type=Path);p.add_argument('--aggregate',type=Path);a=p.parse_args();root=a.corpus.resolve()
     if 'local-artifacts' not in root.parts:p.error('Evidence must remain private in local-artifacts')
-    report=json.loads((root/'relationships.json').read_text(encoding='utf-8'))
+    report_path=root/('relationships-v2.json' if (root/'relationships-v2.json').exists() else 'relationships.json')
+    report=json.loads(report_path.read_text(encoding='utf-8'))
+    suffix='-v2' if report['schema'].endswith('-v2') else ''
     pack=build(report,root/'songs')
-    (root/'analysis-evidence.json').write_text(json.dumps(pack,indent=2),encoding='utf-8')
-    (root/'ANALYSIS.md').write_text(markdown(report,pack),encoding='utf-8')
+    (root/('analysis-evidence'+suffix+'.json')).write_text(json.dumps(pack,indent=2),encoding='utf-8')
+    (root/('ANALYSIS_V2.md' if suffix else 'ANALYSIS.md')).write_text(markdown(report,pack),encoding='utf-8')
     if a.aggregate:
         public=json.loads(a.aggregate.read_text(encoding='utf-8'))
         if public.get('schema')!=report['schema']:raise ValueError('Aggregate schema mismatch')

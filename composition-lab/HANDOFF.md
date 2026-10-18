@@ -1,3 +1,7 @@
+## 2026-10-17 musical-field validation update
+
+Read songsterr_automation/MUSICAL_FIELDS_RESULTS.md and TECHNIQUE_ANALYSIS_CONTRACT.md. Latest local implementation supersedes the earlier 65-path coverage snapshot: 114 analyzed / 77 retained / 11 unsupported / 16 outside scope, 218 total, zero unmapped. All 98 entries / 495 tracks rerun. Independent raw-readback checks 420119 written/grace occurrences; independent notation oracle checks 190890 eligible attack groups including negatives; zero failed checks. This is rule/preservation agreement, not human musical precision/recall. Raw v1 bend semitone labels were doubled; v2 corrects tone/50; prior GP audio was unaffected. Private source-technique-passages-v5 has 4 contextual comparisons / 8 modified GPs / 16 previews on loopback5183. Pedal/phrase/function and feel remain unvalidated; 24 GP conversion-fidelity flags remain. Persistent checklist and remote delivery evidence: MUSICAL_FIELDS_PROGRESS.md.
+
 # Guitar-Learning / Composition Lab — cross-chat handoff
 
 **Prepared:** 2026-10-14. **Repository:** https://github.com/mtch777/Guitar-Learning ; **site:** https://mtch777.github.io/Guitar-Learning/ . **Branch of record:** `main`. **Source of truth:** current GitHub `main`, not this prose or older local packages. **Read this file first, then check HEAD, workflows, and code.**

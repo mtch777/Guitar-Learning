@@ -1,3 +1,5 @@
+> Superseded analysis: see MUSICAL_FIELDS_RESULTS.md for v2. Historical v1 raw bend semitone labels were doubled; GP conversion/audio was unaffected. Preserve these historical measurements as v1.
+
 # Source-grounded relational analysis
 
 The analyzer reads cached Songsterr notation directly. It does not infer labels with AI, train a model, or modify the acquired GP files.

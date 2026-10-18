@@ -1,0 +1,100 @@
+{
+  "schema": "source-passage-comparison-verification-v1",
+  "cases": 4,
+  "variants": 8,
+  "audio_clips": 16,
+  "results": [
+    {
+      "family": "brush_spread",
+      "audio_comparison": {
+        "context": {
+          "difference_rms": 0.023927526557126027,
+          "relative_rms_difference": 0.6826558054193326,
+          "differing_samples": 309108,
+          "frames": 460224,
+          "midi_events_differ": true
+        },
+        "focused": {
+          "difference_rms": 0.02392750376178897,
+          "relative_rms_difference": 0.87622053101733,
+          "differing_samples": 309099,
+          "frames": 460224,
+          "midi_events_differ": true
+        }
+      },
+      "zero_byte_lock": true,
+      "unrelated_xml_archive_locks": true
+    },
+    {
+      "family": "bend_arrival",
+      "audio_comparison": {
+        "context": {
+          "difference_rms": 0.002862967856984655,
+          "relative_rms_difference": 0.07085863175167666,
+          "differing_samples": 22736,
+          "frames": 564544,
+          "midi_events_differ": true
+        },
+        "focused": {
+          "difference_rms": 0.0028629778425150253,
+          "relative_rms_difference": 0.17812090217191381,
+          "differing_samples": 22730,
+          "frames": 564544,
+          "midi_events_differ": true
+        }
+      },
+      "zero_byte_lock": true,
+      "unrelated_xml_archive_locks": true
+    },
+    {
+      "family": "tremolo_picking",
+      "audio_comparison": {
+        "context": {
+          "difference_rms": 0.006939314546240404,
+          "relative_rms_difference": 0.1412928285589207,
+          "differing_samples": 69031,
+          "frames": 666752,
+          "midi_events_differ": true
+        },
+        "focused": {
+          "difference_rms": 0.006939359037526025,
+          "relative_rms_difference": 0.31687087683929355,
+          "differing_samples": 69032,
+          "frames": 666752,
+          "midi_events_differ": true
+        }
+      },
+      "zero_byte_lock": true,
+      "unrelated_xml_archive_locks": true
+    },
+    {
+      "family": "whammy_transfer",
+      "audio_comparison": {
+        "context": {
+          "difference_rms": 0.002321014482227759,
+          "relative_rms_difference": 0.06612557389187544,
+          "differing_samples": 6767,
+          "frames": 1008064,
+          "midi_events_differ": true
+        },
+        "focused": {
+          "difference_rms": 0.0023210155211297644,
+          "relative_rms_difference": 0.19814341834120233,
+          "differing_samples": 6766,
+          "frames": 1008064,
+          "midi_events_differ": true
+        }
+      },
+      "zero_byte_lock": true,
+      "unrelated_xml_archive_locks": true
+    }
+  ],
+  "missing_families": [],
+  "listening_judgment": null,
+  "limitations": [
+    "GM sampled previews, not physical guitar performance or Guitar Pro RSE",
+    "Edits compare reconstructed GP source passages, not learned generation or calibrated variation levers",
+    "Unchanged zero controls preserved privately and excluded from listening stimuli",
+    "Original whammy timing on tied/dead notes produced no verified difference; this study transfers its GP curve to a supported existing attack and labels the changed context explicitly"
+  ]
+}

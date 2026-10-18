@@ -1,0 +1,58 @@
+{
+  "schema": "technique-analysis-validation-v1",
+  "entries": 98,
+  "checks": {
+    "occurrence_coverage_checked": 495,
+    "raw_note_preserved_checked": 420119,
+    "identity_fields_checked": 420119,
+    "duration_checked": 420119,
+    "written_pitch_checked": 420119,
+    "coattack_rule_checked": 190890,
+    "no_extra_attack_groups_checked": 393,
+    "hp_pair_invariants_checked": 9707,
+    "tracks_excluded_from_temporal_rules": 102
+  },
+  "notation_rule_agreement": {
+    "double_stop": {
+      "negative_agree": 162703,
+      "positive_agree": 28187
+    },
+    "close_interval_texture": {
+      "negative_agree": 187957,
+      "positive_agree": 2933
+    },
+    "power_chord": {
+      "negative_agree": 173207,
+      "positive_agree": 17683
+    },
+    "extended_power_chord": {
+      "positive_agree": 11091,
+      "negative_agree": 179799
+    }
+  },
+  "failed_checks": 0,
+  "review_strata": {
+    "bend_unmarked": 12,
+    "vibrato_unmarked": 12,
+    "hp_unmarked": 12,
+    "hp_marked": 12,
+    "double_stop_negative": 12,
+    "close_interval_texture_negative": 12,
+    "power_chord_negative": 12,
+    "extended_power_chord_positive": 12,
+    "double_stop_positive": 12,
+    "extended_power_chord_negative": 12,
+    "power_chord_positive": 12,
+    "bend_marked": 12,
+    "close_interval_texture_positive": 12,
+    "vibrato_marked": 12
+  },
+  "limitations": [
+    "Rule agreement is not independently labeled musical precision/recall.",
+    "Raw readback verifies preservation, not the transcription or performed technique.",
+    "Pedal function, phrase boundaries, resolution, feel and physical execution need independent adjudication.",
+    "No human judgment or model inference is used by this audit."
+  ],
+  "analyzer_report_sha256": "a9a20d884fc5b47fe20974e435c26dad4fe105ce7a1436f34924aba7a305df8a",
+  "validator_sha256": "96666ac208255ed7d9acfdaf309691d536557a5b77677db2bb18f13b04fad40d"
+}

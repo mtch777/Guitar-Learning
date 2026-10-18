@@ -1,3 +1,7 @@
+## Latest rerun 2026-10-17
+
+Strict audit after musical-field implementation: 114 analyzed / 77 retained only / 11 unsupported / 16 outside scope, 218 paths, zero unmapped. Current report includes both analyzer and source_semantics hashes. See MUSICAL_FIELDS_RESULTS.md. Older counts below are historical.
+
 # API field coverage audit
 
 - [x] Discover every nested field path in all98 captured metadata records and495 track responses, including arrays, false/null values and rare fields. Acceptance: recursive counts reconcile with fixtures; raw values are not published.
