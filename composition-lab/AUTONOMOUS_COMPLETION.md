@@ -214,3 +214,48 @@ a later human gate, not a reason to interrupt independent implementation now.
 Next: combined role-pitch/performance exports and source-copy screens; remaining
 technique/style and form/instrumentation control coverage. Independent engineering
 continues without reopening approved pedals or requesting another tiny review.
+
+## Integrated performance, palm muting and metadata checkpoint
+
+- Role models/controls committed/pushed as9e13f6d8ee6cab86f0229e44a5d68cf5756c3225;
+  isolated GP7 CI succeeded: actions/runs/39169744217. No website changes.
+- integrated-performance-v1 combines12 full-freedom role-pitch cores with0/50/100
+  learned performance:36native imports,36directed-link/vibrato checks,108curve
+  checks pass;12fullfreedom previews finite/nonzero/unclipped. Updated known-corpus
+  attack screen:97varied8-event,3varied16-event,zero varied32-event matches;
+  constant repeats409/34/1. No identical attack streams/shared openings; no
+  originality verdict. Relative-window screens exclude performance expression.
+- Separate palm-mute model uses exact eligible natural untied regular coattacks.
+  Shared group decision applies all notes together; mixed source groups are
+  explicitly counted/excluded, never converted to all-muted truth. Matching
+  numeric/string/fret guards and original-note-definition uniqueness required.
+  OnlyPalmMuted property may change;0 byte-identity,100 reference-flag invariant.
+- Raw eligible source inventory BEFORE flag filtering:development26732all-muted,
+  134431none;held-out2758all-muted,14654none;zero mixed groups observed. This is
+  not the fitted positive count. Held-out scored13952groups/2021positive;
+  conditional annotation NLL0.19611 vs marginal0.41723. Not performed muting truth.
+- Self-QA regression exposed missing propagation of vibrato playback settings;
+  repaired before final render. palm-mute-v1 is superseded diagnostic. Final
+  palm-mute-v2:36GPs,36native note-flag/pitch/timing imports,36HOPO/vibrato checks,
+  108curve checks pass;12fullfreedom previews finite/nonzero/unclipped. All36
+  preview sidecars retain360/.25 vibrato settings. Fullfreedom has1656 muted
+  notes across12 outputs. QABot independently verified hashes and logs; approved.
+- Global tempo/MIDI-program controls fit family→song source choices.0 literal
+  canonical identity/GPcopy;100 invariant to original tempo/program perturbation;
+  nested release masks. All quarter-note timing, note content, tuning, fingering,
+  track/role layout and performance locked. This is NOT full tone/arrangement or
+  expressive tempo-map control. Missing irrelevant support conservatively fails.
+- metadata-v1:72actualGPs,72native imports pass;12program100 previews finite/
+  nonzero/unclipped. Programs100 changes23track programs,tempo100 changes12tempos;
+  coincidence allowed. QABot independently verified all hashes/code/import/audio;
+  approved. Five palm-method/runner tests and three metadata-control tests pass.
+- Source marker form baseline is deliberately unpromoted:38development forms,
+  four held-out entries; conditional length NLL2.18378 vs marginal2.16376 (worse).
+  Twelve32bar samples yielded zero returns and unchanged musical content apart
+  from section markers.12native imports pass; no new listening study advertised.
+  Labels/markers do not establish thematic identity. New conservative exact
+  content recurrence experiment is underway, preserving marker-only baseline.
+
+Next independent actions: finish exact-content form experiment/QA; consolidate
+technical coverage and remaining failed gates; do not treat sample counts, parser
+success or a clean commit as proof of musical correctness.
