@@ -123,3 +123,20 @@ identity and extent judgments. Feedback new fingerprint separate; QA suffix excl
 Selective probe sampling cannot estimate population accuracy. Newsource families
 are not claimed absent from every analysis stage.219Python(oneoptionalskip),21JS,
 Vite build pass. Prior outputs/feedback and rejected first sampling bundle retained.
+
+## Pedal call/response execution
+
+User explicitly accepts pedal identification; do not reopen it. Latest feedback
+copied privately into pedal-dialogue-v1 with SHA provenance; no blank ratings filled.
+Implemented exact anchor/response/mixed/unknown attack groups; ties extend duration
+without extra attacks. Next-anchor/source-section scope, censored final replies.
+Measured pitches/intervals, durations/sustains, rhythm, texture, techniques, gaps,
+overlaps, return periods, same-call answer families and adjacent consistency.
+
+Full corpus1563regions/16814exchanges. Integrity checks cover255339attack occurrences
+and all cycles, zero accounting failures. Private examples6songs, public aggregate
+only. Tests223Python(222pass/1optional skip),21JS/build pass. No website edits.
+Detailed contract, limits and results: PEDAL_DIALOGUE.md. Next: integrate observed
+pattern relationships into artist profiles/generation controls without inventing
+musical intention. Step2pedal identification accepted, dialogue implemented;
+step3partial,4partial,5experimental,6partial,7prototype,8release verification next.

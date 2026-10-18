@@ -1,3 +1,12 @@
+## Current pedal milestone
+
+User accepted pedal identification after the fresh-song review. Do not reopen that
+review. New goal is exact call/response relationships; see songsterr_automation/
+PEDAL_DIALOGUE.md. Corpus analysis measured16814operational exchanges across1563
+regions with exact occurrence audit, pitch/rhythm/texture/technique/gap/overlap and
+same-call answer-family evidence. Source examples remain private. No generation or
+musical-intent claim. Current work shifts toward using these observed relationships.
+
 ## Latest step2 continuation (2026-10-17)
 
 Read songsterr_automation/PATTERN_ROBUSTNESS.md. Added pedal overlap collapse,

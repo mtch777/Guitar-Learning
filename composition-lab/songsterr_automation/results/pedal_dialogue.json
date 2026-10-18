@@ -1,0 +1,48 @@
+{
+  "schema": "pedal-dialogue-v1",
+  "counts": {
+    "regions": 1563,
+    "cycles": 16814,
+    "closed_cycles": 15295,
+    "censored_cycles": 1519,
+    "calls_sustaining_into_response": 650
+  },
+  "attack_group_kinds": {
+    "call": 52451,
+    "response": 109824,
+    "mixed": 11697,
+    "unknown": 1148
+  },
+  "response_textures": {
+    "mixed": 565,
+    "monophonic": 14289,
+    "polyphonic": 1960
+  },
+  "integrity_audit": {
+    "regions_checked": 1563,
+    "attack_occurrences_checked": 255339,
+    "cycles_checked": 16814
+  },
+  "adjacent_cycle_consistency": {
+    "call_same_pitch_numerator": 9688,
+    "call_same_pitch_denominator": 13904,
+    "call_same_rhythm_numerator": 8935,
+    "call_same_rhythm_denominator": 13904,
+    "response_same_pitch_numerator": 3782,
+    "response_same_pitch_denominator": 13904,
+    "response_same_rhythm_numerator": 5552,
+    "response_same_rhythm_denominator": 13904,
+    "response_same_scaled_rhythm_numerator": 5827,
+    "response_same_scaled_rhythm_denominator": 13904,
+    "same_call_changed_response_numerator": 5810,
+    "same_call_changed_response_denominator": 13904
+  },
+  "limitations": [
+    "Anchor-only call / non-anchor response are explicit analytical conventions, not intent labels.",
+    "Notated source rhythms/pitches, not live performance or emotional interpretation.",
+    "Regions are bounded by source section/next anchor region; not validated phrase boundaries.",
+    "Counts pool source entries including candidate duplicates; not artist-balanced estimates."
+  ],
+  "source_report_sha256": "a9a20d884fc5b47fe20974e435c26dad4fe105ce7a1436f34924aba7a305df8a",
+  "regions_sha256": "2b8e214fb3104246eeca1cfb064b84b81bd6c41dfe52031e5cc77ac1901cc9a5"
+}
