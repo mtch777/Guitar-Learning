@@ -14,7 +14,7 @@ identification review or request another generic listening round.
   same call; preserve exact and time-scaled rhythmic signatures.
 - [x] Run full eligible corpus and audit event/cycle coverage.
 - [x] Generate private source-located examples and source-free aggregate results.
-- [ ] Regression tests/build, commit/push and remote CI verification.
+- [x] Regression tests/build, commit/push and remote CI verification.
 
 ## Measurement contract
 
@@ -77,3 +77,5 @@ These pooled entry counts are not deduplicated artist statistics or perceptual
 similarity. Private SOURCE_EXAMPLES.md gives six source-located tables; dialogue.json
 contains full event/cycle/family evidence. No new listening verdict or generated GP
 is implied by these analysis measurements.
+
+Release211e3fd pushed to origin/main. Composition CI39101152171 success: https://github.com/mtch777/Guitar-Learning/actions/runs/39101152171 .223Python tests(222pass/1optional skip),21JS/build pass. No website changes. Private artifact paths remain untracked.

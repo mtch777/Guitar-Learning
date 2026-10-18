@@ -140,3 +140,5 @@ Detailed contract, limits and results: PEDAL_DIALOGUE.md. Next: integrate observ
 pattern relationships into artist profiles/generation controls without inventing
 musical intention. Step2pedal identification accepted, dialogue implemented;
 step3partial,4partial,5experimental,6partial,7prototype,8release verification next.
+
+Call/response release211e3fd pushed. Remote CI39101152171 success; private artifact/source directories untracked, working tree clean before this delivery-note update.
