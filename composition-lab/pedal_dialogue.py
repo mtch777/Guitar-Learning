@@ -9,6 +9,18 @@ def fingerprint(value):
     return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':')).encode()).hexdigest()
 
 
+def note_roles(notes, anchor):
+    """Partition a coattack without assigning its group label to every note.
+
+    These roles are conditional on the supplied anchor hypothesis. They do not
+    validate that hypothesis. A known pitch stays inspectable beside an unknown
+    hit; neither is turned into an invented monophonic voice.
+    """
+    anchor=set(anchor)
+    return {n['occurrence']:('unknown' if n['midi'] is None else
+            'call' if n['midi'] in anchor else 'response') for n in notes}
+
+
 def describe(events,anchor):
     if not events:return None
     start=F(events[0]['onset_q']);end=max(F(e['end_q']) for e in events)
@@ -60,6 +72,7 @@ def analyze_dialogue(track,region):
         pitches=sorted({n['midi'] for n in notes if n['midi'] is not None});ps=set(pitches)
         kind='unknown' if any(n['midi'] is None for n in notes) else ('call' if ps<=anchor_set else 'mixed' if ps&anchor_set else 'response')
         events.append(dict(onset_q=str(q),end_q=str(max(F(n['end_q']) for n in notes)),notes=notes,pitches=pitches,kind=kind,
+                           note_roles=note_roles(notes,anchor),
                            bar=lookup[notes[0]['occurrence']]['bar'],bar_offset_q=lookup[notes[0]['occurrence']]['bar_offset_q']))
     runs=[]
     for e in events:

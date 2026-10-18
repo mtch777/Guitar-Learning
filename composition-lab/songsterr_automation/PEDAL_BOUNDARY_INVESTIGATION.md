@@ -3,6 +3,86 @@
 Status: open. User feedback supersedes earlier broad identification acceptance
 for the specific failures below. Presentation patches are not analyzer fixes.
 
+## Expanded investigation, 2026-10-18
+
+Eight additional passage reports and two accepted exclusions are preserved in
+the ignored private investigation folder, with case identities and uncertainty
+about exact unmarked occurrences. These are development judgments, not held-out
+accuracy labels. All 16 displayed cases were scripted against original track
+rows, preserving ties and rational times. New private reports are audit.json and
+audit-v2.json; original UI/data/audio remain preserved for comparison.
+
+Confirmed failure classes:
+
+- Example selection can show only a final, unclosed exchange. Four of the 16
+  examples have a singleton selection. Parent membership does not prove local
+  recurring pedal function.
+- Section-wide hypotheses and selected-region event maps leak into local labels:
+  fresh clip-local detection chooses different anchors in several reported cases.
+  Notes outside the selected region can be gray despite nearby recurrence.
+- The detector requires two separated contrasting attacks, which can be two notes
+  in ONE answer. This does not establish two departures and returns.
+- A dyad qualifies against its LOWEST pitch, allowing a high member with no higher
+  answer. One displayed dyad has this problem.
+- Event-level mixed labels were copied onto individual notes. The 16-case audit
+  counts 73 anchor-member notes and 10 non-anchor notes labeled mixed. This loses
+  member roles without establishing that the underlying anchor is correct.
+- Historical negative examples are copied from older judgments rather than
+  recomputed. One disputed negative remains missed by every tested policy.
+- Changing anchor pitch/voicing can preserve a concept even when an exact-pitch
+  region ends. Neither adjacent set overlap nor a manually extended clip validates
+  that relationship.
+
+Design correction: distinguish an anchor hypothesis, occurrence membership,
+coattack texture, observed return, local repeated pattern and conceptual
+continuation. No one of these is a substitute for the others. Preserve unknowns
+instead of filling category slots with poorly supported evidence.
+
+### Experiments actually run
+
+Script: songsterr_api/audit_pedal_explorer.py. Frozen input hashes are in the
+private report. All eligible corpus tracks are compared under the same inputs.
+Changed tracks include changed evidence quantities, not only membership changes.
+
+| Policy | Regions | Changed tracks | Removed / added anchor-section keys |
+|---|---:|---:|---:|
+| Frozen baseline | 1563 | 0 | 0 / 0 |
+| Require two distinct return pairs | 1301 | 104 | 270 / 8 |
+| Higher contrast above the whole anchor | 1531 | 68 | 32 / 0 |
+| Both policies | 1276 | 146 | 295 / 8 |
+
+The two accepted exclusion passages stay excluded in clip-local experiments.
+However, tightening returns can remove a low candidate and expose a HIGHER
+replacement in a reported problem passage. All variants still miss the disputed
+changing-anchor negative. Therefore neither the combined policy nor the return
+policy is accepted as a general repair. Defaults remain frozen; policy keyword
+arguments are explicit experiment controls. No new musical accuracy is claimed.
+
+### Implemented independent corrections
+
+- The builder rejects a selected singleton or a pair without an observed anchor
+  return. Regression covers both rejection and a valid returning example.
+- Dialogue events now retain per-occurrence call/response/unknown memberships,
+  while preserving the original coattack group kind and every source note.
+  The builder uses individual memberships rather than painting all coattack
+  members mixed. These roles remain conditional on the supplied anchor.
+- New regression probes distinguish two answer notes from two returns and a
+  high dyad member from a genuinely higher answer. These compare alternative
+  policies; they are not proof of perceptual accuracy.
+
+The current listening UI has NOT been regenerated as a supposedly corrected
+review. Its old labels remain investigation evidence, not accepted results.
+Continuation linking, stable-bass candidate competition, changing-anchor families
+and simultaneously sounding response measurement still need general correction.
+Next: compare context-local anchor families and candidate competition before
+regenerating source-based evidence. Do not ask for another broad listening review
+while these known failures remain unresolved.
+
+Verification: Python unittest discovery ran 232 tests, one optional dependency
+skip, no failures; node --test tests/*.test.mjs passed all 21; Vite production
+build passed via node node_modules/vite/bin/vite.js build (npm unavailable on
+this shell PATH). No source scores, private annotations or media committed.
+
 ## Reported failures and confirmed evidence
 
 - Nocturne: Lost Faith, explorer example-12: the user hears the same pedal idea

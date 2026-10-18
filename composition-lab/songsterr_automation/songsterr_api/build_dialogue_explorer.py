@@ -7,6 +7,9 @@ import json
 from pathlib import Path
 import shutil
 from source_semantics import seconds_between
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from pedal_dialogue import note_roles
 
 CATEGORIES={
  'regular':('One low note, the same answer each time','Neighboring calls and replies repeat their pitches and rhythm.'),
@@ -23,6 +26,12 @@ CATEGORIES={
  'minimal':('Barely enough repeats to establish a pedal','The region contains only two operational exchanges: sparse evidence, not a confidence claim.'),
  'censored':('Unclear where the pedal pattern ends','No anchor-only return closes this exchange. A mixed/unknown attack or the analysis boundary can interrupt it; this is not a claimed phrase ending.'),
 }
+
+
+def demonstrates_return(pair):
+    """A selected example must actually show a call, reply and returning call."""
+    return (len(pair)==2 and pair[0].get('closed_by_anchor_return',False)
+            and F(pair[0]['call']['start_q']) < F(pair[1]['call']['start_q']))
 
 
 def kinds(region,pair):
@@ -66,6 +75,7 @@ def build(report,dialogues,corpus,out):
                 for other in item['dialogues'] if other is not region)
             for i,cycle in enumerate(region['cycles']):
                 pair=region['cycles'][i:i+2]
+                if not demonstrates_return(pair):continue
                 members=[byid[n] for c in pair for n in c['call_members']+c['response_members']]
                 if not members:continue
                 first=min(n['bar'] for n in members);last=max(n['bar'] for n in members)
@@ -97,7 +107,10 @@ def build(report,dialogues,corpus,out):
         song,track=eligible[selection['song_id'],selection['part_id']]
         ident=f'example-{len(cases)+1:02d}';base=F(selection['base_q']);limit=F(selection['end_q'])
         note_roles={n:role for c in selection['cycles'] for role in ('call','response') for n in c[role+'_members']}
-        event_roles={n['occurrence']:e['kind'] for e in selection['events'] for n in e['notes']}
+        # A simultaneous attack can contain both pedal and answer. Preserve the
+        # group-level observation, but color individual notes by membership.
+        event_roles={ident:role for e in selection['events']
+                     for ident,role in note_roles(e['notes'],selection['anchor']).items()}
         notes=[]
         for n in track['rows']:
             start=F(n['onset_q']);end=start+F(n['duration_q'])

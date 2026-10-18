@@ -7,7 +7,12 @@ from collections import defaultdict
 from fractions import Fraction as F
 
 
-def detect_regions(rows):
+def detect_regions(rows, *, minimum_return_pairs=0, contrast_above_entire_anchor=False):
+    """Detect hypotheses; keyword policies are investigation controls.
+
+    Defaults preserve the frozen baseline until corpus/feedback comparisons
+    justify replacing it. Count distinct returns separately from answer attacks.
+    """
     sections=defaultdict(lambda:defaultdict(list))
     for r in rows:
         if not r['tie_destination'] and r['midi'] is not None and F(r['duration_q'])>0:
@@ -33,14 +38,18 @@ def detect_regions(rows):
             if min(anchor)>(min(pitches)+max(pitches))/2:continue
             # Need multiple actual departures/returns, not an isolated repeated
             # chord followed by a separate melody later in the section.
-            contrasts=[];separate=[]
+            contrasts=[];separate=[];return_pairs=0
             for a,b in zip(indices,indices[1:]):
-                middle=[i for i in range(a+1,b) if not (signatures[i]&anchor) and max(signatures[i])>min(anchor)]
+                reference=max(anchor) if contrast_above_entire_anchor else min(anchor)
+                middle=[i for i in range(a+1,b) if not (signatures[i]&anchor) and max(signatures[i])>reference]
                 if not middle:continue
                 contrasts.extend(middle)
                 release=max(F(n['onset_q'])+F(n['duration_q']) for n in events[a][1])
-                separate.extend(i for i in middle if events[i][0]>=release)
+                separated=[i for i in middle if events[i][0]>=release]
+                separate.extend(separated)
+                return_pairs+=bool(separated)
             if len(set(separate))<2:continue
+            if return_pairs<minimum_return_pairs:continue
             # Retain the complete continuing run, including repeated chugs in
             # its bursts. Single notes and dyads remain distinct candidates.
             # A qualifying dyad may continue with a reduced voicing. Include

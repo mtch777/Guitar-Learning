@@ -17,6 +17,14 @@ def cycle():
 
 
 class ExplorerTests(unittest.TestCase):
+    def test_single_final_exchange_cannot_demonstrate_a_return(self):
+        a=cycle()
+        self.assertFalse(m.demonstrates_return([a]))
+        b=cycle();b['call']['start_q']='4'
+        self.assertFalse(m.demonstrates_return([a,b]))
+        a['closed_by_anchor_return']=True
+        self.assertTrue(m.demonstrates_return([a,b]))
+
     def test_regular_and_changed_response_are_distinct(self):
         a,b=cycle(),cycle();region=dict(anchor_pitches=[40],cycles=[a,b],events=[])
         self.assertIn('regular',m.kinds(region,[a,b]))

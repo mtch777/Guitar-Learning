@@ -1,5 +1,5 @@
 import unittest
-from pedal_dialogue import analyze_dialogue
+from pedal_dialogue import analyze_dialogue, note_roles
 
 
 def track(groups):
@@ -11,6 +11,18 @@ def track(groups):
 
 
 class DialogueTests(unittest.TestCase):
+    def test_coattack_has_individual_roles_without_losing_group_kind(self):
+        t=track([[40,52,55],[40],[52],[40]])
+        r=analyze_dialogue(t,dict(anchor_pitches=[40],start_q='0',section_start=1))
+        self.assertEqual(r['events'][0]['kind'],'mixed')
+        self.assertEqual(r['events'][0]['note_roles'],
+            {'0:0':'call','0:1':'response','0:2':'response'})
+        self.assertEqual(len(r['events'][0]['notes']),3)
+
+    def test_unknown_note_does_not_erase_known_member_identity(self):
+        self.assertEqual(note_roles([dict(occurrence='a',midi=40),
+            dict(occurrence='b',midi=None)],[40]),{'a':'call','b':'unknown'})
+
     def test_calls_repeat_while_responses_change(self):
         t=track([[40],[40],[52],[40],[40],[55],[40]])
         r=analyze_dialogue(t,dict(anchor_pitches=[40],start_q='0',section_start=1))
