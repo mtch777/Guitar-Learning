@@ -54,13 +54,18 @@ def audit(report, corpus):
         folder = corpus / str(song['song_id'])
         for track in song['tracks']:
             part = json.loads((folder / f"track-{track['part_id']}.json").read_text(encoding='utf-8-sig'))
-            raw = {}
+            raw = {}; raw_onsets = {}
             for bar, measure in enumerate(part.get('measures', []), 1):
                 for voice, v in enumerate(measure.get('voices', [])):
+                    elapsed = F(0)
                     for beat, b in enumerate(v.get('beats', [])):
                         for note, n in enumerate(b.get('notes', [])):
                             if not n.get('rest'):
                                 raw[f"{part.get('partId', 0)}:{bar}:{voice}:{beat}:{note}"] = (n, b)
+                                if song.get('shared_layout'):
+                                    raw_onsets[f"{part.get('partId', 0)}:{bar}:{voice}:{beat}:{note}"] = F(song['shared_layout'][bar-1]['start_q']) + elapsed
+                        if not b.get('graceNote') and b.get('duration'):
+                            elapsed += F(*b['duration']) * 4
             rows = track['rows'] + track['grace_rows']
             observed = {r['occurrence'] for r in rows}
             loc = [song['song_id'], track['part_id']]
@@ -75,6 +80,8 @@ def audit(report, corpus):
                 check(r['raw_note'] == n, 'raw_note_preserved', location)
                 check(r['string'] == n.get('string') and r['fret'] == n.get('fret') and r['tie_destination'] == bool(n.get('tie')), 'identity_fields', location)
                 check(F(r['duration_q']) == F(*b['duration']) * 4, 'duration', location)
+                if r['occurrence'] in raw_onsets:
+                    check(F(r['onset_q']) == raw_onsets[r['occurrence']], 'onset_within_shared_layout', location)
                 string = n.get('string'); fret = n.get('fret'); tuning = part.get('tuning') or []
                 expected = None
                 if not n.get('dead') and isinstance(string, int) and 0 <= string < len(tuning) and isinstance(fret, (int, float)):
@@ -84,6 +91,21 @@ def audit(report, corpus):
                     attacks[r['onset_q']].append(dict(midi=expected, string=string))
                 for key in ('bend', 'vibrato', 'hp'):
                     sample(key + ('_marked' if n.get(key) else '_unmarked'), location, dict(bar=r['bar'], fret=fret, duration_q=r['duration_q']))
+            mechanics = {m['occurrence']: m for m in track.get('technique_values', [])}
+            for r in track['rows']:
+                n, b = raw[r['occurrence']]
+                for source, key in ((n.get('bend'), 'bend'), (b.get('tremoloBar'), 'whammy')):
+                    if not source:
+                        continue
+                    shape = mechanics.get(r['occurrence'], {}).get(key, {})
+                    points = source.get('points', [])
+                    complete = [p for p in points if p.get('tone') is not None and (p.get('precisePosition') is not None or p.get('position') is not None)]
+                    expected = [(F(str(p['precisePosition']))/100 if p.get('precisePosition') is not None else F(str(p['position']))/60,
+                                 F(str(p['tone']))/50, p.get('vibrato')) for p in complete]
+                    got = [(F(p['offset_fraction']), F(p['semitones']), p.get('point_vibrato')) for p in shape.get('points', [])]
+                    check(got == expected, key + '_point_readback', loc + [r['occurrence']])
+                    if expected:
+                        check(F(shape['peak_semitones']) == max(p[1] for p in expected) and F(shape['excursion_semitones']) == max(p[1] for p in expected)-min(p[1] for p in expected), key + '_range', loc + [r['occurrence']])
             if not track['guitar_or_bass'] or not track['temporal_relationships_eligible']:
                 counts['tracks_excluded_from_temporal_rules'] += 1
                 continue
@@ -101,6 +123,19 @@ def audit(report, corpus):
             for pair in track['hopo_transition_candidates']:
                 a, b = by_id[pair['origin']], by_id[pair['destination']]
                 check(a['string'] == b['string'] and a['voice'] == b['voice'] and bool(raw[a['occurrence']][0].get('hp')) and not b['tie_destination'] and a['fret'] != b['fret'], 'hp_pair_invariants', loc + [pair['origin']])
+            for candidate in track.get('pedal_candidates', []):
+                runs = candidate['members']; anchor = candidate['anchor_midi']
+                groups = [[[by_id[i] for i in event] for event in run] for run in runs]
+                present = [all(any(n['midi'] == anchor for n in event) for event in run) for run in groups]
+                absent = [all(all(n['midi'] != anchor for n in event) for event in run) for run in groups]
+                starts = [F(run[0][0]['onset_q']) for run in groups]
+                periods = [starts[2]-starts[0], starts[4]-starts[2]]
+                valid = (len(runs) == 6 and all(present[i] for i in (0,2,4)) and all(absent[i] for i in (1,3,5))
+                         and len({n['section_start'] for run in groups for event in run for n in event}) == 1
+                         and min(periods) > 0 and abs(periods[0]-periods[1])/max(periods) <= F(1,2)
+                         and sum(max(n['midi'] for event in groups[i] for n in event) > anchor for i in (1,3,5)) >= 2)
+                check(valid, 'pedal_candidate_invariants', loc + [candidate['source_bar']])
+                sample('pedal_candidate_unadjudicated', loc + [candidate['source_bar']], candidate)
     public = dict(schema='technique-analysis-validation-v1', entries=len(report['songs']), checks=dict(counts),
                   notation_rule_agreement={k: dict(v) for k, v in matrices.items()},
                   failed_checks=sum(v for k, v in counts.items() if k.endswith('_failed')),

@@ -36,7 +36,7 @@ TECHNIQUE_ANALYSIS_CONTRACT.md for definitions and outstanding semantic gates.
 The new validator imports no production detectors. Raw readback covers all
 420119 written/grace occurrences across all instruments: exact occurrence-set
 coverage on 495 tracks and raw note, identity, duration and written-pitch checks
-on each occurrence. Zero failed checks.
+on each occurrence. Zero failed checks. Exact onset offsets within the shared bar layout were also rechecked on all 420119 occurrences; all 866 bend and 469 arm-curve points/ranges and 29447 pedal-candidate structural invariants passed. These curve counts cover all analyzed instruments; guitar-only counts have a different denominator.
 
 An independently expressed interval/set oracle checks all 190890 eligible attack
 groups, including negatives and missing detections: 28187 double stops, 2933 exact
@@ -45,7 +45,7 @@ comparisons agree. 9707 HP candidate pair invariants pass. These establish rule
 conformance, NOT independently labeled musical precision/recall or transcription
 truth. 102 tracks are excluded from this group audit by instrument/timing scope.
 
-Private deterministic inspection seeds: 168 source-located samples across 14
+Private deterministic inspection seeds: 180 source-located samples across 15
 positive/negative or marked/unmarked strata. Existing 88 evidence cases / 2904 raw
 context-control occurrences were reverified. Sampling is an inspection seed, not
 a population accuracy estimate. Human labels remain empty.

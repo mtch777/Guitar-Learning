@@ -6,10 +6,16 @@
     "raw_note_preserved_checked": 420119,
     "identity_fields_checked": 420119,
     "duration_checked": 420119,
+    "onset_within_shared_layout_checked": 420119,
     "written_pitch_checked": 420119,
     "coattack_rule_checked": 190890,
     "no_extra_attack_groups_checked": 393,
     "hp_pair_invariants_checked": 9707,
+    "pedal_candidate_invariants_checked": 29447,
+    "bend_point_readback_checked": 866,
+    "bend_range_checked": 866,
+    "whammy_point_readback_checked": 469,
+    "whammy_range_checked": 469,
     "tracks_excluded_from_temporal_rules": 102
   },
   "notation_rule_agreement": {
@@ -43,6 +49,7 @@
     "double_stop_positive": 12,
     "extended_power_chord_negative": 12,
     "power_chord_positive": 12,
+    "pedal_candidate_unadjudicated": 12,
     "bend_marked": 12,
     "close_interval_texture_positive": 12,
     "vibrato_marked": 12
@@ -54,5 +61,5 @@
     "No human judgment or model inference is used by this audit."
   ],
   "analyzer_report_sha256": "a9a20d884fc5b47fe20974e435c26dad4fe105ce7a1436f34924aba7a305df8a",
-  "validator_sha256": "96666ac208255ed7d9acfdaf309691d536557a5b77677db2bb18f13b04fad40d"
+  "validator_sha256": "f40a074303f11a35baf7bf71536cba0642ee26550d6be6dd03319a2cd79e73dd"
 }

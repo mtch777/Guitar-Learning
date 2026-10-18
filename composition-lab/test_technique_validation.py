@@ -35,13 +35,16 @@ class ValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             folder = Path(d) / '1'; folder.mkdir()
             (folder / 'track-0.json').write_text(json.dumps(part), encoding='utf-8')
-            report = dict(songs=[dict(song_id=1, tracks=[track])])
+            report = dict(songs=[dict(song_id=1, tracks=[track], shared_layout=[dict(start_q='0')])])
             public, _ = v.audit(report, Path(d))
             self.assertEqual(public['checks']['coattack_rule_failed'], 1)
             track['coattack_groups'] = [dict(onset_q='0', labels=['double_stop', 'close_interval_texture'])]
             self.assertEqual(v.audit(report, Path(d))[0]['failed_checks'], 0)
             rows[0]['duration_q'] = '2'
             self.assertEqual(v.audit(report, Path(d))[0]['checks']['duration_failed'], 1)
+            rows[0]['duration_q'] = '1'
+            rows[0]['onset_q'] = '1/3'
+            self.assertEqual(v.audit(report, Path(d))[0]['checks']['onset_within_shared_layout_failed'], 1)
 
 
 if __name__ == '__main__':

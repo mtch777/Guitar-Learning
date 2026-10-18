@@ -56,7 +56,7 @@ source-located evidence cases and 2904 context/control occurrences remain preser
 - [ ] Independently adjudicated musical-function labels and measured semantic accuracy.
 - [ ] Validate pedal recurrence/function and phrase-level placement beyond candidates.
 - [ ] Human listening acceptance for context transfer (separate from analysis correctness).
-- [ ] Verified main delivery and CI/Pages: recorded in MUSICAL_FIELDS_PROGRESS.md.
+- [x] Verified main delivery and CI/Pages: recorded in MUSICAL_FIELDS_PROGRESS.md.
 
 Future unknown fields fail the strict coverage gate. Do not add invented phrase,
 artist, emotional or performance annotations to fill missing evidence.
