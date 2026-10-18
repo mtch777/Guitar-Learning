@@ -1,7 +1,10 @@
 # Pedal repetition and continuation investigation
 
-Status: open. User feedback supersedes earlier broad identification acceptance
+Status: general correction implemented; human acceptance pending. User feedback supersedes earlier broad identification acceptance
 for the specific failures below. Presentation patches are not analyzer fixes.
+
+Current implementation and evidence are in **Correction selected after comparison**
+below. Earlier experiment notes describe the frozen pre-correction state.
 
 ## Expanded investigation, 2026-10-18
 
@@ -85,6 +88,74 @@ this shell PATH). No source scores, private annotations or media committed.
 
 ## Reported failures and confirmed evidence
 
+## Correction selected after comparison (2026-10-18)
+
+The preceding experiment results are historical. The selected correction is now
+implemented in pedal_register.py and the reproducible private builder
+songsterr_api/rebuild_pedal_review.py. Legacy methods remain available as frozen
+baselines. No song names, case numbers, tuning or source-specific pitch values
+occur in the detection rules.
+
+The old design conflated exact-pitch anchor identity with musical continuity,
+counted answer notes rather than distinct returns, trusted section-wide evidence
+for local examples and projected a group texture onto each individual note.
+Simply tightening counts removed legitimate low candidates and sometimes exposed
+higher replacements. The new method searches observed register boundaries from
+lowest upward for two consecutive call / higher-answer / return exchanges. It
+requires recurring standalone single/dyad evidence, keeps note-level coattack
+membership and can retain moving low pitches in one exchange sequence. A whole
+dyad voicing is extended under transposition only when its shape has independent
+repeated standalone low-call support. Unknown hits interrupt the evidence chain;
+ties extend written duration and never count as returning attacks.
+
+A prototype initially admitted changing-chord playing. The corrected evidence
+gate requires repeated standalone low groups rather than extracting a convenient
+bass pitch from every full chord. A uniform fixed-triad arpeggio remains an
+abstention; repeated same-note call bursts do not trigger that arpeggio gate.
+These are conservative explicit hypotheses, not universal definitions of pedal
+function or learned artist intent. Higher-order voicings and arbitrary phrase
+boundaries remain outside this acceptance claim.
+
+The final return burst and a following answer are retained through their actual
+events, rather than stopping at the first returning attack. Review excerpt ranges
+are preserved for controlled comparison, including the previously extended clip;
+they are NOT claimed to be automatically recovered musical phrase boundaries.
+The corpus runner uses source scopes and does not split at each anchor-pitch
+change. This separates analytical continuation from bounded playback selection.
+
+### Evidence and remaining acceptance gate
+
+- All 16 original review cases rebuilt from original rows without assigned
+  case-specific roles. Every displayed written note preserved; source GP and
+  both audio files remain byte-identical to their comparison inputs.
+- The two accepted exclusion controls remain excluded. Both current and earlier
+  problematic fixed-chord/arpeggio probes have explicit regression tests.
+- The earlier development feedback's 42 explicitly marked pedal occurrences
+  remain covered (42/42). Blank answers are not reinterpreted as labels. The
+  latest user reversal of an older negative judgment takes precedence.
+- All 393 eligible tracks / 1854 source scopes rerun: 1174 accepted scopes,
+  14178 closed exchanges, 194577 assigned attack occurrences, zero audited
+  invented identities or tied destinations counted as attacks. These units differ
+  from legacy region counts and do not establish musical precision or recall.
+- Python: 239 tests, one optional dependency skip, no failures. JS: all 21 pass.
+  Vite production build passes. Source/private artifacts remain ignored.
+- Browser: checked ten reported/control cases, all pitches within roll bounds,
+  no per-note mixed label; audio metadata loads; playback time and vertical line
+  advance. QA-only judgment and note marking restore after reload. Production
+  judgments remain blank and unmarked; QA data is isolated by storage key/export.
+- New review questions distinguish anchor selection, response membership and
+  missed continuation; users can mark exact source occurrences and export them.
+
+Private final directory: local-artifacts/pedal-register-review-v4. The original
+port5189 review is preserved; corrected review is served on loopback5190. Source
+corpus member roles and cycle IDs are retained in corpus-analysis.json. Prior
+experiment reports and earlier builds remain available for comparison.
+
+Step9 delivery and step10 musical acceptance are distinct: remote source checks
+must pass before delivery, then the user judges whether the revised highlights
+match the ear/eye. The method is selected by the available development evidence;
+no claim that every future failure has been eliminated is made.
+
 - Nocturne: Lost Faith, explorer example-12: the user hears the same pedal idea
   continuing after the original excerpt. Region boundaries change at a reduced
   anchor voicing. A manually extended bars 4–12 preview is available, but does
@@ -110,26 +181,26 @@ this shell PATH). No source scores, private annotations or media committed.
    numerical interpretation. Both reports and their affected examples are above.
 2. [x] Inspect the exact private examples and their source-located analysis.
    Record actual calls/returns, scope and labels; retain original artifacts.
-3. [ ] Trace why each original scope/excerpt ended where it did, from source
+3. [x] Trace why each original scope/excerpt ended where it did, from source
    occurrences through candidate detection, dialogue grouping and UI selection.
-4. [ ] Trace why continuation/repetition was missed or misrepresented. Distinguish
+4. [x] Trace why continuation/repetition was missed or misrepresented. Distinguish
    detector, event-role, burst, region-boundary, clip and label failures.
-5. [ ] Review the design contract: pedal evidence requires returning anchors;
+5. [x] Review the design contract: pedal evidence requires returning anchors;
    parent-region membership, adjacent subsets, two arbitrary slices and category
    variety do not independently prove a local musical pattern. Separate literal
    measurements from musical-function claims and preserve explicit uncertainty.
-6. [ ] Establish root causes with minimal source-derived regressions and negative
+6. [x] Establish root causes with minimal source-derived regressions and negative
    controls. Include a lone note, sustained/tied note, long silence, one-off dyad,
    arpeggio, repeated anchor, voicing reduction and unrelated adjacent shared pitch.
-7. [ ] Compare alternatives: excerpt evidence gates alone; gap-aware burst
+7. [x] Compare alternatives: excerpt evidence gates alone; gap-aware burst
    segmentation; candidate-local recurrence; continuity links retaining original
    regions. Record tradeoffs before selecting a correction; no song-specific rules.
-8. [ ] Compare corpus-wide deltas against frozen accepted examples and negatives.
+8. [x] Compare corpus-wide deltas against frozen accepted examples and negatives.
    Report changed membership, durations, call counts, truncations and abstentions;
    inspect newly joined/split/accepted/rejected cases. Passing parser tests or
    increasing counts is not musical correctness. Set thresholds using evidence,
    not these two cases alone.
-9. [ ] Implement the supported general correction; regenerate affected private
+9. [x] Implement the supported general correction; regenerate affected private
    analysis/UI from scripts, preserve baselines, run relevant Python/JS/build and
    remote checks, commit/push. Remove reliance on manual clip overrides for claims
    of analyzer correctness. Keep copyrighted source material and feedback private.
@@ -144,6 +215,7 @@ this shell PATH). No source scores, private annotations or media committed.
   explorer selection, dialogue runner, private example-03 and parent dialogue.
   Scripted private JSON queries confirmed the counts/times above. No detector
   correction, experiment comparison or new listening acceptance claimed.
-- Next action: inspect the event/burst construction and original region candidate
-  support for both failures; build the shared regression/evaluation set before
-  choosing a boundary rule. No user input is needed for this investigation yet.
+- The original next action was to inspect event/burst construction and build
+  shared regressions. That investigation and implementation are now complete for
+  this review milestone. Next action: human acceptance of the corrected highlights;
+  retain any new errors as exact-occurrence regressions before wider adoption.

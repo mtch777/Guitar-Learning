@@ -1,4 +1,12 @@
-## Current pedal milestone
+## Pedal acceptance reopened (2026-10-18)
+
+Read songsterr_automation/PEDAL_BOUNDARY_INVESTIGATION.md before the historical
+acceptance below. Pedal-register correction and source-identical review replace
+the old labels for review, pending human judgment. Current implementation:
+pedal_register.py and songsterr_api/rebuild_pedal_review.py. Preserve old methods
+and artifacts as baselines; do not confuse corpus integrity with musical accuracy.
+
+## Current pedal milestone (historical)
 
 User accepted pedal identification after the fresh-song review. Do not reopen that
 review. New goal is exact call/response relationships; see songsterr_automation/

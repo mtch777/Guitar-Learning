@@ -3,6 +3,15 @@ const manifest=await (await fetch('manifest.json')).json();
 const requestedExample=new URLSearchParams(location.search).get('example');
 const $=s=>document.querySelector(s),svg=$('#roll'),context=$('#context'),focused=$('#focused');
 let current,active=context,notes=[],map=[];
+let markMode=false;
+const reviewMode=Boolean(manifest.review_version),study=reviewMode?manifest.review_version+'-'+manifest.dataset_sha256.slice(0,12):null;
+const isQA=new URLSearchParams(location.search).get('qa')==='1';
+const storageKey='pedal-review:'+study+(isQA?':qa':'');
+let feedback={study,qa:isQA,judgments:{}};
+if(reviewMode){try{const saved=JSON.parse(localStorage.getItem(storageKey));if(saved?.study===study)feedback=saved;}catch{}}
+function judgment(){return feedback.judgments[current.id]||{};}
+function saveFeedback(){localStorage.setItem(storageKey,JSON.stringify(feedback));setText('#feedback-status','Saved in this browser. Export feedback when finished.');}
+function restoreFeedback(){if(!reviewMode)return;const j=judgment();for(const name of ['anchor','answer','continuation','notes'])$('#judge-'+name).value=j[name]||'';const selected=new Set((j.selected_notes||[]).map(n=>n.id));for(const n of notes){n.el.setAttribute('stroke',selected.has(n.id)?'#ff8fca':'none');n.el.setAttribute('stroke-width',selected.has(n.id)?'3':'0');}setText('#marked-count',`${selected.size} notes marked as pedals.`);}
 const fraction=s=>{const [a,b=1]=String(s).split('/').map(Number);return a/b;};
 const pitch=n=>['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'][((n%12)+12)%12]+(Math.floor(n/12)-1);
 const f=s=>String(s)+' quarter-note beats';
@@ -14,7 +23,7 @@ function seek(t){active.currentTime=Math.max(0,Math.min(t,active.duration||t));u
 function element(tag,text){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;}
 function load(id){
  for(const a of [context,focused])a.pause();current=data.find(c=>c.id===id);map=current.time_map;
- history.replaceState(null,'','?example='+encodeURIComponent(id));
+ history.replaceState(null,'','?example='+encodeURIComponent(id)+(isQA?'&qa=1':''));
  current.base_q_number=fraction(current.base_q);current.end_q_number=fraction(current.end_q);
  setText('#heading',current.heading);setText('#source',`${current.song} · ${current.track} · bars ${current.start_bar}–${current.end_bar}`);
  setText('#why',current.explanation);setText('#caveat',current.caveat);
@@ -32,7 +41,8 @@ function load(id){
   const width=(Math.min(fraction(n.onset_q)+fraction(n.duration_q),current.end_q_number)-Math.max(fraction(n.onset_q),current.base_q_number))/(current.end_q_number-current.base_q_number)*960;
   for(const [key,value] of Object.entries({x:Math.max(0,x),y:(high-n.pitch)*12+8,width:Math.max(2,Math.min(width,960-Math.max(0,x))),height:9,fill:({call:'#f6c85f',call_sustain:'#f6c85f',response:'#65c7f7',mixed:'#c79bff',context:'#748998'})[n.role],tabindex:0,role:'button','aria-label':`${pitch(n.pitch)}, ${n.role}, bar ${n.bar}`}))r.setAttribute(key,value);
   r.classList.add('note');const inspect=()=>{setText('#note-info',`${pitch(n.pitch)} · ${n.role.replace('_',' ')} · bar ${n.bar} · fret ${n.fret} · duration ${f(n.duration_q)} · ${current.anchor.length?'interval from anchor: '+current.anchor.map(a=>n.pitch-a).join(', ')+' semitones':'no anchor assigned'}`);seek(n.start);};
-  r.onclick=inspect;r.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();inspect();}};svg.append(r);notes.push({...n,el:r});
+  const choose=()=>{inspect();if(reviewMode&&markMode){const j=feedback.judgments[current.id]||={};const selected=j.selected_notes||=[];const i=selected.findIndex(x=>x.id===n.id);if(i>=0)selected.splice(i,1);else selected.push({id:n.id,pitch:n.pitch,bar:n.bar,onset_q:n.onset_q});saveFeedback();restoreFeedback();}};
+  r.onclick=choose;r.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}};svg.append(r);notes.push({...n,el:r});
  }
  const line=document.createElementNS(ns,'line');for(const [k,v] of Object.entries({x1:0,x2:0,y1:0,y2:height,class:'playhead'}))line.setAttribute(k,v);svg.append(line);
  const body=$('#cycles');body.replaceChildren();
@@ -57,15 +67,25 @@ function load(id){
   `Gap before answer: ${f(c.call_to_response_gap_q)}; call sustain overlap: ${f(c.call_sustain_into_response_q)}`,
   `Next anchor return: ${c.anchor_return_period_q===null?'not observed in scope':f(c.anchor_return_period_q)}`,
  ].join('\n')).join('\n\n'):'No exchange assigned. Source notes remain individually inspectable.');
+ if(reviewMode){setText('#summary',current.cycles.length?`Pedal pitches in this excerpt: ${current.anchor.map(pitch).join(', ')} (not necessarily played together). ${current.cycles.length} closed exchanges measured. The final returning burst and trailing answer stay highlighted.`:'No repeated exchange assigned. This is an abstention to review, not proof that the passage cannot be a pedal.');restoreFeedback();}
  update();
 }
 function group(c){if(c.category.startsWith('outside'))return 'outside';if(['minimal','censored'].includes(c.category))return 'edge';return c.category==='regular'?'regular':'variety';}
-function filter(kind){const list=kind==='all'?data:data.filter(c=>group(c)===kind);$('#example').replaceChildren(...list.map(c=>{const o=element('option',`${c.heading} — ${c.song}`);o.value=c.id;return o;}));if(list.length)load(list[0].id);}
+function filter(kind){const list=kind==='all'?data:data.filter(c=>group(c)===kind);$('#example').replaceChildren(...list.map(c=>{const o=element('option',reviewMode?`${c.song} · ${c.track.trim()} · bars ${c.start_bar}–${c.end_bar}`:`${c.heading} — ${c.song}`);o.value=c.id;return o;}));if(list.length)load(list[0].id);}
 for(const button of document.querySelectorAll('[data-filter]'))button.onclick=()=>{for(const b of document.querySelectorAll('[data-filter]'))b.setAttribute('aria-pressed',String(b===button));filter(button.dataset.filter);};
 $('#example').onchange=e=>load(e.target.value);
 $('#roll-size').onclick=()=>{const taller=svg.style.height==='340px';svg.style.height=taller?'600px':'340px';$('#roll-size').textContent=taller?'Fit the whole roll':'Make the roll taller';};
 for(const audio of [context,focused]){audio.onplay=()=>{for(const other of [context,focused])if(other!==audio)other.pause();active=audio;update();};for(const event of ['timeupdate','seeking','seeked','pause','ended'])audio.addEventListener(event,update);}
 function animate(){if(!active.paused)update();requestAnimationFrame(animate);}requestAnimationFrame(animate);
 setText('#availability',manifest.unavailable_categories.length?`Not found within the current quality and excerpt limits: ${manifest.unavailable_categories.join(', ')}. No synthetic examples substituted.`:'Every requested example family had an eligible source passage.');
+if(reviewMode){$('#feedback-panel').hidden=false;for(const b of document.querySelectorAll('[data-filter]'))if(b.dataset.filter!=='all')b.hidden=true;
+ document.querySelector('.legend .mixed').hidden=true;
+ document.querySelector('h1').textContent='Recheck the pedal highlights';
+ setText('#scope-contract','A pedal must return after contrasting higher material more than once. The low part can change pitch or voicing. Each note keeps its own role even when pedal and answer sound together. These bounded excerpts do not establish musical phrase endings.');
+ setText('#availability','Same source passages and unchanged audio. Revised analysis is under review; previous category labels are not reused as ground truth.');
+ for(const name of ['anchor','answer','continuation','notes'])$('#judge-'+name).addEventListener('input',()=>{const j=feedback.judgments[current.id]||={};j[name]=$('#judge-'+name).value;saveFeedback();});
+ $('#mark-pedals').onclick=()=>{markMode=!markMode;$('#mark-pedals').setAttribute('aria-pressed',String(markMode));$('#mark-pedals').textContent=markMode?'Finish marking pedal notes':'Mark notes that should be gold';};
+ $('#export-feedback').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(feedback,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='pedal-register-feedback.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+}
 filter('all');
 if(data.some(c=>c.id===requestedExample)){$('#example').value=requestedExample;load(requestedExample);}

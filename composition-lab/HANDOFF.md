@@ -1,4 +1,13 @@
-## Current pedal milestone
+## Pedal acceptance reopened (2026-10-18)
+
+New detailed user feedback supersedes the acceptance statement below. Read
+songsterr_automation/PEDAL_BOUNDARY_INVESTIGATION.md. Current corrected review uses
+pedal_register.py through songsterr_api/rebuild_pedal_review.py; old region and
+dialogue runners remain frozen comparison methods. New results require human
+review; do not describe the old port5189 labels as accepted. Private source,
+feedback and corpus-analysis outputs remain ignored.
+
+## Current pedal milestone (historical)
 
 User accepted pedal identification after the fresh-song review. Do not reopen that
 review. New goal is exact call/response relationships; see songsterr_automation/
