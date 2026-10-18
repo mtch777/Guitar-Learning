@@ -23,6 +23,8 @@ class ExplorerTests(unittest.TestCase):
         b['response']['pitch_signature']='new'
         self.assertNotIn('regular',m.kinds(region,[a,b]))
         self.assertIn('varied',m.kinds(region,[a,b]))
+        region['related_anchor_continues']=True
+        self.assertNotIn('minimal',m.kinds(region,[a,b]))
 
     def test_overlapping_tuplet_interval_case_keeps_all_tags(self):
         a=cycle();a['call']['notated_duration_histogram']={'1/3':3}

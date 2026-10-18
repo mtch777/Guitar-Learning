@@ -9,7 +9,8 @@ body{margin:0;background:#111b24;color:#eff4f7;font:17px system-ui}main{max-widt
 <div class="panel"><h2 id="heading"></h2><p id="source" class="muted"></p><p id="why"></p><p id="caveat" class="small muted"></p>
 <div class="legend"><span class="call">■ Anchor / call</span><span class="response">■ Response</span><span class="mixed">■ Together / mixed</span><span class="muted">■ Surrounding context</span></div>
 <p class="small">White line follows playback. Green outlines show sounding notes. Click a note to inspect it and seek to that point.</p>
-<div class="roll"><svg id="roll" role="group" aria-label="Source notes and call response roles"></svg></div><p id="note-info" class="small" aria-live="polite">Click any note for its pitch, duration and relation to the anchor.</p>
+<p id="pitch-range" class="small"></p><button id="roll-size" type="button">Make the roll taller</button>
+<div class="roll"><svg id="roll" role="group" aria-label="Source notes and call response roles" preserveAspectRatio="none" style="height:340px;min-width:0"></svg></div><p id="note-info" class="small" aria-live="polite">Click any note for its pitch, duration and relation to the anchor.</p>
 <div class="columns"><div><p>Full arrangement</p><audio id="context" controls preload="metadata"></audio></div><div><p>Selected track</p><audio id="focused" controls preload="metadata"></audio></div></div>
 <p class="small muted">Synthetic guitar preview. Pitch/rhythm examples are useful; realistic articulation and emotional effect are not established by this soundfont.</p>
 <h3>Follow the exchanges</h3><p id="summary"></p><div style="overflow:auto"><table><thead><tr><th>Jump</th><th>The call</th><th>The answer</th><th>What repeats or changes?</th></tr></thead><tbody id="cycles"></tbody></table></div>

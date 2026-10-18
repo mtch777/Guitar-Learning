@@ -1,5 +1,6 @@
 const data=await (await fetch('cases.json')).json();
 const manifest=await (await fetch('manifest.json')).json();
+const requestedExample=new URLSearchParams(location.search).get('example');
 const $=s=>document.querySelector(s),svg=$('#roll'),context=$('#context'),focused=$('#focused');
 let current,active=context,notes=[],map=[];
 const fraction=s=>{const [a,b=1]=String(s).split('/').map(Number);return a/b;};
@@ -13,16 +14,19 @@ function seek(t){active.currentTime=Math.max(0,Math.min(t,active.duration||t));u
 function element(tag,text){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;}
 function load(id){
  for(const a of [context,focused])a.pause();current=data.find(c=>c.id===id);map=current.time_map;
+ history.replaceState(null,'','?example='+encodeURIComponent(id));
  current.base_q_number=fraction(current.base_q);current.end_q_number=fraction(current.end_q);
  setText('#heading',current.heading);setText('#source',`${current.song} · ${current.track} · bars ${current.start_bar}–${current.end_bar}`);
  setText('#why',current.explanation);setText('#caveat',current.caveat);
  setText('#note-info','Click any note for its pitch, duration and relation to the anchor.');
- context.src=current.id+'.context.wav';focused.src=current.id+'.focused.wav';active=context;
+ const audioPrefix=current.audio_prefix||current.id;context.src=audioPrefix+'.context.wav';focused.src=audioPrefix+'.focused.wav';active=context;
  $('#gp').href=current.id+'.gp';svg.replaceChildren();notes=[];
  const high=Math.max(...current.notes.map(n=>n.pitch)),low=Math.min(...current.notes.map(n=>n.pitch));const height=(high-low+1)*12+30;
- svg.setAttribute('viewBox',`0 0 960 ${height}`);
+ svg.setAttribute('viewBox',`-45 0 1005 ${height}`);
+ setText('#pitch-range',`Selected track only: ${current.notes.length} pitched written notes, ${pitch(low)} to ${pitch(high)}. The full pitch range fits here; the full arrangement audio includes other tracks.`);
  const ns='http://www.w3.org/2000/svg';
  for(let p=low;p<=high;p++){const line=document.createElementNS(ns,'line');line.setAttribute('x1','0');line.setAttribute('x2','960');line.setAttribute('y1',(high-p)*12+15);line.setAttribute('y2',(high-p)*12+15);line.setAttribute('stroke','#263f50');svg.append(line);}
+ for(const p of new Set([low,high,...current.anchor])){if(p<low||p>high)continue;const label=document.createElementNS(ns,'text');label.textContent=pitch(p);label.setAttribute('x','-43');label.setAttribute('y',(high-p)*12+17);label.setAttribute('fill','#d5e3ed');label.setAttribute('font-size',Math.max(10,height/40));svg.append(label);}
  for(const n of current.notes){
   const r=document.createElementNS(ns,'rect'),x=(fraction(n.onset_q)-current.base_q_number)/(current.end_q_number-current.base_q_number)*960;
   const width=(Math.min(fraction(n.onset_q)+fraction(n.duration_q),current.end_q_number)-Math.max(fraction(n.onset_q),current.base_q_number))/(current.end_q_number-current.base_q_number)*960;
@@ -59,7 +63,9 @@ function group(c){if(c.category.startsWith('outside'))return 'outside';if(['mini
 function filter(kind){const list=kind==='all'?data:data.filter(c=>group(c)===kind);$('#example').replaceChildren(...list.map(c=>{const o=element('option',`${c.heading} — ${c.song}`);o.value=c.id;return o;}));if(list.length)load(list[0].id);}
 for(const button of document.querySelectorAll('[data-filter]'))button.onclick=()=>{for(const b of document.querySelectorAll('[data-filter]'))b.setAttribute('aria-pressed',String(b===button));filter(button.dataset.filter);};
 $('#example').onchange=e=>load(e.target.value);
+$('#roll-size').onclick=()=>{const taller=svg.style.height==='340px';svg.style.height=taller?'600px':'340px';$('#roll-size').textContent=taller?'Fit the whole roll':'Make the roll taller';};
 for(const audio of [context,focused]){audio.onplay=()=>{for(const other of [context,focused])if(other!==audio)other.pause();active=audio;update();};for(const event of ['timeupdate','seeking','seeked','pause','ended'])audio.addEventListener(event,update);}
 function animate(){if(!active.paused)update();requestAnimationFrame(animate);}requestAnimationFrame(animate);
 setText('#availability',manifest.unavailable_categories.length?`Not found within the current quality and excerpt limits: ${manifest.unavailable_categories.join(', ')}. No synthetic examples substituted.`:'Every requested example family had an eligible source passage.');
 filter('all');
+if(data.some(c=>c.id===requestedExample)){$('#example').value=requestedExample;load(requestedExample);}

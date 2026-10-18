@@ -162,3 +162,20 @@ Reproduction and acceptance: DIALOGUE_EXPLORER.md. Release verification next.
 Breadth explorer release d1409b0 pushed; CI39101712323 success. All source/artifact paths untracked; private user-facing port5189.
 
 Explorer wording correction: use user category names verbatim; added category Clearly not pedals. Individual titles now describe musical function. Text only; grouping, measurements, source GP/audio and feedback unchanged.
+
+## Extended continuation and visible pitch range
+
+User correctly noticed the Nocturne example continued after the cutoff. Original
+minimal region:two-note anchor32/39 at quarter16–81/4; related single anchor32 then
+continues to quarter48. This is an analysis split, not sufficient evidence of a
+barely-qualified musical pattern. Extended example12 from bars4–6 to4–12;17.281s
+both modes. Baseline clips/cases preserved; new extended WAV filenames and deep link.
+Reclassified displayed example as continuing anchor change; future minimal-example
+selection excludes adjacent related-anchor continuation.
+
+Compact340px roll fits full pitch range, optional600px taller view, low/high/anchor
+pitch labels and explicit selected-track-only pitched-note count. No GP changes.
+Browser:188pitched note rectangles fromA-flat1toB4 all inside SVG bounds; both
+17.281smedia load without errors.225Python(oneoptionalskip),21JS/build pass.
+Private URL http://127.0.0.1:5189/?example=example-12 . Source section/phrase-boundary
+logic remains a known limitation; do not claim automatic full idea segmentation.

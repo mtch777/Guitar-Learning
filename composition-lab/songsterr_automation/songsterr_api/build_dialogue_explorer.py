@@ -45,7 +45,7 @@ def kinds(region,pair):
     if any(F(d).denominator & (F(d).denominator-1) for c in pair for role in ('call','response') for d in c[role]['notated_duration_histogram']):out.append('subdivision')
     start=F(a['call']['start_q']);end=F(pair[-1]['response']['end_q'])
     if any(e['kind']=='mixed' and start<=F(e['onset_q'])<end for e in region['events']):out.append('mixed')
-    if len(region['cycles'])==2:out.append('minimal')
+    if len(region['cycles'])==2 and not region.get('related_anchor_continues'):out.append('minimal')
     if any(c['right_censored'] for c in pair):out.append('censored')
     return out
 
@@ -60,6 +60,10 @@ def build(report,dialogues,corpus,out):
         track=next(t for t in song['tracks'] if t['part_id']==item['part_id']);byid={n['occurrence']:n for n in track['rows']}
         eligible[sid,item['part_id']]=(song,track)
         for region in item['dialogues']:
+            region=dict(region)
+            region['related_anchor_continues']=any(F(other['scope_start_q'])==F(region['scope_end_q']) and
+                (set(other['anchor_pitches'])<=set(region['anchor_pitches']) or set(region['anchor_pitches'])<=set(other['anchor_pitches']))
+                for other in item['dialogues'] if other is not region)
             for i,cycle in enumerate(region['cycles']):
                 pair=region['cycles'][i:i+2]
                 members=[byid[n] for c in pair for n in c['call_members']+c['response_members']]
