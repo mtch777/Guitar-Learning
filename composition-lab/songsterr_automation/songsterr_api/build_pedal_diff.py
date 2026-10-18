@@ -111,7 +111,7 @@ def build(report,old,new,corpus,out):
                         entry=dict(id=ident,direction=direction,song=song['title'],track=track['name'].strip() or f'Track {ti+1}',
                             song_id=sid,part_id=track['part_id'],section=section['id'],start_bar=min(covered),end_bar=max(covered),
                             start_q=str(lo),end_q=str(hi),whole_scope_flip=not bool(b),roundtrip_pass=quality.get('roundtripPass'),windows=len(windows))
-                        detail=dict(entry,windows=windows,before_spans=[[str(x),str(y)] for x,y in before],after_spans=[[str(x),str(y)] for x,y in after])
+                        detail=dict(entry,windows=windows,bars=[dict(number=i+1,start_q=layout[i]['start_q'],span_q=layout[i]['span_q']) for i in range(first-1,last)],before_spans=[[str(x),str(y)] for x,y in before],after_spans=[[str(x),str(y)] for x,y in after])
                         (out/'cases'/f'{ident}.json').write_text(json.dumps(detail,separators=(',',':')),encoding='utf-8')
                         cases.append(entry);counts[direction+'_spans']+=1;counts['review_windows']+=len(windows)
     manifest=dict(schema='pedal-tag-diff-v1',counts=dict(counts),cases=cases,

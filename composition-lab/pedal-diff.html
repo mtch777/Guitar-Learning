@@ -10,7 +10,8 @@
 <nav><button id="previous">Previous part</button><button id="next">Next part</button></nav>
 <nav><button id="before" aria-pressed="true">Before highlights</button><button id="after" aria-pressed="false">After highlights</button></nav>
 <p id="legend">Gold = pedal. Blue = response (after analysis). Gray = other source notes. Shaded background = changed time range.</p>
-<p id="range" class="small"></p><svg id="roll" class="roll" preserveAspectRatio="none" role="group" aria-label="Before and after source notes"></svg><p id="note-info" class="small">Click a note to inspect it and seek.</p>
+<p><label><input id="whole-roll" type="checkbox" checked> Show the whole passage</label></p>
+<p id="range" class="small"></p><p id="audio-scope" class="small muted"></p><svg id="roll" class="roll" preserveAspectRatio="none" role="group" aria-label="Before and after source notes"></svg><p id="note-info" class="small">Click a note to inspect it and seek.</p>
 <button id="prepare">Load audio for this part</button><p id="status" class="small" aria-live="polite"></p>
 <p>Selected track</p><audio id="focused" controls preload="metadata"></audio><p>Full arrangement</p><audio id="context" controls preload="metadata"></audio>
 <p class="small muted">Both highlight modes use the same unchanged source audio. Playback is a synthetic preview. Long passages are divided into consecutive parts; every part remains available.</p>

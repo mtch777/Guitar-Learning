@@ -2,27 +2,35 @@ const $=s=>document.querySelector(s),catalogue=await(await fetch('catalogue.json
 const frac=s=>{const[a,b=1]=String(s).split('/').map(Number);return a/b;};
 const pitch=p=>['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'][((p%12)+12)%12]+(Math.floor(p/12)-1);
 let direction='lost',mode='before',detail,part,active=$('#focused'),drawn=[],generation=0;
+function plotBounds(){return $('#whole-roll').checked?[frac(detail.windows[0].base_q),frac(detail.windows.at(-1).end_q)]:[frac(part.base_q),frac(part.end_q)];}
+function plotNotes(){return $('#whole-roll').checked?[...new Map(detail.windows.flatMap(w=>w.notes).map(n=>[n.id,n])).values()]:part.notes;}
 const counts=catalogue.counts;
 $('#counts').textContent=`${counts.lost_spans} spans lost the label · ${counts.gained_spans} gained it. Entire source sections changing yes/no: ${counts.whole_scopes_removed} removed, ${counts.whole_scopes_added} added. ${counts.compared_source_scopes} source sections compared.`;
 $('#definition').textContent=catalogue.definition;
 function seconds(q){const map=part.time_map,t=frac(q);for(let i=1;i<map.length;i++)if(t<=frac(map[i].q)){const a=map[i-1],b=map[i];return a.seconds+(b.seconds-a.seconds)*(t-frac(a.q))/(frac(b.q)-frac(a.q));}return map.at(-1).seconds;}
-function xAt(t){const map=part.time_map;for(let i=1;i<map.length;i++)if(t<=map[i].seconds){const a=map[i-1],b=map[i],q=frac(a.q)+(frac(b.q)-frac(a.q))*(t-a.seconds)/(b.seconds-a.seconds);return(q-frac(part.base_q))/(frac(part.end_q)-frac(part.base_q))*960;}return 960;}
+function xAt(t){const map=part.time_map,[base,end]=plotBounds();let q=frac(part.end_q);for(let i=1;i<map.length;i++)if(t<=map[i].seconds){const a=map[i-1],b=map[i];q=frac(a.q)+(frac(b.q)-frac(a.q))*(t-a.seconds)/(b.seconds-a.seconds);break;}return(q-base)/(end-base)*960;}
 function update(){if(!part)return;const line=$('#roll .cursor');if(line){const x=52+xAt(active.currentTime)/960*($('#roll').clientWidth-64);line.setAttribute('x1',x);line.setAttribute('x2',x);}for(const n of drawn)n.el.classList.toggle('active',!active.paused&&active.currentTime>=n.start&&active.currentTime<n.end);}
 function draw(){
- const svg=$('#roll');svg.replaceChildren();drawn=[];if(!part.notes.length){$('#range').textContent='No pitched notes in this part.';return;}
- const low=Math.min(...part.notes.map(n=>n.pitch)),high=Math.max(...part.notes.map(n=>n.pitch)),height=340,width=svg.clientWidth||960,plotWidth=width-64;
- const step=Math.min(18,(height-32)/Math.max(12,high-low+1)),top=(height-(high-low+1)*step)/2,noteHeight=Math.min(12,step*.75),y=p=>top+(high-p)*step;
- svg.setAttribute('viewBox',`0 0 ${width} ${height}`);$('#range').textContent=`${mode==='before'?'Before':'After'} · ${part.notes.length} written notes · ${pitch(low)}–${pitch(high)} · selected track, full pitch range.`;
+ const svg=$('#roll');svg.replaceChildren();drawn=[];const sourceNotes=plotNotes();if(!sourceNotes.length){$('#range').textContent='No pitched notes in this view.';return;}
+ const low=Math.min(...sourceNotes.map(n=>n.pitch)),high=Math.max(...sourceNotes.map(n=>n.pitch)),padding=Math.max(1,Math.ceil((12-(high-low+1))/2)),gridLow=Math.max(0,low-padding),gridHigh=Math.min(127,high+padding),rows=gridHigh-gridLow+1;
+ const height=Math.min(520,rows*18+32),width=svg.clientWidth||960,plotWidth=width-64,step=(height-32)/rows,noteHeight=Math.min(14,step-2),y=p=>28+(gridHigh-p)*step;
+ svg.style.height=height+'px';svg.setAttribute('viewBox',`0 0 ${width} ${height}`);$('#range').textContent=`${mode==='before'?'Before':'After'} · ${detail.track} · ${$('#whole-roll').checked?'whole passage':'current audio part'} · ${sourceNotes.length} written notes · ${pitch(low)}–${pitch(high)}.`;
+ $('#audio-scope').textContent=`Audio plays bars ${part.start_bar}–${part.end_bar} (part ${Number($('#window').value)+1} of ${detail.windows.length}), outlined in blue.${new Set(part.notes.map(n=>n.pitch)).size===1?' This audio part contains only '+pitch(part.notes[0].pitch)+' in this track.':''}`;
  const ns='http://www.w3.org/2000/svg',node=(tag,attrs)=>{const n=document.createElementNS(ns,tag);for(const[k,v]of Object.entries(attrs))n.setAttribute(k,v);svg.append(n);return n;};
- const base=frac(part.base_q),length=frac(part.end_q)-base;
+ const [base,limit]=plotBounds(),length=limit-base,timeX=q=>52+(q-base)/length*plotWidth;
+ for(let p=gridLow;p<=gridHigh;p++){const black=[1,3,6,8,10].includes(p%12);node('rect',{x:0,y:y(p),width:width-12,height:step,fill:black?'#14232e':'#213644'});node('rect',{x:0,y:y(p)+1,width:44,height:step-2,fill:black?'#0a131b':'#b8cbd5'});}
  const left=52+Math.max(0,(frac(detail.start_q)-base)/length*plotWidth),right=52+Math.min(plotWidth,(frac(detail.end_q)-base)/length*plotWidth);
  if(right>left)node('rect',{x:left,y:0,width:right-left,height,fill:'#493e32',opacity:.55});
- for(let p=low;p<=high;p++)node('line',{x1:52,x2:width-12,y1:y(p)+noteHeight/2,y2:y(p)+noteHeight/2,stroke:'#294454'});
- for(const p of new Set([low,high])){const label=node('text',{x:8,y:y(p)+noteHeight/2+4,fill:'#d2e2ed','font-size':12});label.textContent=pitch(p);}
- for(const n of part.notes){const q=frac(n.onset_q),end=q+frac(n.duration_q),role=n[mode],x=52+Math.max(0,(q-base)/length*plotWidth),noteWidth=Math.max(1,(Math.min(end,frac(part.end_q))-Math.max(q,base))/length*plotWidth);
-  const r=node('rect',{x,y:y(n.pitch),width:noteWidth,height:noteHeight,fill:role==='call'?'#f6c85f':role==='response'?'#65c7f7':'#748998',tabindex:0,role:'button','aria-label':`${pitch(n.pitch)}, ${role}, bar ${n.bar}`});r.classList.add('note');
-  const inspect=()=>{$('#note-info').textContent=`${pitch(n.pitch)} · bar ${n.bar} · before: ${n.before} · after: ${n.after}${n.tied?' · tied continuation':''} · duration ${n.duration_q} quarter-note beats · ${n.id}`;if(Number.isFinite(active.duration))active.currentTime=Math.max(0,seconds(Math.max(q,base)));update();};r.onclick=inspect;r.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();inspect();}};
-  drawn.push({el:r,start:seconds(Math.max(q,base)),end:seconds(Math.min(end,frac(part.end_q)))});
+ for(let p=gridLow;p<=gridHigh;p++)node('line',{x1:52,x2:width-12,y1:y(p)+step,y2:y(p)+step,stroke:'#375061','stroke-width':.5});
+ for(let q=Math.ceil(base);q<limit;q++)node('line',{x1:timeX(q),x2:timeX(q),y1:28,y2:height,stroke:'#486172',opacity:.35,'stroke-width':.5});
+ for(const b of detail.bars||[]){const q=frac(b.start_q);if(q<base||q>=limit)continue;const x=timeX(q);node('line',{x1:x,x2:x,y1:20,y2:height,stroke:'#8ba2b0',opacity:.65});const label=node('text',{x:x+3,y:15,fill:'#d2e2ed','font-size':11});label.textContent=b.number;}
+ const labels=rows<=20?Array.from({length:rows},(_,i)=>gridLow+i):[low,high,...Array.from({length:rows},(_,i)=>gridLow+i).filter(p=>p%12===0&&Math.abs(p-low)*step>=14&&Math.abs(p-high)*step>=14)];
+ for(const p of new Set(labels)){const label=node('text',{x:3,y:y(p)+step/2+4,fill:[1,3,6,8,10].includes(p%12)?'#e5eef3':'#172733','font-size':10});label.textContent=pitch(p);}
+ node('rect',{x:timeX(frac(part.base_q)),y:23,width:(frac(part.end_q)-frac(part.base_q))/length*plotWidth,height:height-24,fill:'none',stroke:'#65c7f7','stroke-width':1,'pointer-events':'none'});
+ for(const n of sourceNotes){const q=frac(n.onset_q),end=q+frac(n.duration_q),role=n[mode],x=52+Math.max(0,(q-base)/length*plotWidth),noteWidth=Math.max(1,(Math.min(end,limit)-Math.max(q,base))/length*plotWidth);
+  const r=node('rect',{x,y:y(n.pitch)+1,width:Math.max(.7,noteWidth-1),height:noteHeight,rx:1,stroke:'#10202b','stroke-width':.7,fill:role==='call'?'#f6c85f':role==='response'?'#65c7f7':'#748998',tabindex:0,role:'button','aria-label':`${pitch(n.pitch)}, ${role}, bar ${n.bar}`});r.classList.add('note');
+  const inspect=()=>{const inPart=q>=frac(part.base_q)&&q<frac(part.end_q);$('#note-info').textContent=`${pitch(n.pitch)} · bar ${n.bar} · before: ${n.before} · after: ${n.after}${n.tied?' · tied continuation':''} · duration ${n.duration_q} quarter-note beats · ${n.id}${inPart?'':' · Choose the audio part containing bar '+n.bar+' to hear this note.'}`;if(inPart&&Number.isFinite(active.duration))active.currentTime=Math.max(0,seconds(q));update();};r.onclick=inspect;r.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();inspect();}};
+  const inPart=q<frac(part.end_q)&&end>frac(part.base_q);drawn.push({el:r,start:inPart?seconds(Math.max(q,frac(part.base_q))):Infinity,end:inPart?seconds(Math.min(end,frac(part.end_q))):Infinity});
  }
  node('line',{x1:52,x2:52,y1:0,y2:height,class:'cursor'});update();
 }
@@ -38,6 +46,7 @@ function filter(preferred){const search=$('#search').value.toLowerCase(),list=ca
 for(const d of['lost','gained'])$('#'+d).onclick=()=>{direction=d;for(const b of['lost','gained'])$('#'+b).setAttribute('aria-pressed',String(b===d));filter();};
 for(const m of['before','after'])$('#'+m).onclick=()=>{mode=m;for(const b of['before','after'])$('#'+b).setAttribute('aria-pressed',String(b===m));draw();};
 $('#search').oninput=()=>filter();$('#whole').onchange=()=>filter();$('#passage').onchange=e=>loadCase(e.target.value);$('#window').onchange=loadPart;
+$('#whole-roll').onchange=draw;
 for(const[id,delta]of[['previous',-1],['next',1]])$('#'+id).onclick=()=>{$('#window').value=Number($('#window').value)+delta;loadPart();};
 $('#prepare').onclick=async()=>{const id=part.id,token=generation;$('#prepare').disabled=true;$('#status').textContent='Preparing unchanged source audio…';try{const res=await fetch('/render',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});const data=await res.json();if(!res.ok)throw Error(data.error||'Render failed');if(token!==generation)return;for(const m of['focused','context'])$('#'+m).src=`audio/${id}.${m}.wav`;$('#status').textContent='Ready. Before and after use this same audio.';}catch(e){if(token===generation){$('#status').textContent=e.message;$('#prepare').disabled=false;}}};
 for(const a of[$('#focused'),$('#context')]){a.onplay=()=>{for(const other of[$('#focused'),$('#context')])if(other!==a)other.pause();active=a;update();};for(const e of['timeupdate','seeking','pause','ended'])a.addEventListener(e,update);}

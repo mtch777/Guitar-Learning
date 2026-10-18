@@ -74,3 +74,29 @@ passes. GitHub run status is checked separately before reporting delivery.
   all 92 notes inside bounds, with readable unstretched label text.
 - [x] JS syntax and all 21 existing JS tests pass. Remote CI checked before
   reporting delivery; private served script updated from the tracked source.
+
+## Full-passage roll correction (supersedes the cosmetic fix above)
+
+The earlier fix capped drawing sizes but still showed only one audio chunk beneath
+a heading describing the full passage. In the reported passage, part1 has24notes
+at one pitch; all three parts contain109notes over a much larger range. That scope
+mismatch made a technically complete chunk display misleading for passage review.
+
+- [x] Default to the entire displayed passage, deduplicating occurrences across
+  consecutive audio parts. Retain a checkbox for inspecting just the active part.
+- [x] Show the active audio range explicitly in text and a blue outline; keep
+  playback and note seeking mapped to the full passage's rational-time axis.
+- [x] Add real keyboard/pitch rows, compact single-pitch layout, distinct note
+  blocks, quarter-note grid and bar markers from original shared-layout metadata.
+  Drawing gaps between blocks do not change source durations or playback timing.
+- [x] Update the builder and all1289private comparison records with source bar
+  positions. Notes, source scores, tags and rendered audio remain unchanged.
+- [x] Independently compare full-passage occurrence sets against original source
+  rows across all1289cases:92168note displays, zero missing or extra occurrences.
+- [x] Browser:109whole-passage notes,24part1notes,47part2notes, full range visible;
+  changing audio parts keeps the entire passage displayed. Clicked note x90.5
+  matches cursor x90.49999 after seeking. Audio scope text matches each selected
+  part. Repeated blocks are visibly separated, with readable pitch and bar labels.
+- [x] Python243tests/one optional skip, JS21pass, production build pass. Commit
+  and remote checks verified before final delivery. Human visual acceptance is
+  not inferred from these mechanical checks.
