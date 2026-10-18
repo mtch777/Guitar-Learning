@@ -94,3 +94,57 @@ does not stop independent work in later steps.
 Private outputs: local-artifacts/artist-pipeline-v1/{profiles-v3,compositions-v2,
 compositions-v3,controls-v2,fractional-tempo}. Commercial source, learned note-level
 models, GP/audio and private provenance are never published. No pedal code changed.
+
+## Performance integration and independent validation (work continues)
+
+- Foundations committed/pushed as202706072f4cb96cb073d15004e8f0f019e066a7.
+  GitHub isolated GP7 CI succeeded: actions/runs/39166644468. No website change;
+  Pages was not triggered. Latest main pulled safely before this continuation.
+- Added per-technique eligible-opportunity models:134,606 development observations.
+  Each feature fits its own family/song-balanced denominator; unrelated notes do
+  not dilute open-string transition rates. Unknown natural pitches, ties, grace,
+  dead/harmonic events and cross-voice monophony are handled explicitly. Full
+  annotation inventory remains separate from this restricted generation scope.
+- Held-out eligible annotation prediction is mixed: hammer-on-from-open NLL
+  0.77588 conditional vs0.99579 unconditional; pull-off-to-open0.65929 vs0.90356.
+  Bend0.03098 vs0.02971 is worse; vibrato has zero positive held-out annotations.
+  No parameter tuning/promotion or expressive-intent claim from these outcomes.
+- Same-artist/source training provenance checked; all outputs preflight against
+  overwrite. QABot reproduced and drove repair of playback-sidecar overwrite,
+  wrong denominator, cross-voice and grace-context mismatches. Unsupported source
+  techniques stay locked. Supported100 proposals hide original annotations;
+  zero remains byte-identical and intermediate masks are nested.
+- Independent playback found two real bend incompatibilities in AlphaTab1.8.4:
+  displacement truncation to half-semitones and removal of some interior curve
+  points. Never round silently. Retain251 compatible raw source templates;
+  exclude69 resolution,320 normalization/encoding and2 zero-displacement cases.
+  This is a playback compatibility subset, not the artist's entire vocabulary.
+- performed-v1/v2/v3 are rejected/superseded diagnostics. performed-v4 contains
+  36GPs:12 baselines each at0/50/100 performance freedom. All36 independent
+  imports preserve pitch/timing/tuning/string/fret/program/meter/tempo; all36
+  directed-HOPO/vibrato checks pass;108 track-curve checks pass with zero measured
+  error. Twelve100% native previews finite/nonzero/unclipped; never listened by
+  the agent. Full-freedom selected annotations:71 bends,4 vibrato,20 open hammer-ons,
+  12 open pull-offs. These counts are engineering outcomes, not musical acceptance.
+- QABot independently checked every GP/code/audio hash and native log; approved
+  this bounded checkpoint. Human musical quality and physical legato remain open.
+- Added known-corpus relative attack-window audit with rational timing, tied
+  sustain lengths, numeric pitch normalization, stratified examples and all-track
+  openings.12 generated pieces have no identical attack content/shared8-attack
+  relative openings. Matches:157 varied8-event,9 varied16-event,zero varied32-event;
+  constant patterns separately520/38/1. All9 varied16-event matches contain two
+  pitch sets, one minimum-pitch change and one note length. Supplied-corpus only,
+  within-voice attack content, not complete sounding texture or originality proof.
+- Held-out written-root comparison: bass joint NLL2.522 vs absolute3.527 and
+  shuffled4.829; melody joint4.547 vs absolute3.779 and shuffled4.657. Roles are
+  heuristic and roots are minimum written pitch. Joint melody is not superior;
+  no claim that this validates generated harmony or source feel.
+- Python regression322 run/321passed/1 optional skip before final added template
+  test; all24JS tests and Vite build pass. Final complete suite repeated before
+  committing. Public source/log only; learned models, source occurrences, scores
+  and previews stay ignored. No approved pedal code/UI changed.
+
+Next independent work: broaden rhythm/form/instrumentation controls without
+violating literal locks; improve phrase/role methods against development baselines;
+reconcile remaining source-technique/control coverage. Musical acceptance remains
+a later human gate, not a reason to interrupt independent implementation now.

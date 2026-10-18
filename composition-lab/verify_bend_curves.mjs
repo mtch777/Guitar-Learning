@@ -17,7 +17,8 @@ function value(points,x){
   return points.at(-1)[1];
 }
 for(const file of files){
-  const expected=JSON.parse(fs.readFileSync(file.replace(/\.gp$/i,'.curves.json'),'utf8'));
+  const data=JSON.parse(fs.readFileSync(file.replace(/\.gp$/i,'.curves.json'),'utf8'));
+  const expected=Array.isArray(data)?data:data.tracks[Number(trackIndex)];
   const score=at.importer.ScoreLoader.loadScoreFromBytes(new Uint8Array(fs.readFileSync(file)));
   const bars=score.tracks[Number(trackIndex)].staves[0].bars;
   let notes=0,bends=0,maxError=0;
