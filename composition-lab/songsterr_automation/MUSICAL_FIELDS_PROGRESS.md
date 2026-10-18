@@ -62,3 +62,14 @@
 - 211Python(210pass/1optional skip),18JS/build pass; JS syntax pass. Tempo-change
   fixture verifies x0/480/960 at0/1/3seconds. No public site assets changed.
 - User-facing URL remains http://127.0.0.1:5185/ . Screenshot tracking.png private.
+
+## Pedal feedback incorporation
+
+Private source-pattern-feedback.json matched to study2c2300218e48ba24; all130
+selected IDs/pitches/bars verified. Original copied privately, not staged. New
+pedal_regions.py and corpus runner implement standalone single/dyad anchor returns,
+continuing coverage and explicit time separation. Original detector preserved.
+Reran393tracks:3733hypotheses (3274single/459interval). Selected-note development
+coverage18->129/130; not held-out accuracy. One partial-dyad note missed; additional
+hypotheses unreviewed. No new listening study requested. See PEDAL_REGIONS.md.
+Tests215Python (one optional skip),18JS and Vite build pass after final checks.

@@ -1,0 +1,18 @@
+{
+  "schema": "pedal-region-observations-v1",
+  "counts": {
+    "eligible_tracks": 393,
+    "region_hypotheses": 3733,
+    "single_note": 3274,
+    "anchor_occurrences": 108609,
+    "interval": 459
+  },
+  "limitations": [
+    "Rules revised using six reviewed passages: this is development evidence, not held-out accuracy.",
+    "Standalone single/dyad anchors and temporal separation are operational hypotheses.",
+    "Section-wide extension can span unrelated material; phrase segmentation remains unresolved.",
+    "Partial dyad voicings, octave-equivalent anchors and changing anchors may be missed.",
+    "Multiple candidates retained; no forced single correct anchor per section."
+  ],
+  "input_sha256": "a9a20d884fc5b47fe20974e435c26dad4fe105ce7a1436f34924aba7a305df8a"
+}
