@@ -60,3 +60,17 @@ note changes, consecutive-part navigation and local audio preparation. This is
 an inspection tool, not a new listening judgment or an accuracy certification.
 Python unittest discovery: 243 tests, one optional skip; JS: 21 pass; Vite build
 passes. GitHub run status is checked separately before reporting delivery.
+
+## Piano-roll scaling correction
+
+- [x] Reproduce the single-pitch roll: its 42-unit SVG viewBox was stretched to
+  a 340px container, enlarging note height, label glyphs and outlines vertically.
+- [x] Use actual container width and fixed 340px screen coordinates; cap note
+  height at 12px, center narrow pitch ranges, retain full-range fitting, and
+  recompute horizontal geometry on resize. Playback cursor uses the same plot
+  coordinates as the notes. Source notes, durations and analysis are unchanged.
+- [x] Browser verification: reported case retains all 24 notes, 12px rendered
+  note height, 16px label bounds. Widest available range (55 semitones) retains
+  all 92 notes inside bounds, with readable unstretched label text.
+- [x] JS syntax and all 21 existing JS tests pass. Remote CI checked before
+  reporting delivery; private served script updated from the tracked source.

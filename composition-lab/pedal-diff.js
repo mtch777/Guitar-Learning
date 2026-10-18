@@ -7,23 +7,24 @@ $('#counts').textContent=`${counts.lost_spans} spans lost the label · ${counts.
 $('#definition').textContent=catalogue.definition;
 function seconds(q){const map=part.time_map,t=frac(q);for(let i=1;i<map.length;i++)if(t<=frac(map[i].q)){const a=map[i-1],b=map[i];return a.seconds+(b.seconds-a.seconds)*(t-frac(a.q))/(frac(b.q)-frac(a.q));}return map.at(-1).seconds;}
 function xAt(t){const map=part.time_map;for(let i=1;i<map.length;i++)if(t<=map[i].seconds){const a=map[i-1],b=map[i],q=frac(a.q)+(frac(b.q)-frac(a.q))*(t-a.seconds)/(b.seconds-a.seconds);return(q-frac(part.base_q))/(frac(part.end_q)-frac(part.base_q))*960;}return 960;}
-function update(){if(!part)return;const line=$('#roll .cursor');if(line){const x=xAt(active.currentTime);line.setAttribute('x1',x);line.setAttribute('x2',x);}for(const n of drawn)n.el.classList.toggle('active',!active.paused&&active.currentTime>=n.start&&active.currentTime<n.end);}
+function update(){if(!part)return;const line=$('#roll .cursor');if(line){const x=52+xAt(active.currentTime)/960*($('#roll').clientWidth-64);line.setAttribute('x1',x);line.setAttribute('x2',x);}for(const n of drawn)n.el.classList.toggle('active',!active.paused&&active.currentTime>=n.start&&active.currentTime<n.end);}
 function draw(){
  const svg=$('#roll');svg.replaceChildren();drawn=[];if(!part.notes.length){$('#range').textContent='No pitched notes in this part.';return;}
- const low=Math.min(...part.notes.map(n=>n.pitch)),high=Math.max(...part.notes.map(n=>n.pitch)),height=(high-low+1)*12+30;
- svg.setAttribute('viewBox',`-45 0 1005 ${height}`);$('#range').textContent=`${mode==='before'?'Before':'After'} · ${part.notes.length} written notes · ${pitch(low)}–${pitch(high)} · selected track, full pitch range.`;
+ const low=Math.min(...part.notes.map(n=>n.pitch)),high=Math.max(...part.notes.map(n=>n.pitch)),height=340,width=svg.clientWidth||960,plotWidth=width-64;
+ const step=Math.min(18,(height-32)/Math.max(12,high-low+1)),top=(height-(high-low+1)*step)/2,noteHeight=Math.min(12,step*.75),y=p=>top+(high-p)*step;
+ svg.setAttribute('viewBox',`0 0 ${width} ${height}`);$('#range').textContent=`${mode==='before'?'Before':'After'} · ${part.notes.length} written notes · ${pitch(low)}–${pitch(high)} · selected track, full pitch range.`;
  const ns='http://www.w3.org/2000/svg',node=(tag,attrs)=>{const n=document.createElementNS(ns,tag);for(const[k,v]of Object.entries(attrs))n.setAttribute(k,v);svg.append(n);return n;};
  const base=frac(part.base_q),length=frac(part.end_q)-base;
- const left=Math.max(0,(frac(detail.start_q)-base)/length*960),right=Math.min(960,(frac(detail.end_q)-base)/length*960);
+ const left=52+Math.max(0,(frac(detail.start_q)-base)/length*plotWidth),right=52+Math.min(plotWidth,(frac(detail.end_q)-base)/length*plotWidth);
  if(right>left)node('rect',{x:left,y:0,width:right-left,height,fill:'#493e32',opacity:.55});
- for(let p=low;p<=high;p++)node('line',{x1:0,x2:960,y1:(high-p)*12+15,y2:(high-p)*12+15,stroke:'#294454'});
- for(const p of new Set([low,high])){const label=node('text',{x:-43,y:(high-p)*12+17,fill:'#d2e2ed','font-size':12});label.textContent=pitch(p);}
- for(const n of part.notes){const q=frac(n.onset_q),end=q+frac(n.duration_q),role=n[mode],x=Math.max(0,(q-base)/length*960),width=Math.max(1,(Math.min(end,frac(part.end_q))-Math.max(q,base))/length*960);
-  const r=node('rect',{x,y:(high-n.pitch)*12+8,width,height:9,fill:role==='call'?'#f6c85f':role==='response'?'#65c7f7':'#748998',tabindex:0,role:'button','aria-label':`${pitch(n.pitch)}, ${role}, bar ${n.bar}`});r.classList.add('note');
+ for(let p=low;p<=high;p++)node('line',{x1:52,x2:width-12,y1:y(p)+noteHeight/2,y2:y(p)+noteHeight/2,stroke:'#294454'});
+ for(const p of new Set([low,high])){const label=node('text',{x:8,y:y(p)+noteHeight/2+4,fill:'#d2e2ed','font-size':12});label.textContent=pitch(p);}
+ for(const n of part.notes){const q=frac(n.onset_q),end=q+frac(n.duration_q),role=n[mode],x=52+Math.max(0,(q-base)/length*plotWidth),noteWidth=Math.max(1,(Math.min(end,frac(part.end_q))-Math.max(q,base))/length*plotWidth);
+  const r=node('rect',{x,y:y(n.pitch),width:noteWidth,height:noteHeight,fill:role==='call'?'#f6c85f':role==='response'?'#65c7f7':'#748998',tabindex:0,role:'button','aria-label':`${pitch(n.pitch)}, ${role}, bar ${n.bar}`});r.classList.add('note');
   const inspect=()=>{$('#note-info').textContent=`${pitch(n.pitch)} · bar ${n.bar} · before: ${n.before} · after: ${n.after}${n.tied?' · tied continuation':''} · duration ${n.duration_q} quarter-note beats · ${n.id}`;if(Number.isFinite(active.duration))active.currentTime=Math.max(0,seconds(Math.max(q,base)));update();};r.onclick=inspect;r.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();inspect();}};
   drawn.push({el:r,start:seconds(Math.max(q,base)),end:seconds(Math.min(end,frac(part.end_q)))});
  }
- node('line',{x1:0,x2:0,y1:0,y2:height,class:'cursor'});update();
+ node('line',{x1:52,x2:52,y1:0,y2:height,class:'cursor'});update();
 }
 function loadPart(){generation++;for(const a of[$('#focused'),$('#context')]){a.pause();a.removeAttribute('src');a.load();}part=detail.windows[Number($('#window').value)];$('#previous').disabled=Number($('#window').value)===0;$('#next').disabled=Number($('#window').value)===detail.windows.length-1;$('#prepare').disabled=!part.playable;$('#status').textContent=part.playable?'Audio is prepared locally when requested.':'Audio preview unavailable for this playback range (repeat mapping or duration). All notes and the full GP remain available.';draw();}
 async function loadCase(id){const token=++generation;const next=await(await fetch(`cases/${id}.json`)).json();if(token!==generation)return;detail=next;
@@ -42,3 +43,4 @@ $('#prepare').onclick=async()=>{const id=part.id,token=generation;$('#prepare').
 for(const a of[$('#focused'),$('#context')]){a.onplay=()=>{for(const other of[$('#focused'),$('#context')])if(other!==a)other.pause();active=a;update();};for(const e of['timeupdate','seeking','pause','ended'])a.addEventListener(e,update);}
 function animate(){if(!active.paused)update();requestAnimationFrame(animate);}requestAnimationFrame(animate);
 const requested=new URLSearchParams(location.search).get('case'),entry=catalogue.cases.find(c=>c.id===requested);if(entry){direction=entry.direction;for(const d of['lost','gained'])$('#'+d).setAttribute('aria-pressed',String(d===direction));}filter(requested);
+new ResizeObserver(()=>{if(part)draw();}).observe($('#roll'));
