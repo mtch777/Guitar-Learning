@@ -1,0 +1,39 @@
+{
+  "schema": "pattern-robustness-v1",
+  "counts": {
+    "eligible_tracks": 393,
+    "raw_pedal_windows": 29447,
+    "overlap_collapsed_episodes": 7757,
+    "recurring_nonoverlapping_shapes": 4790,
+    "cross_section_shapes": 2393,
+    "transposed_shapes": 30,
+    "time_scaled_shapes": 2
+  },
+  "excluded_tracks": 102,
+  "pedal_window_counts_by_relative_period_tolerance": {
+    "0": 14940,
+    "1/8": 16128,
+    "1/4": 20259,
+    "1/2": 29447
+  },
+  "sustained_interval_counts": {
+    "extended_power_chord": 12521,
+    "double_stop": 30672,
+    "power_chord": 18311,
+    "close_interval_texture": 3245
+  },
+  "sustained_duration_q": {
+    "extended_power_chord": "18140/3",
+    "double_stop": "36952/3",
+    "power_chord": "40261/6",
+    "close_interval_texture": "5029/4"
+  },
+  "limitations": [
+    "Overlapping windows are not independent riffs; episodes are interval unions by anchor/section.",
+    "Recurrence is exact normalized pitch/rhythm/duration equality in nonoverlapping windows within a track, not verified motif identity.",
+    "Sensitivity holds other detector rules fixed; it is not precision/recall.",
+    "Sustained intervals are written pitches, split at every source boundary; effects may alter sounding intervals.",
+    "No phrase, call/response, emotional purpose or artist identity is inferred."
+  ],
+  "input_sha256": "a9a20d884fc5b47fe20974e435c26dad4fe105ce7a1436f34924aba7a305df8a"
+}

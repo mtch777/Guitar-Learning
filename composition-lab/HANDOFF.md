@@ -1,3 +1,14 @@
+## Latest step2 continuation (2026-10-17)
+
+Read songsterr_automation/PATTERN_ROBUSTNESS.md. Added pedal overlap collapse,
+exact normalized nonoverlapping recurrence, rhythmic sensitivity and sustained-note
+construction sweep. Private pedal-identification-v2 at port5185 is six unchanged
+source passages with highlighted proposed anchors and full/focused audio, not a
+technique-edit comparison. Previous brush/transfer review was premature and is not
+an analysis acceptance gate. No human judgments entered. 211 Python tests (one
+optional skip),18JS/build pass. Semantic anchor function remains for independent
+judgment; source-only rule metrics are not musical accuracy.
+
 ## 2026-10-17 musical-field validation update
 
 Read songsterr_automation/MUSICAL_FIELDS_RESULTS.md and TECHNIQUE_ANALYSIS_CONTRACT.md. Latest local implementation supersedes the earlier 65-path coverage snapshot: 114 analyzed / 77 retained / 11 unsupported / 16 outside scope, 218 total, zero unmapped. All 98 entries / 495 tracks rerun. Independent raw-readback checks 420119 written/grace occurrences; independent notation oracle checks 190890 eligible attack groups including negatives; zero failed checks. This is rule/preservation agreement, not human musical precision/recall. Raw v1 bend semitone labels were doubled; v2 corrects tone/50; prior GP audio was unaffected. Private source-technique-passages-v5 has 4 contextual comparisons / 8 modified GPs / 16 previews on loopback5183. Pedal/phrase/function and feel remain unvalidated; 24 GP conversion-fidelity flags remain. Persistent checklist and remote delivery evidence: MUSICAL_FIELDS_PROGRESS.md.

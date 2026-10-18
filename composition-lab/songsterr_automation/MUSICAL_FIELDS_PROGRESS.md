@@ -28,3 +28,20 @@
 - Private loopback review restarted and HTTP200 verified at port5183.
 - Follow-up validator adds full exact onset readback, 866 bend/469 arm curve/range audits and 29447 pedal structural invariant checks; all pass. Sample set now180/15strata. No semantic truth claimed.
 - Outstanding independent labels cannot be replaced with more parser agreement. Step2 engineering is verified; musical-function acceptance remains open. Step3 partial,4 partial,5 partial,6 partial,7 prototype,8 local/remote checks pass with human acceptance pending.
+
+## Step2 follow-through: 2026-10-17
+
+- Read current contracts and safely pulled origin/main; already current.
+- Added source-only pattern robustness runner and tests. 29447 overlapping pedal
+  windows collapse to7757 anchor/section regions.4790 exact normalized recurring
+  shapes have nonoverlapping instances;2393 cross section instances,30 transposed,
+  2 time-scaled. Tolerance counts:0=14940,1/8=16128,1/4=20259,1/2=29447.
+- Added exact held-note construction intervals; timing-effect uncertainty explicit.
+- Prepared six-family source identification gate, copied GP bytes unchanged,
+  12 bounded context/focused previews, hashes and finite/nonclipped audio verified.
+  Corrected initial near-duplicate sampling before delivery. No human labels entered.
+- Browser: all12 media loaded without error, focused playback/pause verified,
+  all audio stopped; screenshot in private pedal-identification-v2/review.png.
+- Tests:211Python(210pass/1optional skip),18JS/build pass. No unrelated UI edits.
+- Persistent detailed results/reproduction: PATTERN_ROBUSTNESS.md. Next acceptance:
+  human anchor-function judgments; never substitute brush parameter ratings.
