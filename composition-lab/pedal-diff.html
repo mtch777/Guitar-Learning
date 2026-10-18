@@ -1,6 +1,7 @@
 <!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Pedals: before and after</title>
 <style>body{margin:0;background:#111b24;color:#edf3f7;font:17px system-ui}main{max-width:1180px;margin:auto;padding:24px}button,select,input{font:inherit;padding:10px;background:#203746;color:inherit;border:1px solid #6a8293;border-radius:6px}button{cursor:pointer}button[aria-pressed=true]{background:#386984}button:disabled{opacity:.5;cursor:default}nav{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}select{width:100%;margin:10px 0}p{line-height:1.5}.muted{color:#bacbd5}.panel{border:1px solid #40576a;border-radius:10px;padding:18px;margin:18px 0}audio{width:100%;margin:8px 0}.roll{width:100%;height:340px;background:#182934}.cursor{stroke:white;stroke-width:2;pointer-events:none}.note{cursor:pointer}.note:hover,.note:focus{stroke:white;stroke-width:2;outline:none}.active{stroke:#91ffa8;stroke-width:3}.small{font-size:14px}a{color:#88d4ff}.tag{background:#503a25;padding:8px}</style>
-<main><h1>Pedals: before and after</h1><p id="counts"></p><p class="muted">Every changed tagged span across the corpus—not just the 16 review examples. A source section can contain several changes. Boundary extensions and retractions are included and labeled; these are not automatically inferred musical phrases.</p>
+<section id="launch-help" style="max-width:1180px;margin:auto;padding:24px"><h1>Open the populated pedal comparison</h1><p><a href="http://127.0.0.1:5191/">Open the running private review</a></p><p>This source template loads its song data from the local review server. If this message stays visible, use the link above.</p></section>
+<main hidden><h1>Pedals: before and after</h1><p id="counts"></p><p class="muted">Every changed tagged span across the corpus—not just the 16 review examples. A source section can contain several changes. Boundary extensions and retractions are included and labeled; these are not automatically inferred musical phrases.</p>
 <nav><button id="lost" aria-pressed="true">Counted before, not now</button><button id="gained" aria-pressed="false">Not counted before, counted now</button></nav>
 <label>Find a song or track <input id="search" type="search" placeholder="Song or track name"></label>
 <p><label><input id="whole" type="checkbox"> Only sections that completely changed yes/no</label></p><p id="shown"></p>
@@ -24,6 +25,7 @@
  const target='http://127.0.0.1:5191/'+location.search+location.hash;
  function startupMessage(message){
   document.querySelector('main').hidden=true;
+  const help=document.getElementById('launch-help');if(help)help.hidden=true;
   let panel=document.getElementById('startup-message');
   if(!panel){panel=document.createElement('main');panel.id='startup-message';document.body.append(panel);}
   panel.replaceChildren();const heading=document.createElement('h1');heading.textContent='Open the populated pedal comparison';
@@ -36,6 +38,8 @@
   location.replace(target);return;
  }
  addEventListener('unhandledrejection',()=>startupMessage('The comparison data could not be loaded. Open the local review using the link below.'));
- import('./pedal-diff.js').catch(()=>startupMessage('The comparison could not start. Open the local review using the link below.'));
+ import('./pedal-diff.js').then(()=>{
+  document.querySelector('main').hidden=false;document.getElementById('launch-help').hidden=true;
+ }).catch(()=>startupMessage('The comparison could not start. Open the local review using the link below.'));
 })();
 </script><noscript><p>JavaScript is required. <a href="http://127.0.0.1:5191/">Open the local review</a>.</p></noscript></html>
