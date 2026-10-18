@@ -1,5 +1,9 @@
 ## Pedal acceptance reopened (2026-10-18)
 
+Latest requirements/code mismatch: songsterr_automation/PEDAL_CRITERIA_AUDIT.md.
+Current register hypotheses do not establish local anchor identity or independent
+response timing. Acceptance remains open; UI improvements are separate.
+
 Read songsterr_automation/PEDAL_BOUNDARY_INVESTIGATION.md before the historical
 acceptance below. Pedal-register correction and source-identical review replace
 the old labels for review, pending human judgment. Current implementation:

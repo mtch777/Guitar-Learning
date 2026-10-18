@@ -1,5 +1,11 @@
 ## Pedal acceptance reopened (2026-10-18)
 
+Latest: read songsterr_automation/PEDAL_CRITERIA_AUDIT.md. New feedback exposes
+register-return versus anchor-return and coincident-voice versus independent
+response errors in pedal_register.py. Detector unchanged during this audit;
+current after-results remain unaccepted. Do not treat the polished UI as evidence
+that these missing musical gates have been implemented.
+
 New detailed user feedback supersedes the acceptance statement below. Read
 songsterr_automation/PEDAL_BOUNDARY_INVESTIGATION.md. Current corrected review uses
 pedal_register.py through songsterr_api/rebuild_pedal_review.py; old region and
