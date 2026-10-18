@@ -100,3 +100,22 @@ mismatch made a technically complete chunk display misleading for passage review
 - [x] Python243tests/one optional skip, JS21pass, production build pass. Commit
   and remote checks verified before final delivery. Human visual acceptance is
   not inferred from these mechanical checks.
+
+## Source-file startup correction
+
+- [x] Identify the empty-page route: opening the tracked HTML template through
+  file:// has no adjacent private catalogue and cannot use the normal module/JSON
+  loading path. Prior browser verification covered the served HTTP review only.
+- [x] Run a classic startup script before module loading. File opens redirect to
+  the running loopback5191 review, preserving case query and fragment. Show an
+  explicit explanation/link during startup instead of empty controls. HTTP module
+  or data startup failures also show an actionable message.
+- [x] Add a regression executing the actual file-opening bootstrap branch,
+  checking navigation, query preservation and exit before HTTP module setup.
+- [x] Browser verification of the served page:322removed entries,967added
+  entries,109notes in the first passage, no startup error panel. Browser tools
+  prohibit file:// interaction, so direct browser verification of the file route
+  was unavailable; that route is covered by the executable bootstrap regression.
+- [x] All22JS tests and the production build pass; check remote CI before final
+  delivery. Local server must be running for private source previews; this change
+  does not pretend a standalone source template embeds the private corpus.

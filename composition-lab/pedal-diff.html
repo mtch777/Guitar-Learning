@@ -17,4 +17,25 @@
 <p class="small muted">Both highlight modes use the same unchanged source audio. Playback is a synthetic preview. Long passages are divided into consecutive parts; every part remains available.</p>
 <a id="gp">Open the unchanged full source GP</a></section>
 <details><summary>What this comparison includes</summary><p id="definition"></p><p>Before: frozen region tagger. After: corrected register-exchange analysis. Same source occurrence IDs and exact rational time. Gold highlights compare anchor membership; absence of an after label is an abstention, not proof that the music cannot be a pedal. A retained tag with a different chosen anchor is not a gained/lost passage and is outside these two lists.</p></details>
-</main><script type="module" src="pedal-diff.js"></script></html>
+</main><script>
+// This source template has no private dataset beside it. File opens must reach
+// the local review, rather than attempting browser-blocked file:// JSON fetches.
+(() => {
+ const target='http://127.0.0.1:5191/'+location.search+location.hash;
+ function startupMessage(message){
+  document.querySelector('main').hidden=true;
+  let panel=document.getElementById('startup-message');
+  if(!panel){panel=document.createElement('main');panel.id='startup-message';document.body.append(panel);}
+  panel.replaceChildren();const heading=document.createElement('h1');heading.textContent='Open the populated pedal comparison';
+  const explanation=document.createElement('p');explanation.textContent=message;
+  const link=document.createElement('a');link.href=target;link.textContent='Open the local review';
+  panel.append(heading,explanation,link);
+ }
+ if(location.protocol==='file:'){
+  startupMessage('Opening the running private review. This source HTML does not contain the song data.');
+  location.replace(target);return;
+ }
+ addEventListener('unhandledrejection',()=>startupMessage('The comparison data could not be loaded. Open the local review using the link below.'));
+ import('./pedal-diff.js').catch(()=>startupMessage('The comparison could not start. Open the local review using the link below.'));
+})();
+</script><noscript><p>JavaScript is required. <a href="http://127.0.0.1:5191/">Open the local review</a>.</p></noscript></html>
