@@ -13,9 +13,9 @@ open like other techniques, without extra pedal priority.
 |G2 Useful WIP|Developer self-QA, planner scope review; note/summary reconciliation and actual muteGP/native/playback checks|Passed bounded technical scope: e585f4e pushed; CI39256565591 success; no musical/default promotion|
 |G3 Recreation|Bounded real-source replay versus learned reconstruction, explicit relationship assertions|Delivered 6a9ad8b; CI 39280563908 succeeded; engineering checks pass, learned reconstruction mixed|
 |G4 Transfer|Changed eligible contexts, target values hidden, locks/native/support/refusals verified|Private eight-case engineering diagnostic passed; one probability change, zero annotation changes; no musical acceptance or public method delivery|
-|G5 Generation|Matched baseline versus profile-informed outputs, frozen metrics and side effects|Private pair-conditioned candidate and 24-GP comparison passed bounded engineering checks; no default promotion or musical acceptance|
-|G6 Whole piece|One demonstrated mechanism per bounded improvement/reject/inconclusive cycle|Not started|
-|G7 Delivery/review|QA/regressions/copy limits/actual playback; verified publication and genuine human review|Not started|
+|G5 Generation|Matched baseline versus profile-informed outputs, frozen metrics and side effects|Experimental pair tooling delivered 3805202; CI 39287223045 success; 24-GP comparison verified; broader generation and musical acceptance open|
+|G6 Whole piece|One demonstrated mechanism per bounded improvement/reject/inconclusive cycle|Two frozen melody-boundary alternatives completed; both fail strict multi-metric gate; experimental tooling verified, publication pending|
+|G7 Delivery/review|QA/regressions/copy limits/actual playback; verified publication and genuine human review|Private 12-case output index and audio checks prepared; known-corpus/diversity audit complete; publication pending; no listening acceptance|
 
 ## G0 actual work and verification
 
@@ -288,3 +288,83 @@ open like other techniques, without extra pedal priority.
   agent or schedule created. Code is experimental, not independently musically
   accepted. Public code commit/CI will be recorded separately.
 - Source-free progress commit 28f6d47 CI 39284684996 also succeeded.
+
+- G5 experimental tooling pushed as `3805202`; CI `39287223045` succeeded.
+  This closes experimental-tool delivery, not whole composition generation,
+  default promotion or musical acceptance. Nine new tests delivered; private
+  evidence/model files remain local intentionally.
+- G6 first pair: early-return reset exactly matches existing post-return baseline.
+  Carry uses 115 eligible bar boundaries; zero stale-history observations; final
+  return pass changes zero bars. Target-pitch perturbation leaves proposals and
+  decisions identical; existing zero mix is exact; section reset controls pass.
+  Both full GP files independently match expected pitch/rhythm/tuning/fingering
+  and export MIDI. Frozen full 24-output cycle next; no listening claims.
+
+- G6 cycle 1 complete privately: 24 full GP outputs pass expected native
+  pitch/rhythm/tuning/fingering and MIDI export. Zero stale carried histories;
+  exact returns and unrelated XML/archive fields preserved. Eight full instrument
+  WAVs rendered finite/nonzero/unclipped with identical paired durations; no listening.
+- Source-relative interval TV improves 0.607107 to 0.360429 in all four contexts;
+  large-jump-share error 0.348141 to 0.036037; written harmony-offset TV improves
+  0.631630 to 0.618131. Register TV worsens 0.494069 to 0.550078. Predeclared gate
+  fails; preserve mixed result and do not promote. A separate second/last carry
+  alternative is frozen: source-learned relative-register factor at eligible
+  boundaries only, not a quota or original-target-pitch reference. No retuning of
+  cycle 1 or additional technique-conditioning project.
+
+
+## G6 second candidate and packaged implementation
+
+- [x] Freeze two candidates only; unchanged baselines and source/model seals.
+- [x] Register-aware candidate: 12 new full GP outputs, expected native
+  pitch/rhythm/tuning/fingering and MIDI verified. Actual final predecessor,
+  explicit returns, unrelated facets and archive fields preserved.
+- [x] Same frozen gate: interval TV .389068, register TV .305512,
+  alignment TV .636692, wide-jump-share error .058357. Four/four interval wins,
+  but alignment worse than reset .631630. Gate fails; no default promotion,
+  no tolerance adjustment, no third candidate or retuning.
+- [x] `barline_continuity.py`: repeatable source observations, fixed weighted
+  register fit, opt-in reset/carry/register-carry generation and occurrence-only
+  melody export. Existing methods unchanged. Only literal0/unlocked100 supported;
+  intermediate live-history mixing is refused, not falsely calibrated.
+- [x] Public observation join reproduces development source rows exactly;
+  register probabilities match frozen private model exactly. All36 public replay
+  GP bytes match the independently native-verified original experiments.
+  Replay dependency seals agree. CLI guard additions afterward affect only
+  preflight file safety/plain-core validation; zero/carry CLI rerun verified
+  exact bytes and unchanged source/model hashes under the final module revision.
+- [x] Ten focused tests: positive continuity, rest/section resets, exact return
+  history, target redaction, old reset equivalence, locks, provenance, source
+  mismatches, export refusal and fixed-factor behavior.
+- [x] Four additional full WAVs finite/nonzero/unclipped; exact paired durations.
+  Twelve representative method/context cases indexed privately with GP/audio
+  paths, hashes, labels and literal changed/locked dimensions. No listening.
+- [x] Final local Python:519run,518pass,1optional skip, including five uncommitted
+  rejected tuning tests outside this delivery.39JS tests and Vite build pass.
+- [ ] Push verified source-only code and verify exact commit CI.
+- [ ] Human musical/artist-feel acceptance. Engineering diagnostics cannot close it.
+
+Private evidence: `local-artifacts/g6-barline-continuity-v1/` contains both frozen
+plans, original36GPs/native/MIDI, metrics,12full WAVs, `public-replay-v1`,
+`public-cli-v1`, `register-audio-check.json` and `delivery-v1/review-manifest.json`.
+No private inputs, models, scores, source identities or annotations are staged.
+ProjectPlanner3000 final review remains unavailable because of its usage limit;
+root performed technical self-QA. Schedules remain paused; no replacement agent.
+
+
+## G7 current delivery checks
+
+- Existing `corpus_copy_audit.py` run against both G6 output folders, all36GPs:
+  zero32-attack exact relative matches;90varied16-attack matches all in locked
+  harmony (30per method), none in melody. 8-attack varied matches across all
+  tracks:reset565,carry566,register566. Constant repeated voicings separate.
+- Complete16-attack example attribution checked against total match counts;
+  no inference from truncated examples. Known supplied corpus only; no general
+  originality, legal or near-copying acceptance claimed.
+- All36full generated scores distinct. Twelve shared8-attack melody-opening
+  groups consist exactly of three matched methods on one core/seed; none cross
+  distinct core/seed contexts. Expected opening lock is not a diversity gain.
+- Private `known-corpus-copy-v1/combined-findings.json` preserves counts and
+  group members; `delivery-v1/review-manifest.json` identifies12representative
+  full pieces with exact methods/locks/audio hashes. No new UI or listening test
+  was claimed. Further whole-project requirements and artist-feel remain open.
