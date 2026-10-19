@@ -7,14 +7,15 @@ Do not reopen steps1–2, approved pedals or parked standalone bend research.
 ## Continuation
 
 App heartbeat `composition-lab-overnight-development` is ACTIVE: continuation
-attempt every30minutes,16attempts, within the eight-hour session. This is the app
+attempt every15minutes until the cutoff above. This is the app
 scheduler, not a separately provisioned external service. Delivery/retry through
 usage exhaustion is not guaranteed. Keep the local computer/app available.
 
-Three agent dispatches immediately failed with an account usage-limit error.
+Three initial agent dispatches failed with an account usage-limit error.
 No overnight implementation from those dispatches is claimed. Their task scopes
 below are the next concrete work when execution becomes available. Do not change
 billing, expose credentials or try to bypass usage restrictions.
+User subsequently confirmed limits reset; all three assignments were re-dispatched.
 
 ## Priority and acceptance
 
@@ -24,8 +25,8 @@ billing, expose credentials or try to bypass usage restrictions.
 | 2 | 4. Generation methods | Test small source-conditioned alternatives for the largest supported gaps, starting palm-mute/open-HOPO placement. Preserve defaults and baselines; no fixed artist rates or copied riffs. |
 | 3 | 5. Controlled experiments | Freeze inputs/seeds/model/code hashes; compare baseline and candidates on held-out material. Save actual GP outputs, measured distributions and finite/unclipped previews. Record failures and continue independent cases. |
 | 4 | 7. Composition engine | Finish and validate existing thematic-return integration before broadening it. Explicit generated section plans, actual returning material and literal locks must agree. |
-| Support | 6. Levers | Preserve all0byte identity and100reference independence; add controls only to support a concrete experiment. Reject incompatible intermediate strengths rather than silently breaking locks. |
-| Throughout | 8. Validation | Independent QABot review, regression tests/native GP checks, copying/leakage checks, CI. No invented listening verdicts; prepare a concise review package for morning. |
+| Conditional only | 6. Levers | No separate lever project or expansion. Fix a control only if a specific experiment is blocked; preserve literal locks and reference independence. |
+| Built into each task | 8. Validation | Required tests/native GP checks, independent QA, leakage checks and CI belong to the four priorities, not a separate research workstream. No invented listening verdicts. |
 
 ## Persistent checklist
 
