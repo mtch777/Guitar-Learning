@@ -37,11 +37,11 @@ sink. Use existing accepted data; this does not authorize reopening analysis2.
 
 - [x] Create recurring continuation attempts and bounded cutoff.
 - [x] Dispatch independent QA/profile/method tasks; record usage failures honestly.
-- [ ] Inspect unfinished theme-return code/artifacts and distinguish validated work.
-- [ ] Add reusable, tested source/generated style-gap diagnostics if missing.
-- [ ] Run targeted generation experiments; retain baseline and candidate GPs.
+- [x] Inspect unfinished theme-return code/artifacts and distinguish validated work.
+- [x] Add reusable, tested source/generated style-gap diagnostics if missing.
+- [x] Run targeted generation experiments; retain baseline and candidate GPs.
 - [ ] Integrate only experimentally supported improvements.
-- [ ] Verify literal locks, leakage guards and native serialization independently.
+- [x] Verify literal locks, leakage guards and native serialization independently.
 - [ ] Run relevant tests/build; commit/push verified work; verify CI/Pages as applicable.
 - [ ] Morning report: delivered commits/files, measured changes, rejected ideas,
   remaining uncertainty and specific listening questions.
@@ -115,3 +115,55 @@ no new listening verdict. Explicit returns work; theme discovery/development,
 transitions and artist feel remain unproven. No default behavior change without
 an explicit generated form plan. Intermediate core freedoms with returns are
 explicitly unsupported rather than silently weakening locks.
+
+### Connected profile prediction gate
+
+Fixed-prior evaluation now compares each Boolean context model against its
+feature-only marginal with the same eligible family/song weights. Missing
+contexts back off; unsupported features are not scored as negatives. Five focused
+tests pass; QABot independently reproduced all57 v2 metric rows. Cardinality-defined
+labels are explicitly flagged as definition-coupled: they are not novel artist
+discoveries. Palm/context log-loss gain .16962 and Brier gain .05639 on the
+previously examined eight-score/six-family holdout are predictive notation
+diagnostics, not causality, listening or a basis to promote the generator.
+
+New sealed build CLI/tests hash source, accepted pedal artifact, canonical program
+records and consumed implementation before/after fitting; fresh private output
+only, strict duplicate-key/nonfinite JSON rejection, explicit unknown programs,
+completion manifest only after verified products. Five runner tests pass;
+QABot input-edge review continues. Profile join identity validation is in progress.
+
+Delivery: 9ab5eba and707a44e pushed to origin/main. Composition Lab CI run
+39226158459 succeeded. No website files changed; no new Pages deployment claimed.
+
+### Current connected-profile build completed
+
+Fresh `relationship-profiles-v3` completed with pre/post frozen input/code hashes
+and product manifest.70dev/54families;8held/6families. New1462song-feature and
+32536localtrack/source-section-feature summaries use explicit regularattackgroup
+units.20profile,7predictiveevaluator and6runner tests pass. Input audit preserves
+420119occurrences and accepted6249untagged context members; no source/detector
+rewrites. Independent final artifact QA pending before commit.
+
+Predictive context gain is positive for palm mute in6/6heldfamilies, openpull6/6,
+openhammer4/6,bend5/6. Family sensitivity is descriptive, not uncertainty intervals
+or evidence of musical quality. Current sourceprofile refit retains generation
+rate gaps: palm−10.333pp, extendedpower−2.203pp, openhammer−1.779pp,openpull−.986pp.
+Do not solve by marginal quotas: the connected sequence experiment is underway.
+
+### Connected-profile independent acceptance
+
+QABot3000 verified ALL frozen input/dependency hashes and four product hashes.
+Independent exact-Fraction recomputation reconciles4125development/2006heldout
+conditional tables (maximumfloatdifference7.82e-14). All outcome/song/eligible
+counts reconcile.32536development/3202heldlocal summaries sum to1462/168song
+summaries. Saved prediction exactly matches rerun; equal-family/equal-song
+improvement matches aggregate within1.95e-16. Full accepted-join audit passes.
+This closes the bounded written-relationship profile and diagnostic engineering
+gate. Artist feel, complete physical execution, general phrases and musical
+quality are NOT accepted by these checks. Profile scope doc records remaining
+requirements instead of treating all of step3 as complete.
+
+Latest local regression after the additional sequence-mask adversarial case:
+466 tests run,465 passed,1 optional skip. This includes uncommitted experiments;
+remote committed CI is recorded separately after push.
