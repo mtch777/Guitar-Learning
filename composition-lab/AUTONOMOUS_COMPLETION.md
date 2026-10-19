@@ -451,3 +451,19 @@ acceptance and independent arrangement/form controls remain open. Pedals unchang
   independentform/tuning/track-layout freedom, richerartist/phrase/stylevalidation,
   and humanlistening acceptance. These boundedengineering approvals are not
   completionofeveryroadmapgate; preservebaselines and currentrejectedexperiments.
+
+## Next integration gap: retain explicit generated thematic returns
+
+Existing controlpipeline preserves sectionlabels/counts but independentlyfree
+pitch/rhythm proposals can destroy actualreturningmaterial. Labels are not theme
+identity. Do not advertise fullformalpreservation from staticmarker preservation.
+Acceptance checklist for the next opt-in integration:
+- [ ] Accept explicit generatedsectionplan only; validate exactbarcoverage,
+  prioridentity/length, labels, voice/event/rest/cardinality topology andmeter.
+- [ ] Reuse newlygenerated firstoccurrence material for returns; do not consult
+  originaltarget pitches to manufacture100%proposals or infer unmarked themes.
+- [ ] Assert all0pitch/rhythm facets remainliteral. Reject unsupportedintermediate
+  pitch/rhythm release conflicts instead of overriding masks or weakening locks.
+- [ ] Preserve all0GPbyteidentity anddefaultpipeline behavior when no plan supplied.
+- [ ] Test sourceplan/score mutations, rawreturnmaterial, independentGPimport,
+  longformfullrender andQABot review before claiming this mode verified.

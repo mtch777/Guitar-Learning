@@ -102,3 +102,16 @@ current-sealed replay before delivery. Agent reports/outputs remain private.
 Next: finish current-sealed theme replay/native checks; audit connected profile
 input identities and held-out support; commit verified isolated components,
 push main and verify CI. Private models/scores/evidence/audio stay ignored.
+
+### Theme-return gate completed (bounded explicit plans)
+
+Fresh v5 batch:8/8 final GPs, no failures, current code/model/input seals.
+All4 zero-strength outputs preserve source bytes. All24 intermediate/final GP
+musical archives equal prior v3 archives. Independent alphaTab import validates
+all8 final pitch/timing/tuning/program/tempo/meter expectations; flags8/8,
+directed technique links8/8, bend curves24track checks with maximum error0.
+Prior verified full-render evidence applies to identical archives/profiles;
+no new listening verdict. Explicit returns work; theme discovery/development,
+transitions and artist feel remain unproven. No default behavior change without
+an explicit generated form plan. Intermediate core freedoms with returns are
+explicitly unsupported rather than silently weakening locks.

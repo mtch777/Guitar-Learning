@@ -7,15 +7,16 @@ from unittest.mock import patch
 
 class ControlledBatchTests(unittest.TestCase):
     def test_input_mutation_between_strengths_is_not_a_completed_comparison(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);src=root/'inputs';src.mkdir();(src/'base.gp').write_bytes(b'fixture')
-            first=dict(source_sha256='before',source_expected_sha256='canonical',code_sha256={'code':'fixed'},
-                model_sha256={},output_sha256='output',all_zero_byte_identity=True)
-            second=dict(first,source_sha256='after')
-            with patch('run_controlled_batch.run',side_effect=[first,second]):
-                result=batch(src,{},root/'out',[0,100])
-            self.assertFalse(result['complete']);self.assertEqual(len(result['outputs']),1)
-            self.assertIn('Input changed',result['failures'][0]['reason'])
+        for field in ('source_sha256','source_expected_sha256','form_plan_sha256'):
+            with self.subTest(field=field),tempfile.TemporaryDirectory() as tmp:
+                root=Path(tmp);src=root/'inputs';src.mkdir();(src/'base.gp').write_bytes(b'fixture')
+                first=dict(source_sha256='before',source_expected_sha256='canonical',form_plan_sha256='plan',code_sha256={'code':'fixed'},
+                    model_sha256={},output_sha256='output',all_zero_byte_identity=True)
+                second=dict(first,**{field:'after'})
+                with patch('run_controlled_batch.run',side_effect=[first,second]):
+                    result=batch(src,{},root/'out',[0,100])
+                self.assertFalse(result['complete']);self.assertEqual(len(result['outputs']),1)
+                self.assertIn('Input changed',result['failures'][0]['reason'])
 
     def test_failure_is_recorded_and_independent_zero_case_completes(self):
         with tempfile.TemporaryDirectory() as tmp:

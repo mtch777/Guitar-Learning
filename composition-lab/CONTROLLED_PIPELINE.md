@@ -23,7 +23,8 @@ requiring a different outcome. For a fixed stage input, intermediate settings
 release nested subsets of opportunities. Changing an upstream control can change
 downstream proposals and eligibility, so combined pipeline runs are not globally
 nested variation sets. These percentages are not percentages of audible difference.
-Form, meter, tuning, track count and event topology stay fixed.
+Bar count, section labels, meter, tuning, track count and event topology stay fixed.
+Labels alone do not preserve returning musical material.
 Unsupported controls fail explicitly. Changing rhythm or pitches can change
 cross-track harmony and performance opportunities: perceptual effects are coupled.
 
@@ -74,3 +75,18 @@ single-run `controls` field. Each source/strength gets a fresh subfolder.
 Failed cases are preserved and recorded while independent cases continue; the
 CLI exits unsuccessfully if any case fails. Batch completion means exports only;
 native import, curve/link/flag and playback checks are separate requirements.
+
+To retain an explicit generated theme-return plan, set single-run `form_plan` to
+the generated `.plan.json` path. Batch configuration instead accepts `form_plans`,
+a map from input GP filenames to their plan paths. The plan must cover the bars
+exactly and agree with labels, meter and event/rest/voicing topology. Returns copy
+the **new proposal's** first occurrence with exact rational timing; no original
+pitch bank is used. All0 settings still preserve complete input GP bytes.
+
+When a plan contains returns, `harmony`, `melody`, `bass` and `rhythm` must each be
+0 or100. Intermediate settings fail explicitly because their occurrence masks
+can conflict with exact return constraints. Metadata and later performance
+settings may remain intermediate. Use batch `--strengths 0 100` for an all-control
+sweep with returning themes. Core notes/rhythm repeat; later bend/vibrato/legato/
+muting decisions can differ between occurrences. This preserves a supplied
+relationship, without claiming theme discovery, development or musical quality.

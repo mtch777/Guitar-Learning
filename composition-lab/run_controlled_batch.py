@@ -12,9 +12,12 @@ def batch(baselines,config,out,strengths=(0,50,100)):
     if not isinstance(strengths,(list,tuple)) or not strengths:raise ValueError('Nonempty strengths required')
     for strength in strengths:amounts({d:strength for d in dimensions})
     if len(strengths)!=len(set(strengths)):raise ValueError('Unique strengths required')
-    if set(config)-{'models','artist','seed','dimensions'}:raise ValueError('Unknown batch configuration fields')
+    if set(config)-{'models','artist','seed','dimensions','form_plans'}:raise ValueError('Unknown batch configuration fields')
     sources=sorted(baselines.glob('*.gp'))
     if not sources:raise ValueError('No generated core inputs')
+    plans=config.get('form_plans',{})
+    if not isinstance(plans,dict) or set(plans)-{p.name for p in sources} or any(not isinstance(v,(str,Path)) or not str(v) for v in plans.values()):
+        raise ValueError('Form plans must map input filenames to explicit local paths')
     out.mkdir(parents=True,exist_ok=False)
     records=[];failures=[];code=None;models={};inputs={}
     for source in sources:
@@ -22,8 +25,8 @@ def batch(baselines,config,out,strengths=(0,50,100)):
             target=out/f'{source.stem}-{strength:03d}'
             try:
                 result=run(source,config.get('models',{}),{d:strength for d in dimensions},target,
-                    config.get('seed',17),config.get('artist'))
-                identity=dict(gp=result['source_sha256'],expected=result['source_expected_sha256'])
+                    config.get('seed',17),config.get('artist'),plans.get(source.name))
+                identity=dict(gp=result['source_sha256'],expected=result['source_expected_sha256'],form_plan=result.get('form_plan_sha256'))
                 if source.name in inputs and inputs[source.name]!=identity:raise AssertionError('Input changed between batch cases')
                 inputs[source.name]=identity
                 if code is None:code=result['code_sha256']

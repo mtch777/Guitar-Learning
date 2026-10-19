@@ -20,6 +20,7 @@ from palm_mute_method import apply as palm
 from gp_author import write_gp
 from technique_analysis import analyze,enabled
 from bend_analysis import bend_shape
+from form_returns import apply as preserve_returns,plan_returns,DIMENSIONS as RETURN_DIMENSIONS
 
 CONTROLS=('harmony','melody','bass','rhythm','tempo','programs',*FAMILIES,'palm_mute')
 
@@ -69,7 +70,7 @@ def plain_core(path,reference):
     return score
 
 
-def run(source,model_paths,controls,out,seed=17,artist=None):
+def run(source,model_paths,controls,out,seed=17,artist=None,form_plan=None):
     controls=amounts(controls)
     if isinstance(seed,bool) or not isinstance(seed,int):raise ValueError('Integer seed required')
     if artist is not None and (not isinstance(artist,str) or not artist.strip()):raise ValueError('Nonempty artist required')
@@ -83,6 +84,11 @@ def run(source,model_paths,controls,out,seed=17,artist=None):
     plain_core(source,reference)
     roles=[t['name'] for t in reference['tracks']]
     if roles!=['harmony','melody','bass']:raise ValueError('Three explicit ordered roles required')
+    sections=None;plan_hash=None
+    if form_plan is not None:
+        form_plan=Path(form_plan);raw=form_plan.read_bytes();sections=json.loads(raw);plan_hash=hashlib.sha256(raw).hexdigest()
+        if plan_returns(reference,sections) and any(controls[d] not in (0,100) for d in RETURN_DIMENSIONS):
+            raise ValueError('Explicit return preservation requires pitch/rhythm controls at0or100')
     required=set()
     if any(controls[k] for k in ('harmony','rhythm','melody','bass','tempo','programs')):required.add('composer')
     if controls['melody'] or controls['bass']:required.add('role_pitch')
@@ -115,6 +121,9 @@ def run(source,model_paths,controls,out,seed=17,artist=None):
     if controls['tempo'] or controls['programs']:
         score,audit=metadata(score,roles,models['composer'],{k:controls[k] for k in ('tempo','programs')},seed)
         stages.append(dict(stage='metadata',audit=audit))
+    if sections is not None:
+        score,audit=preserve_returns(score,sections,roles,controls)
+        stages.append(dict(stage='form_returns',audit=audit))
     current=out/'01-core.gp'
     if score==reference:shutil.copyfile(source,current)
     else:write_gp(score,current,title='Controlled empirical composition')
@@ -142,13 +151,15 @@ def run(source,model_paths,controls,out,seed=17,artist=None):
     if source_hash!=hashlib.sha256(source.read_bytes()).hexdigest() or expected_hash!=hashlib.sha256(source.with_suffix('.expected.json').read_bytes()).hexdigest():
         raise AssertionError('Input changed during composition')
     if hashes!={k:hashlib.sha256(Path(model_paths[k]).read_bytes()).hexdigest() for k in required}:raise AssertionError('Model changed during composition')
+    if form_plan is not None and plan_hash!=hashlib.sha256(form_plan.read_bytes()).hexdigest():raise AssertionError('Form plan changed during composition')
     if code!={name:hashlib.sha256(p.read_bytes()).hexdigest() for name,p in modules.items()}:raise AssertionError('Code changed during composition')
     result=dict(schema='controlled-empirical-pipeline-v1',controls=controls,seed=seed,stages=stages,
-        source_sha256=source_hash,source_expected_sha256=expected_hash,model_sha256=hashes,code_sha256=code,
+        source_sha256=source_hash,source_expected_sha256=expected_hash,form_plan_sha256=plan_hash,model_sha256=hashes,code_sha256=code,
         output_sha256=hashlib.sha256(final.read_bytes()).hexdigest(),artist=artist,
         byte_identity=final.read_bytes()==source.read_bytes(),all_zero_byte_identity=final.read_bytes()==source.read_bytes() if not any(controls.values()) else None,
         limitations=['Plain generated cores only; existing performance scores rejected.',
-            'Form/tuning/track count/event topology fixed; unsupported controls fail.',
+            'Bar count/section labels/tuning/track count/event topology fixed; unsupported controls fail.',
+            'Thematic returns preserved only when an explicit form plan is supplied; labels alone do not preserve themes.',
             'Harmony means written track pitches/fingering; no inferred functional chord progression or emotional intent.',
             'Rhythm changes intertrack alignment and technique eligibility. Pitch changes eligibility too.',
             'Freedom releases decisions, not required difference or perceptual strength. Musical quality unverified.'])
@@ -162,4 +173,4 @@ if __name__=='__main__':
     a=p.parse_args()
     if 'local-artifacts' not in a.out.resolve().parts:p.error('Private output only')
     config=json.loads(a.config.read_text(encoding='utf-8'))
-    print(json.dumps(run(a.source,config.get('models',{}),config.get('controls',{}),a.out,config.get('seed',17),config.get('artist')),indent=2))
+    print(json.dumps(run(a.source,config.get('models',{}),config.get('controls',{}),a.out,config.get('seed',17),config.get('artist'),config.get('form_plan')),indent=2))

@@ -7,6 +7,43 @@ from compose_controlled import run,amounts
 
 
 class ControlledPipelineTests(unittest.TestCase):
+    def test_plan_change_during_run_prevents_completion_manifest(self):
+        from test_form_returns import case
+        from unittest.mock import patch
+        import compose_controlled
+        with tempfile.TemporaryDirectory() as tmp:
+            p=Path(tmp);score,plan,_=case();source=p/'base.gp';write_gp(score,source)
+            source.with_suffix('.expected.json').write_text(json.dumps(score));plan_path=p/'plan.json'
+            plan_path.write_text(json.dumps(plan));original=compose_controlled.preserve_returns
+            def changed(*args):
+                result=original(*args);plan_path.write_text('[]');return result
+            with patch('compose_controlled.preserve_returns',side_effect=changed):
+                with self.assertRaisesRegex(AssertionError,'Form plan changed'):run(source,{}, {},p/'out',form_plan=plan_path)
+            self.assertFalse((p/'out/manifest.json').exists())
+
+    def test_explicit_return_plan_keeps_zero_bytes_and_rejects_mask_conflict(self):
+        from test_form_returns import case
+        with tempfile.TemporaryDirectory() as tmp:
+            from fractions import Fraction as F
+            p=Path(tmp);score,plan,_=case();source=p/'base.gp'
+            for t in score['tracks']:
+                for mi,m in enumerate(t['measures']):
+                    for v in m['voices']:
+                        for e in v:
+                            e['onset_q']=str(float(F(e['onset_q'])))
+                            if mi>=2:
+                                for field in ('local_onset_q','duration_q'):e[field]=str(float(F(e[field])))
+                                for n in e['notes']:n.pop('tie',None);n.pop('technique_tags',None)
+            write_gp(score,source)
+            source.with_suffix('.expected.json').write_text(json.dumps(score))
+            (p/'plan.json').write_text(json.dumps(plan))
+            result=run(source,{}, {},p/'zero',form_plan=p/'plan.json')
+            self.assertTrue(result['all_zero_byte_identity'])
+            self.assertIsNotNone(result['form_plan_sha256'])
+            self.assertEqual(result['stages'][0]['stage'],'form_returns')
+            with self.assertRaisesRegex(ValueError,'at0or100'):run(source,{}, {'melody':50},p/'conflict',form_plan=p/'plan.json')
+            self.assertFalse((p/'conflict').exists())
+
     def test_harmony_only_needs_no_locked_role_pitch_support(self):
         from test_corpus_composer import fixture as source_fixture,model_for
         with tempfile.TemporaryDirectory() as tmp:
