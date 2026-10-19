@@ -11,7 +11,7 @@ open like other techniques, without extra pedal priority.
 |G0 Requirements|16/16original workstreams mapped, semantics restored, independent reviews and publication/CI|Passed:8733f21 pushed; CI39253033993 success|
 |G1 Shared contract|Traceable observation/support/proposal/permissions/output; positive/unknown/conflict/redaction tests|Passed bounded scope: b95606b pushed; both CI runs succeeded|
 |G2 Useful WIP|Developer self-QA, planner scope review; note/summary reconciliation and actual muteGP/native/playback checks|Passed bounded technical scope: e585f4e pushed; CI39256565591 success; no musical/default promotion|
-|G3 Recreation|Bounded real-source replay versus learned reconstruction, explicit relationship assertions|Started first-pair pilot: preserved source GP/window edits; no extraction or detector changes|
+|G3 Recreation|Bounded real-source replay versus learned reconstruction, explicit relationship assertions|Engineering replay/locks/native passed; learned reconstruction mixed; planner scope accepted; delivery/CI pending|
 |G4 Transfer|Changed eligible contexts, target values hidden, locks/native/support/refusals verified|Not started|
 |G5 Generation|Matched baseline versus profile-informed outputs, frozen metrics and side effects|Not started|
 |G6 Whole piece|One demonstrated mechanism per bounded improvement/reject/inconclusive cycle|Not started|
@@ -125,3 +125,36 @@ open like other techniques, without extra pedal priority.
   actual native flags pass. Metrics and limits in RECREATION_FIRST_PAIR.md.
 - Planner first-pair scope checkpoint passed. G3 eight-case gate remains open;
   next: reusable guarded replay/overlay and frozen continuous/directed coverage.
+- First-pair publication3cb7ead CI39258393152 succeeded.
+- Added guarded recreation_window.py and replay/proposal/evaluation runner. Four
+  tests cover exact replay/outside locks, hidden-target/audit refusal, alias-note
+  rejection and tuning-checked6/7/8string coordinate mapping.
+- Eight-case plan frozen across6held-out families:2muting,2bends,2open hammers,
+  2open pulls. Previously examined cases explicitly included, not a fresh test.
+  Both model training-family sets are disjoint from these6families.
+- Additional refusal probe: all40bends in first attempted source are tied notes,
+  unsupported by current bend generator. No parked bend/tie-source repair reopened.
+- Initial batch results show misses, not source fidelity: first bend case
+  TP0/FN1/FP2/TN20; first open-hammer caseTP2/FN2/FP0/TN0. Native checks passed
+  these cases including actual curve samples, not merely presence markers.
+- Case7source context has2harmonic notes with API written-base versus GP stored
+  pitch differences. Physical string/fret base pitches agree; original mismatch
+  report retained. These harmonic contexts remain unmodified/ineligible; no
+  harmonic sounding-pitch reconstruction or context-semantic equivalence claimed.
+- Batch generation/perturbation/native checks still running; G3 not complete.
+- Batch execution finished:8cases,6families,16replay/learned GP files. All GPIF
+  locks, target perturbations, native flags/links/selected contours and MIDI
+  exports pass. Outside/cross-boundary directed relationships unchanged.
+- Replay archive guard hardened after batch; all8replays repeated byte-identically.
+  Original generation source snapshots recovered/verified against frozen hashes.
+- Raw API→converted GP bend comparison adds explicit pre-existing losses of
+  ~.029/.462semitones; passing converted-GP replay does not certify raw API fidelity.
+- Actual misses, refusal/unknowns, commands and reproduction in
+  RECREATION_PILOT_RESULTS.md.498Python run497pass1skip;39JS pass;Vite pass.
+  Final planner scope review, publication and CI pending. No G4implementation.
+- Planner final bounded scope review passed; no new WAV/listening evidence claimed.
+  Added model song/family and bend-shape exclusion guard inside runner; frozen
+  family assignment remains an external input, not authenticated from GP bytes.
+  All8real cases pass final guard;500Python run499pass1optional skip. Two runner
+  tests include negative leakage and honest failed-prediction/native-pending states.
+  Faithful learned reconstruction not established; publication/CI next, then G4.
