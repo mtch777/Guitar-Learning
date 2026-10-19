@@ -47,10 +47,11 @@ bend curve values, gesture fidelity, HOPO playback or musical quality. Audits
 cover reported decisions, not missing-opportunity recall. Private reports and
 source-located decisions remain outside Git.
 
-## Still required before G1 acceptance
+## G1 acceptance
 
-Stakeholder-scope review and developer self-QA passed; commit/push and CI remain
-pending. User retired QABot3000 during this gate; ProjectPlanner3000
+Stakeholder-scope review and developer self-QA passed. Commit b95606b was pushed
+to origin/main; CI39255271728 and39255272811 both succeeded.
+User retired QABot3000 during this gate; ProjectPlanner3000
 remains the sole consulted agent. Historical QABot findings remain actionable,
 but no independent engineering acceptance is claimed for this gate. G2 has not started.
 

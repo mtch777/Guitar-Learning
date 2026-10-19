@@ -9,7 +9,7 @@ open like other techniques, without extra pedal priority.
 | Gate | Acceptance | Current state |
 |---|---|---|
 |G0 Requirements|16/16original workstreams mapped, semantics restored, independent reviews and publication/CI|Passed:8733f21 pushed; CI39253033993 success|
-|G1 Shared contract|Traceable observation/support/proposal/permissions/output; positive/unknown/conflict/redaction tests|Planner scope accepted; developer self-QA passed; publication/CI pending|
+|G1 Shared contract|Traceable observation/support/proposal/permissions/output; positive/unknown/conflict/redaction tests|Passed bounded scope: b95606b pushed; both CI runs succeeded|
 |G2 Useful WIP|Independent note/summary QA and actual muteGP/native/playback checks; failures remain blocking|Not started in this sequence; old work preserved|
 |G3 Recreation|Bounded real-source replay versus learned reconstruction, explicit relationship assertions|Not started|
 |G4 Transfer|Changed eligible contexts, target values hidden, locks/native/support/refusals verified|Not started|
@@ -65,3 +65,6 @@ open like other techniques, without extra pedal priority.
   existing structures; no model runs, generation or native playback occurred.
 - ProjectPlanner3000 final scope/requirements review passed for bounded audit
   utilities. This is not independent engineering approval. Publication/CI next.
+- Delivered b95606b3fb292c7bad3834ac535ddb918fca1f85 to origin/main.
+  CI39255271728 and39255272811 both completed successfully. No website edits;
+  Pages deployment not required for this gate. G1 passed its bounded criteria.
