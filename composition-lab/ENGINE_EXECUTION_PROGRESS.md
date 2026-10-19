@@ -10,7 +10,7 @@ open like other techniques, without extra pedal priority.
 |---|---|---|
 |G0 Requirements|16/16original workstreams mapped, semantics restored, independent reviews and publication/CI|Passed:8733f21 pushed; CI39253033993 success|
 |G1 Shared contract|Traceable observation/support/proposal/permissions/output; positive/unknown/conflict/redaction tests|Passed bounded scope: b95606b pushed; both CI runs succeeded|
-|G2 Useful WIP|Developer self-QA, planner scope review; note/summary reconciliation and actual muteGP/native/playback checks|In progress: summaries reconciled;36GP native/preservation checks and9preview pilot complete; final review/delivery pending|
+|G2 Useful WIP|Developer self-QA, planner scope review; note/summary reconciliation and actual muteGP/native/playback checks|Passed bounded technical scope: e585f4e pushed; CI39256565591 success; no musical/default promotion|
 |G3 Recreation|Bounded real-source replay versus learned reconstruction, explicit relationship assertions|Not started|
 |G4 Transfer|Changed eligible contexts, target values hidden, locks/native/support/refusals verified|Not started|
 |G5 Generation|Matched baseline versus profile-informed outputs, frozen metrics and side effects|Not started|
@@ -104,3 +104,7 @@ open like other techniques, without extra pedal priority.
   Animate's previously examined holdout and the three-seed context-rollout result:
   muted-after-muted about.400–.425static vs.761–.791stateful. Changed behavior,
   not source fidelity or pristine holdout acceptance. No extra experiment needed.
+- Delivered e585f4e6ccd2f80a21f0f613f88f5e4c4bd996c4; CI39256565591 succeeded.
+  Local492Python run491pass1optional skip,39JS pass,Vite build passed.
+  ProjectPlanner3000 final requirements/scope review passed. G2 complete within
+  its bounded technical scope; musical acceptance remains open. No website edits.

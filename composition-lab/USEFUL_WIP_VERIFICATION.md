@@ -2,7 +2,8 @@
 
 Technical verification is complete locally. Planner scope review accepted the
 bounded content, subject to the reporting clarifications included below.
-Delivery is pending. No artist-feel or musical-quality acceptance is claimed.
+Delivered e585f4e to origin/main; CI39256565591 succeeded.
+No artist-feel or musical-quality acceptance is claimed.
 
 ## Requirements checked
 
