@@ -637,3 +637,33 @@ pairedmodelrejected;4/5twomoreharmonyinterventionsfailed;7defaultunchanged;
 
 Reference: ALIGNED_RELATIONSHIP_AUDIT.md. Source source-derivedpatterns and
 learnedcreativegeneration remain distinct requirements. Allpriorfailedgatesstay.
+
+
+## Bounded joint-motion relationship contract (2026-10-19)
+
+- [x] Priorprofile1eedcd4CI39305834027SUCCESS; archivedaudit83006cf
+  CI39306634035SUCCESS. All previoussessioncommits pushed.
+- [x] Planner START/MID/END accepted; inspectedmodule/docs/5tests, no independent
+  rerun. Record+validatorONLY, noGPconsumer.
+- [x] Exactwithin-bar/mainvoice written-minimum signedintervalCHANGE record.
+  0locksdeltaedges/clocks, notabsoluteD/MIDI. Harmonyfixed; onlyselectedmelody
+  noteMIDI/string/fret maychange. No inventededgeacrossrests.
+- [x] 100viewhidesplayedpitches/deltas/digests/supportpayload; role/tuning/
+  meter/duration/cardinality topology only; differences neverforced.
+- [x] Partial/function/octavecontrols refuse; literalpitch100conflict refuses;
+  knownnoedges=not_applicable, invalidpitch/clock=unknown, no inferredsupport.
+- [x] SelfQA foundfacetsomittempo:fullprotected-objectguard nowblocksany
+  non-targetmetadata/topologychange, includingtempo andotherbars.
+- [x] Archivedfixture203knowncells zeroidentity/100candidate/targethiddenpass;
+  19notapplicable,0unknown/unexpectedconflicts;406tempotamperchecksrefuse.
+  Fixturemass isNOTlearnedmodelsupport. No newGP orcontrolpromotion.
+- [x] Fiveunit tests; full561run560pass1optional skip includes5uncommittedtests.
+  Tempo-testscript numericstringconversion corrected; full203guardreplaypasses.
+- [ ] Publishverifiedcontractonly/exactCI; thencloseboundedENDcheck.
+- [ ] NextONEsource-derivedrecreation/transfer feasibilitypair requiresfrozen
+  trajectorypermissions/locks/refusal/nativeproof andplannerSTART; NOTlearned
+  artiststyleornewwholeleverframework. Originalmusicalgoalsremainopen.
+
+See JOINT_MOTION_CONTRACT.md. Roadmap2unchanged,3richersupportbutpairedmodel
+failed,4methodsnotpromoted,5oneREJECTEDharmonyGPpairpreserved,6onlybounded
+contractnotfinishedlever,7liveenginedefaultunchanged,8technicalcheckscontinue.
