@@ -19,9 +19,14 @@ User subsequently confirmed limits reset; all three assignments were re-dispatch
 
 ## Priority and acceptance
 
+Latest user steering: spend MOST effort on artist profiles. Connect observations
+into supported relationships and sequences across songs, sections/local regions
+and tracks. Generation work is a test bed for those profiles, not the main time
+sink. Use existing accepted data; this does not authorize reopening analysis2.
+
 | Order | Step | Deliverable / acceptance |
 |---|---|---|
-| 1 | 3. Artist profiles | Rank source/generated discrepancies using eligible denominators, support counts, family-separated holdouts and explicit track/role confounds. Keep Invent Animate corpus separate from unrelated artist examples. No claim that rate matching proves style. |
+| 1 | 3. Artist profiles | Build connected profiles: conditional technique/rhythm/register/harmony relationships, transitions, call/response, repetition/variation and track interactions where measured data supports them. Include song/family/section/local-region variation, support, missingness and uncertainty. Validate held-out families against simpler profiles. Rank generation gaps without confusing marginal counts or heuristic roles with artist style. |
 | 2 | 4. Generation methods | Test small source-conditioned alternatives for the largest supported gaps, starting palm-mute/open-HOPO placement. Preserve defaults and baselines; no fixed artist rates or copied riffs. |
 | 3 | 5. Controlled experiments | Freeze inputs/seeds/model/code hashes; compare baseline and candidates on held-out material. Save actual GP outputs, measured distributions and finite/unclipped previews. Record failures and continue independent cases. |
 | 4 | 7. Composition engine | Finish and validate existing thematic-return integration before broadening it. Explicit generated section plans, actual returning material and literal locks must agree. |
@@ -57,3 +62,14 @@ limits. Re-dispatch after limits allow execution; parent integrates and commits.
 Every continuation must safely pull main, inspect this checklist/current code,
 make concrete progress and append commands/results/next action. Quiet periods
 are not progress. Final listening and artist-feel approval remain human work.
+
+## First resumed findings
+
+Profile diagnostics and6tests exist uncommitted; frozen profiles-v3 predates the
+analysis repair and excludes20tracks. It must not be called a current refit.
+Existing12-piece discrepancies are strongly associated with context/role mixture;
+increasing independent technique probabilities would obscure that issue.
+An isolated tuning-relative proposal and4tests exist uncommitted with3private GP
+candidates. They are mechanistic trials, not approved musical improvements.
+Theme QA found no blocker in the bounded prior8casebatch, but requires fresh
+current-sealed replay before delivery. Agent reports/outputs remain private.
