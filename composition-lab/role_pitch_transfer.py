@@ -7,6 +7,7 @@ the development-selected pitch model, conditioned on generated previous notes.
 from copy import deepcopy
 from fractions import Fraction as F
 import random
+from bisect import bisect_right
 from collections import defaultdict
 from role_pitch_model import distribution
 from corpus_composer import choose_family
@@ -47,6 +48,10 @@ def propose(context,roles,composer,pitch_model,seed=17):
     rng=random.Random(seed);out=deepcopy(context);harmony=[];cache={};decisions=[]
     for ti,t in enumerate(context['tracks']):
         if roles[ti]=='harmony':harmony.extend(e for m in t['measures'] for v in m['voices'] for e in v if e['notes'])
+    # Supported harmony is one contiguous main voice. Index the exact clock once
+    # instead of repeatedly reparsing every harmony event for every target note.
+    harmony.sort(key=lambda e:F(e['onset_q']))
+    starts=[F(e['onset_q']) for e in harmony];ends=[q+F(e['duration_q']) for q,e in zip(starts,harmony)]
     for ti,t in enumerate(out['tracks']):
         role=roles[ti]
         if role=='harmony':continue
@@ -63,8 +68,8 @@ def propose(context,roles,composer,pitch_model,seed=17):
                             for f,records in composer['parts'][role].items()}
                         cache[key]={f:ps for f,ps in cache[key].items() if ps}
                     if not cache[key]:raise ValueError('No source voicing support for locked cardinality')
-                    active=[h for h in harmony if F(h['onset_q'])<=F(e['onset_q'])<F(h['onset_q'])+F(h['duration_q'])]
-                    anchor=min(n['midi'] for n in active[-1]['notes']) if active else None
+                    q=F(e['onset_q']);hi=bisect_right(starts,q)-1
+                    anchor=min(n['midi'] for n in harmony[hi]['notes']) if hi>=0 and ends[hi]>q else None
                     probs=distribution(pitch_model,role,previous_pitch,anchor)
                     for retry in range(50):
                         p=choose_family(rng,cache[key]);intervals=rng.choice([x['intervals'] for x in p['events'] if len(x['intervals'])==count])

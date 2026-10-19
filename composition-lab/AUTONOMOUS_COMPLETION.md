@@ -259,3 +259,41 @@ continues without reopening approved pedals or requesting another tiny review.
 Next independent actions: finish exact-content form experiment/QA; consolidate
 technical coverage and remaining failed gates; do not treat sample counts, parser
 success or a clean commit as proof of musical correctness.
+
+## Full-song form and annotation checkpoint (2026-10-18)
+
+- Added development-family-selected content-form experiment. Exact source content
+  identity includes rational timing, resolved ties, grace ornaments and known-pitch
+  masks. Author boundaries remain inputs; identity is not inferred phrase intent.
+- Rejected clean-bar-only recurrence evidence because it dropped tied/noisy sections.
+  Unknown/static sections now abstain from identity evidence rather than becoming
+  invented novel themes. No-supported-evidence models fail explicitly.
+- Selected length mixture on five development-family folds. Outer diagnostic length
+  NLL2.163736 versus marginal2.163756 is effectively tied, not a form-quality win.
+- full-form-v3:four actual GP cores,131/108/118/152bars, with1/2/0/1sampled returns.
+  Repeated generated sections preserve all roles; no forced return. Exact-clock
+  bisect optimization matches linear oracle and previous deterministic replay.
+- full-performance-v1 adds four learned technique families at0/50/100. full-palm-v1
+  adds palm mute0/50/100 to those full-performance100 outputs. All12 final GPs pass
+  independent native note/pitch/timing imports, palm flags, directed HOPO/vibrato
+  checks and36track bend-curve comparisons. All12 retain approved360/.25 vibrato.
+- Four final native-GM previews render completely at271.0/240.0/122.1/299.0seconds;
+  finite, nonzero, unclipped. Explicit600second renderer limit; default120 unchanged.
+  Original render attempt used incorrect soundfont path, failed without output;
+  corrected to dist/soundfont/sonivox.sf2 and reran successfully.
+- Added source/generated annotation comparison, clean pitched generated scores only.
+  Source family-balanced versus generated equal-piece track mixtures are confounded;
+  no aggregate style/quality score. Independent QA found incompatible-model and
+  dead/unknown-pitch input assumptions; now rejected explicitly with regression tests.
+- Twelve short integrated outputs:source/generated palm rates16.60%/7.51%, open
+  hammer-ons2.10%/0.36%, open pull-offs1.19%/0.20%, close dyads1.03%/4.21%.
+  These are diagnostic distribution gaps, not listening judgments. Fixing rates by
+  arbitrary quota would conceal opportunity/arrangement mismatch; investigate that
+  decomposition before adjusting generation.
+- Regression:358Python tests run,357pass/1optional skip;24JS tests pass; diff check
+  clean. No website edits; Pages deployment not triggered. Private scores/models,
+  source analyses and rendered audio remain ignored and uncommitted.
+
+Next: independent final-batch QA; commit/push this bounded checkpoint and verify CI;
+then decompose technique opportunity versus conditional-rate mismatch. Musical
+acceptance and independent arrangement/form controls remain open. Pedals unchanged.

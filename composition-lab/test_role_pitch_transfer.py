@@ -15,6 +15,13 @@ class TransferTests(unittest.TestCase):
         composer,ref,model,roles=self.setup()
         out,a=apply(ref,roles,None,None,0);self.assertEqual(out,ref)
         out,a=apply(ref,roles,composer,model);self.assertEqual(out['tracks'][0],ref['tracks'][0])
+        from fractions import Fraction as F
+        harmony=[e for m in ref['tracks'][0]['measures'] for v in m['voices'] for e in v if e['notes']]
+        for d in a['decisions']:
+            event=ref['tracks'][d['track']]['measures'][d['bar']-1]['voices'][d['voice']][d['event']];q=F(event['onset_q'])
+            active=[h for h in harmony if F(h['onset_q'])<=q<F(h['onset_q'])+F(h['duration_q'])]
+            expected=min(n['midi'] for n in active[-1]['notes']) if active else None
+            self.assertEqual(d['anchor'],expected)
         for before,after in zip(ref['tracks'][1:],out['tracks'][1:]):
             for x,y in zip(before['measures'],after['measures']):
                 self.assertEqual([(e['onset_q'],e['duration_q']) for e in x['voices'][0]],[(e['onset_q'],e['duration_q']) for e in y['voices'][0]])
