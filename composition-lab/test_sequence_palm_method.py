@@ -19,6 +19,19 @@ def training():
 
 
 class SequencePalmTests(unittest.TestCase):
+    def test_window_preserves_surroundings_and_starts_without_source_state(self):
+        score,_,_=fixture();model=fit(source_events(training(),'Artist'),'Artist')
+        with tempfile.TemporaryDirectory() as tmp:
+            p=Path(tmp);write_gp(score,p/'source.gp')
+            audit=apply(p/'source.gp',p/'out.gp',model,'Artist',100,window=(0,2,2))
+            self.assertTrue(audit['decisions'])
+            self.assertTrue(all(int(o.split(':')[1])==2 for d in audit['decisions'] for o in d['members']))
+            self.assertIsNone(audit['decisions'][0]['previous'])
+            self.assertEqual(extract_score(p/'source.gp')['tracks'][0]['measures'][0],
+                             extract_score(p/'out.gp')['tracks'][0]['measures'][0])
+            for bad in ((True,1,2),(0,2,1),(5,1,2),(0,1,9)):
+                with self.assertRaises(ValueError):apply(p/'source.gp',p/'bad.gp',model,'Artist',100,window=bad)
+
     def test_continuity_and_section_gap_overlap_exclusion_resets(self):
         data = training()
         self.assertEqual([e['previous'] for e in source_events(data, 'Artist')], [None, True, True, False])

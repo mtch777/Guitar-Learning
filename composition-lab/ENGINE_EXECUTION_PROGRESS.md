@@ -11,7 +11,7 @@ open like other techniques, without extra pedal priority.
 |G0 Requirements|16/16original workstreams mapped, semantics restored, independent reviews and publication/CI|Passed:8733f21 pushed; CI39253033993 success|
 |G1 Shared contract|Traceable observation/support/proposal/permissions/output; positive/unknown/conflict/redaction tests|Passed bounded scope: b95606b pushed; both CI runs succeeded|
 |G2 Useful WIP|Developer self-QA, planner scope review; note/summary reconciliation and actual muteGP/native/playback checks|Passed bounded technical scope: e585f4e pushed; CI39256565591 success; no musical/default promotion|
-|G3 Recreation|Bounded real-source replay versus learned reconstruction, explicit relationship assertions|Not started|
+|G3 Recreation|Bounded real-source replay versus learned reconstruction, explicit relationship assertions|Started first-pair pilot: preserved source GP/window edits; no extraction or detector changes|
 |G4 Transfer|Changed eligible contexts, target values hidden, locks/native/support/refusals verified|Not started|
 |G5 Generation|Matched baseline versus profile-informed outputs, frozen metrics and side effects|Not started|
 |G6 Whole piece|One demonstrated mechanism per bounded improvement/reject/inconclusive cycle|Not started|
@@ -108,3 +108,20 @@ open like other techniques, without extra pedal priority.
   Local492Python run491pass1optional skip,39JS pass,Vite build passed.
   ProjectPlanner3000 final requirements/scope review passed. G2 complete within
   its bounded technical scope; musical acceptance remains open. No website edits.
+
+## G3 first-pair work
+
+- Planner start scope: real held-out source window, exact source-annotation replay
+  separate from target-redacted learned reconstruction; lock all other fields.
+  Inspect one pair before freezing8passages across at least4families.
+- Added optional sequence-method window(track,inclusive bars): surrounding fields
+  stay locked, generated previous state starts unknown at window boundary.
+  Existing unscoped/default behavior unchanged. Nine sequence tests pass;
+  full493run492pass1optional skip. No website edit.
+- Real first pair:55source notes joined, with a preserved naive string-coordinate
+  failure then tuning-proven count-based reversal; all55raw mute annotations match.
+  Replay exact;33eligible groups/49notes,6ineligible notes exact. Stateful confusion
+  TP7/FN1/FP0/TN25. Target perturbation invariant; same-model static control and
+  actual native flags pass. Metrics and limits in RECREATION_FIRST_PAIR.md.
+- Planner first-pair scope checkpoint passed. G3 eight-case gate remains open;
+  next: reusable guarded replay/overlay and frozen continuous/directed coverage.

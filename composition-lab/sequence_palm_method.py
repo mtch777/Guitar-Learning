@@ -135,15 +135,23 @@ def predict(model, ctx, previous, *, stateful=True):
     raise ValueError('No source support for palm model')
 
 
-def apply(source, destination, model, artist, freedom, seed=17, *, stateful=True):
+def apply(source, destination, model, artist, freedom, seed=17, *, stateful=True, window=None):
     if isinstance(freedom, bool) or not isinstance(freedom, int) or not 0 <= freedom <= 100:
         raise ValueError('Integer freedom 0-100 required')
+    if window is not None:
+        if (not isinstance(window,(tuple,list)) or len(window)!=3
+            or any(type(x) is not int for x in window)
+            or window[0]<0 or not 1<=window[1]<=window[2]):
+            raise ValueError('Window requires track index and inclusive positive bar bounds')
     if freedom == 0:
         return dict(**transact(source, destination, {}, {}), all_locked=True)
     if (model.get('schema') != 'sequence-palm-mute-v1' or model.get('artist') != artist
             or not model.get('training_sha256') or F(model.get('max_ioi_q', '0')) <= 0):
         raise ValueError('Same-artist sequence palm model required')
     score = extract_score(source)
+    if window is not None and (window[0]>=len(score['tracks'])
+        or window[2]>len(score['tracks'][window[0]]['measures'])):
+        raise ValueError('Window outside source score')
     counts = Counter(n['note_id'] for t in score['tracks'] for m in t['measures']
                      for v in m['voices'] for e in v for n in e['notes'])
     if any(n != 1 for n in counts.values()):
@@ -151,6 +159,7 @@ def apply(source, destination, model, artist, freedom, seed=17, *, stateful=True
     edits, permissions, decisions = {}, {}, []
     max_ioi = F(model['max_ioi_q'])
     for ti, track in enumerate(score['tracks']):
+        if window is not None and ti!=window[0]:continue
         if not isinstance(track.get('program'), int) or not 24 <= track['program'] <= 39:
             continue
         groups, pitches = defaultdict(list), []
@@ -167,6 +176,10 @@ def apply(source, destination, model, artist, freedom, seed=17, *, stateful=True
         register = (min(pitches), max(pitches)) if pitches else (None, None)
         previous = None
         for q, group in sorted(groups.items()):
+            if window is not None and any(not window[1]<=int(occurrence.split(':')[1])<=window[2]
+                                          for n,e,section,occurrence in group):
+                previous=None
+                continue
             if any(n.get('grace_type') or F(e['duration_q']) <= 0 or not eligible(n)
                    or n.get('tie') or any(p in n['property_names'] for p in ('Muted', 'HarmonicType'))
                    for n, e, section, occurrence in group):
@@ -200,6 +213,7 @@ def apply(source, destination, model, artist, freedom, seed=17, *, stateful=True
                 actual_selected=actual, released=unlocked, members=[o for n, e, s, o in group]))
     return dict(**transact(source, destination, edits, permissions), decisions=decisions,
                 freedom=freedom, seed=seed, stateful=stateful,
+                window=list(window) if window is not None else None,
                 model_sha256=stable_hash(model),
                 limitations=['Written annotation sequence only; no physical muting-depth or quality claim.',
                              'Track/section/grace/exclusion/clock-gap resets; no inferred phrase boundaries.'])
