@@ -10,7 +10,7 @@ open like other techniques, without extra pedal priority.
 |---|---|---|
 |G0 Requirements|16/16original workstreams mapped, semantics restored, independent reviews and publication/CI|Passed:8733f21 pushed; CI39253033993 success|
 |G1 Shared contract|Traceable observation/support/proposal/permissions/output; positive/unknown/conflict/redaction tests|Passed bounded scope: b95606b pushed; both CI runs succeeded|
-|G2 Useful WIP|Independent note/summary QA and actual muteGP/native/playback checks; failures remain blocking|Not started in this sequence; old work preserved|
+|G2 Useful WIP|Developer self-QA, planner scope review; note/summary reconciliation and actual muteGP/native/playback checks|In progress: summaries reconciled;36GP native/preservation checks and9preview pilot complete; final review/delivery pending|
 |G3 Recreation|Bounded real-source replay versus learned reconstruction, explicit relationship assertions|Not started|
 |G4 Transfer|Changed eligible contexts, target values hidden, locks/native/support/refusals verified|Not started|
 |G5 Generation|Matched baseline versus profile-informed outputs, frozen metrics and side effects|Not started|
@@ -68,3 +68,39 @@ open like other techniques, without extra pedal priority.
 - Delivered b95606b3fb292c7bad3834ac535ddb918fca1f85 to origin/main.
   CI39255271728 and39255272811 both completed successfully. No website edits;
   Pages deployment not required for this gate. G1 passed its bounded criteria.
+
+## G2 work in progress
+
+- Scope: useful note/aggregate inventory and existing sequence palm experiment;
+  tuning-relative candidate remains rejected/uncommitted. No detector changes.
+- verify_profile_summaries.py reconciled development/held-out note denominators,
+  all10features across segments/fresh attacks/exact duration mass;21attack-group
+  feature summaries independently recomputed pooled/equal-score/equal-family rates.
+  Classifier reused, so this is not independent marker detection validation.
+- Fixed demonstrated malformed-input gaps: binary float written durations now
+  rejected; comparison labels require Boolean and counts nonnegative integers.
+  Eighteen summary tests pass.
+- All36GPs accounted:12matched inputs,12legacy-static/12new-static/12stateful.
+  Actual source/output/code/model seals match; only PalmMuted fields differ.
+  Native import/MIDI, all note mute flags, three-track curves and directed
+  HOPO/vibrato checks pass all36. Original files/baselines preserved.
+- Legacy old-static vs new-static equality is false; they use different fitted
+  models/cohorts. It is not an isolated statefulness null. Primary controlled
+  comparison is new-static vs stateful using the same new model, inputs and seed.
+- Exact refit reproduced current model. Recomputed held-out family-balanced
+  likelihood/Brier across13130events; stateful NLL improved on all6families.
+  Prediction is teacher-forced notation evidence, not generated musical acceptance.
+- Nine matched previews frozen before rendering: pieces1/7/11,seed17,bars1–4,
+  track0, same SF2/gain/window/explicit vibrato profile. All finite/nonzero/unclipped.
+  Passage renderer now honors existing adjacent playback profile, matching the
+  instrument renderer. Previously it silently used default vibrato settings.
+- Piece1:24changed mute flags, all changed notes78.125ms; identical audio. Native
+  alphaTab applies a capped static mute duration, so sufficiently short notes
+  receive no shortening. Pieces7/11 contain156.25ms changes and different audio.
+  This is renderer/window evidence, not a listening judgment or source feel.
+- Private evidence:local-artifacts/g2-useful-wip-v1 plus native JSONL checks in
+  overnight-palm-sequence-gps-v3. Existing sequence model/defaults unchanged.
+- Planner final scope review accepted bounded content after clarifying Invent
+  Animate's previously examined holdout and the three-seed context-rollout result:
+  muted-after-muted about.400–.425static vs.761–.791stateful. Changed behavior,
+  not source fidelity or pristine holdout acceptance. No extra experiment needed.

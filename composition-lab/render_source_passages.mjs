@@ -7,7 +7,14 @@ const font=new Uint8Array(fs.readFileSync(fontPath)),jobs=JSON.parse(fs.readFile
 for(const job of jobs){
  if(fs.existsSync(job.out))throw Error('Refusing to overwrite '+job.out);
  const {data,score,sidecarData,restored,companion_selection}=loadPlaybackScore(at,job.file,job);
- const settings=new at.Settings();settings.notation.notationMode=at.NotationMode.GuitarPro;const midi=new at.midi.MidiFile(),generator=new at.midi.MidiFileGenerator(score,settings,new at.midi.AlphaSynthMidiFileHandler(midi,false));generator.generate();
+ const settings=new at.Settings();settings.notation.notationMode=at.NotationMode.GuitarPro;
+ const profilePath=job.file.replace(/\.gp$/i,'.playback.json');
+ const playbackProfile=fs.existsSync(profilePath)?JSON.parse(fs.readFileSync(profilePath,'utf8')):{};
+ for(const [key,value] of Object.entries(playbackProfile)){
+  if(!['noteSlightAmplitude','noteSlightLength'].includes(key)||!Number.isFinite(value)||value<=0)throw Error('Invalid explicit vibrato playback profile');
+  settings.player.vibrato[key]=value;
+ }
+ const midi=new at.midi.MidiFile(),generator=new at.midi.MidiFileGenerator(score,settings,new at.midi.AlphaSynthMidiFileHandler(midi,false));generator.generate();
  const bars=generator.tickLookup.masterBars,start=bars.findIndex(b=>b.masterBar.index===job.start_bar-1),end=bars.findIndex((b,i)=>i>=start&&b.masterBar.index===job.end_bar-1);
  if(start<0||end<start||end-start>16)throw Error('Unresolved passage playback range');
  const tempoPoints=bars.flatMap(b=>b.tempoChanges).sort((a,b)=>a.tick-b.tick);
@@ -36,7 +43,7 @@ for(const job of jobs){
  const wav=Buffer.alloc(44+frames*2);wav.write('RIFF');wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(44100,24);wav.writeUInt32LE(88200,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(frames*2,40);
  let offset=44;for(const chunk of chunks)for(const value of chunk){wav.writeInt16LE(Math.round(value*32767),offset);offset+=2;}
  fs.writeFileSync(job.out,wav);
- const result={...job,gp_sha256:hash(data),midi_event_sha256:hash(JSON.stringify(midi.events)),audio_sha256:hash(wav),seconds:frames/44100,rms:Math.sqrt(squares/frames),peak,
+ const result={...job,playback_profile:playbackProfile,gp_sha256:hash(data),midi_event_sha256:hash(JSON.stringify(midi.events)),audio_sha256:hash(wav),seconds:frames/44100,rms:Math.sqrt(squares/frames),peak,
   target_seconds:secondsBetween(bars[start].start,targetTick),reader:restored?'alphaTab with exact-model-bend companion':'unmodified alphaTab 1.8.4',bend_companion_selection:companion_selection,exact_model_bend_restore:restored?{curves:restored.restored,sidecar_sha256:hash(sidecarData),native_gp_lossless:false}:null,renderer:'alphaTab internal MIDI / Sonivox GM SF2, fixed .3 gain',font_sha256:hash(font),tracks:score.tracks.length,bars:score.masterBars.length,playback_range:options.playbackRange,listening_judgment:null};
  results.push(result);fs.writeFileSync(jobsPath.replace(/\.json$/,'.results.json'),JSON.stringify(results,null,2));console.log(JSON.stringify({case_id:job.case_id,method:job.method,mode:job.mode,seconds:result.seconds,peak}));
 }
