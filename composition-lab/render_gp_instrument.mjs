@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {pathToFileURL} from 'node:url';
+import {loadPlaybackScore} from './songsterr_automation/songsterr_api/playback_score.mjs';
 const args=process.argv.slice(2),limits=args.filter(x=>x.startsWith('--max-seconds='));
 if(limits.length>1)throw new Error('Only one explicit render duration limit allowed');
 const maxSeconds=limits.length?Number(limits[0].split('=')[1]):120;
@@ -15,7 +16,7 @@ const font=new Uint8Array(fs.readFileSync(fontPath));
 for(const file of files){
   const target=file.replace(/\.gp$/i,'.instrument.wav');
   if(fs.existsSync(target)||fs.existsSync(target+'.json'))throw new Error('Refusing to overwrite audio or sidecar '+target);
-  const score=at.importer.ScoreLoader.loadScoreFromBytes(new Uint8Array(fs.readFileSync(file)));
+  const {score,restored,sidecarData,companion_selection}=loadPlaybackScore(at,file);
   const profilePath=file.replace(/\.gp$/i,'.playback.json');
   const profile=fs.existsSync(profilePath)?JSON.parse(fs.readFileSync(profilePath,'utf8')):{};
   const settings=new at.Settings();
@@ -46,6 +47,7 @@ for(const file of files){
   let pos=44;for(const chunk of chunks)for(const v of chunk){bytes.writeInt16LE(Math.round(v*32767),pos);pos+=2;}
   fs.writeFileSync(target,bytes);
   const report={renderer:'alphaTab 1.8.4 internal MIDI / Sonivox SF2, fixed gain .5',playbackProfile:profile,renderLimitSeconds:maxSeconds,seconds:frames/44100,peak,nonzeroSamples:nonzero,
+    bendCompanionSelection:companion_selection,exactModelBendRestore:restored?{curves:restored.restored,sidecarSha256:crypto.createHash('sha256').update(sidecarData).digest('hex'),nativeGpLossless:false}:null,
     finite:true,clipped:false,fontSha256:crypto.createHash('sha256').update(font).digest('hex'),audioSha256:crypto.createHash('sha256').update(bytes).digest('hex'),
     limitations:['GM sampled instrument, not physical string model or Guitar Pro RSE','HOPO engine rendering primarily changes destination dynamics; authentic legato attack not certified'],listeningJudgment:null};
   fs.writeFileSync(target+'.json',JSON.stringify(report,null,2));console.log(JSON.stringify({file,...report}));

@@ -1,0 +1,21 @@
+{
+  "entries": 98,
+  "errors": 0,
+  "native_pass": 74,
+  "native_regressions": 0,
+  "paired_exports": 98,
+  "restored_curves": 866,
+  "regular_source_zero_differences": 98,
+  "original_scores_unchanged": 98,
+  "catalog_pairs": 98,
+  "native_reader_pass": 98,
+  "scope": "Model bend companion integration; native GP curve discrepancies remain flagged; no listening verdict",
+  "implementation_sha256": {
+    "songsterr_automation/songsterr_api/export_csv_gp7.mjs": "5a9358464ef2facceea44e06548a136da7f0904c8f52520f789925927a396187",
+    "songsterr_automation/songsterr_api/bend_fidelity.mjs": "87f4f315d4049a4e4b5a569feda8c8a9f1564152a6a5708f6b11ec83f3459c6d",
+    "songsterr_automation/songsterr_api/playback_score.mjs": "4c47684b1f54a5b719a7c991e6a27063adfab4c96ed06ac7b950d91d73530803",
+    "songsterr_automation/songsterr_api/catalog_csv_corpus.py": "25210d9ff4616605a7144be37a70345df656becb53d792a4e506b38ddc6ac52f",
+    "render_source_passages.mjs": "4a774ad82bf0d359fe9571b266e9d4c1ce115f43d0c03ba66d4b3eafba10f4b9",
+    "render_gp_instrument.mjs": "71d22b9a389357c405122a4978fbfe98c3c6ac207dd59213f0147dbc79af1201"
+  }
+}

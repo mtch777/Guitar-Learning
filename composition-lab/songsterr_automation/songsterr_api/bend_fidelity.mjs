@@ -91,7 +91,7 @@ function restore(at, score, sidecar) {
     return plan.length;
 }
 
-export function exportWithExactBends(at, score, settings = new at.Settings()) {
+export function exportWithExactBends(at, score, settings = new at.Settings(), nativeExport = null) {
     const allNotes = notes(score);
     const addresses = new Map(allNotes.map(row => [row.note, row.address]));
     const curves = allNotes.filter(row => row.note.bendPoints?.length).map(({ address, note }) => {
@@ -104,7 +104,8 @@ export function exportWithExactBends(at, score, settings = new at.Settings()) {
         if (!origin || note.tieOrigin !== note.bendOrigin) throw Error('Unsupported exact bend continuation origin');
         return { address, identity: identity(note), origin, continued: note.isContinuedBend };
     });
-    const bytes = new at.exporter.Gp7Exporter().export(score, settings);
+    // Capture exact model data first, then allow the existing native writer path.
+    const bytes = nativeExport ? nativeExport() : new at.exporter.Gp7Exporter().export(score, settings);
     const sidecar = { schema: SCHEMA, gp_sha256: hash(bytes), curves, continuations,
         scope: 'Exact pre-export alphaTab model note-bend curves; standalone native GP fidelity is not guaranteed.' };
     // Reject an export that cannot support identity-safe restoration immediately.

@@ -4,6 +4,24 @@ import argparse,csv,hashlib,json,re,shutil
 from pathlib import Path
 
 
+def copy_score_pair(source,target):
+    """Keep companions beside renamed catalog scores; validate before copying."""
+    source,target=Path(source),Path(target)
+    data=source.read_bytes();companion=source.with_suffix('.exact-model-bends.json')
+    destination=target.with_suffix('.exact-model-bends.json')
+    payload=companion.read_bytes() if companion.exists() else None
+    if payload is not None:
+        record=json.loads(payload)
+        if record.get('schema')!='composition-lab.exact-model-bends.v1' or record.get('gp_sha256')!=hashlib.sha256(data).hexdigest():
+            raise ValueError('Bend companion does not match source score')
+    if target.exists() and target.read_bytes()!=data:raise FileExistsError(f'Existing catalog copy differs: {target}')
+    if destination.exists() and (payload is None or destination.read_bytes()!=payload):
+        raise FileExistsError(f'Existing catalog companion differs: {destination}')
+    if not target.exists():shutil.copyfile(source,target)
+    if payload is not None and not destination.exists():shutil.copyfile(companion,destination)
+    return destination if payload is not None else None
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('root',type=Path);p.add_argument('--summary',type=Path,required=True);a=p.parse_args()
     songs=a.root/'songs';destination=a.root/'gp-files';destination.mkdir(exist_ok=True);rows=[];reports=[];captures=[]
@@ -15,10 +33,11 @@ def main():
         name=re.sub(r'[<>:"/\\|?*\x00-\x1f]','',f"{capture['song_id']} - {meta.get('title','Untitled')}").strip(' .')[:140]+'.gp'
         target=destination/name;source=folder/'score.gp'
         if not source.exists():raise ValueError(f"Missing GP: {capture['song_id']}")
-        if target.exists() and target.read_bytes()!=source.read_bytes():raise FileExistsError(f'Existing catalog copy differs: {target}')
-        if not target.exists():shutil.copyfile(source,target)
+        if report.get('exactModelBends') and not source.with_suffix('.exact-model-bends.json').exists():raise ValueError('Export report declares a missing bend companion')
+        companion=copy_score_pair(source,target)
         for selected in capture['csv_rows']:
             rows.append(dict(csv_row=selected['csv_row'],song=selected['Song'],artist=meta.get('artist'),song_id=capture['song_id'],revision=capture.get('revision_id'),gp_file=str(target.resolve()),
+                             bend_companion_file=str(companion.resolve()) if companion else None,
                              gp7_roundtrip_pass=report.get('roundtripPass',False),regular_source_differences=report.get('directSource',{}).get('differences'),
                              source_gp5_comparator_errors=sum('error' in t for t in capture.get('serialized_source_comparison',[])),
                              source_gp5_comparator_differences=sum(t.get('differences') or 0 for t in capture.get('serialized_source_comparison',[])),
@@ -31,7 +50,7 @@ def main():
     vanilla_path=a.root/'vanilla-imports.json'
     vanilla=json.loads(vanilla_path.read_text()) if vanilla_path.exists() else None
     summary=dict(schema='csv-source-corpus-acquisition-v1',csv_rows=len(rows),unique_tab_ids=len(captures),captured_tabs=sum(c.get('capture_complete',False) for c in captures),
-                 gp7_files=len(list(destination.glob('*.gp'))),gp7_detailed_roundtrip_pass=sum(r.get('roundtripPass',False) for r in reports),
+                 gp7_files=len(list(destination.glob('*.gp'))),gp7_bend_companion_files=len(list(destination.glob('*.exact-model-bends.json'))),gp7_detailed_roundtrip_pass=sum(r.get('roundtripPass',False) for r in reports),
                  unmodified_gp7_reader_pass=vanilla['passed'] if vanilla else None,unmodified_gp7_reader_failures=len(vanilla['fail']) if vanilla else None,
                  gp7_regular_source_zero_differences=sum(r.get('directSource',{}).get('differences')==0 for r in reports),
                  serialized_source_tracks_checked=len(source_checks),serialized_source_tracks_pass=sum(t.get('differences')==0 for t in source_checks),serialized_source_comparator_errors=sum('error' in t for t in source_checks),

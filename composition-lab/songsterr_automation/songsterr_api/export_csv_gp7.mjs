@@ -3,6 +3,8 @@ import fs from 'node:fs';import path from 'node:path';import {pathToFileURL} fro
 import {restoreDeadTies} from './restore_dead_ties.mjs';
 import {exportWithExactBends,loadWithExactBends} from './bend_fidelity.mjs';
 const [modulePath,root,...options]=process.argv.slice(2),at=await import(pathToFileURL(path.resolve(modulePath)));
+if(options.includes('--native-bends-only')&&options.includes('--exact-model-bends'))throw Error('Conflicting bend export options');
+const preserveBends=!options.includes('--native-bends-only');
 // Guard an upstream alphaTab GP5 importer bug when adjacent bars omit a voice.
 let voicePaddingRepairs=0,emptyVoiceRestRepairs=0;
 at.model.Voice.prototype._chain=function(beat,bag){
@@ -71,9 +73,16 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
  const folder=path.join(root,entry.name),capture=path.join(folder,'capture.json');if(!fs.existsSync(capture))continue;
  const status=JSON.parse(fs.readFileSync(capture,'utf8'));if(!status.capture_complete)continue;
  const target=path.join(folder,'score.gp'),reportPath=path.join(folder,'gp7-validation.json');
+ if(!preserveBends&&fs.existsSync(path.join(folder,'score.exact-model-bends.json')))throw Error('Existing bend companion preserved; native-only export requires a fresh output without a companion');
  // Refusal must not overwrite a previous passing report in the catch below.
- if(options.includes('--exact-model-bends')&&!options.includes('--recheck')&&(fs.existsSync(target)||fs.existsSync(path.join(folder,'score.exact-model-bends.json'))))throw Error('Existing GP/sidecar and validation report preserved; use a copied corpus with --recheck');
- if(fs.existsSync(reportPath)&&!options.includes('--recheck')){const old=JSON.parse(fs.readFileSync(reportPath,'utf8'));if(old.roundtripPass&&!options.includes('--exact-model-bends')){results.push(old);continue;}}
+ if(!options.includes('--recheck')&&(fs.existsSync(target)||fs.existsSync(path.join(folder,'score.exact-model-bends.json')))){
+  if(fs.existsSync(target)&&fs.existsSync(reportPath)){
+   const old=JSON.parse(fs.readFileSync(reportPath,'utf8'));
+   if(preserveBends&&old.exactModelBends&&fs.existsSync(path.join(folder,'score.exact-model-bends.json'))){loadWithExactBends(at,fs.readFileSync(target),JSON.parse(fs.readFileSync(path.join(folder,'score.exact-model-bends.json'),'utf8')),settings);results.push(old);continue;}
+   if(!preserveBends&&old.roundtripPass){results.push(old);continue;}
+  }
+  throw Error('Existing GP/sidecar and validation report preserved; use a copied corpus with --recheck');
+ }
  let report={songId:status.song_id,file:target};
  try{
   const map=JSON.parse(fs.readFileSync(path.join(folder,'bridge-map.json'),'utf8'));
@@ -100,13 +109,19 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
    const result=restoreDeadTies(track,raw);for(const key of Object.keys(deadTieRestoration))deadTieRestoration[key]+=result[key];
   }
   const before=snapshot(score);
-  const exact=options.includes('--exact-model-bends')?exportWithExactBends(at,score,settings):null;
-  if(!exact)for(const track of score.tracks)for(const staff of track.staves)for(const bar of staff.bars)for(const voice of bar.voices)for(const beat of voice.beats)for(const note of beat.notes){if(note.bendPoints)note.bendPoints=simplify(note.bendPoints);}
+  const nativeExport=()=>{
+   const saved=[];
+   try{
+    for(const track of score.tracks)for(const staff of track.staves)for(const bar of staff.bars)for(const voice of bar.voices)for(const beat of voice.beats)for(const note of beat.notes){if(note.bendPoints){saved.push([note,note.bendPoints]);note.bendPoints=simplify(note.bendPoints);}}
+    return new at.exporter.Gp7Exporter().export(score,settings);
+   }finally{for(const [note,points] of saved)note.bendPoints=points;}
+  };
+  const exact=preserveBends?exportWithExactBends(at,score,settings,nativeExport):null;
 
   if(fs.existsSync(target)&&!options.includes('--recheck'))throw Error('Unverified existing GP preserved; use --recheck');
   const sidecarPath=path.join(folder,'score.exact-model-bends.json');
   if(exact&&fs.existsSync(sidecarPath)&&!options.includes('--recheck'))throw Error('Existing exact model bend sidecar preserved; use --recheck');
-  fs.writeFileSync(target,exact?exact.bytes:new at.exporter.Gp7Exporter().export(score,settings));const afterScore=load(target),after=snapshot(afterScore);
+  fs.writeFileSync(target,exact?exact.bytes:nativeExport());const afterScore=load(target),after=snapshot(afterScore);
   let exactModelBends=null;
   if(exact){const restored=loadWithExactBends(at,exact.bytes,exact.sidecar,settings).restored;fs.writeFileSync(sidecarPath,JSON.stringify(exact.sidecar,null,2));exactModelBends={sidecar:path.basename(sidecarPath),restored_curves:restored,native_gp_lossless:false,scope:exact.sidecar.scope};}
   report={...report,rhythmRestorations,voicePaddingRepairs,emptyVoiceRestRepairs,percussionGraceRepairs,deadTieRestoration,exactModelBends,curveComparisonGrid:61,roundtripPass:JSON.stringify(before)===JSON.stringify(after),tracks:after.tracks.length,bars:after.bars.length,

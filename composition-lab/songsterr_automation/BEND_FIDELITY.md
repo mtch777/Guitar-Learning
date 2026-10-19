@@ -1,6 +1,6 @@
 # Exact model bends in the alphaTab pipeline
 
-`songsterr_api/bend_fidelity.mjs` provides an **opt-in companion-data solution**,
+`songsterr_api/bend_fidelity.mjs` provides a **companion-data solution**,
 not a claim that standalone GP7 files are now lossless.
 
 ## What is repaired
@@ -25,17 +25,24 @@ sidecar follows the original native import path and can still lose information.
 
 ## Existing pipeline integration
 
-`export_csv_gp7.mjs ... PRIVATE_COPIED_CORPUS --recheck --exact-model-bends`
-explicitly writes `score.gp` plus `score.exact-model-bends.json`. Use a copied
-private corpus directory to preserve original exports. Ordinary export remains
-the default; native roundtrip checks still report native losses. Restoration
+`export_csv_gp7.mjs ... PRIVATE_COPIED_CORPUS` now writes `score.gp` plus
+`score.exact-model-bends.json` by default. Use a fresh copied private corpus to
+preserve originals, or `--recheck` on an explicitly selected working copy.
+`--exact-model-bends` remains compatible; `--native-bends-only` is an explicit
+opt-out and refuses an output that already has a companion. Native roundtrip
+checks still report native losses. Restoration
 counts and the companion filename are recorded separately, never as native
 roundtrip success.
 
-`render_source_passages.mjs` accepts an optional per-job `exact_model_bends` path
-to that JSON. It rejects a mismatched GP/sidecar before rendering, restores the
+The catalog copies and renames companions alongside GP files, validating the
+GP hash before writing. `render_source_passages.mjs` and
+`render_gp_instrument.mjs` discover adjacent `NAME.exact-model-bends.json` files
+automatically. The passage renderer also accepts an explicit per-job path, or
+`exact_model_bends:false` for a native comparison. A mismatched pair is rejected
+before rendering. The routine path restores the
 model after native import, and records the adapter and sidecar SHA in its result.
-Without the field, the ordinary reader path is unchanged. Both files contain
+Legacy files without companions use the native path and report that absence.
+Both files contain
 source-derived material and must remain private.
 
 ## Evidence
@@ -46,13 +53,16 @@ Optional source-free tests, using the local installation or `ALPHATAB_MODULE`:
 node --test composition-lab/songsterr_automation/songsterr_api/test_bend_fidelity.mjs
 ```
 
-Ten tests pass with installed alphaTab 1.8.4: exact curve and note-bend MIDI
+Twelve tests pass with installed alphaTab 1.8.4: exact curve and note-bend MIDI
 preservation for hold, unequal middle values, release, more than four points,
 duplicate middle points, instantaneous release and tied continuation; rejection
 of wrong GP hashes, wrong identities, malformed curves and duplicate targets;
 upstream prototype unchanged.
 The exporter refusal test also verifies existing score, companion and validation
 report bytes remain unchanged when overwrite permission was not supplied.
+Routine discovery and preservation of the existing native-writer representation
+are covered as well. See BEND_WORKFLOW_INTEGRATION.md in the parent directory
+for the completed98-pair corpus verification and default workflow.
 
 Private corpus experiment accepted 98/98 intermediate bridge models and restored
 866 note-bend curves across 63 entries. Note-specific pitch-bend MIDI streams on

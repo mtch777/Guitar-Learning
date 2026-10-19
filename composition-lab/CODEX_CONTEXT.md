@@ -1,3 +1,10 @@
+## Bend workflow integration (2026-10-18)
+
+Read BEND_WORKFLOW_INTEGRATION.md for default paired export/catalog/automatic
+render loading. No per-job bend path is needed for adjacent companions. Existing
+legacy exports are preserved; new paired corpus is local-artifacts/bend-routine-corpus-v1.
+Further standalone native GP bend repair stays parked. No new bend research gate.
+
 ## Remaining analysis repairs, pass 2 (2026-10-18)
 
 Read ANALYSIS_REPAIR_PASS2.md and songsterr_automation/BEND_FIDELITY.md.

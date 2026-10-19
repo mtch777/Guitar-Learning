@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { exportWithExactBends, loadWithExactBends } from './bend_fidelity.mjs';
+import {loadPlaybackScore} from './playback_score.mjs';
 
 const modulePath = process.env.ALPHATAB_MODULE || '.local/qa/node_modules/@coderline/alphatab/dist/alphaTab.mjs';
 const available = fs.existsSync(modulePath);
@@ -22,6 +23,9 @@ test('opt-in exporter refusal preserves existing score, sidecar and validation r
         const result=spawnSync(process.execPath,[path.resolve('composition-lab/songsterr_automation/songsterr_api/export_csv_gp7.mjs'),path.resolve(modulePath),root,'--exact-model-bends'],{encoding:'utf8'});
         assert.notEqual(result.status,0);
         assert.match(result.stderr,/validation report preserved/);
+        for(const [name,value] of Object.entries(baseline))assert.equal(fs.readFileSync(path.join(folder,name),'utf8'),value);
+        const native=spawnSync(process.execPath,[path.resolve('composition-lab/songsterr_automation/songsterr_api/export_csv_gp7.mjs'),path.resolve(modulePath),root,'--recheck','--native-bends-only'],{encoding:'utf8'});
+        assert.notEqual(native.status,0);assert.match(native.stderr,/Existing bend companion preserved/);
         for(const [name,value] of Object.entries(baseline))assert.equal(fs.readFileSync(path.join(folder,name),'utf8'),value);
     } finally {fs.rmSync(root,{recursive:true,force:true});}
 });
@@ -48,6 +52,36 @@ function midi(score) {
 function points(score) {
     return score.tracks[0].staves[0].bars[0].voices[0].beats[0].notes[0].bendPoints?.map(p => [p.offset, p.value]);
 }
+
+test('companion captures original curves before the existing native writer prepares its representation', {skip:!available},()=>{
+    const source=fixture([[0,0],[10,2],[45,2],[60,4]]),original=points(source);
+    const {bytes,sidecar}=exportWithExactBends(at,source,new at.Settings(),()=>{
+        const note=source.tracks[0].staves[0].bars[0].voices[0].beats[0].notes[0],saved=note.bendPoints;
+        try{note.bendPoints=[saved[0],saved.at(-1)];return new at.exporter.Gp7Exporter().export(source,new at.Settings());}
+        finally{note.bendPoints=saved;}
+    });
+    assert.deepEqual(points(source),original);
+    assert.deepEqual(points(loadWithExactBends(at,bytes,sidecar).score),original);
+});
+
+test('routine playback discovers renamed companion, rejects stale data and supports native comparison', { skip: !available }, () => {
+    const root=fs.mkdtempSync(path.join(os.tmpdir(),'composition-bend-discovery-'));
+    try {
+        const source=fixture([[0,0],[10,2],[45,2],[60,4]]);
+        const {bytes,sidecar}=exportWithExactBends(at,source);
+        const file=path.join(root,'Renamed score.gp'),companion=path.join(root,'Renamed score.exact-model-bends.json');
+        fs.writeFileSync(file,bytes);
+        assert.equal(loadPlaybackScore(at,file).companion_selection,'absent');
+        fs.writeFileSync(companion,JSON.stringify(sidecar));
+        const loaded=loadPlaybackScore(at,file);
+        assert.equal(loaded.companion_selection,'adjacent');
+        assert.deepEqual(midi(loaded.score),midi(source));
+        assert.equal(loadPlaybackScore(at,file,{exact_model_bends:false}).companion_selection,'disabled');
+        sidecar.gp_sha256='wrong';fs.writeFileSync(companion,JSON.stringify(sidecar));
+        assert.throws(()=>loadPlaybackScore(at,file),/hash mismatch/);
+        assert.throws(()=>loadPlaybackScore(at,file,{exact_model_bends:path.join(root,'missing.json')}));
+    } finally {fs.rmSync(root,{recursive:true,force:true});}
+});
 
 for (const [name, curve] of Object.entries({
     hold: [[0, 0], [10, 2], [45, 2], [60, 4]],

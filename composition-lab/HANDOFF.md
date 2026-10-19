@@ -1,3 +1,11 @@
+## Bend workflow integration (2026-10-18)
+
+See BEND_WORKFLOW_INTEGRATION.md. Source corpus exports create GP+companion by
+default; the catalog carries companions beside renamed scores. Passage and
+instrument renderers automatically discover and validate adjacent companions.
+Standalone native GP bend fidelity remains parked. Original corpus/baselines
+remain unchanged; paired working copies live in local-artifacts/bend-routine-corpus-v1.
+
 ## Remaining analysis repairs, pass 2 (2026-10-18)
 
 Latest evidence: ANALYSIS_REPAIR_PASS2.md. Typed slide endpoints, separate
