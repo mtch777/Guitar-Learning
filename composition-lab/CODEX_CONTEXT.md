@@ -1,3 +1,14 @@
+## Current requirements register — 2026-10-19
+
+Read REQUIREMENTS_STATUS.md and requirements_status.json before reporting
+Composition Lab completion. They map all original16workstreams to roadmap2–8,
+retain failed/open targets and distinguish bounded implementation from acceptance.
+Melody-function+relative-octave remains outstanding beyond literalMIDI controls.
+Pedal IDENTIFICATION/approved continuation are closed; analysis/recreation/creative
+use remain open alongside other techniques, with no special pedal priority.
+Scheduled automation remains paused. Follow the active user-authorized gate;
+do not infer a new implementation scope from historical next-action paragraphs.
+
 ## Bend workflow integration (2026-10-18)
 
 Read BEND_WORKFLOW_INTEGRATION.md for default paired export/catalog/automatic

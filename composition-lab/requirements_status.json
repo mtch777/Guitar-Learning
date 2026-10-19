@@ -1,0 +1,364 @@
+{
+  "schema": "composition-requirement-reconciliation-v1",
+  "date": "2026-10-19",
+  "baseline_main": "fd78baf81b021488a975e36e9da6d89d9e92c58b",
+  "gate": "G0 requirements reconciliation only",
+  "scope": "Original16to retained2\u20138; numbers remain historical targets unless explicitly superseded",
+  "items": [
+    {
+      "id": 1,
+      "original": {
+        "title": "1 Freeze",
+        "acceptance": "Versioned hashes of all current inputs, outputs, weights, feedback and source commits; representative reproduction",
+        "recorded_state": "Pass: 757 unchanged hashes; fresh two-piece pipeline reproduction"
+      },
+      "roadmap": [
+        8
+      ],
+      "disposition": "bounded_verified",
+      "current_evidence": "Per-run input/model/code/output seals and immutable baselines are implemented; the original757-file freeze is recorded historical evidence.",
+      "unmet_gate": "No current single global manifest covers every active WIP experiment; recreate relevant seals before each promoted run.",
+      "evidence_paths": [
+        "composition-lab/OVERNIGHT_PROGRESS.md",
+        "composition-lab/CONTROLLED_PIPELINE.md",
+        "composition-lab/ARTIST_PROFILE_PROGRESS.md"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    },
+    {
+      "id": 2,
+      "original": {
+        "title": "2 Representation",
+        "acceptance": "All original occurrences accounted for, rational sustains/voices/metadata, >=30 edge cases, independent audit",
+        "recorded_state": "Core pass: 15,452 occurrences, 1,445 tie joins; 30 parametrized cases; performance interpretation partial"
+      },
+      "roadmap": [
+        2,
+        8
+      ],
+      "disposition": "partial",
+      "current_evidence": "Original occurrence-linked representation and newer source-preservation audits exist; timing/slide/tie/bend repairs have bounded independent evidence.",
+      "unmet_gate": "Four guitar timing tracks remain globally excluded; three mixed dead/pitched ties unresolved; full sounding/performance interpretation is incomplete. Local safe regions are separate.",
+      "evidence_paths": [
+        "composition-lab/ANALYSIS_UNBLOCK_RESULTS.md",
+        "composition-lab/ANALYSIS_REPAIR_PASS2.md",
+        "composition-lab/BEND_WORKFLOW_INTEGRATION.md"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    },
+    {
+      "id": 3,
+      "original": {
+        "title": "3 Corpus",
+        "acceptance": "Provenance/rights manifest, inventory and gaps against 100-piece/5-style target; no inferred blanket licensing",
+        "recorded_state": "Partial: 2,000 pieces; five-style target failed; research rights only"
+      },
+      "roadmap": [
+        2,
+        3,
+        8
+      ],
+      "disposition": "partial",
+      "current_evidence": "Historical2000-piece external research corpus and98captured Songsterr entries are distinct collections. Connected artist fit uses70development scores/54families.",
+      "unmet_gate": "Original five-style/rights-appropriate coverage not demonstrated;98entries are not98independent works or five styles; no blanket rights inferred.",
+      "evidence_paths": [
+        "composition-lab/EXECUTION_16.md",
+        "composition-lab/songsterr_automation/CORPUS_PROGRESS.md",
+        "composition-lab/ARTIST_PROFILE_PROGRESS.md"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    },
+    {
+      "id": 4,
+      "original": {
+        "title": "4 Splits",
+        "acceptance": "Song/family split manifest, exact/relative duplicates separated, untouched test; overlap unknowns explicit",
+        "recorded_state": "Pass for scratch grouped split; external pretraining overlap unknown"
+      },
+      "roadmap": [
+        3,
+        5,
+        8
+      ],
+      "disposition": "partial",
+      "current_evidence": "Connected-family split guards and held-out mutation tests are implemented; current diagnostic8scores/6families kept out of fit.",
+      "unmet_gate": "Outer evaluation has already been examined; genuinely untouched final test and external pretraining overlap remain unresolved.",
+      "evidence_paths": [
+        "composition-lab/artist_profiles.py",
+        "composition-lab/artist_relationship_profiles.py",
+        "composition-lab/ARTIST_PROFILE_PROGRESS.md",
+        "composition-lab/EXTERNAL_COMPARISON.md"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    },
+    {
+      "id": 5,
+      "original": {
+        "title": "5 Relationships",
+        "acceptance": "Versioned motif/phrase/section/harmony/role hypotheses with provenance, integrity checks and uncertainty",
+        "recorded_state": "Partial: two GP occurrence-linked graphs; semantic truth / 20 contrasting sources missing"
+      },
+      "roadmap": [
+        2,
+        3,
+        7
+      ],
+      "disposition": "partial",
+      "current_evidence": "Occurrence-linked graphs and connected written-technique/sequence/pedal-answer/track tables exist, with masks and support. Pedal identification is accepted.",
+      "unmet_gate": "General phrase/motif/harmony/role semantic truth, contrasting-source coverage and complete sounding relations are not established. Pedal analysis/recreation remains open equally with other techniques.",
+      "evidence_paths": [
+        "composition-lab/RELATIONAL_PIPELINE.md",
+        "composition-lab/ARTIST_PROFILE_PROGRESS.md",
+        "composition-lab/songsterr_automation/PEDAL_EXPANSION.md"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    },
+    {
+      "id": 6,
+      "original": {
+        "title": "6 Structural validation",
+        "acceptance": "Independent annotated held-out boundaries/relationships; compare simple baselines and report SMART pass/fail",
+        "recorded_state": "Failed target: boundary F1 .571 vs .354 baseline, below .70"
+      },
+      "roadmap": [
+        2,
+        3,
+        8
+      ],
+      "disposition": "failed_open",
+      "current_evidence": "Historical boundaryF1 .571 exceeded .354baseline but failed original .70target.",
+      "unmet_gate": "No later independently adjudicated result found closing this gate. Source sections, fingerprints and annotation likelihoods do not substitute for structural validation.",
+      "evidence_paths": [
+        "composition-lab/EXECUTION_16.md",
+        "composition-lab/AUTONOMOUS_RESULTS.md",
+        "composition-lab/ARTIST_PROFILE_PROGRESS.md"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    },
+    {
+      "id": 7,
+      "original": {
+        "title": "7 Architecture",
+        "acceptance": ">=3 researched candidates, >=2 runnable paths, resource/license/feature decision",
+        "recorded_state": "Research paths run; integration and licenses explicitly limited"
+      },
+      "roadmap": [
+        4,
+        7,
+        8
+      ],
+      "disposition": "partial",
+      "current_evidence": "Actual AnalysisGNN, Yin-Yang and accompaniment-model research paths ran; empirical pipeline is a separate implemented path.",
+      "unmet_gate": "Successful guitar adaptation/integration and every relevant data/weight right are not established. Research execution is not final architecture acceptance.",
+      "evidence_paths": [
+        "composition-lab/benchmarks/RESULTS_2026-10-15.md",
+        "composition-lab/EXTERNAL_COMPARISON.md",
+        "composition-lab/CONTROLLED_PIPELINE.md"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    },
+    {
+      "id": 8,
+      "original": {
+        "title": "8 Phrase learning",
+        "acceptance": "Actual training/inference, context/permutation/baseline metrics, held-out predictions and generated GP",
+        "recorded_state": "Partial: official context evidence positive; guitar adaptation gate failed; 126 sampled neural phrases"
+      },
+      "roadmap": [
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "disposition": "failed_open",
+      "current_evidence": "Actual official phrase training/inference/sampling evidence exists; historical guitar-adaptation gate failed. New contextual annotation profiles are delivered.",
+      "unmet_gate": "No evidence of a successful general guitar phrase-learning replacement. Annotation prediction and exact pedal-call comparisons do not close learned phrase intent/development.",
+      "evidence_paths": [
+        "composition-lab/EXECUTION_16.md",
+        "composition-lab/EXTERNAL_COMPARISON.md",
+        "composition-lab/ARTIST_PROFILE_PROGRESS.md"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    },
+    {
+      "id": 9,
+      "original": {
+        "title": "9 Form",
+        "acceptance": "Learned arrangement/phrase sequence experiment, >=30 64-bar outputs if feasible, supplied vs learned form explicit",
+        "recorded_state": "100 outputs; failed learned-form baseline gate (4.412 vs 4.292 NLL)"
+      },
+      "roadmap": [
+        3,
+        4,
+        6,
+        7,
+        8
+      ],
+      "disposition": "failed_open",
+      "current_evidence": "Historical learnedformNLL4.412vs4.292baseline failed. Later lengthNLL2.163736vs2.163756 effectively tied. Explicit new-proposal theme returns now work in bounded pipeline.",
+      "unmet_gate": "Learned form quality and flexible structure control remain open. Supplied return constraints do not close the failed learned-form gate or establish idea development.",
+      "evidence_paths": [
+        "composition-lab/EXECUTION_16.md",
+        "composition-lab/AUTONOMOUS_COMPLETION.md",
+        "composition-lab/CONTROLLED_PIPELINE.md",
+        "composition-lab/form_returns.py"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    },
+    {
+      "id": 10,
+      "original": {
+        "title": "10 Roles",
+        "acceptance": "Joint contextual accompaniment/bass experiment vs independent role sampling; held-out metrics",
+        "recorded_state": "Partial: +4.36% / +11.27% two-song NLL; scope and timing limited"
+      },
+      "roadmap": [
+        3,
+        4,
+        6,
+        7,
+        8
+      ],
+      "disposition": "partial",
+      "current_evidence": "Joint/independent role experiments and development-selected motion/alignment models have measured results; bass benefits and melody limits are reported.",
+      "unmet_gate": "Roles are heuristic; main-voice/bar restrictions remain; generated whole-piece role interaction, voice leading and artist fidelity are not accepted.",
+      "evidence_paths": [
+        "composition-lab/AUTONOMOUS_COMPLETION.md",
+        "composition-lab/role_pitch_transfer.py",
+        "composition-lab/corpus_composer.py"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    },
+    {
+      "id": 11,
+      "original": {
+        "title": "11 Playability",
+        "acceptance": "Instrument constraints, source tunings, validation reports; human assessment deferred",
+        "recorded_state": "Mechanical pass 100 compositions + 15 controls; musician assessment pending"
+      },
+      "roadmap": [
+        5,
+        7,
+        8
+      ],
+      "disposition": "partial",
+      "current_evidence": "Actual native imports and physical pitch/string/fret/tuning/span constraints passed for documented batches.",
+      "unmet_gate": "Mechanical feasibility is not human physical technique/playability acceptance; expressive execution and broader arrangements remain unverified.",
+      "evidence_paths": [
+        "composition-lab/AUTONOMOUS_COMPLETION.md",
+        "composition-lab/generation_freedom.py",
+        "composition-lab/verify_gp.mjs"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    },
+    {
+      "id": 12,
+      "original": {
+        "title": "12 Controls",
+        "acceptance": "0/25/50/75/100 sweep, exact-zero invariants, monotonicity and cross-dimension coupling reports",
+        "recorded_state": "Partial: 1,600 feasible / 400 rejected; zero lock violations; structure/roles unsupported"
+      },
+      "roadmap": [
+        6,
+        8
+      ],
+      "disposition": "partial",
+      "current_evidence": "Eleven bounded controls, all0byte identity,100direct-target perturbation tests and fixed-stage intermediate release behavior exist.",
+      "unmet_gate": "Melody function+relative octave/NCT semantics remain unmet by literalMIDI locks; general form/meter/tuning/track/topology controls unsupported.100forced difference is superseded; no calibrated perceptual-distance equation claimed.",
+      "evidence_paths": [
+        "composition-lab/HANDOFF.md",
+        "composition-lab/CONTROLLED_PIPELINE.md",
+        "composition-lab/generation_freedom.py",
+        "composition-lab/test_compose_controlled.py"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    },
+    {
+      "id": 13,
+      "original": {
+        "title": "13 Compositions",
+        "acceptance": ">=20 full GP compositions, >=3 roles, independent import/event checks, seeds/provenance",
+        "recorded_state": "Artifact pass: 100 x 64 bars / 3 roles; quality unjudged"
+      },
+      "roadmap": [
+        5,
+        7,
+        8
+      ],
+      "disposition": "bounded_verified",
+      "current_evidence": "Historical100x64bar/3roleGP artifact gate passed; later131/108/118/152barcores and integrated native checks exist.",
+      "unmet_gate": "Artifact count does not close coherence/development/source-feel. Fixed3roleplaincore and other restrictions remain. No human approval of overnight candidates.",
+      "evidence_paths": [
+        "composition-lab/EXECUTION_16.md",
+        "composition-lab/AUTONOMOUS_COMPLETION.md",
+        "composition-lab/CONTROLLED_PIPELINE.md"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    },
+    {
+      "id": 14,
+      "original": {
+        "title": "14 Originality",
+        "acceptance": "Source/train/test copying windows and near-match audit; style/seed generalization, no legal-certification claim",
+        "recorded_state": "Partial: zero 16/32-event exact relative matches vs 2,002 pieces; short/coarse matches; style gate untested"
+      },
+      "roadmap": [
+        5,
+        8
+      ],
+      "disposition": "partial",
+      "current_evidence": "Known-corpus relative attack-window/opening/diversity screens exist and distinguish simple versus varied matches.",
+      "unmet_gate": "Longer/pitched/sounding near-copy/style/seed generalization remains limited; no universal originality/copyright verdict. Local tuning-relative candidate has some16attack matches and was not promoted.",
+      "evidence_paths": [
+        "composition-lab/corpus_copy_audit.py",
+        "composition-lab/EXTERNAL_COMPARISON.md",
+        "composition-lab/AUTONOMOUS_COMPLETION.md",
+        "composition-lab/OVERNIGHT_PROGRESS.md"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    },
+    {
+      "id": 15,
+      "original": {
+        "title": "15 Musical validation",
+        "acceptance": "Consolidated comparison outputs and blind protocol; 3-listener/preference gate deferred to final collaboration",
+        "recorded_state": "22-case review ready; shorter references mean exploratory comparison; human gates pending"
+      },
+      "roadmap": [
+        5,
+        8
+      ],
+      "disposition": "open",
+      "current_evidence": "Interactive comparisons and actual user feedback exist; engineering render/UI gates have bounded evidence. Pedal identification is approved.",
+      "unmet_gate": "Broad artist/style/whole-composition musical acceptance remains unmet, with negative stakeholder feedback. Original multi-listener/preference gate has no later recorded pass; no new listener quota is authorized here.",
+      "evidence_paths": [
+        "composition-lab/EXECUTION_16.md",
+        "composition-lab/EXTERNAL_COMPARISON.md",
+        "composition-lab/AUTONOMOUS_COMPLETION.md"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    },
+    {
+      "id": 16,
+      "original": {
+        "title": "16 Workflow",
+        "acceptance": "Repeatable CLI + review/export workflow, regression/CI/build, push verified main and check Pages for site edits",
+        "recorded_state": "Local CLI / 102 Python / 12 JS / build pass; remote release verification below"
+      },
+      "roadmap": [
+        8
+      ],
+      "disposition": "bounded_verified",
+      "current_evidence": "RepeatableCLIs, independentQA, private artifacts and publishedmain/CI evidence exist for delivered checkpoints; website deployment evidence exists when relevant.",
+      "unmet_gate": "Eight local WIP modules/tests are not delivered. Final experiment-specific native/audio/QA/publication gates remain; whole-suite pass does not accept them.",
+      "evidence_paths": [
+        "composition-lab/CONTROLLED_PIPELINE.md",
+        "composition-lab/OVERNIGHT_PROGRESS.md",
+        "composition-lab/ARTIST_PROFILE_PROGRESS.md",
+        ".github/workflows/composition-lab.yml"
+      ],
+      "evidence_level": "Current source/read-recorded execution; no experiments rerun by this mapping gate"
+    }
+  ]
+}
