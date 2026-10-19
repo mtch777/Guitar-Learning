@@ -413,3 +413,41 @@ acceptance and independent arrangement/form controls remain open. Pedals unchang
 - Finalregression373Python tests run,372pass/1optional skip. Native actualfiles
   and source-free code changes are distinct from musical acceptance. Original
   source scores, profiles, feedback, intermediateGPs and audio stay private.
+
+## Multi-core integration sweep and reproducible batch runner (2026-10-18)
+
+- Committedd2d45d350e55322f7ae0e961a1b755ad762960d8; GitHubCI39185162321passed.
+- pipeline-corpus-v1:12preservedcores×all11controls0/50/100=36GPexports,zero
+  rejected proposals. All12zero outputs retain complete originalGPbytes.
+- Independentnative36,palmflags36,link/vibratorrows72,bendcurvechecks108 pass.
+  All12fullyunlocked nativeGMpreviews finite/nonzero/unclipped. QABot independently
+  verified every output/code hash,zero identity, native checks andWAVhashes.
+- Finalunlocked sourceannotationrates remain mixed:palmmute6.241%(source16.602%,
+  priorintegrated7.512%);openhammer0.284%(2.102%/0.363%);openpull0.180%(1.189%/
+  0.198%);closedyads1.963%(1.035%/4.213%);powerchords8.774%(9.014%/8.161%).
+  Fixed3role versus source-track mixtures remainconfounded. No claim of better
+  style, musical quality, emotional meaning, sourcefeel or originality.
+- Added public run_controlled_batch.py instead of relying on an uncommitted
+  one-off experiment script. Supports selected dimensions/strengths; records each
+  failure, preserves partialfolders, continues independentcases, exitsnonzero
+  for incompletebatch. Cross-case implementation/modelhash consistency required.
+- Two batch regressions verify schema/failclosedbehavior and an invalidfirstinput
+  cannotprevent a subsequent independent allzero export. Actualwrapperreplay:
+  2cores×0/50/100=6outputs; allarchive MEMBERcontents match the corresponding
+  previouslyverifiedsweep. Native6/flags6/links12/curves18 independentlypass.
+- Current375Python tests run,374pass/1optional skip. No website code changed;
+  Pages deployment is unaffected. Private scores/models/annotations/audio are
+  ignored; only code, tests, documentation and aggregate progress are published.
+- Important control contract: nestedrelease masks apply to fixed stage inputs.
+  Combined upstreamchanges can alter downstream proposals/eligibility. Combined
+  outputs are not globallynested percent-difference or perceptualstrength sets.
+- QABot caught missingcross-strength sourcehash guard in initialbatchwrapper.
+  Repaired per-source GP+expectedJSONseals; regressionproves changedinputinvalidates
+  comparison while retainingthefirstvalidcase.3batchtests pass; current376Python
+  tests run,375pass/1optional skip. public-batch-wrapper-v2 sixoutputs/twoinputseals
+  matchv1 archive membercontents exactly; actualv2native6/flags6/links12/curves18
+  pass. QABot independently approved repairedwrapper andsixoutputreplay.
+- No humanmusical verdict requested or fabricated. Broadremainingwork includes
+  independentform/tuning/track-layout freedom, richerartist/phrase/stylevalidation,
+  and humanlistening acceptance. These boundedengineering approvals are not
+  completionofeveryroadmapgate; preservebaselines and currentrejectedexperiments.

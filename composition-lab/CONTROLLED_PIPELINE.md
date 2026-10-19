@@ -19,8 +19,10 @@ Supported controls, each an integer0–100:
 | `palm_mute` | Whole eligible coattack muting decisions |
 
 Omitted controls are0. Zero means a literal lock;100 releases decisions without
-requiring a different outcome. Intermediate settings release nested subsets of
-opportunities. These percentages are not percentages of audible difference.
+requiring a different outcome. For a fixed stage input, intermediate settings
+release nested subsets of opportunities. Changing an upstream control can change
+downstream proposals and eligibility, so combined pipeline runs are not globally
+nested variation sets. These percentages are not percentages of audible difference.
 Form, meter, tuning, track count and event topology stay fixed.
 Unsupported controls fail explicitly. Changing rhythm or pitches can change
 cross-track harmony and performance opportunities: perceptual effects are coupled.
@@ -63,3 +65,12 @@ explicit artist when that model contains multiple artist labels. All-zero use
 needs no model. No original commercial scores, fitted note-level models, private
 feedback or rendered audio belong in Git. Native import/render success is an
 engineering check, not musical acceptance or physical-performance validation.
+
+For a repeatable sweep over a folder of plain cores, use
+`run_controlled_batch.py BASELINES PRIVATE_CONFIG OUT --strengths 0 50 100`.
+Its configuration takes `models`, `artist`, `seed` and optionally `dimensions`
+(a list of supported controls; defaults to all eleven). It does not take the
+single-run `controls` field. Each source/strength gets a fresh subfolder.
+Failed cases are preserved and recorded while independent cases continue; the
+CLI exits unsuccessfully if any case fails. Batch completion means exports only;
+native import, curve/link/flag and playback checks are separate requirements.
