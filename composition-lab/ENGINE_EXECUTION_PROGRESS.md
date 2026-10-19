@@ -694,3 +694,25 @@ then actualGP/native verification.100learnedproposal logicisNOTimplemented by
 thevalidator. No newmodel/batch, sourcefeel/qualityclaim or leverpromotion.
 Planner START/MID/END cadence continues. Broader16requirementsremain open as
 recorded in REQUIREMENTS_STATUS.md. Scheduledtasks remain paused.
+
+
+## User-facing latest comparison review (2026-10-19)
+
+User asked how best to see/hear current progress. Built a clearlylabelled private
+2version review of the existing baseline/rejectedharmonyGP pair, notnewmusic.
+Piano roll uses existingbuilderplayhead/click/filter; same-time switch verified
+at28.8s. Both audio players usable; no listeningjudgment. Context explicitly
+says generatedpieces/notoriginalsongs andnewanalysis/validatorhasnoextraaudio.
+
+Automaticapproval rejected servingentireprivateartifactroot; saferisolatedbundle
+contains onlypage and2generatedGP/2WAVassets. Restrictedserver allowsindex.html
+andimmediateassetGP/WAVonly; unrelatedfiles/traversal404; byte-range206verified.
+Existingserverhelperwasinitiallymissed/overwritten; regressioncaughtmissingAPI.
+Restoredexistingserve_private_review.py exactly; newrestrictedhelperseparate.
+562testsrun561pass1optional skip includes5uncommittedtests; newrange/security
+checks pass. Reproduciblebuilder validatesGPcanonical/audiohashes andcreates
+freshprivatebundle. Publicdeployedwebsiteunchanged; noPagesclaimneeded.
+
+CurrentlocalURL:http://127.0.0.1:5200/ ; privatebundlecurrent-review-v1;
+sourcebuilderreproductioncurrent-review-v2. Playback/renderqualityunjudged.
+Sourceonlytoolpublication/CI follows; privateHTML/audio/scoredata notstaged.
