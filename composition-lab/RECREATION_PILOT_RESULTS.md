@@ -42,8 +42,8 @@ pool these into an artist-accuracy percentage.
 | 7 | Pull to open | 3 | 2 | 1 | 0 | 0 |
 | 8 | Palm mute | 29 | 0 | 5 | 0 | 24 |
 
-The same muting method that performed well in case1 missed all five positive
-groups in case8. Both bend cases missed the source bend locations. Passing
+The same muting method that performed well in case 1 missed all five positive
+groups in case 8. Both bend cases missed the source bend locations. Passing
 serialization, permission or native-curve checks does not resolve these misses.
 These results do not justify promoting the methods as faithful artist recreation.
 The original first-pair static comparison remains separately recorded; this
@@ -51,22 +51,22 @@ eight-case batch is not an eight-case controlled method-improvement claim.
 
 ## Refusals and representation limits
 
-- **Tied bends:** all40bends in the first attempted additional source were on tied
+- **Tied bends:** all 40 bends in the first attempted additional source were on tied
   notes, which the existing generator excludes. That coverage/refusal probe is
   preserved separately. Tied source annotations retained in final outputs are
   locked data, not learned reconstruction successes.
 - **Raw API versus converted GP curves:** converted-GP replay/native contour
   agreement passes, but the two selected original API curves differ from their
   converted-GP encodings. Maximum sampled discrepancies are approximately
-  **0.029 and0.462semitones**. No claim of lossless raw-API replay is made.
+  **0.029 and 0.462 semitones**. No claim of lossless raw-API replay is made.
   Existing paired-bend workflow and parked standalone-native repair remain
   separate; neither source conversion nor its truth was silently rewritten.
-- **Harmonic context:** case7contains two API written-base pitches differing
-  from stored GP pitches by24/36semitones. Actual string/fret base pitches agree.
+- **Harmonic context:** case 7 contains two API written-base pitches differing
+  from stored GP pitches by 24/36 semitones. Actual string/fret base pitches agree.
   These harmonic notes are ineligible and preserved exactly. Broad equivalence
   of raw-base and sounding-pitch context/register features remains unverified.
 - **String convention:** API/GPIF index reversal is checked against actual
-  tunings; synthetic6/7/8string tests reject mismatched conventions. The initial
+  tunings; synthetic 6-, 7- and 8-string tests reject mismatched conventions. The initial
   naive failed source join is retained, not erased.
 - Human musical/source-feel acceptance is still open. No listening judgment was
   invented, and no new review UI or generator-default promotion occurred.
@@ -75,9 +75,9 @@ eight-case batch is not an eight-case controlled method-improvement claim.
 
 ## Verification and reproduction
 
-- Python discovery: **500run,499passed,one optional skip**. Includes the still
+- Python discovery: **500 run, 499 passed, one optional skip**. Includes the still
   uncommitted rejected tuning candidate's tests; that candidate is not accepted.
-- **39JS tests passed; Vite build passed.** No website files changed.
+- **39 JS tests passed; Vite build passed.** No website files changed.
 - Five focused replay/window tests include archive tampering and shared-ID refusal.
 - Two end-to-end runner/partition tests preserve failed predictions and refuse
   fitted source families or training bend-shape leakage. All eight real cases

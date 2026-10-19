@@ -12,8 +12,8 @@ open like other techniques, without extra pedal priority.
 |G1 Shared contract|Traceable observation/support/proposal/permissions/output; positive/unknown/conflict/redaction tests|Passed bounded scope: b95606b pushed; both CI runs succeeded|
 |G2 Useful WIP|Developer self-QA, planner scope review; note/summary reconciliation and actual muteGP/native/playback checks|Passed bounded technical scope: e585f4e pushed; CI39256565591 success; no musical/default promotion|
 |G3 Recreation|Bounded real-source replay versus learned reconstruction, explicit relationship assertions|Engineering replay/locks/native passed; learned reconstruction mixed; planner scope accepted; delivery/CI pending|
-|G4 Transfer|Changed eligible contexts, target values hidden, locks/native/support/refusals verified|Not started|
-|G5 Generation|Matched baseline versus profile-informed outputs, frozen metrics and side effects|Not started|
+|G4 Transfer|Changed eligible contexts, target values hidden, locks/native/support/refusals verified|Private eight-case engineering diagnostic passed; one probability change, zero annotation changes; no musical acceptance or public method delivery|
+|G5 Generation|Matched baseline versus profile-informed outputs, frozen metrics and side effects|Private pair-conditioned candidate and 24-GP comparison passed bounded engineering checks; no default promotion or musical acceptance|
 |G6 Whole piece|One demonstrated mechanism per bounded improvement/reject/inconclusive cycle|Not started|
 |G7 Delivery/review|QA/regressions/copy limits/actual playback; verified publication and genuine human review|Not started|
 
@@ -158,3 +158,87 @@ open like other techniques, without extra pedal priority.
   All8real cases pass final guard;500Python run499pass1optional skip. Two runner
   tests include negative leakage and honest failed-prediction/native-pending states.
   Faithful learned reconstruction not established; publication/CI next, then G4.
+
+## G3 delivery and external-CI contingency
+
+- Engineering accepted; pushed `6a9ad8b`. CI `39280563908` is queued with no
+  runner assigned, not passed or failed. Local 500 tests include five uncommitted
+  rejected tuning-candidate tests: 499 passed, one optional skip. Remote committed
+  CI is separate. No website files changed or Pages deployment claimed.
+- Planner initially limited private G4 work to one pair, then explicitly relaxed
+  that developer precaution after its checks passed and the eight interventions
+  were frozen. Continue reversible private diagnostics while CI waits; no model
+  defaults, detector repair, source acquisition or public method promotion.
+  If CI fails, repair the affected dependency before downstream acceptance.
+  This is a workflow contingency, not a user waiver or a passed CI gate.
+
+## G4 private frozen transfer diagnostic
+
+- Eight predeclared +2-semitone/fret interventions across the existing six families.
+  Open endpoints preserved; actual encoded pitch octaves/transposition retained.
+- Sixteen control/recomputed GPs pass independent native import, MIDI export,
+  applicable curves/flags and directed links. Every output changes exactly one
+  declared pitch/fret; all other native pitches, frets, strings and timing match.
+  Atomic XML/archive locks pass. All 1,522 raw decisions are target-perturbation
+  invariant; no source annotations used as new-context truth.
+- One low-to-middle register bucket changes bend probability from
+  0.03998360287982851 to 0.02980769555697426. The fixed draw remains unselected.
+  Other seven probabilities stay unchanged; zero target-annotation changes.
+- Open-HOPO probabilities use origin context, not destination interval/duration.
+  Richer profiles retain those relationships, but their pair tables are marked-only.
+  Existing opportunity logic supplies eligible marked and unmarked transitions.
+  This identifies a consumer gap; it does not prove which new-context probability
+  would be musically right. No listening, transfer-competence or source-feel claim.
+- Private evidence: `local-artifacts/g4-context-transfer-v1`, frozen interventions,
+  generation seals, native QA and final-verification.json. Planner bounded scope
+  review passed; developer owns engineering QA. Public method delivery pending.
+
+## G5 private pair-consumer experiment
+
+- Exact existing performance-source hash and training-event hash verified.
+  All 10,191 eligible open-HOPO opportunities rejoined uniquely to both endpoints,
+  exact contiguous timing, voice/string, frets and durations. No invented negatives.
+- Development: hammer-ons 5,149 (2,331 marked / 2,818 unmarked); pull-offs 4,379
+  (1,653 / 2,726). Previously examined holdout: 414 hammer-ons and 249 pull-offs.
+  Inherited exclusion reasons are not newly counted: the original empty Counter
+  does not mean zero exclusions. Annotation absence is not physical-performance truth.
+- One candidate frozen before fitting: origin context, distance bucket and relative
+  destination duration; prior one family-equivalent. Family-safe weighting,
+  leave-one-development-family-out and fold-local feature-permutation control.
+  One descriptive examined-holdout pass; no settings search or held-out tuning.
+- The first run stopped before evaluation on baseline-API tuple unpacking; only
+  indexing was corrected, failed folder retained, experiment settings unchanged.
+  Recomputed origin-only baseline matches the existing model exactly (max error 0).
+- Development log loss: baseline 0.551045, pair 0.535932, permutation 0.558756.
+  Brier: 0.180697 to 0.172952. Both directions improve in aggregate;
+  61/103 feature-family comparisons improve. Previously examined holdout log loss
+  0.502979 to 0.458524; Brier 0.171532 to 0.152816; 9/12 comparisons improve.
+  Heterogeneity/adverse cases retained. These are notation prediction diagnostics.
+- Four preserved generated cores x two methods x three seeds = 24 comparison GPs.
+  Same 210 eligible pair decisions and random draws: 147 probability changes,
+  three changed selections in two of 12 matched comparisons. No quota/forced change.
+- All 24 plus six engineering controls pass GPIF/archive contract, native directed
+  graphs and MIDI export. Independent native comparison preserves pitch, fret,
+  string, rhythm, tuning, programs, meter and tempo in all 30 outputs.
+- Zero control is byte-identical. At 50%, 16/33 units release; all 34 unreleased
+  endpoint fields remain exact. Repeat byte-identical; all 33 tested target decisions
+  invariant to eligible-target-marker perturbation. Shared endpoints checked through
+  actual output contract/native graphs, not assumed from decision counts.
+- Private prototype/evidence: `local-artifacts/g5-pair-conditioning-v1`.
+  Existing generated cores used; no new melody/harmony/form method or production
+  default change. No acoustic legato, listening or complete step-5 acceptance.
+  Planner bounded requirements review passed; it did not independently rerun QA.
+- Source-free progress publication records provisional local findings; it does
+  not publish private prototypes, weights, scores or promote a delivered method.
+
+## Next sequential gate
+
+- G6 prerequisite audit: test whether per-bar pitch-history resets discard usable
+  source-supported cross-bar continuation. This is a hypothesis, not a proven
+  cause of generic music. Compare source and consumer reset semantics first;
+  no inferred phrase labels or unconditional smoothness rule.
+- One opt-in candidate only if source support exists; preserve intentional leaps,
+  exact returns and locked dimensions. No more technique-conditioner expansion.
+- A Windows encoding error during this log update briefly truncated the working
+  file. Recovered committed history plus the private experiment records before
+  publication; all new log writes use explicit UTF-8. Experiment files unaffected.
