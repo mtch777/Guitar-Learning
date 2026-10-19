@@ -16,6 +16,7 @@ from technique_analysis import classify_group
 from pedal_patterns import detect_bursts
 from source_semantics import marker_text, layout, playback_order, rests, mechanics, timeline, seconds_between, sustain_context, whole_measure_rest
 from source_dynamics import dynamic_observations
+from source_relationship_details import relationship_details
 
 NOTE_FIELDS = ('hp', 'bend', 'slide', 'harmonic', 'dead', 'ghost', 'staccato',
                'accentuated', 'tremolo', 'vibrato', 'wideVibrato', 'leftHandVibrato')
@@ -246,7 +247,11 @@ def track_analysis(part, headers=None, catalog=None, identity_warnings=None, sha
         if len(active)==2 and len({r['string'] for r in active})==2 and all(r['midi'] is not None for r in active):
             distance=abs(active[0]['midi']-active[1]['midi'])
             if distance==2 and len(near)<4:near.append(dict(members=[r['occurrence'] for r in active],written_semitones=distance,reason='whole_step_not_close_texture'))
+    details=relationship_details(part,headers,rows,grace,warnings,
+                                 [*identity_warnings,*(shared_warnings or [])],
+                                 recover_groups=guitar and not temporal_valid)
     return dict(part_id=part.get('partId'),name=part.get('name'),guitar_or_bass=guitar,
+                relationship_details=details,
                 program_guitar_or_bass=program_guitar,catalog_flags={k:catalog.get(k) for k in ('isVocalTrack','isEmpty')},identity_warnings=identity_warnings,
                 rest_spans=rest_rows,technique_values=technique_values,technique_value_histograms=value_histograms,sustain_relationships=sustained,physical_notation_flags=dict(physical),
                 temporal_relationships_eligible=temporal_valid,

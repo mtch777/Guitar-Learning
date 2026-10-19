@@ -1,3 +1,14 @@
+## Remaining analysis repairs, pass 2 (2026-10-18)
+
+Read ANALYSIS_REPAIR_PASS2.md and songsterr_automation/BEND_FIDELITY.md.
+Typed slide analysis verifies2,553clear targets against independent native links.
+Separate unpitched notation records18dead/dead links;3mixed ties stay unknown.
+Safe local regions recover610/626bars from4excluded guitar tracks, in separate
+relationship_details output; global detectors/profiles are not silently enabled.
+Opt-in GP+exact-model-bend sidecar preserves supplied model curves through
+alphaTab playback. Native GP alone remains lossy; raw API precision is not
+recovered. Exporter and renderer support explicit sidecar use. Pedals unchanged.
+
 ## Analysis blocker probes and repairs (2026-10-18)
 
 See ANALYSIS_UNBLOCK_RESULTS.md for measured outcomes. Explicit whole-measure

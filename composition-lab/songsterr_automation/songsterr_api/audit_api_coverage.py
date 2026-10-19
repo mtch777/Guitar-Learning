@@ -147,6 +147,14 @@ def registry():
     upgrade([M+'.rest',V+'.rest',B+'.rest'],'rest_spans_and_conflicts',
             'Explicit whole/voice/beat rests produce rational spans; contradictory notes are flagged.',
             'No artistic pause/phrase-end interpretation.','source_semantics.rests')
+    upgrade([N+'.slide'],'typed_written_endpoints',
+            'Typed slide entries/exits and timing-gated same-string target relationships; raw values and unresolved reasons retained.',
+            'Grace execution and tied-origin placement remain unresolved; written intervals are not physical pitch trajectories.',
+            'source_slides.resolve_slides; source_relationship_details.relationship_details')
+    upgrade([N+'.tie'],'separate_pitched_and_unpitched_notation',
+            'Existing pitched tie chains plus separate exact dead-note continuity inside safe timing regions.',
+            'Unpitched written continuity is not sounding sustain; mixed dead/pitched ties remain unresolved.',
+            'source_semantics.sustain_context; unpitched_tie_continuity; source_timing_regions')
     upgrade([N+'.bend.tone'],'curve_consistency','Declared peak checked against point-curve maximum.',
             'Does not certify a physically performed bend.','source_semantics.curve')
     upgrade([N+'.bend.points[].precisePosition'],'exact_curve_fraction',
@@ -223,6 +231,7 @@ def scan_documents(documents):
     return dict(schema='songsterr-api-field-coverage-v1',analyzer_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
                 semantics_sha256=hashlib.sha256(source.with_name('source_semantics.py').read_bytes()).hexdigest(),
                 dynamics_sha256=hashlib.sha256(source.with_name('source_dynamics.py').read_bytes()).hexdigest(),
+                relationship_helpers_sha256={name:hashlib.sha256(source.with_name(name).read_bytes()).hexdigest() for name in ('source_slides.py','source_timing_regions.py','source_relationship_details.py')},
                 entries=len(private),response_counts=dict(doc_counts),observed_paths=len(rows),
                 status_counts=dict(Counter(r['status'] for r in rows)),review_required_paths=[r['path'] for r in rows if r['review_required']],
                 declared_but_unobserved_paths=sorted(set(rules)-set(stats)),fields=rows,

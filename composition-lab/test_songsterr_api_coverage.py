@@ -79,7 +79,7 @@ class ApiCoverageTests(unittest.TestCase):
         for base,fields in [(a.N,a.NOTE_FIELDS),(a.B,a.BEAT_FIELDS)]:
             for field in fields:
                 self.assertEqual(rules[base+'.'+field]['status'],'analyzed')
-                self.assertTrue(any(name in rules[base+'.'+field]['code_evidence'] for name in ('summary','source_semantics')))
+                self.assertTrue(any(name in rules[base+'.'+field]['code_evidence'] for name in ('summary','source_semantics','source_slides')))
 
 
 if __name__=='__main__':unittest.main()

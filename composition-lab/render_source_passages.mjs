@@ -1,11 +1,14 @@
 // Render bounded real-score passages with the ordinary alphaTab reader.
 import fs from 'node:fs';import path from 'node:path';import crypto from 'node:crypto';import {pathToFileURL} from 'node:url';
+import {loadWithExactBends} from './songsterr_automation/songsterr_api/bend_fidelity.mjs';
 const [modulePath,fontPath,jobsPath]=process.argv.slice(2),at=await import(pathToFileURL(path.resolve(modulePath)));
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
 const font=new Uint8Array(fs.readFileSync(fontPath)),jobs=JSON.parse(fs.readFileSync(jobsPath,'utf8')),results=[];
 for(const job of jobs){
  if(fs.existsSync(job.out))throw Error('Refusing to overwrite '+job.out);
- const data=fs.readFileSync(job.file),score=at.importer.ScoreLoader.loadScoreFromBytes(new Uint8Array(data));
+ const data=fs.readFileSync(job.file),sidecarData=job.exact_model_bends?fs.readFileSync(job.exact_model_bends):null;
+ const restored=sidecarData?loadWithExactBends(at,new Uint8Array(data),JSON.parse(sidecarData.toString('utf8'))):null;
+ const score=restored?restored.score:at.importer.ScoreLoader.loadScoreFromBytes(new Uint8Array(data));
  const settings=new at.Settings();settings.notation.notationMode=at.NotationMode.GuitarPro;const midi=new at.midi.MidiFile(),generator=new at.midi.MidiFileGenerator(score,settings,new at.midi.AlphaSynthMidiFileHandler(midi,false));generator.generate();
  const bars=generator.tickLookup.masterBars,start=bars.findIndex(b=>b.masterBar.index===job.start_bar-1),end=bars.findIndex((b,i)=>i>=start&&b.masterBar.index===job.end_bar-1);
  if(start<0||end<start||end-start>16)throw Error('Unresolved passage playback range');
@@ -36,6 +39,6 @@ for(const job of jobs){
  let offset=44;for(const chunk of chunks)for(const value of chunk){wav.writeInt16LE(Math.round(value*32767),offset);offset+=2;}
  fs.writeFileSync(job.out,wav);
  const result={...job,gp_sha256:hash(data),midi_event_sha256:hash(JSON.stringify(midi.events)),audio_sha256:hash(wav),seconds:frames/44100,rms:Math.sqrt(squares/frames),peak,
-  target_seconds:secondsBetween(bars[start].start,targetTick),reader:'unmodified alphaTab 1.8.4',renderer:'alphaTab internal MIDI / Sonivox GM SF2, fixed .3 gain',font_sha256:hash(font),tracks:score.tracks.length,bars:score.masterBars.length,playback_range:options.playbackRange,listening_judgment:null};
+  target_seconds:secondsBetween(bars[start].start,targetTick),reader:restored?'alphaTab with explicit exact-model-bend sidecar':'unmodified alphaTab 1.8.4',exact_model_bend_restore:restored?{curves:restored.restored,sidecar_sha256:hash(sidecarData),native_gp_lossless:false}:null,renderer:'alphaTab internal MIDI / Sonivox GM SF2, fixed .3 gain',font_sha256:hash(font),tracks:score.tracks.length,bars:score.masterBars.length,playback_range:options.playbackRange,listening_judgment:null};
  results.push(result);fs.writeFileSync(jobsPath.replace(/\.json$/,'.results.json'),JSON.stringify(results,null,2));console.log(JSON.stringify({case_id:job.case_id,method:job.method,mode:job.mode,seconds:result.seconds,peak}));
 }

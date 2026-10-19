@@ -233,6 +233,56 @@ def seconds_between(start,end,time):
     return float(seconds)
 
 
+def unpitched_tie_continuity(rows):
+    """Explicit dead-note notation links, separate from pitched/sounding chains.
+
+    Exact time, lane and fret equality establish written continuity only. Neither
+    a sounding pitch nor an acoustic duration is assigned to a muted gesture.
+    """
+    lanes=defaultdict(list);links=[];unresolved=[];chains=[];chain_by_end={}
+    for r in rows:
+        string=r.get('string')
+        if isinstance(string,int) and not isinstance(string,bool) and string>=0:
+            lanes[r['voice'],string].append(r)
+        elif r.get('tie_destination') and r.get('midi') is None:
+            unresolved.append(dict(occurrence=r['occurrence'],reason='invalid_or_missing_string'))
+    for lane in lanes.values():
+        groups=defaultdict(list)
+        for r in lane:groups[F(r['onset_q'])].append(r)
+        previous=None
+        for q,group in sorted(groups.items()):
+            if len(group)!=1:
+                for r in group:
+                    if r.get('tie_destination') and r.get('midi') is None:unresolved.append(dict(occurrence=r['occurrence'],reason='ambiguous_same_lane_onset'))
+                previous=None;continue
+            r=group[0];dead='dead' in r.get('effects',[]) and r.get('raw_note',{}).get('dead') is True
+            if r.get('tie_destination') and (r.get('midi') is None or (previous and previous.get('midi') is None)):
+                prior_dead=previous is not None and 'dead' in previous.get('effects',[]) and previous.get('raw_note',{}).get('dead') is True
+                fret=r.get('fret');valid_fret=isinstance(fret,(int,float)) and not isinstance(fret,bool) and 0<=fret<float('inf')
+                match=(previous is not None and F(previous['onset_q'])+F(previous['duration_q'])==q
+                       and previous.get('fret')==fret and valid_fret and dead and prior_dead
+                       and r.get('midi') is None and previous.get('midi') is None and F(r['duration_q'])>0)
+                if match:
+                    link=dict(origin=previous['occurrence'],destination=r['occurrence'],kind='explicit_dead_tie_notation',sounding_pitch=None)
+                    links.append(link)
+                    chain=chain_by_end.pop(previous['occurrence'],None)
+                    if chain is None:
+                        chain=dict(origin=previous['occurrence'],members=[previous['occurrence']],onset_q=previous['onset_q'],
+                                   voice=r['voice'],string=r['string'],fret=fret,sounding_pitch=None,
+                                   origin_is_tie_destination=bool(previous.get('tie_destination')))
+                        chains.append(chain)
+                    chain['members'].append(r['occurrence']);chain['written_end_q']=str(q+F(r['duration_q']))
+                    chain_by_end[r['occurrence']]=chain
+                else:
+                    reason=('dead_to_pitched' if prior_dead and r.get('midi') is not None else
+                            'pitched_to_dead' if dead and previous and previous.get('midi') is not None else
+                            'unknown_pitch_without_explicit_dead' if not dead or not prior_dead else 'noncontiguous_or_different_fret')
+                    unresolved.append(dict(occurrence=r['occurrence'],reason=reason))
+            previous=r
+    return dict(schema='source-unpitched-tie-notation-v1',links=links,chains=chains,unresolved=unresolved,
+                limitation='Written dead-note continuity only; no pitched sustain, sounding duration or invented frequency')
+
+
 def sustain_context(rows,mechanical):
     by_id={m['occurrence']:m for m in mechanical};lanes=defaultdict(list);chains=[];warnings=[]
     for r in rows:

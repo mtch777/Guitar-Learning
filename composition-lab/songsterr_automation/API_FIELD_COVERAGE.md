@@ -11,7 +11,7 @@ This is a coverage audit of `analyze_relationships.py`, not a statement that eve
 | unsupported | 11 |
 | not_applicable | 16 |
 
-Unreviewed observed fields: 0. Analyzer SHA256: `e537bd1375b0ef0a855a7a988f1f2244e07da80156af0e9dfd6807dcbbbfc6a5`.
+Unreviewed observed fields: 0. Analyzer SHA256: `74074ca8e01729d7ce464b72c143021e008dbf695d014cd3561da86dab898360`.
 
 ## What the gaps mean
 
@@ -179,10 +179,10 @@ Field-presence numerators include false/null/zero values. For scalar/object fiel
 | `track.measures[].voices[].beats[].notes[].hp` | 10064/472779 | 81 | 169 | analyzed / presence_and_conditionals | Technique marker shares and conditional notation statistics. Origin-marker transition candidates only; not independently adjudicated technique truth. |
 | `track.measures[].voices[].beats[].notes[].leftHandVibrato` | 1/472779 | 1 | 1 | analyzed / presence_and_conditionals | Technique marker shares and conditional notation statistics. No measured physical oscillation rate/depth or source audio validation. |
 | `track.measures[].voices[].beats[].notes[].rest` | 52660/472779 | 95 | 492 | analyzed / rest_filter | Explicit note-rest entries are omitted from note counts while beat duration advances. No separate rest-pattern statistics or higher-level rest-flag reconciliation. |
-| `track.measures[].voices[].beats[].notes[].slide` | 3061/472779 | 81 | 199 | analyzed / presence_and_raw_value_summary | Technique marker shares and conditional notation statistics. Presence/relationships do not establish performance mechanics or musical function. |
+| `track.measures[].voices[].beats[].notes[].slide` | 3061/472779 | 81 | 199 | analyzed / typed_written_endpoints | Typed slide entries/exits and timing-gated same-string target relationships; raw values and unresolved reasons retained. Grace execution and tied-origin placement remain unresolved; written intervals are not physical pitch trajectories. |
 | `track.measures[].voices[].beats[].notes[].staccato` | 638/472779 | 20 | 26 | analyzed / presence_and_conditionals | Technique marker shares and conditional notation statistics. Presence/relationships do not establish performance mechanics or musical function. |
 | `track.measures[].voices[].beats[].notes[].string` | 420119/472779 | 98 | 489 | analyzed / written_note_relationships | String/fret/base pitch, tied-attack exclusion and contiguous HOPO tie chaining. No complete sustained-sonority or tied-gesture-duration analysis. |
-| `track.measures[].voices[].beats[].notes[].tie` | 24015/472779 | 93 | 346 | analyzed / written_note_relationships | String/fret/base pitch, tied-attack exclusion and contiguous HOPO tie chaining. No complete sustained-sonority or tied-gesture-duration analysis. |
+| `track.measures[].voices[].beats[].notes[].tie` | 24015/472779 | 93 | 346 | analyzed / separate_pitched_and_unpitched_notation | Existing pitched tie chains plus separate exact dead-note continuity inside safe timing regions. Unpitched written continuity is not sounding sustain; mixed dead/pitched ties remain unresolved. |
 | `track.measures[].voices[].beats[].notes[].tremolo` | 494/472779 | 11 | 16 | analyzed / exact_notated_rate | Fraction supplies rational picking period and attacks per quarter. Not actual performed picking precision. |
 | `track.measures[].voices[].beats[].notes[].tremolo[]` | 884/884 | 10 | 15 | analyzed / exact_notated_rate | Fraction supplies rational picking period and attacks per quarter. Not actual performed picking precision. |
 | `track.measures[].voices[].beats[].notes[].velocity` | 12/472779 | 2 | 2 | analyzed / written_dynamic_inheritance | Local histogram plus voice-local explicit/inherited written dynamics and marking provenance; note override does not alter voice state. No ghost attenuation, dynamic-envelope reconstruction, performed loudness or playback-repeat dynamics inference. |

@@ -1,6 +1,7 @@
 // Restore temporary GP5 split tracks, export real GP7, and compare reimported data.
 import fs from 'node:fs';import path from 'node:path';import {pathToFileURL} from 'node:url';import crypto from 'node:crypto';
 import {restoreDeadTies} from './restore_dead_ties.mjs';
+import {exportWithExactBends,loadWithExactBends} from './bend_fidelity.mjs';
 const [modulePath,root,...options]=process.argv.slice(2),at=await import(pathToFileURL(path.resolve(modulePath)));
 // Guard an upstream alphaTab GP5 importer bug when adjacent bars omit a voice.
 let voicePaddingRepairs=0,emptyVoiceRestRepairs=0;
@@ -70,7 +71,9 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
  const folder=path.join(root,entry.name),capture=path.join(folder,'capture.json');if(!fs.existsSync(capture))continue;
  const status=JSON.parse(fs.readFileSync(capture,'utf8'));if(!status.capture_complete)continue;
  const target=path.join(folder,'score.gp'),reportPath=path.join(folder,'gp7-validation.json');
- if(fs.existsSync(reportPath)&&!options.includes('--recheck')){const old=JSON.parse(fs.readFileSync(reportPath,'utf8'));if(old.roundtripPass){results.push(old);continue;}}
+ // Refusal must not overwrite a previous passing report in the catch below.
+ if(options.includes('--exact-model-bends')&&!options.includes('--recheck')&&(fs.existsSync(target)||fs.existsSync(path.join(folder,'score.exact-model-bends.json'))))throw Error('Existing GP/sidecar and validation report preserved; use a copied corpus with --recheck');
+ if(fs.existsSync(reportPath)&&!options.includes('--recheck')){const old=JSON.parse(fs.readFileSync(reportPath,'utf8'));if(old.roundtripPass&&!options.includes('--exact-model-bends')){results.push(old);continue;}}
  let report={songId:status.song_id,file:target};
  try{
   const map=JSON.parse(fs.readFileSync(path.join(folder,'bridge-map.json'),'utf8'));
@@ -97,11 +100,16 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
    const result=restoreDeadTies(track,raw);for(const key of Object.keys(deadTieRestoration))deadTieRestoration[key]+=result[key];
   }
   const before=snapshot(score);
-  for(const track of score.tracks)for(const staff of track.staves)for(const bar of staff.bars)for(const voice of bar.voices)for(const beat of voice.beats)for(const note of beat.notes){if(note.bendPoints)note.bendPoints=simplify(note.bendPoints);}
+  const exact=options.includes('--exact-model-bends')?exportWithExactBends(at,score,settings):null;
+  if(!exact)for(const track of score.tracks)for(const staff of track.staves)for(const bar of staff.bars)for(const voice of bar.voices)for(const beat of voice.beats)for(const note of beat.notes){if(note.bendPoints)note.bendPoints=simplify(note.bendPoints);}
 
   if(fs.existsSync(target)&&!options.includes('--recheck'))throw Error('Unverified existing GP preserved; use --recheck');
-  fs.writeFileSync(target,new at.exporter.Gp7Exporter().export(score,settings));const afterScore=load(target),after=snapshot(afterScore);
-  report={...report,rhythmRestorations,voicePaddingRepairs,emptyVoiceRestRepairs,percussionGraceRepairs,deadTieRestoration,curveComparisonGrid:61,roundtripPass:JSON.stringify(before)===JSON.stringify(after),tracks:after.tracks.length,bars:after.bars.length,
+  const sidecarPath=path.join(folder,'score.exact-model-bends.json');
+  if(exact&&fs.existsSync(sidecarPath)&&!options.includes('--recheck'))throw Error('Existing exact model bend sidecar preserved; use --recheck');
+  fs.writeFileSync(target,exact?exact.bytes:new at.exporter.Gp7Exporter().export(score,settings));const afterScore=load(target),after=snapshot(afterScore);
+  let exactModelBends=null;
+  if(exact){const restored=loadWithExactBends(at,exact.bytes,exact.sidecar,settings).restored;fs.writeFileSync(sidecarPath,JSON.stringify(exact.sidecar,null,2));exactModelBends={sidecar:path.basename(sidecarPath),restored_curves:restored,native_gp_lossless:false,scope:exact.sidecar.scope};}
+  report={...report,rhythmRestorations,voicePaddingRepairs,emptyVoiceRestRepairs,percussionGraceRepairs,deadTieRestoration,exactModelBends,curveComparisonGrid:61,roundtripPass:JSON.stringify(before)===JSON.stringify(after),tracks:after.tracks.length,bars:after.bars.length,
     notes:after.tracks.reduce((n,t)=>n+t.staves.reduce((n,s)=>n+s.bars.reduce((n,b)=>n+b.reduce((n,v)=>n+v.reduce((n,e)=>n+e.notes.length,0),0),0),0),0),
     directSource:rawCheck(afterScore,folder),sha256:crypto.createHash('sha256').update(fs.readFileSync(target)).digest('hex'),bytes:fs.statSync(target).size};
   if(!report.roundtripPass){fs.writeFileSync(path.join(folder,'roundtrip-before.json'),JSON.stringify(before));fs.writeFileSync(path.join(folder,'roundtrip-after.json'),JSON.stringify(after));}

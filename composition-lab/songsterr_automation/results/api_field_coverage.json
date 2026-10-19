@@ -1,8 +1,13 @@
 {
   "schema": "songsterr-api-field-coverage-v1",
-  "analyzer_sha256": "e537bd1375b0ef0a855a7a988f1f2244e07da80156af0e9dfd6807dcbbbfc6a5",
-  "semantics_sha256": "cbec950f69aa26efbe40f93b4938f9b53a573a7066740a1720b2664a571d4dd1",
+  "analyzer_sha256": "74074ca8e01729d7ce464b72c143021e008dbf695d014cd3561da86dab898360",
+  "semantics_sha256": "0ff1677da34ea4d4bcea975f33d7cc31d222439a670f7ca812de3be03bb6dd21",
   "dynamics_sha256": "12e5e0a51d1badcdb98912b5d36afaf4d1bf8e750f65cd217f277b3444b2bf02",
+  "relationship_helpers_sha256": {
+    "source_slides.py": "9228ca3bf26c4284872ce6b15a90259df9fc31c8332201c18adb2d5e4a5ef67d",
+    "source_timing_regions.py": "6978354dc2d60138584ede592b9eba6ebe6f9540fc667373e1e1427b24a7ba85",
+    "source_relationship_details.py": "fc236b83dd9881a760c61f100fc0718bf24e8495265a3d107f7d2746fdee356a"
+  },
   "entries": 98,
   "response_counts": {
     "metadata": 98,
@@ -3095,10 +3100,10 @@
       "entries_with_field": 81,
       "track_responses_with_field": 199,
       "status": "analyzed",
-      "analysis_level": "presence_and_raw_value_summary",
-      "current_use": "Technique marker shares and conditional notation statistics.",
-      "remaining_gap": "Presence/relationships do not establish performance mechanics or musical function.",
-      "code_evidence": "occurrences; summary; NOTE_FIELDS/BEAT_FIELDS",
+      "analysis_level": "typed_written_endpoints",
+      "current_use": "Typed slide entries/exits and timing-gated same-string target relationships; raw values and unresolved reasons retained.",
+      "remaining_gap": "Grace execution and tied-origin placement remain unresolved; written intervals are not physical pitch trajectories.",
+      "code_evidence": "source_slides.resolve_slides; source_relationship_details.relationship_details",
       "review_required": false
     },
     {
@@ -3155,10 +3160,10 @@
       "entries_with_field": 93,
       "track_responses_with_field": 346,
       "status": "analyzed",
-      "analysis_level": "written_note_relationships",
-      "current_use": "String/fret/base pitch, tied-attack exclusion and contiguous HOPO tie chaining.",
-      "remaining_gap": "No complete sustained-sonority or tied-gesture-duration analysis.",
-      "code_evidence": "pitch; occurrences; hopo; track_analysis",
+      "analysis_level": "separate_pitched_and_unpitched_notation",
+      "current_use": "Existing pitched tie chains plus separate exact dead-note continuity inside safe timing regions.",
+      "remaining_gap": "Unpitched written continuity is not sounding sustain; mixed dead/pitched ties remain unresolved.",
+      "code_evidence": "source_semantics.sustain_context; unpitched_tie_continuity; source_timing_regions",
       "review_required": false
     },
     {

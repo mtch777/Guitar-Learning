@@ -1,3 +1,13 @@
+## Remaining analysis repairs, pass 2 (2026-10-18)
+
+Latest evidence: ANALYSIS_REPAIR_PASS2.md. Typed slide endpoints, separate
+unpitched written ties and guarded local timing analysis are implemented.
+2,553clear slide links independently match;18dead/dead links,3mixed unknown;
+610/626bars usable locally from4globally excluded guitar tracks. Existing
+detector fields and pedal rules unchanged. GP+sidecar explicitly preserves
+pre-export model bend curves for alphaTab; standalone GP7 remains lossy.
+See songsterr_automation/BEND_FIDELITY.md for opt-in export/render commands.
+
 ## Analysis blocker probes and repairs (2026-10-18)
 
 Current evidence: ANALYSIS_UNBLOCK_RESULTS.md. Narrow verified fixes cover

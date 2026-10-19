@@ -1,0 +1,55 @@
+{
+  "schema": "source-analysis-repair-pass2-v1",
+  "counts": {
+    "entries": 98,
+    "tracks": 495,
+    "details_tracks_processed": 495,
+    "guitar_bass_tracks": 413,
+    "unpitched_links": 18,
+    "unpitched_unresolved": 3,
+    "slide_endpoint_checked": 2553,
+    "unpitched_link_checked": 18,
+    "globally_timing_excluded_guitar_tracks": 4,
+    "bars_in_excluded_guitar_tracks": 626,
+    "safe_bars_in_excluded_guitar_tracks": 610,
+    "local_coattack_checked": 974,
+    "local_timing_boundary_checked": 974,
+    "failed_checks": 0
+  },
+  "slide_status_counts": {
+    "entry_origin_unspecified": 78,
+    "resolved_written_target": 2553,
+    "exit_target_unspecified": 166,
+    "grace_origin_order_unresolved": 110,
+    "origin_tie_requires_chain": 106,
+    "unknown_or_dead_pitch": 24,
+    "same_fret": 4,
+    "gap_or_overlap": 17,
+    "target_after_tie_candidate": 1
+  },
+  "slide_type_counts": {
+    "below": 75,
+    "legato": 1164,
+    "downwards": 166,
+    "shift": 1651,
+    "above": 3
+  },
+  "recovered_coattack_label_counts": {
+    "power_chord": 550,
+    "double_stop": 664,
+    "extended_power_chord": 276,
+    "close_interval_texture": 1
+  },
+  "implementation_sha256": {
+    "analyze_remaining_gaps.py": "37588427ee8329bd803e7b79c91e8a58d1d758ea2675f09680aacb943817ee5f",
+    "source_slides.py": "9228ca3bf26c4284872ce6b15a90259df9fc31c8332201c18adb2d5e4a5ef67d",
+    "source_semantics.py": "0ff1677da34ea4d4bcea975f33d7cc31d222439a670f7ca812de3be03bb6dd21",
+    "source_timing_regions.py": "6978354dc2d60138584ede592b9eba6ebe6f9540fc667373e1e1427b24a7ba85",
+    "source_relationship_details.py": "fc236b83dd9881a760c61f100fc0718bf24e8495265a3d107f7d2746fdee356a"
+  },
+  "limitations": [
+    "Notation relationships, not performed sound or artist intent",
+    "Additive local output does not enable existing whole-track detectors or artist-profile eligibility",
+    "Grace order and tied-origin slide candidates remain explicit unknowns"
+  ]
+}
