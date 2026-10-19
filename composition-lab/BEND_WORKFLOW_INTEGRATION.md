@@ -7,7 +7,7 @@ Acceptance checklist:
 - [x] Mismatched companions fail instead of silently falling back to lossy playback.
 - [x] Verify default export → renamed catalog copy → automatic renderer on a real copied score.
 - [x] Run regression tests and independent QA.
-- [ ] Commit/push and verify remote CI.
+- [x] Commit/push and verify remote CI.
 
 Existing native exports and baselines are never silently regenerated. Upgrade a
 private copy with `--recheck`. Explicit `--native-bends-only` retains native-only
@@ -41,3 +41,7 @@ its `gp-files/` contains named GP+companion pairs and catalog.csv records both
 paths. Original `invent-animate-corpus-v1` and earlier review outputs are intact.
 This completes routine integration. Further standalone-native bend repair stays
 parked; no new human feedback gate is introduced.
+
+Delivery: `ce1f2d6` pushed to main; GitHub Actions
+[39194995638](https://github.com/mtch777/Guitar-Learning/actions/runs/39194995638)
+succeeded, including pinned alphaTab tests. No website files changed.
