@@ -667,3 +667,30 @@ learnedcreativegeneration remain distinct requirements. Allpriorfailedgatesstay.
 See JOINT_MOTION_CONTRACT.md. Roadmap2unchanged,3richersupportbutpairedmodel
 failed,4methodsnotpromoted,5oneREJECTEDharmonyGPpairpreserved,6onlybounded
 contractnotfinishedlever,7liveenginedefaultunchanged,8technicalcheckscontinue.
+
+
+## Verified delivery index — 2026-10-19 continuation
+
+All six commits below are on origin/main. Exact-commit Composition Lab CI:
+
+| Commit | Delivered bounded work | Successful run |
+|---|---|---|
+|72cf7b6|Unmasked harmony pilot failed; exactnull/failure tool andtests|39304178240|
+|1c82e37|Actionmask audit+REJECTED maskedGPexperiment|39304693715|
+|e77560c|Exactsource role/register/tuning/anchor-selection audit|39305293659|
+|1eedcd4|Pairedregister sourcepredictor FAILED frozen gate|39305834027|
+|83006cf|Archived aligned-stage interval-change audit|39306634035|
+|1cc0408|Boundedjoint-motion record/permissionvalidator, NOTGPconsumer|39307455404|
+
+This index supersedes the publication-pending checkboxes in the historical
+entries above. Latest local suite561run560pass1optional skip includes5uncommitted
+unrelatedtests; remoteCItestscommittedfilesonly. No deployedwebsitefileschanged,
+so Pageswasnottriggered/claimed. Private scores/models/audio neverstaged.
+
+Remaining immediate work: source-relationship record and changed-context record
+must be independent inputs for ONEfrozen source-derived recreation/transfer
+consumer. Prove constraints/feasibility/refusal first; preserve literalotherlocks,
+then actualGP/native verification.100learnedproposal logicisNOTimplemented by
+thevalidator. No newmodel/batch, sourcefeel/qualityclaim or leverpromotion.
+Planner START/MID/END cadence continues. Broader16requirementsremain open as
+recorded in REQUIREMENTS_STATUS.md. Scheduledtasks remain paused.
