@@ -1,6 +1,11 @@
 ## Autonomous artist-pipeline work (2026-10-18)
 
 Current execution ledger: AUTONOMOUS_COMPLETION.md. Preserve approved pedals.
+Latest integration:compose_controlled.py connects eleven existing controls on
+plain generated cores. See CONTROLLED_PIPELINE.md for exact permissions, model
+requirements and coupled effects.17private cases pass native/lock/curve checks;
+all0byte identity and one full100reference-perturbation replay verified. Form,
+tuning, track-count/topology freedom and musical acceptance remain open.
 Development-only profiles, literal-lock controls, role-pitch/performance methods
 and full-song form prototypes now have private verified GP batches. Four full
 native-GM previews last122–299seconds; musical acceptance remains unverified.

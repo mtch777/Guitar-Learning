@@ -1,6 +1,11 @@
 ## Autonomous artist-pipeline work (2026-10-18)
 
 Read AUTONOMOUS_COMPLETION.md for the current persistent checklist and evidence.
+Latest integration:compose_controlled.py and CONTROLLED_PIPELINE.md connect eleven
+bounded controls on plain generated cores.17private cases pass native/lock/curve
+checks; all0byte identity and one full100reference-perturbation replay verified.
+Form/tuning/track count/topology controls remain unsupported, musical acceptance
+remains open. Do not treat this as completion of the broad engine roadmap.
 Pedals remain approved/closed. Artist profiles, literal-lock controls, role-pitch,
 performance and full-song form prototypes have verified private GP batches;
 technical validity is not musical acceptance. Commits8319749 and0141e82 passed

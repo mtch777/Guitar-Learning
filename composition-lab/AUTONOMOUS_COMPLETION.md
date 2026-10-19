@@ -374,3 +374,42 @@ acceptance and independent arrangement/form controls remain open. Pedals unchang
 - Current366Python tests run,365pass/1optional skip.24JS tests passed earlier with
   no subsequent website changes. Pages is unaffected; source-only CI must verify
   the next pushed checkpoint. No human input requested and no listening invented.
+
+## Combined controlled pipeline (2026-10-18)
+
+- Added compose_controlled.py and CONTROLLED_PIPELINE.md. Eleven independent
+  supported settings:harmony,melody,bass,rhythm,tempo,programs,bend,finger_vibrato,
+  hammer_on_from_open,pull_off_to_open,palm_mute. This integrates existing fitted
+  methods; no new artistic rates or source-note templates were invented.
+- Bounded input:plain generated3rolecores with matching canonicalJSON. Rejects
+  existing performed scores, unsupported notation/controls, extraZIPmembers,
+  mismatchedVERSION or GPIF data(exceptScoresummary), and GP/canonical mismatch.
+  All0copies wholeGPbytes withoutmodelrequirements; nonzero rewriting can alter
+  ZIPtimestamps, so deterministic musical replay compares archive membercontents.
+- Stage order:rhythm→harmony→melody/bass→metadata→fourperformancefamilies→palm.
+  Unrequested dimensions remain locked. Harmony stage samples only harmonytrack,
+  so it does not demand vocabulary support for unrelated locked roles. Form,
+  meter,tuning,trackcount,event/rest topology remain fixed. Pitches/timing can
+  alter simultaneous harmony and performance opportunities; independence is of
+  declared data permissions, not perceptual effect or inferred emotional purpose.
+- QABot found actual palm-only failure with multiartist source model; repaired
+  explicitartist API/config and cross-model consistency guard. QABot also found
+  extraarchiveentries could be discarded; strictarchive guard and regression
+  added.7integration tests pass, including harmony-only partialsourcevocabulary.
+- pipeline-integration-v1/v2/v3 are preserved diagnostic iterations. v2failed a
+  byte-replayassertion because gp_author stamps changed exports with currentZIP
+  timestamps. Membercontents were equal; all0byteidentity was unaffected. No
+  musical difference was hidden by ignoring this failure.
+- Finalpipeline-integration-v4:17cases cover11standalonecontrols, all0, metadata/
+  performancegroups, combined50/100 andharmonylocked withother10at100.17native
+  imports,17palmflagchecks,34link/vibratorrows,51trackcurvechecks allpass. Five
+  combined/performance/palm/harmonylocked previews finite/nonzero/unclipped.
+- core-lock-proof.json verifies allrequested0corefacets,tempo/program/tuning in
+  all17cases. pipeline-reference-invariance-v1 changes1392referencepitches/frets,
+  timing in88voicebars,all3programs andtempo. All11controls100produce exactlysame
+  GParchive MEMBERcontents as originalreferencecombined100; metadataZIPtimestamps
+  are outside that comparison. This is one integrated perturbation, not universal
+  validation of everypossible arrangement or perceptual similarity.
+- Finalregression373Python tests run,372pass/1optional skip. Native actualfiles
+  and source-free code changes are distinct from musical acceptance. Original
+  source scores, profiles, feedback, intermediateGPs and audio stay private.
