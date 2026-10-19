@@ -8,7 +8,7 @@ open like other techniques, without extra pedal priority.
 
 | Gate | Acceptance | Current state |
 |---|---|---|
-|G0 Requirements|16/16original workstreams mapped, semantics restored, independent reviews and publication/CI|Content passes; publication/CI pending|
+|G0 Requirements|16/16original workstreams mapped, semantics restored, independent reviews and publication/CI|Passed:8733f21 pushed; CI39253033993 success|
 |G1 Shared contract|Traceable observation/support/proposal/permissions/output; positive/unknown/conflict/redaction tests|Not started|
 |G2 Useful WIP|Independent note/summary QA and actual muteGP/native/playback checks; failures remain blocking|Not started in this sequence; old work preserved|
 |G3 Recreation|Bounded real-source replay versus learned reconstruction, explicit relationship assertions|Not started|
@@ -33,4 +33,5 @@ open like other techniques, without extra pedal priority.
   completion wording and ambiguous intermediate-control language.
 - QABot independent read-only content QA passed;16/16records independently matched.
 - No inference, generation, playback or listening rerun was claimed or needed.
-- Publication/CI pending. Do not start G1 until delivered G0 evidence passes.
+- Publication8733f21 pushed; Composition Lab CI39253033993 succeeded.
+  G0 complete; G1 has not yet started.

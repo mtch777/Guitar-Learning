@@ -125,15 +125,15 @@ Evidence levels are separate: original requirement; dated recorded execution;
 current source inspection; current test/reproduction; independent QA; genuine
 human acceptance. This register does not upgrade one level into another.
 
-G0 acceptance checklist (current state before publication):
+G0 acceptance checklist:
 
 - [x]16unique rows; all original title/criteria/state strings retained verbatim.
 - [x] All evidence paths exist; mappings are within roadmap2–8.
 - [x] Melody and pedal boundaries explicitly reconciled; no musical success inferred.
 - [x] Final ProjectPlanner3000 content review passed after midpoint repairs; publication still pending.
 - [x] Independent QABot3000 content QA passed;16original records and all evidence paths reconciled.
-- [ ] Source-free register committed/pushed and relevant CI verified.
+- [x] Register/context committed and pushed as8733f21; Composition Lab CI39253033993 passed.
 
-These unchecked items are requirements, not claims of completion. The following
-shared-contract gate may start only after reconciliation passes. Scheduled
-automation stays paused.
+G0 passed for this bounded reconciliation scope. This does not close the open
+requirements above. The next shared-contract gate is separately scoped and
+reviewed; scheduled automation stays paused.
