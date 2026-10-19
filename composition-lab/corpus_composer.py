@@ -118,7 +118,7 @@ def choose_family(rng,entries):
     song=rng.choice(sorted(songs));return rng.choice(songs[song])
 
 
-def generate(model,bars=32,seed=1):
+def generate(model,bars=32,seed=1,*,aligned_patterns=False):
     if not isinstance(bars,int) or bars<1:raise ValueError('Positive bar count required')
     rng=random.Random(seed);roles=['harmony','melody','bass']
     available=[{(p['song_id'],p['bar']) for ps in model['parts'][r].values() for p in ps} for r in roles]
@@ -141,6 +141,23 @@ def generate(model,bars=32,seed=1):
         # requested length, not a fixed invented phrase size.
         start=len(plan);sequence=source['sequence'][:bars-start]
         for motif in sequence:plan.append((start,motif))
+    aligned={}
+    if aligned_patterns:
+        # Sample whole observed cross-role bar configurations. Do not stitch
+        # independent role rhythms together and call that observed interaction.
+        indexed={r:defaultdict(list) for r in roles}
+        for role in roles:
+            for records in pools[role].values():
+                for p in records:indexed[role][p['song_id'],p['bar']].append(p)
+        supported=set.intersection(*(set(indexed[r]) for r in roles))
+        bundles=defaultdict(list)
+        for family,records in pools['harmony'].items():
+            for song,bar in sorted(supported & {(p['song_id'],p['bar']) for p in records}):
+                bundles[family].append(dict(song_id=song,bar=bar))
+        if not bundles:raise ValueError('No aligned three-role rhythm support for meter')
+        for key in dict.fromkeys(plan):
+            bundle=choose_family(rng,bundles);identity=(bundle['song_id'],bundle['bar'])
+            aligned[key]={r:rng.choice(sorted(indexed[r][identity],key=lambda p:p['part_id'])) for r in roles}
     score=dict(source_file='development-only empirical corpus generation',tempo_bpm=config['harmony']['tempo_bpm'],tracks=[]);manifest=[];repairs=Counter()
     harmony_events=[]
     for ti,role in enumerate(roles):
@@ -153,7 +170,7 @@ def generate(model,bars=32,seed=1):
                 if final:
                     root=min(n['midi'] for n in final);previous=[(n['string'],n['fret']) for n in final]
             else:
-                pattern=choose_family(rng,pools[role]);local=[];cursor=F(0);reused=False
+                pattern=aligned[key][role] if aligned_patterns else choose_family(rng,pools[role]);local=[];cursor=F(0);reused=False
                 steps=pattern['root_steps'] or {'0':1}
                 for source_event in pattern['events']:
                     notes=[]

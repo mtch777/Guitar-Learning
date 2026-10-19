@@ -1,3 +1,15 @@
+## Autonomous artist-pipeline work (2026-10-18)
+
+Read AUTONOMOUS_COMPLETION.md for the current persistent checklist and evidence.
+Pedals remain approved/closed. Artist profiles, literal-lock controls, role-pitch,
+performance and full-song form prototypes have verified private GP batches;
+technical validity is not musical acceptance. Commits8319749 and0141e82 passed
+GitHub CI. Four full-song previews last122–299seconds; no listening verdict.
+Current investigation: source/generated context distributions and an opt-in
+same-source-bar cross-role pattern experiment. Preserve independent-role defaults,
+old outputs and all private source/model/audio exclusions. Do not infer completion
+of steps2–8 from these bounded checkpoints or reopen approved pedal detection.
+
 ## Pedals approved — complete (2026-10-18)
 
 User approved the additive continuation review and explicitly said “done with

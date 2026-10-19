@@ -1,3 +1,14 @@
+## Autonomous artist-pipeline work (2026-10-18)
+
+Current execution ledger: AUTONOMOUS_COMPLETION.md. Preserve approved pedals.
+Development-only profiles, literal-lock controls, role-pitch/performance methods
+and full-song form prototypes now have private verified GP batches. Four full
+native-GM previews last122–299seconds; musical acceptance remains unverified.
+Commits8319749 and0141e82 passed GitHub CI. Current independent investigation is
+context-distribution mismatch and an opt-in aligned-role rhythm/voicing experiment;
+the independent-role default and old outputs remain comparison baselines.
+Private source scores, source-derived note models and audio stay outside Git.
+
 ## Pedals approved — complete (2026-10-18)
 
 User approved the additive continuation review and explicitly said “done with

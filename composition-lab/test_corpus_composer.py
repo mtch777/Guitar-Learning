@@ -28,6 +28,26 @@ def model_for(report,raw):
 
 
 class ComposerTests(unittest.TestCase):
+    def test_aligned_patterns_share_observed_bar_across_roles(self):
+        report,raw=fixture();model=model_for(report,raw)
+        a,plan=generate(model,8,23,aligned_patterns=True)
+        b,_=generate(model,8,23,aligned_patterns=True)
+        self.assertEqual(a,b)
+        bybar={}
+        for row in plan['sources']:
+            bybar.setdefault(row['bar'],set()).add((row['training_song'],row['training_bar']))
+            role=plan['roles'][row['track']]
+            source=next(p for records in model['parts'][role].values() for p in records
+                if (p['song_id'],p['part_id'],p['bar'])==(row['training_song'],row['training_part'],row['training_bar']))
+            actual=a['tracks'][row['track']]['measures'][row['bar']-1]['voices'][0]
+            self.assertEqual([(e['duration_q'],len(e['notes'])) for e in actual],
+                [(e['duration_q'],len(e['intervals'])) for e in source['events']])
+        self.assertTrue(bybar)
+        self.assertTrue(all(len(s)==1 for s in bybar.values()))
+        default,_=generate(model,8,23)
+        explicit,_=generate(model,8,23,aligned_patterns=False)
+        self.assertEqual(default,explicit)
+
     def test_train_only_deterministic_playable_generation(self):
         report,raw=fixture();model=model_for(report,raw)
         a,plan=generate(model,8,23);b,_=generate(model,8,23)

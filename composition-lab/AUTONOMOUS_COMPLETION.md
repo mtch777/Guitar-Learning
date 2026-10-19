@@ -324,3 +324,53 @@ acceptance and independent arrangement/form controls remain open. Pedals unchang
   fingering opportunity formation separately from performance probability strength.
 - Regression361Python tests run,360pass/1optional skip. Dedicated backoff regression
   proves unrelated missing features cannot mark supported bend context as fallback.
+
+## Shared-context accounting and aligned-role experiment (in progress)
+
+- Added exact rational descriptive decomposition on shared known notation contexts:
+  generated-minus-source rate = context-mixture component +within-context component.
+  Unsupported context masses reported separately; no invented rates/causal claim.
+- QABot reproduced masked-feature weighting bug in initial implementation; repaired
+  feature-specific known denominators, added run-level1/2vs1/101regression.4tests
+  pass; final context-gap-v2 exactlyequals old result on fullyknown clean outputs.
+- Shared source/generated coverage for performance features98.81%/99.94%. Palm gap
+  -9.269percentagepoints decomposes to-9.630context-mixture +0.362within-context.
+  This is coarse context accounting, not evidence that a single causal fix suffices.
+- Reporting checkpoint0141e8223846073340a761d47bc178d762579ff4 CI39183308024 passed.
+- Added opt-in aligned_patterns mode; defaultFalse path uses identical RNG sequence.
+  All12 legacy default scores regenerated exactly equal to preserved canonical JSON.
+  New12aligned32bar cores use222new recurrence cells with one observed song/bar
+  bundle for allthree role rhythms/voicing intervals, four rejected proposals.
+- Independent QA:6composer tests, actual duration/cardinality matching to source
+  bundles,12core and36performance exports/nativechecks pass. Pitch RNG changes
+  alongside rhythm: this is explicitly not an isolated pitch-locked experiment.
+- Raw aligned performance/palm batches are diagnostics. Fairer comparison underway:
+  aligned-role-v1 applies same frozen role-pitch model as integrated baseline, then
+  aligned-integrated-performance-v1 and matching palm method. No model refit on
+  held-out results. Source-copy and final distribution checks still running.
+- Regression366Python tests run,365pass/1optional skip before final batch checks.
+
+## Aligned integrated results (2026-10-18)
+
+- Fairer stack retains the same frozen role-pitch model as the independent-role
+  integrated baseline:36role0/50/100exports,12selectedrole100cores,36performance
+  exports,36palmexports. Direct36role native imports and final36performance/
+  36palm imports pass. Final36palmflagchecks,72link/vibratorrows and108curve
+  checks pass. All12fullstrengthnativepreviews finite/nonzero/unclipped.
+- QABot independently verified GP/model/code/audio hashes and exact rate claims.
+  Close dyads4.213%→1.052%(source1.035%);palm7.512%→5.739%(source16.602%);
+  openhammer0.363%→0.323%(source2.102%);openpull0.198%→0.132%(source1.189%).
+  No promotion: mixed results and altered pitches/fingerings are explicit.
+- Raw aligned-core supplied-corpus screening:9284eight-attackwindows with222varied/
+  445constantmatches;8996sixteen-attackwindows with38varied/21constantmatches;
+  8420thirtytwo-attackwindows withzero matches. No identicalgeneratedattackstreams
+  or sharedrelativeharmonyopenings. Finalintegratedcopycheck remains inprogress.
+- Existing independent generator remains default; regenerate all12preserved
+  compositions-v3canonical scores exactly. Approved pedals unchanged.
+- Final aligned-integrated supplied-corpus screen completed:9284eight-attackwindows,
+  148varied/310constantmatches;8996sixteen-attackwindows,3varied/11constantmatches;
+  8420thirtytwo-attackwindows,zero matches. No identical generated attack streams
+  or shared relative harmony openings. Not an originality/copyright verdict.
+- Current366Python tests run,365pass/1optional skip.24JS tests passed earlier with
+  no subsequent website changes. Pages is unaffected; source-only CI must verify
+  the next pushed checkpoint. No human input requested and no listening invented.
