@@ -297,3 +297,30 @@ success or a clean commit as proof of musical correctness.
 Next: independent final-batch QA; commit/push this bounded checkpoint and verify CI;
 then decompose technique opportunity versus conditional-rate mismatch. Musical
 acceptance and independent arrangement/form controls remain open. Pedals unchanged.
+
+## Proposal-versus-opportunity diagnosis (2026-10-18)
+
+- Checkpoint8319749f24ecd5c8cc4739f6e2ed027451620895 pushed; GitHub isolated
+  composition CI39183070860 succeeded. QABot independently approved final12GP
+  exports/flags/links/36curve checks and four full WAV hashes.
+- Added performance_sampling_audit.py:separate released eligible decision counts,
+  probability sums, realized proposals and descriptive Bernoulli reference SD.
+  Different opportunity units and weighting prevent treating these as note/style
+  scores. No generation quotas introduced.
+- Found legacy predictor boolean ORed fallback for every feature, even features
+  absent from the specialized model. Thus fallback flags overstated unsupported
+  contexts. Generator logging now uses requested-feature details; HOPO now logs
+  its own fallback too. Probabilities, RNG draws and GP edits are unchanged.
+- reporting-replay-v1 regenerated16short/full performance100 and16palm100 GP files.
+  All32 outputs byte-identical to their verified predecessors. Earlier code hash
+  seals remain historical evidence, never rewritten to pretend current-code hashes.
+- Short-batch expected/selected: bends75.29/71;vibrato1.71/2;open hammer37.00/33;
+  open pull16.42/20;palm722.35/742. Correct feature fallback counts0/6174,0/6174,
+  18/137,10/124,6/9635 respectively. The old all-fallback reading was false.
+- Only137open-hammer and124open-pull proposal opportunities across9635attack
+  groups. The small realized total is consistent with these limited opportunities
+  and conditional proposal probabilities. Not proof of equivalence to the source;
+  source/generated arrangement distributions still differ. Treat arrangement/
+  fingering opportunity formation separately from performance probability strength.
+- Regression361Python tests run,360pass/1optional skip. Dedicated backoff regression
+  proves unrelated missing features cannot mark supported bend context as fallback.

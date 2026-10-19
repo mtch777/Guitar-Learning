@@ -29,6 +29,16 @@ def fixture():
 
 
 class LearnedPerformanceTests(unittest.TestCase):
+    def test_backoff_is_for_requested_feature_not_unrelated_features(self):
+        score,model,shapes=fixture()
+        model['tables'].append(dict(artist='Artist',context='single|medium|inside_bar|high|fretted',
+            total='1',known={'bend':'1'},features={'bend':'1'}))
+        with tempfile.TemporaryDirectory() as tmp:
+            p=Path(tmp);write_gp(score,p/'base.gp')
+            audit=apply(p/'base.gp',p/'out.gp',model,shapes,'Artist',{f:100 for f in FAMILIES})
+            self.assertTrue(any(d['family']=='bend' and not d['context_backoff'] for d in audit['decisions']))
+            self.assertTrue(all(d['context_backoff'] for d in audit['decisions'] if d['family']=='finger_vibrato'))
+
     def test_training_displacement_resolution_is_explicit(self):
         rows=[dict(tie_destination=False,duration_q='1',raw_note=dict(bend=dict(points=[dict(position=0,tone=0),dict(position=60,tone=tone)]))) for tone in (25,50,75,12.5,37.5,-12.5)]
         report=dict(songs=[dict(song_id=1,artist='Artist',provisional_partition='development',ai_generated=False,is_junk=False,

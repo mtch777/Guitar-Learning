@@ -96,7 +96,7 @@ def apply(source,destination,model,shapes,artist,freedom,seed=17):
     nodes={n.get('id'):n for n in root.findall('./Notes/Note')}
     counts=Counter(n['note_id'] for t in score['tracks'] for m in t['measures'] for v in m['voices'] for e in v for n in e['notes'])
     if any(v!=1 for v in counts.values()):raise ValueError('Shared source note definition requires occurrence cloning')
-    permissions={};values={};decisions=[];lookup={};probabilities={};feature_support={}
+    permissions={};values={};decisions=[];lookup={};probabilities={};feature_support={};backoffs={}
     def natural(n):
         return n['midi'] is not None and not n.get('tie') and not n.get('grace_type') and not any(x in n['property_names'] for x in ('Muted','HarmonicType')) and 'Dead' not in n.get('technique_tags',[])
     for table in model['tables']:
@@ -127,11 +127,11 @@ def apply(source,destination,model,shapes,artist,freedom,seed=17):
                     if not notes:continue
                     basic=attack_groups[F(e['onset_q'])]
                     if not basic:continue
-                    probs,backoff=predict(model,dict(artist=artist,context=context(basic[0],basic,register)))
+                    probs,backoff=predict(model,dict(artist=artist,context=context(basic[0],basic,register)),details=True)
                     if probs is None:raise ValueError('Unknown artist model')
                     for ni,n in enumerate(notes):
                         if n.get('grace_type') or F(e['duration_q'])<=0:continue
-                        occurrence=f'{ti}:{m["number"]}:{vi}:{ei}:{ni}';lookup[occurrence]=n;probabilities[occurrence]=probs
+                        occurrence=f'{ti}:{m["number"]}:{vi}:{ei}:{ni}';lookup[occurrence]=n;probabilities[occurrence]=probs;backoffs[occurrence]=backoff
                         for family in ('bend','finger_vibrato'):
                             strength=freedom.get(family,0)
                             if not strength:continue
@@ -150,7 +150,7 @@ def apply(source,destination,model,shapes,artist,freedom,seed=17):
                             domain,names=('property',set(BEND_PROPERTIES)) if family=='bend' else ('tag',{'Vibrato'})
                             unlocked=released((family,occurrence),strength)
                             set_fields(n['note_id'],domain,names,replacement,unlocked)
-                            decisions.append(dict(family=family,occurrence=occurrence,eligible=eligible,probability=probability,proposed_selected=bool(selected),released=unlocked,context_backoff=backoff))
+                            decisions.append(dict(family=family,occurrence=occurrence,eligible=eligible,probability=probability,proposed_selected=bool(selected),released=unlocked,context_backoff=backoff['context'] or family in backoff['features']))
     for ti,track in enumerate(linked['tracks']):
         grace_times={(vi,n['string'],F(e['onset_q'])) for m in score['tracks'][ti]['measures'] for vi,v in enumerate(m['voices']) for e in v for n in e['notes'] if n.get('grace_type')}
         for pair in track['eligible_transitions']:
@@ -166,7 +166,7 @@ def apply(source,destination,model,shapes,artist,freedom,seed=17):
             unlocked=released((family,origin,dest),strength)
             for ident,name in ((origin,'HopoOrigin'),(dest,'HopoDestination')):
                 set_fields(lookup[ident]['note_id'],'property',{name},[enable_property(name)] if selected else [],unlocked)
-            decisions.append(dict(family=family,origin=origin,destination=dest,eligible=True,probability=p,proposed_selected=bool(selected),released=unlocked))
+            decisions.append(dict(family=family,origin=origin,destination=dest,eligible=True,probability=p,proposed_selected=bool(selected),released=unlocked,context_backoff=backoffs[origin]['context'] or family in backoffs[origin]['features']))
     edits={key:[xml for name,xml in sorted(v.items()) if xml is not None] for key,v in values.items()}
     audit=transact(source,destination,edits,permissions)
     if freedom.get('finger_vibrato'):

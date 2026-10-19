@@ -82,7 +82,7 @@ def apply(source,destination,model,artist,freedom,seed=17):
         for q,notes in sorted(groups.items()):
             if any(not eligible(n) or n.get('tie') or any(p in n['property_names'] for p in ('Muted','HarmonicType')) for n,e,o in notes):continue
             basic=[dict(midi=n['midi'],fret=n['fret'],duration_q=e['duration_q'],bar_offset_q=e['local_onset_q']) for n,e,o in notes]
-            probs,backoff=predict(model,dict(artist=artist,context=context(basic[0],basic,register)))
+            probs,backoff=predict(model,dict(artist=artist,context=context(basic[0],basic,register)),details=True)
             probability=probs['palm_mute'];rng=random.Random(f'{seed}:palm_mute:{ti}:{q}')
             selected=probability is not None and support>0 and rng.random()<probability
             unlocked=released(('palm_mute',ti,str(q)),freedom)
@@ -93,7 +93,7 @@ def apply(source,destination,model,artist,freedom,seed=17):
                     node=ET.fromstring(n['note_xml']).find('./Properties/Property[@name="PalmMuted"]')
                     edits[key]=[] if node is None else [ET.tostring(node,encoding='unicode')]
             decisions.append(dict(track=ti,onset_q=str(q),members=[o for n,e,o in notes],probability=probability,
-                proposed_selected=bool(selected),released=unlocked,context_backoff=backoff))
+                proposed_selected=bool(selected),released=unlocked,context_backoff=backoff['context'] or 'palm_mute' in backoff['features']))
     return dict(**transact(source,destination,edits,permissions),decisions=decisions,freedom=freedom,
         limitations=['Beat-marker source annotations, not performed muting depth or sound-quality truth.',
             'Natural untied regular attack groups only; unsupported source events remain locked.'])
