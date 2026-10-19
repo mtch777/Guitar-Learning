@@ -11,7 +11,7 @@ open like other techniques, without extra pedal priority.
 |G0 Requirements|16/16original workstreams mapped, semantics restored, independent reviews and publication/CI|Passed:8733f21 pushed; CI39253033993 success|
 |G1 Shared contract|Traceable observation/support/proposal/permissions/output; positive/unknown/conflict/redaction tests|Passed bounded scope: b95606b pushed; both CI runs succeeded|
 |G2 Useful WIP|Developer self-QA, planner scope review; note/summary reconciliation and actual muteGP/native/playback checks|Passed bounded technical scope: e585f4e pushed; CI39256565591 success; no musical/default promotion|
-|G3 Recreation|Bounded real-source replay versus learned reconstruction, explicit relationship assertions|Engineering replay/locks/native passed; learned reconstruction mixed; planner scope accepted; delivery/CI pending|
+|G3 Recreation|Bounded real-source replay versus learned reconstruction, explicit relationship assertions|Delivered 6a9ad8b; CI 39280563908 succeeded; engineering checks pass, learned reconstruction mixed|
 |G4 Transfer|Changed eligible contexts, target values hidden, locks/native/support/refusals verified|Private eight-case engineering diagnostic passed; one probability change, zero annotation changes; no musical acceptance or public method delivery|
 |G5 Generation|Matched baseline versus profile-informed outputs, frozen metrics and side effects|Private pair-conditioned candidate and 24-GP comparison passed bounded engineering checks; no default promotion or musical acceptance|
 |G6 Whole piece|One demonstrated mechanism per bounded improvement/reject/inconclusive cycle|Not started|
@@ -242,3 +242,49 @@ open like other techniques, without extra pedal priority.
 - A Windows encoding error during this log update briefly truncated the working
   file. Recovered committed history plus the private experiment records before
   publication; all new log writes use explicit UTF-8. Experiment files unaffected.
+
+## Experimental-tool packaging (after G3 CI success)
+
+- G3 CI `39280563908` completed successfully for `6a9ad8b`. Source-free progress
+  commit `28f6d47` is pushed; its separate CI was queued at last check.
+- Packaged exact opportunity join, fixed family-weighted model/control helpers,
+  and explicit opt-in pair consumer with private-output CLIs. Existing defaults
+  unchanged. Nine focused tests cover positive/negative reconciliation, labels,
+  family leakage, provenance, duplicate support, zero/intermediate locks,
+  target perturbation and shared endpoints.
+- Public join reproduces all 10,191 private events exactly; public fitted tables
+  match the frozen candidate exactly. All 17 packaged pair-consumer output/control
+  files reproduce the original native-verified GP bytes; CLI smoke also matches.
+  Original baseline library unchanged. Pre/post dependency hashes agree in v2.
+  Earlier replay ran during loader-guard hardening; its code-seal limitation was
+  recorded, outputs retained and superseded by the sealed replay.
+- Final local Python: 509 run, 508 passed, one optional skip (includes five still
+  uncommitted rejected tuning-candidate tests). 39 JS tests and Vite build pass.
+  No website files changed; no Pages deployment required or claimed.
+- This packages verified experimental tooling, not a production default or
+  musical promotion. Private weights, scores, annotations, audio and research
+  archives remain unstaged. Code publication/CI next.
+
+## G6 prerequisite audit (implementation not started)
+
+- Both role-pitch learning and consumption reset per bar: no reset-contract bug.
+  Cross-bar carry is a new context-transfer hypothesis, not a proven explanation
+  for generic music. Existing exact source clocks permit a controlled probe.
+- Genuine same-part, same-voice, contiguous-clock, same-known-section melody
+  boundaries: 2,264 development (43 families / 55 songs); 392 previously examined
+  held-out (five families / seven songs). Part changes, gaps/rests, missing prior
+  bars and unknown/changed sections explicitly excluded. No inferred phrases.
+- Fixed within-bar model on held-out boundary notes: reset log loss 3.813249,
+  previous-pitch carry 2.689262. Development 3.700555 vs 3.147956 is an in-sample
+  boundary probe. Bass also improves diagnostically, but remains locked in the
+  proposed melody-only experiment. Source roles/minimum pitches remain heuristic.
+- G6 must check carried history against actual final preceding notes after return
+  constraints; stale pre-return proposals cannot count as continuity. Preserve
+  intentional large leaps; do not optimize for the smallest interval.
+
+- Packaging scope review was requested after all checks. ProjectPlanner3000 hit
+  its usage limit before completing that final read. Earlier scope/start/midpoint
+  and private-result reviews stand; developer self-QA completed. No replacement
+  agent or schedule created. Code is experimental, not independently musically
+  accepted. Public code commit/CI will be recorded separately.
+- Source-free progress commit 28f6d47 CI 39284684996 also succeeded.
