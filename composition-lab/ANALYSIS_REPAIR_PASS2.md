@@ -19,7 +19,7 @@ and approved pedal algorithms remain unchanged.
   preserving a supplied model does not prove fidelity to every raw API curve.
 - [x] Integrate additions without changing accepted existing detections.
 - [x] Relevant tests, JS tests/build and independent QABot review.
-- [ ] Commit/push verified changes to main and confirm GitHub CI.
+- [x] Commit/push verified changes to main and confirm GitHub CI.
 
 Three authorized agents own independent helpers: slides, bends, and tie/timing
 semantics. Parent owns analysis integration and delivery. Existing unrelated
@@ -64,3 +64,9 @@ before report mutation. An end-to-end source-free subprocess test verifies the
 existing GP, sidecar and report remain byte-identical on refusal. A timing-gate
 test also covers an unsafe slide target beyond a tied continuation; all endpoint
 and interval claims are cleared while the candidate identity stays inspectable.
+
+Delivery: implementation commit `0f7886a` pushed to main. GitHub Actions run
+[39193193897](https://github.com/mtch777/Guitar-Learning/actions/runs/39193193897)
+succeeded, including pinned alphaTab installation and the actual bend-adapter
+tests. No website files changed; no Pages deployment was required. Current
+remaining limits are the explicit exceptions above, not silently repaired source.

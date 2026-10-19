@@ -1,7 +1,7 @@
 /**
  * Opt-in exact model-bend preservation for the alphaTab GP7 pipeline.
  *
- * Native GPIF cannot express every curve accepted by the model, and alphaTab's
+ * The current GP7 writer cannot encode every curve accepted by the model, and alphaTab's
  * import normalization can erase interior points. A private, hash-bound sidecar
  * restores the pre-export model curves for explicit alphaTab playback/analysis.
  * The standalone GP file is NOT claimed to preserve those curves. No upstream
