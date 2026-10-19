@@ -609,3 +609,31 @@ remain paused; accepted analysis/pedals unchanged.
 Current requirements: steps2/6unchanged;3hasnewverifiedrelationships butthis
 pairedmodelrejected;4/5twomoreharmonyinterventionsfailed;7defaultunchanged;
 8newexactchecks/privateGP+MIDI+renders, no listeningacceptance. Schedulespaused.
+
+
+## Existing aligned-pattern stage audit (2026-10-19)
+
+- [x] Planner START/MID/END; avoided rebuilding existing aligned_patterns work.
+- [x] Verified24archivedGPbatchhashes/plaincanonicalidentity; composer/rolemodel
+  hashes and exactconsumerGitblobs recovered. gp_author recordedhashUNKNOWN.
+- [x] All222newcells share source song/bar across3roles; exact rhythm/rests,
+  rawcardinality. Acceptedraw4514pitchgroups6906note/tuningchecks,0tiedestinations.
+- [x] Newmeasuredrelationship:within-bar signedmelody-minus-harmony interval
+  CHANGES, samejointactiveclocks, no gapbridging, constantroletranspositioninvariant.
+- [x] 1704transitions1002varying702zero; rawexactvarying36,role10023.
+  203nontrivialcells1exact(constant);166variedcells0wholetrajectoriesexact.
+  19emptytransitioncells excludedfromnontrivialdenominator.
+- [x] Clustercoverage12cores,160sourcesongbars23songs23families; percore/family
+  breakouts andexamples private, not1704independentobservations.
+- [x] Independentdeltarescore/publicCLIreplay exact;3tests,full556run555pass
+  1optionalskip(includes5uncommittedtests). No newGP/model/default.
+- [x] Planner END narrowsfindingtothismeasuredtrajectory, notalljointpitch.
+  Unlockedpitchvariation isNOTanaccuracyfailureormusicalqualityjudgment.
+- [ ] Source-onlypublication/exactCI.
+- [ ] Nextboundedendeavor: ONEtrajectoryrelationshiprecord/permissiontest in
+  sharedcontract:0exactrelationshiplock,100targethidden,allowednotepitch edits,
+  literalpitch/functionlockconflicts andunknown/refusal. No newframework/detector
+  ornewgenerationbatch; frozenplannerSTARTbeforeimplementation.
+
+Reference: ALIGNED_RELATIONSHIP_AUDIT.md. Source source-derivedpatterns and
+learnedcreativegeneration remain distinct requirements. Allpriorfailedgatesstay.
