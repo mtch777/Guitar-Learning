@@ -137,3 +137,20 @@ G0 acceptance checklist:
 G0 passed for this bounded reconciliation scope. This does not close the open
 requirements above. The next shared-contract gate is separately scoped and
 reviewed; scheduled automation stays paused.
+
+
+## Latest bounded engine evidence — 2026-10-19
+
+Original requirements/statuses above remain unchanged. Source transition
+conditionals passed their own prediction gate, but two harmony interventions
+failed generation gates. Exact action masking prevents the observed infeasible
+draw; it does not establish harmony/style quality. Same-cohort role/register
+audit rules out measured tuning offsets and enumerated alternative anchor
+selection as explanations of the mean register gap. The subsequent paired
+register predictor failed its frozen family-validation gate. No default promoted.
+
+See CONDITIONAL_HARMONY_PILOT.md, HARMONY_FEASIBILITY_EXPERIMENT.md,
+ROLE_REGISTER_AUDIT.md and JOINT_REGISTER_PROFILE_STUDY.md. Real rejected GP,
+MIDI and equal-condition instrument renders remain private; no listening
+judgment is invented. Existing aligned-pattern work must be inspected before
+proposing more aligned-pattern experiments. Pedal identification remains closed.

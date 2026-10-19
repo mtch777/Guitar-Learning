@@ -581,3 +581,31 @@ remain paused; accepted analysis/pedals unchanged.
 - [ ] Publish source-onlyaudit and exactCI.
 - [ ] Nextsource-onlyprofiletask:inventory A/T/R support, thenfreeze predictive
   R|A,T study against R|T andwithin-song/T shuffledpaircontrol. NoGPscope.
+
+
+## Source-only paired-register profile study (2026-10-19)
+
+- [x] Maskedexperiment1c82e37 CI39304693715SUCCESS; roleaudit e77560c
+  CI39305293659SUCCESS. Both pushed, no website changes.
+- [x] Planner START/MID/END; frozen taskR|A,T vsR|T andtraining-song/Tshuffle;
+  1311known35families42songs,953unknown.41contexts,18singletonfamilycontexts69rows.
+- [x] Fixedprior/floor/128classes/weights/seed;35LOFOidenticalheldrows,
+  shufflepreservesallbaselinepredictions; explicitconstantA/R/noopcoverage.
+- [x] GateFAILED:NLL3.831865→3.800093vs3.917746shuffle;
+  Brier.970336→.985421vs.980577shuffle; only12/35familywins.
+  25familiesadverseNLLorBrier; no tolerance/prior/bin retuning.
+- [x] 105fold-method independentlyweighted/fullvectorproper-score checks
+  within1e-12 (fit/distributionreused). PublicCLIsealedreplay identicalproper scores.
+- [x] Correctedmetadata: unusedjointcontext absence is not independentbaseline
+  backoff; priors/proper scores unchanged, originalresult retained.
+- [x] Threeunit tests; full553run552pass1optional skip includes5uncommittedtests.
+- [x] Planner END acceptsfailedcandidate; noGP/default/musicalpromotion.
+- [ ] Source-onlypublication/exactCI.
+- [ ] Nextaudit must accountforALREADYBUILT aligned_patterns study in
+  AUTONOMOUS_COMPLETION.md; doNOTrebuild/repeat it asnew. Inspectexisting aligned
+  source bundles vsdownstreampitch/performanceconsumers tofindoneuntestedloss
+  ofsupportedco-occurrence before anynewgenerationproposal.
+
+Current requirements: steps2/6unchanged;3hasnewverifiedrelationships butthis
+pairedmodelrejected;4/5twomoreharmonyinterventionsfailed;7defaultunchanged;
+8newexactchecks/privateGP+MIDI+renders, no listeningacceptance. Schedulespaused.
