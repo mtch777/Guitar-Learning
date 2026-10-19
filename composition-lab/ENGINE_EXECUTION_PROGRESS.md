@@ -509,3 +509,12 @@ script retained, narrow retry successful. Unrelated untracked research preserved
 Private provenance, rows, fold records, adverse cases, replay and scoring checks:
 `local-artifacts/source-transition-context-v1/`. Earlier failedG6gates unchanged;
 no detector/bend/pedal reopening. Schedules stay paused.
+
+- Study delivered42dc380; CI39301777495 succeeded. Automatic approval review
+  initially could not complete because of usage; action was not executed. Normal
+  approval retry succeeded after user's continue. No approval bypass.
+- Publication check exposed doubledCR line endings in the model module. The
+  commit incorrectly proceeded after that check; corrective commit follows.
+  Normalized line endings, executable AST identical (module-docstring spacing
+  normalized),538tests537pass1optional skip, all49fold numerical results exactly
+  reproduced under sealed clean-file replay. No hypothesis/parameter change.
