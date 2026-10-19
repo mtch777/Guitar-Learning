@@ -1,3 +1,12 @@
+## Analysis blocker probes and repairs (2026-10-18)
+
+Current evidence: ANALYSIS_UNBLOCK_RESULTS.md. Narrow verified fixes cover
+whole-measure rest timing, inherited written dynamics and dead/tied export flags.
+Overflow55→14 overall,39→12guitar;16guitar tracks recovered; source notes unchanged.
+18dead/tied flags restored on copied exports; baselines preserved. Remaining
+pitched overflow, unpitched sustain semantics and bend shape loss are unresolved.
+Approved pedal code unchanged. Earlier scoped timing/corpus summaries are historical.
+
 ## Autonomous artist-pipeline work (2026-10-18)
 
 Current execution ledger: AUTONOMOUS_COMPLETION.md. Preserve approved pedals.

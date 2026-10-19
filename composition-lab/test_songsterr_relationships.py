@@ -98,6 +98,19 @@ class RelationshipsTests(unittest.TestCase):
         self.assertEqual({w['reason'] for w in warnings},{'missing_duration','voice_overflows_bar'})
         self.assertEqual(rows[0]['onset_q'],'4')
 
+    def test_ghost_dynamics_inherit_without_changing_raw_or_local_counts(self):
+        p=part([measure(beat(note(),velocity='p'),beat(note(ghost=True))),
+                measure(beat(note(ghost=True)))])
+        t=a.track_analysis(p)
+        self.assertEqual(t['summary']['marker_value_histograms']['explicit_velocity'],{'p':1})
+        self.assertEqual(t['summary']['marker_value_histograms']['effective_written_dynamic'],{'p':3})
+        marked=t['summary']['conditional']['ghost']['marked']
+        self.assertEqual(marked['dynamic_markings'],{'p':2})
+        self.assertEqual(marked['dynamic_unknown_segments'],0)
+        self.assertEqual(t['rows'][2]['dynamic']['provenance'],'inherited_explicit')
+        self.assertNotIn('velocity',t['rows'][2]['raw_note'])
+        self.assertNotIn('velocity',t['rows'][2]['raw_beat_effects'])
+
     def test_invalid_timing_preserves_markers_but_quarantines_relationships(self):
         t=a.track_analysis(part([measure(beat(note(hp=True),note(string=1,fret=2),duration=(2,1)),beat(note(fret=5)))]))
         self.assertFalse(t['temporal_relationships_eligible'])

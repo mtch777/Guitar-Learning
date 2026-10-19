@@ -11,7 +11,7 @@ This is a coverage audit of `analyze_relationships.py`, not a statement that eve
 | unsupported | 11 |
 | not_applicable | 16 |
 
-Unreviewed observed fields: 0. Analyzer SHA256: `bcd9758fd63559ff773aaaa87a381f985865b426984355bf4b6377d17a4e59b4`.
+Unreviewed observed fields: 0. Analyzer SHA256: `e537bd1375b0ef0a855a7a988f1f2244e07da80156af0e9dfd6807dcbbbfc6a5`.
 
 ## What the gaps mean
 
@@ -185,7 +185,7 @@ Field-presence numerators include false/null/zero values. For scalar/object fiel
 | `track.measures[].voices[].beats[].notes[].tie` | 24015/472779 | 93 | 346 | analyzed / written_note_relationships | String/fret/base pitch, tied-attack exclusion and contiguous HOPO tie chaining. No complete sustained-sonority or tied-gesture-duration analysis. |
 | `track.measures[].voices[].beats[].notes[].tremolo` | 494/472779 | 11 | 16 | analyzed / exact_notated_rate | Fraction supplies rational picking period and attacks per quarter. Not actual performed picking precision. |
 | `track.measures[].voices[].beats[].notes[].tremolo[]` | 884/884 | 10 | 15 | analyzed / exact_notated_rate | Fraction supplies rational picking period and attacks per quarter. Not actual performed picking precision. |
-| `track.measures[].voices[].beats[].notes[].velocity` | 12/472779 | 2 | 2 | analyzed / raw_value_summary | Explicit velocity histogram; note value overrides beat value. No imputation, dynamic-envelope reconstruction or tempo/loudness calibration. |
+| `track.measures[].voices[].beats[].notes[].velocity` | 12/472779 | 2 | 2 | analyzed / written_dynamic_inheritance | Local histogram plus voice-local explicit/inherited written dynamics and marking provenance; note override does not alter voice state. No ghost attenuation, dynamic-envelope reconstruction, performed loudness or playback-repeat dynamics inference. |
 | `track.measures[].voices[].beats[].notes[].vibrato` | 13/472779 | 5 | 9 | analyzed / presence_and_conditionals | Technique marker shares and conditional notation statistics. No measured physical oscillation rate/depth or source audio validation. |
 | `track.measures[].voices[].beats[].notes[].wideVibrato` | 8/472779 | 4 | 4 | analyzed / presence_and_conditionals | Technique marker shares and conditional notation statistics. No measured physical oscillation rate/depth or source audio validation. |
 | `track.measures[].voices[].beats[].palmMute` | 32656/318888 | 87 | 160 | analyzed / presence_and_conditionals | Technique marker shares and conditional notation statistics. Presence/relationships do not establish performance mechanics or musical function. |
@@ -211,7 +211,7 @@ Field-presence numerators include false/null/zero values. For scalar/object fiel
 | `track.measures[].voices[].beats[].tupletStop` | 4895/318888 | 66 | 168 | unsupported / raw_capture | Tuplet annotations retained; their declared duration is used separately. No tuplet-group identity, grouping or accent-pattern analysis. |
 | `track.measures[].voices[].beats[].type` | 318888/318888 | 98 | 495 | retained_only / raw_capture | Redundant duration notation retained; duration fraction drives analysis. No type/dot-to-duration consistency check. |
 | `track.measures[].voices[].beats[].upStroke` | 296/318888 | 21 | 27 | analyzed / presence_and_conditionals | Technique marker shares and conditional notation statistics. Marker presence is counted; detailed rate/direction/envelope mechanics are not interpreted. |
-| `track.measures[].voices[].beats[].velocity` | 1992/318888 | 94 | 464 | analyzed / raw_value_summary | Explicit velocity histogram; note value overrides beat value. No imputation, dynamic-envelope reconstruction or tempo/loudness calibration. |
+| `track.measures[].voices[].beats[].velocity` | 1992/318888 | 94 | 464 | analyzed / written_dynamic_inheritance | Local histogram plus voice-local explicit/inherited written dynamics and marking provenance; note override does not alter voice state. No ghost attenuation, dynamic-envelope reconstruction, performed loudness or playback-repeat dynamics inference. |
 | `track.measures[].voices[].beats[].vibrato` | 9/318888 | 4 | 7 | analyzed / presence_and_conditionals | Technique marker shares and conditional notation statistics. No measured physical oscillation rate/depth or source audio validation. |
 | `track.measures[].voices[].beats[].wideVibrato` | 8/318888 | 4 | 4 | analyzed / presence_and_conditionals | Technique marker shares and conditional notation statistics. No measured physical oscillation rate/depth or source audio validation. |
 | `track.measures[].voices[].rest` | 23136/59021 | 86 | 440 | analyzed / rest_spans_and_conflicts | Explicit whole/voice/beat rests produce rational spans; contradictory notes are flagged. No artistic pause/phrase-end interpretation. |

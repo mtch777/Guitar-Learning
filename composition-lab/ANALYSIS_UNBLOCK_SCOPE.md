@@ -1,5 +1,9 @@
 # Analysis unblock scope — 2026-10-18
 
+Subsequent experiments and repairs: ANALYSIS_UNBLOCK_RESULTS.md. In particular,
+the897ghost notes initially described as lacking local velocity inherit explicit
+voice dynamics; they are not897cases of unavailable source dynamics.
+
 Read-only initial investigation; no detector, source score or export repairs made.
 Main was pulled with `git pull --ff-only origin main` (already current).
 Existing uncommitted composition work was preserved. Pedals remain approved.

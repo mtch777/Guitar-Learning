@@ -16,6 +16,56 @@ def t(measures,**kw):return dict(partId=0,instrumentId=30,tuning=[40,45],measure
 
 
 class SourceSemanticsTests(unittest.TestCase):
+    def test_explicit_whole_measure_rest_uses_inherited_meter_without_rewriting_source(self):
+        import copy
+        whole=dict(rest=True,voices=[dict(rest=True,beats=[b([dict(rest=True)],d=(1,1),rest=True,type=1)])])
+        part=t([dict(whole,signature=[5,8]),copy.deepcopy(whole),m([b([n()])])])
+        original=copy.deepcopy(part)
+        headers,_=s.layout([part]);rows,_,_,warnings=a.occurrences(part,headers)
+        self.assertEqual(warnings,[]);self.assertEqual(rows[0]['onset_q'],'5')
+        spans,w=s.rests(part,headers)
+        self.assertEqual(w,[]);self.assertEqual([r['duration_q'] for r in spans],['5/2','5/2'])
+        self.assertTrue(all(r['written_duration_q']=='4' and r['duration_semantics']=='whole_measure_rest' for r in spans))
+        self.assertEqual(part,original)
+
+    def test_whole_measure_rest_does_not_mask_pickup_in_other_part(self):
+        silent=t([dict(rest=True,signature=[4,4],voices=[dict(rest=True,beats=[b([dict(rest=True)],d=(1,1),rest=True,type=1)])]),m([b([n()])])])
+        played=t([m([b([n()],d=(1,8))],signature=[4,4]),m([b([n()])])],anacrusis=True)
+        headers,_=s.layout([silent,played])
+        self.assertEqual(headers[0]['span_q'],'1/2');self.assertEqual(headers[1]['start_q'],'1/2')
+        self.assertEqual(a.occurrences(silent,headers)[3],[])
+        self.assertEqual(s.rests(silent,headers)[0][0]['duration_q'],'1/2')
+        # No played duration evidence: anacrusis flag alone must not guess a pickup.
+        silent['anacrusis']=True
+        self.assertEqual(s.layout([silent])[0][0]['span_q'],'4')
+
+    def test_whole_rest_spans_short_and_long_meters_but_literal_rest_stays_literal(self):
+        for meter,expected in [([1,8],'1/2'),([3,4],'3'),([7,4],'7')]:
+            full=dict(rest=True,signature=meter,voices=[dict(rest=True,beats=[b([dict(rest=True)],d=(1,1),rest=True,type=1)])])
+            part=t([full]);headers,_=s.layout([part])
+            self.assertEqual(s.rests(part,headers)[0][0]['duration_q'],expected)
+            self.assertEqual(a.occurrences(part,headers)[3],[])
+        literal=t([m([b([dict(rest=True)],d=(1,1),rest=True,type=1)],signature=[3,4])])
+        self.assertEqual(s.rests(literal,s.layout([literal])[0])[0][0]['duration_q'],'4')
+        self.assertEqual(a.occurrences(literal)[3][0]['reason'],'voice_overflows_bar')
+
+    def test_whole_measure_rest_gate_rejects_conflicts_and_partial_rests(self):
+        import copy
+        full=dict(rest=True,signature=[3,4],voices=[dict(rest=True,beats=[b([dict(rest=True)],d=(1,1),rest=True,type=1)])])
+        for field,value in [('dots',1),('tuplet',3),('graceNote',True)]:
+            candidate=copy.deepcopy(full);candidate['voices'][0]['beats'][0][field]=value
+            self.assertFalse(s.whole_measure_rest(candidate,candidate['voices'][0]))
+        for change in ('pitched','missing_voice_flag','second_beat','partial'):
+            candidate=copy.deepcopy(full);voice=candidate['voices'][0]
+            if change=='pitched':voice['beats'][0]['notes']=[n()]
+            if change=='missing_voice_flag':voice.pop('rest')
+            if change=='second_beat':voice['beats'].append(b([dict(rest=True)],rest=True))
+            if change=='partial':voice['beats'][0].update(type=2,duration=[1,2])
+            self.assertFalse(s.whole_measure_rest(candidate,voice))
+        # A literal pitched whole note is still overlong: never shorten it.
+        pitched=t([m([b([n()],d=(1,1),type=1)],signature=[3,4])])
+        self.assertEqual(a.occurrences(pitched)[3][0]['reason'],'voice_overflows_bar')
+
     def test_shared_meter_pickup_and_marker_normalization(self):
         parts=[t([m([b([n()],d=(1,8))],signature=[4,4],marker=dict(text='Intro',width=90)),m([b([n()])])],anacrusis=True),
                t([m([b([n()],d=(1,8))]),m([b([n()])],signature=[3,4])])]

@@ -1,0 +1,65 @@
+{
+  "schema": "technique-analysis-validation-v1",
+  "entries": 98,
+  "checks": {
+    "occurrence_coverage_checked": 495,
+    "raw_note_preserved_checked": 420119,
+    "identity_fields_checked": 420119,
+    "duration_checked": 420119,
+    "onset_within_shared_layout_checked": 420119,
+    "written_pitch_checked": 420119,
+    "coattack_rule_checked": 193766,
+    "no_extra_attack_groups_checked": 409,
+    "hp_pair_invariants_checked": 9847,
+    "pedal_candidate_invariants_checked": 29802,
+    "bend_point_readback_checked": 866,
+    "bend_range_checked": 866,
+    "whammy_point_readback_checked": 469,
+    "whammy_range_checked": 469,
+    "tracks_excluded_from_temporal_rules": 86
+  },
+  "notation_rule_agreement": {
+    "double_stop": {
+      "negative_agree": 165038,
+      "positive_agree": 28728
+    },
+    "close_interval_texture": {
+      "negative_agree": 190823,
+      "positive_agree": 2943
+    },
+    "power_chord": {
+      "negative_agree": 176041,
+      "positive_agree": 17725
+    },
+    "extended_power_chord": {
+      "positive_agree": 11118,
+      "negative_agree": 182648
+    }
+  },
+  "failed_checks": 0,
+  "review_strata": {
+    "bend_unmarked": 12,
+    "vibrato_unmarked": 12,
+    "hp_unmarked": 12,
+    "hp_marked": 12,
+    "double_stop_negative": 12,
+    "close_interval_texture_negative": 12,
+    "power_chord_negative": 12,
+    "extended_power_chord_positive": 12,
+    "double_stop_positive": 12,
+    "extended_power_chord_negative": 12,
+    "power_chord_positive": 12,
+    "pedal_candidate_unadjudicated": 12,
+    "bend_marked": 12,
+    "close_interval_texture_positive": 12,
+    "vibrato_marked": 12
+  },
+  "limitations": [
+    "Rule agreement is not independently labeled musical precision/recall.",
+    "Raw readback verifies preservation, not the transcription or performed technique.",
+    "Pedal function, phrase boundaries, resolution, feel and physical execution need independent adjudication.",
+    "No human judgment or model inference is used by this audit."
+  ],
+  "analyzer_report_sha256": "b955e56e3e13f533222e21e60bff81e5cddc5c453d46b61c1ce38b2bbe9a627f",
+  "validator_sha256": "f40a074303f11a35baf7bf71536cba0642ee26550d6be6dd03319a2cd79e73dd"
+}

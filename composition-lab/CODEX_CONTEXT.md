@@ -1,3 +1,13 @@
+## Analysis blocker probes and repairs (2026-10-18)
+
+See ANALYSIS_UNBLOCK_RESULTS.md for measured outcomes. Explicit whole-measure
+rest semantics fixed: overflow55→14 overall,39→12guitar;16guitar tracks recovered.
+Ghost dynamics are inherited written markings, not897missing source values.
+Identity-checked GP7 export restores18dead/tied flags on private rebuilt copies.
+Remaining pitched overflows, unpitched sustain meaning and bend curve losses
+remain open. Source-free bend probe demonstrates both curve/model and MIDI loss.
+Pedal detector unchanged and approval closed. Preserve all original artifacts.
+
 ## Autonomous artist-pipeline work (2026-10-18)
 
 Read AUTONOMOUS_COMPLETION.md for the current persistent checklist and evidence.

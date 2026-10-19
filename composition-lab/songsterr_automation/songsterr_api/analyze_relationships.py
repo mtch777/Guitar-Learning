@@ -14,7 +14,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from technique_analysis import classify_group
 from pedal_patterns import detect_bursts
-from source_semantics import marker_text, layout, playback_order, rests, mechanics, timeline, seconds_between, sustain_context
+from source_semantics import marker_text, layout, playback_order, rests, mechanics, timeline, seconds_between, sustain_context, whole_measure_rest
+from source_dynamics import dynamic_observations
 
 NOTE_FIELDS = ('hp', 'bend', 'slide', 'harmonic', 'dead', 'ghost', 'staccato',
                'accentuated', 'tremolo', 'vibrato', 'wideVibrato', 'leftHandVibrato')
@@ -65,7 +66,7 @@ def occurrences(part, headers=None):
                     warnings.append(dict(bar=mi, voice=vi, beat=bi, reason='missing_duration'))
                     # Subsequent onsets in this voice cannot be known.
                     break
-                duration = F(*raw_duration)*4
+                duration = span if whole_measure_rest(measure,voice) else F(*raw_duration)*4
                 if duration <= 0:
                     warnings.append(dict(bar=mi, voice=vi, beat=bi, reason='nonpositive_duration'))
                     break
@@ -120,6 +121,8 @@ def summary(rows):
                                 fret_histogram=dict(Counter(str(r['fret']) for r in subset)),
                                 string_index_histogram=dict(Counter(str(r['string']) for r in subset)),
                                 other_marker_shares={k:ratio(n,len(subset)) for k,n in other_markers.items()})
+            views[label]['dynamic_markings'] = dict(Counter(r['dynamic']['marking'] for r in subset if r.get('dynamic',{}).get('known')))
+            views[label]['dynamic_unknown_segments'] = sum(not r.get('dynamic',{}).get('known',False) for r in subset)
         conditional[effect] = views
     values=defaultdict(Counter)
     for r in rows:
@@ -128,6 +131,7 @@ def summary(rows):
             if n.get(field) is not None:values[field][json.dumps(n[field],sort_keys=True)]+=1
         velocity=n.get('velocity',b.get('velocity'))
         if velocity is not None:values['explicit_velocity'][str(velocity)]+=1
+        if r.get('dynamic',{}).get('known'):values['effective_written_dynamic'][r['dynamic']['marking']]+=1
         bend=n.get('bend')
         if isinstance(bend,dict) and bend.get('points'):
             points=bend['points']
@@ -185,6 +189,9 @@ def hopo(rows, grace):
 def track_analysis(part, headers=None, catalog=None, identity_warnings=None, shared_warnings=None):
     if headers is None:headers=layout([part])[0]
     rows, grace, sections, warnings = occurrences(part,headers)
+    dynamics = {d['occurrence']:d for d in dynamic_observations(part)}
+    for row in rows + grace:
+        row['dynamic'] = dynamics[row['occurrence']]
     rest_rows,rest_warnings=rests(part,headers)
     warnings.extend(rest_warnings)
     identity_warnings=identity_warnings or []

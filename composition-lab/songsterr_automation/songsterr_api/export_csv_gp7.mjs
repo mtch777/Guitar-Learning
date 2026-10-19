@@ -1,5 +1,6 @@
 // Restore temporary GP5 split tracks, export real GP7, and compare reimported data.
 import fs from 'node:fs';import path from 'node:path';import {pathToFileURL} from 'node:url';import crypto from 'node:crypto';
+import {restoreDeadTies} from './restore_dead_ties.mjs';
 const [modulePath,root,...options]=process.argv.slice(2),at=await import(pathToFileURL(path.resolve(modulePath)));
 // Guard an upstream alphaTab GP5 importer bug when adjacent bars omit a voice.
 let voicePaddingRepairs=0,emptyVoiceRestRepairs=0;
@@ -90,12 +91,17 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
   for(const track of score.tracks)for(const staff of track.staves)for(const bar of staff.bars)for(const voice of bar.voices)for(const beat of voice.beats){
    for(const note of beat.notes){if(staff.isPercussion&&beat.graceType!==0&&note.percussionArticulation<0&&note.fret>=0){note.percussionArticulation=note.fret;note.fret=-1;note.string=-1;percussionGraceRepairs++;}}
   }
+  const deadTieRestoration={checked:0,restored:0,skippedGrace:0};
+  for(const [ti,track] of score.tracks.entries()){
+   const raw=JSON.parse(fs.readFileSync(path.join(folder,`track-${ti}.json`),'utf8'));
+   const result=restoreDeadTies(track,raw);for(const key of Object.keys(deadTieRestoration))deadTieRestoration[key]+=result[key];
+  }
   const before=snapshot(score);
   for(const track of score.tracks)for(const staff of track.staves)for(const bar of staff.bars)for(const voice of bar.voices)for(const beat of voice.beats)for(const note of beat.notes){if(note.bendPoints)note.bendPoints=simplify(note.bendPoints);}
 
   if(fs.existsSync(target)&&!options.includes('--recheck'))throw Error('Unverified existing GP preserved; use --recheck');
   fs.writeFileSync(target,new at.exporter.Gp7Exporter().export(score,settings));const afterScore=load(target),after=snapshot(afterScore);
-  report={...report,rhythmRestorations,voicePaddingRepairs,emptyVoiceRestRepairs,percussionGraceRepairs,curveComparisonGrid:61,roundtripPass:JSON.stringify(before)===JSON.stringify(after),tracks:after.tracks.length,bars:after.bars.length,
+  report={...report,rhythmRestorations,voicePaddingRepairs,emptyVoiceRestRepairs,percussionGraceRepairs,deadTieRestoration,curveComparisonGrid:61,roundtripPass:JSON.stringify(before)===JSON.stringify(after),tracks:after.tracks.length,bars:after.bars.length,
     notes:after.tracks.reduce((n,t)=>n+t.staves.reduce((n,s)=>n+s.bars.reduce((n,b)=>n+b.reduce((n,v)=>n+v.reduce((n,e)=>n+e.notes.length,0),0),0),0),0),
     directSource:rawCheck(afterScore,folder),sha256:crypto.createHash('sha256').update(fs.readFileSync(target)).digest('hex'),bytes:fs.statSync(target).size};
   if(!report.roundtripPass){fs.writeFileSync(path.join(folder,'roundtrip-before.json'),JSON.stringify(before));fs.writeFileSync(path.join(folder,'roundtrip-after.json'),JSON.stringify(after));}

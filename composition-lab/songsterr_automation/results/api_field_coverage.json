@@ -1,7 +1,8 @@
 {
   "schema": "songsterr-api-field-coverage-v1",
-  "analyzer_sha256": "bcd9758fd63559ff773aaaa87a381f985865b426984355bf4b6377d17a4e59b4",
-  "semantics_sha256": "c193dbdf025dfeca6f7da0ec0799ac6bf5673c1a5e3e29034065a309b68779ce",
+  "analyzer_sha256": "e537bd1375b0ef0a855a7a988f1f2244e07da80156af0e9dfd6807dcbbbfc6a5",
+  "semantics_sha256": "cbec950f69aa26efbe40f93b4938f9b53a573a7066740a1720b2664a571d4dd1",
+  "dynamics_sha256": "12e5e0a51d1badcdb98912b5d36afaf4d1bf8e750f65cd217f277b3444b2bf02",
   "entries": 98,
   "response_counts": {
     "metadata": 98,
@@ -3215,10 +3216,10 @@
       "entries_with_field": 2,
       "track_responses_with_field": 2,
       "status": "analyzed",
-      "analysis_level": "raw_value_summary",
-      "current_use": "Explicit velocity histogram; note value overrides beat value.",
-      "remaining_gap": "No imputation, dynamic-envelope reconstruction or tempo/loudness calibration.",
-      "code_evidence": "summary",
+      "analysis_level": "written_dynamic_inheritance",
+      "current_use": "Local histogram plus voice-local explicit/inherited written dynamics and marking provenance; note override does not alter voice state.",
+      "remaining_gap": "No ghost attenuation, dynamic-envelope reconstruction, performed loudness or playback-repeat dynamics inference.",
+      "code_evidence": "source_dynamics.dynamic_observations; summary",
       "review_required": false
     },
     {
@@ -3735,10 +3736,10 @@
       "entries_with_field": 94,
       "track_responses_with_field": 464,
       "status": "analyzed",
-      "analysis_level": "raw_value_summary",
-      "current_use": "Explicit velocity histogram; note value overrides beat value.",
-      "remaining_gap": "No imputation, dynamic-envelope reconstruction or tempo/loudness calibration.",
-      "code_evidence": "summary",
+      "analysis_level": "written_dynamic_inheritance",
+      "current_use": "Local histogram plus voice-local explicit/inherited written dynamics and marking provenance; note override does not alter voice state.",
+      "remaining_gap": "No ghost attenuation, dynamic-envelope reconstruction, performed loudness or playback-repeat dynamics inference.",
+      "code_evidence": "source_dynamics.dynamic_observations; summary",
       "review_required": false
     },
     {

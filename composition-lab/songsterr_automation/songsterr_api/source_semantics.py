@@ -12,8 +12,19 @@ def marker_text(marker):
     return str(marker.get('text') or '(unannotated)') if isinstance(marker,dict) else str(marker or '(unannotated)')
 
 
+def whole_measure_rest(measure, voice):
+    """Recognize the explicit API whole-measure-rest sentinel, not any long rest."""
+    beats=voice.get('beats',[])
+    if not measure.get('rest') or not voice.get('rest') or len(beats)!=1:return False
+    beat=beats[0];notes=beat.get('notes',[])
+    return (beat.get('rest') is True and beat.get('type')==1 and beat.get('duration')==[1,1]
+            and bool(notes) and all(n.get('rest') is True for n in notes)
+            and not any(beat.get(k) for k in ('graceNote','dots','tuplet','tupletStart','tupletStop')))
+
+
 def filled(measure):
-    return max((sum((F(*b['duration'])*4 for b in v.get('beats',[]) if not b.get('graceNote') and b.get('duration')),F(0)) for v in measure.get('voices',[])),default=F(0))
+    # A whole-measure rest supplies no independent evidence of pickup length.
+    return max((sum((F(*b['duration'])*4 for b in v.get('beats',[]) if not b.get('graceNote') and b.get('duration')),F(0)) for v in measure.get('voices',[]) if not whole_measure_rest(measure,v)),default=F(0))
 
 
 def layout(parts):
@@ -131,9 +142,13 @@ def rests(part,headers):
             for bi,b in enumerate(beats):
                 if b.get('graceNote'):continue
                 if not b.get('duration'):break
-                d=F(*b['duration'])*4;pitched=any(not n.get('rest') for n in b.get('notes',[]))
+                written=F(*b['duration'])*4
+                d=span if whole_measure_rest(m,v) else written;pitched=any(not n.get('rest') for n in b.get('notes',[]))
                 if b.get('rest') and pitched:warnings.append(dict(bar=mi+1,voice=vi,beat=bi,reason='beat_rest_conflicts_with_notes'))
-                if not pitched:out.append(dict(bar=mi+1,voice=vi,onset_q=str(base+local),duration_q=str(d),source='explicit_rest_beat'))
+                if not pitched:
+                    record=dict(bar=mi+1,voice=vi,onset_q=str(base+local),duration_q=str(d),source='explicit_rest_beat')
+                    if whole_measure_rest(m,v):record.update(written_duration_q=str(written),duration_semantics='whole_measure_rest')
+                    out.append(record)
                 local+=d
     return out,warnings
 

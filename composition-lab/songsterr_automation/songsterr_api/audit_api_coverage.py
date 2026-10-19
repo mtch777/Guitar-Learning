@@ -101,8 +101,8 @@ def registry():
     fields(N,'harmonicFret','analyzed','raw_value_summary','Histogram of explicitly supplied harmonic node/fret value.',
            'No physical harmonic-type or sounding-pitch interpretation.',evidence='summary marker_value_histograms')
     for base in (B,N):
-        fields(base,'velocity','analyzed','raw_value_summary','Explicit velocity histogram; note value overrides beat value.',
-               'No imputation, dynamic-envelope reconstruction or tempo/loudness calibration.',evidence='summary')
+        fields(base,'velocity','analyzed','written_dynamic_inheritance','Local histogram plus voice-local explicit/inherited written dynamics and marking provenance; note override does not alter voice state.',
+               'No ghost attenuation, dynamic-envelope reconstruction, performed loudness or playback-repeat dynamics inference.',evidence='source_dynamics.dynamic_observations; summary')
     fields(N,'bend.points bend.points[] bend.points[].position bend.points[].tone','analyzed','partial_curve_values',
            'Exact initial/peak/final tone/25 and first-peak position/60 statistics.',
            'No complete curve similarity, precise-position override, per-point vibrato or performed bend-rate analysis.',evidence='summary')
@@ -222,6 +222,7 @@ def scan_documents(documents):
     source=Path(__file__).with_name('analyze_relationships.py')
     return dict(schema='songsterr-api-field-coverage-v1',analyzer_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
                 semantics_sha256=hashlib.sha256(source.with_name('source_semantics.py').read_bytes()).hexdigest(),
+                dynamics_sha256=hashlib.sha256(source.with_name('source_dynamics.py').read_bytes()).hexdigest(),
                 entries=len(private),response_counts=dict(doc_counts),observed_paths=len(rows),
                 status_counts=dict(Counter(r['status'] for r in rows)),review_required_paths=[r['path'] for r in rows if r['review_required']],
                 declared_but_unobserved_paths=sorted(set(rules)-set(stats)),fields=rows,

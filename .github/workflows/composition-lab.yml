@@ -22,3 +22,8 @@ jobs:
       - name: Test independent GP7 module
         working-directory: composition-lab
         run: python -m unittest discover -s . -p 'test_*.py' -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test source dead-tie restoration guards
+        run: node --test composition-lab/songsterr_automation/songsterr_api/test_restore_dead_ties.mjs
