@@ -73,3 +73,32 @@ An isolated tuning-relative proposal and4tests exist uncommitted with3private GP
 candidates. They are mechanistic trials, not approved musical improvements.
 Theme QA found no blocker in the bounded prior8casebatch, but requires fresh
 current-sealed replay before delivery. Agent reports/outputs remain private.
+
+## 2026-10-19 resumed verification
+
+- `git pull --ff-only`: main already current; unfinished files preserved.
+- `python -m unittest discover -s composition-lab -p 'test_*.py'`:442 run,
+  441 passed,1 optional skip. JS39/39 passed; Vite production build passed.
+- `style_diagnostics.py`:7 focused tests and independent QABot3000 approval.
+  Rejects nonfinite/bool/out-of-range rates; reconciles eligible counts and
+  source-family versus generated-piece weighting. Private frozen snapshot is
+  explicitly older than current source repairs. It is an accounting diagnostic,
+  not an artist-quality score or causal explanation.
+- The isolated tuning-relative proposal produced36 private GPs. Better marginal
+  technique rates did NOT justify promotion: bass interval divergence worsened
+  (.115 to .400 bits), harmony mean leap increased (2.95 to9.07 semitones).
+  Defaults unchanged. Need connected-context tests, not artist-wide rate quotas.
+- Connected profile v2:70 development scores/54families,328tracks,
+  147103attack groups,12247approved pedal cycles.15focused tests pass after
+  independent QA fixes to feature denominators, unknown masks, full-member
+  rhythm geometry/meter and unknown harmony contexts. Further provenance and
+  held-out coverage review remains; no style-fidelity claim.
+- Theme fresh v4 replay:7 outputs; last case correctly refused code mutation
+  during parallel edits. Preserved failed batch. Fresh v5 replay underway with
+  stable files. Do not call v4 complete.
+- Agents subsequently hit account usage limits; no work is claimed during
+  unavailable execution. Continue from actual files, not elapsed clock time.
+
+Next: finish current-sealed theme replay/native checks; audit connected profile
+input identities and held-out support; commit verified isolated components,
+push main and verify CI. Private models/scores/evidence/audio stay ignored.
