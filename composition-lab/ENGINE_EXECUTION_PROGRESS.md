@@ -428,3 +428,42 @@ root performed technical self-QA. Schedules remain paused; no replacement agent.
   later). Do not replay current code and call it the historical generator. Find
   the exact preserved Git blob/hash first, then reproduce the original harmony
   before attributing drift to a specific generation step. No speculative repair.
+
+
+## Historical harmony investigation (roadmap3/4/8)
+
+- Planner START: exact all-occurrence replay, accepted retries and explicit
+  historical helper uncertainty. Planner MIDPOINT:3/4exact, observational trace
+  scope accepted; no conflating root means with the earlier joint-context gap.
+  END review requested after all results/tests; awaiting response at this entry.
+- [x] Exact recorded generator blob recovered from Git2027060; SHA matches.
+- [x] Four complete harmony tracks reproduced exactly under reconstructed current
+  helpers; seeds/accepted retries10002/2,10101/1,10200/0,10301/1. All frozen
+  model/input comparators match; no claim of authentic unsealed helper revisions.
+- [x] Root-operation trace preserves exact harmony and actual emitted roots.
+  Core1:658newly sampled attacks,611unshifted,16up/31down octave refits;
+ 14targets below lowest open,2upward refits with target itself in range.
+- [x] Reject simple upward-only octave-repair explanation for this run.
+  Local sampled-step sum+169,refit increment sum-180 excludes reuse resets;
+  not a global drift decomposition or counterfactual causal experiment.
+- [x] Public replay reproduces independent private event/fit-attempt logs exactly.
+  `historical_harmony_replay.py` adds exact-blob/refusal,input/retry/dependency
+  guards and noGPexport. Three focused tests pass.
+- [x] Full local regression529run528pass1optional skip, including five unrelated
+  uncommitted rejected tests. No site or existing generation behavior changed.
+- [ ] Planner END findings reconciled; verified source-only commit/push/CI.
+- [ ] Separate next study: source-conditioned jump/register relationships;
+  no third candidate in the frozen G6cycle and no new method promoted here.
+
+Private records remain under historical-generator-trace-v1. Full broad tracing
+was interrupted before output because of instrumentation overhead; original
+script retained, narrow retry successful. Unrelated untracked research preserved.
+
+- 2026-10-19 Planner END: bounded investigation accepted pending publication/CI.
+  Planner inspected code,three tests and saved replay/reconciliation; did not
+  independently rerun.658emitted events/753fit attempts reconcile exactly.
+  Private checklist updated. Earlier generator-provenance prerequisite is now
+  completed for these four outputs; unsealed helper authenticity stays unknown.
+  Next separate study must validate source-conditioned transitions before any
+  new harmony-only GP pilot; sampled source transitions are truth, not rejected
+  fitting attempts. No broad rewrite or automatic musical acceptance.
