@@ -518,3 +518,25 @@ no detector/bend/pedal reopening. Schedules stay paused.
   Normalized line endings, executable AST identical (module-docstring spacing
   normalized),538tests537pass1optional skip, all49fold numerical results exactly
   reproduced under sealed clean-file replay. No hypothesis/parameter change.
+
+
+## One-pair conditional harmony feasibility (2026-10-19)
+
+- [x] Main safely pulled; no remote changes. Previous0b2db4a CI39302044055 succeeded.
+- [x] Planner START/MIDPOINT: one pair, fixed source skeleton/uniforms, no rerolls.
+- [x] Frozen amendment separates initial/gap marginal backoff from missing keys.
+- [x] Historical-null recovery exact:658draws and complete unarranged harmony.
+- [x] Candidate attempted once:FAILED at decision540, bar108local7/4.
+  Missing-context marginal selected unobserved+101step; target161dyad[0,1];
+  all fixed octave shifts fail. No candidateGP or reroll.
+- [x] Exact diagnostic replay preserves539completed decisions and failure context.
+  Failed-state infeasible mass.0009465167; not whole-run failure rate.
+- [x] Four targeted tests pass; full542run541pass1optional skip (includes five
+  unrelated uncommitted tests). No website edits.
+- [x] Planner END accepts failed terminal result and its limits; no independent rerun.
+- [ ] Source-only publication and exact-commitCI.
+- [ ] Separate proposed next test: feasibility-conditioned sampling, only after
+  pre-result plan/review. Current failed pilot and priorG6gates unchanged.
+
+Complete candidate target-hide/history/lock/GP/native/metric/listening gates were
+NOT reached. See CONDITIONAL_HARMONY_PILOT.md. Schedules remain paused.
