@@ -40,6 +40,15 @@ class PilotTests(unittest.TestCase):
         for weights in ([0,0],[-1,2],[float('nan'),1]):
             with self.assertRaises(ValueError):draw([5,7],weights,.5)
 
+    def test_separate_explicit_mask_does_not_change_default_failure(self):
+        score,records,model=self.fixture()
+        with self.assertRaises(PilotFitError):propose(redact(score),[[0,0]],records,32,model)
+        out,audit=propose(redact(score),[[0,0]],records,32,model,mechanical_mask=True)
+        self.assertEqual(len(audit),2)
+        self.assertTrue(all(a['mechanical_mask'] for a in audit))
+        self.assertTrue(all(a['removed_mass']>0 for a in audit))
+        with self.assertRaises(ValueError):propose(redact(score),[[0,0]],records,32,model,historical_null=True,mechanical_mask=True)
+
     def test_recurrence_copies_candidate_and_updates_history(self):
         score,records,model=self.fixture();score['tracks'][0]['measures'].append(deepcopy(score['tracks'][0]['measures'][0]))
         score['tracks'][0]['measures'][1]['onset_q']='2'

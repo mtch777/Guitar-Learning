@@ -540,3 +540,26 @@ no detector/bend/pedal reopening. Schedules stay paused.
 
 Complete candidate target-hide/history/lock/GP/native/metric/listening gates were
 NOT reached. See CONDITIONAL_HARMONY_PILOT.md. Schedules remain paused.
+
+
+## Separate mechanical-mask experiment (2026-10-19)
+
+- [x] Previous failed pilot72cf7b6 pushed; CI39304178240SUCCESS.
+- [x] Planner START/MIDPOINT: audit first, then freeze ONE new pair; no retuning.
+- [x] Fixed540states/163unique:41565independent action checks, zero disagreements.
+- [x] New candidate658states/197unique:50235checks, zero disagreements/invalid fits.
+- [x] Null exact; targethidden100equivalent; baseline0GPbyteidentity; canonical
+  nonharmony locks and actual exported history all pass.618active557copies40unused.
+- [x] Frozen gateFAILED:H-TV.785523→.757972better, D-TV.603601→.661674worse,
+  belowopen14→28, octave-refits47→66. No threshold/reroll/default change.
+- [x] Baseline plusone REJECTEDcandidateGP preserved privately; occurrence-only
+  harmony property transaction; both native expected checks/MIDI pass.
+- [x] Both full instrumentWAVs271.0349s, samegain.5, finite/nonzero/unclipped.
+  No listening judgments or originality verdict from these checks.
+- [x] Full546tests545pass1optional skip (includes five unrelated uncommitted tests).
+- [x] Planner END: close second failed intervention; no third retune.
+- [ ] Public source-onlycommit/push/exactCI.
+
+See HARMONY_FEASIBILITY_EXPERIMENT.md. Mechanical feasibility is established for
+this pair, profile-driven harmony quality is NOT. No website change; schedules
+remain paused; accepted analysis/pedals unchanged.

@@ -39,8 +39,9 @@ def redact(score):
     return out
 
 
-def propose(skeleton, recurrence, records, initial_root, model, *, historical_null=False):
+def propose(skeleton, recurrence, records, initial_root, model, *, historical_null=False, mechanical_mask=False):
     """Accept only a redacted skeleton; abort on any unplayable sampled attack."""
+    if historical_null and mechanical_mask:raise ValueError('Historical null must retain its original distribution')
     score=deepcopy(skeleton);track=score['tracks'][0];tuning=track['tunings'][0]
     if len(recurrence)!=len(track['measures']):raise ValueError('Recurrence coverage mismatch')
     if any(set(n)&{'midi','string','fret'} for b in track['measures'] for v in b['voices'] for e in v for n in e['notes']):
@@ -68,6 +69,11 @@ def propose(skeleton, recurrence, records, initial_root, model, *, historical_nu
             probabilities,support=distribution(model,origin,span,conditional=contiguous)
             reason='initial' if last_id is None else 'gap' if not contiguous else 'missing_key' if support is None else None
             order=r['step_order']+[s for s in STEPS if s not in r['step_order']]
+            removed_mass=0.0
+            if mechanical_mask:
+                from harmony_feasibility import mask,condition
+                probabilities,retained=condition(probabilities,mask(root,shape,tuning,previous))
+                removed_mass=1-retained
             weights=r['step_weights'] if historical_null else [probabilities[s+127] for s in order]
             step=draw(r['step_order'] if historical_null else order,weights,r['uniform'])
             target=root+step;positions=None
@@ -84,7 +90,7 @@ def propose(skeleton, recurrence, records, initial_root, model, *, historical_nu
             identity=(bi,str(F(e['local_onset_q'])))
             audit.append(dict(identity=identity,previous_id=last_id,previous_root=root,previous_fingering=previous,
                 contiguous=contiguous,origin_register=origin,voicing_span=span,sampled_step=step,target_before_fit=target,
-                octave_shift=shift,actual_root=min(pitches),backoff_reason=reason,
+                octave_shift=shift,actual_root=min(pitches),backoff_reason=reason,mechanical_mask=mechanical_mask,removed_mass=removed_mass,
                 raw_families=len(support['families']) if support else 0,
                 raw_songs=len(support['songs']) if support else 0,weighted_mass=support['mass'] if support else 0))
             for note,pitch,(string,fret) in zip(e['notes'],pitches,positions):note.update(midi=pitch,string=string,fret=fret)
