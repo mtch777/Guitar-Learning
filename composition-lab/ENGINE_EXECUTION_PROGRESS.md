@@ -467,3 +467,45 @@ script retained, narrow retry successful. Unrelated untracked research preserved
   Next separate study must validate source-conditioned transitions before any
   new harmony-only GP pilot; sampled source transitions are truth, not rejected
   fitting attempts. No broad rewrite or automatic musical acceptance.
+
+
+## Source conditional-transition study (roadmap3/4/8)
+
+- Historical replay281db05 CI39296381966 succeeded. Planner END accepted its
+  bounded observational results; all four harmony tracks exact, no newGPs.
+- New endeavor: Planner START approved30active-minute inventory; MIDPOINT
+  approved frozen source-only fit after denominator/support/order checks.
+- [x] Selected-model inventory61030adjacent pairs ->55972eligible +4895gaps/
+  invalid-bar discontinuities +163section changes;49workfamilies/60songs/
+  122tracks. Every historical source step counter reconciles. Exact original
+  attack/shape/duration joins; zeros explicit within selected layer only.
+- [x] Frozen ONEcandidate uses origin-register + requested voicing span available
+  before step selection. Family/song-balanced population control and fixed
+  joint within-song shuffled control; same49folds/rows,255step vocabulary,
+  floor1/2000,prior1family-equivalent,shuffle41907. No tuning after results.
+- [x] Population NLL1.901904/Brier.531293; conditional1.592610/.476466;
+  shuffled1.884615/.519862.47/49NLLwins againstboth; frozen operational gate
+  passes. This is population relationship evidence, not superiority over the
+  historical chosen-track sampler, free generation, music or artist feel.
+- [x] Conditional weighted backoff7.5501%;170/364contexts singleton-family.
+  Below-open probability.081692→.046649 and teacherforcedregisterTV.247929→
+  .216743 are diagnostics only. TwoNLL-adverse and twootherBrier-adverse
+  families retained; largest-adverse-backoff29.86%, anotherNLLcase63rows.
+- [x] Public extraction matches all55972events; all49fold denominators/means
+  reconcile; adverse4families×3methods independently weighted/fullvector
+  Brier rescored (fit/distribution reused; not independent source truth).
+- [x] Nine targeted tests; latest538Python run537pass1optional skip includes
+  five unrelated uncommitted rejected tests.39JS tests and Vite build pass.
+- [x] Originalfitcode preserved. JSONroundtrip assertion corrected to compare
+  predictions/mass, not int-vs-string metadata keys. Later rationalduplicate
+  guard: sealed replay reproduces every original numerical result exactly.
+- [x] Planner END inspected code/tests/report/saved records; bounded delivery
+  accepted, without independent rerun. Object-vs-array conversion usability
+  correction documented and frozen event bytes reproduced exactly.
+- [ ] Verified source-only commit/push/CI. No GP/newconsumer/default change.
+- [ ] Next separate checkpoint: actual historical decision-context support,
+  frozen ONEPAIR permissions/metrics and planner review before any newGP.
+
+Private provenance, rows, fold records, adverse cases, replay and scoring checks:
+`local-artifacts/source-transition-context-v1/`. Earlier failedG6gates unchanged;
+no detector/bend/pedal reopening. Schedules stay paused.
