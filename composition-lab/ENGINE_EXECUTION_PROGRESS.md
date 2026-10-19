@@ -420,3 +420,11 @@ root performed technical self-QA. Schedules remain paused; no replacement agent.
 - Latest local Python526run525pass1optional skip, including five unrelated
   uncommitted rejected tests. Previous39JS/build pass; no site edits. Source-only
   audit publication/CI next. Schedules remain paused; planner usage-limited.
+
+- Audit source-only code delivered607796a; CI39294429069 succeeded. Public
+  replay/audit and private media remain separate; unrelated untracked work intact.
+- Next trace prerequisite: the full-form baseline records a different generator
+  revision from current `corpus_composer.py` (aligned-pattern work was added
+  later). Do not replay current code and call it the historical generator. Find
+  the exact preserved Git blob/hash first, then reproduce the original harmony
+  before attributing drift to a specific generation step. No speculative repair.
