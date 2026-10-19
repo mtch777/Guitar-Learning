@@ -50,3 +50,35 @@ No two full generated scores are identical. The 12 shared eight-attack melody
 opening groups each contain the three matched methods on the same core/seed;
 none span distinct core/seed contexts. Identical opening material before the
 first affected boundary is expected by the experiment, not a diversity result.
+
+
+## Follow-up: register and harmony are coupled
+
+A read-only audit uses the exact identity `R - D = H`, where R is melody pitch
+minus its lowest open string, D is melody pitch minus the written harmony minimum,
+and H is that harmony minimum minus the melody track's lowest open string.
+All three measurements use the same known-harmony boundary subset and weights.
+
+| Joint-context diagnostic | Observed source | Locked generated context |
+|---|---:|---:|
+| Mean H, semitones | 8.8573 | 23.9217 |
+| Source leave-one-family-out mean H range | 8.6766–9.0796 | — |
+| Known-harmony source support | 1,311 boundaries;35families;42songs | — |
+| Unknown-harmony source boundaries | 953 of2,264 | Explicitly excluded |
+| Exact H values absent from source support | — | 24.3%–36.7%, depending on core |
+
+The fixed-context mean shift is15.0644semitones. Consequently, at least one of
+register-mean error and harmony-distance-mean error must be at least7.5322semitones
+on this matched cohort while H stays fixed. This is an exact first-moment bound,
+**not proof that no better joint distribution or passing TV result exists**.
+The original frozen TV gates remain failed and unchanged. Missing harmony is
+not a negative observation; these results do not cover the953unknown boundaries.
+
+`joint_register_harmony_audit.py` reproduces the support/identity/coverage check
+from accepted observations and an explicit comparison manifest, with input seals,
+family/song weighting, duplicate checks and locked-context refusal. No model
+fitted or third candidate generated. Existing composer code does resynthesize
+harmony roots using first-order steps and octave feasibility; that is a plausible
+place to investigate context drift, not an experimentally proven cause here.
+The next separate study should examine source-supported joint role contexts and
+conditional evaluation; it must not silently retune this failed cycle.

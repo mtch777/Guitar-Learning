@@ -15,7 +15,7 @@ open like other techniques, without extra pedal priority.
 |G4 Transfer|Changed eligible contexts, target values hidden, locks/native/support/refusals verified|Private eight-case engineering diagnostic passed; one probability change, zero annotation changes; no musical acceptance or public method delivery|
 |G5 Generation|Matched baseline versus profile-informed outputs, frozen metrics and side effects|Experimental pair tooling delivered 3805202; CI 39287223045 success; 24-GP comparison verified; broader generation and musical acceptance open|
 |G6 Whole piece|One demonstrated mechanism per bounded improvement/reject/inconclusive cycle|Two frozen melody-boundary alternatives completed; both fail strict multi-metric gate; tooling delivered5496457; CI39292687132 success; no default promotion|
-|G7 Delivery/review|QA/regressions/copy limits/actual playback; verified publication and genuine human review|Private 12-case output index and audio checks prepared; known-corpus/diversity audit complete; publication pending; no listening acceptance|
+|G7 Delivery/review|QA/regressions/copy limits/actual playback; verified publication and genuine human review|Private 12-case output index and audio checks prepared; known-corpus/diversity audit complete; builder delivered2b07a6e; CI39293769958 success; no listening acceptance|
 
 ## G0 actual work and verification
 
@@ -396,3 +396,27 @@ root performed technical self-QA. Schedules remain paused; no replacement agent.
   passes `node --check`; earlier39JS tests/Vite build pass, unchanged site code.
   Tool generates private review HTML only; no deployed website files changed,
   so no Pages release required or claimed. Verified source-only publication next.
+
+
+## Read-only joint role-context follow-up (roadmap3/8)
+
+- G7builder pushed2b07a6e; CI39293769958 succeeded. Private66file generated
+  comparison archive CRC-checked; no media/model/source data published.
+- Profile audit `joint_register_harmony_audit.py`: same known-harmony cohort
+  and equal-family/song weights for R,D,H; exact identity R-D=H. Public runner
+  reproduces all36private diagnostic comparisons within1e-9, support exact.
+- Source1311known boundaries/35families/42songs;953unknown explicitly retained
+  as missing. SourceHmean8.8573semitones; leave-one-family8.6766–9.0796.
+  Generated lockedHmean23.9217. Per-core exactH unseen shares24.3%–36.7%.
+- Fixed mean shift15.0644 implies at least one mean discrepancy>=7.5322 while
+  this context remains locked. Exact first-moment result only, not proof a TV
+  gate cannot pass and not evidence of audible severity/artist feel. Original
+  independent marginal TV targets and failed gates unchanged.
+- Existing composer uses root-step resynthesis plus octave feasibility; observed
+  context mismatch justifies a later joint-role study, not an asserted sole root
+  cause or an unreviewed replacement generator. No thirdG6candidate generated.
+- Four targeted audit tests pass: weights/identity, exact lower bound, missingness,
+  held-out exclusion/duplicate refusal, changed accompaniment context refusal.
+- Latest local Python526run525pass1optional skip, including five unrelated
+  uncommitted rejected tests. Previous39JS/build pass; no site edits. Source-only
+  audit publication/CI next. Schedules remain paused; planner usage-limited.
