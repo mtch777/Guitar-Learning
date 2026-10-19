@@ -563,3 +563,21 @@ NOT reached. See CONDITIONAL_HARMONY_PILOT.md. Schedules remain paused.
 See HARMONY_FEASIBILITY_EXPERIMENT.md. Mechanical feasibility is established for
 this pair, profile-driven harmony quality is NOT. No website change; schedules
 remain paused; accepted analysis/pedals unchanged.
+
+
+## Read-only role/register decomposition (2026-10-19)
+
+- [x] Exact original1311known boundaries/35families42songs,953unknown retained.
+- [x] Originalselectedpart/activeanchor/tuning joins;2622accepted pitchgroups
+  and4553note/string/fret/tuning checks; zero same-part role overlap.
+- [x] Sameweighted identities:source harmonyown9.085886+tuningoffset−.228571
+  =H8.857315. Originalown/H28.915888,rejected24.018692 atsame107outputclocks.
+- [x] All629multipleactive harmony-choice boundaries enumerated without
+  reassignment. Sourceownmeanbounds8.744478–10.517479,H8.515907–10.288908.
+  Both generated means above full enumerated bounds, not allpossibletrue roles.
+- [x] PublicrepeatableCLI reproduces source/raw checks/bounds; per-familysaved.
+- [x] Planner START/MID/END accepted bounded finding, not functional/audiblecause.
+- [x] Fourtargetedtests; full550run549pass1optional skip includes5uncommittedtests.
+- [ ] Publish source-onlyaudit and exactCI.
+- [ ] Nextsource-onlyprofiletask:inventory A/T/R support, thenfreeze predictive
+  R|A,T study against R|T andwithin-song/T shuffledpaircontrol. NoGPscope.
