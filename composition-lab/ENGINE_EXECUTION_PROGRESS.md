@@ -14,7 +14,7 @@ open like other techniques, without extra pedal priority.
 |G3 Recreation|Bounded real-source replay versus learned reconstruction, explicit relationship assertions|Delivered 6a9ad8b; CI 39280563908 succeeded; engineering checks pass, learned reconstruction mixed|
 |G4 Transfer|Changed eligible contexts, target values hidden, locks/native/support/refusals verified|Private eight-case engineering diagnostic passed; one probability change, zero annotation changes; no musical acceptance or public method delivery|
 |G5 Generation|Matched baseline versus profile-informed outputs, frozen metrics and side effects|Experimental pair tooling delivered 3805202; CI 39287223045 success; 24-GP comparison verified; broader generation and musical acceptance open|
-|G6 Whole piece|One demonstrated mechanism per bounded improvement/reject/inconclusive cycle|Two frozen melody-boundary alternatives completed; both fail strict multi-metric gate; experimental tooling verified, publication pending|
+|G6 Whole piece|One demonstrated mechanism per bounded improvement/reject/inconclusive cycle|Two frozen melody-boundary alternatives completed; both fail strict multi-metric gate; tooling delivered5496457; CI39292687132 success; no default promotion|
 |G7 Delivery/review|QA/regressions/copy limits/actual playback; verified publication and genuine human review|Private 12-case output index and audio checks prepared; known-corpus/diversity audit complete; publication pending; no listening acceptance|
 
 ## G0 actual work and verification
@@ -341,7 +341,7 @@ open like other techniques, without extra pedal priority.
   paths, hashes, labels and literal changed/locked dimensions. No listening.
 - [x] Final local Python:519run,518pass,1optional skip, including five uncommitted
   rejected tuning tests outside this delivery.39JS tests and Vite build pass.
-- [ ] Push verified source-only code and verify exact commit CI.
+- [x] Experimental source-only code pushed as5496457; CI39292687132 succeeded.
 - [ ] Human musical/artist-feel acceptance. Engineering diagnostics cannot close it.
 
 Private evidence: `local-artifacts/g6-barline-continuity-v1/` contains both frozen
@@ -368,3 +368,31 @@ root performed technical self-QA. Schedules remain paused; no replacement agent.
   group members; `delivery-v1/review-manifest.json` identifies12representative
   full pieces with exact methods/locks/audio hashes. No new UI or listening test
   was claimed. Further whole-project requirements and artist-feel remain open.
+
+
+## G7 private comparison UI and final package
+
+- Added `build_continuity_review.py`; consumes the frozen12case manifest and
+  actual native MIDI/full instrument WAVs. Refuses checksum/duration mismatch,
+  missing matched methods, wrong role/channel mapping, existing output and
+  commercial/performed source cores. Relative links retain private assets locally.
+- Explicit generated-piece and method labels; changed/locked dimensions stated;
+  failed metric gates visible. Same-time method switch, GP downloads, actual
+  note piano roll with playhead/bar lines/part filters and note-click seek.
+- Actual in-app browser QA: all12audio/GP selections correct, audio play state,
+  preserved switch time, note pitch/seek, visible roll/bar markers/part filter,
+  empty human answers and zero console errors. No musical listening claimed.
+- Final guarded artifact: private `delivery-v1/review-verified.html`, loopback
+  http://127.0.0.1:5198/delivery-v1/review-verified.html; `browser-qa.json` and
+  `browser-proof.png` retain evidence. Initial sandbox-local server did not
+  connect; host loopback server verified. No external audio/score publication.
+- Three builder tests pass; final regression/publication verification pending.
+  Broad G7 musical acceptance, source-style fidelity and original unmet research
+  requirements remain open. This delivery is a bounded failed-hypothesis cycle,
+  not a completed artist-faithful composition engine.
+
+- Final local regression:522Python run,521pass,1optional skip (includes five
+  unrelated uncommitted rejected-candidate tests). Embedded review JS syntax
+  passes `node --check`; earlier39JS tests/Vite build pass, unchanged site code.
+  Tool generates private review HTML only; no deployed website files changed,
+  so no Pages release required or claimed. Verified source-only publication next.
