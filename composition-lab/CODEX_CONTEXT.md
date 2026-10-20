@@ -1,3 +1,16 @@
+## Captured-source tiered representation — current user decision (2026-10-20)
+
+Tier0 is now the exact captured Songsterr JSON (metadata + every track), NOT GP.
+GP is a separate export/playback comparison artifact. User authorized the whole
+Cloud Cascade460099 revision9588298 mapping pilot using ALL applicable existing
+analysis, physically nested tiers5→0, timed and connected evidence, with
+ProjectPlanner3000 critique and final artifact approval before presentation.
+Read TIERED_SONG_STRUCTURE.md and TIERED_SONG_PROGRESS.md. Preserve source payloads
+privately. No invented modes/roles/phrases; computed hypotheses are explicit.
+Single-song artist-labelled statistics are not artist-wide generalization.
+Earlier GP-source architecture below is historical where it conflicts with this
+new decision. Pedal detection remains approved/unchanged; no new generation work.
+
 ## Active architecture direction (2026-10-20)
 
 Read ANALYSIS_INVERSE_PLAN.md. User wants one robust musical-analysis

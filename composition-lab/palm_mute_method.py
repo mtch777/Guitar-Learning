@@ -22,7 +22,7 @@ def eligible(n):
         and isinstance(n['midi'],(int,float)) and not isinstance(n['midi'],bool) and math.isfinite(n['midi']) and 0<=n['midi']<=127 and int(n['midi'])==n['midi'])
 
 
-def observations(report,details=False):
+def observations(report,details=False,*,evidence_sink=None):
     families=connected_families(report['songs']);out=[];inventory=Counter()
     for song in report['songs']:
         for track in song['tracks']:
@@ -39,6 +39,7 @@ def observations(report,details=False):
                 kind='all' if all(labels) else 'mixed' if any(labels) else 'none'
                 inventory[song['provisional_partition']+':'+kind]+=1
                 if kind=='mixed':continue  # never turn a partial source gesture into whole-group truth
+                if evidence_sink is not None:evidence_sink(dict(event_index=len(out),song_id=song['song_id'],part_id=track['part_id'],members=[n['occurrence'] for n in notes]))
                 out.append(dict(song_id=song['song_id'],family=families[song['song_id']],artist=song.get('artist') or '(unknown)',
                     partition=song['provisional_partition'],flagged=not(song.get('ai_generated') is False and song.get('is_junk') is False),
                     context=context(notes[0],notes,register),known=['palm_mute'],

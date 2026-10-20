@@ -90,8 +90,8 @@ def distance(a,b):
         prev=row
     return round(min(1.0,prev[-1]/max(len(x),len(y))),4)
 
-def scan(path,threshold=.28,spans=(2,4),max_matches=12):
-    song=parse(path); output=[]
+def scan_score(song,threshold=.28,spans=(2,4),max_matches=12):
+    output=[]
     for track in song['tracks']:
         bars=track['measures']; matches=[]
         for span in spans:
@@ -127,6 +127,10 @@ def scan(path,threshold=.28,spans=(2,4),max_matches=12):
                            'First voice and lowest pitch only; no chord voicing modeling',
                            'Heuristic costs; no held-out accuracy assessment',
                            'Section labels are source annotations, not automatically inferred']}}
+
+def scan(path,threshold=.28,spans=(2,4),max_matches=12):
+    return scan_score(parse(path),threshold,spans,max_matches)
+
 
 def main():
     ap=argparse.ArgumentParser()

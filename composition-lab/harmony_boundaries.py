@@ -25,8 +25,8 @@ def _pitched(events):
     for voice,onset,duration,pitches in events:
         for p in pitches:c[p%12]+=duration
     return c
-def analyze(path,tolerance=1):
-    score=parsed_tracks(path)
+def analyze_score(score,tolerance=1):
+
     tracks=score['tracks'];n=len(score['meter'])
     guitars=[i for i,t in enumerate(tracks) if _guitar(t)]
     bass=[i for i,t in enumerate(tracks) if _bass(t)]
@@ -84,6 +84,10 @@ def analyze(path,tolerance=1):
       'No drum analysis','Double tracks removed only when exactly identical',
       'Boundary candidate count uses annotations; results are not held-out accuracy',
       'Structural novelty is a heuristic, not confirmed phrase segmentation']}
+def analyze(path,tolerance=1):
+    return analyze_score(parsed_tracks(path),tolerance)
+
+
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument('files',nargs='+',type=Path)

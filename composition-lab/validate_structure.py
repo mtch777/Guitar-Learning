@@ -45,8 +45,8 @@ def chord_candidates(weights,bass_root=None,limit=3):
                             'pitch_coverage':round(coverage,3)})
     return sorted(options,key=lambda x:-x['score'])[:limit]
 
-def analyze(path,bars_per_boundary=12,min_spacing=4,tolerance=1):
-    song=parsed_tracks(path);tracks=song['tracks'];n=len(song['meter'])
+def analyze_score(song,bars_per_boundary=12,min_spacing=4,tolerance=1):
+    tracks=song['tracks'];n=len(song['meter'])
     groups={'guitar':[],'bass':[]};seen=set();duplicates=[]
     for track in tracks:
         kind=track_kind(track['track'])
@@ -125,6 +125,10 @@ def write_audit(items,path):
                 writer.writerow({'song':item['file'],'measure':p['measure'],
                     'score':p['score'],'nearest_source_boundary':nearest,
                     'within_one_measure':int(bool(refs and abs(nearest-p['measure'])<=1))})
+
+def analyze(path,bars_per_boundary=12,min_spacing=4,tolerance=1):
+    return analyze_score(parsed_tracks(path),bars_per_boundary,min_spacing,tolerance)
+
 
 def main():
     ap=argparse.ArgumentParser()
