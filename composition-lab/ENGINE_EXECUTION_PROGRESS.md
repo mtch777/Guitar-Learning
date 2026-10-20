@@ -784,3 +784,16 @@ User rejected JSON-heavy, incomplete display. Viewer-only scope; no detector cha
   and private allowlist tests pass. No detector or musical-content changes.
 - [ ] Source-only push and exact-commit CI verification below.
 Local review http://127.0.0.1:5203/?song=460099 (private source-inspector-v2).
+
+
+## Architecture planning reset (2026-10-20)
+- [x] User clarified unified musical analysis -> blind inverse -> same-rule
+  variation, literal all-zero reconstruction; consulted ProjectPlanner3000.
+- [x] Initial source inspection distinguished archive copying from blind inverse,
+  generated-only writer from generic inverse, shared checkpoint extractor from
+  exclusive experiments. Not a completed dependency inventory.
+- [x] Persistent A-H plan and explicit acceptance gates: ANALYSIS_INVERSE_PLAN.md.
+- [x] Planner read full plan; roadmap mapping/input isolation/evidence-gate
+  corrections incorporated. Source-only publication/CI follows.
+Gates A-H pending; no code moves or inverse claims. Next execution A, then B/C.
+Existing source data, accepted analysis/pedals and baselines untouched.

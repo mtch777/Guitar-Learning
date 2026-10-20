@@ -1,3 +1,15 @@
+## Active architecture direction (2026-10-20)
+
+Read ANALYSIS_INVERSE_PLAN.md. User wants one robust musical-analysis
+representation whose blind inverse exactly reconstructs GP musical/performance
+content; later variation uses the same relationships and rules. Freeze new
+separate post-analysis recreation experiments. Next gates: dependency/field
+inventory, explicit contract, safe archive boundary, blind pilot, corpus coverage,
+relationship construction, measured controls. No physical archive yet; shared
+checkpoint extractor and read/export/render/verification helpers must survive.
+Pedal identification remains closed; schedules paused. Historical next actions
+below do not override this direction. Planning only; inverse not yet demonstrated.
+
 ## Bend workflow integration (2026-10-18)
 
 See BEND_WORKFLOW_INTEGRATION.md. Source corpus exports create GP+companion by
