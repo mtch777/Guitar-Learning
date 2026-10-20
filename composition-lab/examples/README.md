@@ -1,3 +1,15 @@
+## Current review: time × tiers
+
+Open `tiered-passage.html`. One shared timeline, five adjacent tiers, direct-input links on selection, exact JSON on demand. Small viewports transpose the map: time runs horizontally and tiers vertically. Melody and harmony occupy separate lanes within the same time axis. Untimed contexts/pattern definitions are outside that axis.
+
+The selector contains 39 authored synthetic fixtures: 10 technique cases, 13 chord shapes, 7 modes, 3 progressions, 3 melodic contours and 3 A/B forms. These are representative examples, not every possible combination. Select a note/chord/phrase to inspect exact fields and adjacent-tier inputs/parents. Technique parameters remain in lower tiers. Unknown vibrato parameters and chord modes remain null. Pitch labels use letter_octave; interval coordinates describe base pitch, separately from bend curves.
+
+Rebuild with `.venv/Scripts/python.exe composition-lab/examples/build_tier_map.py`; check with `.venv/Scripts/python.exe -m unittest discover -s composition-lab -p test_tier_map.py`.
+
+This catalog demonstrates a proposed record structure. Tier 0 is normalized authored data, not literal GPIF; keys/modes/phrases are declared fixture contexts, not detected results. It does not prove extraction, inverse GP reconstruction, artist fidelity or musical quality. The earlier detailed inspector is preserved as `tiered-passage-inspector.html` with its existing dataset; the following notes describe that older example.
+
+---
+
 # Tiered music data examples
 
 Start with **tiered-passage.html** for the realistic example; it loads the adjacent
