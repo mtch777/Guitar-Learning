@@ -1,0 +1,6312 @@
+{
+  "schema": "illustrative-tiered-passage/2",
+  "purpose": "Synthetic architecture example; not GPIF extraction, implemented inverse, detected phrases or validated music.",
+  "units": {
+    "written_q": "exact rational quarter notes",
+    "span": "[start, start+duration)",
+    "string": "1 is highest",
+    "playback": "separate repeat-expanded visits; exact seconds"
+  },
+  "rules": {
+    "pitch": "written_midi = tuning[string-1] + fret",
+    "rhythm": "duration_q = 4/denominator * dot_multiplier * tuplet_denominator/tuplet_numerator",
+    "pattern": "onset = occurrence.start + relative_onset; duration = pattern.duration; pitch = first_pitch + relative_pitch + occurrence_delta",
+    "bend": "sounding pitch = written base + curve displacement; mark unknown physical details explicitly",
+    "tier_access": "inputs references preceding tier only; every output carries prior typed records, not source blobs",
+    "limits": "Same-tier descriptive links are not extra forward inputs. No inverse or variation is executed."
+  },
+  "cases": [
+    {
+      "id": "idea",
+      "title": "🔁 Follow the idea",
+      "root": "development",
+      "select": [
+        "development",
+        "idea",
+        "occ_a",
+        "occ_b",
+        "call_a",
+        "call_b",
+        "a1",
+        "a2",
+        "a3",
+        "a4",
+        "b1",
+        "b2",
+        "b3",
+        "b4"
+      ],
+      "explains": "The same E call returns. The answer changes from a bent A to a written B with vibrato.",
+      "preserve": "Exact note members, timing, initial pitch, curve and per-occurrence differences. A shared pattern does not erase exceptions."
+    },
+    {
+      "id": "performance",
+      "title": "🎸 Techniques / overlapping voices",
+      "root": "space",
+      "select": [
+        "space",
+        "region_space",
+        "region_ending",
+        "tie_high",
+        "tie_low",
+        "overlap",
+        "hammer",
+        "pull",
+        "slide",
+        "close",
+        "bend",
+        "vibrato",
+        "hold1",
+        "hold2",
+        "hold3",
+        "under1",
+        "under2",
+        "open1",
+        "fretted",
+        "open2",
+        "texture1",
+        "texture2",
+        "slide1",
+        "slide2",
+        "a4",
+        "b4"
+      ],
+      "explains": "Notation connects actual events: tie destinations are not new attacks; two voices can overlap; techniques have physical endpoints.",
+      "preserve": "Individual written segments, voice identity, string/fret, technique curves and unknown vibrato depth/rate."
+    },
+    {
+      "id": "timing",
+      "title": "⏱️ Tuplets / repeats / tempo",
+      "root": "playback",
+      "select": [
+        "opening",
+        "return",
+        "ending_section",
+        "occ_a",
+        "occ_b",
+        "run_a",
+        "run_b",
+        "playback",
+        "tempo0",
+        "tempo16",
+        "at0",
+        "at1",
+        "at2",
+        "bt0",
+        "bt1",
+        "bt2",
+        "notation"
+      ],
+      "explains": "8 written bars produce 10 playback visits. Bar 7 is 3/4; the return slows from 100 to 80 BPM.",
+      "preserve": "Exact 1/3-quarter durations, meter, repeat instructions and a separate playback-visit map."
+    },
+    {
+      "id": "evidence",
+      "title": "📊 Counts / uncertainty",
+      "root": "bend_share",
+      "select": [
+        "bend_share",
+        "ambiguity",
+        "support",
+        "occ_a",
+        "occ_b",
+        "bend",
+        "close",
+        "power0",
+        "power1",
+        "power2"
+      ],
+      "explains": "Statistics name their population. Repeated playback and tied segments must not inflate written attack counts.",
+      "preserve": "Evidence links, denominator policy and unknown interpretations. No guessed artist or emotional meaning."
+    }
+  ],
+  "records": {
+    "notation": {
+      "tier": 0,
+      "kind": "notation_context",
+      "label": "Source notation / preserved unknown",
+      "inputs": [],
+      "bars": [
+        {
+          "bar": 1,
+          "start_q": "0",
+          "duration_q": "4",
+          "meter": [
+            4,
+            4
+          ]
+        },
+        {
+          "bar": 2,
+          "start_q": "4",
+          "duration_q": "4",
+          "meter": [
+            4,
+            4
+          ]
+        },
+        {
+          "bar": 3,
+          "start_q": "8",
+          "duration_q": "4",
+          "meter": [
+            4,
+            4
+          ]
+        },
+        {
+          "bar": 4,
+          "start_q": "12",
+          "duration_q": "4",
+          "meter": [
+            4,
+            4
+          ]
+        },
+        {
+          "bar": 5,
+          "start_q": "16",
+          "duration_q": "4",
+          "meter": [
+            4,
+            4
+          ]
+        },
+        {
+          "bar": 6,
+          "start_q": "20",
+          "duration_q": "4",
+          "meter": [
+            4,
+            4
+          ]
+        },
+        {
+          "bar": 7,
+          "start_q": "24",
+          "duration_q": "3",
+          "meter": [
+            3,
+            4
+          ]
+        },
+        {
+          "bar": 8,
+          "start_q": "27",
+          "duration_q": "4",
+          "meter": [
+            4,
+            4
+          ]
+        }
+      ],
+      "tracks": {
+        "lead": {
+          "name": "Lead guitar",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ]
+        },
+        "rhythm": {
+          "name": "Rhythm guitar",
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            38
+          ]
+        },
+        "bass": {
+          "name": "Bass",
+          "tuning": [
+            43,
+            38,
+            33,
+            26
+          ]
+        }
+      },
+      "tempos": [
+        {
+          "at_q": "0",
+          "bpm": 100
+        },
+        {
+          "at_q": "16",
+          "bpm": 80
+        }
+      ],
+      "repeat": {
+        "first_bar": 1,
+        "last_bar": 2,
+        "additional_passes": 1
+      },
+      "unknown_properties": {
+        "fixture_extension": {
+          "value": "uninterpreted",
+          "meaning": null
+        }
+      },
+      "status": "authored normalized notation fixture; not literal GPIF"
+    },
+    "raw_a1": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written a1",
+      "inputs": [],
+      "track": "lead",
+      "bar": 1,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "a1": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E4",
+      "inputs": [
+        "raw_a1",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "1/2"
+      },
+      "pitch_midi": 64,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "technique": {},
+      "bar": 1,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_a2": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written a2",
+      "inputs": [],
+      "track": "lead",
+      "bar": 1,
+      "offset_q": "1/2",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "a2": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E4",
+      "inputs": [
+        "raw_a2",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "1/2",
+        "duration": "1/2"
+      },
+      "pitch_midi": 64,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "technique": {},
+      "bar": 1,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_a3": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written a3",
+      "inputs": [],
+      "track": "lead",
+      "bar": 1,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 3,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "a3": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · G4",
+      "inputs": [
+        "raw_a3",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "1",
+        "duration": "1/2"
+      },
+      "pitch_midi": 67,
+      "string_highest_is_1": 1,
+      "fret": 3,
+      "technique": {},
+      "bar": 1,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_a4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written a4",
+      "inputs": [],
+      "track": "lead",
+      "bar": 1,
+      "offset_q": "3/2",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 5,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 1
+      },
+      "technique": {
+        "bend": {
+          "time_unit": "fraction_of_written_note",
+          "pitch_unit": "semitones",
+          "points": [
+            [
+              "0",
+              "0"
+            ],
+            [
+              "1/3",
+              "2"
+            ],
+            [
+              "2/3",
+              "2"
+            ],
+            [
+              "1",
+              "0"
+            ]
+          ]
+        }
+      }
+    },
+    "a4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · A4",
+      "inputs": [
+        "raw_a4",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "3/2",
+        "duration": "3/2"
+      },
+      "pitch_midi": 69,
+      "string_highest_is_1": 1,
+      "fret": 5,
+      "technique": {
+        "bend": {
+          "time_unit": "fraction_of_written_note",
+          "pitch_unit": "semitones",
+          "points": [
+            [
+              "0",
+              "0"
+            ],
+            [
+              "1/3",
+              "2"
+            ],
+            [
+              "2/3",
+              "2"
+            ],
+            [
+              "1",
+              "0"
+            ]
+          ]
+        }
+      },
+      "bar": 1,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_a5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written a5",
+      "inputs": [],
+      "track": "lead",
+      "bar": 2,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "a5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E4",
+      "inputs": [
+        "raw_a5",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "4",
+        "duration": "1/2"
+      },
+      "pitch_midi": 64,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "technique": {},
+      "bar": 2,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_a6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written a6",
+      "inputs": [],
+      "track": "lead",
+      "bar": 2,
+      "offset_q": "1/2",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "a6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E4",
+      "inputs": [
+        "raw_a6",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "9/2",
+        "duration": "1/2"
+      },
+      "pitch_midi": 64,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "technique": {},
+      "bar": 2,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_at0": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written at0",
+      "inputs": [],
+      "track": "lead",
+      "bar": 2,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 3,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0,
+        "tuplet": [
+          3,
+          2
+        ]
+      },
+      "technique": {}
+    },
+    "at0": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · G4",
+      "inputs": [
+        "raw_at0",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "5",
+        "duration": "1/3"
+      },
+      "pitch_midi": 67,
+      "string_highest_is_1": 1,
+      "fret": 3,
+      "technique": {},
+      "bar": 2,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_at1": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written at1",
+      "inputs": [],
+      "track": "lead",
+      "bar": 2,
+      "offset_q": "4/3",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 5,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0,
+        "tuplet": [
+          3,
+          2
+        ]
+      },
+      "technique": {}
+    },
+    "at1": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · A4",
+      "inputs": [
+        "raw_at1",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "16/3",
+        "duration": "1/3"
+      },
+      "pitch_midi": 69,
+      "string_highest_is_1": 1,
+      "fret": 5,
+      "technique": {},
+      "bar": 2,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_at2": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written at2",
+      "inputs": [],
+      "track": "lead",
+      "bar": 2,
+      "offset_q": "5/3",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 7,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0,
+        "tuplet": [
+          3,
+          2
+        ]
+      },
+      "technique": {}
+    },
+    "at2": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · B4",
+      "inputs": [
+        "raw_at2",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "17/3",
+        "duration": "1/3"
+      },
+      "pitch_midi": 71,
+      "string_highest_is_1": 1,
+      "fret": 7,
+      "technique": {},
+      "bar": 2,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_a_ending": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written a_ending",
+      "inputs": [],
+      "track": "lead",
+      "bar": 2,
+      "offset_q": "2",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 10,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "accent": true
+      }
+    },
+    "a_ending": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · D5",
+      "inputs": [
+        "raw_a_ending",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "6",
+        "duration": "1"
+      },
+      "pitch_midi": 74,
+      "string_highest_is_1": 1,
+      "fret": 10,
+      "technique": {
+        "accent": true
+      },
+      "bar": 2,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_b1": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written b1",
+      "inputs": [],
+      "track": "lead",
+      "bar": 5,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "b1": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E4",
+      "inputs": [
+        "raw_b1",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "16",
+        "duration": "1/2"
+      },
+      "pitch_midi": 64,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "technique": {},
+      "bar": 5,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_b2": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written b2",
+      "inputs": [],
+      "track": "lead",
+      "bar": 5,
+      "offset_q": "1/2",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "b2": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E4",
+      "inputs": [
+        "raw_b2",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "33/2",
+        "duration": "1/2"
+      },
+      "pitch_midi": 64,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "technique": {},
+      "bar": 5,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_b3": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written b3",
+      "inputs": [],
+      "track": "lead",
+      "bar": 5,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 3,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "b3": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · G4",
+      "inputs": [
+        "raw_b3",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "17",
+        "duration": "1/2"
+      },
+      "pitch_midi": 67,
+      "string_highest_is_1": 1,
+      "fret": 3,
+      "technique": {},
+      "bar": 5,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_b4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written b4",
+      "inputs": [],
+      "track": "lead",
+      "bar": 5,
+      "offset_q": "3/2",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 7,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 1
+      },
+      "technique": {
+        "vibrato": {
+          "kind": "finger",
+          "rate_hz": null,
+          "depth_semitones": null
+        }
+      }
+    },
+    "b4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · B4",
+      "inputs": [
+        "raw_b4",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "35/2",
+        "duration": "3/2"
+      },
+      "pitch_midi": 71,
+      "string_highest_is_1": 1,
+      "fret": 7,
+      "technique": {
+        "vibrato": {
+          "kind": "finger",
+          "rate_hz": null,
+          "depth_semitones": null
+        }
+      },
+      "bar": 5,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_b5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written b5",
+      "inputs": [],
+      "track": "lead",
+      "bar": 6,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "b5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E4",
+      "inputs": [
+        "raw_b5",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "20",
+        "duration": "1/2"
+      },
+      "pitch_midi": 64,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "technique": {},
+      "bar": 6,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_b6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written b6",
+      "inputs": [],
+      "track": "lead",
+      "bar": 6,
+      "offset_q": "1/2",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "b6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E4",
+      "inputs": [
+        "raw_b6",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "41/2",
+        "duration": "1/2"
+      },
+      "pitch_midi": 64,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "technique": {},
+      "bar": 6,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_bt0": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written bt0",
+      "inputs": [],
+      "track": "lead",
+      "bar": 6,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 3,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0,
+        "tuplet": [
+          3,
+          2
+        ]
+      },
+      "technique": {}
+    },
+    "bt0": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · G4",
+      "inputs": [
+        "raw_bt0",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "21",
+        "duration": "1/3"
+      },
+      "pitch_midi": 67,
+      "string_highest_is_1": 1,
+      "fret": 3,
+      "technique": {},
+      "bar": 6,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_bt1": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written bt1",
+      "inputs": [],
+      "track": "lead",
+      "bar": 6,
+      "offset_q": "4/3",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 5,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0,
+        "tuplet": [
+          3,
+          2
+        ]
+      },
+      "technique": {}
+    },
+    "bt1": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · A4",
+      "inputs": [
+        "raw_bt1",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "64/3",
+        "duration": "1/3"
+      },
+      "pitch_midi": 69,
+      "string_highest_is_1": 1,
+      "fret": 5,
+      "technique": {},
+      "bar": 6,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_bt2": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written bt2",
+      "inputs": [],
+      "track": "lead",
+      "bar": 6,
+      "offset_q": "5/3",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 7,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0,
+        "tuplet": [
+          3,
+          2
+        ]
+      },
+      "technique": {}
+    },
+    "bt2": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · B4",
+      "inputs": [
+        "raw_bt2",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "65/3",
+        "duration": "1/3"
+      },
+      "pitch_midi": 71,
+      "string_highest_is_1": 1,
+      "fret": 7,
+      "technique": {},
+      "bar": 6,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_b_ending": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written b_ending",
+      "inputs": [],
+      "track": "lead",
+      "bar": 6,
+      "offset_q": "2",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 10,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "accent": true
+      }
+    },
+    "b_ending": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · D5",
+      "inputs": [
+        "raw_b_ending",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "22",
+        "duration": "1"
+      },
+      "pitch_midi": 74,
+      "string_highest_is_1": 1,
+      "fret": 10,
+      "technique": {
+        "accent": true
+      },
+      "bar": 6,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_hold1": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written hold1",
+      "inputs": [],
+      "track": "lead",
+      "bar": 3,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 12,
+      "rhythm": {
+        "denominator": 2,
+        "dots": 0
+      },
+      "technique": {
+        "let_ring": true
+      }
+    },
+    "hold1": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E5",
+      "inputs": [
+        "raw_hold1",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "8",
+        "duration": "2"
+      },
+      "pitch_midi": 76,
+      "string_highest_is_1": 1,
+      "fret": 12,
+      "technique": {
+        "let_ring": true
+      },
+      "bar": 3,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_hold2": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written hold2",
+      "inputs": [],
+      "track": "lead",
+      "bar": 3,
+      "offset_q": "2",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 12,
+      "rhythm": {
+        "denominator": 2,
+        "dots": 0
+      },
+      "technique": {
+        "tie_from": "hold1"
+      }
+    },
+    "hold2": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E5",
+      "inputs": [
+        "raw_hold2",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "10",
+        "duration": "2"
+      },
+      "pitch_midi": 76,
+      "string_highest_is_1": 1,
+      "fret": 12,
+      "technique": {
+        "tie_from": "hold1"
+      },
+      "bar": 3,
+      "attack": false,
+      "pitch_status": "written base pitch"
+    },
+    "raw_hold3": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written hold3",
+      "inputs": [],
+      "track": "lead",
+      "bar": 4,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 12,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "tie_from": "hold2"
+      }
+    },
+    "hold3": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E5",
+      "inputs": [
+        "raw_hold3",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "12",
+        "duration": "1"
+      },
+      "pitch_midi": 76,
+      "string_highest_is_1": 1,
+      "fret": 12,
+      "technique": {
+        "tie_from": "hold2"
+      },
+      "bar": 4,
+      "attack": false,
+      "pitch_status": "written base pitch"
+    },
+    "raw_under1": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written under1",
+      "inputs": [],
+      "track": "lead",
+      "bar": 3,
+      "offset_q": "0",
+      "voice": 1,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {
+        "let_ring": true
+      }
+    },
+    "under1": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E3",
+      "inputs": [
+        "raw_under1",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 1,
+      "time": {
+        "clock": "written_q",
+        "start": "8",
+        "duration": "4"
+      },
+      "pitch_midi": 52,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {
+        "let_ring": true
+      },
+      "bar": 3,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_under2": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written under2",
+      "inputs": [],
+      "track": "lead",
+      "bar": 4,
+      "offset_q": "0",
+      "voice": 1,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {
+        "tie_from": "under1"
+      }
+    },
+    "under2": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E3",
+      "inputs": [
+        "raw_under2",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 1,
+      "time": {
+        "clock": "written_q",
+        "start": "12",
+        "duration": "4"
+      },
+      "pitch_midi": 52,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {
+        "tie_from": "under1"
+      },
+      "bar": 4,
+      "attack": false,
+      "pitch_status": "written base pitch"
+    },
+    "raw_open1": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written open1",
+      "inputs": [],
+      "track": "lead",
+      "bar": 4,
+      "offset_q": "3/2",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {
+        "hammer_to": "fretted"
+      }
+    },
+    "open1": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E4",
+      "inputs": [
+        "raw_open1",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "27/2",
+        "duration": "1/2"
+      },
+      "pitch_midi": 64,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "technique": {
+        "hammer_to": "fretted"
+      },
+      "bar": 4,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_fretted": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written fretted",
+      "inputs": [],
+      "track": "lead",
+      "bar": 4,
+      "offset_q": "2",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {
+        "pull_to": "open2"
+      }
+    },
+    "fretted": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · F♯4",
+      "inputs": [
+        "raw_fretted",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "14",
+        "duration": "1/2"
+      },
+      "pitch_midi": 66,
+      "string_highest_is_1": 1,
+      "fret": 2,
+      "technique": {
+        "pull_to": "open2"
+      },
+      "bar": 4,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_open2": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written open2",
+      "inputs": [],
+      "track": "lead",
+      "bar": 4,
+      "offset_q": "5/2",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "open2": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E4",
+      "inputs": [
+        "raw_open2",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "29/2",
+        "duration": "1/2"
+      },
+      "pitch_midi": 64,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "technique": {},
+      "bar": 4,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_texture1": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written texture1",
+      "inputs": [],
+      "track": "lead",
+      "bar": 7,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 1,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "texture1": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · F4",
+      "inputs": [
+        "raw_texture1",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "24",
+        "duration": "1/2"
+      },
+      "pitch_midi": 65,
+      "string_highest_is_1": 1,
+      "fret": 1,
+      "technique": {},
+      "bar": 7,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_texture2": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written texture2",
+      "inputs": [],
+      "track": "lead",
+      "bar": 7,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 2,
+      "fret": 7,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "texture2": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · F♯4",
+      "inputs": [
+        "raw_texture2",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "24",
+        "duration": "1/2"
+      },
+      "pitch_midi": 66,
+      "string_highest_is_1": 2,
+      "fret": 7,
+      "technique": {},
+      "bar": 7,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_slide1": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written slide1",
+      "inputs": [],
+      "track": "lead",
+      "bar": 7,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 8,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {
+        "slide_to": "slide2",
+        "slide_kind": "legato"
+      }
+    },
+    "slide1": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · C5",
+      "inputs": [
+        "raw_slide1",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "25",
+        "duration": "1/2"
+      },
+      "pitch_midi": 72,
+      "string_highest_is_1": 1,
+      "fret": 8,
+      "technique": {
+        "slide_to": "slide2",
+        "slide_kind": "legato"
+      },
+      "bar": 7,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_slide2": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written slide2",
+      "inputs": [],
+      "track": "lead",
+      "bar": 7,
+      "offset_q": "3/2",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 10,
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "slide2": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · D5",
+      "inputs": [
+        "raw_slide2",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "51/2",
+        "duration": "1/2"
+      },
+      "pitch_midi": 74,
+      "string_highest_is_1": 1,
+      "fret": 10,
+      "technique": {},
+      "bar": 7,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ending": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ending",
+      "inputs": [],
+      "track": "lead",
+      "bar": 8,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {
+        "let_ring": true
+      }
+    },
+    "ending": {
+      "tier": 1,
+      "kind": "note",
+      "label": "lead · E4",
+      "inputs": [
+        "raw_ending",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "27",
+        "duration": "4"
+      },
+      "pitch_midi": 64,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "technique": {
+        "let_ring": true
+      },
+      "bar": 8,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch1_0_6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch1_0_6",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 1,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch1_0_6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E2",
+      "inputs": [
+        "raw_ch1_0_6",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "1"
+      },
+      "pitch_midi": 40,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 1,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch1_0_5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch1_0_5",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 1,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch1_0_5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · B2",
+      "inputs": [
+        "raw_ch1_0_5",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "1"
+      },
+      "pitch_midi": 47,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 1,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch1_0_4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch1_0_4",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 1,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch1_0_4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E3",
+      "inputs": [
+        "raw_ch1_0_4",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "1"
+      },
+      "pitch_midi": 52,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 1,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch1_1_6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch1_1_6",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 1,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch1_1_6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E2",
+      "inputs": [
+        "raw_ch1_1_6",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "1",
+        "duration": "1"
+      },
+      "pitch_midi": 40,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 1,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch1_1_5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch1_1_5",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 1,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch1_1_5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · B2",
+      "inputs": [
+        "raw_ch1_1_5",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "1",
+        "duration": "1"
+      },
+      "pitch_midi": 47,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 1,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch1_1_4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch1_1_4",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 1,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch1_1_4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E3",
+      "inputs": [
+        "raw_ch1_1_4",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "1",
+        "duration": "1"
+      },
+      "pitch_midi": 52,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 1,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_bass1": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written bass1",
+      "inputs": [],
+      "track": "bass",
+      "bar": 1,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "bass1": {
+      "tier": 1,
+      "kind": "note",
+      "label": "bass · E1",
+      "inputs": [
+        "raw_bass1",
+        "notation"
+      ],
+      "track": "bass",
+      "track_ref": "track_bass",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "4"
+      },
+      "pitch_midi": 28,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {},
+      "bar": 1,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch2_0_6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch2_0_6",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 2,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch2_0_6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E2",
+      "inputs": [
+        "raw_ch2_0_6",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "4",
+        "duration": "1"
+      },
+      "pitch_midi": 40,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 2,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch2_0_5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch2_0_5",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 2,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch2_0_5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · B2",
+      "inputs": [
+        "raw_ch2_0_5",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "4",
+        "duration": "1"
+      },
+      "pitch_midi": 47,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 2,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch2_0_4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch2_0_4",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 2,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch2_0_4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E3",
+      "inputs": [
+        "raw_ch2_0_4",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "4",
+        "duration": "1"
+      },
+      "pitch_midi": 52,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 2,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch2_1_6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch2_1_6",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 2,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch2_1_6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E2",
+      "inputs": [
+        "raw_ch2_1_6",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "5",
+        "duration": "1"
+      },
+      "pitch_midi": 40,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 2,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch2_1_5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch2_1_5",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 2,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch2_1_5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · B2",
+      "inputs": [
+        "raw_ch2_1_5",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "5",
+        "duration": "1"
+      },
+      "pitch_midi": 47,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 2,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch2_1_4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch2_1_4",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 2,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch2_1_4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E3",
+      "inputs": [
+        "raw_ch2_1_4",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "5",
+        "duration": "1"
+      },
+      "pitch_midi": 52,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 2,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_bass2": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written bass2",
+      "inputs": [],
+      "track": "bass",
+      "bar": 2,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "bass2": {
+      "tier": 1,
+      "kind": "note",
+      "label": "bass · E1",
+      "inputs": [
+        "raw_bass2",
+        "notation"
+      ],
+      "track": "bass",
+      "track_ref": "track_bass",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "4",
+        "duration": "4"
+      },
+      "pitch_midi": 28,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {},
+      "bar": 2,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch3_0_6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch3_0_6",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 3,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": false
+      }
+    },
+    "ch3_0_6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E2",
+      "inputs": [
+        "raw_ch3_0_6",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "8",
+        "duration": "4"
+      },
+      "pitch_midi": 40,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "technique": {
+        "palm_mute": false
+      },
+      "bar": 3,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch3_0_5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch3_0_5",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 3,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": false
+      }
+    },
+    "ch3_0_5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · B2",
+      "inputs": [
+        "raw_ch3_0_5",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "8",
+        "duration": "4"
+      },
+      "pitch_midi": 47,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "technique": {
+        "palm_mute": false
+      },
+      "bar": 3,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch3_0_4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch3_0_4",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 3,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": false
+      }
+    },
+    "ch3_0_4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E3",
+      "inputs": [
+        "raw_ch3_0_4",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "8",
+        "duration": "4"
+      },
+      "pitch_midi": 52,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {
+        "palm_mute": false
+      },
+      "bar": 3,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_bass3": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written bass3",
+      "inputs": [],
+      "track": "bass",
+      "bar": 3,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "bass3": {
+      "tier": 1,
+      "kind": "note",
+      "label": "bass · E1",
+      "inputs": [
+        "raw_bass3",
+        "notation"
+      ],
+      "track": "bass",
+      "track_ref": "track_bass",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "8",
+        "duration": "4"
+      },
+      "pitch_midi": 28,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {},
+      "bar": 3,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch4_0_6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch4_0_6",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 4,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": false
+      }
+    },
+    "ch4_0_6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E2",
+      "inputs": [
+        "raw_ch4_0_6",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "12",
+        "duration": "4"
+      },
+      "pitch_midi": 40,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "technique": {
+        "palm_mute": false
+      },
+      "bar": 4,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch4_0_5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch4_0_5",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 4,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": false
+      }
+    },
+    "ch4_0_5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · B2",
+      "inputs": [
+        "raw_ch4_0_5",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "12",
+        "duration": "4"
+      },
+      "pitch_midi": 47,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "technique": {
+        "palm_mute": false
+      },
+      "bar": 4,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch4_0_4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch4_0_4",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 4,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": false
+      }
+    },
+    "ch4_0_4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E3",
+      "inputs": [
+        "raw_ch4_0_4",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "12",
+        "duration": "4"
+      },
+      "pitch_midi": 52,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {
+        "palm_mute": false
+      },
+      "bar": 4,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_bass4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written bass4",
+      "inputs": [],
+      "track": "bass",
+      "bar": 4,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "bass4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "bass · E1",
+      "inputs": [
+        "raw_bass4",
+        "notation"
+      ],
+      "track": "bass",
+      "track_ref": "track_bass",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "12",
+        "duration": "4"
+      },
+      "pitch_midi": 28,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {},
+      "bar": 4,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch5_0_6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch5_0_6",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 5,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch5_0_6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E2",
+      "inputs": [
+        "raw_ch5_0_6",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "16",
+        "duration": "1"
+      },
+      "pitch_midi": 40,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 5,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch5_0_5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch5_0_5",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 5,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch5_0_5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · B2",
+      "inputs": [
+        "raw_ch5_0_5",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "16",
+        "duration": "1"
+      },
+      "pitch_midi": 47,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 5,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch5_0_4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch5_0_4",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 5,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch5_0_4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E3",
+      "inputs": [
+        "raw_ch5_0_4",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "16",
+        "duration": "1"
+      },
+      "pitch_midi": 52,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 5,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch5_1_6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch5_1_6",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 5,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch5_1_6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E2",
+      "inputs": [
+        "raw_ch5_1_6",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "17",
+        "duration": "1"
+      },
+      "pitch_midi": 40,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 5,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch5_1_5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch5_1_5",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 5,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch5_1_5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · B2",
+      "inputs": [
+        "raw_ch5_1_5",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "17",
+        "duration": "1"
+      },
+      "pitch_midi": 47,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 5,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch5_1_4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch5_1_4",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 5,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch5_1_4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E3",
+      "inputs": [
+        "raw_ch5_1_4",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "17",
+        "duration": "1"
+      },
+      "pitch_midi": 52,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 5,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_bass5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written bass5",
+      "inputs": [],
+      "track": "bass",
+      "bar": 5,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "bass5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "bass · E1",
+      "inputs": [
+        "raw_bass5",
+        "notation"
+      ],
+      "track": "bass",
+      "track_ref": "track_bass",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "16",
+        "duration": "4"
+      },
+      "pitch_midi": 28,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {},
+      "bar": 5,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch6_0_6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch6_0_6",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 6,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 6,
+      "fret": 5,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch6_0_6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · G2",
+      "inputs": [
+        "raw_ch6_0_6",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "20",
+        "duration": "1"
+      },
+      "pitch_midi": 43,
+      "string_highest_is_1": 6,
+      "fret": 5,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 6,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch6_0_5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch6_0_5",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 6,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 5,
+      "fret": 5,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch6_0_5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · D3",
+      "inputs": [
+        "raw_ch6_0_5",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "20",
+        "duration": "1"
+      },
+      "pitch_midi": 50,
+      "string_highest_is_1": 5,
+      "fret": 5,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 6,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch6_0_4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch6_0_4",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 6,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 5,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch6_0_4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · G3",
+      "inputs": [
+        "raw_ch6_0_4",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "20",
+        "duration": "1"
+      },
+      "pitch_midi": 55,
+      "string_highest_is_1": 4,
+      "fret": 5,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 6,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch6_1_6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch6_1_6",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 6,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 6,
+      "fret": 5,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch6_1_6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · G2",
+      "inputs": [
+        "raw_ch6_1_6",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "21",
+        "duration": "1"
+      },
+      "pitch_midi": 43,
+      "string_highest_is_1": 6,
+      "fret": 5,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 6,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch6_1_5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch6_1_5",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 6,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 5,
+      "fret": 5,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch6_1_5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · D3",
+      "inputs": [
+        "raw_ch6_1_5",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "21",
+        "duration": "1"
+      },
+      "pitch_midi": 50,
+      "string_highest_is_1": 5,
+      "fret": 5,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 6,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch6_1_4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch6_1_4",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 6,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 5,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch6_1_4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · G3",
+      "inputs": [
+        "raw_ch6_1_4",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "21",
+        "duration": "1"
+      },
+      "pitch_midi": 55,
+      "string_highest_is_1": 4,
+      "fret": 5,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 6,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_bass6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written bass6",
+      "inputs": [],
+      "track": "bass",
+      "bar": 6,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 5,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "bass6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "bass · G1",
+      "inputs": [
+        "raw_bass6",
+        "notation"
+      ],
+      "track": "bass",
+      "track_ref": "track_bass",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "20",
+        "duration": "4"
+      },
+      "pitch_midi": 31,
+      "string_highest_is_1": 4,
+      "fret": 5,
+      "technique": {},
+      "bar": 6,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch7_0_6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch7_0_6",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 7,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 6,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch7_0_6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · D2",
+      "inputs": [
+        "raw_ch7_0_6",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "24",
+        "duration": "1"
+      },
+      "pitch_midi": 38,
+      "string_highest_is_1": 6,
+      "fret": 0,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 7,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch7_0_5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch7_0_5",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 7,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 5,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch7_0_5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · A2",
+      "inputs": [
+        "raw_ch7_0_5",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "24",
+        "duration": "1"
+      },
+      "pitch_midi": 45,
+      "string_highest_is_1": 5,
+      "fret": 0,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 7,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch7_0_4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch7_0_4",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 7,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch7_0_4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · D3",
+      "inputs": [
+        "raw_ch7_0_4",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "24",
+        "duration": "1"
+      },
+      "pitch_midi": 50,
+      "string_highest_is_1": 4,
+      "fret": 0,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 7,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch7_1_6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch7_1_6",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 7,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 6,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch7_1_6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · D2",
+      "inputs": [
+        "raw_ch7_1_6",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "25",
+        "duration": "1"
+      },
+      "pitch_midi": 38,
+      "string_highest_is_1": 6,
+      "fret": 0,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 7,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch7_1_5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch7_1_5",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 7,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 5,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch7_1_5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · A2",
+      "inputs": [
+        "raw_ch7_1_5",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "25",
+        "duration": "1"
+      },
+      "pitch_midi": 45,
+      "string_highest_is_1": 5,
+      "fret": 0,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 7,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch7_1_4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch7_1_4",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 7,
+      "offset_q": "1",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": true
+      }
+    },
+    "ch7_1_4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · D3",
+      "inputs": [
+        "raw_ch7_1_4",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "25",
+        "duration": "1"
+      },
+      "pitch_midi": 50,
+      "string_highest_is_1": 4,
+      "fret": 0,
+      "technique": {
+        "palm_mute": true
+      },
+      "bar": 7,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_bass7": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written bass7",
+      "inputs": [],
+      "track": "bass",
+      "bar": 7,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 2,
+        "dots": 1
+      },
+      "technique": {}
+    },
+    "bass7": {
+      "tier": 1,
+      "kind": "note",
+      "label": "bass · D1",
+      "inputs": [
+        "raw_bass7",
+        "notation"
+      ],
+      "track": "bass",
+      "track_ref": "track_bass",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "24",
+        "duration": "3"
+      },
+      "pitch_midi": 26,
+      "string_highest_is_1": 4,
+      "fret": 0,
+      "technique": {},
+      "bar": 7,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch8_0_6": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch8_0_6",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 8,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": false
+      }
+    },
+    "ch8_0_6": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E2",
+      "inputs": [
+        "raw_ch8_0_6",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "27",
+        "duration": "4"
+      },
+      "pitch_midi": 40,
+      "string_highest_is_1": 6,
+      "fret": 2,
+      "technique": {
+        "palm_mute": false
+      },
+      "bar": 8,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch8_0_5": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch8_0_5",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 8,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": false
+      }
+    },
+    "ch8_0_5": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · B2",
+      "inputs": [
+        "raw_ch8_0_5",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "27",
+        "duration": "4"
+      },
+      "pitch_midi": 47,
+      "string_highest_is_1": 5,
+      "fret": 2,
+      "technique": {
+        "palm_mute": false
+      },
+      "bar": 8,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_ch8_0_4": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written ch8_0_4",
+      "inputs": [],
+      "track": "rhythm",
+      "bar": 8,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {
+        "palm_mute": false
+      }
+    },
+    "ch8_0_4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "rhythm · E3",
+      "inputs": [
+        "raw_ch8_0_4",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "27",
+        "duration": "4"
+      },
+      "pitch_midi": 52,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {
+        "palm_mute": false
+      },
+      "bar": 8,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_bass8": {
+      "tier": 0,
+      "kind": "written_note",
+      "label": "Written bass8",
+      "inputs": [],
+      "track": "bass",
+      "bar": 8,
+      "offset_q": "0",
+      "voice": 0,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 1,
+        "dots": 0
+      },
+      "technique": {}
+    },
+    "bass8": {
+      "tier": 1,
+      "kind": "note",
+      "label": "bass · E1",
+      "inputs": [
+        "raw_bass8",
+        "notation"
+      ],
+      "track": "bass",
+      "track_ref": "track_bass",
+      "voice": 0,
+      "time": {
+        "clock": "written_q",
+        "start": "27",
+        "duration": "4"
+      },
+      "pitch_midi": 28,
+      "string_highest_is_1": 4,
+      "fret": 2,
+      "technique": {},
+      "bar": 8,
+      "attack": true,
+      "pitch_status": "written base pitch"
+    },
+    "raw_rest_lead_0_1_0": {
+      "tier": 0,
+      "kind": "written_rest",
+      "label": "Written rest · bar 1",
+      "inputs": [],
+      "track": "lead",
+      "voice": 0,
+      "bar": 1,
+      "offset_q": "3",
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      }
+    },
+    "rest_lead_0_1_0": {
+      "tier": 1,
+      "kind": "rest",
+      "label": "lead rest · bar 1",
+      "inputs": [
+        "raw_rest_lead_0_1_0",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "bar": 1,
+      "time": {
+        "clock": "written_q",
+        "start": "3",
+        "duration": "1"
+      }
+    },
+    "raw_rest_lead_0_2_1": {
+      "tier": 0,
+      "kind": "written_rest",
+      "label": "Written rest · bar 2",
+      "inputs": [],
+      "track": "lead",
+      "voice": 0,
+      "bar": 2,
+      "offset_q": "3",
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      }
+    },
+    "rest_lead_0_2_1": {
+      "tier": 1,
+      "kind": "rest",
+      "label": "lead rest · bar 2",
+      "inputs": [
+        "raw_rest_lead_0_2_1",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "bar": 2,
+      "time": {
+        "clock": "written_q",
+        "start": "7",
+        "duration": "1"
+      }
+    },
+    "raw_rest_lead_0_4_2": {
+      "tier": 0,
+      "kind": "written_rest",
+      "label": "Written rest · bar 4",
+      "inputs": [],
+      "track": "lead",
+      "voice": 0,
+      "bar": 4,
+      "offset_q": "1",
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      }
+    },
+    "rest_lead_0_4_2": {
+      "tier": 1,
+      "kind": "rest",
+      "label": "lead rest · bar 4",
+      "inputs": [
+        "raw_rest_lead_0_4_2",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "bar": 4,
+      "time": {
+        "clock": "written_q",
+        "start": "13",
+        "duration": "1/2"
+      }
+    },
+    "raw_rest_lead_0_4_3": {
+      "tier": 0,
+      "kind": "written_rest",
+      "label": "Written rest · bar 4",
+      "inputs": [],
+      "track": "lead",
+      "voice": 0,
+      "bar": 4,
+      "offset_q": "3",
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      }
+    },
+    "rest_lead_0_4_3": {
+      "tier": 1,
+      "kind": "rest",
+      "label": "lead rest · bar 4",
+      "inputs": [
+        "raw_rest_lead_0_4_3",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "bar": 4,
+      "time": {
+        "clock": "written_q",
+        "start": "15",
+        "duration": "1"
+      }
+    },
+    "raw_rest_lead_0_5_4": {
+      "tier": 0,
+      "kind": "written_rest",
+      "label": "Written rest · bar 5",
+      "inputs": [],
+      "track": "lead",
+      "voice": 0,
+      "bar": 5,
+      "offset_q": "3",
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      }
+    },
+    "rest_lead_0_5_4": {
+      "tier": 1,
+      "kind": "rest",
+      "label": "lead rest · bar 5",
+      "inputs": [
+        "raw_rest_lead_0_5_4",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "bar": 5,
+      "time": {
+        "clock": "written_q",
+        "start": "19",
+        "duration": "1"
+      }
+    },
+    "raw_rest_lead_0_6_5": {
+      "tier": 0,
+      "kind": "written_rest",
+      "label": "Written rest · bar 6",
+      "inputs": [],
+      "track": "lead",
+      "voice": 0,
+      "bar": 6,
+      "offset_q": "3",
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      }
+    },
+    "rest_lead_0_6_5": {
+      "tier": 1,
+      "kind": "rest",
+      "label": "lead rest · bar 6",
+      "inputs": [
+        "raw_rest_lead_0_6_5",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "bar": 6,
+      "time": {
+        "clock": "written_q",
+        "start": "23",
+        "duration": "1"
+      }
+    },
+    "raw_rest_lead_0_7_6": {
+      "tier": 0,
+      "kind": "written_rest",
+      "label": "Written rest · bar 7",
+      "inputs": [],
+      "track": "lead",
+      "voice": 0,
+      "bar": 7,
+      "offset_q": "1/2",
+      "rhythm": {
+        "denominator": 8,
+        "dots": 0
+      }
+    },
+    "rest_lead_0_7_6": {
+      "tier": 1,
+      "kind": "rest",
+      "label": "lead rest · bar 7",
+      "inputs": [
+        "raw_rest_lead_0_7_6",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "bar": 7,
+      "time": {
+        "clock": "written_q",
+        "start": "49/2",
+        "duration": "1/2"
+      }
+    },
+    "raw_rest_lead_0_7_7": {
+      "tier": 0,
+      "kind": "written_rest",
+      "label": "Written rest · bar 7",
+      "inputs": [],
+      "track": "lead",
+      "voice": 0,
+      "bar": 7,
+      "offset_q": "2",
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      }
+    },
+    "rest_lead_0_7_7": {
+      "tier": 1,
+      "kind": "rest",
+      "label": "lead rest · bar 7",
+      "inputs": [
+        "raw_rest_lead_0_7_7",
+        "notation"
+      ],
+      "track": "lead",
+      "track_ref": "track_lead",
+      "voice": 0,
+      "bar": 7,
+      "time": {
+        "clock": "written_q",
+        "start": "26",
+        "duration": "1"
+      }
+    },
+    "raw_rest_rhythm_0_1_8": {
+      "tier": 0,
+      "kind": "written_rest",
+      "label": "Written rest · bar 1",
+      "inputs": [],
+      "track": "rhythm",
+      "voice": 0,
+      "bar": 1,
+      "offset_q": "2",
+      "rhythm": {
+        "denominator": 2,
+        "dots": 0
+      }
+    },
+    "rest_rhythm_0_1_8": {
+      "tier": 1,
+      "kind": "rest",
+      "label": "rhythm rest · bar 1",
+      "inputs": [
+        "raw_rest_rhythm_0_1_8",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "bar": 1,
+      "time": {
+        "clock": "written_q",
+        "start": "2",
+        "duration": "2"
+      }
+    },
+    "raw_rest_rhythm_0_2_9": {
+      "tier": 0,
+      "kind": "written_rest",
+      "label": "Written rest · bar 2",
+      "inputs": [],
+      "track": "rhythm",
+      "voice": 0,
+      "bar": 2,
+      "offset_q": "2",
+      "rhythm": {
+        "denominator": 2,
+        "dots": 0
+      }
+    },
+    "rest_rhythm_0_2_9": {
+      "tier": 1,
+      "kind": "rest",
+      "label": "rhythm rest · bar 2",
+      "inputs": [
+        "raw_rest_rhythm_0_2_9",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "bar": 2,
+      "time": {
+        "clock": "written_q",
+        "start": "6",
+        "duration": "2"
+      }
+    },
+    "raw_rest_rhythm_0_5_10": {
+      "tier": 0,
+      "kind": "written_rest",
+      "label": "Written rest · bar 5",
+      "inputs": [],
+      "track": "rhythm",
+      "voice": 0,
+      "bar": 5,
+      "offset_q": "2",
+      "rhythm": {
+        "denominator": 2,
+        "dots": 0
+      }
+    },
+    "rest_rhythm_0_5_10": {
+      "tier": 1,
+      "kind": "rest",
+      "label": "rhythm rest · bar 5",
+      "inputs": [
+        "raw_rest_rhythm_0_5_10",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "bar": 5,
+      "time": {
+        "clock": "written_q",
+        "start": "18",
+        "duration": "2"
+      }
+    },
+    "raw_rest_rhythm_0_6_11": {
+      "tier": 0,
+      "kind": "written_rest",
+      "label": "Written rest · bar 6",
+      "inputs": [],
+      "track": "rhythm",
+      "voice": 0,
+      "bar": 6,
+      "offset_q": "2",
+      "rhythm": {
+        "denominator": 2,
+        "dots": 0
+      }
+    },
+    "rest_rhythm_0_6_11": {
+      "tier": 1,
+      "kind": "rest",
+      "label": "rhythm rest · bar 6",
+      "inputs": [
+        "raw_rest_rhythm_0_6_11",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "bar": 6,
+      "time": {
+        "clock": "written_q",
+        "start": "22",
+        "duration": "2"
+      }
+    },
+    "raw_rest_rhythm_0_7_12": {
+      "tier": 0,
+      "kind": "written_rest",
+      "label": "Written rest · bar 7",
+      "inputs": [],
+      "track": "rhythm",
+      "voice": 0,
+      "bar": 7,
+      "offset_q": "2",
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      }
+    },
+    "rest_rhythm_0_7_12": {
+      "tier": 1,
+      "kind": "rest",
+      "label": "rhythm rest · bar 7",
+      "inputs": [
+        "raw_rest_rhythm_0_7_12",
+        "notation"
+      ],
+      "track": "rhythm",
+      "track_ref": "track_rhythm",
+      "voice": 0,
+      "bar": 7,
+      "time": {
+        "clock": "written_q",
+        "start": "26",
+        "duration": "1"
+      }
+    },
+    "track_lead": {
+      "tier": 1,
+      "kind": "track",
+      "label": "Lead guitar",
+      "inputs": [
+        "notation"
+      ],
+      "track": "lead",
+      "name": "Lead guitar",
+      "tuning": [
+        64,
+        59,
+        55,
+        50,
+        45,
+        40
+      ]
+    },
+    "track_rhythm": {
+      "tier": 1,
+      "kind": "track",
+      "label": "Rhythm guitar",
+      "inputs": [
+        "notation"
+      ],
+      "track": "rhythm",
+      "name": "Rhythm guitar",
+      "tuning": [
+        64,
+        59,
+        55,
+        50,
+        45,
+        38
+      ]
+    },
+    "track_bass": {
+      "tier": 1,
+      "kind": "track",
+      "label": "Bass",
+      "inputs": [
+        "notation"
+      ],
+      "track": "bass",
+      "name": "Bass",
+      "tuning": [
+        43,
+        38,
+        33,
+        26
+      ]
+    },
+    "playback": {
+      "tier": 1,
+      "kind": "playback_map",
+      "label": "Written bars ≠ playback visits",
+      "inputs": [
+        "notation"
+      ],
+      "visits": [
+        {
+          "visit": 1,
+          "bar": 1,
+          "written_start_q": "0",
+          "playback_start_q": "0",
+          "duration_q": "4",
+          "start_seconds": "0",
+          "duration_seconds": "12/5",
+          "bpm": 100
+        },
+        {
+          "visit": 2,
+          "bar": 2,
+          "written_start_q": "4",
+          "playback_start_q": "4",
+          "duration_q": "4",
+          "start_seconds": "12/5",
+          "duration_seconds": "12/5",
+          "bpm": 100
+        },
+        {
+          "visit": 3,
+          "bar": 1,
+          "written_start_q": "0",
+          "playback_start_q": "8",
+          "duration_q": "4",
+          "start_seconds": "24/5",
+          "duration_seconds": "12/5",
+          "bpm": 100
+        },
+        {
+          "visit": 4,
+          "bar": 2,
+          "written_start_q": "4",
+          "playback_start_q": "12",
+          "duration_q": "4",
+          "start_seconds": "36/5",
+          "duration_seconds": "12/5",
+          "bpm": 100
+        },
+        {
+          "visit": 5,
+          "bar": 3,
+          "written_start_q": "8",
+          "playback_start_q": "16",
+          "duration_q": "4",
+          "start_seconds": "48/5",
+          "duration_seconds": "12/5",
+          "bpm": 100
+        },
+        {
+          "visit": 6,
+          "bar": 4,
+          "written_start_q": "12",
+          "playback_start_q": "20",
+          "duration_q": "4",
+          "start_seconds": "12",
+          "duration_seconds": "12/5",
+          "bpm": 100
+        },
+        {
+          "visit": 7,
+          "bar": 5,
+          "written_start_q": "16",
+          "playback_start_q": "24",
+          "duration_q": "4",
+          "start_seconds": "72/5",
+          "duration_seconds": "3",
+          "bpm": 80
+        },
+        {
+          "visit": 8,
+          "bar": 6,
+          "written_start_q": "20",
+          "playback_start_q": "28",
+          "duration_q": "4",
+          "start_seconds": "87/5",
+          "duration_seconds": "3",
+          "bpm": 80
+        },
+        {
+          "visit": 9,
+          "bar": 7,
+          "written_start_q": "24",
+          "playback_start_q": "32",
+          "duration_q": "3",
+          "start_seconds": "102/5",
+          "duration_seconds": "9/4",
+          "bpm": 80
+        },
+        {
+          "visit": 10,
+          "bar": 8,
+          "written_start_q": "27",
+          "playback_start_q": "35",
+          "duration_q": "4",
+          "start_seconds": "453/20",
+          "duration_seconds": "3",
+          "bpm": 80
+        }
+      ],
+      "total_written_q": "31",
+      "total_playback_q": "39",
+      "total_seconds": "513/20"
+    },
+    "tempo0": {
+      "tier": 1,
+      "kind": "tempo_change",
+      "label": "100 BPM",
+      "inputs": [
+        "notation"
+      ],
+      "time": {
+        "clock": "written_q",
+        "point": "0"
+      },
+      "bpm": 100
+    },
+    "tempo16": {
+      "tier": 1,
+      "kind": "tempo_change",
+      "label": "80 BPM",
+      "inputs": [
+        "notation"
+      ],
+      "time": {
+        "clock": "written_q",
+        "point": "16"
+      },
+      "bpm": 80
+    },
+    "bend": {
+      "tier": 2,
+      "kind": "bend",
+      "label": "A bends up, holds, releases",
+      "inputs": [
+        "a4"
+      ],
+      "members": [
+        "a4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "3/2",
+        "duration": "3/2"
+      },
+      "base_midi": 69,
+      "peak_midi": 71,
+      "curve": {
+        "time_unit": "fraction_of_written_note",
+        "pitch_unit": "semitones",
+        "points": [
+          [
+            "0",
+            "0"
+          ],
+          [
+            "1/3",
+            "2"
+          ],
+          [
+            "2/3",
+            "2"
+          ],
+          [
+            "1",
+            "0"
+          ]
+        ]
+      }
+    },
+    "vibrato": {
+      "tier": 2,
+      "kind": "vibrato",
+      "label": "Return sustains B with vibrato",
+      "inputs": [
+        "b4"
+      ],
+      "members": [
+        "b4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "35/2",
+        "duration": "3/2"
+      },
+      "execution": "finger vibrato marking only; rate/depth unknown"
+    },
+    "tie_high": {
+      "tier": 2,
+      "kind": "tie_chain",
+      "label": "E5 held across the bar line",
+      "inputs": [
+        "hold1",
+        "hold2",
+        "hold3"
+      ],
+      "members": [
+        "hold1",
+        "hold2",
+        "hold3"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "8",
+        "duration": "5"
+      },
+      "note_segments": 3,
+      "attacks": 1,
+      "written_duration_q": "5"
+    },
+    "tie_low": {
+      "tier": 2,
+      "kind": "tie_chain",
+      "label": "Lower E3 held in voice 2",
+      "inputs": [
+        "under1",
+        "under2"
+      ],
+      "members": [
+        "under1",
+        "under2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "8",
+        "duration": "8"
+      },
+      "note_segments": 2,
+      "attacks": 1,
+      "written_duration_q": "8"
+    },
+    "overlap": {
+      "tier": 2,
+      "kind": "overlap",
+      "label": "Two voices overlap",
+      "inputs": [
+        "hold1",
+        "hold2",
+        "hold3",
+        "under1",
+        "under2"
+      ],
+      "members": [
+        "hold1",
+        "hold2",
+        "hold3",
+        "under1",
+        "under2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "8",
+        "duration": "8"
+      },
+      "meaning": "Written spans overlap; let-ring physical release not inferred"
+    },
+    "hammer": {
+      "tier": 2,
+      "kind": "hammer_on",
+      "label": "Open E → fretted F♯",
+      "inputs": [
+        "open1",
+        "fretted"
+      ],
+      "members": [
+        "open1",
+        "fretted"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "27/2",
+        "duration": "1"
+      },
+      "origin": "open1",
+      "destination": "fretted",
+      "fret_change": 2
+    },
+    "pull": {
+      "tier": 2,
+      "kind": "pull_off",
+      "label": "Fretted F♯ → open E",
+      "inputs": [
+        "fretted",
+        "open2"
+      ],
+      "members": [
+        "fretted",
+        "open2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "14",
+        "duration": "1"
+      },
+      "origin": "fretted",
+      "destination": "open2",
+      "fret_change": -2
+    },
+    "slide": {
+      "tier": 2,
+      "kind": "slide",
+      "label": "C5 slides to D5",
+      "inputs": [
+        "slide1",
+        "slide2"
+      ],
+      "members": [
+        "slide1",
+        "slide2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "25",
+        "duration": "1"
+      },
+      "origin": "slide1",
+      "destination": "slide2",
+      "kind_detail": "legato"
+    },
+    "close": {
+      "tier": 2,
+      "kind": "coattack",
+      "label": "Two strings, one semitone apart",
+      "inputs": [
+        "texture1",
+        "texture2"
+      ],
+      "members": [
+        "texture1",
+        "texture2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "24",
+        "duration": "1/2"
+      },
+      "labels": [
+        "double_stop",
+        "close_interval_texture"
+      ],
+      "pitch_distance_semitones": 1
+    },
+    "power0": {
+      "tier": 2,
+      "kind": "coattack",
+      "label": "Root / fifth / octave",
+      "inputs": [
+        "ch1_0_6",
+        "ch1_0_5",
+        "ch1_0_4"
+      ],
+      "members": [
+        "ch1_0_6",
+        "ch1_0_5",
+        "ch1_0_4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "1"
+      },
+      "labels": [
+        "power_chord"
+      ],
+      "root_midi": 40,
+      "tonal_quality": "unknown: no third encoded"
+    },
+    "power1": {
+      "tier": 2,
+      "kind": "coattack",
+      "label": "Root / fifth / octave",
+      "inputs": [
+        "ch1_1_6",
+        "ch1_1_5",
+        "ch1_1_4"
+      ],
+      "members": [
+        "ch1_1_6",
+        "ch1_1_5",
+        "ch1_1_4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "1",
+        "duration": "1"
+      },
+      "labels": [
+        "power_chord"
+      ],
+      "root_midi": 40,
+      "tonal_quality": "unknown: no third encoded"
+    },
+    "power2": {
+      "tier": 2,
+      "kind": "coattack",
+      "label": "Root / fifth / octave",
+      "inputs": [
+        "ch2_0_6",
+        "ch2_0_5",
+        "ch2_0_4"
+      ],
+      "members": [
+        "ch2_0_6",
+        "ch2_0_5",
+        "ch2_0_4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "4",
+        "duration": "1"
+      },
+      "labels": [
+        "power_chord"
+      ],
+      "root_midi": 40,
+      "tonal_quality": "unknown: no third encoded"
+    },
+    "power3": {
+      "tier": 2,
+      "kind": "coattack",
+      "label": "Root / fifth / octave",
+      "inputs": [
+        "ch2_1_6",
+        "ch2_1_5",
+        "ch2_1_4"
+      ],
+      "members": [
+        "ch2_1_6",
+        "ch2_1_5",
+        "ch2_1_4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "5",
+        "duration": "1"
+      },
+      "labels": [
+        "power_chord"
+      ],
+      "root_midi": 40,
+      "tonal_quality": "unknown: no third encoded"
+    },
+    "power4": {
+      "tier": 2,
+      "kind": "coattack",
+      "label": "Root / fifth / octave",
+      "inputs": [
+        "ch3_0_6",
+        "ch3_0_5",
+        "ch3_0_4"
+      ],
+      "members": [
+        "ch3_0_6",
+        "ch3_0_5",
+        "ch3_0_4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "8",
+        "duration": "4"
+      },
+      "labels": [
+        "power_chord"
+      ],
+      "root_midi": 40,
+      "tonal_quality": "unknown: no third encoded"
+    },
+    "power5": {
+      "tier": 2,
+      "kind": "coattack",
+      "label": "Root / fifth / octave",
+      "inputs": [
+        "ch4_0_6",
+        "ch4_0_5",
+        "ch4_0_4"
+      ],
+      "members": [
+        "ch4_0_6",
+        "ch4_0_5",
+        "ch4_0_4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "12",
+        "duration": "4"
+      },
+      "labels": [
+        "power_chord"
+      ],
+      "root_midi": 40,
+      "tonal_quality": "unknown: no third encoded"
+    },
+    "power6": {
+      "tier": 2,
+      "kind": "coattack",
+      "label": "Root / fifth / octave",
+      "inputs": [
+        "ch5_0_6",
+        "ch5_0_5",
+        "ch5_0_4"
+      ],
+      "members": [
+        "ch5_0_6",
+        "ch5_0_5",
+        "ch5_0_4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "16",
+        "duration": "1"
+      },
+      "labels": [
+        "power_chord"
+      ],
+      "root_midi": 40,
+      "tonal_quality": "unknown: no third encoded"
+    },
+    "power7": {
+      "tier": 2,
+      "kind": "coattack",
+      "label": "Root / fifth / octave",
+      "inputs": [
+        "ch5_1_6",
+        "ch5_1_5",
+        "ch5_1_4"
+      ],
+      "members": [
+        "ch5_1_6",
+        "ch5_1_5",
+        "ch5_1_4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "17",
+        "duration": "1"
+      },
+      "labels": [
+        "power_chord"
+      ],
+      "root_midi": 40,
+      "tonal_quality": "unknown: no third encoded"
+    },
+    "power8": {
+      "tier": 2,
+      "kind": "coattack",
+      "label": "Root / fifth / octave",
+      "inputs": [
+        "ch6_0_6",
+        "ch6_0_5",
+        "ch6_0_4"
+      ],
+      "members": [
+        "ch6_0_6",
+        "ch6_0_5",
+        "ch6_0_4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "20",
+        "duration": "1"
+      },
+      "labels": [
+        "power_chord"
+      ],
+      "root_midi": 43,
+      "tonal_quality": "unknown: no third encoded"
+    },
+    "power9": {
+      "tier": 2,
+      "kind": "coattack",
+      "label": "Root / fifth / octave",
+      "inputs": [
+        "ch6_1_6",
+        "ch6_1_5",
+        "ch6_1_4"
+      ],
+      "members": [
+        "ch6_1_6",
+        "ch6_1_5",
+        "ch6_1_4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "21",
+        "duration": "1"
+      },
+      "labels": [
+        "power_chord"
+      ],
+      "root_midi": 43,
+      "tonal_quality": "unknown: no third encoded"
+    },
+    "power10": {
+      "tier": 2,
+      "kind": "coattack",
+      "label": "Root / fifth / octave",
+      "inputs": [
+        "ch7_0_6",
+        "ch7_0_5",
+        "ch7_0_4"
+      ],
+      "members": [
+        "ch7_0_6",
+        "ch7_0_5",
+        "ch7_0_4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "24",
+        "duration": "1"
+      },
+      "labels": [
+        "power_chord"
+      ],
+      "root_midi": 38,
+      "tonal_quality": "unknown: no third encoded"
+    },
+    "power11": {
+      "tier": 2,
+      "kind": "coattack",
+      "label": "Root / fifth / octave",
+      "inputs": [
+        "ch7_1_6",
+        "ch7_1_5",
+        "ch7_1_4"
+      ],
+      "members": [
+        "ch7_1_6",
+        "ch7_1_5",
+        "ch7_1_4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "25",
+        "duration": "1"
+      },
+      "labels": [
+        "power_chord"
+      ],
+      "root_midi": 38,
+      "tonal_quality": "unknown: no third encoded"
+    },
+    "power12": {
+      "tier": 2,
+      "kind": "coattack",
+      "label": "Root / fifth / octave",
+      "inputs": [
+        "ch8_0_6",
+        "ch8_0_5",
+        "ch8_0_4"
+      ],
+      "members": [
+        "ch8_0_6",
+        "ch8_0_5",
+        "ch8_0_4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "27",
+        "duration": "4"
+      },
+      "labels": [
+        "power_chord"
+      ],
+      "root_midi": 40,
+      "tonal_quality": "unknown: no third encoded"
+    },
+    "step0": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "a1",
+        "a2"
+      ],
+      "members": [
+        "a1",
+        "a2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "1"
+      },
+      "semitones": 0,
+      "gap_q": "0"
+    },
+    "step1": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "a2",
+        "a3"
+      ],
+      "members": [
+        "a2",
+        "a3"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "1/2",
+        "duration": "1"
+      },
+      "semitones": 3,
+      "gap_q": "0"
+    },
+    "step2": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "a3",
+        "a4"
+      ],
+      "members": [
+        "a3",
+        "a4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "1",
+        "duration": "2"
+      },
+      "semitones": 2,
+      "gap_q": "0"
+    },
+    "step3": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "a4",
+        "a5"
+      ],
+      "members": [
+        "a4",
+        "a5"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "3/2",
+        "duration": "3"
+      },
+      "semitones": -5,
+      "gap_q": "1"
+    },
+    "step4": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "a5",
+        "a6"
+      ],
+      "members": [
+        "a5",
+        "a6"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "4",
+        "duration": "1"
+      },
+      "semitones": 0,
+      "gap_q": "0"
+    },
+    "step5": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "a6",
+        "at0"
+      ],
+      "members": [
+        "a6",
+        "at0"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "9/2",
+        "duration": "5/6"
+      },
+      "semitones": 3,
+      "gap_q": "0"
+    },
+    "step6": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "at0",
+        "at1"
+      ],
+      "members": [
+        "at0",
+        "at1"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "5",
+        "duration": "2/3"
+      },
+      "semitones": 2,
+      "gap_q": "0"
+    },
+    "step7": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "at1",
+        "at2"
+      ],
+      "members": [
+        "at1",
+        "at2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "16/3",
+        "duration": "2/3"
+      },
+      "semitones": 2,
+      "gap_q": "0"
+    },
+    "step8": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "at2",
+        "a_ending"
+      ],
+      "members": [
+        "at2",
+        "a_ending"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "17/3",
+        "duration": "4/3"
+      },
+      "semitones": 3,
+      "gap_q": "0"
+    },
+    "step9": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "a_ending",
+        "hold1"
+      ],
+      "members": [
+        "a_ending",
+        "hold1"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "6",
+        "duration": "4"
+      },
+      "semitones": 2,
+      "gap_q": "1"
+    },
+    "step10": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "hold1",
+        "hold2"
+      ],
+      "members": [
+        "hold1",
+        "hold2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "8",
+        "duration": "4"
+      },
+      "semitones": 0,
+      "gap_q": "0"
+    },
+    "step11": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "hold2",
+        "hold3"
+      ],
+      "members": [
+        "hold2",
+        "hold3"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "10",
+        "duration": "3"
+      },
+      "semitones": 0,
+      "gap_q": "0"
+    },
+    "step12": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "hold3",
+        "open1"
+      ],
+      "members": [
+        "hold3",
+        "open1"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "12",
+        "duration": "2"
+      },
+      "semitones": -12,
+      "gap_q": "1/2"
+    },
+    "step13": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "open1",
+        "fretted"
+      ],
+      "members": [
+        "open1",
+        "fretted"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "27/2",
+        "duration": "1"
+      },
+      "semitones": 2,
+      "gap_q": "0"
+    },
+    "step14": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "fretted",
+        "open2"
+      ],
+      "members": [
+        "fretted",
+        "open2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "14",
+        "duration": "1"
+      },
+      "semitones": -2,
+      "gap_q": "0"
+    },
+    "step15": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "open2",
+        "b1"
+      ],
+      "members": [
+        "open2",
+        "b1"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "29/2",
+        "duration": "2"
+      },
+      "semitones": 0,
+      "gap_q": "1"
+    },
+    "step16": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "b1",
+        "b2"
+      ],
+      "members": [
+        "b1",
+        "b2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "16",
+        "duration": "1"
+      },
+      "semitones": 0,
+      "gap_q": "0"
+    },
+    "step17": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "b2",
+        "b3"
+      ],
+      "members": [
+        "b2",
+        "b3"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "33/2",
+        "duration": "1"
+      },
+      "semitones": 3,
+      "gap_q": "0"
+    },
+    "step18": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "b3",
+        "b4"
+      ],
+      "members": [
+        "b3",
+        "b4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "17",
+        "duration": "2"
+      },
+      "semitones": 4,
+      "gap_q": "0"
+    },
+    "step19": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "b4",
+        "b5"
+      ],
+      "members": [
+        "b4",
+        "b5"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "35/2",
+        "duration": "3"
+      },
+      "semitones": -7,
+      "gap_q": "1"
+    },
+    "step20": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "b5",
+        "b6"
+      ],
+      "members": [
+        "b5",
+        "b6"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "20",
+        "duration": "1"
+      },
+      "semitones": 0,
+      "gap_q": "0"
+    },
+    "step21": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "b6",
+        "bt0"
+      ],
+      "members": [
+        "b6",
+        "bt0"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "41/2",
+        "duration": "5/6"
+      },
+      "semitones": 3,
+      "gap_q": "0"
+    },
+    "step22": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "bt0",
+        "bt1"
+      ],
+      "members": [
+        "bt0",
+        "bt1"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "21",
+        "duration": "2/3"
+      },
+      "semitones": 2,
+      "gap_q": "0"
+    },
+    "step23": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "bt1",
+        "bt2"
+      ],
+      "members": [
+        "bt1",
+        "bt2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "64/3",
+        "duration": "2/3"
+      },
+      "semitones": 2,
+      "gap_q": "0"
+    },
+    "step24": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "bt2",
+        "b_ending"
+      ],
+      "members": [
+        "bt2",
+        "b_ending"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "65/3",
+        "duration": "4/3"
+      },
+      "semitones": 3,
+      "gap_q": "0"
+    },
+    "step25": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "b_ending",
+        "texture1"
+      ],
+      "members": [
+        "b_ending",
+        "texture1"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "22",
+        "duration": "5/2"
+      },
+      "semitones": -9,
+      "gap_q": "1"
+    },
+    "step27": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "texture2",
+        "slide1"
+      ],
+      "members": [
+        "texture2",
+        "slide1"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "24",
+        "duration": "3/2"
+      },
+      "semitones": 6,
+      "gap_q": "1/2"
+    },
+    "step28": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "slide1",
+        "slide2"
+      ],
+      "members": [
+        "slide1",
+        "slide2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "25",
+        "duration": "1"
+      },
+      "semitones": 2,
+      "gap_q": "0"
+    },
+    "step29": {
+      "tier": 2,
+      "kind": "interval",
+      "label": "Neighboring written pitch steps",
+      "inputs": [
+        "slide2",
+        "ending"
+      ],
+      "members": [
+        "slide2",
+        "ending"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "51/2",
+        "duration": "11/2"
+      },
+      "semitones": -10,
+      "gap_q": "1"
+    },
+    "call_a": {
+      "tier": 2,
+      "kind": "call_response",
+      "label": "Repeated E call → higher answer",
+      "inputs": [
+        "a1",
+        "a2",
+        "a3",
+        "a4"
+      ],
+      "members": [
+        "a1",
+        "a2",
+        "a3",
+        "a4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "3"
+      },
+      "call": [
+        "a1",
+        "a2"
+      ],
+      "answer": [
+        "a3",
+        "a4"
+      ],
+      "status": "fixture-declared grouping; not detector validation"
+    },
+    "run_a": {
+      "tier": 2,
+      "kind": "tuplet_group",
+      "label": "Three eighth-note triplets",
+      "inputs": [
+        "at0",
+        "at1",
+        "at2"
+      ],
+      "members": [
+        "at0",
+        "at1",
+        "at2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "5",
+        "duration": "1"
+      },
+      "ratio": [
+        3,
+        2
+      ]
+    },
+    "call_b": {
+      "tier": 2,
+      "kind": "call_response",
+      "label": "Repeated E call → higher answer",
+      "inputs": [
+        "b1",
+        "b2",
+        "b3",
+        "b4"
+      ],
+      "members": [
+        "b1",
+        "b2",
+        "b3",
+        "b4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "16",
+        "duration": "3"
+      },
+      "call": [
+        "b1",
+        "b2"
+      ],
+      "answer": [
+        "b3",
+        "b4"
+      ],
+      "status": "fixture-declared grouping; not detector validation"
+    },
+    "run_b": {
+      "tier": 2,
+      "kind": "tuplet_group",
+      "label": "Three eighth-note triplets",
+      "inputs": [
+        "bt0",
+        "bt1",
+        "bt2"
+      ],
+      "members": [
+        "bt0",
+        "bt1",
+        "bt2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "21",
+        "duration": "1"
+      },
+      "ratio": [
+        3,
+        2
+      ]
+    },
+    "phrase_a": {
+      "tier": 2,
+      "kind": "phrase_membership",
+      "label": "Complete 2-bar occurrence: notes AND rests",
+      "inputs": [
+        "a1",
+        "a2",
+        "a3",
+        "a4",
+        "a5",
+        "a6",
+        "at0",
+        "at1",
+        "at2",
+        "a_ending",
+        "rest_lead_0_1_0",
+        "rest_lead_0_2_1"
+      ],
+      "members": [
+        "a1",
+        "a2",
+        "a3",
+        "a4",
+        "a5",
+        "a6",
+        "at0",
+        "at1",
+        "at2",
+        "a_ending",
+        "rest_lead_0_1_0",
+        "rest_lead_0_2_1"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "8"
+      },
+      "status": "fixture-declared scope; no phrase detector"
+    },
+    "aligned_a": {
+      "tier": 2,
+      "kind": "cross_track_alignment",
+      "label": "Lead call, rhythm and bass attack together",
+      "inputs": [
+        "a1",
+        "ch1_0_6",
+        "bass1"
+      ],
+      "members": [
+        "a1",
+        "ch1_0_6",
+        "bass1"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "4"
+      },
+      "relationship": "same onset across three tracks; no emotional/instrument-role inference"
+    },
+    "phrase_b": {
+      "tier": 2,
+      "kind": "phrase_membership",
+      "label": "Complete 2-bar occurrence: notes AND rests",
+      "inputs": [
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5",
+        "b6",
+        "bt0",
+        "bt1",
+        "bt2",
+        "b_ending",
+        "rest_lead_0_5_4",
+        "rest_lead_0_6_5"
+      ],
+      "members": [
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5",
+        "b6",
+        "bt0",
+        "bt1",
+        "bt2",
+        "b_ending",
+        "rest_lead_0_5_4",
+        "rest_lead_0_6_5"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "16",
+        "duration": "8"
+      },
+      "status": "fixture-declared scope; no phrase detector"
+    },
+    "aligned_b": {
+      "tier": 2,
+      "kind": "cross_track_alignment",
+      "label": "Lead call, rhythm and bass attack together",
+      "inputs": [
+        "b1",
+        "ch5_0_6",
+        "bass5"
+      ],
+      "members": [
+        "b1",
+        "ch5_0_6",
+        "bass5"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "16",
+        "duration": "4"
+      },
+      "relationship": "same onset across three tracks; no emotional/instrument-role inference"
+    },
+    "call_a_second": {
+      "tier": 2,
+      "kind": "call_response",
+      "label": "Second E call -> triplet answer",
+      "inputs": [
+        "a5",
+        "a6",
+        "at0",
+        "at1",
+        "at2",
+        "a_ending"
+      ],
+      "members": [
+        "a5",
+        "a6",
+        "at0",
+        "at1",
+        "at2",
+        "a_ending"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "4",
+        "duration": "3"
+      },
+      "call": [
+        "a5",
+        "a6"
+      ],
+      "answer": [
+        "at0",
+        "at1",
+        "at2",
+        "a_ending"
+      ],
+      "status": "fixture-declared grouping; not detector validation"
+    },
+    "call_b_second": {
+      "tier": 2,
+      "kind": "call_response",
+      "label": "Second E call -> triplet answer",
+      "inputs": [
+        "b5",
+        "b6",
+        "bt0",
+        "bt1",
+        "bt2",
+        "b_ending"
+      ],
+      "members": [
+        "b5",
+        "b6",
+        "bt0",
+        "bt1",
+        "bt2",
+        "b_ending"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "20",
+        "duration": "3"
+      },
+      "call": [
+        "b5",
+        "b6"
+      ],
+      "answer": [
+        "bt0",
+        "bt1",
+        "bt2",
+        "b_ending"
+      ],
+      "status": "fixture-declared grouping; not detector validation"
+    },
+    "idea": {
+      "tier": 3,
+      "kind": "pattern_definition",
+      "label": "Same call / rhythm; answer varies",
+      "inputs": [
+        "call_a",
+        "call_b",
+        "call_a_second",
+        "call_b_second"
+      ],
+      "relative_onsets_q": [
+        "0",
+        "1/2",
+        "1",
+        "3/2",
+        "4",
+        "9/2",
+        "5",
+        "16/3",
+        "17/3",
+        "6"
+      ],
+      "durations_q": [
+        "1/2",
+        "1/2",
+        "1/2",
+        "3/2",
+        "1/2",
+        "1/2",
+        "1/3",
+        "1/3",
+        "1/3",
+        "1"
+      ],
+      "baseline_relative_pitches": [
+        0,
+        0,
+        3,
+        5,
+        0,
+        0,
+        3,
+        5,
+        7,
+        10
+      ],
+      "rest_pattern": [
+        {
+          "start_q": "3",
+          "duration_q": "1"
+        },
+        {
+          "start_q": "7",
+          "duration_q": "1"
+        }
+      ],
+      "status": "fixture-declared common shape; answer pitch/performance variation explicit",
+      "time": null
+    },
+    "occ_a": {
+      "tier": 3,
+      "kind": "pattern_occurrence",
+      "label": "A · bend response",
+      "inputs": [
+        "phrase_a",
+        "call_a",
+        "call_a_second",
+        "run_a",
+        "bend"
+      ],
+      "definition": "idea",
+      "members": [
+        "phrase_a",
+        "call_a",
+        "run_a"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "8"
+      },
+      "choices": {
+        "first_midi": 64,
+        "pitch_delta_by_member_index": {}
+      },
+      "difference": "A4 bends to B4 and releases",
+      "status": "authored occurrence"
+    },
+    "occ_b": {
+      "tier": 3,
+      "kind": "pattern_occurrence",
+      "label": "B · higher response + vibrato",
+      "inputs": [
+        "phrase_b",
+        "call_b",
+        "call_b_second",
+        "run_b",
+        "vibrato"
+      ],
+      "definition": "idea",
+      "members": [
+        "phrase_b",
+        "call_b",
+        "run_b"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "16",
+        "duration": "8"
+      },
+      "choices": {
+        "first_midi": 64,
+        "pitch_delta_by_member_index": {
+          "3": 2
+        }
+      },
+      "difference": "Written B4 with vibrato; no bend curve",
+      "status": "authored occurrence"
+    },
+    "support": {
+      "tier": 3,
+      "kind": "supporting_relationships",
+      "label": "Accompaniment, sustain and transitions",
+      "inputs": [
+        "bend",
+        "vibrato",
+        "tie_high",
+        "tie_low",
+        "overlap",
+        "hammer",
+        "pull",
+        "slide",
+        "close",
+        "power0",
+        "power1",
+        "power2",
+        "power3",
+        "power4",
+        "power5",
+        "power6",
+        "power7",
+        "power8",
+        "power9",
+        "power10",
+        "power11",
+        "power12",
+        "step0",
+        "step1",
+        "step2",
+        "step3",
+        "step4",
+        "step5",
+        "step6",
+        "step7",
+        "step8",
+        "step9",
+        "step10",
+        "step11",
+        "step12",
+        "step13",
+        "step14",
+        "step15",
+        "step16",
+        "step17",
+        "step18",
+        "step19",
+        "step20",
+        "step21",
+        "step22",
+        "step23",
+        "step24",
+        "step25",
+        "step27",
+        "step28",
+        "step29",
+        "call_a",
+        "run_a",
+        "call_b",
+        "run_b",
+        "phrase_a",
+        "aligned_a",
+        "phrase_b",
+        "aligned_b",
+        "call_a_second",
+        "call_b_second"
+      ],
+      "members": [
+        "bend",
+        "vibrato",
+        "tie_high",
+        "tie_low",
+        "overlap",
+        "hammer",
+        "pull",
+        "slide",
+        "close",
+        "power0",
+        "power1",
+        "power2",
+        "power3",
+        "power4",
+        "power5",
+        "power6",
+        "power7",
+        "power8",
+        "power9",
+        "power10",
+        "power11",
+        "power12",
+        "step0",
+        "step1",
+        "step2",
+        "step3",
+        "step4",
+        "step5",
+        "step6",
+        "step7",
+        "step8",
+        "step9",
+        "step10",
+        "step11",
+        "step12",
+        "step13",
+        "step14",
+        "step15",
+        "step16",
+        "step17",
+        "step18",
+        "step19",
+        "step20",
+        "step21",
+        "step22",
+        "step23",
+        "step24",
+        "step25",
+        "step27",
+        "step28",
+        "step29",
+        "call_a",
+        "run_a",
+        "call_b",
+        "run_b",
+        "phrase_a",
+        "aligned_a",
+        "phrase_b",
+        "aligned_b",
+        "call_a_second",
+        "call_b_second"
+      ],
+      "status": "All lower relationship evidence retained, not an inferred instrument role"
+    },
+    "region_space": {
+      "tier": 3,
+      "kind": "relationship_region",
+      "label": "Sustain and transitions in bars 3-4",
+      "inputs": [
+        "tie_high",
+        "tie_low",
+        "overlap",
+        "hammer",
+        "pull",
+        "power4",
+        "power5",
+        "step10",
+        "step11",
+        "step12",
+        "step13",
+        "step14"
+      ],
+      "members": [
+        "tie_high",
+        "tie_low",
+        "overlap",
+        "hammer",
+        "pull",
+        "power4",
+        "power5",
+        "step10",
+        "step11",
+        "step12",
+        "step13",
+        "step14"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "8",
+        "duration": "8"
+      },
+      "status": "fixture-declared region; references only contained relationships"
+    },
+    "region_ending": {
+      "tier": 3,
+      "kind": "relationship_region",
+      "label": "Texture and ending in bars 7-8",
+      "inputs": [
+        "slide",
+        "close",
+        "power10",
+        "power11",
+        "power12",
+        "step27",
+        "step28",
+        "step29"
+      ],
+      "members": [
+        "slide",
+        "close",
+        "power10",
+        "power11",
+        "power12",
+        "step27",
+        "step28",
+        "step29"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "24",
+        "duration": "7"
+      },
+      "status": "fixture-declared region; references only contained relationships"
+    },
+    "opening": {
+      "tier": 4,
+      "kind": "section",
+      "label": "Opening / call and answer",
+      "inputs": [
+        "occ_a",
+        "idea"
+      ],
+      "members": [
+        "occ_a"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "8"
+      },
+      "status": "author-declared section, not inferred boundary"
+    },
+    "space": {
+      "tier": 4,
+      "kind": "section",
+      "label": "Held voices / open-string answer",
+      "inputs": [
+        "region_space"
+      ],
+      "members": [
+        "region_space"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "8",
+        "duration": "8"
+      },
+      "status": "author-declared section, not inferred boundary"
+    },
+    "return": {
+      "tier": 4,
+      "kind": "section",
+      "label": "Varied return",
+      "inputs": [
+        "occ_b",
+        "idea"
+      ],
+      "members": [
+        "occ_b"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "16",
+        "duration": "8"
+      },
+      "status": "author-declared section, not inferred boundary"
+    },
+    "ending_section": {
+      "tier": 4,
+      "kind": "section",
+      "label": "Texture / ending",
+      "inputs": [
+        "region_ending"
+      ],
+      "members": [
+        "region_ending"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "24",
+        "duration": "7"
+      },
+      "status": "author-declared section, not inferred boundary"
+    },
+    "development": {
+      "tier": 4,
+      "kind": "development",
+      "label": "Same call, different response",
+      "inputs": [
+        "idea",
+        "occ_a",
+        "occ_b"
+      ],
+      "members": [
+        "occ_a",
+        "occ_b"
+      ],
+      "time": null,
+      "retained": [
+        "call pitch",
+        "call rhythm",
+        "answer onset/durations"
+      ],
+      "changed": [
+        "answer written pitch",
+        "bend versus vibrato"
+      ],
+      "interpretation": "Observed fixture contrast, not learned artist style"
+    },
+    "bend_share": {
+      "tier": 4,
+      "kind": "scoped_statistic",
+      "label": "Bend share · lead attacks",
+      "inputs": [
+        "support",
+        "occ_a",
+        "occ_b"
+      ],
+      "time": null,
+      "population": {
+        "track": "lead",
+        "unit": "written note attacks",
+        "exclude": "tie destinations; repeat visits not counted"
+      },
+      "numerator": 1,
+      "denominator": 30,
+      "percent": 3.3333333333333335,
+      "status": "Descriptive only; one synthetic passage is not an artist profile"
+    },
+    "ambiguity": {
+      "tier": 4,
+      "kind": "uncertain_interpretation",
+      "label": "Power chords do not establish major/minor",
+      "inputs": [
+        "support"
+      ],
+      "time": null,
+      "known": "Root/fifth/octave pitch content",
+      "unknown": "Tonal quality / function without enough context",
+      "status": "unknown, not guessed"
+    }
+  },
+  "final": {
+    "roots": [
+      "opening",
+      "space",
+      "return",
+      "ending_section",
+      "development",
+      "bend_share",
+      "ambiguity"
+    ],
+    "all_tiers_retained": true
+  }
+}

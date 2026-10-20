@@ -812,3 +812,26 @@ Existing source data, accepted analysis/pedals and baselines untouched.
   Source-only publication follows.
 Private-local preview http://127.0.0.1:5204/tiered-song.html; both examplefiles
 contain only authored synthetic data, safe to version. Original sources untouched.
+
+
+## Realistic tiered data example (2026-10-20)
+User rejected four-note example as oversimplified. Scope remains illustrative
+architecture, not new analysis/inverse/generation or musical acceptance.
+- [x] Source-free deterministic builder+JSON: 8bars, 3tracks, 2leadvoices,
+  80note segments,13rests,267records. Repeated Ecall/higheranswer/variedreturn.
+- [x] Exact tuplets/dotted rhythms, cross-bar ties, explicit rests, openHOPO,
+  slide, bendcurve, unknownvibrato execution, halfstepdyad, powercoattacks,
+  cross-trackalignment. Written31q vs repeat-expanded39q/10visits/513/20seconds.
+- [x] Full phrase membership includes notes ANDrests; pattern+occurrence-specific
+  pitchdelta checks reproduce all10notes/rests per2baroccurrence. Local sections
+  reference contained relationships, not a global evidence bucket.
+- [x] Data-driven timeline/curve/counts; four focused cases; high-to-low linked
+  columns+complete searchableJSON. Oldtinyexample preserved andlinksnewone.
+- [x] Browser Aoccurrence->phrase->rest->raw; bendA4->B4->A4; tie3segments1attack5q;
+  stat1/30leadattacks; visit3bar1written0q/play8q; search; no consoleerrors.
+- [x] Six targeted fixturechecks pass; fullPython570run569pass1optional skip
+  (includes5unrelatedlocaltests); JSmodule syntax check passes. Planner END
+  readREADME/renderer and accepted scope; source-only push/CI follows.
+No real GPsource, privateannotations or licensedmodels in example. No audio,
+implementedbidirectionalengine, detectedphrase, artiststyle or playabilityclaim.
+Preview http://127.0.0.1:5204/tiered-passage.html
