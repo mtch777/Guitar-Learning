@@ -21,6 +21,16 @@ class SourceInspectorTests(unittest.TestCase):
             entry=json.loads((out/'catalog.json').read_text())[0];self.assertEqual(entry['gp_sha256'],digest(gp))
             allowed=json.loads((out/'served-files.json').read_text());self.assertNotIn('served-files.json',allowed);self.assertIn('source_inspector_logic.mjs',allowed)
             with self.assertRaises(ValueError):build(corpus,alpha,out)
+            repaired={**song,'repair_evidence':{'empty':[],'unknown':None}}
+            (corpus/'relationships-unblock-v1.json').write_text(json.dumps(dict(songs=[repaired])))
+            (corpus/'source-techniques.json').write_text('{"unaltered":true}')
+            out2=out.parent/'repaired';build(corpus,alpha,out2)
+            self.assertEqual(json.loads((out2/'songs/1/stored.json').read_text()),repaired)
+            self.assertEqual(json.loads((out2/'catalog.json').read_text())[0]['source_report'],'relationships-unblock-v1.json')
+            reports=json.loads((out2/'reports.json').read_text());self.assertEqual(reports[0]['name'],'source-techniques.json')
+            self.assertEqual((out2/'reports/source-techniques.json').read_bytes(),(corpus/'source-techniques.json').read_bytes())
+            self.assertIn('reports/source-techniques.json',json.loads((out2/'served-files.json').read_text()))
+
 
     def test_server_denies_unlisted_and_traversal_even_inside_bundle(self):
         with tempfile.TemporaryDirectory() as tmp:

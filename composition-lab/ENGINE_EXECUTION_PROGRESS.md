@@ -757,3 +757,30 @@ Planner START reviewed. SourceanalyzerreadsSongsterrtrackJSON, notsolelyGPparse.
 Private review: http://127.0.0.1:5202/?song=460099
 Bundle: local-artifacts/source-inspector-v1 (never staged).
 No public website files changed; no Pages deployment claimed.
+
+
+## Source inspector visual coverage correction (2026-10-20)
+User rejected JSON-heavy, incomplete display. Viewer-only scope; no detector changes.
+- [ ] Prefer repaired relationships-unblock-v1 when available; retain report identity.
+- [ ] Whole-track bar overview, technique counts with exact denominators, section navigation.
+- [ ] Current pitch/fret/duration/technique cards, bend shape and linked relationship records.
+- [ ] Every loaded song field searchable/browsable without truncation; raw track selectable.
+- [ ] Separate original auxiliary reports linked with clear non-merged/historical scope.
+- [ ] Browser QA contrasting tracks; regression tests; source-only push/CI.
+
+### Visual coverage verification
+- [x] Preferred repaired report; 98 songs/495 tracks audited: 15 song, 23 track,
+  22 row field names. Explicit source filename/hash; GP bytes unchanged.
+- [x] Live-first cards, full-pitch roll/technique marks, source bend curve, linked
+  relationship diagrams; nested occurrence groups no longer lost by viewer.
+- [x] Track bar overview, section jumps, technique and coattack counts; marked/
+  unmarked duration/register/bar-position/interval statistics with units/support.
+- [x] Complete lazy field browser, uncapped search, original raw capture; five
+  separate reports linked. Raw-only limits documented in SOURCE_INSPECTOR.md.
+- [x] Browser Cloud rhythm bend1semitone/exact join/nested groups; Heavener
+  tapping+hp, advancing playback/0pause, conditional14vs149, raw tree; search
+  six empty timing-warning fields. Screenshot inspected; no console errors.
+- [x] Python564run563pass1optional skip; Node4pass; original/repaired fixture
+  and private allowlist tests pass. No detector or musical-content changes.
+- [ ] Source-only push and exact-commit CI verification below.
+Local review http://127.0.0.1:5203/?song=460099 (private source-inspector-v2).

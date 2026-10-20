@@ -3,3 +3,12 @@ import {sourceStringIndex,joinDifferences,playbackPosition} from './source_inspe
 test('GP low-to-high string numbering is normalized without changing stored data',()=>{assert.equal(sourceStringIndex(8,1),7);assert.equal(sourceStringIndex(8,8),0);assert.equal(sourceStringIndex(8,0),null);});
 test('join checks occurrence payload, exact rational clocks and physical fields',()=>{const row={midi:31,string:7,fret:4,bar_offset_q:'0',duration_q:'2/3'},event={pitch:31,sourceString:7,fret:4,localQ:0,durationQ:640/960};assert.deepEqual(joinDifferences(row,event),[]);assert.deepEqual(joinDifferences(row,{...event,durationQ:.5}),['written duration']);assert.deepEqual(joinDifferences(null,event),['missing occurrence']);});
 test('repeat visit maps to original source bar rather than expanded playback position',()=>{assert.deepEqual(playbackPosition(20160,{start:19200,masterBar:{index:2}},{start_q:'8'}),{barIndex:2,localQ:1,sourceQ:9});});
+
+import {linkedAnalysis} from './source_inspector_logic.mjs';
+test('deep occurrence groups remain complete, deduplicated and exclude unrelated records',()=>{
+ const record={anchor_midi:29,members:[[['a']], [['b','a']]],interpretation:'candidate'};
+ const t={rows:[{occurrence:'a'}],pedal_candidates:[record,{members:[[['z']]]}],sustain:{chains:[{members:['a','b']}]}};
+ const result=linkedAnalysis(t,new Set(['a','b']));
+ assert.equal(result.length,2);assert.deepEqual(result[0].data,record);assert.equal(result[0].path,'pedal_candidates.0');
+ assert.equal(linkedAnalysis(t,new Set(['missing'])).length,0);
+});

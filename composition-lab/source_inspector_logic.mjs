@@ -11,3 +11,5 @@ export function joinDifferences(row,event){
 export function playbackPosition(tick,playedBar,sourceHeader){
  return {barIndex:playedBar.masterBar.index,localQ:(tick-playedBar.start)/960,sourceQ:sourceHeader?rational(sourceHeader.start_q)+(tick-playedBar.start)/960:null};
 }
+
+export function linkedAnalysis(track,ids){const output=[];const contains=v=>typeof v==='string'?ids.has(v):!!v&&typeof v==='object'&&Object.values(v).some(contains);function walk(v,path){if(!v||typeof v!=='object')return;if(Array.isArray(v)){v.forEach((item,i)=>{if(item&&typeof item==='object'&&contains(item))output.push({path:`${path}.${i}`,data:item});});return;}if(Object.values(v).some(x=>typeof x==='string'&&ids.has(x))){output.push({path,data:v});return;}for(const[k,x]of Object.entries(v))walk(x,`${path}.${k}`);}for(const[k,v]of Object.entries(track||{}))if(k!=='rows'&&k!=='raw_note')walk(v,k);return output;}
