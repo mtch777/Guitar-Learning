@@ -797,3 +797,18 @@ Local review http://127.0.0.1:5203/?song=460099 (private source-inspector-v2).
   corrections incorporated. Source-only publication/CI follows.
 Gates A-H pending; no code moves or inverse claims. Next execution A, then B/C.
 Existing source data, accepted analysis/pedals and baselines untouched.
+
+
+## Minimal tiered data example (2026-10-20)
+- [x] Source-free four-note/two-bar fixture: examples/tiered-song.example.json.
+  20records, tiercounts5/6/4/3/2. Normalized illustrative notation, not GPIF.
+- [x] Self-contained HTML: high-to-low columns, selectable typed links, timed
+  notes/tempo vs untimed shared definition/scoped statistic; completeJSON.
+- [x] Script checks adjacent-tier input references, pitch/fingering, three
+  intervalsteps(+2,-2,+2), one bend among4segments. Browser Aselection shows
+  pair1/bend1inputs anddefinitionlink; screenshot layout inspected.
+- [x] Planner read actual example; corrected onset-versus-duration rule;
+  timeline now derives geometry from records. No audio/inverse/model claim.
+  Source-only publication follows.
+Private-local preview http://127.0.0.1:5204/tiered-song.html; both examplefiles
+contain only authored synthetic data, safe to version. Original sources untouched.

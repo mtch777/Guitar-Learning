@@ -1,0 +1,449 @@
+{
+  "schema": "illustrative-tiered-song/1",
+  "purpose": "Source-free minimal architecture example; not a production schema, GP extraction or implemented inverse. Normalized notation fixture units are explicitly declared.",
+  "clock": {
+    "written_q": "Exact rational quarter-note units. No repeats in fixture; playback mapping is therefore single pass.",
+    "spans": "[start, start + duration)",
+    "bend_points": "[fraction of written note, semitone displacement]"
+  },
+  "tier_contract": "Each tier input includes the complete preceding state. inputs lists the specific preceding-tier evidence; descriptive membership/reference links do not grant processing access. Lower facts retained structurally, once.",
+  "rules": {
+    "pitch": "midi = tuning[string - 1] + fret (no capo/transposition in this fixture)",
+    "pattern": "pitch_midi = first_midi + cumulative interval steps; onset_q = occurrence.start_q + relative_onset_q; duration_q = pattern.duration_q",
+    "bend": "sounding trajectory = base pitch + recorded curve displacement",
+    "variation": "No levers executed in this example. Unlocked choices and dependent copies must be excluded from proposal inputs; exact retained choices remain available for zero-change reconstruction."
+  },
+  "records": {
+    "source": {
+      "tier": 0,
+      "kind": "notation_context",
+      "label": "Two bars, one guitar",
+      "inputs": [],
+      "origin": "synthetic notation fixture; NOT literal GPIF fields",
+      "meter": [
+        2,
+        4
+      ],
+      "bars": 2,
+      "tuning_midi": [
+        64,
+        59,
+        55,
+        50,
+        45,
+        40
+      ],
+      "tempo_bpm": 100
+    },
+    "raw1": {
+      "tier": 0,
+      "kind": "notation_note",
+      "label": "Written note 1",
+      "inputs": [],
+      "bar": 1,
+      "voice": 0,
+      "beat": 0,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "bend_points": []
+    },
+    "raw2": {
+      "tier": 0,
+      "kind": "notation_note",
+      "label": "Written note 2",
+      "inputs": [],
+      "bar": 1,
+      "voice": 0,
+      "beat": 1,
+      "string_highest_is_1": 1,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "bend_points": [
+        [
+          "0",
+          "0"
+        ],
+        [
+          "1/2",
+          "1"
+        ],
+        [
+          "1",
+          "1"
+        ]
+      ]
+    },
+    "raw3": {
+      "tier": 0,
+      "kind": "notation_note",
+      "label": "Written note 3",
+      "inputs": [],
+      "bar": 2,
+      "voice": 0,
+      "beat": 0,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "bend_points": []
+    },
+    "raw4": {
+      "tier": 0,
+      "kind": "notation_note",
+      "label": "Written note 4",
+      "inputs": [],
+      "bar": 2,
+      "voice": 0,
+      "beat": 1,
+      "string_highest_is_1": 1,
+      "fret": 2,
+      "rhythm": {
+        "denominator": 4,
+        "dots": 0
+      },
+      "bend_points": []
+    },
+    "track": {
+      "tier": 1,
+      "kind": "track",
+      "label": "Guitar",
+      "inputs": [
+        "source"
+      ],
+      "tuning_midi": [
+        64,
+        59,
+        55,
+        50,
+        45,
+        40
+      ]
+    },
+    "n1": {
+      "tier": 1,
+      "kind": "note",
+      "label": "E4 · note 1",
+      "inputs": [
+        "source",
+        "raw1"
+      ],
+      "track": "track",
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "1"
+      },
+      "pitch_midi": 64,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "voice": 0,
+      "bend": null
+    },
+    "n2": {
+      "tier": 1,
+      "kind": "note",
+      "label": "F♯4 · note 2",
+      "inputs": [
+        "source",
+        "raw2"
+      ],
+      "track": "track",
+      "time": {
+        "clock": "written_q",
+        "start": "1",
+        "duration": "1"
+      },
+      "pitch_midi": 66,
+      "string_highest_is_1": 1,
+      "fret": 2,
+      "voice": 0,
+      "bend": {
+        "time_unit": "fraction_of_note",
+        "pitch_unit": "semitones",
+        "points": [
+          [
+            "0",
+            "0"
+          ],
+          [
+            "1/2",
+            "1"
+          ],
+          [
+            "1",
+            "1"
+          ]
+        ]
+      }
+    },
+    "n3": {
+      "tier": 1,
+      "kind": "note",
+      "label": "E4 · note 3",
+      "inputs": [
+        "source",
+        "raw3"
+      ],
+      "track": "track",
+      "time": {
+        "clock": "written_q",
+        "start": "2",
+        "duration": "1"
+      },
+      "pitch_midi": 64,
+      "string_highest_is_1": 1,
+      "fret": 0,
+      "voice": 0,
+      "bend": null
+    },
+    "n4": {
+      "tier": 1,
+      "kind": "note",
+      "label": "F♯4 · note 4",
+      "inputs": [
+        "source",
+        "raw4"
+      ],
+      "track": "track",
+      "time": {
+        "clock": "written_q",
+        "start": "3",
+        "duration": "1"
+      },
+      "pitch_midi": 66,
+      "string_highest_is_1": 1,
+      "fret": 2,
+      "voice": 0,
+      "bend": null
+    },
+    "tempo": {
+      "tier": 1,
+      "kind": "tempo_change",
+      "label": "100 BPM at start",
+      "inputs": [
+        "source"
+      ],
+      "time": {
+        "clock": "written_q",
+        "point": "0"
+      },
+      "bpm": 100
+    },
+    "pair1": {
+      "tier": 2,
+      "kind": "interval_sequence",
+      "label": "E → F♯ · first pair",
+      "inputs": [
+        "n1",
+        "n2"
+      ],
+      "members": [
+        "n1",
+        "n2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "2"
+      },
+      "interval_semitones": 2,
+      "onset_gap_q": "1",
+      "duration_ratio": "1"
+    },
+    "pair2": {
+      "tier": 2,
+      "kind": "interval_sequence",
+      "label": "E → F♯ · second pair",
+      "inputs": [
+        "n3",
+        "n4"
+      ],
+      "members": [
+        "n3",
+        "n4"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "2",
+        "duration": "2"
+      },
+      "interval_semitones": 2,
+      "onset_gap_q": "1",
+      "duration_ratio": "1"
+    },
+    "bend1": {
+      "tier": 2,
+      "kind": "bend_relationship",
+      "label": "F♯4 bends toward G4",
+      "inputs": [
+        "n2"
+      ],
+      "members": [
+        "n2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "1",
+        "duration": "1"
+      },
+      "base_midi": 66,
+      "peak_semitones": "1",
+      "peak_midi": 67,
+      "arrival_fraction": "1/2",
+      "release": false
+    },
+    "idea": {
+      "tier": 3,
+      "kind": "pattern_definition",
+      "label": "One step up, equal durations",
+      "inputs": [
+        "pair1",
+        "pair2"
+      ],
+      "time": null,
+      "interval_semitones": [
+        2
+      ],
+      "relative_onsets_q": [
+        "0",
+        "1"
+      ],
+      "durations_q": [
+        "1",
+        "1"
+      ],
+      "comparison_dimensions": [
+        "written_pitch_interval",
+        "relative_onset",
+        "written_duration"
+      ],
+      "status": "exact_match_on_declared_dimensions",
+      "support_occurrences": 2
+    },
+    "a": {
+      "tier": 3,
+      "kind": "pattern_occurrence",
+      "label": "A · with bend",
+      "inputs": [
+        "pair1",
+        "bend1"
+      ],
+      "definition": "idea",
+      "members": [
+        "pair1",
+        "bend1"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "2"
+      },
+      "choices": {
+        "first_midi": 64
+      },
+      "performance_difference": "Second note bends one semitone"
+    },
+    "b": {
+      "tier": 3,
+      "kind": "pattern_occurrence",
+      "label": "B · without bend",
+      "inputs": [
+        "pair2"
+      ],
+      "definition": "idea",
+      "members": [
+        "pair2"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "2",
+        "duration": "2"
+      },
+      "choices": {
+        "first_midi": 64
+      },
+      "performance_difference": "Neither note has a bend"
+    },
+    "section": {
+      "tier": 4,
+      "kind": "section",
+      "label": "Two-bar example",
+      "inputs": [
+        "idea",
+        "a",
+        "b"
+      ],
+      "members": [
+        "a",
+        "b"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "0",
+        "duration": "4"
+      },
+      "status": "fixture_defined; not inferred phrase boundary"
+    },
+    "bendShare": {
+      "tier": 4,
+      "kind": "scoped_statistic",
+      "label": "1 of 4 note attacks has a bend",
+      "inputs": [
+        "a",
+        "b"
+      ],
+      "scope": "section",
+      "time": null,
+      "numerator": 1,
+      "denominator": 4,
+      "denominator_unit": "note_segments (also four attacks: no ties in this fixture)",
+      "percent": 25,
+      "evidence_path": "a -> bend1 -> n2; a/b -> pair1/pair2 -> n1..n4",
+      "interpretation": "Description of this fixture only; not an artist rule"
+    },
+    "between": {
+      "tier": 2,
+      "kind": "interval_sequence",
+      "label": "F♯ → E · between pairs",
+      "inputs": [
+        "n2",
+        "n3"
+      ],
+      "members": [
+        "n2",
+        "n3"
+      ],
+      "time": {
+        "clock": "written_q",
+        "start": "1",
+        "duration": "2"
+      },
+      "interval_semitones": -2,
+      "onset_gap_q": "1",
+      "duration_ratio": "1"
+    }
+  },
+  "final": {
+    "roots": [
+      "section",
+      "bendShare"
+    ],
+    "includes_tiers": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "self_contained": true
+  }
+}
