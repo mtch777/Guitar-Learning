@@ -716,3 +716,44 @@ freshprivatebundle. Publicdeployedwebsiteunchanged; noPagesclaimneeded.
 CurrentlocalURL:http://127.0.0.1:5200/ ; privatebundlecurrent-review-v1;
 sourcebuilderreproductioncurrent-review-v2. Playback/renderqualityunjudged.
 Sourceonlytoolpublication/CI follows; privateHTML/audio/scoredata notstaged.
+
+
+## Source GP + live stored JSON inspector — active
+
+User request: actual downloaded GP playing, scrolling piano roll, live JSON below,
+speed0–1. Newscope replaces generated-comparisonreview for this task.
+- [ ] Isolatedallowlistedbundle of unchangedcatalogGP+exact per-song storedJSON;
+  explicitSongsterrcapture-derivedanalysis versusGPimport provenance/hashes.
+- [ ] NativeGPsynth/score, trackchoice, playhead/scroll/clickseek; allsimultaneous
+  records shown, exactoccurrence/pitch/localclockjoin or explicitmismatch.
+- [ ] Ticklookup handlesplayedbar/repeats/tempo; seek andtrackchange updateJSON.
+- [ ] Speed0pauses,1normal; supported1/8increments explicit, no silentclamping.
+- [ ] Fullsong/trackdata accessible; globalanalysisnotmislabelledcurrentnote.
+- [ ] BrowserQA playback/seek/slow/zero/normal/track/currentJSON; source-only
+  commitpushCI. No copyrightedscores/rawannotations inGit/noPagespublication.
+Planner START reviewed. SourceanalyzerreadsSongsterrtrackJSON, notsolelyGPparse.
+
+
+### Source inspector verification — 2026-10-19
+
+- [x] Private allowlisted bundle: 98/98 catalog scores available; unchanged GP
+  bytes, per-song stored JSON objects and raw captures; SHA-256 checked at load.
+- [x] Native GP playback, scrolling full-range roll, playhead, track and bar
+  choice, click-to-pause/seek; simultaneous rows and explicit join differences.
+- [x] JSON provenance explicitly distinguishes captured Songsterr analysis from
+  the GP importer. String numbering normalized using actual tuning length.
+- [x] Speed 0 pauses; 1 normal; supported 1/8 increments labelled.
+- [x] Complete song/track/raw records accessible separately from current rows.
+- [x] Browser verified Heavener and Cloud Cascade: play, pause, seek, track,
+  0/.5/1 speed; Cloud rhythm bar17 two simultaneous exact joins. Screenshot
+  inspected and no console errors. Not a claim of musical-quality listening.
+- [x] Python unittest discover: 564 run, 563 passed, 1 optional skip (includes
+  5 unrelated local uncommitted tests). Node inspector tests: 3 passed.
+- [x] All 98 native GPs imported in offline inspection; this is not browser QA
+  of all joins. No native repeated-visit witness found; repeat mapping has
+  synthetic unit coverage only. No conversion repair or bend restoration.
+- [ ] Source-only publication and exact-commit CI confirmation below.
+
+Private review: http://127.0.0.1:5202/?song=460099
+Bundle: local-artifacts/source-inspector-v1 (never staged).
+No public website files changed; no Pages deployment claimed.

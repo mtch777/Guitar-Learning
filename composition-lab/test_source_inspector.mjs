@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {sourceStringIndex,joinDifferences,playbackPosition} from './source_inspector_logic.mjs';
+test('GP low-to-high string numbering is normalized without changing stored data',()=>{assert.equal(sourceStringIndex(8,1),7);assert.equal(sourceStringIndex(8,8),0);assert.equal(sourceStringIndex(8,0),null);});
+test('join checks occurrence payload, exact rational clocks and physical fields',()=>{const row={midi:31,string:7,fret:4,bar_offset_q:'0',duration_q:'2/3'},event={pitch:31,sourceString:7,fret:4,localQ:0,durationQ:640/960};assert.deepEqual(joinDifferences(row,event),[]);assert.deepEqual(joinDifferences(row,{...event,durationQ:.5}),['written duration']);assert.deepEqual(joinDifferences(null,event),['missing occurrence']);});
+test('repeat visit maps to original source bar rather than expanded playback position',()=>{assert.deepEqual(playbackPosition(20160,{start:19200,masterBar:{index:2}},{start_q:'8'}),{barIndex:2,localQ:1,sourceQ:9});});
