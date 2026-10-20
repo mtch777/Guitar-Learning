@@ -835,3 +835,31 @@ architecture, not new analysis/inverse/generation or musical acceptance.
 No real GPsource, privateannotations or licensedmodels in example. No audio,
 implementedbidirectionalengine, detectedphrase, artiststyle or playabilityclaim.
 Preview http://127.0.0.1:5204/tiered-passage.html
+
+
+## Note coordinates, lower techniques and richer relationships (2026-10-20)
+User requested clear source settings, letter_octave note names, key/chord-relative
+representations, visible lower technique data and more meaningful relations.
+- [x] Split score settings into meter/tempo/repeats/tunings/opaque field. Raw
+  source values retained; note display aliases use E_4 note and spelling policy.
+- [x] Tier0 encoded techniques + Tier1 resolved performance are visible from the
+  selected note. Bend source points retain fractions; resolved score times and
+  sounding pitches explicit. Vibrato depth/rate remain unknown when unprovided.
+- [x] Explicit fixture Eminor key + Eaeolian chord-scale hint q0-2; NOT key/mode
+  inference. T2 contexts feed T3 same-note views: interval_of_note_base_key and
+  interval_of_note_current_chord_mode. Written-base coordinates separate signed
+  semitones, mod12, register and modal degree; Tier1 note facts not overwritten.
+- [x] Full-note chord-context segmentation; gaps remain unknown chord support.
+  Power root/fifth/octave never implies a mode. Exact inverse-coordinate
+  arithmetic tested, not a GP inverse.
+- [x] Added metric, ordered same-voice group, same-string fret, simultaneous,
+  cross-track/voice overlap, chord/key and per-note variation relations; typed
+  family filters expose actual kinds. 588 synthetic records, no source GP data.
+- [x] Browser A_4 bend source4points/T1parameters/keydegree4; E_4 overG_2 shows
+  major-sixth class vskeytonic with modeunknown; missingchordspan q2-3 remains
+  explicit; vibrato unknown; harmonyfilter94/588; no consoleerrors.
+- [x] Nine targeted checks pass. Planner read README/relevant builder and
+  approved scopedexample. FullPython573run572pass1optional skip (includes5
+  unrelatedlocaltests); JSmodule syntax passes. Source-only publication/CI
+  follows. No production
+  detector, inverse, new musical-quality or artist-style claim.

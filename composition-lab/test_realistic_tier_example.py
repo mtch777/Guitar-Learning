@@ -22,13 +22,13 @@ class RealisticTierExampleTests(unittest.TestCase):
         for id,r in self.r.items():
             if r['kind'] not in ('note','rest'):continue
             raw=self.r[r['inputs'][0]];rh=raw['rhythm'];duration=F(4,rh['denominator'])*sum((F(1,2**i) for i in range(rh['dots']+1)),F(0));tuplet=rh.get('tuplet',[1,1]);duration*=F(tuplet[1],tuplet[0]);self.assertEqual(F(r['time']['duration']),duration,id)
-            bar=self.r['notation']['bars'][r['bar']-1];a=F(r['time']['start']);b=a+duration
+            bar=self.r['score_meter']['bars'][r['bar']-1];a=F(r['time']['start']);b=a+duration
             self.assertEqual(a,F(bar['start_q'])+F(raw['offset_q']))
             self.assertLessEqual(b,F(bar['start_q'])+F(bar['duration_q']))
             grouped[r['track'],r['voice'],r['bar']].append((a,b))
-            if r['kind']=='note':self.assertEqual(r['pitch_midi'],self.r['notation']['tracks'][r['track']]['tuning'][r['string_highest_is_1']-1]+r['fret'])
+            if r['kind']=='note':self.assertEqual(r['pitch_midi'],self.r['tuning_'+r['track']]['tuning'][r['string_highest_is_1']-1]+r['fret'])
         for (track,voice,bi),spans in grouped.items():
-            bar=self.r['notation']['bars'][bi-1];cursor=F(bar['start_q'])
+            bar=self.r['score_meter']['bars'][bi-1];cursor=F(bar['start_q'])
             for a,b in sorted(set(spans)):
                 self.assertEqual(a,cursor,(track,voice,bi));cursor=b
             self.assertEqual(cursor,F(bar['start_q'])+F(bar['duration_q']))
@@ -86,5 +86,64 @@ class RealisticTierExampleTests(unittest.TestCase):
         for v in visits:
             self.assertEqual(F(v['playback_start_q']),q);self.assertEqual(F(v['start_seconds']),seconds);self.assertEqual(F(v['duration_seconds']),F(v['duration_q'])*60/v['bpm']);q+=F(v['duration_q']);seconds+=F(v['duration_seconds'])
         self.assertEqual(q,39);self.assertEqual(F(self.r['playback']['total_written_q']),31);self.assertEqual(F(self.r['playback']['total_seconds']),seconds)
+
+
+    def test_note_names_lower_parameters_and_separate_unknown_source_field(self):
+        self.assertEqual(self.r['notation']['label'],'Score settings')
+        self.assertNotIn('unknown_properties',self.r['notation'])
+        self.assertIsNone(self.r['source_extension']['meaning'])
+        for id,n in self.r.items():
+            if n['kind']!='note':continue
+            self.assertEqual(n['letter_octave'],module.letter_octave(n['pitch_midi']))
+            self.assertIn(n['letter_octave']+' note',n['label'])
+            raw=self.r[n['inputs'][0]];self.assertIn(n['letter_octave']+' note',raw['label'])
+        bend=self.r['a4']['performance_parameters']['bend']
+        self.assertEqual([p['at_q'] for p in bend['points_in_score']],['3/2','2','5/2','3'])
+        self.assertEqual([p['sounding_midi'] for p in bend['points_in_score']],['69','71','71','69'])
+        self.assertEqual(self.r['raw_a4']['technique']['bend']['points'],bend['points'])
+        self.assertIsNone(self.r['b4']['performance_parameters']['vibrato']['depth_semitones'])
+
+    def test_relative_pitch_roundtrip_and_no_harmonic_mutation_of_tier_one(self):
+        for id,r in self.r.items():
+            if r['kind']!='note_harmonic_view':continue
+            note=self.r[r['note_ref']]
+            self.assertNotIn('interval_of_note_base_key',note)
+            for coord in [r['interval_of_note_base_key']]+[a for span in r['interval_of_note_current_chord_mode'] for a in span['alternatives']]:
+                self.assertEqual(note['pitch_midi'],coord['reference_midi']+coord['chromatic_semitones'])
+                self.assertEqual(note['pitch_midi'],coord['reference_midi']+12*coord['relative_octave']+coord['semitones_mod_12'])
+                if coord['mode'] is None:self.assertIsNone(coord['mode_degree']);self.assertIsNone(coord['scale_membership'])
+        a=self.r['harmonic_a4'];self.assertEqual(a['interval_of_note_base_key']['mode_degree'],4)
+        spans=a['interval_of_note_current_chord_mode'];self.assertEqual([(x['start_q'],x['duration_q']) for x in spans],[('3/2','1/2'),('2','1')])
+        self.assertEqual(spans[0]['alternatives'][0]['mode'],'aeolian');self.assertEqual(spans[1]['alternatives'],[])
+        b=self.r['harmonic_b5'];self.assertEqual(b['interval_of_note_base_key']['semitones_mod_12'],0)
+        coord=b['interval_of_note_current_chord_mode'][0]['alternatives'][0]
+        self.assertEqual(coord['semitones_mod_12'],9);self.assertIsNone(coord['mode']);self.assertFalse(coord['chord_tone'])
+        self.assertFalse(self.r['harmonic_texture1']['interval_of_note_base_key']['scale_membership'])
+
+    def test_context_spans_and_relationship_families_are_supported(self):
+        for id,r in self.r.items():
+            if r['kind']=='note_harmonic_view':
+                note=self.r[r['note_ref']];cursor=F(note['time']['start']);end=cursor+F(note['time']['duration'])
+                for span in r['interval_of_note_current_chord_mode']:
+                    self.assertEqual(F(span['start_q']),cursor);cursor+=F(span['duration_q'])
+                    for alt in span['alternatives']:
+                        chord=self.r[alt['chord_context']]
+                        self.assertLessEqual(F(chord['time']['start']),F(span['start_q']))
+                        self.assertGreaterEqual(F(chord['time']['start'])+F(chord['time']['duration']),cursor)
+                self.assertEqual(cursor,end)
+            if r['kind']=='same_voice_successor':
+                origin=[self.r[x] for x in r['origin_group']];dest=[self.r[x] for x in r['destination_group']]
+                self.assertTrue(all(x['track']==r['track'] and x['voice']==r['voice'] for x in origin+dest))
+                self.assertGreater(F(dest[0]['time']['start']),F(origin[0]['time']['start']))
+            if r['kind'] in ('cross_track_overlap','cross_voice_overlap'):
+                a,b=(self.r[x] for x in r['members']);start=max(F(a['time']['start']),F(b['time']['start']));end=min(F(a['time']['start'])+F(a['time']['duration']),F(b['time']['start'])+F(b['time']['duration']))
+                self.assertEqual(F(r['intersection']['start_q']),start);self.assertEqual(F(r['intersection']['duration_q']),end-start)
+                self.assertGreater(end,start)
+            if r['kind']=='chord_context' and r['mode'] is not None:
+                self.assertIn('mode_instruction',r['inputs'])
+                self.assertLessEqual(F(r['time']['start'])+F(r['time']['duration']),2)
+        self.assertTrue({'temporal','physical','harmony','rhythm','cross_track','cross_voice','pattern'}<=set(self.d['relationship_families']))
+        diffs=self.r['variation_detail']['comparisons'];self.assertEqual([x['written_pitch_delta'] for x in diffs],[0,0,0,2,0,0,0,0,0,0])
+        self.assertEqual(diffs[3]['technique_keys_removed'],['bend']);self.assertEqual(diffs[3]['technique_keys_added'],['vibrato'])
 
 if __name__=='__main__':unittest.main()
