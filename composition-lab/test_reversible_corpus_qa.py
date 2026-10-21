@@ -20,6 +20,17 @@ class CorpusQATests(unittest.TestCase):
             summary=json.loads((out/"summary.json").read_text())
             self.assertEqual(summary["results"][0]["control"]["regions"],1)
 
+    def test_clock_mode_compares_the_same_music_against_owned_baseline(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);corpus=root/"corpus";corpus.mkdir();p=corpus/"one";p.mkdir()
+            capture(p,[measure([beat()]),measure([beat()])]);prior=root/"prior"
+            self.assertEqual(batch(corpus,prior,controls=True)["passed"],1)
+            out=root/"clock";self.assertEqual(batch(corpus,out,previous=prior,clock=True)["passed"],1)
+            summary=json.loads((out/"summary.json").read_text());self.assertTrue(summary["results"][0]["music_unchanged"])
+            self.assertEqual(summary["results"][0]["clock"]["frames"],2)
+            manifest=json.loads((out/"manifest.json").read_text());self.assertEqual(manifest["mode"],"clock")
+            self.assertIn("reversible_written_clock.py",manifest["engine_hashes"])
+
     def test_malformed_case_is_retained_and_next_case_runs_unchanged(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);corpus=root/"corpus";corpus.mkdir()

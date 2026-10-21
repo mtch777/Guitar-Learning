@@ -1,18 +1,18 @@
-## Reversible execution checkpoint (2026-10-21)
+## Reversible execution checkpoint (2026-10-21 17:49 UTC)
 
-Executable scope: shared pitch/time, beat topology, physical positions/settings,
-sparse annotations/curves, and joint tie/voicing equations. Frozen98-capture
-regression:420119notes, all declared-field checks pass; all source/engine hashes
-unchanged. Seven newly selected outsider captures also pass bounded reversal.
-Source-bar guard:98/98regressions pass, all98highestmodels unchanged; Planner
-independently audited frozen10cases. Owned envelope now composes music and
-explicit temporal declarations using previous-input-only operators. Cloud and
-NEWrandom6711 highest-only inverse pass ALL8rawgates;694tests run,1optional skip. Read
-REVERSIBLE_TIER_QA.md for current evidence, audit and delivery status.
-Full source/GP inverse and artist-style levers remain OPEN. Next agreed slice:
-remaining source temporal context/clock relationships (REVERSIBLE_TEMPORAL_CONTEXT.md).
-Planner start/middle/end reviews remain required; no QABot. Preserve private
-captures, source/baselines and unrelated unfinished work.
+Read REVERSIBLE_STATUS.md and REVERSIBLE_TIER_QA.md for current requirements/evidence.
+Delivered control90d2a9e: owned version2 composes music, temporal and repeat constraints.
+Frozen98:420119notes/397regions/355ending declarations; all music/source/baseline/code
+checks unchanged. CI39641368035SUCCESS. Numeric projection76a7660 CI39637836751SUCCESS.
+Written clock now passes ALL98 pure AND guarded inverses, all10rawgates:59021origins,
+11137frames/687addresses. Source-only delivery follows. Original source warnings stay;
+no invented timing repairs. Higher rhythm removes ALL beat-onset parameters and
+recovers exact clock parents across98captures; guarded integration remains pending.
+No final Planner integration assessment: collaborator hit usage error. Saved prior
+owned audit did finish10/10PASS; do not confuse that with new-feature approval.
+Full source/GP inverse, technique execution, harmony/phrases/artist abstraction and
+style levers remain OPEN. No musical-quality/listening claim. Preserve private
+captures/GPs/models/audio/baselines, accepted detectors and unrelated unfinished work.
 
 ## Active correction: executable reversible tiers + recurring QA (2026-10-20)
 

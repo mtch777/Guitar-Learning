@@ -22,10 +22,13 @@ def main():
     source,destination,trace=map(lambda p:Path(p).resolve(),sys.argv[1:4])
     code=Path(__file__).resolve().parent
     if destination.exists() or trace.exists():raise ValueError("Fresh outputs required")
-    permitted={source:"read",destination:"write",trace:"write",Path(__file__).resolve():"read",code/"reversible_relationships.py":"read",code/"reversible_topology.py":"read",code/"reversible_positions.py":"read",code/"reversible_annotations.py":"read",code/"reversible_ties.py":"read",code/"reversible_voicings.py":"read",code/"reversible_temporal.py":"read",code/"reversible_song.py":"read",code/"reversible_control.py":"read"}
+    permitted={source:"read",destination:"write",trace:"write",Path(__file__).resolve():"read",code/"reversible_relationships.py":"read",code/"reversible_topology.py":"read",code/"reversible_positions.py":"read",code/"reversible_annotations.py":"read",code/"reversible_ties.py":"read",code/"reversible_voicings.py":"read",code/"reversible_temporal.py":"read",code/"reversible_song.py":"read",code/"reversible_control.py":"read",code/"reversible_numeric_view.py":"read",code/"reversible_written_clock.py":"read"}
     runtime=Path(sys.base_prefix).resolve();access=[]
     sys.dont_write_bytecode=True;install_guard(permitted,runtime,access);sys.path.insert(0,str(code))
-    value=json.loads(source.read_text(encoding="utf-8"));schema=value.get("schema")
+    value=json.loads(source.read_text(encoding="utf-8"));schema=value.get("schema");initial_schema=schema
+    if schema=="shared-written-clock/1":
+        from reversible_written_clock import decode as decode_clock
+        value=decode_clock(value);schema=value["schema"]
     if schema in {"owned-song-stages/1","owned-song-stages/2"}:
         from reversible_song import decode
         owned=decode(value);annotations=owned["music"];positions=annotations["physical"]
@@ -45,7 +48,7 @@ def main():
         restored=event_view(positions);event_pitches={r["id"]:r["pitch"] for r in restored}
         structural=positions["topology"]
         output["topology"]=dict(structural,notes=[dict(n,base_pitch=event_pitches[n["id"]]) for n in structural["notes"]])
-        output.update(scope=schema,events=restored)
+        output.update(scope=initial_schema,events=restored)
     elif schema=="relative-beat-topology/1":
         from reversible_topology import decode,event_view
         structural=decode(value);restored=event_view(structural)

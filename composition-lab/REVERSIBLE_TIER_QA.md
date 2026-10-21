@@ -204,3 +204,11 @@ Pre-analysis harness correction: the queued clock-corpus-v1 process had imported
 
 ## Control integration frozen regression COMPLETE — 17:09 UTC
 ALL98 pass,0fail:420119notes,397regions,355ending declarations. ALL98 entire music models equal the sealed owned-v1 run. ALL source/baseline files and directory sets unchanged;21declared execution files unchanged. Private reversible-owned-control-corpus-v1/{summary,end-integrity,manifest}.json retain proof. Clock-v2 regression has started separately; do not edit its21shared+3clock execution files until it closes. Control source-only delivery follows; Planner's final integration assessment remains pending, not fabricated.
+
+
+## Higher rhythm relationship — local experimental tier
+All98diagnostic:318888beat onsets recovered from only duration parameters, ordered memberships and shared frames after EVERY onset channel/mask/parameter/anchor is removed. New reversible_rhythm.py projects/re-factors retained durations so old onset-dependent definition hashes do not survive. SAME affine advance and generic factoring reconstruct the exact canonical clock parent. Five source-free tests pass; nonchronological parents refuse rather than silently repair. NEWv13frozen before analysis:63892rev8791578,seed8074848681717012820/queryb;3286notes,134frames,8tempoaddresses pass, source/code unchanged; all onset fields absent, exact preceding clock+owned models restored with reads denied. Full98canonical inverse queued after clock closes; guarded rhythm worker and Planner assessment remainPENDING. No fullGP/style/audio claim.
+
+
+Clock CLOSED17:49UTC: pure98inverse/rawframe checks and all98guarded copied-module inverses pass.59021origins/11137frames/687addresses; all10raworacles+completeownedfacts equal.4fixedpartitions merged98unique originalcases; source/model/directory/24executionhashes unchanged. Full732tests run731pass1skip includingexperimentalrhythm; sourcefreshv14passes3450notes/all10rawgates/parentidentities. Code delivery follows; finalPlannerassessment not available, not claimed.
+Higher rhythm pure98alsoCLOSED: all318888beat onsets absent fromhighestnumericrepresentation, exact canonical clockparents recovered;12operatorhashes+source/models/cases unchanged. Guardedrhythm notyetintegrated/claimed.

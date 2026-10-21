@@ -7,7 +7,7 @@ import argparse,hashlib,json,time,traceback
 from pathlib import Path
 from run_reversible_tier_qa import run
 
-ENGINE_NAMES=("reversible_relationships.py","reversible_topology.py","reversible_positions.py","reversible_annotations.py","reversible_ties.py","reversible_voicings.py","reversible_temporal.py","reversible_control.py","check_reversible_control.py","reversible_song.py","reverse_tier_worker.py","run_reversible_tier_qa.py","check_reversible_source.py","check_reversible_temporal.py","run_reversible_corpus_qa.py","technique_analysis.py","pedal_patterns.py")
+ENGINE_NAMES=("reversible_relationships.py","reversible_topology.py","reversible_positions.py","reversible_annotations.py","reversible_ties.py","reversible_voicings.py","reversible_temporal.py","reversible_numeric_view.py","reversible_written_clock.py","check_reversible_written_clock.py","reversible_control.py","check_reversible_control.py","reversible_song.py","reverse_tier_worker.py","run_reversible_tier_qa.py","check_reversible_source.py","check_reversible_temporal.py","run_reversible_corpus_qa.py","technique_analysis.py","pedal_patterns.py")
 API_NAMES=("source_semantics.py","analyze_relationships.py","source_dynamics.py","source_relationship_details.py")
 
 
@@ -20,7 +20,8 @@ def code_hashes():
 def save(path,value):path.write_text(json.dumps(value,indent=2),encoding="utf-8")
 
 
-def batch(corpus,output,previous=None,controls=False):
+def batch(corpus,output,previous=None,controls=False,clock=False):
+    if clock:controls=True
     corpus=corpus.resolve();output=output.resolve()
     if output.exists() or output.is_relative_to(corpus):raise ValueError("Fresh output outside corpus required")
     folders=sorted((p for p in corpus.iterdir() if p.is_dir()),key=lambda p:p.name)
@@ -28,7 +29,7 @@ def batch(corpus,output,previous=None,controls=False):
     baseline_paths={p.name:previous/("case-"+p.name)/"isolated/tier2-only.json" for p in folders} if previous else {}
     baseline_hashes={k:file_hash(p) for k,p in baseline_paths.items()}
     output.mkdir(parents=True);originals={p.name:hashes(p) for p in folders};engine=code_hashes()
-    save(output/"manifest.json",dict(cases=[dict(id=p.name,source=str(p)) for p in folders],original_hashes=originals,engine_hashes=engine,baseline_hashes=baseline_hashes,previous=str(previous) if previous else None,mode="controls" if controls else "song",selection="ALL existing directories; malformed cases retained"))
+    save(output/"manifest.json",dict(cases=[dict(id=p.name,source=str(p)) for p in folders],original_hashes=originals,engine_hashes=engine,baseline_hashes=baseline_hashes,previous=str(previous) if previous else None,mode="clock" if clock else "controls" if controls else "song",selection="ALL existing directories; malformed cases retained"))
     results=[]
     for folder in folders:
         if code_hashes()!=engine:
@@ -36,13 +37,20 @@ def batch(corpus,output,previous=None,controls=False):
         start=time.monotonic();target=output/("case-"+folder.name)
         try:
             if hashes(folder)!=originals[folder.name]:raise ValueError("Original inputs changed")
-            report=run(folder,target,song=True,controls=controls)
+            report=run(folder,target,song=True,controls=controls,clock=clock)
             item=dict(id=folder.name,status=report["status"],events=report["events"],owned_roundtrip=report["owned_song_roundtrip"],temporal=report["independent_temporal_check"],ownership=report["independent_ownership_check"])
             if controls:item["control"]=report["independent_control_check"]
+            if clock:item["clock"]=report["independent_clock_check"]
             if previous:
                 if baseline_hashes[folder.name] is None:raise ValueError("Frozen comparison baseline missing")
                 if file_hash(baseline_paths[folder.name])!=baseline_hashes[folder.name]:raise ValueError("Comparison baseline changed since freeze")
                 old=json.loads((previous/("case-"+folder.name)/"isolated/tier2-only.json").read_text(encoding="utf-8-sig"));new=json.loads((target/"isolated/tier2-only.json").read_text(encoding="utf-8-sig"))
+                if new.get("schema")=="shared-written-clock/1":
+                    from reversible_written_clock import decode as decode_clock
+                    new=decode_clock(new)
+                if old.get("schema")=="shared-written-clock/1":
+                    from reversible_written_clock import decode as decode_clock
+                    old=decode_clock(old)
                 item["music_unchanged"]=new["music"]==(old["music"] if old.get("schema") in {"owned-song-stages/1","owned-song-stages/2"} else old)
                 if not item["music_unchanged"]:item["status"]="changed_music_preserved_case"
         except Exception as error:
@@ -63,9 +71,9 @@ def batch(corpus,output,previous=None,controls=False):
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument("corpus",type=Path);p.add_argument("output",type=Path);p.add_argument("--previous",type=Path);p.add_argument("--controls",action="store_true");a=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument("corpus",type=Path);p.add_argument("output",type=Path);p.add_argument("--previous",type=Path);p.add_argument("--controls",action="store_true");p.add_argument("--clock",action="store_true");a=p.parse_args()
     if "local-artifacts" not in a.output.resolve().parts:p.error("Private output required")
-    result=batch(a.corpus,a.output,a.previous,a.controls);print(json.dumps(result))
+    result=batch(a.corpus,a.output,a.previous,a.controls,a.clock);print(json.dumps(result))
     if result["passed"]!=result["cases"] or result["integrity"]["source_hash_mismatches"] or result["integrity"]["added_directories"] or result["integrity"]["removed_directories"] or result["integrity"]["baseline_hash_mismatches"] or not result["integrity"]["engine_unchanged"]:raise SystemExit(1)
 
 
