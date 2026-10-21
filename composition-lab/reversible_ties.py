@@ -16,10 +16,13 @@ def context(physical_upper):
     structural=topology.decode_structure(physical_upper["topology"],{n["id"]:None for n in physical_upper["topology"]["memberships"]})
     rows={r["id"]:r for r in realize_numeric(physical_upper["position_patterns"])}
     settings={s["id"]:s for s in physical_upper["settings"]}
-    lanes={}
+    lanes={};voice_measures={}
     for m in structural["measures"]:
-        for vi,vid in enumerate(m["voices"]):lanes[vid]=(physical_upper["region_settings"][vid],vi)
+        for vi,vid in enumerate(m["voices"]):
+            lanes[vid]=(physical_upper["region_settings"][vid],vi)
+            voice_measures[vid]=m["id"]
     bybeat={bid:lanes[v["id"]] for v in structural["voices"] for bid in v["beats"]}
+    beat_measures={bid:voice_measures[v["id"]] for v in structural["voices"] for bid in v["beats"]}
     beats={b["id"]:b for b in structural["beats"]};result={}
     for note in structural["notes"]:
         ident=note["id"];r=rows[ident];string=r["symbols"]["string"];b=beats[note["beat_ref"]]
@@ -28,7 +31,7 @@ def context(physical_upper):
         if nominal is not None and r["symbols"]["kind"]=="pitched_position":
             known=dict(**constants(settings[bybeat[b["id"]][0]],string),position_pitch=nominal)
             valid_position=solve(position_equation(),known,["fret"])["fret"]>=0
-        result[ident]=dict(track=bybeat[b["id"]][0],valid_position=valid_position,id=ident,lane=lane,onset=F(b["onset_q"]),duration=F(b["duration_q"]),position=r["values"]["position_pitch"],kind=r["symbols"]["kind"],dead=r["symbols"]["dead"]["value"] is True)
+        result[ident]=dict(track=bybeat[b["id"]][0],source_measure=beat_measures[b["id"]],valid_position=valid_position,id=ident,lane=lane,onset=F(b["onset_q"]),duration=F(b["duration_q"]),position=r["values"]["position_pitch"],kind=r["symbols"]["kind"],dead=r["symbols"]["dead"]["value"] is True)
     return result
 
 

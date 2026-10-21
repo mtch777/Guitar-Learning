@@ -38,6 +38,24 @@ class ReversibleVoicingTests(unittest.TestCase):
         self.assertEqual(ties.decode(model["lower"],eq,params,holes),facts)
         self.assertTrue(all(set(o)=={"definition","members"} for o in model["occurrences"]))
 
+    def test_overflow_clock_collision_cannot_join_different_source_bars(self):
+        first=measure([beat(),beat(),beat(),beat()]);first["signature"]=[3,4]
+        answer=beat(fret=0);answer["notes"][0]["string"]=1
+        second=measure([answer]);second["signature"]=[3,4]
+        facts,model=self.run_case([first,second])
+        self.assertEqual(model["occurrences"],[])
+        from check_reversible_source import check_voicing_relations
+        self.assertEqual(check_voicing_relations(self.folder,model)["differences"],[])
+
+    def test_same_bar_different_voices_still_form_one_complete_group(self):
+        low=beat(fret=5);high=beat(fret=7);high["notes"][0]["string"]=1
+        bar=measure([low]);bar["voices"].append(dict(beats=[high]))
+        _,model=self.run_case([bar])
+        self.assertEqual(len(model["occurrences"]),1)
+        self.assertEqual(len(model["occurrences"][0]["members"]),2)
+        from check_reversible_source import check_voicing_relations
+        self.assertEqual(check_voicing_relations(self.folder,model)["differences"],[])
+
     def test_joint_equations_are_order_independent(self):
         tied=beat(fret=2,tie=True);tied["notes"][0]["string"]=1
         facts,model=self.run_case([measure([chord(),tied,chord((2,4))])])

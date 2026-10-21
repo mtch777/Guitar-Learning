@@ -18,7 +18,7 @@ def select(facts,tie_destinations):
     for ident,r in ctx.items():
         if ident in tie_destinations:excluded.append(dict(id=ident,reason="explicit_tie_destination"))
         elif r["duration"]<=0:excluded.append(dict(id=ident,reason="zero_metric_duration"))
-        else:groups[r["track"],r["onset"]].append(r)
+        else:groups[r["track"],r["source_measure"],r["onset"]].append(r)
     accepted=[]
     for rows in groups.values():
         invalid={}

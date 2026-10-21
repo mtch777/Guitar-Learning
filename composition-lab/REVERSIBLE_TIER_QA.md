@@ -98,4 +98,36 @@ FullGP/source inverse remainsRED. This is source-supported writtencontinuity, NO
 - [x]Actual6strippeduppers allpass ALLrawgates: v1/v2/v3/v4/v5voicings-v2, v6voicings-v1. Groups378/400/557/832/1577/859; removedvoicingcoordinates674/567/815/2224/2588/1624.8492voicingcoordinates+3511tiecoordinates genuinelyremoved/recovered;49261noteoccurrences in6scores.
 - [x]NEWfrozenrandom:AC/DCBackInBlack1024revision9859447,7tracks;seed1348443154179656585/queryd, priorIDsexcludedbeforecapture.6203notes4196beats700voices;859groups/10definitions;377resolvedties1unresolved;4422scalarfields109curves279points.114unsupported(text90/chord21/brushStroke3), notclaimedreconstructed.
 - [x] Plannerindependentlyran66tests anddecoded/rawcheckedall6actualuppers;boundedapproval, noblocker. Unknownhigherharmony/function/style remainunproved.
-- [ ] Source-onlydelivery+exactSHA CI. Then rununchangedpipeline onoriginalInventAnimateCloudCascade460099 capture and investigateretainedfailures; no newdetector/generatorwork.
+- [x]Source-only6d2309ba54ac8dd2c2a34d75abf4b1bbffccd707;CI39577372458success.
+- [x]OriginalCloudCascade460099rev9588298 unchangedpipeline:5350notes3738beats666voices;358ties0unresolved,932groups11defs1460removedcoordinates,3450scalarfields4curves10points/0unsupportednote-beatcomplexfields. Allindependentrawgatespass; completeGP stillRED.
+
+## ACTIVE frozen98-capture InventAnimate regression
+
+DO NOT MODIFY frozenengine modules until batch completes. v2 root:local-artifacts/reversible-invent-animate-corpus-v2/. Command:python composition-lab/local-artifacts/reversible-invent-animate-corpus-v2/batch-command.py. Runtimeexecsession78885. Sourceengine6d2309b; eleven execution-source hashes inmanifest. All98caseIDs frozen; all originalfiles(includingGP) hashed BEFORE batch and aftereachcase; stage labels represent lastpersistedboundary. Per-casefailure.json, results.jsonl andsummary.json preservefailures andcontinue; no fallback/nohardcodedcasepatch.
+
+v1partial4passes preserved/stopped ONLY to improveorchestration pre/postfilehashes andstage labels; SAMEengine, ALL98 restarted in v2, no easierreselections. v2 preflightindentationerrorfixedbeforeanycaseexecution; not an enginefix.
+
+- [ ] Account98/98; inspecteveryfailure, preserve andfrozenreplaywithtraceback beforegeneralfixes.
+- [ ] END rehashALLoriginals andengine againstmanifest (beyondper-case checks).
+- [ ] Planner frozenaudit:sha256('planner-audit-v1:6790847044786887596:'+case_id),first8:2082100,460099,1161165,1047444,437771,552444,3417797,552439. Auditregardlessoutcome; do not replacefailures. Also largest successfulcase each bynotes/curvepoints/unresolvedties/unsupportedfieldcount, hash-ranktiebreak, deduplicate. audit-plan.json frozenbeforeend.
+- [ ] Planner midpoint/end andsource-onlyevidencelogdelivery.
+
+Read-only nextscope observations (NOengine edits):495parts/58930measures;ALL98explicitinitialmeter.638source tempoautomations,ALLtype4;113linear=False explicit,525absent;0true ramps. Existingacceptedlayout/timeline:0warnings/allinitialtempoatq0. Preserve explicit meter/repeats/endings/markers/tempo andeachdeclarationprovenance next; written/playback/seconds clocks distinct. No missingtempo120default or flattenedramps.
+
+Critical temporalplanning probe(private primary alphaTab1.8.4, synthetic3bars only):120BPMbar1,repeatbar2..3,90BPMbar3 yieldsvisits1,2,3,2,3;secondbar2 inherits90, exact12s (renderer11.998s rounding). Add explicit120atbar2, evenredundantwrittenvalue:repeat resets120, exact34/3s (renderer11.332s rounding). Preserve declarationpresence; neverdeduplicatejustbecausewrittenvalueunchanged. This is renderer-policy evidence, not Songsterr/GP-app/audio/listeningvalidation. scripts+JSONprivate inbatchroot.
+
+Latest persisted batch snapshot:completed53/98,passed53,failed0; inprogress, not completion.
+
+
+## 98-capture regression completed; source-bar collision correction
+- Frozen v2:98/98 pass declared scope,420119note occurrences,23976resolved ties,39unresolved true flags,117746voicing coordinates removed/recovered. End-integrity independently rehashed ALL originals and11engine files:0mismatches. Evidence:private v2/end-integrity.json.
+- Timing warnings remain in3captures:2082100,4917680,4917716. Exact fidelity does not prove valid musical timing. In2082100 ten notes cross their source-bar ends;0onsets outside owning bar,0actual cross-bar voicing groups. Preserve valid incoming ties and all90notes in warning regions.
+- General source-free counterexample: overflowing3/4bar fourth quarter and next-bar first quarter collide atq3. New regression FAILED beforefix (false cross-bar group), PASSED afterfix. Grouping now requires SAME structural source measure as well as track/onset. Ownership follows measure→voice→beat links; no parsed IDs, guessed notes, per-song patch or tie-policy change. Independent raw checker obtains measure ownership directly from raw traversal.
+-67targeted tests pass; full676tests run,675pass,1optional skip. Fresh frozen ALL98v3 running under corrected code; preserve v2 unchanged. No engine edits duringv3.
+- Planner audit pending: original frozen sample must use old hash-verified code, new correction reviewed separately. No approval claimed while collaborator unavailable.
+- New random gate frozen before capture:StaticX BledForDays29613rev4476048,9tracks,seed1257233401372124088/queryx; exclusions include original98andprior6captures. Outcome pending; no easier replacement.
+- Complete GP/source inverse, temporal declarations/playback clocks, higher musical abstraction and nonzero-lever generation remain OPEN. New temporal document is a planning contract ONLY.
+
+New random gate v7 PASSED:11298notes,136resolved ties/0unresolved,1138voicing groups/1954coordinates removed,5530scalarfields,66curves242points;7unsupported beat.text objects inventoried, not reconstructed. Same-bar polyvoice positive-control regression added:68targeted tests pass. No production edits duringv3.
+
+Planner frozen v2 audit COMPLETE/PASS:10predeclared/deduplicated cases,55346notes,1380resolvedties,8486voicinggroups; all6independent raw gates pass using exact-hash frozen modules. Independently rehashed98originalfolders unchanged. Private planner-frozen-audit-result.json/script retain evidence. Planner approved source-measure guard design and9voicing tests. v3closure remains pending. Final local suite after positivecontrol:677run676pass1optional skip (full-tests.txt). Source-onlyfix delivery follows; no websitechanges.

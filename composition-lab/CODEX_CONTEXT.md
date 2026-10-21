@@ -1,12 +1,14 @@
 ## Reversible execution checkpoint (2026-10-21)
 
-Current executable code now covers shared pitch/time, beat-owned topology,
-physical positions/settings, sparse source annotations and registered curves.
-Tie constraints remove redundant target coordinates and solve them with SAME
-relationships; five frozen new captures pass independent raw checks. Read
-REVERSIBLE_TIER_QA.md and REVERSIBLE_FIELD_OWNERSHIP.md for precise limits/CI.
-No complete GP/source inverse or artist-style levers are established. Next:
-co-onset voicing intervals jointly solved WITH ties in one constraint graph.
+Executable scope: shared pitch/time, beat topology, physical positions/settings,
+sparse annotations/curves, and joint tie/voicing equations. Frozen98-capture
+regression:420119notes, all declared-field checks pass; all source/engine hashes
+unchanged. Seven newly selected outsider captures also pass bounded reversal.
+Source-free overflow regression exposed cross-bar grouping; structural source
+measure guard passes68targeted tests, fresh98regression underway. Read
+REVERSIBLE_TIER_QA.md for current evidence, audit and delivery status.
+Full source/GP inverse and artist-style levers remain OPEN. Next agreed slice:
+explicit temporal context (planning contract REVERSIBLE_TEMPORAL_CONTEXT.md).
 Planner start/middle/end reviews remain required; no QABot. Preserve private
 captures, source/baselines and unrelated unfinished work.
 

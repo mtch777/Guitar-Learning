@@ -148,7 +148,7 @@ def raw_relation_context(capture):
                         ident=f"event:{meta['songId']}:{part['partId']}:{mi+1}:{vi}:{bi}:{ni}"
                         string,fret=n.get("string"),n.get("fret");lane=(part["partId"],vi,string) if type(string) is int and string>=0 else None
                         nominal=F(str(tuning[string]))+F(str(part.get("capo") or 0))+F(str(fret)) if lane is not None and string<len(tuning) and type(fret) in (int,float) and part.get("instrumentId")!=1024 else None
-                        row=dict(track=part["partId"],order=len(rows),id=ident,lane=lane,onset=F(events[ident]["onset_q"]),duration=F(events[ident]["duration_q"]),nominal=nominal,fret_valid=type(fret) in (int,float) and fret>=0,dead=n.get("dead") is True);rows[ident]=row
+                        row=dict(track=part["partId"],source_measure=mi,order=len(rows),id=ident,lane=lane,onset=F(events[ident]["onset_q"]),duration=F(events[ident]["duration_q"]),nominal=nominal,fret_valid=type(fret) in (int,float) and fret>=0,dead=n.get("dead") is True);rows[ident]=row
                         if n.get("tie") is True:true.add(ident)
                         if lane is not None and row["duration"]>0:lanes.setdefault(lane,{}).setdefault(row["onset"],[]).append(ident)
     return rows,lanes,true
@@ -198,7 +198,7 @@ def check_voicing_relations(capture,model):
     for ident,r in rows.items():
         if ident in true:expected_excluded[ident]="explicit_tie_destination"
         elif r["duration"]<=0:expected_excluded[ident]="zero_metric_duration"
-        else:populations.setdefault((r["track"],r["onset"]),[]).append(r)
+        else:populations.setdefault((r["track"],r["source_measure"],r["onset"]),[]).append(r)
     for population in populations.values():
         invalid={r["id"]:("dead_note" if r["dead"] else "unknown_written_position" if r["nominal"] is None or r["lane"] is None else "invalid_written_position" if not r["fret_valid"] else None) for r in population}
         if any(invalid.values()):
