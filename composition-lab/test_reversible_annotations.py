@@ -85,7 +85,8 @@ class ReversibleAnnotationTests(unittest.TestCase):
         for i,model in enumerate(cases):
             with self.subTest(case=i):
                 with self.assertRaises(ConstraintError):decode(model)
-        bad=deepcopy(facts);bad["markers"][0]["fields"]["fret"]={"type":"int","value":"2"}
+        bad=deepcopy(facts);note_ids={n["id"] for n in facts["physical"]["topology"]["notes"]}
+        next(m for m in bad["markers"] if m["id"] in note_ids)["fields"]["fret"]={"type":"int","value":"2"}
         with self.assertRaises(ConstraintError):encode(bad)
 
     def test_rest_slot_annotations_are_captured_or_explicitly_inventory(self):

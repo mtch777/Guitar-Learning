@@ -136,7 +136,7 @@ def encode(facts):
     return dict(schema="positioned-relative-topology/1",topology=upper,settings=facts["settings"],region_settings=facts["region_settings"],position_patterns=factor_numeric(regions,CHANNELS),coverage=dict(counts))
 
 
-def decode(model):
+def decode(model,inferred_positions=None):
     if set(model)!={"schema","topology","settings","region_settings","position_patterns","coverage"} or model["schema"]!="positioned-relative-topology/1":raise ConstraintError("Unexpected position representation")
     validate_settings(model["settings"]);settings={s["id"]:s for s in model["settings"]}
     if model["position_patterns"]["channels"]!=CHANNELS:raise ConstraintError("Unexpected physical channels")
@@ -151,9 +151,15 @@ def decode(model):
     for occurrence in model["position_patterns"]["occurrences"]:
         if occurrence["region_id"] not in region_settings or occurrence["members"]!=nonempty.get(occurrence["region_id"]):raise ConstraintError("Position region membership/order mismatch")
         for ident in occurrence["members"]:members[ident]=region_settings[occurrence["region_id"]]
+    inferred_positions={} if inferred_positions is None else inferred_positions
+    rows=realize_numeric(model["position_patterns"])
+    if set(inferred_positions)-{r["id"] for r in rows}:raise ConstraintError("Unknown inferred position owner")
     positions=[];pitches={}
-    for row in realize_numeric(model["position_patterns"]):
-        ident=row["id"];s=row["symbols"];values=row["values"]
+    for row in rows:
+        ident=row["id"];s=row["symbols"];values=dict(row["values"])
+        if ident in inferred_positions:
+            if values["position_pitch"] is not None:raise ConstraintError("Inference may fill only removed coordinates")
+            values["position_pitch"]=str(F(inferred_positions[ident]))
         if not isinstance(s,dict) or set(s)!={"string","fret_presence","fret_number_type","dead","kind","unresolved_reason"}:raise ConstraintError("Unexpected physical symbols")
         validate_state(s["string"]);validate_state(s["dead"],False)
         if type(s["fret_presence"]) is not bool or s["fret_number_type"] not in (None,"int","float"):raise ConstraintError("Invalid fret witness")

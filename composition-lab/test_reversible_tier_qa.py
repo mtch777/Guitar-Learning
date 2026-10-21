@@ -78,6 +78,23 @@ class ContinuousTierQATests(unittest.TestCase):
             with self.assertRaises(ValueError):run(capture,root/"qa")
             self.assertEqual((root/"qa/failure.json").read_bytes(),before)
 
+    def test_tie_relation_stripped_reconstruction_and_independent_link_check(self):
+        from test_reversible_ties import capture as capture_ties,measure,beat
+        from check_reversible_source import check_tie_relations
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);capture=root/"capture";capture.mkdir();capture_ties(capture,[measure([beat(duration=(1,1))]),measure([beat(duration=(1,1),tie=True)])])
+            report=run(capture,root/"qa",ties=True)
+            self.assertEqual(report["status"],"pass_declared_scope")
+            self.assertEqual(report["independent_tie_check"]["status"],"pass_declared_written_tie_relations")
+            upper=json.loads((root/"qa/isolated/tier2-only.json").read_text())
+            bad=[dict(upper["links"][0],origin=upper["links"][0]["destination"])]+upper["links"][1:]
+            self.assertEqual(check_tie_relations(capture,bad,upper["unresolved"])["status"],"fail")
+            invented_unresolved=[dict(destination=r["destination"],reason="no_predecessor") for r in upper["links"]]
+            missed=check_tie_relations(capture,[],invented_unresolved)
+            self.assertEqual(missed["status"],"fail")
+            self.assertIn("eligible_link_set_mismatch",{r["kind"] for r in missed["differences"]})
+            self.assertIn("unresolved_reason_mismatch",{r["kind"] for r in missed["differences"]})
+
     def test_guard_rejects_lower_file_read_and_arbitrary_write(self):
         with tempfile.TemporaryDirectory() as temp:
             target=Path(temp)/"tier1.json";target.write_text('{"source":"must not read"}')

@@ -100,7 +100,7 @@ def extract(capture):
                         if n.get("rest"):
                             visit(f"rest-slot:{bid}:{ni}","rest_slot",n);continue
                         visit(f"event:{meta['songId']}:{part['partId']}:{mi+1}:{vi}:{bi}:{ni}","note",n)
-    return dict(schema="annotated-position-topology/1",physical=physical,markers=markers,curves=curves,unsupported=unsupported)
+    return dict(schema="annotated-position-topology/1",physical=physical,markers=sorted(markers,key=lambda r:r["id"]),curves=curves,unsupported=unsupported)
 
 
 def owners(physical):
@@ -141,9 +141,9 @@ def encode(facts):
     return dict(schema="relative-annotated-topology/1",physical=positions.encode(facts["physical"]),markers=pack(facts["markers"],{}),curve_headers=pack(headers,SOURCE_UNITS),curve_points=pack(points,SOURCE_UNITS,{c["id"]:[p["id"] for p in c["points"]] for c in facts["curves"]}),curve_memberships=[dict(id=c["id"],owner=c["owner"],kind=c["kind"],field=c["field"],points_present=c["points_present"],points=[p["id"] for p in c["points"]]) for c in facts["curves"]],unsupported=facts["unsupported"])
 
 
-def decode(model):
+def decode(model,inferred_positions=None):
     if set(model)!={"schema","physical","markers","curve_headers","curve_points","curve_memberships","unsupported"} or model["schema"]!="relative-annotated-topology/1":raise ConstraintError("Unexpected annotated upper fields")
-    physical=positions.decode(model["physical"]);markers=unpack(model["markers"],{});headers={r["id"]:r["fields"] for r in unpack(model["curve_headers"],SOURCE_UNITS)};points={r["id"]:r for r in unpack(model["curve_points"],SOURCE_UNITS)}
+    physical=positions.decode(model["physical"],inferred_positions);markers=unpack(model["markers"],{});headers={r["id"]:r["fields"] for r in unpack(model["curve_headers"],SOURCE_UNITS)};points={r["id"]:r for r in unpack(model["curve_points"],SOURCE_UNITS)}
     expected_groups={c["id"]:c["points"] for c in model["curve_memberships"] if c["points"]}
     actual_groups={o["region_id"]:o["members"] for o in model["curve_points"]["occurrences"]}
     if expected_groups!=actual_groups:raise ConstraintError("Curve pattern membership differs")

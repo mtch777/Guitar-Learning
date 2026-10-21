@@ -73,5 +73,19 @@ Next afterdelivery:typed expression-curve relationship slice, agreed with Planne
 - [x] BlackDogannotations-v1:4095scalarfields/343curves/975points;1unsupportedtext. Deathannotations-v1:10300fields/61curves/168points;3unsupportedtext. Hangar18annotations-v1:9098fields/61curves/150points;29unsupportedcomplex(text5/chord14/tremolo10). All sourcechecked supportedfields0differences.
 - [x] NEWfrozenrandom:HendrixAllAlongTheWatchtower340revision8623541,7tracks;seed15565452769065976810/queryb. annotations-v1:8657notes5594beats805voices;4922scalarfields298curves899points;0supportedfielddifferences.80unsupported(text12/brushStroke68). This is newdata scope evidence, not proof arbitrarycatalogdataiscovered.
 - [x] Planner final:independently ran46tests and decoded/rawcheckedALL4actualupperfiles;0declared-field differences. Unsupported1/3/29/80 remainexplicit.
-- [ ] Source-onlydelivery+CI.
+- [x]Source-onlyada7437bae7e711344a331e4f374a184ebda414a;CI39574337461success.
 Remaining source-preservation gaps include complexobjects, wider track/measure/songmetadata, literal source-token fidelity, resolvedtechniqueexecution/fullGP. Higher musical relationships/style and nonzero levers remain separate unprovedwork. Do NOT call scalar/curve factoring artist understanding.
+
+## Genuine interpreted tie-relation slice (final QA)
+- [x] Compact remaining ownership/gap ledger:REVERSIBLE_FIELD_OWNERSHIP.md. All earlier detector logic unchanged.
+- [x] Consumes ONLY normalized prior annotationfacts. Lanes from explicit structural measure/orderedvoice/settings/string ownership; NEVER parse musical data from IDstrings. Exact boolean note.tie=True only; unusualvalues remainliteral.
+- [x] Same equality/contiguity equations validateforward and solve removed destinationnominalposition coordinates reverse. Positive unique same-string lane, exacttime and writtenposition; written-dead continuity separate. Negativefrets/grace/ambiguity/gaps/unknowns retainedunresolved; no guessedrepairs. Timing is validated, NOT reconstructedfromties here.
+- [x] Upper owns links(origin/destination/kind) or typedunresolvedreason. ALLtrueflag payloads removedfromlower; each resolveddestinationnumericcoordinate removed fromlower patterns. No secondpitchcache; chosenstrings/settings still explicitwitnesses.
+- [x] Strict holes/links ownership, missinganchors/cycles/selflinks/extra numericcaches/wronglane rejected. SAMEphysicalequations recoverfrets from inferredcoordinates. Recomputedrelationships mustmatchupper.
+- [x]58targetedtests; full667run666pass1optionalskip (includes unrelatedlocaltests). Synthetic crossbar chains/opaqueIDs/polyphony/ambiguity/nonbooleanflags/grace/deadtransition/missingpositions/negativefrets/no-repair/cycles/corruption/independentmissedlinkchecks.
+- [x] All5strippedactualartifactsto samepriorfacts; sourcecheckedannotations/positions/topology/events0differences. BlackDog671resolved22unresolved;Death1519/129;Hangar18541/4;Watchtower197/0;NEWFoolInRain206/0.3134redundantcoordinates genuinelyremoved/recovered;155unresolvedtrueflags retained;3289totaltrueflags fullyaccounted.
+- [x]NEWfrozenrandomFoolInTheRain/LedZeppelin22692revision8043340,14tracks;seed3129081036941700813/queryz,priorIDsexcludedbeforecapture.11776notes9905beats1680voices;7572scalarfields,0curves(newcasekept),131unsupported(brushStroke128,text1,tremolo2). Priorcurvecases remainregressions.
+- [x] Planner independently decodedall5actualuppers and ran58tests; boundedcoordinate/continuity approval. They identified independentchecker didn'tvalidatereasons/recall; fixedbyindependentrawper-destination eligibilityquery. Newindependent-tie-reasons-v1.json onALL5pass0diff, includingmissedeligiblelinks+incorrectreasons tests. Smallcheckerextensionfinalreviewpending.
+- [x] FinalPlannerextensioncheck:independently validatedALL5rawlinksets/reasons and deliberatelymissedBlackDoglink;bothmismatchclasses detected.
+- [ ] Source-onlydelivery+CI.
+FullGP/source inverse remainsRED. This is source-supported writtencontinuity, NOT acousticsustain, complete performance interpretation or artiststyle.

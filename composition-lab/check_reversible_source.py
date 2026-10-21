@@ -133,3 +133,55 @@ def check_annotations(capture,restored):
         differences.extend(dict(kind=kind,id=ident,expected=a.get(ident),actual=b.get(ident)) for ident in sorted(set(a)|set(b)) if a.get(ident)!=b.get(ident))
     if Counter(json.dumps(x,sort_keys=True) for x in unsupported)!=Counter(json.dumps(x,sort_keys=True) for x in restored["unsupported"]):differences.append(dict(kind="unsupported_inventory_mismatch"))
     return dict(status="pass_declared_annotation_fields" if not differences else "fail",marker_owners=len(markers),scalar_fields=sum(len(r["fields"]) for r in markers),curves=len(curves),points=sum(len(c["points"]) for c in curves),unsupported_fields=len(unsupported),unsupported_by_field=dict(Counter(x["kind"]+"."+x["field"] for x in unsupported)),differences=differences[:20])
+
+
+def check_tie_relations(capture,links,unresolved):
+    """Independent raw lane/position/time validation, not a call to tie analyzer."""
+    events,_=source_expectation(capture);meta=json.loads((capture/"metadata.json").read_text(encoding="utf-8-sig"));rows={};lanes={};true=set()
+    for path in capture.glob("track-*.json"):
+        part=json.loads(path.read_text(encoding="utf-8-sig"));tuning=part.get("tuning") or []
+        for mi,m in enumerate(part.get("measures",[])):
+            for vi,v in enumerate(m.get("voices",[])):
+                for bi,b in enumerate(v.get("beats",[])):
+                    for ni,n in enumerate(b.get("notes",[])):
+                        if n.get("rest"):continue
+                        ident=f"event:{meta['songId']}:{part['partId']}:{mi+1}:{vi}:{bi}:{ni}"
+                        string,fret=n.get("string"),n.get("fret");lane=(part["partId"],vi,string) if type(string) is int and string>=0 else None
+                        nominal=F(str(tuning[string]))+F(str(part.get("capo") or 0))+F(str(fret)) if lane is not None and string<len(tuning) and type(fret) in (int,float) and part.get("instrumentId")!=1024 else None
+                        row=dict(id=ident,lane=lane,onset=F(events[ident]["onset_q"]),duration=F(events[ident]["duration_q"]),nominal=nominal,fret_valid=type(fret) in (int,float) and fret>=0,dead=n.get("dead") is True);rows[ident]=row
+                        if n.get("tie") is True:true.add(ident)
+                        if lane is not None and row["duration"]>0:lanes.setdefault(lane,{}).setdefault(row["onset"],[]).append(ident)
+    errors=[];accounted=[]
+    for link in links:
+        a=rows.get(link["origin"]);b=rows.get(link["destination"]);accounted.append(link["destination"])
+        valid=bool(a and b and b["id"] in true and a["lane"] is not None and a["lane"]==b["lane"] and a["duration"]>0 and b["duration"]>0 and a["onset"]+a["duration"]==b["onset"] and a["nominal"] is not None and a["nominal"]==b["nominal"] and a["fret_valid"] and b["fret_valid"] and a["dead"]==b["dead"])
+        if valid:
+            groups=lanes[b["lane"]];earlier=[q for q in groups if q<b["onset"]]
+            prior=groups[max(earlier)] if earlier else []
+            valid=len(groups[b["onset"]])==1 and prior==[a["id"]] and link["kind"]==("written_dead_tie" if b["dead"] else "written_pitched_tie")
+        if not valid:errors.append(dict(kind="invalid_link",link=link))
+    # Independent per-destination eligibility query, including unresolved reasons.
+    expected_links={};expected_unresolved={}
+    for ident in true:
+        b=rows[ident];reason=None;a=None
+        if b["duration"]<=0:reason="zero_metric_duration"
+        elif b["lane"] is None:reason="invalid_string_lane"
+        else:
+            groups=lanes[b["lane"]];prior_clocks=[q for q in groups if q<b["onset"]]
+            candidates=groups[max(prior_clocks)] if prior_clocks else []
+            if len(groups[b["onset"]])!=1:reason="ambiguous_lane_onset"
+            elif len(candidates)!=1:reason="no_predecessor"
+            else:
+                a=rows[candidates[0]]
+                if a["onset"]+a["duration"]!=b["onset"]:reason="noncontiguous"
+                elif a["nominal"] is None or b["nominal"] is None:reason="unmapped_position"
+                elif not a["fret_valid"] or not b["fret_valid"]:reason="invalid_written_position"
+                elif a["dead"]!=b["dead"]:reason="dead_transition"
+                elif a["nominal"]!=b["nominal"]:reason="different_written_position"
+        if reason:expected_unresolved[ident]=reason
+        else:expected_links[ident]=dict(origin=a["id"],destination=ident,kind="written_dead_tie" if b["dead"] else "written_pitched_tie")
+    if {r["destination"]:r for r in links}!=expected_links:errors.append(dict(kind="eligible_link_set_mismatch"))
+    if {r["destination"]:r["reason"] for r in unresolved}!=expected_unresolved:errors.append(dict(kind="unresolved_reason_mismatch"))
+    accounted.extend(r["destination"] for r in unresolved)
+    if len(accounted)!=len(set(accounted)) or set(accounted)!=true:errors.append(dict(kind="true_flag_ownership_mismatch"))
+    return dict(status="pass_declared_written_tie_relations" if not errors else "fail",true_flags=len(true),resolved=len(links),unresolved=len(unresolved),differences=errors[:20])

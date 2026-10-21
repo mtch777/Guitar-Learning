@@ -1,3 +1,15 @@
+## Reversible execution checkpoint (2026-10-21)
+
+Current executable code now covers shared pitch/time, beat-owned topology,
+physical positions/settings, sparse source annotations and registered curves.
+Tie constraints remove redundant target coordinates and solve them with SAME
+relationships; five frozen new captures pass independent raw checks. Read
+REVERSIBLE_TIER_QA.md and REVERSIBLE_FIELD_OWNERSHIP.md for precise limits/CI.
+No complete GP/source inverse or artist-style levers are established. Next:
+co-onset voicing intervals jointly solved WITH ties in one constraint graph.
+Planner start/middle/end reviews remain required; no QABot. Preserve private
+captures, source/baselines and unrelated unfinished work.
+
 ## Active correction: executable reversible tiers + recurring QA (2026-10-20)
 
 Read REVERSIBLE_TIER_QA.md FIRST. User stopped report-routing and separate inverse
