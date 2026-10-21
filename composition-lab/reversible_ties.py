@@ -28,7 +28,7 @@ def context(physical_upper):
         if nominal is not None and r["symbols"]["kind"]=="pitched_position":
             known=dict(**constants(settings[bybeat[b["id"]][0]],string),position_pitch=nominal)
             valid_position=solve(position_equation(),known,["fret"])["fret"]>=0
-        result[ident]=dict(valid_position=valid_position,id=ident,lane=lane,onset=F(b["onset_q"]),duration=F(b["duration_q"]),position=r["values"]["position_pitch"],kind=r["symbols"]["kind"],dead=r["symbols"]["dead"]["value"] is True)
+        result[ident]=dict(track=bybeat[b["id"]][0],valid_position=valid_position,id=ident,lane=lane,onset=F(b["onset_q"]),duration=F(b["duration_q"]),position=r["values"]["position_pitch"],kind=r["symbols"]["kind"],dead=r["symbols"]["dead"]["value"] is True)
     return result
 
 
@@ -42,9 +42,13 @@ def tie_equations(links,context):
     return eq
 
 
-def solve_links(links,ctx,required):
+def solve_links(links,ctx,required,extra_equations=(),extra_known=None):
     known={f"{field}:{ident}":row[field] for ident,row in ctx.items() for field in ("onset","duration","position") if row[field] is not None}
-    return solve(tie_equations(links,ctx),known,[f"position:{ident}" for ident in required])
+    extra_known={} if extra_known is None else extra_known
+    if set(extra_known)&set(known):raise ConstraintError("Cannot override retained observations")
+    if set(extra_known)-{v for e in extra_equations for v,c in e.items() if F(c)}:raise ConstraintError("Unused external numeric parameters")
+    known.update(extra_known)
+    return solve(tie_equations(links,ctx)+list(extra_equations),known,[f"position:{ident}" for ident in required])
 
 
 def analyze(physical_upper,true_ids):
@@ -101,7 +105,7 @@ def encode(facts):
     return dict(schema="tie-constrained-song/1",lower=lower,links=links,unresolved=unresolved)
 
 
-def decode(model):
+def decode(model,extra_equations=(),extra_known=None,extra_holes=()):
     if set(model)!={"schema","lower","links","unresolved"} or model["schema"]!="tie-constrained-song/1":raise ConstraintError("Unexpected tie upper fields")
     links=model["links"];unresolved=model["unresolved"];ctx=context(model["lower"]["physical"]);destinations=set()
     for link in links:
@@ -112,8 +116,12 @@ def decode(model):
     for item in unresolved:
         if set(item)!={"destination","reason"} or item["reason"] not in REASONS or item["destination"] not in ctx or item["destination"] in destinations:raise ConstraintError("Invalid unresolved tie witness")
         destinations.add(item["destination"])
-    solved=solve_links(links,ctx,[r["destination"] for r in links])
-    inferred={r["destination"]:str(solved[f"position:{r['destination']}"]) for r in links}
+    link_holes={r["destination"] for r in links};extra_holes=list(extra_holes)
+    if len(extra_holes)!=len(set(extra_holes)) or set(extra_holes)&link_holes:raise ConstraintError("Conflicting coordinate ownership")
+    if any(ident not in ctx or ctx[ident]["position"] is not None or ctx[ident]["kind"]!="pitched_position" for ident in extra_holes):raise ConstraintError("Undeclared or retained coordinate hole")
+    required=link_holes|set(extra_holes)
+    solved=solve_links(links,ctx,required,extra_equations,extra_known)
+    inferred={ident:str(solved[f"position:{ident}"]) for ident in required}
     facts=annotations.decode(model["lower"],inferred);markers={m["id"]:m for m in facts["markers"]}
     for ident in destinations:
         marker=markers.setdefault(ident,dict(id=ident,fields={}))

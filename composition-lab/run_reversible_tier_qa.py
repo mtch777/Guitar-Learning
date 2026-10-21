@@ -41,12 +41,20 @@ def extract(capture):
     return dict(tier=1,schema="normalized-written-fields/1",events=result,source_coverage=dict(expected=expected,actual=len(result),tracks=len(parts),layout_warnings=layout_warnings,timing_warnings=warnings),scope="base_pitch_and_metric_onset_duration_only")
 
 
-def _run(capture,output,topology=False,positions=False,annotations=False,ties=False):
+def _run(capture,output,topology=False,positions=False,annotations=False,ties=False,voicings=False):
     if output.exists():raise ValueError("Fresh private QA output required")
     output.mkdir(parents=True)
     facts=extract(capture)
     (output/"tier1-checker-only.json").write_text(json.dumps(facts,indent=2),encoding="utf-8")
-    if ties:
+    if voicings:
+        ties=True;annotations=True;positions=True
+        from reversible_annotations import extract as extract_annotations
+        from reversible_ties import encode as encode_ties
+        from reversible_voicings import encode as encode_voicings
+        annotation_facts=extract_annotations(capture)
+        (output/"annotations-checker-only.json").write_text(json.dumps(annotation_facts,indent=2),encoding="utf-8")
+        upper=encode_voicings(encode_ties(annotation_facts))
+    elif ties:
         annotations=True;positions=True
         from reversible_annotations import extract as extract_annotations
         from reversible_ties import encode as encode_ties
@@ -71,7 +79,7 @@ def _run(capture,output,topology=False,positions=False,annotations=False,ties=Fa
         upper=encode_topology(topology_facts)
     else:upper=encode(facts)
     isolated=output/"isolated";isolated.mkdir()
-    for filename in ("reversible_relationships.py","reverse_tier_worker.py","reversible_topology.py","reversible_positions.py","reversible_annotations.py","reversible_ties.py"):shutil.copyfile(Path(__file__).parent/filename,isolated/filename)
+    for filename in ("reversible_relationships.py","reverse_tier_worker.py","reversible_topology.py","reversible_positions.py","reversible_annotations.py","reversible_ties.py","reversible_voicings.py"):shutil.copyfile(Path(__file__).parent/filename,isolated/filename)
     (isolated/"tier2-only.json").write_text(json.dumps(upper,indent=2),encoding="utf-8")
     # These copied files are the only task inputs available to the audited worker.
     command=[sys.executable,"-I","-S",str((isolated/"reverse_tier_worker.py").resolve()),str((isolated/"tier2-only.json").resolve()),str((isolated/"reconstructed.json").resolve()),str((isolated/"read-audit.json").resolve())]
@@ -82,14 +90,16 @@ def _run(capture,output,topology=False,positions=False,annotations=False,ties=Fa
     expected=sorted([{k:e[k] for k in ("id","pitch","onset_q","duration_q")} for e in facts["events"]],key=lambda e:e["id"])
     mismatches=[dict(expected=a,actual=b) for a,b in zip(expected,restored) if a!=b]
     if len(restored)!=len(expected):mismatches.append(dict(counts=[len(expected),len(restored)]))
-    annotation_upper=upper["lower"] if ties else upper
+    tie_upper=upper["lower"] if voicings else upper
+    annotation_upper=tie_upper["lower"] if ties else upper
     physical_upper=annotation_upper["physical"] if annotations else upper
     if positions:abstraction=dict(beat_patterns=physical_upper["topology"]["beat_patterns"]["sharing"],position_patterns=physical_upper["position_patterns"]["sharing"],physical_coverage=physical_upper["coverage"])
     elif topology:abstraction={k:upper[k]["sharing"] for k in ("beat_patterns","pitch_patterns")}
     else:abstraction=upper["abstraction"]
     if annotations:abstraction.update({k:annotation_upper[k]["sharing"] for k in ("markers","curve_headers","curve_points")})
-    if ties:abstraction["tie_relations"]=dict(resolved=len(upper["links"]),removed_numeric_coordinates=len(upper["links"]),unresolved=len(upper["unresolved"]),unresolved_reasons=dict(Counter(r["reason"] for r in upper["unresolved"])))
-    report=dict(status="pass_declared_scope" if not mismatches else "fail",scope=upper.get("scope","tie_constrained_normalized_source_song" if ties else "normalized_topology_positions_and_source_annotations" if annotations else "normalized_topology_and_written_position_settings" if positions else "normalized_beat_voice_rest_grace_topology_and_base_pitch"),source_coverage=facts["source_coverage"],events=len(expected),known_pitch_events=sum(e["pitch"] is not None for e in expected),unknown_pitch_events=sum(e["pitch"] is None for e in expected),mismatches=mismatches[:20],abstraction=abstraction,source_files=[dict(file=p.name,sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in sorted(capture.glob("*.json"))],whole_song_GP_inverse="NOT_IMPLEMENTED",unsupported=["complete_source_fields","resolved_technique_execution","full_GP_inverse","musical_style_controls"]+([] if positions else ["physical_fingering"]))
+    if ties:abstraction["tie_relations"]=dict(resolved=len(tie_upper["links"]),removed_numeric_coordinates=len(tie_upper["links"]),unresolved=len(tie_upper["unresolved"]),unresolved_reasons=dict(Counter(r["reason"] for r in tie_upper["unresolved"])))
+    if voicings:abstraction["voicing_relations"]=dict(definitions=len(upper["definitions"]),groups=len(upper["occurrences"]),removed_numeric_coordinates=sum(len(o["members"])-1 for o in upper["occurrences"]),excluded_reasons=dict(Counter(r["reason"] for r in upper["excluded"])))
+    report=dict(status="pass_declared_scope" if not mismatches else "fail",scope=upper.get("scope","joint_tie_voicing_constrained_song" if voicings else "tie_constrained_normalized_source_song" if ties else "normalized_topology_positions_and_source_annotations" if annotations else "normalized_topology_and_written_position_settings" if positions else "normalized_beat_voice_rest_grace_topology_and_base_pitch"),source_coverage=facts["source_coverage"],events=len(expected),known_pitch_events=sum(e["pitch"] is not None for e in expected),unknown_pitch_events=sum(e["pitch"] is None for e in expected),mismatches=mismatches[:20],abstraction=abstraction,source_files=[dict(file=p.name,sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in sorted(capture.glob("*.json"))],whole_song_GP_inverse="NOT_IMPLEMENTED",unsupported=["complete_source_fields","resolved_technique_execution","full_GP_inverse","musical_style_controls"]+([] if positions else ["physical_fingering"]))
     if topology or positions:
         from check_reversible_source import check_topology
         result=read(isolated/"reconstructed.json")["topology"]
@@ -105,27 +115,31 @@ def _run(capture,output,topology=False,positions=False,annotations=False,ties=Fa
         if report["independent_annotation_check"]["status"]=="fail":report["status"]="fail"
     if ties:
         from check_reversible_source import check_tie_relations
-        report["independent_tie_check"]=check_tie_relations(capture,upper["links"],upper["unresolved"])
+        report["independent_tie_check"]=check_tie_relations(capture,tie_upper["links"],tie_upper["unresolved"])
         if report["independent_tie_check"]["status"]=="fail":report["status"]="fail"
+    if voicings:
+        from check_reversible_source import check_voicing_relations
+        report["independent_voicing_check"]=check_voicing_relations(capture,upper)
+        if report["independent_voicing_check"]["status"]=="fail":report["status"]="fail"
     report["independent_raw_source_check"]=check(capture,restored)
     if report["independent_raw_source_check"]["status"]=="fail":report["status"]="fail"
     (output/"qa.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
     return report
 
 
-def run(capture,output,topology=False,positions=False,annotations=False,ties=False):
+def run(capture,output,topology=False,positions=False,annotations=False,ties=False,voicings=False):
     if output.exists():raise ValueError("Fresh private QA output required")
-    try:return _run(capture,output,topology,positions,annotations,ties)
+    try:return _run(capture,output,topology,positions,annotations,ties,voicings)
     except Exception as error:
         if output.exists():
-            (output/"failure.json").write_text(json.dumps(dict(status="failed_preserved_selection",error_type=type(error).__name__,message=str(error),capture=str(capture),mode="ties" if ties else "annotations" if annotations else "positions" if positions else "topology" if topology else "pitch_time"),indent=2),encoding="utf-8")
+            (output/"failure.json").write_text(json.dumps(dict(status="failed_preserved_selection",error_type=type(error).__name__,message=str(error),capture=str(capture),mode="voicings" if voicings else "ties" if ties else "annotations" if annotations else "positions" if positions else "topology" if topology else "pitch_time"),indent=2),encoding="utf-8")
         raise
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument("capture",type=Path);p.add_argument("output",type=Path);p.add_argument("--topology",action="store_true");p.add_argument("--positions",action="store_true");p.add_argument("--annotations",action="store_true");p.add_argument("--ties",action="store_true");a=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument("capture",type=Path);p.add_argument("output",type=Path);p.add_argument("--topology",action="store_true");p.add_argument("--positions",action="store_true");p.add_argument("--annotations",action="store_true");p.add_argument("--ties",action="store_true");p.add_argument("--voicings",action="store_true");a=p.parse_args()
     if "local-artifacts" not in a.output.resolve().parts:p.error("Private output required")
-    result=run(a.capture.resolve(),a.output.resolve(),a.topology,a.positions,a.annotations,a.ties);print(json.dumps(result))
+    result=run(a.capture.resolve(),a.output.resolve(),a.topology,a.positions,a.annotations,a.ties,a.voicings);print(json.dumps(result))
     if result["status"]!="pass_declared_scope":raise SystemExit(1)
 
 

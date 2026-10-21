@@ -14,10 +14,11 @@ This ledger describes executable scope, not a finished song model. Tier0 remains
 | Complex text/chord/tremolo/brush-stroke objects | Unsupported inventory only, no blob fallback | NOT reconstructed | Typed semantic ownership and relationships |
 | Tie source flags / continuity | Typed resolvedlinks or unresolvedreasons; SAME equality relations recover removed targetcoordinates | All5captures;3134coordinates removed/recovered;155unresolved retained | Acoustic sustain/effects; fullGP and higher style |
 | Slide/legato/harmonic and other physical relationships | Source annotations preserved; accepted historical analyzers remain unchanged | No interpreted-tier reverse gate yet | Transfer accepted relationships into real reversible operators |
+| Written co-onset voicing intervals | Complete attack populations, shared interval definitions; SAME equations jointly solve with ties | Six captures;8492 additional coordinates removed/recovered | Acoustic harmony, harmonic function, artiststyle |
 | Tempo/repeats/sections/key/harmony/motifs/phrases/artist relationships | Historical analysis exists separately; not yet a reversible tier | NOT validated here | Explicit prior-tier-only operators, uncertainty, ownership and inverse constraints |
 | Nonzero levers | Only algebraic parameter-change tests here | NOT style validated | Source-supported conditional change policies and musical review |
 | Full GP output from stripped final analysis | NOT implemented | RED | Complete source semantics and converter/export comparison |
 
 ## Next acceptance slice
 
-Exact within-track written co-onset interval relationships. Anchor is the lowest observed nominal position, NOT an inferred chord root. SAME member=anchor+interval equations should remove redundant nonanchor coordinates and share voicing patterns across transpositions. Exclude unknown/dead/grace/tie-destination cases explicitly. Ties and voicings must contribute to ONE shared variable/equation graph with explicit hole ownership; do not invent separate reconstruction orders. Existing accepted classifier labels may be derived as hypotheses, with no new thresholds or acoustic harmony claim.
+Run the unchanged joint pipeline on the original Invent Animate capture; retain and investigate failures rather than add song-specific exceptions. Then choose the next relation with Planner. Complete source ownership, temporal/musical relationships and artist abstraction remain separate unresolved requirements. Do not grow a scalar codec and call it musical understanding.

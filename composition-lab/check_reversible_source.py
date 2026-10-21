@@ -135,8 +135,8 @@ def check_annotations(capture,restored):
     return dict(status="pass_declared_annotation_fields" if not differences else "fail",marker_owners=len(markers),scalar_fields=sum(len(r["fields"]) for r in markers),curves=len(curves),points=sum(len(c["points"]) for c in curves),unsupported_fields=len(unsupported),unsupported_by_field=dict(Counter(x["kind"]+"."+x["field"] for x in unsupported)),differences=differences[:20])
 
 
-def check_tie_relations(capture,links,unresolved):
-    """Independent raw lane/position/time validation, not a call to tie analyzer."""
+def raw_relation_context(capture):
+    """Direct raw arithmetic and source membership; no producer imports."""
     events,_=source_expectation(capture);meta=json.loads((capture/"metadata.json").read_text(encoding="utf-8-sig"));rows={};lanes={};true=set()
     for path in capture.glob("track-*.json"):
         part=json.loads(path.read_text(encoding="utf-8-sig"));tuning=part.get("tuning") or []
@@ -148,9 +148,15 @@ def check_tie_relations(capture,links,unresolved):
                         ident=f"event:{meta['songId']}:{part['partId']}:{mi+1}:{vi}:{bi}:{ni}"
                         string,fret=n.get("string"),n.get("fret");lane=(part["partId"],vi,string) if type(string) is int and string>=0 else None
                         nominal=F(str(tuning[string]))+F(str(part.get("capo") or 0))+F(str(fret)) if lane is not None and string<len(tuning) and type(fret) in (int,float) and part.get("instrumentId")!=1024 else None
-                        row=dict(id=ident,lane=lane,onset=F(events[ident]["onset_q"]),duration=F(events[ident]["duration_q"]),nominal=nominal,fret_valid=type(fret) in (int,float) and fret>=0,dead=n.get("dead") is True);rows[ident]=row
+                        row=dict(track=part["partId"],order=len(rows),id=ident,lane=lane,onset=F(events[ident]["onset_q"]),duration=F(events[ident]["duration_q"]),nominal=nominal,fret_valid=type(fret) in (int,float) and fret>=0,dead=n.get("dead") is True);rows[ident]=row
                         if n.get("tie") is True:true.add(ident)
                         if lane is not None and row["duration"]>0:lanes.setdefault(lane,{}).setdefault(row["onset"],[]).append(ident)
+    return rows,lanes,true
+
+
+def check_tie_relations(capture,links,unresolved):
+    """Independent raw eligibility, position/time and unresolved-reason checks."""
+    rows,lanes,true=raw_relation_context(capture)
     errors=[];accounted=[]
     for link in links:
         a=rows.get(link["origin"]);b=rows.get(link["destination"]);accounted.append(link["destination"])
@@ -185,3 +191,27 @@ def check_tie_relations(capture,links,unresolved):
     accounted.extend(r["destination"] for r in unresolved)
     if len(accounted)!=len(set(accounted)) or set(accounted)!=true:errors.append(dict(kind="true_flag_ownership_mismatch"))
     return dict(status="pass_declared_written_tie_relations" if not errors else "fail",true_flags=len(true),resolved=len(links),unresolved=len(unresolved),differences=errors[:20])
+
+
+def check_voicing_relations(capture,model):
+    rows,_,true=raw_relation_context(capture);populations={};expected_excluded={};expected_groups={}
+    for ident,r in rows.items():
+        if ident in true:expected_excluded[ident]="explicit_tie_destination"
+        elif r["duration"]<=0:expected_excluded[ident]="zero_metric_duration"
+        else:populations.setdefault((r["track"],r["onset"]),[]).append(r)
+    for population in populations.values():
+        invalid={r["id"]:("dead_note" if r["dead"] else "unknown_written_position" if r["nominal"] is None or r["lane"] is None else "invalid_written_position" if not r["fret_valid"] else None) for r in population}
+        if any(invalid.values()):
+            expected_excluded.update({r["id"]:invalid[r["id"]] or "incomplete_candidate" for r in population});continue
+        if len({r["lane"][2] for r in population})!=len(population):
+            expected_excluded.update({r["id"]:"ambiguous_string_at_onset" for r in population});continue
+        if len(population)<2:
+            expected_excluded.update({r["id"]:"no_other_eligible_co_onset" for r in population});continue
+        ordered=sorted(population,key=lambda r:(r["nominal"],r["order"]))
+        expected_groups[tuple(r["id"] for r in ordered)]=[r["nominal"]-ordered[0]["nominal"] for r in ordered]
+    actual_groups={tuple(o["members"]):list(map(F,model["definitions"][o["definition"]]["intervals"])) for o in model["occurrences"]}
+    errors=[]
+    if len(actual_groups)!=len(model["occurrences"]) or actual_groups!=expected_groups:errors.append(dict(kind="voicing_population_or_interval_mismatch"))
+    actual_excluded={r["id"]:r["reason"] for r in model["excluded"]}
+    if len(actual_excluded)!=len(model["excluded"]) or actual_excluded!=expected_excluded:errors.append(dict(kind="voicing_exclusion_mismatch"))
+    return dict(status="pass_declared_written_coonsets" if not errors else "fail",source_note_population=len(rows),candidate_populations=len(populations),groups=len(expected_groups),removed_numeric_coordinates=sum(len(m)-1 for m in expected_groups),excluded=len(expected_excluded),differences=errors)

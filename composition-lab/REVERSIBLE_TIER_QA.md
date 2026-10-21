@@ -87,5 +87,15 @@ Remaining source-preservation gaps include complexobjects, wider track/measure/s
 - [x]NEWfrozenrandomFoolInTheRain/LedZeppelin22692revision8043340,14tracks;seed3129081036941700813/queryz,priorIDsexcludedbeforecapture.11776notes9905beats1680voices;7572scalarfields,0curves(newcasekept),131unsupported(brushStroke128,text1,tremolo2). Priorcurvecases remainregressions.
 - [x] Planner independently decodedall5actualuppers and ran58tests; boundedcoordinate/continuity approval. They identified independentchecker didn'tvalidatereasons/recall; fixedbyindependentrawper-destination eligibilityquery. Newindependent-tie-reasons-v1.json onALL5pass0diff, includingmissedeligiblelinks+incorrectreasons tests. Smallcheckerextensionfinalreviewpending.
 - [x] FinalPlannerextensioncheck:independently validatedALL5rawlinksets/reasons and deliberatelymissedBlackDoglink;bothmismatchclasses detected.
-- [ ] Source-onlydelivery+CI.
+- [x]Source-onlydec308e73fc63b815ed234f672d65bcc18a8b42e;CI39575902941success.
 FullGP/source inverse remainsRED. This is source-supported writtencontinuity, NOT acousticsustain, complete performance interpretation or artiststyle.
+
+## Joint written co-onset voicing slice (approved / delivery pending)
+- [x] Consumes ONLY prior tieupper. Complete positive nontie attack population grouped by explicitsetting_ref+exactonset BEFORE rejection. Any unknown/dead/invalidmember rejects wholecandidate; no misleading partialchord. True tiedestinations(includingunresolved),gracezero,ambiguity,singletons explicitlyaccounted.
+- [x] LowestNOMINALposition anchor with deterministicstructural-order tie-break, not inferredharmonicroot. Preserve exactoctaveintervals/unisons/repeatedpitchclasses. Acceptedclassifierlabels derivedhypotheses ONLY; neverreconstructioninput.
+- [x] Shared intervaldefinitions/memberrefs remove nonanchor numericcoordinates. Voicing+tie equations feed ONEsharedsolve; tieORIGINcanbeavoicinghole. No prescribed decoderordering. Retainedanchors cannotbeoverridden; disjointholeownership,missinganchors/cycles/unusedzerocoefficientcachepayload rejected.
+- [x]66targetedtests; full675run674pass1optional skip. Independentrawchecker derivescomplete candidatepopulations,orderedintervals andall exclusionreasons, pluspriorfieldgates.
+- [x]Actual6strippeduppers allpass ALLrawgates: v1/v2/v3/v4/v5voicings-v2, v6voicings-v1. Groups378/400/557/832/1577/859; removedvoicingcoordinates674/567/815/2224/2588/1624.8492voicingcoordinates+3511tiecoordinates genuinelyremoved/recovered;49261noteoccurrences in6scores.
+- [x]NEWfrozenrandom:AC/DCBackInBlack1024revision9859447,7tracks;seed1348443154179656585/queryd, priorIDsexcludedbeforecapture.6203notes4196beats700voices;859groups/10definitions;377resolvedties1unresolved;4422scalarfields109curves279points.114unsupported(text90/chord21/brushStroke3), notclaimedreconstructed.
+- [x] Plannerindependentlyran66tests anddecoded/rawcheckedall6actualuppers;boundedapproval, noblocker. Unknownhigherharmony/function/style remainunproved.
+- [ ] Source-onlydelivery+exactSHA CI. Then rununchangedpipeline onoriginalInventAnimateCloudCascade460099 capture and investigateretainedfailures; no newdetector/generatorwork.
