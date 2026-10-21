@@ -38,6 +38,20 @@ class ContinuousTierQATests(unittest.TestCase):
             output["topology"]["beats"][0]["written_duration_q"]="77"
             self.assertEqual(check_topology(capture,output["topology"])["status"],"fail")
 
+    def test_positions_stripped_worker_and_independent_field_check(self):
+        from test_reversible_topology import capture as topology_capture
+        from check_reversible_source import check_positions
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);capture=root/"capture";capture.mkdir();topology_capture(capture)
+            report=run(capture,root/"qa",positions=True)
+            self.assertEqual(report["status"],"pass_declared_scope")
+            self.assertEqual(report["independent_position_check"]["status"],"pass_declared_physical_fields")
+            upper=json.loads((root/"qa/isolated/tier2-only.json").read_text())
+            self.assertNotIn("pitch_patterns",upper["topology"])
+            output=json.loads((root/"qa/isolated/reconstructed.json").read_text())
+            output["physical"]["positions"][0]["string"]["value"]="99"
+            self.assertEqual(check_positions(capture,output["physical"])["status"],"fail")
+
     def test_guard_rejects_lower_file_read_and_arbitrary_write(self):
         with tempfile.TemporaryDirectory() as temp:
             target=Path(temp)/"tier1.json";target.write_text('{"source":"must not read"}')

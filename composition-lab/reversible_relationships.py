@@ -162,6 +162,10 @@ def factor_numeric(regions,channels):
 def realize_numeric(model):
     if set(model)!={"definitions","occurrences","channels","sharing"}:raise ConstraintError("Unexpected numeric model fields")
     validate_channels(model["channels"]);rows=[];seen=set();regions=set()
+    reuse=Counter(o["definition"] for o in model["occurrences"])
+    if set(reuse)!=set(model["definitions"]):raise ConstraintError("Unreferenced or missing numeric definitions")
+    expected_sharing=dict(definitions=len(reuse),occurrences=len(model["occurrences"]),shared_definitions=sum(n>1 for n in reuse.values()),unique_definitions=sum(n==1 for n in reuse.values()))
+    if model["sharing"]!=expected_sharing or any(type(n) is not int for n in model["sharing"].values()):raise ConstraintError("Invalid derived sharing counts")
     for occurrence in model["occurrences"]:
         if set(occurrence)!={"region_id","definition","members","anchors","unit"}:raise ConstraintError("Unexpected numeric occurrence fields")
         if occurrence["region_id"] in regions:raise ConstraintError("Duplicate region")

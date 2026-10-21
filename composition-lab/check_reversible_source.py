@@ -74,3 +74,29 @@ def check_topology(capture,restored):
         counts[kind]=len(a)
         differences.extend(dict(kind=kind,id=ident,expected=a.get(ident),actual=b.get(ident)) for ident in sorted(set(a)|set(b)) if a.get(ident)!=b.get(ident))
     return dict(status="pass_declared_topology" if not differences else "fail",counts=counts,differences=differences[:20])
+
+
+def check_positions(capture,restored):
+    """Direct source field checker; imports no position extractor or solver."""
+    meta=json.loads((capture/"metadata.json").read_text(encoding="utf-8-sig"))
+    def numeric(obj,key):
+        value=obj.get(key)
+        return dict(present=key in obj,value=str(F(str(value))) if value is not None else None,number_type=type(value).__name__ if value is not None else None)
+    settings=[];positions=[];regions={}
+    for path in sorted(capture.glob("track-*.json"),key=lambda p:int(p.stem.split("-")[-1])):
+        part=json.loads(path.read_text(encoding="utf-8-sig"));sid=f"settings:{meta['songId']}:{part['partId']}"
+        settings.append(dict(id=sid,instrument_id=numeric(part,"instrumentId"),capo=numeric(part,"capo"),tuning=dict(present="tuning" in part,value=[str(F(str(x))) for x in part["tuning"]] if part.get("tuning") is not None else None)))
+        for mi,m in enumerate(part.get("measures",[])):
+            for vi,v in enumerate(m.get("voices",[])):
+                regions[f"voice:{meta['songId']}:{part['partId']}:{mi+1}:{vi}"]=sid
+                for bi,b in enumerate(v.get("beats",[])):
+                    for ni,n in enumerate(b.get("notes",[])):
+                        if n.get("rest"):continue
+                        positions.append(dict(id=f"event:{meta['songId']}:{part['partId']}:{mi+1}:{vi}:{bi}:{ni}",string=numeric(n,"string"),fret=numeric(n,"fret"),dead=dict(present="dead" in n,value=n.get("dead"))))
+    differences=[]
+    for kind,wanted in (("settings",settings),("positions",positions)):
+        a={r["id"]:r for r in wanted};b={r["id"]:r for r in restored[kind]}
+        if len(b)!=len(restored[kind]):raise AssertionError("Duplicate physical identity")
+        differences.extend(dict(kind=kind,id=ident,expected=a.get(ident),actual=b.get(ident)) for ident in sorted(set(a)|set(b)) if a.get(ident)!=b.get(ident))
+    if regions!=restored["region_settings"]:differences.append(dict(kind="region_settings_mismatch"))
+    return dict(status="pass_declared_physical_fields" if not differences else "fail",settings=len(settings),positions=len(positions),differences=differences[:20])

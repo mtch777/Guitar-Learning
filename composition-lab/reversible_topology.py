@@ -93,17 +93,24 @@ def encode(facts):
     return dict(schema="relative-beat-topology/1",measures=facts["measures"],voices=facts["voices"],beat_patterns=factor_numeric(beat_regions,BEAT_CHANNELS),pitch_patterns=factor_numeric(pitch_regions,PITCH_CHANNELS),memberships=[{k:n[k] for k in ("id","beat_ref","slot")} for n in facts["notes"]],next_regular_beat_refs={b["id"]:b["next_regular_beat_ref"] for b in facts["beats"] if b["next_regular_beat_ref"] is not None})
 
 
-def decode(model):
-    if set(model)!={"schema","measures","voices","beat_patterns","pitch_patterns","memberships","next_regular_beat_refs"} or model["schema"]!="relative-beat-topology/1":raise ConstraintError("Unexpected higher-tier fields")
-    if model["beat_patterns"]["channels"]!=BEAT_CHANNELS or model["pitch_patterns"]["channels"]!=PITCH_CHANNELS:raise ConstraintError("Unexpected channel declarations")
+def decode_structure(model,pitches):
+    expected={"schema","measures","voices","beat_patterns","memberships","next_regular_beat_refs"}
+    if set(model)!=expected or model["schema"]!="relative-beat-topology/1":raise ConstraintError("Unexpected structural fields")
+    if model["beat_patterns"]["channels"]!=BEAT_CHANNELS:raise ConstraintError("Unexpected beat channel declarations")
     beats=[dict(id=r["id"],**r["values"],symbols=r["symbols"],next_regular_beat_ref=model["next_regular_beat_refs"].get(r["id"])) for r in realize_numeric(model["beat_patterns"])]
     if set(model["next_regular_beat_refs"])-{b["id"] for b in beats}:raise ConstraintError("Unknown next regular beat reference owner")
-    pitches={r["id"]:r for r in realize_numeric(model["pitch_patterns"])}
-    if any(r["symbols"] is not None for r in pitches.values()):raise ConstraintError("Unexpected pitch symbols")
     if {n["id"] for n in model["memberships"]}!=set(pitches):raise ConstraintError("Pitch membership mismatch")
-    notes=[dict(**n,base_pitch=pitches[n["id"]]["values"]["base_pitch"]) for n in model["memberships"]]
+    notes=[dict(**n,base_pitch=pitches[n["id"]]) for n in model["memberships"]]
     result=dict(schema="beat-owned-topology/1",measures=model["measures"],voices=model["voices"],beats=beats,notes=notes);validate(result)
     return result
+
+
+def decode(model):
+    if set(model)!={"schema","measures","voices","beat_patterns","pitch_patterns","memberships","next_regular_beat_refs"}:raise ConstraintError("Unexpected higher-tier fields")
+    if model["pitch_patterns"]["channels"]!=PITCH_CHANNELS:raise ConstraintError("Unexpected pitch channel declarations")
+    pitches={r["id"]:r for r in realize_numeric(model["pitch_patterns"])}
+    if any(r["symbols"] is not None for r in pitches.values()):raise ConstraintError("Unexpected pitch symbols")
+    return decode_structure({k:v for k,v in model.items() if k!="pitch_patterns"},{k:r["values"]["base_pitch"] for k,r in pitches.items()})
 
 
 def event_view(facts):

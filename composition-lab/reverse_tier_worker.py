@@ -22,12 +22,18 @@ def main():
     source,destination,trace=map(lambda p:Path(p).resolve(),sys.argv[1:4])
     code=Path(__file__).resolve().parent
     if destination.exists() or trace.exists():raise ValueError("Fresh outputs required")
-    permitted={source:"read",destination:"write",trace:"write",Path(__file__).resolve():"read",code/"reversible_relationships.py":"read",code/"reversible_topology.py":"read"}
+    permitted={source:"read",destination:"write",trace:"write",Path(__file__).resolve():"read",code/"reversible_relationships.py":"read",code/"reversible_topology.py":"read",code/"reversible_positions.py":"read"}
     runtime=Path(sys.base_prefix).resolve();access=[]
     sys.dont_write_bytecode=True;install_guard(permitted,runtime,access);sys.path.insert(0,str(code))
     from reversible_relationships import decode
     value=json.loads(source.read_text(encoding="utf-8"))
-    if value.get("schema")=="relative-beat-topology/1":
+    if value.get("schema")=="positioned-relative-topology/1":
+        from reversible_positions import decode as decode_positions,event_view
+        positions=decode_positions(value);restored=event_view(positions)
+        topology=positions["topology"];event_pitches={r["id"]:r["pitch"] for r in restored}
+        topology=dict(topology,notes=[dict(n,base_pitch=event_pitches[n["id"]]) for n in topology["notes"]])
+        output=dict(scope="normalized_topology_and_written_position_settings",physical=positions,topology=topology,events=restored)
+    elif value.get("schema")=="relative-beat-topology/1":
         from reversible_topology import decode as decode_topology,event_view
         topology=decode_topology(value);restored=event_view(topology)
         output=dict(scope="normalized_beat_voice_rest_grace_topology_and_base_pitch",topology=topology,events=restored)
