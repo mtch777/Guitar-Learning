@@ -1,8 +1,8 @@
 # Whole captured-song tiered JSON — active acceptance checklist
 
-## Current checkpoint — v16 independently approved; Git delivery pending
+## Current checkpoint — v16 approved and source delivered
 
-Private whole-song v16 passes both root and independent ProjectPlanner3000 verification against the original captures. Planner approved the bounded whole-song mapping task after actual semantic spot walks. Preserved:7 raw documents,6 tracks,5350 notes,3738 beats,191 exactly reconstructed output roots. Checked:26662 calculation descriptors,15908 exact unit-witness sets,1750 result cells,149 phrase comparison inputs. NEXT: source-only commit/push, exact CI, and private review-file delivery. No copyrighted source payload or private report goes to Git. Approval excludes isolated per-tier execution, blind inverse, cross-song artist generalization and musical correctness of inherited hypotheses.
+Private whole-song v16 passes both root and independent ProjectPlanner3000 verification against the original captures. Planner approved the bounded whole-song mapping task after actual semantic spot walks. Preserved:7 raw documents,6 tracks,5350 notes,3738 beats,191 exactly reconstructed output roots. Checked:26662 calculation descriptors,15908 exact unit-witness sets,1750 result cells,149 phrase comparison inputs. Code b86a6af pushed to origin/main; exact CI39541773230 succeeded. Private storage-map.json and evidence-walk.json accompany the full JSON and gzip. No copyrighted source payload or private report went to Git. Approval excludes isolated per-tier execution, blind inverse, cross-song artist generalization and musical correctness of inherited hypotheses. NEXT architectural gate requires its own scoped acceptance; this bounded mapping is complete.
 
 User decision: Tier0 is captured Songsterr JSON, not GP. GP remains separate export/playback artifact. Scope: Cloud Cascade, Songsterr460099, revision9588298, all six tracks, entire written/playback song. Use existing logic; no new detector musical judgments. Private source/analysis remain local.
 
@@ -16,7 +16,7 @@ User decision: Tier0 is captured Songsterr JSON, not GP. GP remains separate exp
 - [x] Record actual method versions, missing/ambiguous analysis and one-song generalization limits. No invented modes/roles/phrases/artist claims.
 - [x] Test source preservation, output coverage, field integrity, timing, graph traversal and adversarial corruption; run regressions/build.
 - [x] ProjectPlanner3000 midpoint artifact critique; implement corrections; independent final approval of bounded v16 whole-song mapping.
-- [ ] Commit/push only code/schema/tests/aggregate progress; verify exact code CI. Private entire-song JSON delivered locally afterQA.
+- [x] Commit/push only code/schema/tests/aggregate progress; exact code CI39541773230 passed for b86a6af. Private entire-song JSON and review files available locally afterQA.
 
 Start: pulledmain3f21ccb safely, preserved unrelated WIP. Existing inspector song snapshot predates relationship_details, therefore fresh core analysis required. Planner identified capped profile evidence (two examples) requiring complete support instrumentation without changing statistics. Full artist generalization from one song is explicitly unavailable.
 
@@ -73,3 +73,8 @@ Start: pulledmain3f21ccb safely, preserved unrelated WIP. Existing inspector son
 - This song has no no-next-attack-in-same-section case; mixed-origin/mixed-next section semantics are fixture-tested, not falsely claimed as real-song coverage.
 - ProjectPlanner3000 verdict:Approved for bounded whole-song mapping. Excludes isolated tier execution, blind inverse, cross-song artist generalization, unfitted model/role-dependent methods, and musical correctness of inherited hypotheses.
 - Final local regression607run/606pass/1optional skip;29targeted mapping/input tests pass. Source-only Git delivery and exact CI are next.
+
+## Delivery
+- Implementation commit b86a6af6261bdc02142deca8631d05c12d4af209 pushed to origin/main; exact GitHub Actions run39541773230 completed successfully. No website files changed, so no Pages deployment was triggered or claimed.
+- Approved private package:local-artifacts/tiered-cloud-v16/song.tiered.json (771553705bytes); compressed song.tiered.json.gz (34005050bytes). Small actual structure map19145bytes and selected actual source/calculation/count evidence walk18997bytes; excerpts explicitly reference omitted records in the full package.
+- qa.json and delivery-manifest.json hold checks and byte hashes. Original corpus, GP exports, baselines, scores and unrelated WIP preserved. No model training/inference, new listening judgment, isolated tier execution or inverse success claimed.
