@@ -1,13 +1,15 @@
-## Reversible execution checkpoint (2026-10-21 17:49 UTC)
+## Reversible execution checkpoint (2026-10-21 17:57 UTC)
 
 Read REVERSIBLE_STATUS.md and REVERSIBLE_TIER_QA.md for current requirements/evidence.
 Delivered control90d2a9e: owned version2 composes music, temporal and repeat constraints.
 Frozen98:420119notes/397regions/355ending declarations; all music/source/baseline/code
 checks unchanged. CI39641368035SUCCESS. Numeric projection76a7660 CI39637836751SUCCESS.
 Written clock now passes ALL98 pure AND guarded inverses, all10rawgates:59021origins,
-11137frames/687addresses. Source-only delivery follows. Original source warnings stay;
+11137frames/687addresses. Delivered5e9f0a8,CI39647158711SUCCESS. Original source warnings stay;
 no invented timing repairs. Higher rhythm removes ALL beat-onset parameters and
-recovers exact clock parents across98captures; guarded integration remains pending.
+recovers exact clock parents across98captures. Same worker now supports--rhythm;
+freshv15passes5117notes/all10rawgates/parentidentities; full734run733pass1skip.
+Final98guarded replay inprogress (82/98pass at17:57); do not mark complete early.
 No final Planner integration assessment: collaborator hit usage error. Saved prior
 owned audit did finish10/10PASS; do not confuse that with new-feature approval.
 Full source/GP inverse, technique execution, harmony/phrases/artist abstraction and

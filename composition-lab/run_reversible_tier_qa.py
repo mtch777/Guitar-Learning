@@ -41,7 +41,8 @@ def extract(capture):
     return dict(tier=1,schema="normalized-written-fields/1",events=result,source_coverage=dict(expected=expected,actual=len(result),tracks=len(parts),layout_warnings=layout_warnings,timing_warnings=warnings),scope="base_pitch_and_metric_onset_duration_only")
 
 
-def _run(capture,output,topology=False,positions=False,annotations=False,ties=False,voicings=False,song=False,controls=False,clock=False):
+def _run(capture,output,topology=False,positions=False,annotations=False,ties=False,voicings=False,song=False,controls=False,clock=False,rhythm=False):
+    if rhythm:clock=True
     if clock:controls=True
     if controls:song=True
     if output.exists():raise ValueError("Fresh private QA output required")
@@ -91,9 +92,13 @@ def _run(capture,output,topology=False,positions=False,annotations=False,ties=Fa
     if clock:
         from reversible_written_clock import encode as encode_clock
         upper=encode_clock(upper)
+    prior_clock_upper=upper if rhythm else None
+    if rhythm:
+        from reversible_rhythm import encode as encode_rhythm
+        upper=encode_rhythm(upper)
     highest=upper
     isolated=output/"isolated";isolated.mkdir()
-    for filename in ("reversible_relationships.py","reverse_tier_worker.py","reversible_topology.py","reversible_positions.py","reversible_annotations.py","reversible_ties.py","reversible_voicings.py","reversible_temporal.py","reversible_song.py","reversible_control.py","reversible_numeric_view.py","reversible_written_clock.py"):shutil.copyfile(Path(__file__).parent/filename,isolated/filename)
+    for filename in ("reversible_relationships.py","reverse_tier_worker.py","reversible_topology.py","reversible_positions.py","reversible_annotations.py","reversible_ties.py","reversible_voicings.py","reversible_temporal.py","reversible_song.py","reversible_control.py","reversible_numeric_view.py","reversible_written_clock.py","reversible_rhythm.py"):shutil.copyfile(Path(__file__).parent/filename,isolated/filename)
     (isolated/"tier2-only.json").write_text(json.dumps(upper,indent=2),encoding="utf-8")
     # These copied files are the only task inputs available to the audited worker.
     command=[sys.executable,"-I","-S",str((isolated/"reverse_tier_worker.py").resolve()),str((isolated/"tier2-only.json").resolve()),str((isolated/"reconstructed.json").resolve()),str((isolated/"read-audit.json").resolve())]
@@ -104,6 +109,10 @@ def _run(capture,output,topology=False,positions=False,annotations=False,ties=Fa
     expected=sorted([{k:e[k] for k in ("id","pitch","onset_q","duration_q")} for e in facts["events"]],key=lambda e:e["id"])
     mismatches=[dict(expected=a,actual=b) for a,b in zip(expected,restored) if a!=b]
     if len(restored)!=len(expected):mismatches.append(dict(counts=[len(expected),len(restored)]))
+    if rhythm:
+        from reversible_rhythm import decode as decode_rhythm
+        upper=decode_rhythm(upper)
+    clock_upper=upper if clock else None
     if clock:
         from reversible_written_clock import decode as decode_clock
         upper=decode_clock(upper)
@@ -154,10 +163,14 @@ def _run(capture,output,topology=False,positions=False,annotations=False,ties=Fa
         if controls and report["independent_control_check"]["status"]!="pass":report["status"]="fail"
         if clock:
             from check_reversible_written_clock import check as check_clock
-            report["independent_clock_check"]=check_clock(capture,highest)
+            report["independent_clock_check"]=check_clock(capture,clock_upper)
             report["clock_parent_roundtrip"]="pass" if owned_upper==prior_owned_upper else "fail"
             report["scope"]="owned_music_temporal_repeat_regions_and_written_clock"
             if report["independent_clock_check"]["status"]!="pass" or report["clock_parent_roundtrip"]!="pass":report["status"]="fail"
+        if rhythm:
+            report["rhythm_parent_roundtrip"]="pass" if clock_upper==prior_clock_upper else "fail"
+            report["scope"]="owned_music_temporal_repeat_regions_clock_and_rhythm"
+            if report["rhythm_parent_roundtrip"]!="pass":report["status"]="fail"
         if any(report[k]["status"]!="pass" for k in ("independent_temporal_check","independent_ownership_check")):report["status"]="fail"
         if report["owned_song_roundtrip"]!="pass":report["status"]="fail"
     report["independent_raw_source_check"]=check(capture,restored)
@@ -166,21 +179,22 @@ def _run(capture,output,topology=False,positions=False,annotations=False,ties=Fa
     return report
 
 
-def run(capture,output,topology=False,positions=False,annotations=False,ties=False,voicings=False,song=False,controls=False,clock=False):
+def run(capture,output,topology=False,positions=False,annotations=False,ties=False,voicings=False,song=False,controls=False,clock=False,rhythm=False):
+    if rhythm:clock=True
     if clock:controls=True
     if controls:song=True
     if output.exists():raise ValueError("Fresh private QA output required")
-    try:return _run(capture,output,topology,positions,annotations,ties,voicings,song,controls,clock)
+    try:return _run(capture,output,topology,positions,annotations,ties,voicings,song,controls,clock,rhythm)
     except Exception as error:
         if output.exists():
-            (output/"failure.json").write_text(json.dumps(dict(status="failed_preserved_selection",error_type=type(error).__name__,message=str(error),capture=str(capture),mode="clock" if clock else "controls" if controls else "song" if song else "voicings" if voicings else "ties" if ties else "annotations" if annotations else "positions" if positions else "topology" if topology else "pitch_time"),indent=2),encoding="utf-8")
+            (output/"failure.json").write_text(json.dumps(dict(status="failed_preserved_selection",error_type=type(error).__name__,message=str(error),capture=str(capture),mode="rhythm" if rhythm else "clock" if clock else "controls" if controls else "song" if song else "voicings" if voicings else "ties" if ties else "annotations" if annotations else "positions" if positions else "topology" if topology else "pitch_time"),indent=2),encoding="utf-8")
         raise
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument("capture",type=Path);p.add_argument("output",type=Path);p.add_argument("--topology",action="store_true");p.add_argument("--positions",action="store_true");p.add_argument("--annotations",action="store_true");p.add_argument("--ties",action="store_true");p.add_argument("--voicings",action="store_true");p.add_argument("--song",action="store_true");p.add_argument("--controls",action="store_true");p.add_argument("--clock",action="store_true");a=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument("capture",type=Path);p.add_argument("output",type=Path);p.add_argument("--topology",action="store_true");p.add_argument("--positions",action="store_true");p.add_argument("--annotations",action="store_true");p.add_argument("--ties",action="store_true");p.add_argument("--voicings",action="store_true");p.add_argument("--song",action="store_true");p.add_argument("--controls",action="store_true");p.add_argument("--clock",action="store_true");p.add_argument("--rhythm",action="store_true");a=p.parse_args()
     if "local-artifacts" not in a.output.resolve().parts:p.error("Private output required")
-    result=run(a.capture.resolve(),a.output.resolve(),a.topology,a.positions,a.annotations,a.ties,a.voicings,a.song,a.controls,a.clock);print(json.dumps(result))
+    result=run(a.capture.resolve(),a.output.resolve(),a.topology,a.positions,a.annotations,a.ties,a.voicings,a.song,a.controls,a.clock,a.rhythm);print(json.dumps(result))
     if result["status"]!="pass_declared_scope":raise SystemExit(1)
 
 

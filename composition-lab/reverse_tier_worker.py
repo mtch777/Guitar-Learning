@@ -22,10 +22,13 @@ def main():
     source,destination,trace=map(lambda p:Path(p).resolve(),sys.argv[1:4])
     code=Path(__file__).resolve().parent
     if destination.exists() or trace.exists():raise ValueError("Fresh outputs required")
-    permitted={source:"read",destination:"write",trace:"write",Path(__file__).resolve():"read",code/"reversible_relationships.py":"read",code/"reversible_topology.py":"read",code/"reversible_positions.py":"read",code/"reversible_annotations.py":"read",code/"reversible_ties.py":"read",code/"reversible_voicings.py":"read",code/"reversible_temporal.py":"read",code/"reversible_song.py":"read",code/"reversible_control.py":"read",code/"reversible_numeric_view.py":"read",code/"reversible_written_clock.py":"read"}
+    permitted={source:"read",destination:"write",trace:"write",Path(__file__).resolve():"read",code/"reversible_relationships.py":"read",code/"reversible_topology.py":"read",code/"reversible_positions.py":"read",code/"reversible_annotations.py":"read",code/"reversible_ties.py":"read",code/"reversible_voicings.py":"read",code/"reversible_temporal.py":"read",code/"reversible_song.py":"read",code/"reversible_control.py":"read",code/"reversible_numeric_view.py":"read",code/"reversible_written_clock.py":"read",code/"reversible_rhythm.py":"read"}
     runtime=Path(sys.base_prefix).resolve();access=[]
     sys.dont_write_bytecode=True;install_guard(permitted,runtime,access);sys.path.insert(0,str(code))
     value=json.loads(source.read_text(encoding="utf-8"));schema=value.get("schema");initial_schema=schema
+    if schema=="rhythm-driven-clock/1":
+        from reversible_rhythm import decode as decode_rhythm
+        value=decode_rhythm(value);schema=value["schema"]
     if schema=="shared-written-clock/1":
         from reversible_written_clock import decode as decode_clock
         value=decode_clock(value);schema=value["schema"]
