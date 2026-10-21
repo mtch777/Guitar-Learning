@@ -265,6 +265,7 @@ class Mapper:
 
     def finish(self):
         rows={r["occurrence"]:r for t in self.song["tracks"] for r in t["rows"]+t["grace_rows"]}
+        grace_ids={r["occurrence"] for t in self.song["tracks"] for r in t["grace_rows"]}
         aliases=getattr(self,"aliases",{})
         def alias_target(alias):
             locator=aliases.get(alias)
@@ -340,7 +341,7 @@ class Mapper:
             if node.get("origin_occurrence"):
                 origin=rows[node["origin_occurrence"]];ids.add(node["origin_occurrence"])
                 target_q=F(origin["onset_q"])+F(origin["next_attack_gap_q"])
-                destinations=[i for i,r in rows.items() if i.split(":")[0]==origin["occurrence"].split(":")[0] and r["voice"]==origin["voice"] and r["section_start"]==origin["section_start"] and not r["tie_destination"] and F(r["onset_q"])==target_q]
+                destinations=[i for i,r in rows.items() if i not in grace_ids and i.split(":")[0]==origin["occurrence"].split(":")[0] and r["voice"]==origin["voice"] and r["section_start"]==origin["section_start"] and not r["tie_destination"] and F(r["onset_q"])==target_q]
                 if len(destinations)!=1:raise AssertionError("Legacy next-note annotation lacks a unique destination")
                 destination=destinations[0];ids.add(destination)
                 node["endpoints"]=dict(origin=self.event_ids[origin["occurrence"]],destination=self.event_ids[destination])

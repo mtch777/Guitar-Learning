@@ -259,6 +259,18 @@ class TieredSongTests(unittest.TestCase):
             connect_count_contexts(mapper,self.outputs,["test-context"])
             self.assertEqual(mapper.nodes["test-context"]["query"]["result_members"],[])
 
+    def test_next_regular_attack_excludes_grace_at_same_clock(self):
+        with tempfile.TemporaryDirectory() as temp:
+            folder=Path(temp);fixture(folder)
+            path=folder/"track-0.json";part=json.loads(path.read_text())
+            part["measures"][0]["voices"][0]["beats"].insert(2,dict(duration=[1,32],graceNote=True,notes=[dict(string=0,fret=1)]))
+            path.write_text(json.dumps(part))
+            package,outputs=build(folder);verify(package,outputs,folder)
+            nodes={n["id"]:n for s in layers(package).values() for n in s["records"]}
+            relations=[n for n in nodes.values() if n["kind"]=="next_monophonic_interval"]
+            self.assertTrue(relations)
+            self.assertTrue(all(nodes[n["endpoints"]["destination"]]["kind"]!="grace_note" for n in relations))
+
     def test_pointer_rejects_python_negative_index_shortcut(self):
         for path in ("/-1","/01","/2"):
             with self.assertRaises(ValueError):pointer([1,2],path)

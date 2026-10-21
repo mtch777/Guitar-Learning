@@ -1,3 +1,16 @@
+## Active correction: executable reversible tiers + recurring QA (2026-10-20)
+
+Read REVERSIBLE_TIER_QA.md FIRST. User stopped report-routing and separate inverse
+recreation attempts. v16 is a verified mapping, NOT the required tiered engine.
+Two permanent gates: a frozen random new Songsterr capture through unchanged
+logic, and stripped-lower-tier reversal using the SAME mathematical relations.
+Keep failure histories; no source replay, hidden caches or guessed notes.
+First bounded shared pitch/time operator passes actual Black Dog direct-source
+checks; full GP/notation inverse stays RED. Next: beat/voice/rest/grace topology,
+then physical settings/fingering/percussion. Collaborate only with Planner.
+Active continuation automation:composition-lab-reversible-tier-qa,15minutes
+through October21 noon Denver. Preserve all source/baselines/unrelated WIP.
+
 ## Captured-source tiered representation — current user decision (2026-10-20)
 
 Tier0 is now the exact captured Songsterr JSON (metadata + every track), NOT GP.
