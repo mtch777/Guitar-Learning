@@ -165,3 +165,10 @@ ALL98pass,0fail. Final full original-file and11engine hash checks:0mismatches. E
 - [x] Fullsuite694run693pass1optionalskip (reversible-owned-full-tests-v2.txt). Prior temporalprototypee944ff0 CI39616152215SUCCESS.
 - [ ] Source-onlyintegrationpush+CI.
 Remaining:containerpresence/pickup/repeatprogram/seconds/initialtempo/conflictselection; automationmeasure/positionarenotyetderivedglobalclocklinks; highertechnique/harmony/phrase/artistabstraction,fullGP andstyleleversstillOPEN.
+
+
+## Repeatable whole-owned-corpus gate
+Ownedintegration9026bf7 CI39618805369SUCCESS. Genericrun_reversible_corpus_qa.py reusesSAMErun(song=True), notanother inverse. ALLdirectories frozenbeforeanalysis; malformedcases retained, no reselection. Freezeoriginalfilehashes(includingGP),19declaredexecutionfiles,comparisonhighestfilehashes(includingexplicitmissing); verifypercase/end. Enddirectory-set changes andbaselinechanges causefailure, notsilentsubstitution. Failuretracebacks+lastpersistedartifactboundary savedprivately.
+Plannerreviewcaught/fixed moving-baseline andchanged-case-set gaps. Fourtests independently pass (realinvalid→validcontinuation, no silentengine restart,late-directoryaddition,movingbaseline); full698run697pass1optionalskip. Source-onlyrunnerdeliverynext; freezeproductionmodulesduringbatch.
+Command:python composition-lab/run_reversible_corpus_qa.py composition-lab/local-artifacts/invent-animate-corpus-v1/songs composition-lab/local-artifacts/reversible-owned-corpus-v1 --previous composition-lab/local-artifacts/reversible-invent-animate-corpus-v3
+Acceptance:ALL98accounted;all8independentrawgates+ownedroundtrip;unchangedENTIREmusicmodels;allsources/engine/baselinefiles/directorysetunchanged;Planner samefrozen10caseendaudit. CURRENTpending, notcompleted.
