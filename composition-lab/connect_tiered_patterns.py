@@ -32,6 +32,31 @@ def connect_patterns(mapper,outputs):
                 f"r:extended/source_fingerprint_windows:/{i}/windows/{wi}",dict(part_id=record["part_id"],voice=record["voice"]))
 
     patterns=extended["pattern_hypotheses"]
+    for ti,result in enumerate(patterns["phrases"]):
+        track=tracks[result["part_id"]];phrases=result["analysis"]["phrases"]
+        ids={p["start_measure"]:f"r:extended/pattern_hypotheses:/phrases/{ti}/analysis/phrases/{pi}" for pi,p in enumerate(phrases)}
+        for pi,phrase in enumerate(phrases):
+            ident=ids[phrase["start_measure"]]
+            population=[r for r in track["rows"]+track["grace_rows"] if r["voice"]==0 and r["midi"] is not None and phrase["start_measure"]<=r["bar"]<=phrase["end_measure"]]
+            minima={}
+            for row in population:
+                key=(row["bar"],row["beat"])
+                minima[key]=min(minima.get(key,row["midi"]),row["midi"])
+            for row in population:
+                mapper.links.append(dict(type="primary_voice_comparison_population",from_id=ident,to_id=mapper.event_ids[row["occurrence"]]))
+                if row["midi"]==minima[row["bar"],row["beat"]]:mapper.links.append(dict(type="lowest_pitch_outline_input",from_id=ident,to_id=mapper.event_ids[row["occurrence"]]))
+            mapper.nodes[ident]["selection_contract"]="Legacy first-written-voice, lowest pitch per beat; equal-pitch minima retain all source witnesses. Rounded inputs are stored separately."
+            if "develops_phrase_at" in phrase:
+                predecessor=ids[phrase["develops_phrase_at"]]
+                mapper.links.append(dict(type="develops_previous_phrase",from_id=ident,to_id=predecessor))
+        # The existing transition histogram counts these exact adjacent pairs.
+        summary=f"r:extended/pattern_hypotheses:/phrases/{ti}/analysis"
+        for pi,(a,b) in enumerate(zip(phrases,phrases[1:])):
+            ident=f"phrase-transition:{ti}:{pi}"
+            node=dict(id=ident,tier=3,kind="existing_candidate_phrase_transition",scope=dict(song_id=sid,part_id=track["part_id"]),values=dict(histogram_key=a["relationship"]+" → "+b["relationship"]),time=None,origin=dict(document="phrase_transition_projection",pointer=f"/{ti}/{pi}"),status="existing_candidate_classification_transition_not_human_phrase_truth")
+            mapper.nodes[ident]=node;mapper.tiers[3]["records"].append(node)
+            mapper.links.append(dict(type="transition_histogram_unit",from_id=summary,to_id=ident))
+            for endpoint,phrase in (("previous",a),("next",b)):mapper.links.append(dict(type="transition_"+endpoint,from_id=ident,to_id=ids[phrase["start_measure"]]))
     for mi,motif in enumerate(patterns["motifs"]):
         track=tracks[motif["part_id"]]
         for label,width in (("timed_repeats",1),("flexible_repeats",1),("two_bar_repeats",2)):

@@ -10,6 +10,7 @@ from copy import deepcopy
 from fractions import Fraction as F
 import hashlib
 import json
+import re
 from pathlib import Path
 import sys
 import tempfile
@@ -54,7 +55,9 @@ def escape(value):
 
 
 def pointer(value, path):
-    for key in path.strip("/").split("/") if path else []:
+    if path and not path.startswith("/"):raise ValueError("JSON pointer must be absolute")
+    for key in path[1:].split("/") if path else []:
+        if re.search(r"~(?![01])",key):raise ValueError("Invalid JSON pointer escape")
         key = key.replace("~1", "/").replace("~0", "~")
         if isinstance(value,list):
             if not key.isdigit() or (len(key)>1 and key.startswith("0")) or int(key)>=len(value):raise ValueError("Invalid JSON array pointer")
@@ -132,6 +135,11 @@ def existing_outputs(report, documents):
         for doc in documents:(source_song/doc["filename"]).write_text(json.dumps(doc["payload"]),encoding="utf-8")
         verification=validate_technique_analysis.audit(report,source_root)
         examples=build_analysis_evidence.build(report,source_root)
+        # This legacy helper constructs a GP filename even when none was supplied.
+        # It is not captured song data and must not become a phantom resource.
+        for example in examples["examples"]:
+            example["source_gp"]=None
+            example["source_gp_status"]="not_supplied_in_API_only_analysis; legacy constructed filename is not a real asset"
         remaining=analyze_remaining_gaps.analyze(source_root)
     extended=api_analysis_views.run(song,documents)
     return dict(extended=extended,api_coverage=coverage,private_api_coverage=private_coverage,verification=verification,evidence_examples=examples,remaining_gaps=remaining,core=report, pedal_seeds=seeds, approved_pedals=accepted, dialogue=dialogues, pattern_robustness=dict(summary=public_robustness, tracks=private_robustness), profile_observations=dict(events=event_observations, exclusions=observation_exclusions,descriptive_inventory=artist_profiles.describe(event_observations)), relationship_profile=model, profile_support=support, individual_notes=notes, profile_summary=summary)
@@ -185,6 +193,12 @@ class Mapper:
         if part is not None: scope["part_id"] = part
         kind=path.rsplit("/",1)[-1] or document
         if kind.isdigit():kind=path.rsplit("/",2)[-2]+"_item"
+        if document=="extended/relational_graph" and path.startswith("/nodes/") and path.count("/")==2:
+            kind="relational_"+value["kind"]
+        elif document=="extended/sounding_graph" and path.count("/")==2:
+            if path.startswith("/occurrences/"):kind="sounding_written_occurrence"
+            elif path.startswith("/sustains/"):kind="sounding_sustain"
+            elif path.startswith("/lanes/"):kind="inferred_lane"
         node = dict(id=ident,tier=tier,kind=kind,scope=scope,values=None,time=None,origin=dict(document=document,pointer=path),status="existing_logic_output")
         if document in ("extended/harmony_hypotheses","extended/pattern_hypotheses","extended/harmony_boundaries","extended/structure_hypotheses"):
             node["status"]="heuristic_hypothesis_not_source_fact"
@@ -227,7 +241,7 @@ class Mapper:
                     values[key]={"$source":node["source"]}
                 elif key == "raw_beat_effects" and node.get("source"):
                     values[key]={"$source":dict(document=node["source"]["document"],pointer=node["source"]["pointer"].rsplit("/notes/",1)[0],exclude_keys=["notes"])}
-                elif contains_entities(child) or document in ("extended/relational_graph","extended/sounding_graph") and path in ("/nodes","/occurrences","/sustains") and isinstance(child,dict):
+                elif contains_entities(child) or document=="extended/sounding_graph" and path=="" and key in {"occurrences","sustains"} or document in ("extended/relational_graph","extended/sounding_graph") and path in ("/nodes","/occurrences","/sustains") and isinstance(child,dict):
                     child_tier=4 if document=="individual_notes" and path=="" and key in ("songs","track_sections") else 2 if document=="profile_observations" and path=="" and key=="events" else tier
                     child_id=self.emit(child,document,path+"/"+escape(key),child_tier,part,inherited)
                     values[key]={"$record":child_id}
@@ -252,17 +266,77 @@ class Mapper:
     def finish(self):
         rows={r["occurrence"]:r for t in self.song["tracks"] for r in t["rows"]+t["grace_rows"]}
         aliases=getattr(self,"aliases",{})
-        def refs(v):
+        def alias_target(alias):
+            locator=aliases.get(alias)
+            if isinstance(locator,str):return self.event_ids[locator]
+            if isinstance(locator,dict):return f"beat:{self.song['song_id']}:{locator['part_id']}:{locator['bar']}:{locator['voice']}:{locator['beat']}"
+        graph_members=defaultdict(set)
+        for edge in getattr(self,"graph_edges",[]):
+            if edge["relation"] in {"SAME_TRACK","IN_VOICE","SAME_MEASURE","IN_SECTION"}:
+                member=alias_target(edge["source"])
+                if member:graph_members[edge["target"]].add(member)
+        def graph_context(node):
+            origin=node.get("origin",{});path=origin.get("pointer","")
+            if origin.get("document")!="extended/relational_graph" or not path.startswith("/nodes/"):return False
+            key=path.split("/")[2].replace("~1","/").replace("~0","~")
+            target=alias_target(key)
+            members={target} if target else graph_members.get(key,set())
+            if not members:return False
+            scopes=[self.nodes[m]["scope"] for m in sorted(members)]
+            scope=dict(song_id=self.song["song_id"])
+            for field in ("part_id","bar","voice","beat"):
+                values={s.get(field) for s in scopes}
+                if len(values)==1 and None not in values:scope[field]=values.pop()
+            node["scope"]=scope
+            spans={ (s["start"],s["end"]) for m in members for s in (self.nodes[m].get("time") or {}).get("spans",[]) }
+            if spans:
+                node["time"]=dict(basis="written_quarter_notes",spans=[dict(start=a,end=b) for a,b in sorted(spans,key=lambda s:(F(s[0]),F(s[1])))],status="exact_canonical_event_clock" if target else "exact_member_spans_not_continuous_extent")
+            if path.count("/")==2:
+                for member in sorted(members):self.links.append(dict(type="graph_source_occurrence" if target else "graph_group_member",from_id=node["id"],to_id=member))
+            return True
+        def sounding_context(node):
+            origin=node.get("origin",{});path=origin.get("pointer","")
+            if origin.get("document")!="extended/sounding_graph":return False
+            fields=path.split("/")
+            if len(fields)<3 or fields[1] not in {"occurrences","sustains","lanes"}:return False
+            key=fields[2].replace("~1","/").replace("~0","~")
+            source=self.sounding[fields[1]][int(key) if fields[1]=="lanes" else key]
+            node["scope"]=dict(song_id=self.song["song_id"],part_id=self.song["tracks"][source["track"]]["part_id"],voice=source.get("voice",source.get("source_voice")))
+            if fields[1]=="occurrences":
+                target=self.nodes[alias_target(key)]
+                node["scope"]=dict(target["scope"])
+                spans=target["time"]["spans"]
+            elif fields[1]=="sustains":spans=[dict(start=source["onset_q"],end=source["end_q"])]
+            else:spans=[dict(start=self.sounding["sustains"][s]["onset_q"],end=self.sounding["sustains"][s]["end_q"]) for s in source["members"]]
+            node["time"]=dict(basis="written_quarter_notes",spans=spans,status="existing_written_sustain_or_inferred_lane_members_not_acoustic_sound")
+            return True
+        def refs(v, beat_refs):
             if isinstance(v,str):
                 if v in rows:return {v}
                 alias=aliases.get(v)
+                if isinstance(alias,dict) and set(alias)=={"part_id","bar","voice","beat"}:
+                    beat_id=f"beat:{self.song['song_id']}:{alias['part_id']}:{alias['bar']}:{alias['voice']}:{alias['beat']}"
+                    if beat_id not in self.nodes:raise AssertionError("Graph alias lacks canonical source beat")
+                    beat_refs.add(beat_id)
                 return {alias} if isinstance(alias,str) and alias in rows else set()
-            if isinstance(v,list):return set().union(*(refs(x) for x in v)) if v else set()
-            if isinstance(v,dict):return set().union(*(refs(k)|refs(x) for k,x in v.items())) if v else set()
+            if isinstance(v,list):return set().union(*(refs(x,beat_refs) for x in v)) if v else set()
+            if isinstance(v,dict):
+                if set(v)=={"part_id","bar","voice","beat"}:
+                    beat_id=f"beat:{self.song['song_id']}:{v['part_id']}:{v['bar']}:{v['voice']}:{v['beat']}"
+                    if beat_id not in self.nodes:raise AssertionError("Source locator lacks canonical written beat")
+                    beat_refs.add(beat_id)
+                return set().union(*(refs(k,beat_refs)|refs(x,beat_refs) for k,x in v.items())) if v else set()
             return set()
         for ident,value,part in self.pending:
             node=self.nodes[ident]
-            ids=refs(value)
+            beat_refs=set()
+            ids=refs(value,beat_refs)
+            origin=node.get("origin",{})
+            graph_path=origin.get("pointer","")
+            if origin.get("document")=="extended/relational_graph" and graph_path.startswith("/nodes/") and graph_path.count("/")==2:
+                ids.update(refs(graph_path.rsplit("/",1)[1].replace("~1","/").replace("~0","~"),beat_refs))
+            for beat_id in sorted(beat_refs):
+                self.links.append(dict(type="mentions_written_beat",from_id=ident,to_id=beat_id))
             if node.get("origin_occurrence"):
                 origin=rows[node["origin_occurrence"]];ids.add(node["origin_occurrence"])
                 target_q=F(origin["onset_q"])+F(origin["next_attack_gap_q"])
@@ -272,10 +346,6 @@ class Mapper:
                 node["endpoints"]=dict(origin=self.event_ids[origin["occurrence"]],destination=self.event_ids[destination])
                 node["units"]="signed_semitones" if node["kind"]=="next_monophonic_interval" else "quarter_notes"
                 for endpoint,event_id in node["endpoints"].items():self.links.append(dict(type="relationship_"+endpoint,from_id=ident,to_id=event_id))
-            if isinstance(value,dict) and "support" in value and isinstance(value["support"],dict):
-                support=value["support"]
-                if "bars" in support:
-                    ids.update(i for i,r in rows.items() if r["bar"] in support["bars"] and i.split(":")[0]==str(support["part_id"]))
             # Explicit population links are different from source membership.
             population=set()
             if node["kind"]=="summary" and part is not None:
@@ -284,11 +354,14 @@ class Mapper:
                 self.links.append(dict(type="summarizes_population",from_id=ident,to_id=self.event_ids[occurrence]))
             for occurrence in sorted(ids):
                 event=self.event_ids[occurrence]
-                if event!=ident:self.links.append(dict(type="observed_unit_member" if node["origin"]["document"]=="count_witnesses" else "mentions_event",from_id=ident,to_id=event))
+                relation="observed_unit_member" if node["origin"]["document"]=="count_witnesses" else "calculation_input_member" if node["origin"]["document"]=="count_calculation_inputs" else "mentions_event"
+                if event!=ident:self.links.append(dict(type=relation,from_id=ident,to_id=event))
             time=value if isinstance(value,dict) else {}
             start=next((time[k] for k in ("onset_q","start_q","scope_start_q","call_start_q") if time.get(k) is not None),None)
             end=next((time[k] for k in ("end_q","scope_end_q") if time.get(k) is not None),None)
-            if start is not None:
+            if graph_context(node) or sounding_context(node):
+                pass
+            elif start is not None:
                 end=end if end is not None else str(F(start)+F(time["duration_q"])) if time.get("duration_q") is not None else start
                 if node["kind"]=="grace_note":end=start
                 node["time"]=dict(basis="written_quarter_notes",spans=[dict(start=str(F(start)),end=str(F(end)))],status="grace_attached_not_metric_duration" if node["kind"]=="grace_note" else "point_no_duration_claimed" if F(start)==F(end) else "explicit_existing_output")
@@ -408,7 +481,112 @@ def add_playback_inventory(mapper):
         cursor+=duration
 
 
+def connect_count_contexts(mapper,outputs,identities):
+    """Connect recorded calculation scopes without relabeling them as count units."""
+    tracks={t["part_id"]:(i,t) for i,t in enumerate(mapper.song["tracks"])}
+    pedals={t["part_id"]:(i,t) for i,t in enumerate(outputs["approved_pedals"]["tracks"])}
+    for ident in identities:
+        descriptor=mapper.nodes[ident]["values"]
+        # Local descriptor dictionaries contain no entity objects, so are inline.
+        scope=descriptor["source_scope"];pid=descriptor.get("part_id")
+        def link(target,relation="calculation_scope_input"):
+            if target not in mapper.nodes:raise AssertionError("Missing calculation input "+target)
+            mapper.links.append(dict(type=relation,from_id=ident,to_id=target))
+        for part in ([pid] if pid is not None else descriptor.get("parts",[])):
+            ti,_=tracks[part]
+            for field in ("guitar_or_bass","temporal_relationships_eligible"):
+                link(f"r:core:/songs/0/tracks/{ti}/{field}","track_eligibility_input")
+        if scope in {"core_track_rows","eligible_attack_groups"}:
+            ti,track=tracks[pid]
+            link(f"r:core:/songs/0/tracks/{ti}/rows")
+            population=[r for r in track["rows"] if r["midi"] is not None] if scope=="core_track_rows" else [r for r in track["rows"] if not r["tie_destination"] and F(r["duration_q"])>0]
+            for row in population:link(mapper.event_ids[row["occurrence"]],"calculation_search_population")
+            mapper.nodes[ident]["query"]=dict(selector=descriptor.get("selector","untied_positive_duration_regular_rows"),population_size=len(population),result_members=[])
+            if descriptor.get("predicate")=="no_eligible_attack_at":
+                matches=[r["occurrence"] for r in population if F(r["onset_q"])==F(descriptor["onset_q"])]
+                if matches:raise AssertionError("False no-attack absence")
+                mapper.nodes[ident]["query"]["result_members"]=matches
+            elif descriptor.get("predicate")=="no_next_attack_in_same_section":
+                origins={r["occurrence"]:r for r in track["rows"]}
+                origin_rows=[origins[m] for m in descriptor["after_members"]]
+                q=F(origin_rows[0]["onset_q"]);sections={r["section_start"] for r in origin_rows}
+                section=next(iter(sections)) if len(sections)==1 else None
+                later=[r for r in population if F(r["onset_q"])>q]
+                next_q=min((F(r["onset_q"]) for r in later),default=None)
+                next_rows=[r for r in later if F(r["onset_q"])==next_q]
+                next_sections={r["section_start"] for r in next_rows}
+                matches=[r["occurrence"] for r in next_rows] if section is not None and next_sections=={section} else []
+                if matches:raise AssertionError("False no-next-in-section absence")
+                mapper.nodes[ident]["query"].update(origin_q=str(q),section_start=section,result_members=matches)
+        elif scope=="core_track_events":
+            if not descriptor.get("members"):raise AssertionError("Empty local calculation inputs")
+        elif scope=="accepted_pedal_track":
+            if pid not in pedals:
+                if descriptor.get("coverage")!="not_supplied":raise AssertionError("Accepted context track missing")
+                link("r:approved_pedals:","accepted_coverage_search_scope")
+                continue
+            pi,track=pedals[pid]
+            link(f"r:approved_pedals:/tracks/{pi}","accepted_role_coverage_input")
+            for phrase in descriptor.get("phrase_indices",[]):link(f"r:approved_pedals:/tracks/{pi}/phrases/{phrase}","accepted_role_phrase_input")
+        elif scope=="accepted_pedal_cycle":
+            pi,track=pedals[pid]
+            link(f"r:approved_pedals:/tracks/{pi}/phrases/{descriptor['phrase_index']}/cycles/{descriptor['cycle_index']}","accepted_cycle_input")
+        elif scope=="core_shared_layout":
+            for bar in descriptor["bars"]:link(f"r:core:/songs/0/shared_layout/{bar-1}","bar_layout_input")
+        elif scope in {"core_hopo_candidates","core_technique_values","core_coattack_groups"}:
+            ti,track=tracks[pid]
+            field={"core_hopo_candidates":"hopo_transition_candidates","core_technique_values":"technique_values","core_coattack_groups":"coattack_groups"}[scope]
+            if scope=="core_hopo_candidates":
+                indices=[descriptor["pair_index"]] if "pair_index" in descriptor else [i for i,p in enumerate(track[field]) if p["origin"] in descriptor["origin_members"]]
+            elif scope=="core_technique_values":indices=[descriptor["detail_index"]]
+            else:
+                onsets={F(q) for q in descriptor.get("onsets_q",[descriptor.get("onset_q")]) if q is not None}
+                indices=[i for i,g in enumerate(track[field]) if F(g["onset_q"]) in onsets]
+            for index in indices:link(f"r:core:/songs/0/tracks/{ti}/{field}/{index}","existing_classifier_or_mechanic_input")
+            link(f"r:core:/songs/0/tracks/{ti}/{field}","classifier_lookup_scope")
+        elif scope in {"captured_track_programs","supplied_track_programs"}:
+            for part in descriptor["parts"]:
+                doc=mapper.documents[f"source:track-{part}.json"]
+                if "instrumentId" in doc["payload"]:mapper.links.append(dict(type="source_program_input",from_id=ident,to_source=dict(document=doc["id"],pointer="/instrumentId")))
+        elif scope=="core_song_selection":
+            for field in ("artist","provisional_partition","ai_generated","is_junk","candidate_work_family"):
+                link(f"r:core:/songs/0/{field}","eligibility_or_weighting_input")
+        elif scope=="accepted_pedal_tracks":link("r:approved_pedals:","accepted_coverage_search_scope")
+        elif scope=="prior_eligible_bar_patterns":
+            ti,track=tracks[pid]
+            population=[r for r in track["rows"] if r["bar"]<descriptor["before_bar"] and not r["tie_destination"] and F(r["duration_q"])>0]
+            for row in population:link(mapper.event_ids[row["occurrence"]],"prior_pattern_search_population")
+            for bar in sorted({r["bar"] for r in population}):link(f"r:core:/songs/0/shared_layout/{bar-1}","prior_pattern_layout_input")
+            mapper.nodes[ident]["query"]=dict(selector="untied_positive_duration_regular_attacks_in_prior_bars",before_bar_exclusive=descriptor["before_bar"],population_size=len(population),matched_members=descriptor.get("matched_members",[]))
+        else:raise AssertionError("Unmapped count calculation scope "+scope)
+
+
+def connect_selection_provenance(mapper):
+    """Original metadata and actual eligibility inputs, not inferred musical roles."""
+    meta=mapper.documents["source:metadata.json"]
+    for field,key in {"song_id":"songId","revision_id":"revisionId","artist":"artist","title":"title","ai_generated":"aiGenerated","is_junk":"isJunk"}.items():
+        if key in meta["payload"]:mapper.links.append(dict(type="captured_metadata_field",from_id=f"r:core:/songs/0/{field}",to_source=dict(document=meta["id"],pointer="/"+key)))
+    for field,input_fields in {"candidate_work_family":("artist","title"),"provisional_partition":("song_id","candidate_work_family","notation_hash")}.items():
+        for input_field in input_fields:
+            mapper.links.append(dict(type="family_partition_method_input",from_id=f"r:core:/songs/0/{field}",to_id=f"r:core:/songs/0/{input_field}"))
+    for doc in mapper.documents.values():
+        if not doc["filename"].startswith("track-"):continue
+        for key in ("measures","tuning","capo","instrumentId","automations","sounds","trackAutomations"):
+            if key in doc["payload"]:mapper.links.append(dict(type="notation_hash_input",from_id="r:core:/songs/0/notation_hash",to_source=dict(document=doc["id"],pointer="/"+key)))
+    for ti,track in enumerate(mapper.song["tracks"]):
+        prefix=f"r:core:/songs/0/tracks/{ti}"
+        doc=mapper.documents[f"source:track-{track['part_id']}.json"]
+        if "instrumentId" in doc["payload"]:mapper.links.append(dict(type="program_classification_input",from_id=prefix+"/program_guitar_or_bass",to_source=dict(document=doc["id"],pointer="/instrumentId")))
+        if "tracks" in meta["payload"]:mapper.links.append(dict(type="catalog_flag_lookup_input",from_id=prefix+"/catalog_flags",to_source=dict(document=meta["id"],pointer=f"/tracks/{ti}" if ti<len(meta["payload"]["tracks"]) else "/tracks")))
+        for field in ("program_guitar_or_bass","catalog_flags"):
+            mapper.links.append(dict(type="track_classification_input",from_id=prefix+"/guitar_or_bass",to_id=prefix+"/"+field))
+        for field in ("timing_warnings","identity_warnings"):
+            mapper.links.append(dict(type="temporal_eligibility_input",from_id=prefix+"/temporal_relationships_eligible",to_id=prefix+"/"+field))
+        mapper.links.append(dict(type="temporal_eligibility_input",from_id=prefix+"/temporal_relationships_eligible",to_id="r:core:/songs/0/layout_warnings"))
+
+
 INCLUDED_MODULES = {
+    "build_tiered_song.py":"Current source capture, canonical mapping, evidence joins and lossless legacy-view normalization",
     "connect_tiered_patterns.py":"Exact occurrence/spans for existing fingerprint/repeat/variant/content outputs; no new detections",
     "walk_tiered_song.py":"Private traversal/time/source inspection; no new musical findings",
     "api_analysis_views.py":"Explicit API-to-existing-model-free-input projections with source aliases",
@@ -456,7 +634,11 @@ def implementation_registry():
         for path in sorted(directory.glob("*.py")):
             if path.name.startswith("test_"):status="regression_test";reason="Test infrastructure, no song analysis output"
             elif path.name in INCLUDED_MODULES:status="included";reason=INCLUDED_MODULES[path.name]
-            elif path.name in {"artist_form.py","corpus_composer.py","source_harmony_transitions.py","joint_register_profile.py","joint_motion_contract.py","harmony_feasibility.py","historical_harmony_replay.py","aligned_relationship_audit.py"}:status="requires_prior_generator_model";reason="Existing model-specific analysis requires selected composer/role/harmony-bank artifacts; not a direct raw-song analysis. No new generation model fitted."
+            elif path.name=="joint_motion_contract.py":status="requires_explicit_role_schema";reason="observe is model-free but requires exactly named harmony/melody/bass tracks, one voice and declared role assignment; these are not supplied or invented for the capture."
+            elif path.name=="aligned_relationship_audit.py":status="requires_declared_paired_streams";reason="interval_stream/changes are model-free on two declared nonoverlapping root streams; compare requires a candidate pair. No declared pair or overlap policy is supplied."
+            elif path.name=="structural_learning.py":status="mixed_model_and_schema_dependencies";reason="phrase_features is model-free on its specific legacy phrase schema; form_sequence requires a fitted clusterer. No matching phrase schema or fitted clusterer is supplied."
+            elif path.name=="relationship_hypotheses.py":status="composite_model_dependency";reason="interpret requires a boundary model and threshold; deterministic motif/harmony loops inside are not themselves trained models. Composite entrypoint not invoked without those inputs."
+            elif path.name in {"artist_form.py","corpus_composer.py","source_harmony_transitions.py","joint_register_profile.py","harmony_feasibility.py","historical_harmony_replay.py"}:status="requires_prior_generator_model";reason="Existing model-specific analysis requires selected composer/role/harmony-bank artifacts; not a direct raw-song analysis. No new generation model fitted."
             elif path.name in {"structural_learning.py","relationship_hypotheses.py","external_score_export.py","model_benchmark.py"}:status="requires_external_model_or_corpus";reason="External trained model/corpus or separate benchmark dependency; not fabricated from this single capture."
             elif path.name.startswith(("compose","generate","run_","train_","learned_","role_","sequence_","pair_","open_pair","rhythm_control","profile_control","metadata_control")) or path.name in {"artist_form.py","structure_model.py","generation_freedom.py","generation_validation.py","form_returns.py"}:status="generation_or_model_workflow";reason="Separate generation/training/control workflow, not extraction of existing captured song facts."
             elif path.name.startswith(("build_","serve_","render_","review_","verify_","test_","evaluate_")):status="review_or_verification_entrypoint";reason="Presentation/render/evaluation orchestration; musical computations are included through named algorithms where applicable."
@@ -484,9 +666,10 @@ def materialize(package,ident,*,nodes=None,docs=None):
         overlay=package.get("legacy_output_projections",{}).get(record_id,{})
         return dict(value,**{k:resolve(x) for k,x in overlay.items()}) if overlay else value
     def resolve(v):
-        if isinstance(v,dict) and set(v)=={"$count_cell","$count_witness"}:
+        if isinstance(v,dict) and {"$count_cell","$count_witness"}<=set(v):
             cell=nodes[v["$count_cell"]];witness=resolve(nodes[v["$count_witness"]]["values"])
-            return dict(song_id=witness["song_id"],kind=cell["count_context"]["kind"],condition=cell["count_context"]["condition"],outcome=resolve(cell["values"])["outcome"],section=witness["section"],support=witness["support"])
+            context=resolve_node(v["$count_context"]) if "$count_context" in v else {}
+            return dict(song_id=witness["song_id"],kind=cell["count_context"]["kind"],condition=cell["count_context"]["condition"],outcome=resolve(cell["values"])["outcome"],section=witness["section"],support=witness["support"],**context)
         if isinstance(v,dict) and set(v)=={"$record"}:return resolve_node(v["$record"])
         if isinstance(v,dict) and set(v)=={"$source"}:
             ref=v["$source"];result=pointer(docs[ref["document"]],ref["pointer"])
@@ -520,9 +703,19 @@ def build(folder):
     for key,tier in allocation.items():
         if key!="profile_support":mapper.add(outputs[key],key,"",tier)
     extended_tiers={"source_attack_streams":2,"source_fingerprint_windows":3,"palm_opportunities":2,"relational_graph":2,"sounding_graph":2,"sounding_audit":4,"harmony_hypotheses":2,"pattern_hypotheses":3,"harmony_boundaries":4,"structure_hypotheses":4,"performance_opportunities":2,"projection":1}
+    extended_tiers["analysis_inputs"]=1
     mapper.aliases=outputs["extended"]["projection"]["aliases"]
+    mapper.graph_edges=outputs["extended"]["relational_graph"]["edges"]
+    mapper.sounding=outputs["extended"]["sounding_graph"]
     for key,value in outputs["extended"].items():
         mapper.add(value,"extended/"+key,"",extended_tiers[key])
+    for name,input_name in {"relational_graph":"exact_score","sounding_graph":"exact_score","harmony_hypotheses":"rounded_score","pattern_hypotheses":"rounded_score","harmony_boundaries":"ensemble_score","structure_hypotheses":"ensemble_score"}.items():
+        mapper.links.append(dict(type="declared_full_method_input_not_unit_membership",from_id=f"r:extended/{name}:",to_id=f"r:extended/analysis_inputs:/{input_name}"))
+    sounding=outputs["extended"]["sounding_graph"]
+    for lane_i,lane in enumerate(sounding["lanes"]):
+        lane_id=f"r:extended/sounding_graph:/lanes/{lane_i}"
+        for sustain_id in lane["members"]:
+            mapper.links.append(dict(type="inferred_lane_member",from_id=lane_id,to_id="r:extended/sounding_graph:/sustains/"+escape(sustain_id)))
     for row in outputs["extended"]["palm_opportunities"]["evidence"]:
         mapper.links.append(dict(type="eligible_palm_group_evidence",from_id=f"r:extended/palm_opportunities:/events/{row['event_index']}",to_id=f"r:extended/palm_opportunities:/evidence/{row['event_index']}"))
     for index,stream in enumerate(outputs["extended"]["source_fingerprint_windows"]):
@@ -542,7 +735,7 @@ def build(folder):
             cid=f"r:relationship_profile:/tables/{i}/outcomes/{j}"
             mapper.nodes[cid]["count_context"]=dict(kind=table["kind"],condition=table["condition"])
             cell_ids[digest([table["kind"],table["condition"],outcome["outcome"]])]=cid
-    witnesses={};stream=[];cell_counts=Counter()
+    witnesses={};contexts={};context_inputs={};stream=[];cell_counts=Counter()
     for unit in outputs["profile_support"]:
         witness={k:unit[k] for k in ("song_id","section","support")}
         signature=digest(witness)
@@ -552,9 +745,37 @@ def build(folder):
             witnesses[signature]=wid
         wid=witnesses[signature]
         cid=cell_ids[digest([unit["kind"],unit["condition"],unit["outcome"]])]
-        stream.append({"$count_cell":cid,"$count_witness":wid})
+        contribution={"$count_cell":cid,"$count_witness":wid}
+        context={}
+        for field in ("calculation_inputs","absence_checks"):
+            if field not in unit:continue
+            refs=[]
+            for descriptor in unit[field]:
+                key=digest(descriptor)
+                if key not in context_inputs:
+                    descriptor_tier=5 if descriptor.get("source_scope")=="core_song_selection" else 3
+                    record=mapper.emit(descriptor,"count_calculation_inputs","/"+key,descriptor_tier,part=descriptor.get("part_id"))
+                    mapper.nodes[record]["kind"]="conditional_absence_check" if field=="absence_checks" else "conditional_calculation_input"
+                    context_inputs[key]=record
+                refs.append({"$record":context_inputs[key]})
+            context[field]=refs
+        if context:
+            key=digest(context)
+            if key not in contexts:
+                record="count-context:"+key
+                context_tier=max((mapper.nodes[r["$record"]]["tier"] for refs in context.values() for r in refs),default=3)
+                mapper.nodes[record]=dict(id=record,tier=context_tier,kind="conditional_calculation_context",scope=dict(song_id=song["song_id"]),values=context,time=None,origin=dict(document="normalized_count_contexts",pointer="/"+key),status="recorded_existing_calculation_inputs_not_counted_units")
+                mapper.tiers[context_tier]["records"].append(mapper.nodes[record])
+                for refs in context.values():
+                    for ref in refs:mapper.links.append(dict(type="calculation_input",from_id=record,to_id=ref["$record"]))
+                contexts[key]=record
+            contribution["$count_context"]=contexts[key]
+            mapper.links.append(dict(type="conditional_calculation_context",from_id=cid,to_id=contexts[key]))
+        stream.append(contribution)
         mapper.links.append(dict(type="derived_from_complete_units",from_id=cid,to_id=wid))
         cell_counts[cid]+=1
+    connect_count_contexts(mapper,outputs,context_inputs.values())
+    connect_selection_provenance(mapper)
     sid="r:profile_support:"
     stream_node=dict(id=sid,tier=5,kind="ordered_count_contributions",scope=dict(song_id=song["song_id"]),values=stream,time=None,origin=dict(document="profile_support",pointer=""),status="lossless_normalized_existing_support_log")
     mapper.nodes[sid]=stream_node;mapper.tiers[5]["records"].append(stream_node);mapper.roots["profile_support#"]=sid
@@ -575,6 +796,11 @@ def build(folder):
         "count_witnesses":dict(module="artist_relationship_profiles.py",function="Counts.add optional support_sink",input_scope="complete counted unit support; canonical witness normalization is lossless"),
         "extended":dict(module="api_analysis_views.py",function="run",input_scope="explicit source-derived exact graph / rounded legacy views; projection aliases retained")}
     package["provenance"]=dict(capture_payloads=[dict(id=d["id"],sha256=d["payload_sha256"]) for d in documents],producer="build_tiered_song.py",analysis_scope="single-song existing logic; not cross-song evidence",support_log="Complete Counts.add units; no statistical output changes")
+    package["source_id"]=package["package_id"]
+    package["analysis_revision"]=digest(dict(outputs_sha256=digest(outputs),implementation_registry_sha256=digest(package["implementation_registry"]),source_inputs=[dict(byte_sha256=d["byte_sha256"],payload_sha256=d["payload_sha256"]) for d in documents],schema=package["schema"]))
+    package["package_id"]=package["source_id"]+":analysis:"+package["analysis_revision"]
+    package["id_contract"]="Record IDs are local to this immutable analysis snapshot. Source identity is source_id; cross-snapshot references require package_id plus record_id."
+    package["adapter_corrections"]=[dict(field="evidence_examples.examples[].source_gp",action="explicitly_unavailable",reason="Legacy helper constructs a temporary filename without a supplied GP; no phantom resource retained")]
     nodes={r["id"]:r for state in layers(package).values() for r in state["records"]}
     source_docs={d["id"]:d["payload"] for d in documents}
     for key,ident in package["output_roots"].items():

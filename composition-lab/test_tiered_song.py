@@ -80,7 +80,7 @@ class TieredSongTests(unittest.TestCase):
     def test_legacy_graph_index_scope_and_clock_domains(self):
         states=layers(self.package)
         graph=next(n for n in states[2]["records"] if n["origin"]["document"]=="extended/relational_graph" and isinstance(n["values"],dict) and n["values"].get("measure")==1)
-        self.assertEqual(graph["scope"]["measure"],2)
+        self.assertEqual(graph["scope"]["bar"],2)
         self.assertTrue(self.package["indexes"]["playback_time"])
         self.assertTrue(all(x["basis"]=="playback_quarter_notes" for x in self.package["indexes"]["playback_time"]))
         self.assertTrue(all(x["basis"]=="written_quarter_notes" for x in self.package["indexes"]["written_time"]))
@@ -119,6 +119,145 @@ class TieredSongTests(unittest.TestCase):
         self.assertIn(event["id"],walk.at_time(event["values"]["onset_q"]))
         self.assertTrue(walk.at_time("0","playback_quarter_notes"))
         self.assertNotIn(event["id"],walk.at_time("0","playback_quarter_notes"))
+
+    def test_graph_record_kinds_are_types_not_occurrence_ids(self):
+        graph=[n for n in layers(self.package)[2]["records"] if n.get("origin",{}).get("document")=="extended/relational_graph" and n["origin"]["pointer"].startswith("/nodes/") and n["origin"]["pointer"].count("/")==2]
+        self.assertTrue(graph)
+        self.assertTrue(all(n["kind"] in {"relational_note","relational_beat","relational_track","relational_voice","relational_measure","relational_section","relational_hypothesis"} for n in graph))
+
+    def test_rich_source_repeats_tuplets_polyphony_curves_and_ties(self):
+        from fractions import Fraction as F
+        with tempfile.TemporaryDirectory() as temp:
+            folder=Path(temp);fixture(folder)
+            part=json.loads((folder/"track-0.json").read_text())
+            curve=dict(tone=50,points=[dict(position=0,tone=0),dict(position=30,precisePosition=51,tone=50,vibrato=True),dict(position=60,tone=0)])
+            def beat(fret,duration=(1,4),**fields):return dict(duration=list(duration),notes=[dict(string=0,fret=fret,**fields)])
+            first=[beat(0,(1,12),hp=True),beat(1,(1,12)),beat(2,(1,12)),beat(3,bend=curve),beat(4,slide="legato"),beat(4)]
+            second=[beat(4,tie=True),beat(6,leftHandVibrato=True),beat(4,hp=True),beat(0)]
+            part["measures"]=[dict(signature=[4,4],marker="A",repeatStart=True,voices=[dict(beats=first),dict(beats=[dict(duration=[1,1],notes=[dict(string=1,fret=0),dict(string=2,fret=2)])])]),dict(marker="B",repeat=2,voices=[dict(beats=second),dict(rest=True,beats=[dict(duration=[1,1],rest=True,notes=[dict(rest=True)])])])]
+            (folder/"track-0.json").write_text(json.dumps(part),encoding="utf-8")
+            drums=json.loads((folder/"track-1.json").read_text());drums["measures"][0]["repeatStart"]=True;drums["measures"][1]["repeat"]=2
+            (folder/"track-1.json").write_text(json.dumps(drums),encoding="utf-8")
+            package,outputs=build(folder);verify(package,outputs,folder)
+            notes=[r for r in layers(package)[1]["records"] if r.get("event_id")]
+            self.assertTrue(any(n["values"]["duration_q"]=="1/3" for n in notes))
+            self.assertTrue(any(n["values"]["tie_destination"] for n in notes))
+            self.assertEqual(len(package["indexes"]["playback_time"]),4)
+            raw=next(d["payload"] for d in layers(package)[0]["documents"] if d["filename"]=="track-0.json")
+            self.assertEqual(raw["measures"][0]["voices"][0]["beats"][3]["notes"][0]["bend"],curve)
+
+    def test_analysis_snapshot_identity_is_reproducible_and_not_source_identity(self):
+        package,outputs=build(self.folder)
+        self.assertEqual(package["source_id"],self.package["source_id"])
+        self.assertEqual(package["package_id"],self.package["package_id"])
+        self.assertNotEqual(package["package_id"],package["source_id"])
+        self.assertEqual(len(package["analysis_revision"]),64)
+        self.assertTrue(all(e["source_gp"] is None for e in outputs["evidence_examples"]["examples"]))
+
+    def test_source_pointer_preserves_empty_keys_and_escaped_delimiters(self):
+        self.assertEqual(pointer({"parent":{"":3}},"/parent/"),3)
+        self.assertEqual(pointer({"a/b":{"~":4}},"/a~1b/~0"),4)
+        for path in ("not-absolute","/~2"):
+            with self.assertRaises(ValueError):pointer({},path)
+
+    def test_source_containers_walk_to_contained_field_users(self):
+        from walk_tiered_song import SongWalk
+        walk=SongWalk(self.package)
+        root_users=walk.source_users("source:track-0.json","")
+        measure_users=walk.source_users("source:track-0.json","/measures/0")
+        self.assertTrue(root_users);self.assertTrue(measure_users)
+        self.assertTrue(any(u["query_relation"]=="user_of_contained_field" for u in measure_users))
+
+    def test_silent_beats_connect_to_existing_graph_relationships(self):
+        from walk_tiered_song import SongWalk
+        walk=SongWalk(self.package)
+        for beat_id in ("beat:1:0:1:0:3","beat:1:1:2:0:0"):
+            reachable=walk.walk(beat_id,"up",2)["records"]
+            self.assertTrue(any(n["kind"]=="relational_beat" for n in reachable),beat_id)
+        changed=deepcopy(self.package)
+        state=layers(changed)[2]
+        edge=next(e for e in state["links"] if e["type"]=="mentions_written_beat" and e["to_id"]=="beat:1:0:1:0:3" and "/nodes/" in e["from_id"])
+        state["links"].remove(edge)
+        with self.assertRaisesRegex(AssertionError,"Missing graph-to-source beat bridge"):verify(changed,self.outputs)
+
+    def test_graph_note_clocks_and_groups_use_only_actual_members(self):
+        from walk_tiered_song import SongWalk
+        walk=SongWalk(self.package)
+        for alias,occurrence in self.outputs["extended"]["projection"]["aliases"].items():
+            if not isinstance(occurrence,str):continue
+            graph=walk.nodes["r:extended/relational_graph:/nodes/"+alias]
+            event=walk.nodes["event:1:"+occurrence]
+            self.assertEqual(graph["time"]["spans"],event["time"]["spans"])
+            self.assertEqual(graph["scope"]["part_id"],event["scope"]["part_id"])
+            self.assertFalse(any(e["type"]=="scope_contains_event" for e in walk.forward[graph["id"]]))
+        graph_note="r:extended/relational_graph:/nodes/t0:m0:v0:b1:n0"
+        self.assertNotIn(graph_note,walk.at_time("3/2"))
+        measure=walk.nodes["r:extended/relational_graph:/nodes/measure:(0, 0)"]
+        members=[walk.nodes[e["to_id"]] for e in walk.forward[measure["id"]] if e["type"]=="graph_group_member"]
+        self.assertTrue(members)
+        self.assertTrue(all(m["scope"]["part_id"]==0 and m["scope"]["bar"]==1 for m in members))
+
+    def test_sounding_lanes_link_to_sustains_and_written_occurrences(self):
+        from walk_tiered_song import SongWalk
+        walk=SongWalk(self.package)
+        for i,lane in enumerate(self.outputs["extended"]["sounding_graph"]["lanes"]):
+            ident=f"r:extended/sounding_graph:/lanes/{i}"
+            linked=[e["to_id"] for e in walk.forward[ident] if e["type"]=="inferred_lane_member"]
+            self.assertEqual(len(linked),len(lane["members"]))
+            self.assertTrue(all(walk.nodes[s]["kind"]=="sounding_sustain" for s in linked))
+            self.assertTrue(walk.nodes[ident]["time"]["spans"])
+            down=walk.walk(ident,"down",2)["records"]
+            self.assertTrue(any(n.get("event_id") for n in down))
+
+    def test_actual_method_inputs_are_materialized_for_reexecution(self):
+        import harmonic_inference,relational_graph
+        exact=materialize(self.package,"r:extended/analysis_inputs:/exact_score")
+        rounded=materialize(self.package,"r:extended/analysis_inputs:/rounded_score")
+        self.assertEqual(relational_graph.build_graph(exact),self.outputs["extended"]["relational_graph"])
+        self.assertEqual(harmonic_inference.infer_score(rounded),self.outputs["extended"]["harmony_hypotheses"])
+
+    def test_calculation_search_population_cannot_silently_include_future_notes(self):
+        changed=deepcopy(self.package)
+        nodes={n["id"]:n for s in layers(changed).values() for n in s["records"]}
+        history=next(n for n in nodes.values() if n["kind"]=="conditional_calculation_input" and n["values"].get("source_scope")=="prior_eligible_bar_patterns" and n["values"]["before_bar"]==1)
+        event=next(n for n in nodes.values() if n.get("event_id"))
+        layers(changed)[3]["links"].append(dict(type="prior_pattern_search_population",from_id=history["id"],to_id=event["id"]))
+        with self.assertRaisesRegex(AssertionError,"Calculation search population differs"):verify(changed,self.outputs)
+
+    def test_removing_classifier_calculation_input_is_rejected(self):
+        changed=deepcopy(self.package)
+        state=layers(changed)[3]
+        edge=next(e for e in state["links"] if e["type"]=="existing_classifier_or_mechanic_input")
+        state["links"].remove(edge)
+        with self.assertRaisesRegex(AssertionError,"Exact classifier/mechanical input link differs"):verify(changed,self.outputs)
+
+    def test_count_units_cannot_gain_unrelated_scope_notes(self):
+        changed=deepcopy(self.package)
+        witness=next(n for n in layers(changed)[2]["records"] if n["kind"]=="counted_observation_witness")
+        linked={e["to_id"] for e in layers(changed)[2]["links"] if e["from_id"]==witness["id"] and e["type"]=="observed_unit_member"}
+        unrelated=next(n["id"] for n in layers(changed)[1]["records"] if n.get("event_id") and n["id"] not in linked)
+        layers(changed)[2]["links"].append(dict(type="observed_unit_member",from_id=witness["id"],to_id=unrelated))
+        with self.assertRaisesRegex(AssertionError,"Count witness contains scope notes"):verify(changed,self.outputs)
+
+    def test_mixed_section_groups_do_not_create_false_next_attack(self):
+        from types import SimpleNamespace
+        from build_tiered_song import connect_count_contexts
+        for mixed_origin in (True,False):
+            source=deepcopy(self.outputs["core"]["songs"][0])
+            rows=source["tracks"][0]["rows"]
+            for i,r in enumerate(rows):
+                r["onset_q"]="0" if i<2 else "1"
+                r["section_start"]=1 if i%2==0 else 2
+            if not mixed_origin:
+                rows[0]["section_start"]=rows[1]["section_start"]=1
+            else:
+                rows[2]["section_start"]=rows[3]["section_start"]=1
+            nodes={n["id"]:deepcopy(n) for s in layers(self.package).values() for n in s["records"]}
+            descriptor=dict(predicate="no_next_attack_in_same_section",source_scope="eligible_attack_groups",part_id=0,after_members=[r["occurrence"] for r in rows[:2]])
+            nodes["test-context"]=dict(values=descriptor)
+            mapper=SimpleNamespace(song=source,nodes=nodes,links=[],event_ids={r["occurrence"]:f"event:1:{r['occurrence']}" for t in source["tracks"] for r in t["rows"]})
+            connect_count_contexts(mapper,self.outputs,["test-context"])
+            self.assertEqual(mapper.nodes["test-context"]["query"]["result_members"],[])
 
     def test_pointer_rejects_python_negative_index_shortcut(self):
         for path in ("/-1","/01","/2"):

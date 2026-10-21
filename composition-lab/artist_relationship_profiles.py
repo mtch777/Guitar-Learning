@@ -5,6 +5,7 @@ emotional purpose, functional harmony, performed articulation or phrase labels.
 Source-located tables/models belong in private local-artifacts.
 """
 from collections import Counter, defaultdict
+from copy import deepcopy
 from fractions import Fraction as F
 from itertools import combinations
 import hashlib
@@ -113,9 +114,13 @@ class Counts:
         self.songs={}
         self.namespaces={}
 
-    def add(self,song,kind,condition,outcome,section=None,evidence=None,*,support=None):
+    def add(self,song,kind,condition,outcome,section=None,evidence=None,*,support=None,
+            calculation_inputs=(),absence_checks=()):
         if self.support_sink is not None:
-            self.support_sink(dict(song_id=song["song_id"],kind=kind,condition=condition,outcome=outcome,section=section,support=support if support is not None else evidence))
+            selection=dict(role='eligibility_metadata',source_scope='core_song_selection',song_id=song['song_id'])
+            self.support_sink(dict(song_id=song["song_id"],kind=kind,condition=condition,outcome=outcome,section=section,
+                support=support if support is not None else evidence,
+                calculation_inputs=deepcopy([selection,*calculation_inputs]),absence_checks=deepcopy(list(absence_checks))))
         sid=song['song_id'];namespace=(kind,condition.get('feature',condition.get('mechanism',condition.get('pattern_kind'))))
         condition=json.dumps(condition,sort_keys=True,separators=(',',':'))
         outcome=json.dumps(outcome,sort_keys=True,separators=(',',':'))
@@ -152,6 +157,40 @@ class Counts:
                                song_eligible_counts=[dict(song_id=sid,family=self.songs[sid],eligible_count=n) for sid,n in sorted(song_eligible.items(),key=lambda item:str(item[0]))],
                                outcomes=sorted(outcomes,key=lambda o:(-o['count'],str(o['outcome'])))))
         return result
+
+
+def _group_members(groups):
+    """Neutral written attack membership; context is recorded separately."""
+    return list(dict.fromkeys(r['occurrence'] for g in groups for r in g['rows']))
+
+
+def _calculation_groups(track,groups,*,context=False,labels=False,pedal=None,pedal_roles=False,role='attack_groups'):
+    """Address existing inputs without copying tracks or reinterpreting notation.
+
+    Descriptors are sink-only provenance. Scopes/selectors identify an existing
+    source population, including a genuinely empty lookup; they are not newly
+    detected groups, inferred roles or counted observations.
+    """
+    tid=track['part_id'];members=_group_members(groups)
+    inputs=[dict(role=role,source_scope='core_track_events',part_id=tid,members=members)]
+    absence=[]
+    if context:
+        inputs.extend([
+            dict(role='track_register',source_scope='core_track_rows',part_id=tid,selector='known_base_pitch_regular_rows'),
+            dict(role='bar_layout',source_scope='core_shared_layout',bars=sorted({r['bar'] for g in groups for r in g['rows']}))])
+    if labels:
+        inputs.extend([
+            dict(role='written_harmony_labels',source_scope='core_coattack_groups',part_id=tid,onsets_q=[str(g['q']) for g in groups]),
+            dict(role='hopo_labels',source_scope='core_hopo_candidates',part_id=tid,origin_members=members)])
+    if pedal_roles:
+        indices=[] if pedal is None else [i for i,p in enumerate(pedal['phrases']) if set(members)&set(p['roles'])]
+        inputs.append(dict(role='accepted_pedal_roles',source_scope='accepted_pedal_track',part_id=tid,
+            members=members,phrase_indices=indices,coverage='not_supplied' if pedal is None else 'covered'))
+        if pedal is None:
+            absence.append(dict(predicate='no_accepted_pedal_track',source_scope='accepted_pedal_tracks',part_id=tid))
+        elif not indices:
+            absence.append(dict(predicate='no_accepted_role_for_members',source_scope='accepted_pedal_track',part_id=tid,members=members))
+    return inputs,absence
 
 
 def attack_groups(track,roles):
@@ -244,7 +283,8 @@ def build_relationship_profile(report,accepted_pedals,artist,programs=None,*,par
                         if axis=='accepted_pedal_role' and pedal is None:continue
                         if axis=='written_harmony_labels' and feature in {'close_interval_texture','power_chord','extended_power_chord','double_stop'}:continue
                         if axis=='accepted_pedal_role' and feature.startswith('pedal_'):continue
-                        counts.add(song,'technique_given_'+axis,dict(feature=feature,value=value),feature in g['labels'],sec,evidence)
+                        inputs,absences=_calculation_groups(track,[g],context=axis=='context',labels=True,pedal=pedal,pedal_roles=axis=='accepted_pedal_role' or feature.startswith('pedal_'))
+                        counts.add(song,'technique_given_'+axis,dict(feature=feature,value=value),feature in g['labels'],sec,evidence,calculation_inputs=inputs,absence_checks=absences)
                 bars[g['rows'][0]['bar']].append(g)
             # Next written attack, never called a response without accepted roles.
             for a,b in zip(groups,groups[1:]):
@@ -255,9 +295,10 @@ def build_relationship_profile(report,accepted_pedals,artist,programs=None,*,par
                 outcome=dict(next_techniques=sorted(b['labels']),next_context=b['context'],
                              next_known_features=sorted(b['known']),
                              ioi_q=str(b['q']-a['q']),separation='overlap' if gap<0 else 'contiguous' if gap==0 else 'gap')
-                counts.add(song,'next_written_attack',condition,outcome,(tid,a['section']),support=dict(part_id=tid,members=[r['occurrence'] for g in (a,b) for r in g['rows']]))
-            _mechanical_relationships(song,track,groups,counts,coverage)
-            seen={};seen_members={};previous=None
+                inputs,absences=_calculation_groups(track,[a,b],context=True,labels=True,pedal=pedal,pedal_roles=True)
+                counts.add(song,'next_written_attack',condition,outcome,(tid,a['section']),support=dict(part_id=tid,members=_group_members([a,b])),calculation_inputs=inputs,absence_checks=absences)
+            _mechanical_relationships(song,track,groups,counts,coverage,pedal)
+            seen={};seen_members={};previous=None;previous_members=[]
             for bar,gs in sorted(bars.items()):
                 base=min(F(r['onset_q'])-F(r.get('bar_offset_q','0')) for g in gs for r in g['rows'])
                 header=headers.get(bar,{})
@@ -268,16 +309,20 @@ def build_relationship_profile(report,accepted_pedals,artist,programs=None,*,par
                 for kind,fp in [('rhythm',rhythm),('relative_pitch',pitch)]:
                     if fp is None:coverage['bar_pitch_patterns_unknown']+=1;continue
                     old=seen.get((kind,fp));state='first_observation' if old is None else 'same_section_return' if old==sec else 'other_section_return'
-                    counts.add(song,'bar_pattern_return',dict(pattern_kind=kind),state,(tid,sec),support=dict(part_id=tid,members=[r['occurrence'] for g in gs for r in g['rows']]+seen_members.get((kind,fp),[]),bar=bar))
+                    inputs,absences=_calculation_groups(track,gs)
+                    inputs.append(dict(role='bar_layout',source_scope='core_shared_layout',bars=[bar]))
+                    inputs.append(dict(role='pattern_search',source_scope='prior_eligible_bar_patterns',part_id=tid,before_bar=bar,pattern_kind=kind,signature=fp,matched_members=seen_members.get((kind,fp),[])))
+                    if old is None:absences.append(dict(predicate='no_previous_pattern_match',source_scope='prior_eligible_bar_patterns',part_id=tid,before_bar=bar,pattern_kind=kind,signature=fp))
+                    counts.add(song,'bar_pattern_return',dict(pattern_kind=kind),state,(tid,sec),support=dict(part_id=tid,members=_group_members(gs)+seen_members.get((kind,fp),[]),bar=bar),calculation_inputs=inputs,absence_checks=absences)
                     seen[kind,fp]=sec;seen_members[kind,fp]=[r['occurrence'] for g in gs for r in g['rows']]
                 if previous and previous[0]+1==bar and previous[1]==sec:
                     counts.add(song,'adjacent_bar_variation',dict(previous_group_count=previous[4]),
                                dict(rhythm_same=previous[2]==rhythm,pitch_same=None if pitch is None or previous[3] is None else previous[3]==pitch),
-                               (tid,sec),support=dict(part_id=tid,bars=[previous[0],bar]))
-                previous=(bar,sec,rhythm,pitch,len(gs))
+                               (tid,sec),support=dict(part_id=tid,bars=[previous[0],bar],members=previous_members+_group_members(gs)),calculation_inputs=[dict(role='compared_bar_attacks',source_scope='core_track_events',part_id=tid,members=previous_members+_group_members(gs)),dict(role='bar_layout',source_scope='core_shared_layout',bars=[previous[0],bar])])
+                previous=(bar,sec,rhythm,pitch,len(gs));previous_members=_group_members(gs)
             if pedal:
                 _pedal_cycles(song,track,pedal,lookup,counts,coverage)
-        _track_interactions(song,tracks,programs,counts,coverage)
+        _track_interactions(song,tracks,programs,counts,coverage,pedal_index)
     scope_rows=[];song_counts=defaultdict(Counter)
     for (sid,tid,section,feature),values in sorted(scope_counts.items(),key=lambda item:str(item[0])):
         scope_rows.append(dict(song_id=sid,family=family[sid],part_id=tid,source_section_instance=section,feature=feature,
@@ -304,7 +349,7 @@ def build_relationship_profile(report,accepted_pedals,artist,programs=None,*,par
                              'Source marker absence is not absence of performed technique'])
 
 
-def _mechanical_relationships(song,track,groups,counts,coverage):
+def _mechanical_relationships(song,track,groups,counts,coverage,pedal=None):
     lookup={r['occurrence']:r for r in track['rows']}
     group_by_id={r['occurrence']:g for g in groups for r in g['rows']}
     next_by_id={r['occurrence']:b for a,b in zip(groups,groups[1:])
@@ -312,7 +357,7 @@ def _mechanical_relationships(song,track,groups,counts,coverage):
     seen_whammy_beats=set()
     def beat_identity(row):
         return (row['bar'],row['voice'],row.get('beat',row['occurrence'].rsplit(':',1)[0]))
-    for detail in track.get('technique_values',[]):
+    for detail_index,detail in enumerate(track.get('technique_values',[])):
         ident=detail['occurrence'];g=group_by_id.get(ident);row=lookup.get(ident)
         if g is None or row is None:continue
         for mechanism in ('bend','whammy'):
@@ -331,6 +376,10 @@ def _mechanical_relationships(song,track,groups,counts,coverage):
                 members=[r for r in g['rows'] if beat_identity(r)==beat_identity(row)]
                 origin_pitch=min(r['midi'] for r in members) if all(r['midi'] is not None for r in members) else None
             next_interval=(min(nxt['pitches'])-origin_pitch) if nxt and nxt['all_pitches_known'] and origin_pitch is not None else None
+            inputs,absences=_calculation_groups(track,[g],context=True,labels=True,pedal=pedal,pedal_roles=True,role='origin_group')
+            inputs.append(dict(role='curve_parameters',source_scope='core_technique_values',part_id=track['part_id'],detail_index=detail_index,mechanism=mechanism))
+            if nxt:inputs.append(dict(role='next_group',source_scope='core_track_events',part_id=track['part_id'],members=_group_members([nxt])))
+            else:absences.append(dict(predicate='no_next_attack_in_same_section',source_scope='eligible_attack_groups',part_id=track['part_id'],after_members=_group_members([g])))
             counts.add(song,'mechanical_shape_given_context',dict(mechanism=mechanism,context=g['context'],
                        written_harmony_labels=sorted(g['labels']&{'power_chord','extended_power_chord','close_interval_texture','double_stop'}) if g['all_pitches_known'] else None,
                        accepted_pedal_role=g['role']),
@@ -341,14 +390,16 @@ def _mechanical_relationships(song,track,groups,counts,coverage):
                             point_vibrato_flags=shape.get('point_vibrato_flags'),
                             next_attack_written_minimum_interval=next_interval,
                             next_attack_interval_known=next_interval is not None),
-                       (track['part_id'],g['section']),dict(song_id=song['song_id'],part_id=track['part_id'],occurrence=ident))
-    for pair in track.get('hopo_transition_candidates',[]):
+                       (track['part_id'],g['section']),dict(song_id=song['song_id'],part_id=track['part_id'],occurrence=ident),support=dict(part_id=track['part_id'],members=[r['occurrence'] for r in members] if mechanism=='whammy' else [ident]),calculation_inputs=inputs,absence_checks=absences)
+    for pair_index,pair in enumerate(track.get('hopo_transition_candidates',[])):
         g=group_by_id.get(pair['origin']);destination=lookup.get(pair['destination'])
         if g is None or destination is None:continue
+        inputs,absences=_calculation_groups(track,[g],context=True,pedal=pedal,pedal_roles=True,role='origin_group')
+        inputs.extend([dict(role='directed_pair',source_scope='core_hopo_candidates',part_id=track['part_id'],pair_index=pair_index),dict(role='destination',source_scope='core_track_events',part_id=track['part_id'],members=[pair['destination']])])
         counts.add(song,'hopo_transition_given_context',dict(context=g['context'],accepted_pedal_role=g['role']),
                    dict(direction=pair['direction'],context=pair['context'],fret_distance=pair.get('fret_distance'),
                         origin_duration_q=lookup[pair['origin']]['duration_q'],destination_duration_q=destination['duration_q']),
-                   (track['part_id'],g['section']),support=dict(part_id=track['part_id'],members=[pair['origin'],pair['destination']]))
+                   (track['part_id'],g['section']),support=dict(part_id=track['part_id'],members=[pair['origin'],pair['destination']]),calculation_inputs=inputs,absence_checks=absences)
 
 
 def heldout_support(model,held):
@@ -381,8 +432,8 @@ def heldout_support(model,held):
 def _pedal_cycles(song,track,pedal,lookup,counts,coverage):
     tid=track['part_id']
     for pi,phrase in enumerate(pedal['phrases']):
-        seen={};seen_members={}
-        for cycle in phrase.get('cycles',[]):
+        seen={};seen_members={};seen_cycles={}
+        for ci,cycle in enumerate(phrase.get('cycles',[])):
             ids=cycle['call_members']+cycle['response_members']
             if any(i not in lookup for i in ids) or set(cycle['call_members'])&set(cycle['response_members']):
                 coverage['pedal_cycles_missing_or_overlapping_members']+=1;continue
@@ -413,18 +464,20 @@ def _pedal_cycles(song,track,pedal,lookup,counts,coverage):
                          response_techniques=sorted({e for r in answer for e in r.get('effects',[])}),
                          response_intervals_from_lowest_call=sorted({r['midi']-anchor for r in answer}) if known else None)
             sec=(tid,'accepted_pedal',pi)
+            inputs=[dict(role='accepted_cycle',source_scope='accepted_pedal_cycle',part_id=tid,phrase_index=pi,cycle_index=ci),dict(role='cycle_members',source_scope='core_track_events',part_id=tid,members=ids)]
             counts.add(song,'accepted_pedal_response',condition,outcome,sec,
-                       dict(song_id=song['song_id'],part_id=tid,phrase=pi,call_members=cycle['call_members'],response_members=cycle['response_members']))
+                       dict(song_id=song['song_id'],part_id=tid,phrase=pi,call_members=cycle['call_members'],response_members=cycle['response_members']),calculation_inputs=inputs)
             call_fp=(anchor,cr,cp)
             if cp is not None and rp is not None and call_fp in seen:
                 old=seen[call_fp]
                 counts.add(song,'same_pedal_call_answer_variation',dict(call_groups=len(cg)),
-                           dict(response_rhythm_same=rr==old[0],response_pitch_same=rp==old[1]),sec,support=dict(part_id=tid,phrase=pi,members=ids+seen_members.get(call_fp,[])))
-            if cp is not None and rp is not None:seen[call_fp]=(rr,rp);seen_members[call_fp]=list(ids)
+                           dict(response_rhythm_same=rr==old[0],response_pitch_same=rp==old[1]),sec,support=dict(part_id=tid,phrase=pi,members=ids+seen_members.get(call_fp,[])),calculation_inputs=inputs+[dict(role='previous_comparable_cycle',source_scope='accepted_pedal_cycle',part_id=tid,phrase_index=pi,cycle_index=seen_cycles[call_fp])])
+            if cp is not None and rp is not None:seen[call_fp]=(rr,rp);seen_members[call_fp]=list(ids);seen_cycles[call_fp]=ci
             coverage['accepted_pedal_cycles']+=1
 
 
-def _track_interactions(song,tracks,programs,counts,coverage):
+def _track_interactions(song,tracks,programs,counts,coverage,pedal_index=None):
+    pedal_index=pedal_index or {}
     for (ta,a),(tb,b) in combinations(tracks,2):
         left={g['q']:g for g in a};right={g['q']:g for g in b}
         if not left or not right:continue
@@ -432,14 +485,21 @@ def _track_interactions(song,tracks,programs,counts,coverage):
                                  programs.get((song['song_id'],tb['part_id']),'unknown')])
         for q in sorted(left.keys()|right.keys()):
             x,y=left.get(q),right.get(q)
+            inputs=[dict(role='source_programs',source_scope='supplied_track_programs',parts=[ta['part_id'],tb['part_id']])]
+            absences=[]
+            for tr,group in ((ta,x),(tb,y)):
+                if group:
+                    gi,ga=_calculation_groups(tr,[group],labels=True,pedal=pedal_index.get((song['song_id'],tr['part_id'])),pedal_roles=True)
+                    inputs.extend(gi);absences.extend(ga)
+                else:absences.append(dict(predicate='no_eligible_attack_at',source_scope='eligible_attack_groups',part_id=tr['part_id'],onset_q=str(q)))
             if x is None or y is None:
-                counts.add(song,'track_attack_alignment',condition,'left_only' if x else 'right_only',support=dict(parts=[ta['part_id'],tb['part_id']],onset_q=str(q),members=[r['occurrence'] for g in (x,y) if g for r in g['rows']]));continue
-            counts.add(song,'track_attack_alignment',condition,'simultaneous',support=dict(parts=[ta['part_id'],tb['part_id']],members=[r['occurrence'] for g in (x,y) for r in g['rows']]))
+                counts.add(song,'track_attack_alignment',condition,'left_only' if x else 'right_only',support=dict(parts=[ta['part_id'],tb['part_id']],onset_q=str(q),members=[r['occurrence'] for g in (x,y) if g for r in g['rows']]),calculation_inputs=inputs,absence_checks=absences);continue
+            counts.add(song,'track_attack_alignment',condition,'simultaneous',support=dict(parts=[ta['part_id'],tb['part_id']],members=[r['occurrence'] for g in (x,y) for r in g['rows']]),calculation_inputs=inputs,absence_checks=absences)
             known=x['all_pitches_known'] and y['all_pitches_known']
             outcome=dict(cardinalities=[len(x['rows']),len(y['rows'])],
                          absolute_written_minimum_interval=abs(min(x['pitches'])-min(y['pitches'])) if known else None,
                          left_techniques=sorted(x['labels']),right_techniques=sorted(y['labels']),
                          left_known_features=sorted(x['known']),right_known_features=sorted(y['known']))
             counts.add(song,'simultaneous_track_relationship',condition,outcome,
-                       (ta['part_id'],tb['part_id'],x['section'],y['section']),support=dict(parts=[ta['part_id'],tb['part_id']],members=[r['occurrence'] for g in (x,y) for r in g['rows']]))
+                       (ta['part_id'],tb['part_id'],x['section'],y['section']),support=dict(parts=[ta['part_id'],tb['part_id']],members=[r['occurrence'] for g in (x,y) for r in g['rows']]),calculation_inputs=inputs,absence_checks=absences)
             coverage['simultaneous_track_pairs']+=1

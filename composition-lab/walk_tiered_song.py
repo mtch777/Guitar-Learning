@@ -32,8 +32,12 @@ class SongWalk:
         result=[]
         for edge in self.source:
             ref=edge["to_source"]
-            if ref["document"]==document and (ref["pointer"]==path or path.startswith(ref["pointer"]+"/")):
-                result.append(dict(record=edge["from_id"],type=edge["type"],matched_source_pointer=ref["pointer"],exact_field=ref["pointer"]==path))
+            exact=ref["pointer"]==path
+            ancestor=path.startswith(ref["pointer"]+"/")
+            descendant=path=="" or ref["pointer"].startswith(path+"/")
+            if ref["document"]==document and (exact or ancestor or descendant):
+                relation="exact_field" if exact else "parent_preservation" if ancestor else "user_of_contained_field"
+                result.append(dict(record=edge["from_id"],type=edge["type"],matched_source_pointer=ref["pointer"],exact_field=exact,query_relation=relation))
         return result
 
     def walk(self,start,direction="down",depth=2):
