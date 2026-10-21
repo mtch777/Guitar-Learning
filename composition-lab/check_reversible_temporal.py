@@ -56,16 +56,29 @@ def expected(capture):
             if type(entry) is dict:
                 records.append({"id": ident, "owner": part, "kind": "automation_tempo", "fields": scalar_fields(entry, ident)})
             else:
-                unsupported.append({"owner": ident, "field": "tempo", "source_type": type(entry).__name__})
+                unsupported.append({"owner": part, "field": "tempo", "source_type": type(entry).__name__, "ordinal": ordinal})
     return {"schema": "temporal-source-observations/1", "records": records, "unsupported": unsupported}
 
 
-def check(capture, upper):
+def check_observations(capture, reconstructed):
     raw = expected(capture)
-    reconstructed = decode(json.loads(upper.read_text(encoding="utf-8-sig")))
     if reconstructed != raw:
         raise ValueError("Independent raw temporal declarations differ")
-    return {"capture": str(capture), "upper": str(upper), "upper_sha256": hashlib.sha256(upper.read_bytes()).hexdigest(), "counts": dict(Counter(r["kind"] for r in raw["records"])), "unsupported": len(raw["unsupported"]), "status": "pass"}
+    return {"capture": str(capture), "counts": dict(Counter(r["kind"] for r in raw["records"])), "unsupported": len(raw["unsupported"]), "status": "pass"}
+
+
+def check_ownership(capture,registry,identity):
+    meta=json.loads((capture/"metadata.json").read_text(encoding="utf-8-sig"));expected_parts=[]
+    for path in sorted(capture.glob("track-*.json")):
+        part=json.loads(path.read_text(encoding="utf-8-sig"));sid=meta["songId"];pid=part["partId"]
+        expected_parts.append(dict(id=f"part:{sid}:{pid}",settings_ref=f"settings:{sid}:{pid}",measure_refs=[f"measure:{sid}:{pid}:{i}" for i in range(1,len(part.get("measures",[]))+1)],automation_slots=[f"tempo:part:{sid}:{pid}:{i}" for i,_ in enumerate((part.get("automations") or {}).get("tempo",[]))]))
+    if registry!=expected_parts or identity!={"song_id":meta["songId"],"revision_id":meta["revisionId"]}:raise ValueError("Independent raw ownership differs")
+    return dict(status="pass",parts=len(expected_parts),measures=sum(len(p["measure_refs"]) for p in expected_parts))
+
+
+def check(capture, upper):
+    result=check_observations(capture,decode(json.loads(upper.read_text(encoding="utf-8-sig"))))
+    return dict(result,upper=str(upper),upper_sha256=hashlib.sha256(upper.read_bytes()).hexdigest())
 
 
 if __name__ == "__main__":

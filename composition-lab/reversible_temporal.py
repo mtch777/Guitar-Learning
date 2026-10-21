@@ -42,7 +42,7 @@ def extract(capture):
         for ai,a in enumerate((part.get("automations") or {}).get("tempo",[])):
             ident=f"tempo:{part_ref}:{ai}"
             if isinstance(a,dict):records.append(dict(id=ident,owner=part_ref,kind="automation_tempo",fields=fields(a,ident)))
-            else:unsupported.append(dict(owner=ident,field="tempo",source_type=type(a).__name__))
+            else:unsupported.append(dict(owner=part_ref,field="tempo",source_type=type(a).__name__,ordinal=ai))
     return dict(schema="temporal-source-observations/1",records=records,unsupported=unsupported)
 
 
@@ -107,7 +107,8 @@ def transform(records,reverse=False):
 def validate_inventory(items):
     if not isinstance(items,list):raise ConstraintError("Invalid temporal unsupported inventory")
     for item in items:
-        if not isinstance(item,dict) or set(item)!={"owner","field","source_type"} or not all(isinstance(v,str) for v in item.values()):raise ConstraintError("Temporal inventory cannot carry source payloads")
+        if not isinstance(item,dict) or set(item) not in ({"owner","field","source_type"},{"owner","field","source_type","ordinal"}) or not all(isinstance(item[k],str) for k in ("owner","field","source_type")):raise ConstraintError("Temporal inventory cannot carry source payloads")
+        if "ordinal" in item and (item["field"]!="tempo" or type(item["ordinal"]) is not int or item["ordinal"]<0):raise ConstraintError("Invalid temporal source slot")
 
 
 def encode(facts):

@@ -139,3 +139,29 @@ Commands:python -m unittest discover -s composition-lab -p test_reversible_tempo
 SeeREVERSIBLE_TEMPORAL_CONTEXT.md for source counts, exact scope and agreed integration. Containerpresence/repeats/seconds/conflictselection/highest-song integration remainOPEN. New files do not alter the frozenv3 engine. d350e7csourcefix CI39613554129SUCCESS.
 
 Final isolated-prototype local suite:687run686pass1optional skip (delivery-prototype-tests.txt). Planner final10-test review approved bounded declaration scope. Source-only delivery, no integrated highest-song temporal claim.
+
+
+## Source-bar guard regression v3 COMPLETE
+ALL98pass,0fail. Final full original-file and11engine hash checks:0mismatches. ENTIREhighestJSON representations equalv2 forALL98, notjust summarycounts. New invalid-overflow synthetic case is corrected; existing real cases unchanged. Evidence:privatev3/end-integrity.json. Planner same10-case finalaudit pending; no implied timingrepair/GPcorrectness.
+
+## Next major endeavor: owned tier-envelope integration
+- [ ] One source-reading extraction boundary returns fixed typed envelope; no raw source access in higher lifts.
+- [ ] Explicit registry closes part/settings/measure/beat ownership; cross-song/unresolved refs and arbitrary extension caches refused.
+- [ ] Existing joint music operators replace ONLY music slot; temporal lift replaces ONLY declaration slot with parameters. Never retain both source numeric observations and transformed copies.
+- [ ] Hash-check protected slots before/after each lift/inverse. Stage schemas/versions and allowed transitions explicit.
+- [ ] Reverse highest-only through same operators in existing isolated worker; no separate musical recreation engine.
+- [ ] All prior independent raw checks PLUS temporal oracle; source-free deletion/corruption/ownership tests and NEWfrozenrandomcapture, no easierreplacement.
+- [ ] Planner start/mid/end; localtests/source-onlypush/CI. Temporal clock/repeats/seconds/completeGP remain separate unfinishedscope.
+
+
+## Owned envelope integration: bounded acceptance passed
+- [x] Fixed owned-song-stages/1 extraction→music→temporal envelope. ONEproducer source-reading boundary; allhigheroperators acceptpreviousenvelopeonly. Music andtemporal source observations replacedbytheirparameters, no duplicateobservationcopy retained. Protectedslots/input hashedbefore/after; explicitstage/schema transitions.
+- [x] Registrydistinguishesactualsourceparts/settings/measures/automationslots. Closure followsactualstructuralmemberships, notIDparsing. Emptymeasureowners are explicitwitnesses independentlycheckedagainstrawsource. All98pureextraction+independentownershippreflightpass; NOT a98full-ownedinverseclaim.
+- [x] Plannerfoundmalformedautomationentrygap; fixedwithactualpart+typedordinal descriptor andorderedsource-slot ownership, no fabricatedtempo. Unknownordinal/doubleaccounting/missing/crosspartrefs/cachesrefused. Multi-part/zero-voice-measure/swappedvoice-bearing+emptyowner checks.
+- [x] SAMEexisting isolatedworker+runner --song; no parallel musical inverse. HighestJSON pluscopiedoperators/runtimeonly; originalsource/lower/checkerfiles denied. Source-readingprohibition tests aboveextraction;7ownedtests.
+- [x] Cloud460099owned-cloud-v2:5350notes,12meter/tempo declarations,6parts666measures; ALL8independentrawgatespass. ENTIREmusicparameter subtree unchangedfromfrozenv3. Earlierowned-cloud-v1 preserved aspre-registrycheckpoint.
+- [x] NEWfrozenrandomv8:Кино Спокойная ночь6711rev8753080,8tracks;seed2355418980128889082/querys; original98+prior7excludedbeforecapture.9123notes,16declarations,8parts1312measures. ALL8gatespass, highest-onlyinverseequal.
+- [x] PlannerindependentlydecodedBOTHactualartifacts,checkedall8gates+solverbytehashes+successfulreadtraces:boundedapproval. Runtimeimportspermitted; NOT literallyonefileread orOSsandbox. Privateplanner-owned-audit.jsons preserveevidence.
+- [x] Fullsuite694run693pass1optionalskip (reversible-owned-full-tests-v2.txt). Prior temporalprototypee944ff0 CI39616152215SUCCESS.
+- [ ] Source-onlyintegrationpush+CI.
+Remaining:containerpresence/pickup/repeatprogram/seconds/initialtempo/conflictselection; automationmeasure/positionarenotyetderivedglobalclocklinks; highertechnique/harmony/phrase/artistabstraction,fullGP andstyleleversstillOPEN.

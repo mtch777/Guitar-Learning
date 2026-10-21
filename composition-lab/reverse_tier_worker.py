@@ -22,11 +22,15 @@ def main():
     source,destination,trace=map(lambda p:Path(p).resolve(),sys.argv[1:4])
     code=Path(__file__).resolve().parent
     if destination.exists() or trace.exists():raise ValueError("Fresh outputs required")
-    permitted={source:"read",destination:"write",trace:"write",Path(__file__).resolve():"read",code/"reversible_relationships.py":"read",code/"reversible_topology.py":"read",code/"reversible_positions.py":"read",code/"reversible_annotations.py":"read",code/"reversible_ties.py":"read",code/"reversible_voicings.py":"read"}
+    permitted={source:"read",destination:"write",trace:"write",Path(__file__).resolve():"read",code/"reversible_relationships.py":"read",code/"reversible_topology.py":"read",code/"reversible_positions.py":"read",code/"reversible_annotations.py":"read",code/"reversible_ties.py":"read",code/"reversible_voicings.py":"read",code/"reversible_temporal.py":"read",code/"reversible_song.py":"read"}
     runtime=Path(sys.base_prefix).resolve();access=[]
     sys.dont_write_bytecode=True;install_guard(permitted,runtime,access);sys.path.insert(0,str(code))
     value=json.loads(source.read_text(encoding="utf-8"));schema=value.get("schema")
-    if schema in {"voicing-constrained-song/1","tie-constrained-song/1","relative-annotated-topology/1"}:
+    if schema=="owned-song-stages/1":
+        from reversible_song import decode
+        owned=decode(value);annotations=owned["music"];positions=annotations["physical"]
+        output=dict(owned_song=owned,temporal=owned["temporal"],annotations=annotations,physical=positions)
+    elif schema in {"voicing-constrained-song/1","tie-constrained-song/1","relative-annotated-topology/1"}:
         if schema=="voicing-constrained-song/1":from reversible_voicings import decode
         elif schema=="tie-constrained-song/1":from reversible_ties import decode
         else:from reversible_annotations import decode

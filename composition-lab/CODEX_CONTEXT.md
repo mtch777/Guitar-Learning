@@ -4,11 +4,13 @@ Executable scope: shared pitch/time, beat topology, physical positions/settings,
 sparse annotations/curves, and joint tie/voicing equations. Frozen98-capture
 regression:420119notes, all declared-field checks pass; all source/engine hashes
 unchanged. Seven newly selected outsider captures also pass bounded reversal.
-Source-free overflow regression exposed cross-bar grouping; structural source
-measure guard passes68targeted tests, fresh98regression underway. Read
+Source-bar guard:98/98regressions pass, all98highestmodels unchanged; Planner
+independently audited frozen10cases. Owned envelope now composes music and
+explicit temporal declarations using previous-input-only operators. Cloud and
+NEWrandom6711 highest-only inverse pass ALL8rawgates;694tests run,1optional skip. Read
 REVERSIBLE_TIER_QA.md for current evidence, audit and delivery status.
 Full source/GP inverse and artist-style levers remain OPEN. Next agreed slice:
-explicit temporal context (planning contract REVERSIBLE_TEMPORAL_CONTEXT.md).
+remaining source temporal context/clock relationships (REVERSIBLE_TEMPORAL_CONTEXT.md).
 Planner start/middle/end reviews remain required; no QABot. Preserve private
 captures, source/baselines and unrelated unfinished work.
 
