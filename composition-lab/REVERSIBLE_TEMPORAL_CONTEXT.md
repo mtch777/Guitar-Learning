@@ -11,6 +11,7 @@ PLANNING ONLY until the frozen98-case regression finishes. Do not modify the fro
 | Repeat starts/ends/counts, alternate endings | Source measure occurrences + interpreted control-flow relations | Original instructions, absent flags and explicit values; visits alone cannot invert notation uniquely |
 | Markers/double barlines | Source measure boundary | Source labels/fields; no inferred phrase/mode/function presented as source |
 | Tempo automations | Source part + automation ordinal, linked measure | measure/position/bpm/type, visible/linear/text field states; agreeing duplicate declarations remain distinct |
+| Beat-local tempo objects | Source beat occurrence, independently of track automation | All49 observed bpm/type objects; preserve agreeing duplicates and conflicts, do not silently fold away source presence |
 | Global interpreted clock | Song-level merged evidence | Explicit conflicts/unknowns; never manufacture initial120BPM |
 
 ## Shared relationships
@@ -51,3 +52,24 @@ On the secondbar2 visit, the inherited state is90; the explicit120instruction in
 - [ ] Independently compare all original source declarations and each supported derived clock. Do not compare exact rationals to renderer-rounded milliseconds as identical representations.
 - [ ] Keep every existing mathematical/physical/annotation/tie/voicing regression passing. No detector changes or generation work.
 - [ ] Frozen existing corpus plus a NEWpreselectedrandomcapture through unchangedlogic; failures retained. Planner start/mid/end review; source-onlydelivery+CI.
+
+
+## Follow-up source-shape evidence (read-only, after v2)
+The98captures additionally contain49beat.tempo objects, each withbpm/type fields. These MUST enter temporal ownership alongside638track tempo automations; current reversible annotation slice inventories them as unsupported. Accepted historical timeline logic reads both sources, but its merged output alone is not a lossless owner.
+Other still-unsupported complex observations:442note.tremolo and368beat.tremolo two-element arrays (observed examples1/16),132brushStroke objects (direction/duration/shift),529beat.text objects. Those require their own typed meaning/relationships; do not relabel tremolo picking as vibrato or claim raw array preservation equals interpreted execution. Counts are observations, not proof of a universal schema.
+
+
+## Isolated prototype checkpoint (not integrated)
+New reversible_temporal.py/test_reversible_temporal.py are NOT imported by the frozen pipeline. Only explicit meter and tempo declarations enter this bounded slice. Typed pure observations â†’ normalized shared parameters â†’ the same observations; no repeats, pickup interpretation, merged precedence or seconds yet.
+- Normalized coordinates:nominal_span_q,quarter_bpm,position_q. Original source numeric types/presence/owner identities are witnesses; original transformed numeric values are removed. Denominator/unit witnesses keep the equations invertible.
+- Only source tempo type4 is currently verified/supported. Other types remain literal observations with unsupported-conversion status, not invented unit interpretation. Nonpositive meter/BPM values remain unnormalized. linearTrue reports unresolved ramp execution. Playback status is always not_implemented.
+- Unsupported complex data accepts descriptor inventory only; nested/raw-score payload injection is refused. Bindings cannot carry arbitrary caches.
+- ALL98 factâ†’parameterâ†’fact checks pass:1769meter+49beat-tempo+638automation declarations. This is prototype equality, separate from independent source audit and isolated integrated worker gates.
+- Ten source-free tests cover fractional meter spans, numeric types, absence/false/null, unknown units, invalid values, ramp status, agreeing/conflicting/redundant declarations, both source owners, corruption, and inverse parameter edits with file reads prohibited.
+- Planner identified unsupported-inventory cache injection and unverified tempo-unit claims; both corrected before approval. Planner independently approved10tests and99raw declaration audits (2474declarations). Production source oracle check_reversible_temporal.py imports decode only; it rejects omitted declarations and type changes. No completed temporal/playback tier claim.
+
+
+Prototype limits include container presence: absent/empty/null automations containers are not yet individually owned. Exact claims cover declared record fields and unsupported descriptors, not whole raw source objects or byte spelling. No producer aliases may masquerade as supported normalized coordinates, nor eligible source coordinates bypass normalization; corruption regressions enforce both directions.
+
+## Agreed integration contract (after frozen v3 closure)
+One typed source-reading envelope; no source reads above extraction. Fixed schema/version and explicit owned slots; no arbitrary extension blob. Each lift consumes/replaces its owned slot and hash-protects untouched slots. Temporal observations are carried until the temporal lift REPLACES them with parameters. Reverse uses the same equations. Validate owner-reference closure against actual part/measure/beat identities without parsing IDs. Do not retain both raw observations and their normalized copy. Highest-only isolated reverse must pass all existing source gates plus the temporal oracle; deletion/tampering/cross-song references must fail. Meter declarations remain distinct from topology timing until shared clock constraints are integrated; changing meter is NOT yet a supported musical lever.
