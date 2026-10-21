@@ -52,6 +52,32 @@ class ContinuousTierQATests(unittest.TestCase):
             output["physical"]["positions"][0]["string"]["value"]="99"
             self.assertEqual(check_positions(capture,output["physical"])["status"],"fail")
 
+    def test_annotations_stripped_worker_and_independent_curve_corruption(self):
+        from test_reversible_topology import capture as topology_capture
+        from check_reversible_source import check_annotations
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);capture=root/"capture";capture.mkdir();topology_capture(capture)
+            path=capture/"track-0.json";part=json.loads(path.read_text())
+            part["measures"][0]["voices"][0]["beats"][0]["notes"][0]["bend"]={"tone":50,"points":[{"position":0,"tone":0},{"position":60,"tone":50}]}
+            path.write_text(json.dumps(part))
+            report=run(capture,root/"qa",annotations=True)
+            self.assertEqual(report["status"],"pass_declared_scope")
+            self.assertEqual(report["independent_annotation_check"]["status"],"pass_declared_annotation_fields")
+            output=json.loads((root/"qa/isolated/reconstructed.json").read_text())
+            output["annotations"]["curves"][0]["points"][0]["fields"]["tone"]["value"]="1"
+            self.assertEqual(check_annotations(capture,output["annotations"])["status"],"fail")
+
+    def test_failed_capture_is_preserved_and_never_overwritten(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);capture=root/"capture";capture.mkdir();fixture(capture)
+            next(capture.glob("track-*.json")).unlink()
+            with self.assertRaises(ValueError):run(capture,root/"qa")
+            failure=json.loads((root/"qa/failure.json").read_text())
+            self.assertEqual(failure["status"],"failed_preserved_selection")
+            before=(root/"qa/failure.json").read_bytes()
+            with self.assertRaises(ValueError):run(capture,root/"qa")
+            self.assertEqual((root/"qa/failure.json").read_bytes(),before)
+
     def test_guard_rejects_lower_file_read_and_arbitrary_write(self):
         with tempfile.TemporaryDirectory() as temp:
             target=Path(temp)/"tier1.json";target.write_text('{"source":"must not read"}')

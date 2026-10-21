@@ -22,12 +22,19 @@ def main():
     source,destination,trace=map(lambda p:Path(p).resolve(),sys.argv[1:4])
     code=Path(__file__).resolve().parent
     if destination.exists() or trace.exists():raise ValueError("Fresh outputs required")
-    permitted={source:"read",destination:"write",trace:"write",Path(__file__).resolve():"read",code/"reversible_relationships.py":"read",code/"reversible_topology.py":"read",code/"reversible_positions.py":"read"}
+    permitted={source:"read",destination:"write",trace:"write",Path(__file__).resolve():"read",code/"reversible_relationships.py":"read",code/"reversible_topology.py":"read",code/"reversible_positions.py":"read",code/"reversible_annotations.py":"read"}
     runtime=Path(sys.base_prefix).resolve();access=[]
     sys.dont_write_bytecode=True;install_guard(permitted,runtime,access);sys.path.insert(0,str(code))
     from reversible_relationships import decode
     value=json.loads(source.read_text(encoding="utf-8"))
-    if value.get("schema")=="positioned-relative-topology/1":
+    if value.get("schema")=="relative-annotated-topology/1":
+        from reversible_annotations import decode as decode_annotations
+        from reversible_positions import event_view
+        annotations=decode_annotations(value);positions=annotations["physical"];restored=event_view(positions)
+        topology=positions["topology"];event_pitches={r["id"]:r["pitch"] for r in restored}
+        topology=dict(topology,notes=[dict(n,base_pitch=event_pitches[n["id"]]) for n in topology["notes"]])
+        output=dict(scope="normalized_topology_positions_and_source_annotations",annotations=annotations,physical=positions,topology=topology,events=restored)
+    elif value.get("schema")=="positioned-relative-topology/1":
         from reversible_positions import decode as decode_positions,event_view
         positions=decode_positions(value);restored=event_view(positions)
         topology=positions["topology"];event_pitches={r["id"]:r["pitch"] for r in restored}

@@ -100,3 +100,36 @@ def check_positions(capture,restored):
         differences.extend(dict(kind=kind,id=ident,expected=a.get(ident),actual=b.get(ident)) for ident in sorted(set(a)|set(b)) if a.get(ident)!=b.get(ident))
     if regions!=restored["region_settings"]:differences.append(dict(kind="region_settings_mismatch"))
     return dict(status="pass_declared_physical_fields" if not differences else "fail",settings=len(settings),positions=len(positions),differences=differences[:20])
+
+
+def check_annotations(capture,restored):
+    """Independent direct raw comparison of supported source observations."""
+    meta=json.loads((capture/"metadata.json").read_text(encoding="utf-8-sig"));markers=[];curves=[];unsupported=[]
+    def value(v):return dict(type=type(v).__name__,value=str(F(str(v))) if type(v) in (int,float) else v)
+    def visit(owner,kind,obj):
+        fields={};excluded={"fret","string","dead","rest"} if kind=="note" else {"rest"} if kind=="rest_slot" else {"notes","duration","type","rest","graceNote"}
+        curve_field="bend" if kind=="note" else "tremoloBar" if kind=="beat" else None
+        for field,v in obj.items():
+            if field in excluded:continue
+            if field==curve_field and isinstance(v,dict) and isinstance(v.get("points"),list) and all(isinstance(p,dict) and all(type(x) in (int,float,bool,str,type(None)) for x in p.values()) for p in v["points"]) and all(type(x) in (int,float,bool,str,type(None)) for k,x in v.items() if k!="points"):
+                ident=f"curve:{owner}:{field}"
+                curves.append(dict(id=ident,owner=owner,kind=kind,field=field,header={k:value(x) for k,x in v.items() if k!="points"},points_present=True,points=[dict(id=f"{ident}:point:{i}",fields={k:value(x) for k,x in p.items()}) for i,p in enumerate(v["points"])]))
+            elif type(v) in (int,float,bool,str,type(None)):fields[field]=value(v)
+            else:unsupported.append(dict(owner=owner,kind=kind,field=field,source_type=type(v).__name__))
+        if fields:markers.append(dict(id=owner,fields=fields))
+    for path in sorted(capture.glob("track-*.json"),key=lambda p:int(p.stem.split("-")[-1])):
+        part=json.loads(path.read_text(encoding="utf-8-sig"))
+        for mi,m in enumerate(part.get("measures",[])):
+            for vi,v in enumerate(m.get("voices",[])):
+                for bi,b in enumerate(v.get("beats",[])):
+                    visit(f"beat:{meta['songId']}:{part['partId']}:{mi+1}:{vi}:{bi}","beat",b)
+                    for ni,n in enumerate(b.get("notes",[])):
+                        if n.get("rest"):visit(f"rest-slot:beat:{meta['songId']}:{part['partId']}:{mi+1}:{vi}:{bi}:{ni}","rest_slot",n)
+                        else:visit(f"event:{meta['songId']}:{part['partId']}:{mi+1}:{vi}:{bi}:{ni}","note",n)
+    differences=[]
+    for kind,wanted in (("markers",markers),("curves",curves)):
+        a={r["id"]:r for r in wanted};b={r["id"]:r for r in restored[kind]}
+        if len(b)!=len(restored[kind]):raise AssertionError("Duplicate annotation identity")
+        differences.extend(dict(kind=kind,id=ident,expected=a.get(ident),actual=b.get(ident)) for ident in sorted(set(a)|set(b)) if a.get(ident)!=b.get(ident))
+    if Counter(json.dumps(x,sort_keys=True) for x in unsupported)!=Counter(json.dumps(x,sort_keys=True) for x in restored["unsupported"]):differences.append(dict(kind="unsupported_inventory_mismatch"))
+    return dict(status="pass_declared_annotation_fields" if not differences else "fail",marker_owners=len(markers),scalar_fields=sum(len(r["fields"]) for r in markers),curves=len(curves),points=sum(len(c["points"]) for c in curves),unsupported_fields=len(unsupported),unsupported_by_field=dict(Counter(x["kind"]+"."+x["field"] for x in unsupported)),differences=differences[:20])

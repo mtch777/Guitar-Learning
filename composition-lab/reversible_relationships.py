@@ -118,7 +118,7 @@ def decode(representation):
 
 
 def validate_channels(channels):
-    if not channels or any(not isinstance(k,str) or not isinstance(v,dict) or set(v)!={"translated","scale"} or type(v["translated"]) is not bool or v["scale"] not in {"unit","identity"} for k,v in channels.items()):raise ConstraintError("Invalid declarative channels")
+    if not isinstance(channels,dict) or any(not isinstance(k,str) or not isinstance(v,dict) or set(v)!={"translated","scale"} or type(v["translated"]) is not bool or v["scale"] not in {"unit","identity"} for k,v in channels.items()):raise ConstraintError("Invalid declarative channels")
 
 
 def numeric_equations(masks,channels,unit):

@@ -60,5 +60,18 @@ Remaining:physical settings/fingering/percussion, techniques/ties/metadata/fullG
 - [x]BlackDogpositions-v2:5572positions/5settings;Deathpositions-v2:7826positions/6settings;bothsource/topology/baseview0differences. Death12notesmissingfret preservedexplicitly;0literalunresolvedfretvalues.
 - [x]NEWrandomHangar18/Megadeth12836revision9876023,6tracks;seed968166254672855871/queryh frozenbeforecapture,priorIDs excluded.9227positions,7933beats,1110voices;0independentdeclaredfielddifferences.6514nominalpitchedpositions/2702percussion/11missingfrets;0literalunresolvedfretvalues.130beatdefinitions57shared73unique;216positiondefinitions100shared116unique.
 - [x] Planner final:independently ran37tests and decoded/rawcheckedALL3actualartifacts;0differences. Finalfullregression646run645pass1optionalskip.
-- [ ] Source-only commit/push/CI.
+- [x] Source-only6cfb96456822ca1c052ef1ae6ea9d2aca023f819;CI39572901102success.
 Next afterdelivery:typed expression-curve relationship slice, agreed with Planner before implementation. Full raw-source inverse and genuine higher musical abstraction remainOPEN; no musical quality claim.
+
+## Sparse source annotations / registered curve slice (in QA)
+- [x] All additional scalar note/beat/rest-slot fields are captured with typed presence. Missing/false/null remain distinct; these are SOURCE annotations, not inferred physical execution.
+- [x] Sourcepath registry ONLY note.bend/beat.tremoloBar: tone/50,position/60,precisePosition/100. SAME unit equations solve both ways. A scalar calledtone outside these paths is unchanged; arbitrarypoint-shaped objects get no invented units.
+- [x] Complete point sequences factor as repeatedcurve definitions; header and categorical witnesses reported separately. Repeated/empty points, coarse/precise disagreements and zero-metricgrace fractions remainexact. No smoothing, placement rules or detector changes.
+- [x] Unknown complex fields are inventoried by owner/field/type, WITHOUT rawblob fallback. They remain unsupported, not reconstructed. Restslotgap identified by Planner is fixed:canonicalrest-slot owner IDs preserve scalarannotations or inventorycomplexfields.
+- [x] Stripped annotation worker extends existing samekernel path; independently checks sourceannotations, positions, topology and basefieldview. Actual failures get freshprivatefailure.json and cannot be overwritten/reselected silently.
+- [x] Synthetic tests include simultaneous bend/whammy owners, missing/false/null, wrongunits outside registry, repeated/empty/gracecurves, malformed payloads/pointorder/ownership, restslotmarkers, independentcorruption and preservedfailure.47targetedtests; full656run655pass1optional skip (including unrelated localtests).
+- [x] BlackDogannotations-v1:4095scalarfields/343curves/975points;1unsupportedtext. Deathannotations-v1:10300fields/61curves/168points;3unsupportedtext. Hangar18annotations-v1:9098fields/61curves/150points;29unsupportedcomplex(text5/chord14/tremolo10). All sourcechecked supportedfields0differences.
+- [x] NEWfrozenrandom:HendrixAllAlongTheWatchtower340revision8623541,7tracks;seed15565452769065976810/queryb. annotations-v1:8657notes5594beats805voices;4922scalarfields298curves899points;0supportedfielddifferences.80unsupported(text12/brushStroke68). This is newdata scope evidence, not proof arbitrarycatalogdataiscovered.
+- [x] Planner final:independently ran46tests and decoded/rawcheckedALL4actualupperfiles;0declared-field differences. Unsupported1/3/29/80 remainexplicit.
+- [ ] Source-onlydelivery+CI.
+Remaining source-preservation gaps include complexobjects, wider track/measure/songmetadata, literal source-token fidelity, resolvedtechniqueexecution/fullGP. Higher musical relationships/style and nonzero levers remain separate unprovedwork. Do NOT call scalar/curve factoring artist understanding.
