@@ -24,6 +24,20 @@ class ContinuousTierQATests(unittest.TestCase):
             events[0]["onset_q"]="999"
             self.assertEqual(check(capture,events)["status"],"fail")
 
+    def test_topology_stripped_worker_and_independent_corruption_check(self):
+        from test_reversible_topology import capture as topology_capture
+        from check_reversible_source import check_topology
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);capture=root/"capture";capture.mkdir();topology_capture(capture)
+            report=run(capture,root/"qa",topology=True)
+            self.assertEqual(report["status"],"pass_declared_scope")
+            self.assertEqual(report["independent_topology_check"]["status"],"pass_declared_topology")
+            output=json.loads((root/"qa/isolated/reconstructed.json").read_text())
+            trace=json.loads((root/"qa/isolated/read-audit.json").read_text())
+            self.assertFalse(any(str(capture.resolve()) in event["path"] for event in trace["open_events"]))
+            output["topology"]["beats"][0]["written_duration_q"]="77"
+            self.assertEqual(check_topology(capture,output["topology"])["status"],"fail")
+
     def test_guard_rejects_lower_file_read_and_arbitrary_write(self):
         with tempfile.TemporaryDirectory() as temp:
             target=Path(temp)/"tier1.json";target.write_text('{"source":"must not read"}')

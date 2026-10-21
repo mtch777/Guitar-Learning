@@ -12,6 +12,12 @@ import json
 class ConstraintError(ValueError):pass
 
 
+def affine(value,parameter,anchor=None,scale=1):
+    result={value:F(1),parameter:-F(scale)}
+    if anchor is not None:result[anchor]=-F(1)
+    return result
+
+
 def solve(equations,known,required):
     """Resolve singly unknown affine equations; refuse unresolved/free variables.
 
@@ -43,8 +49,8 @@ def equations(pitch_known,unit):
     if unit<=0:raise ConstraintError("Positive time-unit gauge required")
     result=[]
     for i,known in enumerate(pitch_known):
-        if known:result.append({f"pitch:{i}":1,"pitch_anchor":-1,f"interval:{i}":-1})
-        result.extend([{f"onset:{i}":1,"time_anchor":-1,f"offset:{i}":-unit},{f"duration:{i}":1,f"ratio:{i}":-unit}])
+        if known:result.append(affine(f"pitch:{i}",f"interval:{i}","pitch_anchor"))
+        result.extend([affine(f"onset:{i}",f"offset:{i}","time_anchor",unit),affine(f"duration:{i}",f"ratio:{i}",scale=unit)])
     return result
 
 
@@ -109,3 +115,73 @@ def decode(representation):
             if solved[f"duration:{i}"]<0:raise ConstraintError("Negative metric duration")
             result.append(dict(id=ident,pitch=str(solved[f"pitch:{i}"]) if mask[i] else None,onset_q=str(solved[f"onset:{i}"]),duration_q=str(solved[f"duration:{i}"])))
     return sorted(result,key=lambda e:e["id"])
+
+
+def validate_channels(channels):
+    if not channels or any(not isinstance(k,str) or not isinstance(v,dict) or set(v)!={"translated","scale"} or type(v["translated"]) is not bool or v["scale"] not in {"unit","identity"} for k,v in channels.items()):raise ConstraintError("Invalid declarative channels")
+
+
+def numeric_equations(masks,channels,unit):
+    validate_channels(channels);unit=F(unit)
+    if unit<=0:raise ConstraintError("Positive unit required")
+    if set(masks)!=set(channels):raise ConstraintError("Numeric channel schema differs")
+    return [affine(f"value:{field}:{i}",f"parameter:{field}:{i}",f"anchor:{field}" if channels[field]["translated"] else None,unit if channels[field]["scale"]=="unit" else 1) for field,mask in masks.items() for i,present in enumerate(mask) if present]
+
+
+def factor_numeric(regions,channels):
+    """Exact affine factoring with declared units; symbolic witnesses are explicit.
+
+    Symbol ownership/schema is the typed caller's responsibility. This kernel
+    does not claim symbolic witnesses themselves constitute abstraction.
+    """
+    validate_channels(channels);definitions={};occurrences=[];seen=set();region_ids=set()
+    for region in regions:
+        if set(region)!={"id","unit","rows"}:raise ConstraintError("Invalid numeric region")
+        if region["id"] in region_ids:raise ConstraintError("Duplicate region")
+        region_ids.add(region["id"]);rows=region["rows"]
+        if not rows:raise ConstraintError("Empty numeric region must stay explicit topology")
+        fields=sorted(channels)
+        if any(set(r)!={"id","values","symbols"} or sorted(r["values"])!=fields for r in rows):raise ConstraintError("Numeric channel schema differs")
+        for r in rows:
+            if r["id"] in seen:raise ConstraintError("Duplicate numeric occurrence")
+            seen.add(r["id"])
+        unit=F(region["unit"])
+        masks={field:[r["values"][field] is not None for r in rows] for field in fields}
+        anchors={field:next((str(F(r["values"][field])) for r in rows if r["values"][field] is not None),None) for field in fields if channels[field]["translated"]}
+        known={f"value:{field}:{i}":r["values"][field] for i,r in enumerate(rows) for field in fields if r["values"][field] is not None}
+        known.update({f"anchor:{field}":v for field,v in anchors.items() if v is not None})
+        required=[f"parameter:{field}:{i}" for field,mask in masks.items() for i,present in enumerate(mask) if present]
+        solved=solve(numeric_equations(masks,channels,unit),known,required)
+        pattern=dict(masks=masks,parameters={field:[str(solved[f"parameter:{field}:{i}"]) if present else None for i,present in enumerate(mask)] for field,mask in masks.items()},symbols=[r["symbols"] for r in rows])
+        key=hashlib.sha256(json.dumps(pattern,sort_keys=True,separators=(",",":")).encode()).hexdigest();definitions.setdefault(key,pattern)
+        occurrences.append(dict(region_id=region["id"],definition=key,members=[r["id"] for r in rows],anchors=anchors,unit=str(unit)))
+    reuse=Counter(o["definition"] for o in occurrences)
+    return dict(definitions=definitions,occurrences=occurrences,channels=channels,sharing=dict(definitions=len(definitions),occurrences=len(occurrences),shared_definitions=sum(n>1 for n in reuse.values()),unique_definitions=sum(n==1 for n in reuse.values())))
+
+
+def realize_numeric(model):
+    if set(model)!={"definitions","occurrences","channels","sharing"}:raise ConstraintError("Unexpected numeric model fields")
+    validate_channels(model["channels"]);rows=[];seen=set();regions=set()
+    for occurrence in model["occurrences"]:
+        if set(occurrence)!={"region_id","definition","members","anchors","unit"}:raise ConstraintError("Unexpected numeric occurrence fields")
+        if occurrence["region_id"] in regions:raise ConstraintError("Duplicate region")
+        regions.add(occurrence["region_id"])
+        if occurrence["definition"] not in model["definitions"]:raise ConstraintError("Missing numeric definition")
+        pattern=model["definitions"][occurrence["definition"]]
+        if set(pattern)!={"masks","parameters","symbols"}:raise ConstraintError("Unexpected numeric pattern fields")
+        masks=pattern["masks"];count=len(occurrence["members"])
+        if not count or set(masks)!=set(model["channels"]) or set(pattern["parameters"])!=set(masks):raise ConstraintError("Invalid numeric channels/cardinality")
+        if set(occurrence["anchors"])!={k for k,v in model["channels"].items() if v["translated"]}:raise ConstraintError("Invalid numeric anchors")
+        if len(pattern["symbols"])!=count or any(not isinstance(mask,list) or len(mask)!=count or any(type(v) is not bool for v in mask) for mask in masks.values()):raise ConstraintError("Invalid numeric masks/cardinality")
+        for field,mask in masks.items():
+            values=pattern["parameters"][field]
+            if len(values)!=count or any((v is not None)!=present for v,present in zip(values,mask)):raise ConstraintError("Numeric mask/parameter availability differs")
+        known={f"parameter:{field}:{i}":v for field,values in pattern["parameters"].items() for i,v in enumerate(values) if v is not None}
+        known.update({f"anchor:{field}":v for field,v in occurrence["anchors"].items() if v is not None})
+        required=[f"value:{field}:{i}" for field,mask in masks.items() for i,present in enumerate(mask) if present]
+        solved=solve(numeric_equations(masks,model["channels"],occurrence["unit"]),known,required)
+        for i,ident in enumerate(occurrence["members"]):
+            if ident in seen:raise ConstraintError("Duplicate numeric occurrence")
+            seen.add(ident)
+            rows.append(dict(id=ident,values={field:str(solved[f"value:{field}:{i}"]) if mask[i] else None for field,mask in masks.items()},symbols=pattern["symbols"][i]))
+    return rows

@@ -15,7 +15,7 @@ User correction supersedes the old adapter-completion wording. Stop report-routi
 - [x] Isolated reverse process reads only highest retained representation plus shared code/stdlib. Audit file reads; deny original/caches/network/subprocess.
 - [x] Independent equality check for IDs, base pitch, exact metric onset/duration; tests include tuplets, grace, unknown pitch, polyphony, contradictions, missing anchors, new input and changed anchor/unit.
 - [ ] Full GP/source-field inverse remains RED until fingering, techniques, ties, rests, metadata and every required field are covered. Algebraic parameter changes are not musical quality/style validation.
-- [ ] Planner start/middle/final review; source-only commit/push+CI.
+- [x] First pitch/time operator: Planner start/middle/final review; delivered786b7c583da695cdf410ed033a84c37cb8e23e18; CI39544837411success.
 
 ## Frozen first random capture
 Seed6790847044786887596; query l; first100 search results minus existing captured IDs and invalid IDs only. Selected363:Led Zeppelin/Black Dog revision9159368,5tracks. Not uniform catalog sampling; not guaranteed unseen musical family. Manifest and source remain private in local-artifacts/reversible-tier-qa-v1/.
@@ -31,3 +31,21 @@ Old inverse-probe draft moved intact into ignored local-artifacts/deferred-inver
 - ProjectPlanner3000 independently reran12tests and direct raw checker and approved bounded pitch/time operator closure. Full GP/source inverse remains RED.
 - Local full regression621run,620pass,1optional skip (includes unrelated local-only tests). Sampling freeze/failure test passes.
 - NEXT: verify held-out mapper rerun; commit/push/checkCI for first shared operator; start Planner-recommended beat/voice/rest/grace topology ownership slice. Then settings/fingering and typed percussion. No report-routing expansion or separate inverse composition rules.
+
+## Beat-owned topology checkpoint (2026-10-20/21)
+Acceptance:
+- [x] Notes own base pitch and beat/slot references only. Beats own metric/written duration and onset. Measures/voices own ordered structural membership; empty structures remain explicit.
+- [x] Explicit rest flags, rest placeholders and empty beats remain distinct. Whole-measure-rest notation duration and occupied duration remain distinct. Grace metric0 and written duration remain distinct.
+- [x] next_regular_beat_ref is an operational same-voice/same-bar lookahead, NOT source-declared grace attachment or performed ornament timing. Trailing grace retainsNone.
+- [x] Numeric channels declare translation and identity/unit scaling. SAME affine compiler solves both directions, with no channel-name musical branch.
+- [x] Scalar/specific typed structural witnesses reject nested raw payloads. Planner found measure/voice restflag loophole; failing mutations retained and fixed. Ordered identities/slot kinds are explicit retained information, not statistical abstraction.
+- [x] Stripped subprocess receives only upper templates/anchors/topology, shared code and stdlib. Direct raw checker independently validates normalized structure plus approved note fields. Rational semantic fidelity, not literal original fraction spelling.
+- [x] Synthetic empty voice/beat/measure, mixed rest slots, polyphony, grace/trailinggrace, pickup, meter change, whole-measure rest, illegal relations and hidden-payload cases.
+- [x] BlackDog final:1025measures/voices,4548beats,5572notes;0declared-field differences.253beat definitions(103shared/150unique);207pitch definitions(90shared/117unique).
+- [x] NEW frozen random capture:seed16683524805690612585/queryz;Death/ZeroTolerance5254revision9471504,6tracks. No difficulty filtering or reselection.1152measures/voices,6516beats,7826notes;0declared-field differences.203beat definitions(100shared/103unique);159pitch definitions(83shared/76unique).
+- [x] Commands: python -m unittest discover -s composition-lab -p test_reversible*.py;28passed. Full python -m unittest discover -s composition-lab -p test_*.py:637run,636pass,1optional skip (includes unrelated local tests). run_reversible_tier_qa.run(capture,output,True) on both frozen captures; artifacts private under each topology-final/.
+- [x] Planner final bounded approval: independently decoded BOTH upper-only files and direct-raw checked topology+event fields;0differences.
+- [ ] Source-only delivery and exact-SHA CI verification.
+Remaining:physical settings/fingering/percussion, techniques/ties/metadata/fullGP, genuine higher musical abstraction, nonzero lever behavior. Exact template factoring does not establish artist style or musical quality. Do not resume report-routing or bespoke inverse generation.
+
+2026-10-21 08:45UTC resume: git pull --ff-only origin main:already up to date; preserve unrelated WIP. Publish approved topology checkpoint, then begin physical settings/position slice with Planner start/mid/end review.
