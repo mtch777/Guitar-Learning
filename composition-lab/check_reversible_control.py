@@ -7,7 +7,12 @@ from reversible_control import decode
 def typed(x):
  return {"type":type(x).__name__,"value":str(F(str(x))) if type(x) in (int,float) else x}
 def check(capture,upper):
- meta=json.loads((capture/"metadata.json").read_text(encoding="utf-8-sig"));m=json.loads(upper.read_text());f=decode(m)
+ result=check_model(capture,json.loads(upper.read_text()))
+ result["upper_sha256"]=hashlib.sha256(upper.read_bytes()).hexdigest()
+ return result
+
+def check_model(capture,m):
+ meta=json.loads((capture/"metadata.json").read_text(encoding="utf-8-sig"));f=decode(m)
  parts=[];records=[];endings=[];unsupported=[];regions=[];reasons=[];where={}
  for path in sorted(capture.glob("track-*.json")):
   t=json.loads(path.read_text(encoding="utf-8-sig"));pid=f"part:{meta['songId']}:{t['partId']}";refs=[];pending=[];pickup={"kind":"absent"}
@@ -53,7 +58,7 @@ def check(capture,upper):
   if len(o["members"])!=1 or o["anchors"] or o["unit"]!="1":raise ValueError("Unexpected region generic ownership")
   actual.append(dict(part_ref=b["part_ref"],start_ref=b["start_ref"],span=d["parameters"]["measure_span"][0],count=d["parameters"]["source_repeat_count"][0],count_type=b["count_type"]))
  if actual!=regions:raise ValueError("Independent eligible-region set mismatch")
- return dict(status="pass",records=len(records),endings=len(endings),regions=len(regions),expected_regions=regions,unsupported=len(unsupported),upper_sha256=hashlib.sha256(upper.read_bytes()).hexdigest())
+ return dict(status="pass",records=len(records),endings=len(endings),regions=len(regions),expected_regions=regions,unsupported=len(unsupported),upper_sha256=hashlib.sha256(json.dumps(m,sort_keys=True,separators=(",",":")).encode()).hexdigest())
 
 
 if __name__=="__main__":

@@ -41,7 +41,8 @@ def extract(capture):
     return dict(tier=1,schema="normalized-written-fields/1",events=result,source_coverage=dict(expected=expected,actual=len(result),tracks=len(parts),layout_warnings=layout_warnings,timing_warnings=warnings),scope="base_pitch_and_metric_onset_duration_only")
 
 
-def _run(capture,output,topology=False,positions=False,annotations=False,ties=False,voicings=False,song=False):
+def _run(capture,output,topology=False,positions=False,annotations=False,ties=False,voicings=False,song=False,controls=False):
+    if controls:song=True
     if output.exists():raise ValueError("Fresh private QA output required")
     output.mkdir(parents=True)
     facts=extract(capture)
@@ -49,7 +50,7 @@ def _run(capture,output,topology=False,positions=False,annotations=False,ties=Fa
     if song:
         voicings=True;ties=True;annotations=True;positions=True
         from reversible_song import extract as extract_song,encode as encode_song
-        owned_facts=extract_song(capture);annotation_facts=owned_facts["music"]
+        owned_facts=extract_song(capture,controls=controls);annotation_facts=owned_facts["music"]
         (output/"owned-checker-only.json").write_text(json.dumps(owned_facts,indent=2),encoding="utf-8")
         (output/"annotations-checker-only.json").write_text(json.dumps(annotation_facts,indent=2),encoding="utf-8")
         upper=encode_song(owned_facts)
@@ -86,7 +87,7 @@ def _run(capture,output,topology=False,positions=False,annotations=False,ties=Fa
         upper=encode_topology(topology_facts)
     else:upper=encode(facts)
     isolated=output/"isolated";isolated.mkdir()
-    for filename in ("reversible_relationships.py","reverse_tier_worker.py","reversible_topology.py","reversible_positions.py","reversible_annotations.py","reversible_ties.py","reversible_voicings.py","reversible_temporal.py","reversible_song.py"):shutil.copyfile(Path(__file__).parent/filename,isolated/filename)
+    for filename in ("reversible_relationships.py","reverse_tier_worker.py","reversible_topology.py","reversible_positions.py","reversible_annotations.py","reversible_ties.py","reversible_voicings.py","reversible_temporal.py","reversible_song.py","reversible_control.py"):shutil.copyfile(Path(__file__).parent/filename,isolated/filename)
     (isolated/"tier2-only.json").write_text(json.dumps(upper,indent=2),encoding="utf-8")
     # These copied files are the only task inputs available to the audited worker.
     command=[sys.executable,"-I","-S",str((isolated/"reverse_tier_worker.py").resolve()),str((isolated/"tier2-only.json").resolve()),str((isolated/"reconstructed.json").resolve()),str((isolated/"read-audit.json").resolve())]
@@ -137,6 +138,11 @@ def _run(capture,output,topology=False,positions=False,annotations=False,ties=Fa
         report["independent_temporal_check"]=check_observations(capture,decoded["temporal"])
         report["independent_ownership_check"]=check_ownership(capture,decoded["owned_song"]["registry"],decoded["owned_song"]["identity"])
         report["scope"]="owned_music_and_explicit_temporal_declarations"
+        if controls:
+            from check_reversible_control import check_model
+            report["independent_control_check"]=check_model(capture,owned_upper["control"])
+            report["scope"]="owned_music_temporal_and_explicit_repeat_regions"
+        if any(report[k]["status"]!="pass" for k in ("independent_temporal_check","independent_ownership_check")):report["status"]="fail"
         if report["owned_song_roundtrip"]!="pass":report["status"]="fail"
     report["independent_raw_source_check"]=check(capture,restored)
     if report["independent_raw_source_check"]["status"]=="fail":report["status"]="fail"
@@ -144,9 +150,10 @@ def _run(capture,output,topology=False,positions=False,annotations=False,ties=Fa
     return report
 
 
-def run(capture,output,topology=False,positions=False,annotations=False,ties=False,voicings=False,song=False):
+def run(capture,output,topology=False,positions=False,annotations=False,ties=False,voicings=False,song=False,controls=False):
+    if controls:song=True
     if output.exists():raise ValueError("Fresh private QA output required")
-    try:return _run(capture,output,topology,positions,annotations,ties,voicings,song)
+    try:return _run(capture,output,topology,positions,annotations,ties,voicings,song,controls)
     except Exception as error:
         if output.exists():
             (output/"failure.json").write_text(json.dumps(dict(status="failed_preserved_selection",error_type=type(error).__name__,message=str(error),capture=str(capture),mode="song" if song else "voicings" if voicings else "ties" if ties else "annotations" if annotations else "positions" if positions else "topology" if topology else "pitch_time"),indent=2),encoding="utf-8")
@@ -154,9 +161,9 @@ def run(capture,output,topology=False,positions=False,annotations=False,ties=Fal
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument("capture",type=Path);p.add_argument("output",type=Path);p.add_argument("--topology",action="store_true");p.add_argument("--positions",action="store_true");p.add_argument("--annotations",action="store_true");p.add_argument("--ties",action="store_true");p.add_argument("--voicings",action="store_true");p.add_argument("--song",action="store_true");a=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument("capture",type=Path);p.add_argument("output",type=Path);p.add_argument("--topology",action="store_true");p.add_argument("--positions",action="store_true");p.add_argument("--annotations",action="store_true");p.add_argument("--ties",action="store_true");p.add_argument("--voicings",action="store_true");p.add_argument("--song",action="store_true");p.add_argument("--controls",action="store_true");a=p.parse_args()
     if "local-artifacts" not in a.output.resolve().parts:p.error("Private output required")
-    result=run(a.capture.resolve(),a.output.resolve(),a.topology,a.positions,a.annotations,a.ties,a.voicings,a.song);print(json.dumps(result))
+    result=run(a.capture.resolve(),a.output.resolve(),a.topology,a.positions,a.annotations,a.ties,a.voicings,a.song,a.controls);print(json.dumps(result))
     if result["status"]!="pass_declared_scope":raise SystemExit(1)
 
 

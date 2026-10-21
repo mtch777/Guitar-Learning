@@ -17,6 +17,39 @@ class OwnedSongTests(unittest.TestCase):
         p.write_text(json.dumps(part));self.facts=song.extract(self.path)
     def tearDown(self):self.temp.cleanup()
 
+    def test_control_stage_is_source_free_and_preserves_other_slots(self):
+        path=self.path/"track-0.json";part=json.loads(path.read_text())
+        part["measures"][0].update(repeatStart=True,repeat=2,alternateEnding=[1])
+        path.write_text(json.dumps(part));facts=song.extract(self.path,controls=True)
+        original=deepcopy(facts)
+        with patch.object(Path,"open",side_effect=AssertionError("Late source read")):
+            prior=song.lift_temporal(song.lift_music(facts));upper=song.lift_control(prior)
+            for key in ["music","temporal","identity","registry"]:self.assertEqual(prior[key],upper[key])
+            self.assertEqual(song.decode(upper),facts)
+        self.assertEqual(facts,original);self.assertEqual(upper["schema"],"owned-song-stages/2")
+        self.assertEqual(upper["stage"],"control")
+        self.assertEqual(len(upper["control"]["bindings"]),1)
+        from run_reversible_tier_qa import run
+        report=run(self.path,self.path/"controls-qa",controls=True)
+        self.assertEqual(report["status"],"pass_declared_scope")
+        self.assertEqual(report["independent_control_check"]["regions"],1)
+        self.assertEqual(report["owned_song_roundtrip"],"pass")
+
+    def test_control_version_stage_and_ownership_are_strict(self):
+        facts=song.extract(self.path,controls=True)
+        with self.assertRaises(ConstraintError):song.lift_control(facts)
+        with self.assertRaises(ConstraintError):song.lift_control(song.encode(self.facts))
+        for change in ["schema","owner","extent","extra"]:
+            bad=deepcopy(facts)
+            if change=="schema":bad["schema"]="owned-song-stages/1"
+            elif change=="owner":bad["control"]["parts"][0]["id"]="other"
+            elif change=="extent":bad["control"]["parts"][0]["measure_refs"].append("other")
+            else:bad["unowned_cache"]={}
+            with self.assertRaises(ConstraintError):song.encode(bad)
+        # Legacy envelope keeps its original shape and result.
+        self.assertNotIn("control",song.encode(self.facts))
+        self.assertEqual(song.decode(song.encode(self.facts)),self.facts)
+
     def test_all_lifts_and_inverse_are_prior_input_only(self):
         original=deepcopy(self.facts)
         with patch("builtins.open",side_effect=AssertionError("Late source read")),patch.object(Path,"open",side_effect=AssertionError("Late source read")):

@@ -7,6 +7,19 @@ from run_reversible_corpus_qa import batch
 
 
 class CorpusQATests(unittest.TestCase):
+    def test_control_mode_is_frozen_and_checked_in_same_pipeline(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);corpus=root/"corpus";corpus.mkdir();p=corpus/"one";p.mkdir()
+            m=measure([beat()]);m.update(repeatStart=True,repeat=2)
+            capture(p,[m]);out=root/"out";result=batch(corpus,out,controls=True)
+            self.assertEqual(result["passed"],1)
+            manifest=json.loads((out/"manifest.json").read_text())
+            self.assertEqual(manifest["mode"],"controls")
+            self.assertIn("reversible_control.py",manifest["engine_hashes"])
+            self.assertIn("check_reversible_control.py",manifest["engine_hashes"])
+            summary=json.loads((out/"summary.json").read_text())
+            self.assertEqual(summary["results"][0]["control"]["regions"],1)
+
     def test_malformed_case_is_retained_and_next_case_runs_unchanged(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);corpus=root/"corpus";corpus.mkdir()

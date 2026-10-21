@@ -4,7 +4,7 @@ This ledger describes executable scope, not a finished song model. Tier0 remains
 
 | Source information | Current owner / relation | Reverse gate | Still missing |
 |---|---|---|---|
-| Note/beat/voice/measure occurrence identity and order | Structural references; notes reference beat+slot | Seven new captures plus98-capture corpus; exact declared scope | Wider metadata and literal source-token spelling |
+| Note/beat/voice/measure occurrence identity and order | Structural references; notes reference beat+slot | Frozen98 and fresh-capture gates; exact declared scope | Wider metadata and literal source-token spelling |
 | Metric onset/duration and nominal written duration | Beat owns rational values; shared offset/duration-ratio equations | Exact, including grace0, pickup, meter changes and whole-measure-rest occupancy | Performed timing and complete original notation fields |
 | Empty voice/beat, explicit rest and rest placeholder | Separate structural states; no empty=rest inference | Synthetic and source-checked | All raw rest-object properties outside declared slice |
 | Tuning/capo/instrument and missingness | Track settings; explicit source-field states | Exact typed states | Remaining track setup/sound automation/settings |
@@ -14,9 +14,11 @@ This ledger describes executable scope, not a finished song model. Tier0 remains
 | Complex text/chord/tremolo/brush-stroke objects | Unsupported inventory only, no blob fallback | NOT reconstructed | Typed semantic ownership and relationships |
 | Tie source flags / continuity | Typed resolvedlinks or unresolvedreasons; SAME equality relations recover removed targetcoordinates | Frozen98:23976coordinates recovered;39unresolved retained; seven new captures also checked | Acoustic sustain/effects; fullGP and higher style |
 | Slide/legato/harmonic and other physical relationships | Source annotations preserved; accepted historical analyzers remain unchanged | No interpreted-tier reverse gate yet | Transfer accepted relationships into real reversible operators |
-| Written co-onset voicing intervals | Complete attack populations, shared interval definitions; SAME equations jointly solve with ties | Frozen98:117746coordinates recovered; source-bar collision correction under fresh regression | Acoustic harmony, harmonic function, artiststyle |
-| Explicit meter/tempo declarations | Owned typed records, normalized span/BPM/position equations; previous-input-only envelope | Cloud+newrandomhighest-only inversion passes8rawgates;99prototype declaration audits | Sourcecontainerpresence,pickup/repeats,seconds/tempo precedence andglobalclocklinks |
-| Repeats/sections/key/harmony/motifs/phrases/artist relationships | Historical analysis exists separately; not yet a reversible tier | NOT validated here | Explicit prior-tier-only operators, uncertainty, ownership and inverse constraints |
+| Written co-onset voicing intervals | Complete attack populations, shared interval definitions; SAME equations jointly solve with ties | Frozen98:117746coordinates recovered; source-bar guard regression and independent frozen10 audit pass; all98models unchanged | Acoustic harmony, harmonic function, artiststyle |
+| Explicit meter/tempo declarations | Owned typed records, normalized span/BPM/position equations; previous-input-only envelope | Owned98 all8rawgates pass; frozen10artifact audit pass; fresh-capture gates retained | Sourcecontainerpresence,seconds/tempo precedence; written clock prototype and control integration still under validation |
+| Explicit repeat starts/ends, ending labels and pickup flags | Owned version2 control slot; SAME inclusive span equation replaces paired endpoints | Isolated99audit and fresh negative cases pass; integrated98regression pending | Ending musical attachment, performed passes and seconds |
+| Shared written bar clock and tempo addresses | Isolated lift removes voice onset origins using meter/duration dependencies |11tests; freshv12 restores1045origins,130frames/104addresses match raw source | Whole-corpus/guarded-worker validation; within-bar onset redundancy remains |
+| Sections/key/harmony/motifs/phrases/artist relationships | Historical analysis exists separately; not yet a reversible tier | NOT validated here | Explicit prior-tier-only operators, uncertainty, ownership and inverse constraints |
 | Nonzero levers | Only algebraic parameter-change tests here | NOT style validated | Source-supported conditional change policies and musical review |
 | Full GP output from stripped final analysis | NOT implemented | RED | Complete source semantics and converter/export comparison |
 

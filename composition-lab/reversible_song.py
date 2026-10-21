@@ -9,15 +9,17 @@ import reversible_temporal as temporal
 import reversible_ties as ties
 import reversible_voicings as voicings
 import reversible_topology as topology
+import reversible_control as control
 from reversible_relationships import ConstraintError
 
 STAGES={"extracted","music","temporal"}
+CONTROL_STAGES=STAGES|{"control"}
 
 
 def digest(value):return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(",",":")).encode()).hexdigest()
 
 
-def extract(capture):
+def extract(capture,controls=False):
     """ONLY source-reading boundary. No later operator accepts a source path."""
     music=annotations.extract(capture);timing=temporal.extract(capture)
     meta=json.loads((capture/"metadata.json").read_text(encoding="utf-8-sig"));parts=[]
@@ -25,6 +27,7 @@ def extract(capture):
         part=json.loads(path.read_text(encoding="utf-8-sig"));pid=part["partId"];song=meta["songId"]
         parts.append(dict(id=f"part:{song}:{pid}",settings_ref=f"settings:{song}:{pid}",measure_refs=[f"measure:{song}:{pid}:{i+1}" for i in range(len(part.get("measures",[])))],automation_slots=[f"tempo:part:{song}:{pid}:{i}" for i in range(len((part.get("automations") or {}).get("tempo",[])))]))
     result=dict(schema="owned-song-stages/1",stage="extracted",identity=dict(song_id=meta["songId"],revision_id=meta["revisionId"]),registry=parts,music=music,temporal=timing)
+    if controls:result.update(schema="owned-song-stages/2",control=control.extract(capture))
     validate(result);return result
 
 
@@ -37,7 +40,10 @@ def structure(envelope):
 
 
 def validate(envelope):
-    if not isinstance(envelope,dict) or set(envelope)!={"schema","stage","identity","registry","music","temporal"} or envelope["schema"]!="owned-song-stages/1" or envelope["stage"] not in STAGES:raise ConstraintError("Invalid owned song envelope")
+    if not isinstance(envelope,dict):raise ConstraintError("Invalid owned song envelope")
+    version=envelope.get("schema");extended=version=="owned-song-stages/2"
+    fields={"schema","stage","identity","registry","music","temporal"}|({"control"} if extended else set())
+    if version not in {"owned-song-stages/1","owned-song-stages/2"} or set(envelope)!=fields or envelope["stage"] not in (CONTROL_STAGES if extended else STAGES):raise ConstraintError("Invalid owned song envelope")
     identity=envelope["identity"]
     if not isinstance(identity,dict) or set(identity)!={"song_id","revision_id"} or any(type(x) is not int for x in identity.values()):raise ConstraintError("Invalid source identity")
     expected_music="annotated-position-topology/1" if envelope["stage"]=="extracted" else "voicing-constrained-song/1"
@@ -59,7 +65,7 @@ def validate(envelope):
             for vid in measures[mid]["voices"]:
                 if vid not in voices or physical["region_settings"].get(vid)!=setting:raise ConstraintError("Structural voice/part ownership conflict")
     if owned_measures!=set(measures) or owned_settings!=settings:raise ConstraintError("Incomplete source ownership")
-    timing=temporal.decode(envelope["temporal"]) if envelope["stage"]=="temporal" else envelope["temporal"]
+    timing=temporal.decode(envelope["temporal"]) if envelope["stage"] in {"temporal","control"} else envelope["temporal"]
     # Strict declaration validation, even before its lift; no arbitrary side slot.
     temporal.encode(timing)
     record_ids={r["id"] for r in timing["records"]}
@@ -77,6 +83,12 @@ def validate(envelope):
             accounted.add(ident)
         if item["owner"] not in parts|set(measures)|beats|record_ids:raise ConstraintError("Unsupported declaration owner does not exist")
     if accounted!=all_slots:raise ConstraintError("Automation source slots not fully accounted")
+    if extended:
+        controls=control.decode(envelope["control"]) if envelope["stage"]=="control" else envelope["control"]
+        control.encode(controls)
+        expected=[dict(id=p["id"],measure_refs=p["measure_refs"]) for p in envelope["registry"]]
+        actual=[dict(id=p["id"],measure_refs=p["measure_refs"]) for p in controls["parts"]]
+        if actual!=expected:raise ConstraintError("Control source ownership differs from song registry")
     return envelope
 
 
@@ -94,5 +106,14 @@ def lift_music(envelope):return replace(envelope,"music",lambda facts:voicings.e
 def lift_temporal(envelope):return replace(envelope,"temporal",temporal.encode,"music","temporal")
 def lower_temporal(envelope):return replace(envelope,"temporal",temporal.decode,"temporal","music")
 def lower_music(envelope):return replace(envelope,"music",voicings.decode,"music","extracted")
-def encode(facts):return lift_temporal(lift_music(facts))
-def decode(model):return lower_music(lower_temporal(model))
+def lift_control(envelope):
+    if envelope.get("schema")!="owned-song-stages/2":raise ConstraintError("Control stage requires version2")
+    return replace(envelope,"control",control.encode,"temporal","control")
+def lower_control(envelope):return replace(envelope,"control",control.decode,"control","temporal")
+def encode(facts):
+    model=lift_temporal(lift_music(facts))
+    return lift_control(model) if model["schema"]=="owned-song-stages/2" else model
+
+def decode(model):
+    if model.get("schema")=="owned-song-stages/2":model=lower_control(model)
+    return lower_music(lower_temporal(model))
