@@ -7,8 +7,8 @@ for interval, reconstruction solves for pitch, and both validate the same contex
 
 | Owner | Stored data | Meaning / limits |
 |---|---|---|
-| T1 input, nested once | Occurrence ID; part/bar/voice/beat/note; rational base pitch, onset and duration; typed coverage warnings | Exact normalized written fields. No sounding pitch, technique, rests or fingering reconstruction claim. |
-| T2 written-start group | Source bar/part/time; lowest written register; member intervals, durations and notation addresses | Coincident written-note starts. Bass is not necessarily chord root; ties/attacks unknown. |
+| T1 input, nested once | Occurrence ID; part/bar/voice/beat/note; rational base pitch/time; typed warnings; schema-specific geometry, key and physical/tie declarations | Exact owned fields only. Schema4 includes physical/tie facts; it does not own full technique execution, rests or sounding pitch. |
+| T2 written-start group | Source bar/part/time; lowest written register; member intervals, durations and notation addresses | Coincident written-note starts. Bass is not necessarily chord root; explicit ties are handled separately, acoustic attacks remain unknown. |
 | T2 interpretation | Literal pitch classes; all exact compatible published chord forms/roots; bass/root interval; known/unknown counts | Fixed music21 9.9.2 theory vocabulary, 50 definitions. Not trained artist rules; not a selected true chord. Incomplete sets stay unresolved. |
 | T2 nominal spans | Half-open start/end; references to active, newly starting and continuing occurrences; separate part/ensemble contexts | Uses written duration only. No acoustic sustain, tie-chain, let-ring or pedal-sustain inference. Zero-duration notes have no nominal span. |
 | Note query | Candidate-relative unwrapped interval, octave, pitch-class interval, membership and context reference | Conditional on that candidate. Exact-set membership is arithmetic, not non-chord-note/function recognition. |
@@ -49,8 +49,9 @@ subsequent fixes rerun the SAME frozen song. No audio/style quality claim.
 
 ## Still open
 
-Full source/T1 ownership (techniques, rests, tuning/fingering/ties, expression and
-source declarations); sounding/sustained harmony; justified key/mode/harmonic-span
+Full source/T1 ownership (all techniques, rests, expression and source declarations
+beyond the explicitly owned schema4 physical/tie facts); sounding harmony beyond
+nominal/tie continuity; justified key/mode/harmonic-span
 inference; melodic/non-chord-note functions; higher phrase/song/artist context;
 learned nonzero levers; composed all-tier/GP inverse. Existing accepted technique
 identification and conversion work remain preserved, not replaced by this boundary.

@@ -764,3 +764,39 @@ Planner final independently rehashedfreeze/worker equality and5testsPASS:
 APPROVEDboundedQA3, no newblocker. No truekey/mode/function/audio/styleclaim.
 Full876tests875PASS1optionalskip26.449s;bare876tests874PASS2skip21.144s.
 Allremaining acceptance boxes above DONE except delivery commit/CI, next.
+
+Next endeavor START, Planner direction: STOP adding coordinate owners. Diagnose
+joint key/chord errors on ALL3 existing qualified/aligned annotated references.
+No new selection/model/tuning. Frozen classifier beforeexecution: partition common
+support by all reference-key/chord boundaries, physical frames and Hconsensuscells.
+Per window0/4 every interval is exactlyone: unsupportedvocabulary; ambiguous/unknown;
+bothdisagree; keyonlydisagrees; chordonlydisagrees; bothagree. Ambiguity retained,
+notforced wrong. Reference014 editionqualification preserved. Earliest sourceclock
+per observedclass/window, no attractiveexamples. Trace rawsource notes/tietags,
+alloptimal labels and immutable neighbor contributions. Acceptance complete exact
+rational accounting and evidenced limitation, NOT higher accuracy. Active inference
+unchanged. Existing Gate1/2 retained evidence explicitly separate from diagnostic.
+Checklist: [ ] reproduciblescript/negativeaccountingtests; [ ] actual3reference
+output+sourcehashes; [ ] Planner midpoint/end; [ ] one bounded implementation
+proposal OR conclude insufficient causal evidence. No humaninputneeded.
+
+Joint-context f9c6018 deliveredmain; CI39844421739SUCCESS.
+Diagnosis reproduciblescript+3negative/accountingtests PASS. Initial formatting
+failure duplicatewindow occurredbeforeoutput; corrected. v1/v2 retained; Planner
+caught exactfloat-trace winner vs evaluator tolerance; v3 uses SAVEDwinner set.
+All3references exactsupportpartition; sourcehashes unchanged. Class totals are
+conditional, NOTallkeyerrors. Exactmeasureoracleceiling00436/40,01042/52,01454/56;
+window4actual21/40,36/52,53/56. Granularitynotsolecause. LiteralXMLtietags inspection
+only, notreconstructed byXMLadapter. Earliestclass/window selection deterministic.
+Authored sameinventory reversedwithinbar challenge testPASS + actualisolated
+wholeT1/SAMEquery +independentHscore/DAG PASS. ALL48global+24raw/smoothedscores
+unchanged, orderedHdiffers. No assertedcorrectkey/preference/style/function.
+Planner finalreviewrequested; next acceptance/proposal+fulltests+delivery.
+
+Planner final APPROVEDdiagnosis+orderchallenge; doNOTinventnewkeyrule. Missing
+admissible orderedcontext trainingtargets. Nextbounded necessary endeavor: audit
+ONEexplicitlylicensed annotatedcorpus +smallresearchdataadapter, split bywholework
+BEFOREfeatures, localkey vsappliedtarget keptdistinct, annotationsneverproductinput.
+Candidate DCMLMozart (officiallicenseCCBY-NC-SA4.0); no producttraining permission
+assumed, no weights/modeltraining. Inspectlicense/targetsemanticsbeforeadapter.
+Diagnostics full880tests879PASS1skip25.522s;bare880tests878PASS2skip25.527s.
