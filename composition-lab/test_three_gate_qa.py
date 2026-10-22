@@ -110,6 +110,44 @@ class ThreeGateQATests(unittest.TestCase):
         record["excluded_ids"] = [1]
         self.assertTrue(freeze_valid(record))
 
+    def test_exact_sampling_identity_types_before_rng(self):
+        rng = random.Random(42)
+        good = dict(seed=42, query=rng.choice("abcdefghijklmnopqrstuvwxyz"), candidate_ids=[1],
+                    excluded_ids=[], selected_song_id=rng.choice([1]), revision_id=2)
+        self.assertEqual(freeze_valid(good), [])
+        for field in ("selected_song_id", "revision_id"):
+            for value in (True, 1.0, "1", None, 0):
+                self.assertTrue(freeze_valid(good | {field: value}), (field, value))
+        for field in ("candidate_ids", "excluded_ids"):
+            for value in ([True], [1.0], ["1"], [None], [[1]], {}, "1", None):
+                self.assertTrue(freeze_valid(good | {field: value}), (field, value))
+        for value in (True, 42.0, "42", None):
+            self.assertTrue(freeze_valid(good | {"seed": value}))
+        for value in (["u"], "U", "uu", None):
+            self.assertTrue(freeze_valid(good | {"query": value}))
+        large = (1 << 64) - 1; randomizer = random.Random(large)
+        self.assertEqual(freeze_valid(good | dict(seed=large, query=randomizer.choice("abcdefghijklmnopqrstuvwxyz"))), [])
+
+    def test_bool_sampling_false_pass_regression_retains_failure(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); capture, selection = self.source_case(root)
+            data = json.loads(selection.read_text()); data.update(candidate_ids=[True], selected_song_id=True)
+            selection.write_text(json.dumps(data))
+            self.assertEqual(portability(capture, selection)["status"], "FAIL")
+            report = run(capture, selection, root / "qa")
+            self.assertEqual(report["gates"]["1_portability"]["status"], "FAIL")
+            self.assertTrue((root / "qa/result.json").exists())
+
+    def test_exact_source_and_part_identity_types(self):
+        for target, key, value in (("metadata.json", "songId", True), ("metadata.json", "revisionId", 2.0),
+                                   ("track-0.json", "partId", False), ("track-0.json", "partId", 0.0),
+                                   ("track-0.json", "partId", 1), ("track-0.json", "songId", True),
+                                   ("track-0.json", "revisionId", "2")):
+            with tempfile.TemporaryDirectory() as temp:
+                capture, selection = self.source_case(Path(temp))
+                path = capture / target; data = json.loads(path.read_text()); data[key] = value
+                path.write_text(json.dumps(data))
+                self.assertEqual(portability(capture, selection)["status"], "FAIL", (target, key, value))
     def test_no_active_inverse_does_not_pass(self):
         self.assertEqual(reversal(None)["status"], "NOT RUN")
         report = reversal(dict(architecture="historical", controls={"pitch": 0}))

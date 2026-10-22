@@ -49,8 +49,23 @@ def freeze_valid(selection):
     """Reproduce the existing sampler, including its letter draw and sorted pool."""
     issues = []
     required = {"seed", "query", "candidate_ids", "excluded_ids", "selected_song_id", "revision_id"}
+    if not isinstance(selection, dict):
+        return ["Frozen selection must be an object"]
     if not required <= selection.keys():
         return ["Incomplete frozen selection"]
+    if type(selection["seed"]) is not int:
+        issues.append("Seed must be an exact integer")
+    if type(selection["query"]) is not str or selection["query"] not in "abcdefghijklmnopqrstuvwxyz" or len(selection["query"]) != 1:
+        issues.append("Query must be one lowercase ASCII letter")
+    for field in ("selected_song_id", "revision_id"):
+        if type(selection[field]) is not int or selection[field] <= 0:
+            issues.append(field + " must be a positive exact integer")
+    for field in ("candidate_ids", "excluded_ids"):
+        values = selection[field]
+        if not isinstance(values, list) or any(type(value) is not int or value <= 0 for value in values):
+            issues.append(field + " must be a list of positive exact integers")
+    if issues:
+        return issues
     pool = selection["candidate_ids"]
     if not pool or pool != sorted(set(pool)):
         return ["Candidate pool is empty or not canonical"]
@@ -74,11 +89,26 @@ def portability(capture, selection_path):
     from check_reversible_source import check
     selection = load(selection_path)
     issues = freeze_valid(selection)
+    if issues:
+        return result("FAIL", "Frozen selection identity/sampling", issues)
     metadata = load(capture / "metadata.json")
+    for field in ("songId", "revisionId"):
+        if type(metadata.get(field)) is not int or metadata[field] <= 0:
+            issues.append("Notation " + field + " must be a positive exact integer")
     if (metadata["songId"], metadata["revisionId"]) != (
             selection["selected_song_id"], selection["revision_id"]):
         issues.append("Captured source differs from frozen selection")
     paths = [capture / "metadata.json", *sorted(capture.glob("track-*.json"))]
+    for path in paths[1:]:
+        part = load(path)
+        ordinal = int(path.stem.split("-")[-1])
+        if type(part.get("partId")) is not int or part["partId"] < 0 or part["partId"] != ordinal:
+            issues.append("Part identity type/ordinal mismatch: " + path.name)
+        for field in ("songId", "revisionId"):
+            if field in part and (type(part[field]) is not int or part[field] != metadata.get(field)):
+                issues.append("Part source identity type/value mismatch: " + field)
+    if issues:
+        return result("FAIL", "Source identity before extraction", issues)
     before = {p.name: digest(p) for p in paths}
     facts = extract(capture)
     fields = ("id", "pitch", "onset_q", "duration_q")

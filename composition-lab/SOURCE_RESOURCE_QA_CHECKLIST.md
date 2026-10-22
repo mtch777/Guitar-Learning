@@ -21,18 +21,18 @@ conversion, music interpretation, inferred alignment or model execution.
 - [x] Existing Gate1 optional attachment test and full relevant regressions by root.
 
 Commands executed in this authorized visualization directory:
-`python -m unittest test_source_resource_qa -q` →8PASS.
+`python -m unittest test_source_resource_qa -q` →9PASS.
 Actual `source_resource_qa.audit(...)` on frozen RoughBoy capture plus prior
 preservation-verification.json and separate metadata/text →roughboy-resource-qa-result.json.
 No raw chord sequence/lyrics copied into source/test/report. Baseline authenticity
 is an explicit external obligation; this guard does not prove baseline history.
-Root will attach result to existing Gate1 without expanding its musical scope.
+Root attached result to existing Gate1 without expanding its musical scope.
 
 Root review found identical metadata/text arguments collapsed the hash dictionary.
 Fixed by requiring distinct resolved paths AND distinct basename identities under
 the current baseline format. Identical-path and same-basename regressions pass;
 symlink alias branch runs only where platform creation is available. Actual
-RoughBoy audit rerun: PASS_PROVENANCE_ONLY, alignmentUNKNOWN. Final review pending.
+RoughBoy audit rerun: PASS_PROVENANCE_ONLY, alignmentUNKNOWN. Final review completed.
 
 Root installed-repo run seals extractor/checker/source semantics/analyzer, resource
 guard, original source and separate baseline/supplement files. All5012original

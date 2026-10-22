@@ -344,3 +344,39 @@ Next: keep source/meaning/inverse gate statuses distinct. Review remaining execu
 obligations only against actual interfaces. No additional reference runs without a
 specific unanswered decision; no copied source payloads, invented modes, revived
 codec or premature musical-tier implementation to make a gate green.
+
+
+## Exact source identity guard correction
+
+- Root found and independently reproduced a current Gate1 falsePASS: candidate
+  pool [true] and selected_song_id=true were accepted as integer song1 through
+  Python bool/int equality. Planner reproduced it; earlier no-defect assessment
+  was therefore withdrawn for this narrow input-validation case.
+- Require exact integer seed/IDs and list element types before set/sort/RNG;
+  song/revision IDs positive, part IDs nonnegative and equal track ordinal.
+  Source and optional part song/revision fields validated before legacy extraction.
+  Valid part0 and large64-bit seeds remain supported. No musical or extractor edit.
+- Added three regression methods covering wrong bool/float/string/null/container
+  identities, proper seed/query types, retained failure and metadata/part types.
+  Initial test placement caused NameError; corrected before claiming26testsPASS.
+- Planner independently ran26tests and confirmed invalid IDs never call legacy
+  extraction. Code after the identity guard is unchanged. Original QA files backed
+  up after hash-precondition checks before installation.
+- Both retained actual sources rerun after installation: RoughBoy5012occurrences
+  and Sum416940occurrences match prior independent results and original source
+  hashes exactly. Active inverse NOT RUN/musical-tier FAIL remain visible.
+  RoughBoy resource provenance remains separate/UNKNOWN alignment. No reroll.
+- Reconciled stale checklist wording in the same change; no standalone report task.
+
+Next: relevant/full regressions and CI, then stop manufacturing work where an
+actual musical operator/interface is absent. Remaining musical acceptance stays
+open rather than being satisfied by more fixtures or historical codecs.
+
+
+Final identity-fix verification: full Python suite788tests in16.326s,
+787PASS/1optionalSKIP. Existing source extraction and independent source checks
+remain unchanged for both frozen songs; no model or website code changed.
+Planner reviewed the narrow fix and independently confirmed invalid identities
+never reach legacy extraction. Remaining active musical inverse and meaningful
+abstraction obligations still cannot run without their actual musical interface;
+this source-format guard does not supply or approve that interface.
