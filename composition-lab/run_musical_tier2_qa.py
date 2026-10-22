@@ -7,7 +7,7 @@ import json
 import sys
 import importlib
 from pathlib import Path
-from musical_tier2 import analyze, strip_lower, transpose, reconstruct, note_context
+from musical_tier2 import analyze, strip_lower, transpose, reconstruct, note_context, tonal_note_context
 from run_reversible_tier_qa import extract
 from check_reversible_source import check
 from check_musical_tier2_source import check as check_musical_source, check_overlaps
@@ -67,7 +67,11 @@ def run(capture, output, selection=None):
             except ValueError: refusal = True
         counts = Counter(g["interpretation"]["harmonic_status"] for g in upper["coattacks"])
         trace = next((note_context(upper,m["id"]) for g in upper["coattacks"] if g["interpretation"]["chord_candidates"] for m in g["members"] if m["voicing_interval"] not in (None,"0")),None)
-        result["gate3"] = dict(status="PENDING_INDEPENDENT_MUSICAL_REVIEW", source_witnesses=check_musical_source(capture, upper), nominal_overlap_witnesses=check_overlaps(capture, upper), written_start_groups=len(upper["coattacks"]), contexts=dict(counts), actual_relation_intervention=intervention, stale_context_refused=refusal, note_trace=trace, interpretation_accuracy="UNTESTED without independently adjudicated source context; exact vocabulary compatibility is not chord truth", full_tier2="INCOMPLETE")
+        tonal_trace = None
+        if trace:
+            tonal_candidate = upper["tonal_evidence"]["scopes"][0]["candidates"][0]
+            tonal_trace = tonal_note_context(upper,trace["occurrence_ref"],tonal_candidate["id"])
+        result["gate3"] = dict(tonal_candidate_trace=tonal_trace, tonal_evidence_scope="distributional candidates, not established key", status="PENDING_INDEPENDENT_MUSICAL_REVIEW", source_witnesses=check_musical_source(capture, upper), nominal_overlap_witnesses=check_overlaps(capture, upper), written_start_groups=len(upper["coattacks"]), contexts=dict(counts), actual_relation_intervention=intervention, stale_context_refused=refusal, note_trace=trace, interpretation_accuracy="UNTESTED without independently adjudicated source context; exact vocabulary compatibility is not chord truth", full_tier2="INCOMPLETE")
         result["source_unchanged"] = freeze["source"] == {p.name:digest(p) for p in sources}
         result["code_unchanged_during_run"] = freeze["code"] == {str(p.relative_to(ROOT)):digest(p) for p in modules}
     except Exception as exc:

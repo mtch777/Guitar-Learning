@@ -205,5 +205,85 @@ class MusicalTier2Tests(unittest.TestCase):
         upper["input"]["events"][1]["pitch"] = "65"
         with self.assertRaises(ValueError): note_context(upper,"note-1")
 
+    def test_tonal_candidate_coordinates_and_minor_reference_limits(self):
+        from musical_tier2 import tonal_note_context
+        upper = analyze(facts([(0,60,0,1),(0,64,0,1),(0,67,0,1)]))
+        scope = upper["tonal_evidence"]["scopes"][0]
+        self.assertEqual(len(scope["candidates"]),48)
+        self.assertIsNone(scope["established_key"])
+        c=next(c for c in scope["candidates"] if c["tonic_pc"]==0 and c["quality"]=="major")
+        note=tonal_note_context(upper,"note-1",c["id"])
+        self.assertEqual(note["interval_of_note_base_key_candidate"]["semitones_mod12"],"4")
+        self.assertTrue(note["interval_of_note_base_key_candidate"]["in_reference_collection"])
+        self.assertEqual(note["chord_root_coordinates"][0]["root_interval_from_candidate_tonic"],0)
+        a=next(c for c in scope["candidates"] if c["tonic_pc"]==9 and c["quality"]=="minor")
+        self.assertEqual(a["reference_collection"],"natural_minor_reference_only")
+        with self.assertRaises(ValueError): tonal_note_context(upper,"note-1","invented")
+
+    def test_tonal_profiles_rotate_under_transposition(self):
+        lower=facts([(0,60,0,2),(0,64,2,1),(0,67,3,1),(1,69,0,1)])
+        upper=analyze(lower); changed=transpose(upper,"2")
+        for before,after in zip(upper["tonal_evidence"]["scopes"],changed["tonal_evidence"]["scopes"]):
+            for c in before["candidates"]:
+                shifted=next(x for x in after["candidates"] if x["family"]==c["family"] and x["quality"]==c["quality"] and x["tonic_pc"]==(c["tonic_pc"]+2)%12)
+                self.assertAlmostEqual(c["score"],shifted["score"],places=12)
+
+    def test_tonal_exposure_duration_order_and_pooled_doubling_limits(self):
+        lower=facts([(0,60,0,2),(0,64,2,1),(0,67,3,1)])
+        before=analyze(lower)["tonal_evidence"]["scopes"][0]
+        lower["events"].reverse()
+        after=analyze(lower)["tonal_evidence"]["scopes"][0]
+        self.assertEqual(before["candidates"],after["candidates"])
+        lower["events"][0]["duration_q"]="3"
+        after=analyze(lower)["tonal_evidence"]["scopes"][0]
+        self.assertEqual(after["pitch_class_duration_q"][7],"3")
+        self.assertNotEqual(before["candidates"],after["candidates"])
+        doubled=analyze(facts([(0,60,0,1),(0,64,1,1),(1,60,0,1)]))["tonal_evidence"]["scopes"]
+        self.assertEqual(doubled[0]["pitch_class_duration_q"][0],"2")
+        self.assertEqual(doubled[1]["pitch_class_duration_q"][0],"1")
+
+    def test_tonal_empty_uniform_fractional_unknown_and_timing_exclusions(self):
+        empty=analyze(facts([]))["tonal_evidence"]["scopes"][0]
+        self.assertTrue(all(c["score"] is None for c in empty["candidates"]))
+        uniform=analyze(facts([(0,p,0,1) for p in range(60,72)]))["tonal_evidence"]["scopes"][0]
+        self.assertTrue(all(c["score"] is None for c in uniform["candidates"]))
+        lower=facts([(0,None,0,1),(0,"121/2",0,1),(0,60,0,0),(0,64,1,1)])
+        lower["source_coverage"]["timing_warnings"]=[dict(part_id=0,bar=1,voice=0,reason="voice_overflows_bar",duration_q="5",span_q="4")]
+        scope=analyze(lower)["tonal_evidence"]["scopes"][0]
+        self.assertEqual((scope["unknown_pitch_members"],scope["noninteger_pitch_members"],scope["zero_duration_known_members"],scope["timing_excluded_members"]),(1,1,1,1))
+        self.assertEqual(scope["total_known_duration_q"],"0")
+
+    def test_tonal_payload_is_derived_not_editable_independent_truth(self):
+        upper=strip_lower(analyze(facts([(0,60,0,1)])))
+        upper["tonal_evidence"]["scopes"][0]["candidates"][0]["score"]=1.0
+        with self.assertRaises(ValueError): reconstruct(upper,{"variation":0})
+
+    def test_independent_oracle_rejects_missing_scopes_candidates_and_boolean_types(self):
+        from check_tonal_profiles import inventory_issues
+        lower=facts([(0,60,0,1),(1,64,0,1)])
+        upper=analyze(lower); scopes=upper["tonal_evidence"]["scopes"]
+        raw={"event:1:0:1:0:0:0":{},"event:1:1:1:0:0:0":{}}
+        self.assertFalse(inventory_issues(raw,scopes))
+        from check_tonal_profiles import exposure_issues
+        scope=deepcopy(scopes[0]);expected_used=list(scope["used_member_refs"]);excluded=deepcopy(scope["excluded_member_refs"])
+        scope["used_member_refs"].append(expected_used[0])
+        self.assertTrue(exposure_issues(expected_used,excluded,scope))
+        self.assertTrue(inventory_issues(raw,scopes[:1]))
+        bad=deepcopy(scopes);bad[0]["candidates"].pop()
+        self.assertTrue(inventory_issues(raw,bad))
+        bad=deepcopy(scopes);bad[0]["candidates"][0]["tonic_pc"]=False
+        self.assertTrue(inventory_issues(raw,bad))
+        bad=deepcopy(scopes);bad[0]["candidates"][0]["score"]=float("nan")
+        self.assertTrue(inventory_issues(raw,bad))
+
+    def test_tonal_provenance_cannot_mutate_shared_definition(self):
+        from musical_tier2 import TONAL_PROVENANCE, TONAL_PROFILES
+        import hashlib,json
+        upper=analyze(facts([(0,60,0,1)]))
+        original=deepcopy(TONAL_PROVENANCE)
+        upper["tonal_evidence"]["provenance"]["profiles_sha256"]="bad"
+        self.assertEqual(TONAL_PROVENANCE,original)
+        self.assertEqual(hashlib.sha256(json.dumps(TONAL_PROFILES,separators=(",", ":")).encode()).hexdigest(),TONAL_PROVENANCE["profiles_sha256"])
+
 
 if __name__ == "__main__": unittest.main()

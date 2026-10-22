@@ -12,6 +12,8 @@ for interval, reconstruction solves for pitch, and both validate the same contex
 | T2 interpretation | Literal pitch classes; all exact compatible published chord forms/roots; bass/root interval; known/unknown counts | Fixed music21 9.9.2 theory vocabulary, 50 definitions. Not trained artist rules; not a selected true chord. Incomplete sets stay unresolved. |
 | T2 nominal spans | Half-open start/end; references to active, newly starting and continuing occurrences; separate part/ensemble contexts | Uses written duration only. No acoustic sustain, tie-chain, let-ring or pedal-sustain inference. Zero-duration notes have no nominal span. |
 | Note query | Candidate-relative unwrapped interval, octave, pitch-class interval, membership and context reference | Conditional on that candidate. Exact-set membership is arithmetic, not non-chord-note/function recognition. |
+| T2 tonal evidence | Whole-song pooled and per-part duration exposure; all 48 major/minor candidates across two published profile families; explicit used/excluded occurrence references | Pearson correlations, not probabilities. Order-invariant, part-doubling sensitive. Invalid timing excluded. No automatic tonic/key selected. |
+| Tonal note/chord query | Explicit candidate ID, note interval/octave/reference-scale membership; chord-root interval; exact local harmonic-context reference | Major/natural-minor reference membership is conditional, not note function or general mode identification. |
 | Explicit unknown | Base key; chord-relative mode; functional note role | No unsupported key/mode/emotion is fabricated. |
 
 A register anchor and relative intervals are necessary realization choices: chord
@@ -52,3 +54,24 @@ source declarations); sounding/sustained harmony; justified key/mode/harmonic-sp
 inference; melodic/non-chord-note functions; higher phrase/song/artist context;
 learned nonzero levers; composed all-tier/GP inverse. Existing accepted technique
 identification and conversion work remain preserved, not replaced by this boundary.
+
+## Tonal-candidate addition
+
+Published profile families: music21 9.9.2 KrumhanslSchmuckler and
+TemperleyKostkaPayne. Reproduced source weights/version/hash, no fitted artist
+preferences or manually chosen ranking weights. Every tonic/major-minor score is
+retained. Undefined correlations stay null. Whole-song and part views are not
+independent votes. Nominal duration is not a performed accent or attack weight.
+
+`tonal_note_context` links a real occurrence and its current chord-compatible
+context to an explicit tonal candidate. Root coordinates are separate from harmonic
+function; minor reference membership means natural-minor reference ONLY, not that
+raised sixth/seventh notes are wrong. The tonic register reference is a coordinate
+convention, not an observed tonic note. Source declarations cannot be reread by
+Tier2; they are unavailable until faithfully added to its preceding input.
+
+Fresh Last Nite: 6152 exact occurrences, 4395 used for distributional exposure,
+1757 unknown-pitch occurrences retained/excluded. Independent raw-source music21
+oracle matched288 scores. Beatles regression matched384 more. These verify method
+arithmetic and context links, NOT tonal-center accuracy. Full suite:816 tests,
+815 passed/1optional skip. Planner approval and delivered commit recorded in log.

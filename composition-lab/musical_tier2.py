@@ -14,6 +14,9 @@ import json
 THEORY_FORMS = (('major', (0, 4, 7)), ('minor', (0, 3, 7)), ('augmented', (0, 4, 8)), ('diminished', (0, 3, 6)), ('dominant-seventh', (0, 4, 7, 10)), ('major-seventh', (0, 4, 7, 11)), ('minor-major-seventh', (0, 3, 7, 11)), ('minor-seventh', (0, 3, 7, 10)), ('augmented-major-seventh', (0, 4, 8, 11)), ('augmented-seventh', (0, 4, 8, 10)), ('half-diminished-seventh', (0, 3, 6, 10)), ('diminished-seventh', (0, 3, 6, 9)), ('seventh-flat-five', (0, 4, 6, 10)), ('major-sixth', (0, 4, 7, 9)), ('minor-sixth', (0, 3, 7, 9)), ('major-ninth', (0, 2, 4, 7, 11)), ('dominant-ninth', (0, 2, 4, 7, 10)), ('minor-major-ninth', (0, 2, 3, 7, 11)), ('minor-ninth', (0, 2, 3, 7, 10)), ('augmented-major-ninth', (0, 2, 4, 8, 11)), ('augmented-dominant-ninth', (0, 2, 4, 8, 10)), ('half-diminished-ninth', (0, 2, 3, 6, 10)), ('half-diminished-minor-ninth', (0, 1, 3, 6, 10)), ('diminished-ninth', (0, 2, 3, 6, 9)), ('diminished-minor-ninth', (0, 1, 3, 6, 9)), ('dominant-11th', (0, 2, 4, 5, 7, 10)), ('major-11th', (0, 2, 4, 5, 7, 11)), ('minor-major-11th', (0, 2, 3, 5, 7, 11)), ('minor-11th', (0, 2, 3, 5, 7, 10)), ('augmented-major-11th', (0, 2, 4, 5, 8, 11)), ('augmented-11th', (0, 2, 4, 5, 8, 10)), ('half-diminished-11th', (0, 2, 3, 5, 6, 10)), ('diminished-11th', (0, 2, 3, 5, 6, 9)), ('major-13th', (0, 2, 4, 5, 7, 9, 11)), ('dominant-13th', (0, 2, 4, 5, 7, 9, 10)), ('minor-major-13th', (0, 2, 3, 5, 7, 9, 11)), ('minor-13th', (0, 2, 3, 5, 7, 9, 10)), ('augmented-major-13th', (0, 2, 4, 5, 8, 9, 11)), ('augmented-dominant-13th', (0, 2, 4, 5, 8, 9, 10)), ('half-diminished-13th', (0, 2, 3, 5, 6, 9, 10)), ('suspended-second', (0, 2, 7)), ('suspended-fourth', (0, 5, 7)), ('suspended-fourth-seventh', (0, 5, 7, 10)), ('Neapolitan', (0, 1, 4, 6)), ('Italian', (0, 6, 8)), ('French', (0, 2, 6, 8)), ('German', (0, 3, 6, 8)), ('pedal', (0,)), ('power', (0, 7)), ('Tristan', (0, 3, 6, 10)))
 THEORY_PROVENANCE = {'source': 'music21.harmony.CHORD_TYPES', 'version': '9.9.2', 'forms_sha256': '9b4d190d20c19436449fe53e7a494a414ec48db8b18a79507aacb97ae70e7b5a', 'vocabulary_scope': 'Published Western chord-kind definitions; not exhaustive musical harmony', 'candidate_rule': 'Exact observed pitch-class set; all twelve roots; singleton excluded'}
 
+TONAL_PROFILES = (('KrumhanslSchmuckler', (6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88), (6.33, 2.68, 3.52, 5.38, 2.6, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17)), ('TemperleyKostkaPayne', (0.748, 0.06, 0.488, 0.082, 0.67, 0.46, 0.096, 0.715, 0.104, 0.366, 0.057, 0.4), (0.712, 0.084, 0.474, 0.618, 0.049, 0.46, 0.105, 0.747, 0.404, 0.067, 0.133, 0.33)))
+TONAL_PROVENANCE = {'source': 'music21.analysis.discrete', 'version': '9.9.2', 'profiles_sha256': 'd40198905f485641940f4b4341685b78aa842159050efe6de3547fb42b242a48', 'method': 'Pearson correlation to rotated duration-weighted profiles; not probability or general mode inference'}
+
 
 def fraction(value):
     if not isinstance(value, str) or str(F(value)) != value:
@@ -150,7 +153,7 @@ def analyze(tier1):
     output = dict(tier=2, schema="musical-coattack-relations/1", input=deepcopy(tier1),
                   theory=deepcopy(THEORY_PROVENANCE), coattacks=groups,
                   realization_order=order, source_quality=deepcopy(tier1["source_coverage"]),
-                  lower_scope=tier1["scope"], ensemble_coattacks=ensemble(groups), nominal_written_spans=written_spans(groups))
+                  lower_scope=tier1["scope"], ensemble_coattacks=ensemble(groups), nominal_written_spans=written_spans(groups), tonal_evidence=tonal_evidence(groups))
     # SAME relation checks operate on observed analysis and stripped reconstruction.
     validate(output)
     return output
@@ -216,10 +219,60 @@ def written_spans(groups):
     return result
 
 
+def profile_score(histogram, weights, tonic):
+    """Published Pearson key-profile arithmetic, not a probability."""
+    x = list(map(float,histogram)); y = [weights[(pc-tonic)%12] for pc in range(12)]
+    ax, ay = sum(x)/12, sum(y)/12
+    numerator = sum((a-ax)*(b-ay) for a,b in zip(x,y))
+    denominator = (sum((a-ax)**2 for a in x)*sum((b-ay)**2 for b in y))**0.5
+    return numerator/denominator if denominator else None
+
+
+def tonal_evidence(groups):
+    """All published major/minor profile candidates from SAME pitch/time facts.
+
+    Pooled and separate-part views are evidence, not independent votes. Written
+    duration is not an attack or performed accent. No arbitrary winner cutoff.
+    """
+    populations = [("song-pooled",groups)] + [(f"part:{part}",[g for g in groups if g["part_id"]==part]) for part in sorted({g["part_id"] for g in groups})]
+    scopes = []
+    for ident, population in populations:
+        used_refs=[]; excluded_refs={k:[] for k in ("unknown_pitch", "noninteger_pitch", "zero_duration", "source_timing_uncertain")}
+        histogram = [F(0) for _ in range(12)]; unknown=noninteger=zero=known=timing_excluded=0; duration=F(0)
+        for group in population:
+            for member in group["members"]:
+                pitch = member_pitch(group,member); length = F(member["duration_q"])
+                if pitch is None: unknown+=1; excluded_refs["unknown_pitch"].append(member["id"]); continue
+                if F(pitch).denominator != 1: noninteger+=1; excluded_refs["noninteger_pitch"].append(member["id"]); continue
+                if length == 0: zero+=1; excluded_refs["zero_duration"].append(member["id"]); continue
+                if group["timing_uncertain"]: timing_excluded+=1; excluded_refs["source_timing_uncertain"].append(member["id"]); continue
+                used_refs.append(member["id"]); known+=1; duration+=length; histogram[int(F(pitch)%12)] += length
+        candidates = []
+        for family, major, minor in TONAL_PROFILES:
+            for quality, weights in (("major",major),("minor",minor)):
+                for tonic in range(12):
+                    candidates.append(dict(id=f"{ident}/{family}/{tonic}/{quality}", family=family, tonic_pc=tonic,
+                                           quality=quality, score=profile_score(histogram,weights,tonic),
+                                           score_type="uncalibrated_Pearson_correlation",
+                                           reference_collection="major" if quality=="major" else "natural_minor_reference_only",
+                                           reference_intervals=[0,2,4,5,7,9,11] if quality=="major" else [0,2,3,5,7,8,10]))
+        timing = any(g["timing_uncertain"] for g in population)
+        scopes.append(dict(id=ident, group_refs=[g["id"] for g in population],
+                           used_member_refs=used_refs, excluded_member_refs=excluded_refs,
+                           pitch_class_duration_q=list(map(str,histogram)), total_known_duration_q=str(duration),
+                           known_positive_duration_members=known, unknown_pitch_members=unknown,
+                           noninteger_pitch_members=noninteger, zero_duration_known_members=zero, timing_excluded_members=timing_excluded,
+                           timing_evidence="source_timing_uncertain" if timing else "nominal_written_duration",
+                           candidates=candidates, established_key=None, established_mode=None,
+                           declaration_availability="not_in_preceding_input",
+                           limitation="Distribution only: order-invariant, pooled part-doubling sensitive; no tonal-center or modal adjudication"))
+    return dict(provenance=deepcopy(TONAL_PROVENANCE), scopes=scopes)
+
+
 def validate(upper):
     if upper.get("schema") != "musical-coattack-relations/1" or type(upper.get("tier")) is not int or upper.get("tier") != 2:
         raise ValueError("Unsupported T2 interface")
-    allowed = {"tier", "schema", "input", "theory", "coattacks", "realization_order", "source_quality", "lower_scope", "ensemble_coattacks", "nominal_written_spans"}
+    allowed = {"tier", "schema", "input", "theory", "coattacks", "realization_order", "source_quality", "lower_scope", "ensemble_coattacks", "nominal_written_spans", "tonal_evidence"}
     if set(upper) - allowed:
         raise ValueError("Undeclared upper payload")
     coverage(upper["source_quality"])
@@ -274,6 +327,8 @@ def validate(upper):
     if not same(written_spans(upper["coattacks"]), upper["nominal_written_spans"]):
         raise ValueError("Nominal overlap context conflicts with shared pitch/time relationships")
 
+    if not same(tonal_evidence(upper["coattacks"]), upper["tonal_evidence"]):
+        raise ValueError("Tonal evidence conflicts with shared pitch/duration relationships")
     if "input" in upper and not same(upper["input"], realize(upper)):
         raise ValueError("Nested lower tier conflicts with its higher relationships")
 
@@ -366,6 +421,40 @@ def note_context_at(upper, ident, at_q, ensemble_scope=False):
                 interpretation=evidence["interpretation"])
 
 
+def tonal_note_context(upper, ident, candidate_id, at_q=None, ensemble_scope=True):
+    """Exact note/chord coordinates CONDITIONAL on one explicit tonal candidate.
+
+    No chosen key, spelling, diatonic function or emotional role is implied.
+    """
+    validate(upper)
+    index = {m["id"]:(g,m) for g in upper["coattacks"] for m in g["members"]}
+    group, member = index[ident]; pitch = member_pitch(group,member)
+    found = [(scope,c) for scope in upper["tonal_evidence"]["scopes"] for c in scope["candidates"] if c["id"]==candidate_id]
+    if len(found)!=1: raise ValueError("Exact tonal candidate ID required")
+    scope,candidate=found[0]
+    if group["id"] not in scope["group_refs"]: raise ValueError("Note is outside tonal evidence scope")
+    coordinate=None
+    if pitch is not None:
+        # Pitch-class tonic reference at MIDI0-octave; retains signed register.
+        distance=F(relation(anchor=candidate["tonic_pc"],pitch=pitch)["interval"])
+        coordinate=dict(tonic_pc=candidate["tonic_pc"],unwrapped_semitones=str(distance), semitones_mod12=str(distance%12),
+                        relative_octaves=int(distance//12), tonic_reference_convention="tonic_pc_in_MIDI_zero_octave_not_observed_tonic_note", reference_is_not_an_added_note=True, reference_collection=candidate["reference_collection"],
+                        in_reference_collection=distance%12 in candidate["reference_intervals"],
+                        status="conditional_reference_collection_not_established_key_or_function")
+    if at_q is not None:
+        local = note_context_at(upper,ident,at_q,ensemble_scope)
+        harmony = local["interpretation"]
+        harmonic_context = dict(span_ref=local["span_ref"], at_q=at_q, scope=local["context_scope"])
+    else:
+        harmony = group["interpretation"]
+        harmonic_context = dict(coattack_ref=group["id"], at_q=group["onset_q"], scope="part_written_start")
+    chords=[dict(chord_root_pc=c["root_pc"],kind=c["kind"],root_interval_from_candidate_tonic=(c["root_pc"]-candidate["tonic_pc"])%12,
+                 status="conditional_root_coordinate_not_harmonic_function") for c in harmony["chord_candidates"]]
+    return dict(occurrence_ref=ident, tonal_scope_ref=scope["id"], candidate_ref=candidate_id, harmonic_context_ref=harmonic_context,
+                interval_of_note_base_key_candidate=coordinate, interval_of_note_current_chord_mode=None,
+                chord_root_coordinates=chords, established_key=None, established_mode=None)
+
+
 def transpose(upper, semitones):
     """Deterministic relation intervention, NOT an artist-style percentage lever."""
     changed = strip_lower(upper) if "input" in upper else deepcopy(upper)
@@ -376,5 +465,6 @@ def transpose(upper, semitones):
         group["interpretation"] = interpreted(group)
     changed["ensemble_coattacks"] = ensemble(changed["coattacks"])
     changed["nominal_written_spans"] = written_spans(changed["coattacks"])
+    changed["tonal_evidence"] = tonal_evidence(changed["coattacks"])
     validate(changed)
     return changed

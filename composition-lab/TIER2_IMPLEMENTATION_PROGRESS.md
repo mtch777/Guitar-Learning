@@ -23,7 +23,7 @@ Preserve accepted detectors, conversion, private source/baselines and unrelated 
 - [x] Source-backed chord/ambiguity/part-vs-ensemble contrasts and real-note trace.
 - [x] New frozen random Songsterr capture, unchanged logic, retained failures.
 - [x] Planner start/midpoint/end reviews and explicit all-three scoped verdicts.
-- [ ] Relevant/full tests, safe commit/push and actual CI check.
+- [x] Relevant/full tests, safe commit/push and actual CI check.
 
 ## Current decisions
 
@@ -110,3 +110,80 @@ Final full suite: `python -m unittest discover -s composition-lab -p test_*.py -
 809 tests, 808 PASS/1optionalSKIP, 17.153s. Full active UI Vite build PASS; no
 website source changed and no deployment claimed. All three gates approved only
 for declared written musical contexts, not completed full Tier2.
+
+Checkpoint delivered: commit091a1ea44573b50f147c9d6ff8142329ae0da59d pushed main.
+Remote CI39818522356 completed SUCCESS: Python suite, source dead-tie guards,
+source-inspector clock/occurrence joins, pinned alphaTab bend-fidelity check.
+No website files changed; Pages deployment not required/claimed.
+
+Planner next-priority correction: do NOT optimize melodic anchor removal now.
+Prioritize evidence-backed tonal context (key/collection/diatonic relationships),
+retain exact voicing choices, and do not force unvalidated harmonic boundaries.
+Full Tier2 acceptance remains open; continued work does not require user input yet.
+
+## Next endeavor contract — tonal evidence, not a guessed key
+
+Planner start review: shared-core whole-song/per-part duration-weighted pitch-class
+exposure, two published music21 9.9.2 profile families (KrumhanslSchmuckler and
+TemperleyKostkaPayne), all24 tonic/major-minor scores each. Scores are uncalibrated
+Pearson correlations, not probabilities or general modal inference. Keep established
+key/mode UNKNOWN; retain competing scores, model disagreement and all evidence.
+No handpicked weights/thresholds/votes. Per-note interval/octave/reference-collection
+membership and chord-root coordinates must be conditional on exact candidate ID.
+Minor reference collection explicitly natural-minor, not a prohibition on raised
+6/7. New/unknown/grace timing remains explicit. No copied per-note pitch stream;
+forward/backward must validate from SAME realized pitch/time equations. Three-gate
+fresh capture, independent exposure/profile oracle, source contrasts, inverse and
+Planner midpoint/completion required before reporting musical acceptance.
+
+## Tonal candidate implementation and actual tests
+
+- Shared-core tonal evidence: whole-song pooled and separate per-part scopes,
+  nominal-duration PC exposure and explicit used/excluded IDs, two generated
+  published profile families/all48 candidates per scope. No selected key/mode.
+- Candidate-relative note interval/octave/reference-collection membership and
+  chord-root coordinates carry exact candidate+local harmonic-context references.
+  Same pitch/time equations regenerate/validate all evidence before inverse/query.
+- Planner midpoint caught invalid timing mass and missing query scope/register
+  convention; fixed and independently verified. Invalid durations excluded;
+  undefined correlations null; unknown pitches/zero durations/fractional pitches
+  partitioned explicitly. Profiles are order-invariant and doubling-sensitive;
+  tests make those limitations visible instead of inventing musical understanding.
+- New frozen random Last Nite19390/revision8733718, seed15100074186203114746,
+  queryn,5tracks6152occurrences. Private musical-tier2-tonal-qa-v1: source/inverse/
+  actual5denials/source+codeintegrity/context checks PASS. 4395 pitched members used,
+  1757 unknown pitches retained. Independent raw-source music21 oracle matched
+  all288scores within1e-12 (9.9.2 primarysource hash retained).
+- Beatles tonal regression4050events allsamechecksPASS; independent384scoresPASS.
+  Actual q123 E has conditional major-third membership under Cmajor hypothesis
+  versus outside Dbmajor reference, with time/span/ensemble refs retained. This
+  does not claim either hypothesis is established key or note function.
+- Actual commands: `python -m unittest discover -s composition-lab -p
+  test_musical_tier2.py -q`:26PASS. `build_tier2_theory.py` reproducibilityPASS.
+  `run_musical_tier2_qa.py` fresh+Beatles; `check_tonal_profiles.py` both artifacts.
+  Full unittest discover814tests/813PASS1optionalSKIP17.300s.
+- Pending: Planner completion challenge/approval, commit/push/CI for this addition;
+  tonic/local key/modulation, harmonic spans, general modes and functional roles
+  remain incomplete. Exact reconstruction and published-method agreement do not
+  prove those interpretations. No audio or stylistic quality claim.
+
+Tonal final corrections: Planner independently found oracle scope omission and
+set-based duplicate-ID blindspots; fixed exact raw-derived scope/candidate inventory,
+finite typed scores, exact used/excluded reference multiplicity and corruption
+regressions. Core tonal provenance now deepcopy-owned; input cannot mutate frozen
+profile definitions. Actual final artifacts musical-tier2-tonal-qa-v2 and
+musical-tier2-tonal-beatles-v2 have exact inverses/source/5denials/integrityPASS;
+independent-tonal-oracle-v4.json compares288/384scoresPASS. Explicit limitation:
+oracle takes quarantine warnings from accepted source_quality, not an independent
+warning generator; both actual inputs have no warnings. Raw timing/field oracle
+is independently run separately. Actual Econtrast in both final artifacts proves
+Cmajor-reference membership TRUE/Dbmajor FALSE without changing note. These are
+candidate-conditional coordinates, not source-key or note-function adjudication.
+Full suite816tests/815PASS1optionalSKIP17.319s; final ownership-corruption tests
+28targetedPASS. Final approval/commit status below.
+
+Planner completion: independently28testsPASS; actual both v2inverses and
+288/384oracle comparisons rerunPASS; Econditionalmembership contrast verified.
+Bounded tonal Gate3 APPROVED; no further same-baseline runs recommended. No key/
+mode/function truth claimed. Both prior gates PASS declared fields. Verification
+suite816tests815PASS1optionalSKIP; commit/push followed after independent review.
