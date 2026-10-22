@@ -823,6 +823,106 @@ def harmonic_note_context(upper,ident,evidence,begin,stop):
                 edge_selection='explicit_one_of_retained_optimal_hypotheses',established_key=None,established_mode=None)
 
 
+def note_motion_evidence(upper,occurrence_refs):
+    """Measured three-occurrence shape; NEVER identifies passing/neighbor intent."""
+    validate(upper)
+    if type(occurrence_refs) is not list or len(occurrence_refs)!=3 or len(set(occurrence_refs))!=3:raise ValueError('Three distinct owned occurrences required')
+    index={m['id']:(g,m) for g in upper['coattacks'] for m in g['members']}
+    rows=[index[i] for i in occurrence_refs];parts={g['part_id'] for g,m in rows};voices={m['voice'] for g,m in rows};reasons=[]
+    if len(parts)!=1 or len(voices)!=1:reasons.append('different_source_part_or_voice')
+    else:
+        # Serialization order is not source musical order: the retained
+        # extractor appends grace occurrences after regular events. Original
+        # source addresses remain owned and are the only sequence authority.
+        sequence=sorted((i for i in upper['realization_order'] if index[i][0]['part_id']==rows[0][0]['part_id'] and index[i][1]['voice']==rows[0][1]['voice']),
+                        key=lambda i:(index[i][1]['bar'],index[i][1]['beat'],index[i][1]['note']))
+        position=sequence.index(occurrence_refs[0])
+        if sequence[position:position+3]!=occurrence_refs:reasons.append('not_consecutive_owned_occurrences')
+        for g,m in rows:
+            if sum(index[i][0]['onset_q']==g['onset_q'] for i in sequence)!=1:reasons.append('ambiguous_same_voice_simultaneity');break
+    pitches=[member_pitch(g,m) for g,m in rows];starts=[F(g['onset_q']) for g,m in rows];durations=[F(m['duration_q']) for g,m in rows]
+    if any(g['timing_uncertain'] for g,m in rows):reasons.append('source_timing_uncertain')
+    if any(d==0 for d in durations):reasons.append('zero_duration_or_grace_occurrence')
+    if any(p is None for p in pitches):reasons.append('unknown_pitch_occurrence')
+    if len(parts)==1 and len(voices)==1:
+        left=min(starts);right=max(a+d for a,d in zip(starts,durations))
+        if any(i not in occurrence_refs and F(index[i][0]['onset_q'])<right and F(index[i][0]['onset_q'])+F(index[i][1]['duration_q'])>left for i in sequence):reasons.append('ambiguous_same_voice_overlap')
+    gaps=[starts[i+1]-starts[i]-durations[i] for i in (0,1)]
+    if any(gap!=0 for gap in gaps):reasons.append('noncontiguous_written_intervals')
+    motion=None
+    if all(p is not None for p in pitches):
+        approach=F(relation(anchor=pitches[0],pitch=pitches[1])['interval']);departure=F(relation(anchor=pitches[1],pitch=pitches[2])['interval'])
+        shape='strictly_monotonic' if approach*departure>0 else 'departure_and_return' if approach!=0 and F(pitches[0])==F(pitches[2]) else 'contains_repetition' if approach==0 or departure==0 else 'direction_change_without_register_return'
+        motion=dict(approach_semitones=str(approach),departure_semitones=str(departure),register_return=F(pitches[0])==F(pitches[2]),shape=shape,diatonic_step=None)
+    return dict(occurrence_refs=occurrence_refs,source_part_id=next(iter(parts)) if len(parts)==1 else None,source_voice=next(iter(voices)) if len(voices)==1 else None,
+                clocks=[dict(occurrence_ref=i,onset_q=str(a),duration_q=str(d)) for i,a,d in zip(occurrence_refs,starts,durations)],
+                gaps_q=list(map(str,gaps)),motion=motion,eligibility='eligible_owned_written_sequence' if not reasons else 'refused_unique_melodic_interpretation',refusal_reasons=list(dict.fromkeys(reasons)),
+                passing_tone=None,neighbor_tone=None,attack_and_tie_status='outside_owned_T1_scope',claim='Measured shape and continuity only; even large leaps may be monotonic')
+
+
+def harmonic_membership_evidence(upper,evidence,queries):
+    """At most three memberships, jointly feasible on ONE optimal path/labels.
+
+    State is a bounded tuple, not a general-purpose new inference engine.
+    An edge uses one label for every queried note/time it covers.
+    """
+    if type(queries) is not list or not 1<=len(queries)<=3:raise ValueError('One to three explicit occurrence/time queries required')
+    expected=harmonic_span_evidence(upper,**evidence.get('request',{}))
+    if not same(evidence,expected) or evidence['status']!='SCORED_NOT_MUSICAL_TRUTH':raise ValueError('Current scored harmonic relationships required')
+    index={m['id']:(g,m) for g in upper['coattacks'] for m in g['members']};points=list(map(F,evidence['partition_points_q']));query_values=[]
+    for row in queries:
+        if type(row) is not dict or set(row)!={'occurrence_ref','at_q'}:raise ValueError('Declared occurrence and clock only')
+        group,member=index[row['occurrence_ref']];at=fraction(row['at_q']);start=F(group['onset_q']);end=start+F(member['duration_q'])
+        if not start<=at<end or not points[0]<=at<points[-1]:raise ValueError('Query outside half-open written note/request')
+        if evidence['request']['part_id'] is not None and group['part_id']!=evidence['request']['part_id']:raise ValueError('Query outside harmonic part scope')
+        query_values.append((at,member_pitch(group,member)))
+    # Prefix note-cell evidence derived from existing occurrence relationships.
+    prefix=[[0]*12]
+    for cell in evidence['minimal_cells']:
+        weights=[0]*12
+        for ref in cell['occurrence_refs']:
+            p=member_pitch(*index[ref])
+            if p is not None and F(p).denominator==1:weights[int(F(p)%12)]+=1
+        prefix.append([a+b for a,b in zip(prefix[-1],weights)])
+    reachable={len(points)-1};pending=list(reachable)
+    while pending:
+        j=pending.pop()
+        for i in evidence['optimal_predecessors'][j]:
+            if i not in reachable:reachable.add(i);pending.append(i)
+    empty=tuple('not_visited' for _ in queries);states=[{} for _ in points];states[0][empty]=None
+    for stop in range(1,len(points)):
+        if stop not in reachable:continue
+        for begin in evidence['optimal_predecessors'][stop]:
+            weights=[b-a for a,b in zip(prefix[begin],prefix[stop])]
+            scores=harmonic_template_scores(weights) if any(weights) else [];best=max((r['score'] for r in scores),default=0)
+            labels=[r for r in scores if r['score']==best] or [None]
+            covered=[k for k,(at,pitch) in enumerate(query_values) if points[begin]<=at<points[stop]]
+            for label in labels:
+                updates={}
+                for k in covered:
+                    pitch=query_values[k][1]
+                    updates[k]='unknown' if pitch is None or F(pitch).denominator!=1 or label is None else 'chord_member' if F(relation(anchor=label['root_pc'],pitch=pitch)['interval'])%12 in label['formula'] else 'nonmember'
+                for previous in states[begin]:
+                    current=tuple(updates.get(k,value) for k,value in enumerate(previous))
+                    if current not in states[stop]:states[stop][current]=(begin,previous,None if label is None else dict(root_pc=label['root_pc'],kind=label['kind'],formula=label['formula']))
+    alternatives=[]
+    for vector in sorted(states[-1]):
+        if 'not_visited' in vector:raise ValueError('Incomplete membership coverage')
+        edges=[];cursor=len(points)-1;state=vector
+        while cursor:
+            begin,previous,label=states[cursor][state]
+            partial=any(F(o['start_q'])<points[cursor] and F(o['end_q'])>points[begin] for o in evidence['unknown_pitch_overlays'])
+            edges.append(dict(begin=begin,stop=cursor,label=label,supporting_edge_has_partial_known_pitch_evidence=partial));cursor=begin;state=previous
+        witness=list(reversed(edges))
+        supporting=[next(e['supporting_edge_has_partial_known_pitch_evidence'] for e in witness if points[e['begin']]<=at<points[e['stop']]) for at,pitch in query_values]
+        alternatives.append(dict(memberships=list(vector),one_valid_path_and_label_witness=witness,witness_supporting_edge_has_partial_evidence=supporting))
+    partial=[any(F(o['start_q'])<=at<F(o['end_q']) for o in evidence['unknown_pitch_overlays']) for at,pitch in query_values]
+    domains=['unknown_pitch' if pitch is None else 'outside_supported_12_pitch_class_domain' if F(pitch).denominator!=1 else 'integer_pitch_class' for at,pitch in query_values]
+    return dict(queries=deepcopy(queries),query_pitch_domain=domains,query_has_partial_known_pitch_evidence=partial,feasible_membership_vectors=alternatives,
+                dependence='Jointly feasible under existing harmonic objective; not independent unions or probabilities',
+                established_key=None,established_mode=None,passing_tone=None,neighbor_tone=None,attack_and_tie_status='outside_owned_T1_scope')
+
+
 def tonal_note_context(upper, ident, candidate_id, at_q=None, ensemble_scope=True):
     """Exact note/chord coordinates CONDITIONAL on one explicit tonal candidate.
 

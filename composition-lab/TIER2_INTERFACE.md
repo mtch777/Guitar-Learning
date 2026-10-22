@@ -200,3 +200,28 @@ unknown-grid leak and strengthening the freeze. Existing detectors are untouched
 Still missing: justified local key/harmony-function inference, general modes,
 non-chord-note functions, sounding/tie-aware context, artist context, nonzero
 style-preserving choices, and full all-field/all-tier GP reconstruction.
+
+## Conditional note motion and chord membership
+
+| Relationship | Owned evidence and limit |
+|---|---|
+| Three-note motion | Exact signed semitone changes, register return, durations and gaps. Uses preserved source bar/beat/note addresses, never storage order. |
+| Melodic-line eligibility | Refuses grace, unknown pitches, simultaneity, overlapping same-voice notes, skipped occurrences and noncontiguous intervals. Raw rests, ties and attacks are outside this T1 scope. |
+| Joint chord membership | Up to three explicit note/time queries on ONE globally optimal harmonic path. One chord label per edge applies to every query it covers; incompatible alternatives cannot be mixed. |
+| Held-note context | The same occurrence can be queried at different half-open interior times without inventing another note attack. |
+| Uncertainty | All feasible membership vectors; one valid whole-path witness per vector. Unknown and unsupported fractional pitches stay unknown. Query-clock and supporting-edge incomplete evidence are separate. |
+| Musical function | Chord membership and measured motion are evidence, not proof of passing/neighbor intent, diatonic steps, established key, mode or emotional meaning. Those labels remain unresolved. |
+
+`note_motion_evidence` and `harmonic_membership_evidence` consume T2 only.
+The stripped isolated worker uses the SAME functions and the existing shared
+inverse; no source/expected lower data is staged. Exact scope remains the owned
+written T1 fields, not complete GP or technique execution reconstruction.
+
+Frozen random Songsterr91316/rev5925322:655/655 source occurrences match;
+the first fixed triple contains a grace occurrence and correctly refuses a
+unique melodic interpretation. Its two positive-duration members still receive
+conditional membership checks; the grace is retained as unqueryable, not replaced.
+Independent raw arithmetic checks source motion/refusals and returned witnesses;
+exhaustive small-case tests establish joint-vector completeness separately.
+The initial failed source-order test is retained. No claim of annotated note-role
+accuracy follows from these results.

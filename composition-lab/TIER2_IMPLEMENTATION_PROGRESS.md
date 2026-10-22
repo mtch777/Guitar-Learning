@@ -436,3 +436,76 @@ alternatives; testunchangedchordwithdifferentcontext, secondarydominant, actual
 keychange. ConditionalRoman-degreecoordinates distinctfrominferredfunction.
 Nevermultiply uncalibrated chordscore/keycorrelationasindependentprobabilities.
 Need unknown/outofvocab +unchangedexactsourceinverse. No inputneeded yet.
+
+
+Delivered harmonic671b299 main, actualCI39832378837SUCCESS. UnrelatedWIPintact.
+Jointcontext audit is complete withoutinstallation/inference. McLeodpinned
+b257424fcb049bb318fe05c22c0ae9318d6e2a0f; BOTHreleasedfamilies14hparams allTPC0,
+ASTenumTPC0/MIDI1; safeYAMLnodecompositiononly. CurrentsemitoneT1 lacks authored
+letterspelling. Explicittonicization/modulationconflation inREADME. Planner
+independentlyverified and rejectedforceddeployment; notclaimingweightsdefective
+orunavailable. Raphaelmissingverifiedparameterartifact; Rameaufirstchordkeynotfit.
+SeeTIER2_JOINT_CONTEXT_AUDIT.md. Stop methodshopping; continueindependentmusical
+note-role evidence (unambiguous sourcevoice, motion+harmoniccontext, allpathconsistent
+alternatives, knownunknown/refusals, exactsameinverse). No userinputneeded.
+
+
+## Conditional note-motion/context evidence — START, before implementation/results
+Plannerstartcontract: consecutive OWNEDsourcepart/voice occurrences, positive
+notateddurations/exactcontiguity. T1doesnotownrest/tie/attacktruth. Keepgaps,
+overlaps,grace/unknownrefusals; no inventedmelodicline. No diatonicstepthreshold.
+Monotonic+T/F/TdoesNOTprovepassing: octaveleapcounterexample mandatory. Passing/
+neighbor/intentidentification staysunresolved. Querysameheldoccurrence attwo
+halfopeninteriorclocks forcontextchange, preserveoriginalonset.
+
+Acceptancechecklist:
+- [ ] One sharedpureT2 motion/context query, explicitsourceIDs/clocks/refusals.
+- [ ] Path-consistent3slotmembershipDP overexistingoptimalDAG, SAMElabel forall
+  queriedpositionswithinoneedge, allfeasiblevectors+onepath/labelwitnesseach;
+  noindependentunion/cartesianincompatiblecombos, no probabilities.
+- [ ] Freezecontrasts now: C4-D4-E4 underheldC3/E3/G3 v G2/B2/D3; heldC4
+  underCmajor->Gmajor; sameonsetpolyphonyrefusal; octaveleapC4-D5-E6 under
+  Cmajor notcalledpassing; unknown/no-evidence andhalfopenboundary cases.
+- [ ] Independentexhaustivesmallpaths+labelassignmentsverify allvectors; real
+  source regression/newrandomfrozen beforeanalysis; actualisolatedsameinverse.
+- [ ] Planner midpoint/end, requiredfulltests, verifiedcommit/push/CI.
+No newmodelinstallation, keyclaims, stylelevers or UI. Next implementcorequeries
+and frozenanalyticaltests. No human inputneeded.
+
+Conditional note-context iteration: added SAME relation motion + path-consistent
+membership queries. Planner midpoint caught fractional-pitch/nonmember inconsistency;
+fixed to explicit unknown domain. Query-clock partial evidence and supporting-edge
+partial evidence separated. All-path joint memberships preserve incompatible labels
+instead of independently mixing per-note alternatives. Passing/neighbor/key/mode
+identification remains unresolved. No nonzero style generation claim.
+
+Frozen BEFORE Tier2 analysis: random Songsterr91316 Numb Fingerstyle rev5925322,
+seed9337869460305403329/queryl; first8frames0..32q; ALL sourcepart/voice denominator,
+sole voice63 occurrences, exact first3 IDs retained. Actual QA-v1 FAIL caught source
+sequence bug: retained extractor appends grace notes, so realization_order is storage
+order, not original musical order. Fixed ONLY new motion helper to use owned source
+bar/beat/note addresses; inverse/storage data unchanged. Regression proves this.
+
+QA-v2 PASS but0membership vectors because first3 contains grace; NOT melodic coverage.
+Planner approved separate positive-duration queries of SAME frozen first3, grace
+explicitly unqueryable, no later replacement. QA-v3 PASS; Planner challenged checker
+vacuity/nonoptimal boundary witnesses. Added terminal-reachable optimal-DAG, exact
+queryIDs/clocks, nonempty/unique vectors, vectorlength guards + mutationregressions.
+QA-v4 PASS:655/655 raw notes,67896 independent harmonic scores/44partitionpoints,
+1joint vector/8witnessedges, raw motion/refusal checks, actual stripped isolated
+same-query+inverse PASS. Code/source hashes unchanged. First triple remains refused
+as unique melody;2normalnotes conditional membership only. All private artifacts
+retained under musical-tier2-notecontext-qa-v1..v4; no raw scores published.
+
+Commands: .venv/Scripts/python.exe -m unittest discover -s composition-lab
+-p test_note_context_evidence.py =>10PASS. run_note_context_qa.py fresh outputv4
+=>technicalPASS; Planner final review requested, full installed/bare tests running.
+Next: final Planner acceptance/fulltests/commitpushCI, then next independent Tier2
+musical-context task. No human input needed; do not stop at this bounded slice.
+
+Planner end review: APPROVED bounded conditional note-context slice after actualv4
+artifact inspection and independently10testsPASS. Full847tests:846PASS1optionalSKIP
+21.059s; bare-S847tests845PASS2skip21.023s. Both commands exact discovery above.
+Next recommended: narrowly connect owned source tie declarations/validated written
+continuations to musical contexts; no acoustic sustain/attack inference, no broad
+metadata codec project, no reopening pedals. Start review before implementation.
