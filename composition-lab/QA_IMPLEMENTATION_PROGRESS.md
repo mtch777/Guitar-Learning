@@ -97,3 +97,67 @@ Overnight next action: complete frozen reference diagnostic with Planner, assess
 all source-supported disagreements and use those observations to improve musical
 analysis method selection. Extend QA adapters only against declared actual
 interfaces; do not invent a musicaltier or revive codecs merely to green a test.
+
+## Delivery integrity
+
+-QA-only commit`b4439fe`pushedmain afterfetch verified1ahead/0behind. Only new
+  runner/tests/policy/progress were staged; all unrelated WIP remains untouched.
+-Gitindexwrite required sandbox escalation. Initialcommit lackedidentity; used
+  existinghistorical`Codex <codex@openai.com>`via command-localconfig, noglobal
+  configuration change. No destructive command or credential request.
+-GitHubCIrun39726555139 **SUCCESS**, verified publicActionsAPI. `gh`CLI absent;
+  used publicread API instead. No websiteassetschanged/noPagesclaim.
+-Latestreference status indicates prediction fileexists; interpretation and
+  independent source assessment still belong to Planner's experiment record.
+
+## Independent research iteration completed with Planner
+
+-Original-authorreference003306b completed246.98s,148events/71source-labelledspans,
+  2dummylabelpasses identical,33presealedfiles unchanged.71×90localscore sums
+  independently reconciled.64decodedspans;112/148eventlabelconcordance. These are
+  reference-domain comparisons, NOT heldoutSongsterraccuracy orartistfidelity.
+-57spans have correctreference label as unique localwinner: globalpreserves all
+  events47, losesall9, partiallyloses1.14local-losing spans: globalrescuesall5,
+  partiallyrescues1, loses8. Context therefore helps AND hurts; forcing local
+  winners is rejected.61/70normalizedlabel-changeboundaries hit,9missed,2extra.
+-Concrete contrast: q9–9.5A:min7 and9.5–10D:maj7 bothlocalrank1 but globally
+  mergedA:min. q20–21A:min localrank5 yet recovered globally. All38same-literal-
+  voicing/same-reference repetitiongroups globallyconsistent in thisscore.
+-Private repeatableassessment andREFERENCE_FINDINGS.md retained with original
+  source andoutput. No more inference required to establish thisboundedresult.
+-OlderBeatlesgraphhead scope corrected in SEPARATEsidecar:9cases retainall frozen
+  originals/hashes; guitar-onlycontrolstability is NOT ensemble no-changegold.
+  Extraensemblepitchclasses atq51,53,56. Exactsourceoccurrencerefs/time retained;
+  no cases deleted/retuned, no newinference, no graphaccuracyclaim.
+-Planner endreview: boundedQAguard delivery acceptable with pending executable
+  adapters explicit; no activeinverse orallthreePASS. Originalcheckpoint stays
+  comparator. Next research must test local recognition AND boundary/context on
+  independently annotated contrasting contexts before anyTier2adoption.
+
+Next overnight checkpoint: inspect retained failure/counterexamples under the
+threegates, extend executable evidence adapters only where actual approved
+interfaces exist, and preregister bounded context/boundary comparisons with
+Planner. Do not replace the new musicaldesign with the retired codecs, claim
+fullreconstruction, or invent a sourceharmoniclabel to obtain a passing test.
+
+## Reference diagnostic completed (2026-10-22)
+
+Planner completed the independently seeded original Fold1 score003306b diagnostic:
+148events,71reference spans,64predicted spans; two dummy controls identical,
+246.98s within360s/4GiB; all33input/model/runtime seals unchanged.112/148event
+labels match the normalized reference. This is one published-domain diagnostic,
+not a population accuracy or replacement for the retained Sum41 inconclusive case.
+
+All71x90local label scores reconciled. Reference is unique local winner on57spans:
+global preserves47fully,1partly and misses9. Where reference loses locally(14),
+global recovers5fully,1partly and misses8. Context therefore helps AND hurts;
+no permission to force local winners or change learned weights.61/70exact source
+label-change boundaries hit,9missed,2additional; signed offsets retained with ties.
+All38same-literal-voicing/same-reference repetition groups are globally consistent.
+
+See TIER2_REFERENCE_BOUNDARY_RESULTS.md. Private evidence and repeatable assessment
+remain under tier2-boundary-reference-v1 and .local/segmental-crf-pilot respectively.
+No active inverse, meaningful-tier implementation, artist/general accuracy or
+new engine is claimed. Next method-selection gate must separately assess local
+evidence and temporal/boundary behavior on independently annotated contexts;
+future tier implementation must still pass all THREE_QA_GATES.
