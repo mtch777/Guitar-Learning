@@ -36,3 +36,40 @@ The existing graph head predicts annotation-change coincidence, not generic note
 
 ## Completion boundary
 The frozen reference experiment is complete as a bounded diagnostic. The fresh Songsterr annotation-backed experiment remains inconclusive; these results do not close a musical-engine or inverse gate. Exact signed nearest-boundary offsets, including equal-distance alternatives, are preserved in the private assessment rather than summarized through a chosen tolerance.
+
+## Second preregistered reference diagnostic (2026-10-22)
+
+Selected 005708b from the four remaining original Fold1 test scores with frozen
+seed6204075149612813049, before reading its source or predictions. Exact official
+source bytes retained; only70event tag fields and one segments container removed
+from inference input. All observed subtrees unchanged.70events,41source spans,
+all within original maxSpan20. No model, feature, learned weight or setting changes.
+Two dummy-label passes agree;78.25s within360s/4GiB. All36frozen files unchanged.
+
+| Reference is unique local winner? | Entire span globally matches | Partial match | No match |
+|---|---:|---:|---:|
+| Yes (29 spans) | 25 | 3 | 1 |
+| No (12 spans) | 8 | 1 | 3 |
+
+All41x90scores and82reference/top feature sums reconcile exactly. At q13–14 the
+reference F:maj7 wins locally but global output is F:maj. Conversely q6–8 F:maj
+ranks second locally behind A:min6 but global context recovers F:maj. Generic
+added-note labels retain the original model's coarse semantics; this is not a
+conventional major-seventh interpretation claim.
+
+43predicted spans;60/70event labels concordant with the normalized reference.
+38/40reference label-change boundaries hit exactly;2missed and4additional. Both
+missed source boundaries (q13,q40) have equally near predicted boundaries at−1/+1q;
+both alternatives retained without an invented tolerance. All19same-literal-
+voicing/same-reference repetition groups give consistent global predictions.
+
+This confirms the need to evaluate local evidence AND temporal context: global
+context can repair local mistakes and also override locally compatible evidence.
+The two selected reference scores are small, dependent published-domain examples,
+not a pooled benchmark, new-song artist evaluation or musical-model approval.
+Private evidence: tier2-boundary-reference-next-v1/{experiment-plan,input-audit,
+source-assessment-inventory,run-freeze,segmental-reference-status,predictions,
+local-reference-scores,reference-assessment}.json. Exact official source and
+annotation-free derivative remain private. Repeatable assessment uses the same
+ignored assess_reference_next.py, with only artifact path and dynamic event count
+changed from the first assessment. No further inference is running.

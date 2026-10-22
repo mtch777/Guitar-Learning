@@ -161,3 +161,125 @@ No active inverse, meaningful-tier implementation, artist/general accuracy or
 new engine is claimed. Next method-selection gate must separately assess local
 evidence and temporal/boundary behavior on independently annotated contexts;
 future tier implementation must still pass all THREE_QA_GATES.
+
+## Next bounded context comparison — preregistered, NOT RUN
+
+Planner recursively inspected every field of the retained RoughBoy20985/rev9620672
+capture. There are NO actual chord declaration fields in its seven track payloads;
+metadata.hasChords=true is the sole chord-named field. Thus this capture currently
+cannot supply annotation-backed harmonic truth. This is a source availability/
+representation gap, NOT evidence that the website song has no chords. Preserve it;
+no easier Songsterr reroll and no inference pretending the metadata flag is a label.
+Exact file hashes and paths: private tier2-boundary-reference-next-v1/
+roughboy-annotation-inventory.json. Next independent acquisition investigation:
+trace existing hasChords/source payload schema without changing the frozen capture.
+
+Separate reference diagnostic preregistered BEFORE inspecting selected score or
+predictions: seed6204075149612813049, remaining4originalFold1test scores after
+excluding013705 and003306 (000408notinpool), Python3.10 sorted-pool choice selects
+005708b_annotated_events.xml. Private experiment-plan.json freezes this selection.
+This remains published reference-domain research, not pristine holdout or an
+artist-domain success. NO inference launched at this checkpoint.
+
+Continuation sequence (root/Planner review before execution):
+1. Extract exact official bytes using Python subprocess binary output:
+   `git -C .local/segmental-crf-pilot show HEAD:bach/005708b_annotated_events.xml`.
+   Save to next-v1/source-events.original.xml without PowerShell text redirection.
+   Confirm upstream commit ecad6f7aa3b3ee772b8142d44c10c14a3ade79e3.
+2. Build observed-events.xml removing ONLY tag/segments annotation fields; assert
+   all observed event/note subtrees unchanged. Inventory ALL reference spans and
+   repeated literal voicings BEFORE inference; retain unsupported span lengths.
+   Check original41span reproduction evidence and current runtime/code seals.
+3. Clone existing run_reference_monitor.py to a NEW ignored next monitor changing
+   ONLY output directory. Freeze exact executable/model/input/helper hashes. Use
+   SAME OfficialSettingDecode / original-fold1.model / official-feature-count1.txt,
+   original90labels/maxSpan20 and two dummy passes; total360s/4GiB. No reroll,
+   learned changes, timeout extension or result-dependent policy changes.
+4. Local assessment command after source inventory is frozen:
+   `java -Xmx1g -cp ".local/segmental-crf-pilot/bin;.local/segmental-crf-pilot/lib/*" ReferenceWindowProbe .local/segmental-crf-pilot/original-fold1.model NEXT/source-events.original.xml .local/segmental-crf-pilot/official-feature-count1.txt NEXT/local-reference-scores.json`
+   Use the existing JDK8 bin/java.exe; NEXT means the full private next-v1 path.
+   All90labels on every eligible1..20-event source span, no forced decoder spans.
+5. Reuse assess_reference.py with ONLY private directory changed. Require exact
+   full-event coverage, dummy invariance, all frozen hashes unchanged, all source
+   spans classified and independent feature-sum reconciliation. Report local
+   winners preserved/missed AND local losers recovered/missed; normalized boundary
+   exact hits, signed offsets with ties, repeated same-reference groups. Include
+   failures rather than requiring improvement. No threshold creates promotion.
+
+Stop rules: no inference until protocol/source inventory review; runtime failure
+is a retained result, not permission for another score. Missing label/shape support
+is counted unknown. ProductGate1 remains separate source-extraction evidence;
+activeGate2NOTRUN and Gate3FAIL are unaffected by a successful reference decode.
+Acceptance is complete honest diagnostic accounting, not musical-engine completion.
+
+## Second reference experiment completed
+
+Preregistered005708b source preparation independently reviewed before inference:
+70events/41spans,allobservedsubtreesequal; onlyannotationfieldsremoved. Sameoriginal
+model/settings;2dummycontrolsPASS,78.25s/360s,36execution/source/model seals unchanged.
+All41x90local scores reconcile.29reference-local winners yield25globalfull/3partial/
+1miss;12local losers yield8globalfull/1partial/3miss.38/40exact reference boundaries,
+2missed/4additional;60/70event-label concordance, not generalaccuracy.19comparable
+literal repetition groups consistent. Balanced result: temporal context helps AND
+hurts; no forced-local-chord override or engine adoption. See second diagnostic in
+TIER2_REFERENCE_BOUNDARY_RESULTS.md and private tier2-boundary-reference-next-v1.
+
+RoughBoy acquisition update from root: supplemental public chord resource is
+separate from frozen notation revision, with no established beat alignment. Do not
+turn untimed chord tokens into scored chord boundaries. Original frozen source
+must remain unchanged. Product activeGate2NOTRUN/Gate3FAIL stay unaffected.
+
+Next: consolidate these counterexamples into the requirements for local harmonic
+candidates plus explicit temporal context, rather than run all remaining scores
+without a decision need. No new engine authorized. Independently annotated real
+source timing/voicing scope and all THREE_QA_GATES are required before Tier2 adoption.
+
+
+## Executed isolation QA iteration (2026-10-22)
+
+- Added a generic QA worker harness, not a musical operator. Parent keeps expected
+  lower output; worker receives only frozen reviewed code, upper input and explicit
+  zero controls. Isolated Python flags and minimal environment; strict typed output
+  comparison; failures, logs and timeouts retained. No active tier adapter exists.
+- Real denied operations tested: file open, os.open, outside write, repo import,
+  socket creation, subprocess, os.system, remove, rename, directory list and chdir.
+  A caught prohibited read/delete followed by a cached answer still fails.
+- Planner independently found and reproduced two bugs: outside os.remove could
+  pass, and JSON 1e999 became infinity. Both fixed and retested; no source data was
+  touched (only disposable test sentinels). Additional malformed preparation test
+  retains its failure record. Eight harness tests pass.
+- Initial legitimate fixture failed on importlib's unstaged __pycache__ probe.
+  Fixed by compiling frozen source directly, without relaxing cache denial.
+- Planner approved bounded reviewed-Python fixture infrastructure. This is NOT
+  hostile-code/OS isolation, a transitive runtime lock, a disk/memory quota, parameter
+  ownership certification, musical correctness or active product Gate2 acceptance.
+  Runtime reads remain broadly allowed; output logs stream to disk rather than
+  accumulating in parent memory. Actual musical adapter/forward-only tests pending.
+- Read-only acquisition investigation found Rough Boy's separate public chord
+  metadata/ChordPro resource through the actual page scripts. Independently checked
+  all eight original capture hashes unchanged. Supplemental resource is unaligned,
+  independently identified source, never injected as score annotations or truth.
+  See CHORD_SOURCE_AVAILABILITY.md; raw supplemental content remains private.
+
+Next: run installed tests/full suite, have Planner inspect final artifacts, commit
+only verified source-free QA/research changes and check CI. No more reference runs
+without a new decision; consolidate the already demonstrated context counterexamples.
+
+
+## Installed QA checkpoint
+
+- Installed 8 harness tests and existing 21 gate tests:29PASS. Full Python suite:
+  774tests in16.027s,773PASS/1optionalSKIP. No JS or website code changed.
+- Last small guard fix: invalid/nonfinite preparation input now retains FAIL rather
+  than leaving an empty output directory. Prior result directories never overwritten.
+- Planner independently tested initial bugs and verified fixes; approved bounded
+  fixture execution only. Actual active musical adapter remains absent. No policy
+  booleans, successful research inference or fixture PASS can green product Gate2/3.
+- All inference processes closed. Two source-backed context studies are enough to
+  establish both help and hurt counterexamples; stop repeated same-domain runs
+  without a specific unresolved decision. Next QA work should bind real approved
+  interfaces/ownership/forward-only inputs and musical interpretations, not invent
+  a convenient engine or add decorative tiers to satisfy the tests.
+- Supplemental chord source verified against the exact public acquisition path;
+  eight frozen notation files unchanged. Untimed supplemental chords are not timed
+  ground truth. All raw public-page/chord resources and source score data private.
