@@ -13,6 +13,7 @@ from check_reversible_source import check
 from check_musical_tier2_source import check as check_musical_source, check_overlaps, check_declared_keys
 from qa_isolation_harness import execute
 from three_gate_qa import exact_diff, portability
+from check_temporal_songsterr import check as check_temporal_source
 
 ROOT = Path(__file__).resolve().parent
 
@@ -44,6 +45,7 @@ def run(capture, output, selection=None):
         gate1 = portability(capture, selection) if selection else dict(status="REGRESSION_NOT_FRESH")
         result["gate1"] = dict(selection=gate1, source=direct, coverage=lower["source_coverage"], source_key_check=check_declared_keys(capture,lower))
         upper = analyze(lower); blind = strip_lower(upper)
+        result['temporal_source_oracle']=check_temporal_source(capture,lower,upper)
         write(output/"tier2-nested.json", upper); write(output/"tier2-stripped.json", blind)
         worker = execute((ROOT/"musical_tier2.py").read_text(), blind, {"variation":0}, lower, output/"inverse", timeout=120)
         result["gate2"] = dict(worker=worker, removed="ENTIRE input T1 including ALL event absolute pitches, onsets, durations, addresses and coverage; no source staged", retained="bass register per written-start group, member interval/duration/address, group time/part/bar, typed quality counts/warnings, occurrence order, derived context", claim="exact declared T1 only")
@@ -91,6 +93,7 @@ def run(capture, output, selection=None):
         if set(g2["actual_denial_challenges"].values()) != {"PASS"}: issues.append("Denial challenge failed")
         if not g3["actual_relation_intervention"] or not g3["stale_context_refused"] or g3["source_witnesses"]["status"] != "PASS" or g3["nominal_overlap_witnesses"]["status"] != "PASS": issues.append("Musical relation checks failed")
         if not result["source_unchanged"] or not result["code_unchanged_during_run"]: issues.append("Frozen input/code changed")
+        if result['temporal_source_oracle']['status']!='PASS':issues.append('Source geometry/temporal arithmetic differs')
     result["technical_status"] = "FAIL" if issues else "PASS_DECLARED_SCOPE_PENDING_MUSICAL_REVIEW"
     result["issues"] = issues
     write(output/"result.json",result)

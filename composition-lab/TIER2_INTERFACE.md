@@ -1,7 +1,7 @@
 # Musical Tier2 — implemented interface
 
 This is a bounded musical-analysis boundary, not the completed song engine.
-`musical_tier2.py` consumes only retained T1 written-note facts. Its shared pitch
+`musical_tier2.py` consumes only its preceding T1 facts. Its shared pitch
 relationship is `pitch = bass_register_anchor + voicing_interval`; analysis solves
 for interval, reconstruction solves for pitch, and both validate the same contexts.
 
@@ -103,3 +103,59 @@ sources: recent random captures and495 Invent Animate track files have no measur
 key declarations. Null/change/sign/zero cases are primary-client-backed synthetic
 tests, not claimed actual corpus occurrences. Expanded blind inverse and raw
 presence/value/clock/absence checks are recorded in the progress log.
+
+## Actual measure frames and temporal evidence
+
+Current upper schema: `musical-context-relations/2`. Preceding schema3,
+`normalized-written-context-facts/3`, owns one canonical `measure_geometry`:
+source format/identity, frame ordinal/source label, rational start/span, actual
+meter and explicit/inherited witness, source part membership. Source pickup
+declaration and observed first notated extent remain distinct. No guessed4/4 or
+note-envelope-as-measure. Key inventory summaries must match this geometry;
+upper signature contexts reference it rather than retaining another inventory.
+
+The SAME meter-unit and start/advance equations reverse this geometry. Source
+key declarations `None` mean outside owned input scope; `[]` mean owned/verified
+absence. MusicXML references do not receive fabricated Songsterr objects.
+
+`temporal_tonal_evidence` stores all24 AardenEssen major/minor hypotheses per
+real measure and source part/pooled view, with used/excluded occurrence refs,
+duration histogram, raw correlation, immutable window4 inverse-distance sum,
+and exact contributing frame/weight references. Empty measures retain24 null
+candidates. Whole written duration is assigned to its onset measure; cross-frame
+notes are flagged. This is not acoustic sustain. Neighboring future measures
+contribute: offline evidence, not causal prediction or calibrated probability.
+
+Installed music21 floatingKey mutates cached neighbor vectors. This implementation
+explicitly fixes that mutation, retaining published profile/weight definitions;
+it does not claim full native temporal parity. Native raw correlations and an
+independent stateless sum are checked separately. No artist weights are fitted.
+
+`temporal_note_context` and `tonal_note_context` call ONE shared candidate
+coordinate helper: actual note/chord intervals against an explicit tonic
+hypothesis, with current context/time/part refs. This is conditional scale
+membership, not established key, mode or melodic function.
+
+### Verified scope and unresolved musical gap
+
+- New frozen random25201/rev7475088:10tracks/105frames; exact isolated inverse,
+  independent raw geometry and55440 temporal score comparisons, all5 actual
+  source-access denial challenges pass. Failed freeze-overlap run retained;
+  unchanged-code rerun uses SAME selected song.
+- Positive signature regression:8719events/1221declarations,111frames,
+  63936independent temporal comparisons; exact inverse/source checks pass.
+- Three privately frozen annotated Bach references:186/183/237source occurrences,
+  independent literal XML clocks/pitches/meter/part inventory and isolated inverse.
+  10320raw/temporal score comparisons pass. Annotations are evaluator-only.
+- Source/reference audit found one trailing annotation beat and a transposed
+  edition. Original failures retained; Planner-approved common-support/fixed
+  transposition assumptions frozen before rescoring; contradictions not removed.
+- Strict duration agreement with aligned analyst labels, raw/smoothed:
+  00457.5/52.5%;01042.3/69.2%;01480.4/94.6%. Smoothing helps AND hurts.
+  This is NOT general key accuracy, artist fidelity, or a musical-quality score.
+- Eleven of sixteen annotated changes occur inside physical measures. One
+  hypothesis per measure cannot represent those boundaries; sub-measure harmonic
+  context, tonicization vs key change, note function and modes remain unresolved.
+
+Full suite825tests:824pass/1optional skip; Vite build passes. Actual commands,
+private artifacts and independent Planner review are in the progress log.

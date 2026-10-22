@@ -247,3 +247,112 @@ and order controls; retain help/hurt, unknown training overlap/classical-domain
 limits. No unvalidated argmax/reference annotation promoted into truth. SAMEinverse
 and actual context links required. Resolve model/runtime/inverse contract first;
 no disconnected benchmark. No need for user input identified yet.
+
+
+## Temporal inference endeavor — approved input/method contract
+
+Source declaration checkpoint70159ef pushed; remoteCI39823243632 SUCCESS.
+Planner/parent feature audit REJECTS forcing native AnalysisGNN checkpoint into
+currentT1: consumes meter/measure timing, pitch spelling, and key-signature embedding
+with no unknownclass. Native localkey can only be evaluated with genuine required
+inputs; missing signature/spelling must not become0/C/4-4. No modelinference run.
+
+Alternative installedprimary method audit: music21 9.9.2 floatingKey uses per-measure
+AardenEssen (NOTKS) duration-weighted correlations and defaultwindow4 inverse-distance
+weights1/(abs(distance)+1). Primarycode cachealias bug confirmed by Planner fake
+scorevector probe; repeated smoothing changes cached rawvectors/order results.
+DoNOT adopt buggy implementation or claim complete nativeparity. Implement named
+AardenEssen measure evidence + IMMUTABLE inverse-distance smoothing, rawscores
+verifiedagainstmusic21, temporal sums against independent statelessoracle. Empty
+frames retainall24unknownscores; invalidtiming excluded. Offlinefuturecontext is
+explicit. Windows0/4 predeclared, no tuning on reference results, no keytruthclaim.
+
+Reference selection frozen BEFOREpredictions: temporal-tonal-reference-v1/selection
+seed1602012989824021803,19candidateanalyses excludealreadyinspected001, choose
+004/BWV86.6,010/BWV38.6,014/BWV184.5. Analysis+scorehashes frozen; no predictionsyet.
+Namedanalysts/proofreaders recorded after selection. Annotationmaterial PRIVATE
+EVALUATIONONLY, no redistribution/traininglicense assumed frommusic21code license.
+Referenceannotations cannot enter analysisinput. Alignment mustpass beforescoring;
+retain failures, no easierreplacement. Classicalreference support is not artistproof.
+
+Geometry prerequisite acceptance (small commoninput extension, notanothercodec):
+- canonical source-derived frameowner: true sourceordinal/label/start/span/meter
+  provenance +partmembership. Acrosspartalignment validated, conflictsnotforced.
+- sourcepickupdeclaration separatefrom observedshortspan; witnessrequired; no guessed
+  shortening or invented4/4. Empty/rest-only actualframes preserved.
+- written-onset measure allocation (whole notated duration, not clipped acousticsustain)
+  explicit; grace/crossframe/invalidtiming accounting notsilent.
+- keydeclarationsNone=outsideownedreference scope, []=verifiedownedabsence. MusicXML
+  adapter mustnot fabricate Songsterr sourceobjects/pointers. Inputorigin typed.
+- sourcekeysummary inventory derivedfrom/crossvalidatedagainstcanonicalgeometry;
+  higherkeycontexts reference it, no competing inventoryowners.
+- SAMEstart/advance and metricunit relations; no separate compression project.
+- input/parity/oracle+freshSongsterr+exactinverse+annotatedtemporal evaluation and
+  Planner midpoint/completion required; geometry alone is not musicalprogress.
+
+
+## Temporal Tier2 implementation — 2026-10-22, active
+
+Acceptance checklist (bounded slice; full Tier2 remains incomplete):
+- [x] T1 schema3 owns actual measure geometry, real meter provenance/part membership;
+  source key None=outside scope, []=owned absence. One canonical geometry inventory.
+- [x] SAME metric-unit/start/advance relations reconstruct exact geometry; shared
+  note/tonic/chord coordinate helper supports global AND timed candidates.
+- [x] AardenEssen measure evidence + immutable distance smoothing, published window4.
+  Actual empty frames retain24 null candidates. No fake key, no source reread.
+- [x] Private frozen annotated004/010/014: literal XML pitch/time multiplicity,
+  measure labels/spans/meter declaration/inheritance and part inventory checked.
+  Adapter initially lost source suffix4a/8a; independent oracle caught it; fixed
+  via actual source measureNumberWithSuffix. No source event mismatch.
+- [x] Actual isolated SAME-core inverse on all3 references; native AardenEssen raw
+  correlations and independent immutable sums matched3120/3120/4080 values.
+- [x] Planner midpoint challenged annotation alignment. Initialreferencev1 retained:
+  004clock41vs40blocked;014uncorrected numbers INVALID edition coordinates.
+  Independent all-labelled downbeat audit passed;004only trailing1q unsupported.
+  014annotation-to-source +7 supported49/59 exact sonorities across song,1 at0,
+  nine match no shift. q37 contradiction retained. Planner approved evaluator-only
+  fixed alignment assumption, not proof every label correct. Frozen before rerun.
+- [x] Referencev2 common support: strict unique duration agreement window0/window4/
+  globalKS/TKP:004=57.5/52.5/52.5/52.5%;010=42.31/69.23/61.54/61.54%;
+  014=80.36/94.64/75/75%. No tuning, no selective exclusion. This is agreement
+  with analyst labels on3 classical references, NOT universal/artist key accuracy.
+  11of16labelled keychanges inside physical measure: granularity limit explicit.
+- [x] Existing32+new5targeted tests PASS. Synthetic immutable sum corrected to
+  [1.05,.95] for [.9,.1],[.2,.8],[.8,.2] center/window1; old prose .9/.6 wrong.
+- [x] Full suite:825tests,824PASS/1optionalSKIP,21.981s.
+- [ ] New random Songsterr whole-scope run complete + Planner finalreview.
+  Frozen seed18332795165358390742/queryw selected America25201/rev7475088,
+  A Horse With No Name,10tracks105frames. Firstactualrun temporal/source/inverse
+  checks passed but overallFAIL because I edited imported evaluator during run.
+  Failure retained; rerunning SAMEcapture/code, no replacement/reroll.
+- [ ] Positive1221source-declaration regression, source/schema contract docs,
+  verified commit/push and CI.
+
+Commands/results: unittest test_musical_tier2 test_temporal_tier2 -q ->37PASS;
+run_temporal_tonal_reference.py selection.json reference-qa-v1 ->1clockblocked,
+2technicalPASS but alignment invalid/unverified; reference-qa-v2 --alignment
+approved-alignment-v1.json ->all3technicalPASS, scored limitations above.
+run_musical_tier2_qa.py REMcapture temporal-rem-v1 ->PASS declared scope,
+139frames/80064independent temporal comparisons. Freshv2 andChopSuey running.
+Persistent private outputs under local-artifacts; no scores/annotations published.
+Next: finish independent gates, Planner completion, source-only commit; then use
+actual disagreement evidence to choose next musical step. No fullkey/style claim.
+
+
+Temporal delivery verification: freshv2 actualPASS,105frames55440scorecomparisons;
+positiveChopSuey actualPASS,111frames63936comparisons+1221declarations. Both exact
+isolated inverse, independent source comparison and all5denial challengesPASS.
+Full825tests824PASS1optionalSKIP21.981s; bundledNode Vite productionbuildPASS.
+All source/analysis/caches remain private. Planner endreview requested on actual
+files, not inferred from earlier partial results. Continuing into sub-measure
+harmonic context after recording this checkpoint; no user input needed.
+
+Planner completion verdict (actual final files read): APPROVED bounded temporal
+slice. FreshAmerica14414occurrences/105frames/55440scorecomparisons. Positive
+ChopSuey8719occurrences/1221declarations/111frames/63936comparisons. Allsource,
+isolation,5denialchecksPASS. Scope uncertain timed candidates + exactdeclaredT1,
+NOT established keys/modes/functions/fullTier2. Nextendeavor contract: investigate
+published Pardo-Birmingham joint chord segmentation+labelling using noteon/off
+candidate boundaries and DAG path, compare instantaneousbaseline on arpeggios,
+passingnotes/repeats/heldchanges; preserve alternatives/unsupportedcases. No
+chord=key or cartesianlabelinflation. Audit published score/vocabulary/ties first.

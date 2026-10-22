@@ -17,6 +17,9 @@ THEORY_PROVENANCE = {'source': 'music21.harmony.CHORD_TYPES', 'version': '9.9.2'
 TONAL_PROFILES = (('KrumhanslSchmuckler', (6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88), (6.33, 2.68, 3.52, 5.38, 2.6, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17)), ('TemperleyKostkaPayne', (0.748, 0.06, 0.488, 0.082, 0.67, 0.46, 0.096, 0.715, 0.104, 0.366, 0.057, 0.4), (0.712, 0.084, 0.474, 0.618, 0.049, 0.46, 0.105, 0.747, 0.404, 0.067, 0.133, 0.33)))
 TONAL_PROVENANCE = {'source': 'music21.analysis.discrete', 'version': '9.9.2', 'profiles_sha256': 'd40198905f485641940f4b4341685b78aa842159050efe6de3547fb42b242a48', 'method': 'Pearson correlation to rotated duration-weighted profiles; not probability or general mode inference'}
 
+TEMPORAL_PROFILE = {'family': 'AardenEssen', 'major': (17.7661, 0.145624, 14.9265, 0.160186, 19.8049, 11.3587, 0.291248, 22.062, 0.145624, 8.15494, 0.232998, 4.95122), 'minor': (18.2648, 0.737619, 14.0499, 16.8599, 0.702494, 14.4362, 0.702494, 18.6161, 4.56621, 1.93186, 7.37619, 1.75623)}
+TEMPORAL_PROVENANCE = {'source': 'music21.analysis.floatingKey intended immutable weighted sum', 'version': '9.9.2', 'window': 4, 'neighbor_weight': '1/(abs(measure_distance)+1)', 'profile_sha256': 'b38cc7f0bfb0927f2a4f430d4e6cd9ed96304c2000975fbb889c8c4b0d63d36d', 'native_source_sha256': '8fd897f0812d726bf466733c4e77426b7bee14fd79070c50460f9aea2e969b64', 'native_divergence': 'Fixes cached-vector mutation; retains empty/undefined placeholders; does not claim full native parity', 'allocation': 'written_onset_measure_full_notated_duration_not_clipped_sustain', 'inference': 'offline_future_neighbors_included_not_key_truth'}
+
 
 def fraction(value):
     if not isinstance(value, str) or str(F(value)) != value:
@@ -213,12 +216,81 @@ def restore_source_keys(model):
     return dict(source_key_declarations=rows,source_key_inventory=deepcopy(model["inventory"]))
 
 
+def geometry_relation(*, source=None, parameters=None):
+    """One canonical measure geometry, SAME metric-unit/start/advance equations."""
+    if (source is None)==(parameters is None): raise ValueError("Supply exactly one geometry side")
+    if source is not None:
+        if set(source)!={"source_format","source_id","frames","parts","first_notated_span_q"}: raise ValueError("Unsupported geometry facts")
+        frames=[]
+        for row in source["frames"]:
+            if set(row)!={"id","ordinal","label","start_q","span_q","signature","meter_source","meter_source_frame"}: raise ValueError("Unsupported frame facts")
+            signature=row["signature"]
+            if type(signature) is not list or len(signature)!=2 or any(type(v) is not int or v<=0 for v in signature): raise ValueError("Source meter required; no inferred 4/4")
+            frames.append(dict(id=row["id"],ordinal=row["ordinal"],label=row["label"],start_q=row["start_q"],duration_q=row["span_q"],
+                               meter=dict(beats=signature[0],beat_unit_q=str(F(4,signature[1]))),meter_source=row["meter_source"],meter_source_frame=row["meter_source_frame"]))
+        parameters=dict(source_format=source["source_format"],source_id=source["source_id"],frames=frames,parts=deepcopy(source["parts"]),first_notated_span_q=source["first_notated_span_q"])
+    if set(parameters)!={"source_format","source_id","frames","parts","first_notated_span_q"}: raise ValueError("Unsupported geometry parameters")
+    if parameters["source_format"] not in ("songsterr_json","musicxml") or type(parameters["source_id"]) is not str or not 1<=len(parameters["source_id"])<=128: raise ValueError("Typed geometry provenance required")
+    frames=[];cursor=F(0);last_explicit=0
+    for ordinal,row in enumerate(parameters["frames"],1):
+        if set(row)!={"id","ordinal","label","start_q","duration_q","meter","meter_source","meter_source_frame"}: raise ValueError("Unsupported measure geometry")
+        if row["id"]!=f"measure:{ordinal}" or type(row["ordinal"]) is not int or row["ordinal"]!=ordinal or type(row["label"]) is not str or len(row["label"])>32: raise ValueError("Frame identity mismatch")
+        meter=row["meter"]
+        if set(meter)!={"beats","beat_unit_q"} or type(meter["beats"]) is not int or meter["beats"]<=0: raise ValueError("Invalid meter")
+        unit=fraction(meter["beat_unit_q"]); denominator=F(4)/unit if unit>0 else F(0)
+        if denominator.denominator!=1 or denominator<=0: raise ValueError("Metric unit must reconstruct source denominator")
+        start,span=fraction(row["start_q"]),fraction(row["duration_q"])
+        if start!=cursor or span<=0: raise ValueError("Noncontiguous/invalid written measure clock")
+        cursor=F(relation(anchor=start,interval=span)["pitch"])
+        witness=row["meter_source_frame"]
+        if type(witness) is not int or not 1<=witness<=ordinal or row["meter_source"] not in ("explicit","inherited"): raise ValueError("Unverified meter source")
+        if row["meter_source"]=="explicit":
+            if witness!=ordinal: raise ValueError("Explicit meter source mismatch")
+            last_explicit=ordinal
+        if row["meter_source"]=="inherited":
+            if witness!=last_explicit or witness>=ordinal or parameters["frames"][witness-1]["meter_source"]!="explicit" or not same(parameters["frames"][witness-1]["meter"],meter): raise ValueError("Meter inheritance witness mismatch")
+        frames.append(dict(id=row["id"],ordinal=ordinal,label=row["label"],start_q=str(start),span_q=str(span),signature=[meter["beats"],int(denominator)],meter_source=row["meter_source"],meter_source_frame=witness))
+    seen=set()
+    for part in parameters["parts"]:
+        if set(part)!={"part_id","frame_refs","source_pickup_declared"} or type(part["part_id"]) is not int or part["part_id"]<0 or part["part_id"] in seen: raise ValueError("Invalid geometry part membership")
+        seen.add(part["part_id"])
+        if part["source_pickup_declared"] is not None and type(part["source_pickup_declared"]) is not bool: raise ValueError("Typed pickup declaration required")
+        if part["frame_refs"] != [f"measure:{i+1}" for i in range(len(part["frame_refs"]))] or len(part["frame_refs"])>len(frames): raise ValueError("Unaligned/missing source measure membership")
+    if seen!=set(range(len(seen))) or max((len(p["frame_refs"]) for p in parameters["parts"]),default=0)!=len(frames): raise ValueError("Incomplete geometry inventory")
+    if frames:
+        observed=fraction(parameters["first_notated_span_q"])
+        if observed<0: raise ValueError("Invalid notated extent witness")
+        nominal=F(4*frames[0]["signature"][0],frames[0]["signature"][1])
+        if parameters["source_format"]=="songsterr_json":
+            declared=any(p["source_pickup_declared"] is True for p in parameters["parts"])
+            expected=observed if declared and 0<observed<nominal else nominal
+            if F(frames[0]["span_q"])!=expected: raise ValueError("Shortening lacks source pickup and observed extent witnesses")
+            if any(F(f["span_q"])!=F(4*f["signature"][0],f["signature"][1]) for f in frames[1:]): raise ValueError("Unsupported source partial measure")
+    elif parameters["first_notated_span_q"] is not None: raise ValueError("Empty geometry cannot hide extent")
+    rebuilt=dict(source_format=parameters["source_format"],source_id=parameters["source_id"],frames=frames,parts=deepcopy(parameters["parts"]),first_notated_span_q=parameters["first_notated_span_q"])
+    return dict(parameters=parameters,source=rebuilt)
+
+
+def geometry_inventory(geometry):
+    frames=geometry["frames"]
+    return [dict(part_id=p["part_id"],measure_count=len(p["frame_refs"]),end_q=str(F(frames[len(p["frame_refs"])-1]["start_q"])+F(frames[len(p["frame_refs"])-1]["duration_q"])) if p["frame_refs"] else "0") for p in geometry["parts"]]
+
+
+def materialized_source_keys(upper):
+    model=deepcopy(upper["source_keys"])
+    if model is not None and "inventory_ref" in model:
+        if model.pop("inventory_ref")!="measure_geometry": raise ValueError("Unsupported inventory reference")
+        model["inventory"]=geometry_inventory(upper["measure_geometry"])
+    return model
+
+
 def analyze(tier1):
     """Consumes ONLY T1; published theory vocabulary is versioned shared code."""
-    extended=tier1.get("schema")=="normalized-written-and-declared-keys/2"
-    required=TOP_FIELDS|({"source_key_declarations","source_key_inventory"} if extended else set())
-    expected_scope="base_pitch_metric_time_and_source_key_declarations" if extended else "base_pitch_and_metric_onset_duration_only"
-    if set(tier1)!=required or type(tier1["tier"]) is not int or tier1["tier"]!=1 or tier1["schema"] not in ("normalized-written-fields/1","normalized-written-and-declared-keys/2") or tier1["scope"]!=expected_scope:
+    geometry_owned=tier1.get("schema")=="normalized-written-context-facts/3"
+    extended=geometry_owned or tier1.get("schema")=="normalized-written-and-declared-keys/2"
+    required=TOP_FIELDS|({"source_key_declarations","source_key_inventory"} if extended else set())|({"measure_geometry"} if geometry_owned else set())
+    expected_scope="written_context_facts_geometry_and_optional_source_keys" if geometry_owned else "base_pitch_metric_time_and_source_key_declarations" if extended else "base_pitch_and_metric_onset_duration_only"
+    if set(tier1)!=required or type(tier1["tier"]) is not int or tier1["tier"]!=1 or tier1["schema"] not in ("normalized-written-fields/1","normalized-written-and-declared-keys/2","normalized-written-context-facts/3") or tier1["scope"]!=expected_scope:
         raise ValueError("Unsupported T1 interface; no implicit field loss")
     coverage(tier1["source_coverage"])
     events = tier1["events"]
@@ -251,11 +323,17 @@ def analyze(tier1):
                            scope_type="coincident_written_note_starts", bass_register_anchor=anchor,
                            members=choices, interpretation=None))
     for group in groups: group["interpretation"] = interpreted(group)
-    output = dict(tier=2, schema="musical-coattack-relations/1", input=deepcopy(tier1),
+    output = dict(tier=2, schema="musical-context-relations/2", input=deepcopy(tier1),
                   theory=deepcopy(THEORY_PROVENANCE), coattacks=groups,
                   realization_order=order, source_quality=deepcopy(tier1["source_coverage"]),
                   lower_scope=tier1["scope"], ensemble_coattacks=ensemble(groups), nominal_written_spans=written_spans(groups), tonal_evidence=tonal_evidence(groups))
-    output["source_keys"] = source_key_relations(tier1) if extended else None
+    output["measure_geometry"] = geometry_relation(source=tier1["measure_geometry"])["parameters"] if geometry_owned else None
+    if geometry_owned and not same(geometry_inventory(output["measure_geometry"]),tier1["source_key_inventory"]): raise ValueError("Summary differs from canonical geometry")
+    output["source_keys"] = source_key_relations(tier1) if extended and tier1["source_key_declarations"] is not None else None
+    if geometry_owned and output["source_keys"] is not None:
+        output["source_keys"].pop("inventory")
+        output["source_keys"]["inventory_ref"]="measure_geometry"
+    output["temporal_tonal_evidence"] = temporal_tonal_evidence(groups,output["measure_geometry"])
     # SAME relation checks operate on observed analysis and stripped reconstruction.
     validate(output)
     return output
@@ -371,14 +449,66 @@ def tonal_evidence(groups):
     return dict(provenance=deepcopy(TONAL_PROVENANCE), scopes=scopes)
 
 
+def immutable_temporal_scores(raw, window):
+    """Intended inverse-distance sum; NEVER mutates raw/cached neighbor scores."""
+    if type(window) is not int or window<0: raise ValueError("Nonnegative integer temporal window required")
+    vectors=[v for v in raw if v is not None]
+    if vectors and any(len(v)!=len(vectors[0]) for v in vectors): raise ValueError("Inconsistent temporal candidate vocabulary")
+    result=[]
+    for index,base in enumerate(raw):
+        if base is None: result.append(None); continue
+        neighbors=[(j,values) for j,values in enumerate(raw) if abs(j-index)<=window and values is not None]
+        result.append([sum(values[k]/(abs(j-index)+1) for j,values in neighbors) for k in range(len(base))])
+    return result
+
+
+def temporal_tonal_evidence(groups, geometry):
+    """Offline timed key CANDIDATES, using true frames and written-onset evidence."""
+    if geometry is None:return None
+    allframes=geometry["frames"]; index={g["id"]:g for g in groups}
+    populations=[("song-pooled",groups,[f["id"] for f in allframes])]
+    populations += [(f"part:{p['part_id']}",[g for g in groups if g["part_id"]==p["part_id"]],p["frame_refs"]) for p in geometry["parts"]]
+    scopes=[]
+    for scope,population,frame_refs in populations:
+        grouped=defaultdict(list)
+        for group in population: grouped[group["bar"]].append(group)
+        records=[];raw=[]
+        for frame_ref in frame_refs:
+            frame=allframes[int(frame_ref.split(":")[1])-1]; ordinal=frame["ordinal"]
+            histogram=[F(0) for _ in range(12)];used=[];excluded={k:[] for k in ("unknown_pitch","noninteger_pitch","zero_duration","source_timing_uncertain")};cross=[]
+            end=F(frame["start_q"])+F(frame["duration_q"])
+            for group in grouped[ordinal]:
+                for member in group["members"]:
+                    pitch=member_pitch(group,member);length=F(member["duration_q"])
+                    if F(group["onset_q"])+length>end:cross.append(member["id"])
+                    reason="unknown_pitch" if pitch is None else "noninteger_pitch" if F(pitch).denominator!=1 else "zero_duration" if length==0 else "source_timing_uncertain" if group["timing_uncertain"] else None
+                    if reason: excluded[reason].append(member["id"]);continue
+                    used.append(member["id"]);histogram[int(F(pitch)%12)]+=length
+            vector=[profile_score(histogram,TEMPORAL_PROFILE[quality],tonic) for quality in ("major","minor") for tonic in range(12)]
+            vector=None if all(v is None for v in vector) else vector
+            raw.append(vector)
+            records.append(dict(id=f"temporal:{scope}:{ordinal}",frame_ref=frame_ref,used_member_refs=used,excluded_member_refs=excluded,cross_frame_duration_refs=cross,
+                                pitch_class_duration_q=list(map(str,histogram)),raw_scores=vector if vector is not None else [None]*24,smoothed_scores=[None]*24,candidates=[],contributing_frame_refs=[],
+                                status="unknown_no_defined_distribution" if vector is None else "major_minor_hypotheses_not_established_key"))
+        smoothed=immutable_temporal_scores(raw,TEMPORAL_PROVENANCE["window"])
+        for i,record in enumerate(records):
+            record["smoothed_scores"]=smoothed[i] if smoothed[i] is not None else [None]*24
+            record["contributing_frame_refs"]=[dict(frame_ref=frame_refs[j],distance=j-i,weight=str(F(1,abs(j-i)+1))) for j,v in enumerate(raw) if raw[i] is not None and v is not None and abs(j-i)<=TEMPORAL_PROVENANCE["window"]]
+            for k,(quality,tonic) in enumerate((q,t) for q in ("major","minor") for t in range(12)):
+                record["candidates"].append(dict(id=f"{record['id']}/AardenEssen/{tonic}/{quality}",family="AardenEssen",tonic_pc=tonic,quality=quality,raw_score=raw[i][k] if raw[i] is not None else None,smoothed_score=smoothed[i][k] if smoothed[i] is not None else None,
+                                                  score_type="uncalibrated_inverse_distance_sum",reference_collection="major" if quality=="major" else "natural_minor_reference_only",reference_intervals=[0,2,4,5,7,9,11] if quality=="major" else [0,2,3,5,7,8,10]))
+        scopes.append(dict(id=scope,measures=records,established_key=None,established_mode=None))
+    return dict(provenance=deepcopy(TEMPORAL_PROVENANCE),scopes=scopes)
+
+
 def validate(upper):
-    if upper.get("schema") != "musical-coattack-relations/1" or type(upper.get("tier")) is not int or upper.get("tier") != 2:
+    if upper.get("schema") != "musical-context-relations/2" or type(upper.get("tier")) is not int or upper.get("tier") != 2:
         raise ValueError("Unsupported T2 interface")
-    allowed = {"tier", "schema", "input", "theory", "coattacks", "realization_order", "source_quality", "lower_scope", "ensemble_coattacks", "nominal_written_spans", "tonal_evidence", "source_keys"}
+    allowed = {"tier", "schema", "input", "theory", "coattacks", "realization_order", "source_quality", "lower_scope", "ensemble_coattacks", "nominal_written_spans", "tonal_evidence", "source_keys", "measure_geometry", "temporal_tonal_evidence"}
     if set(upper) - allowed:
         raise ValueError("Undeclared upper payload")
     coverage(upper["source_quality"])
-    if upper["lower_scope"] not in ("base_pitch_and_metric_onset_duration_only","base_pitch_metric_time_and_source_key_declarations"): raise ValueError("Unsupported lower scope")
+    if upper["lower_scope"] not in ("base_pitch_and_metric_onset_duration_only","base_pitch_metric_time_and_source_key_declarations","written_context_facts_geometry_and_optional_source_keys"): raise ValueError("Unsupported lower scope")
     if not same(upper["theory"], THEORY_PROVENANCE):
         raise ValueError("Theory version mismatch")
     identities = []
@@ -431,11 +561,27 @@ def validate(upper):
 
     if not same(tonal_evidence(upper["coattacks"]), upper["tonal_evidence"]):
         raise ValueError("Tonal evidence conflicts with shared pitch/duration relationships")
-    if upper["lower_scope"]=="base_pitch_metric_time_and_source_key_declarations":
-        facts=restore_source_keys(upper["source_keys"])
-        facts["source_coverage"]=upper["source_quality"]
-        if not same(source_key_relations(facts),upper["source_keys"]): raise ValueError("Source declaration contexts conflict with shared signature relations")
+    geometry_owned=upper["lower_scope"]=="written_context_facts_geometry_and_optional_source_keys"
+    if geometry_owned:
+        geometry_relation(parameters=upper["measure_geometry"])
+        inventory=geometry_inventory(upper["measure_geometry"])
+        inventory_by_part={r["part_id"]:r for r in inventory}
+        if len(inventory)!=upper["source_quality"]["tracks"]: raise ValueError("Geometry track coverage mismatch")
+        for group in upper["coattacks"]:
+            if not 1<=group["bar"]<=inventory_by_part[group["part_id"]]["measure_count"]: raise ValueError("Note outside owned measure membership")
+            frame=upper["measure_geometry"]["frames"][group["bar"]-1]
+            start=F(frame["start_q"]);end=start+F(frame["duration_q"]);onset=F(group["onset_q"])
+            if (not start<=onset<=end or (onset==end and any(F(m["duration_q"])>0 for m in group["members"]))) and not group["timing_uncertain"]: raise ValueError("Note start outside actual source measure")
+    elif upper["measure_geometry"] is not None: raise ValueError("Geometry outside declared scope")
+    model=materialized_source_keys(upper)
+    if upper["lower_scope"]=="base_pitch_metric_time_and_source_key_declarations" or (geometry_owned and model is not None):
+        facts=restore_source_keys(model);facts["source_coverage"]=upper["source_quality"]
+        if not same(source_key_relations(facts),model): raise ValueError("Source declaration contexts conflict with shared signature relations")
+        if geometry_owned:
+            for occurrence in model["occurrences"]:
+                if occurrence["onset_q"]!=upper["measure_geometry"]["frames"][occurrence["bar"]-1]["start_q"]: raise ValueError("Declaration clock conflicts with owned geometry")
     elif upper["source_keys"] is not None: raise ValueError("Source keys outside declared lower scope")
+    if not same(temporal_tonal_evidence(upper["coattacks"],upper["measure_geometry"]),upper["temporal_tonal_evidence"]): raise ValueError("Temporal evidence conflicts with shared pitch/duration/frame relationships")
     if "input" in upper and not same(upper["input"], realize(upper)):
         raise ValueError("Nested lower tier conflicts with its higher relationships")
 
@@ -467,7 +613,10 @@ def realize(upper):
     result = dict(tier=1, schema="normalized-written-fields/1", events=[events[i] for i in upper["realization_order"]],
                 source_coverage=deepcopy(upper["source_quality"]), scope=upper["lower_scope"])
     if upper["source_keys"] is not None:
-        result.update(schema="normalized-written-and-declared-keys/2", **restore_source_keys(upper["source_keys"]))
+        result.update(schema="normalized-written-and-declared-keys/2", **restore_source_keys(materialized_source_keys(upper)))
+    if upper["measure_geometry"] is not None:
+        result.update(schema="normalized-written-context-facts/3", measure_geometry=geometry_relation(parameters=upper["measure_geometry"])["source"],source_key_inventory=geometry_inventory(upper["measure_geometry"]))
+        if upper["source_keys"] is None: result["source_key_declarations"]=None
     return result
 
 
@@ -543,6 +692,11 @@ def tonal_note_context(upper, ident, candidate_id, at_q=None, ensemble_scope=Tru
     if len(found)!=1: raise ValueError("Exact tonal candidate ID required")
     scope,candidate=found[0]
     if group["id"] not in scope["group_refs"]: raise ValueError("Note is outside tonal evidence scope")
+    return _candidate_note_context(upper,ident,group,member,pitch,scope['id'],candidate,at_q,ensemble_scope)
+
+
+def _candidate_note_context(upper,ident,group,member,pitch,scope_id,candidate,at_q,ensemble_scope):
+    """One note/tonic/chord coordinate calculation for global AND timed evidence."""
     coordinate=None
     if pitch is not None:
         # Pitch-class tonic reference at MIDI0-octave; retains signed register.
@@ -560,9 +714,25 @@ def tonal_note_context(upper, ident, candidate_id, at_q=None, ensemble_scope=Tru
         harmonic_context = dict(coattack_ref=group["id"], at_q=group["onset_q"], scope="part_written_start")
     chords=[dict(chord_root_pc=c["root_pc"],kind=c["kind"],root_interval_from_candidate_tonic=(c["root_pc"]-candidate["tonic_pc"])%12,
                  status="conditional_root_coordinate_not_harmonic_function") for c in harmony["chord_candidates"]]
-    return dict(occurrence_ref=ident, tonal_scope_ref=scope["id"], candidate_ref=candidate_id, harmonic_context_ref=harmonic_context,
+    return dict(occurrence_ref=ident, tonal_scope_ref=scope_id, candidate_ref=candidate['id'], harmonic_context_ref=harmonic_context,
                 interval_of_note_base_key_candidate=coordinate, interval_of_note_current_chord_mode=None,
                 chord_root_coordinates=chords, established_key=None, established_mode=None)
+
+
+def temporal_note_context(upper,ident,candidate_id,ensemble_scope=True):
+    """Written-onset measure candidate; not a claim about sustained-note function."""
+    validate(upper)
+    index={m['id']:(g,m) for g in upper['coattacks'] for m in g['members']}
+    group,member=index[ident]
+    evidence=upper['temporal_tonal_evidence']
+    if evidence is None:raise ValueError('No owned source measure geometry')
+    found=[(s,r,c) for s in evidence['scopes'] for r in s['measures'] for c in r['candidates'] if c['id']==candidate_id]
+    if len(found)!=1:raise ValueError('Exact timed candidate ID required')
+    scope,record,candidate=found[0]
+    if record['frame_ref']!=f"measure:{group['bar']}" or (scope['id']!='song-pooled' and scope['id']!=f"part:{group['part_id']}"):raise ValueError('Note outside timed candidate scope')
+    result=_candidate_note_context(upper,ident,group,member,member_pitch(group,member),scope['id'],candidate,group['onset_q'],ensemble_scope)
+    result.update(frame_ref=record['frame_ref'],candidate_evidence_status=record['status'],context_time='written_onset_only_not_sounding_sustain')
+    return result
 
 
 def declared_key_context(upper, part_id, at_q):
@@ -572,7 +742,7 @@ def declared_key_context(upper, part_id, at_q):
     """
     validate(upper); at=fraction(at_q)
     if type(part_id) is not int or part_id<0: raise ValueError("Exact nonnegative part ID required")
-    model=upper["source_keys"]
+    model=materialized_source_keys(upper)
     if model is None: return dict(status="source_declarations_not_in_input_scope")
     if part_id not in {r["part_id"] for r in model["inventory"]}: raise ValueError("Part outside source inventory")
     matches=[c for c in model["contexts"] if c["part_id"]==part_id and F(c["start_q"])<=at<F(c["end_q"])]
@@ -605,5 +775,6 @@ def transpose(upper, semitones):
     changed["ensemble_coattacks"] = ensemble(changed["coattacks"])
     changed["nominal_written_spans"] = written_spans(changed["coattacks"])
     changed["tonal_evidence"] = tonal_evidence(changed["coattacks"])
+    changed["temporal_tonal_evidence"] = temporal_tonal_evidence(changed["coattacks"],changed["measure_geometry"])
     validate(changed)
     return changed
