@@ -5,7 +5,7 @@ Does not import the Tier2 core, extractor or its template scoring helper.
 from fractions import Fraction as F
 
 
-def check(raw,evidence):
+def check(raw,evidence,membership=None,owned_occurrences=None):
     request=evidence['request'];a,b=F(request['start_q']),F(request['end_q']);part=request['part_id']
     population=[(max(a,F(start)),min(b,F(start)+F(duration)),pitch) for pid,bar,pitch,start,duration in raw
                 if (part is None or pid==part) and F(start)<b and F(start)+F(duration)>a and F(duration)>0]
@@ -56,4 +56,28 @@ def check(raw,evidence):
                     union|=labels[i,j]
                     if not labels[i,j]:empty=True
         if union!={(c['root_pc'],c['kind']) for c in row['candidate_labels']} or empty!=row['no_pitched_evidence_possibility']:issues.append('All-optimal-path label/unknown consensus differs')
-    return dict(status='FAIL' if issues else 'PASS',issues=issues,independently_computed_template_scores=comparisons,source_partition_points=len(points),scope='Raw nominal intervals; compares whole DAG optimum/predecessors and canonical-edge scores/labels, not every producer template row or chord truth')
+    if membership is not None:
+        # Reuse INDEPENDENTLY computed labels above, not producer helper scores.
+        # Each witness uses one label per edge for all queried occurrences.
+        queries=membership['queries'];vectors=membership['feasible_membership_vectors'];seen=set()
+        if not vectors:issues.append('Empty joint membership inventory')
+        for vector in vectors:
+            values=tuple(vector['memberships']);witness=vector['one_valid_path_and_label_witness']
+            if values in seen or len(values)!=len(queries):issues.append('Duplicate/wrong-length joint vector')
+            seen.add(values)
+            if not witness or witness[0]['begin']!=0 or witness[-1]['stop']!=len(points)-1 or any(x['stop']!=y['begin'] for x,y in zip(witness,witness[1:])):issues.append('Incomplete witness boundary path')
+            for edge in witness:
+                i,j=edge['begin'],edge['stop'];label=edge['label']
+                if not 0<=i<j<len(points) or not remaining[j] or i not in pred[j]:issues.append('Witness outside independently optimal DAG');continue
+                if label is None:
+                    if labels[i,j]:issues.append('Unknown label on known evidence')
+                elif (label['root_pc'],label['kind']) not in labels[i,j] or tuple(label['formula'])!=dict(forms).get(label['kind']):issues.append('Witness label not independently optimal')
+            expected=[]
+            for query in queries:
+                note=owned_occurrences[query['occurrence_ref']];at=F(query['at_q']);p=None if note['pitch'] is None else F(note['pitch'])
+                if not F(note['onset_q'])<=at<F(note['onset_q'])+F(note['duration_q']):issues.append('Joint query outside raw occurrence')
+                covering=[e for e in witness if points[e['begin']]<=at<points[e['stop']]]
+                if len(covering)!=1:issues.append('Joint query has no unique witness edge');expected.append('invalid');continue
+                label=covering[0]['label'];expected.append('unknown' if p is None or p.denominator!=1 or label is None else 'chord_member' if (p-label['root_pc'])%12 in label['formula'] else 'nonmember')
+            if list(values)!=expected:issues.append('Raw joint membership differs')
+    return dict(status='FAIL' if issues else 'PASS',issues=issues,independently_computed_template_scores=comparisons,source_partition_points=len(points),scope='Raw nominal intervals; compares whole DAG optimum/predecessors and canonical-edge scores/labels, not every producer template row or chord truth',**({'joint_membership_witnesses_checked':len(membership['feasible_membership_vectors'])} if membership is not None else {}))

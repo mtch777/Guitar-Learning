@@ -250,3 +250,23 @@ in declared continuity while retaining all three original occurrences. Neither
 an absent tie flag nor a resolved link proves a physical attack or acoustic
 sustain. Existing written-occurrence harmonic evidence is unchanged; tie-aware
 harmonic weighting and preparation/resolution identification remain open.
+
+### Chain-to-harmony query
+
+`tied_harmonic_context(T2, harmonic_evidence, origin_ref, clocks)` connects
+declared continuity to the existing joint harmonic-membership relationships.
+
+| Input / result | Exact meaning |
+|---|---|
+| Origin + one to three clocks | Explicit original chain origin; clocks inside its half-open nominal interval. Requested order is preserved. |
+| Constituent mapping | Each clock resolves to exactly one original written occurrence. No fabricated long note or additional attack replaces those occurrences. |
+| Harmonic scope | Current evidence must cover the whole chain and the compatible part/ensemble. Stale or incompatible evidence is rejected. |
+| Joint membership | The SAME existing helper supplies path-consistent alternatives. Continuity can remain the same while chord membership changes. |
+| Quarantine | Whole-chain timing uncertainty, dead/unknown pitch or unresolved incoming continuity prevents harmonic-role interpretation. |
+| No resolved chain | Absent continuity and an unresolved explicit declaration are distinct outcomes. Neither proves an acoustic attack. |
+| Resource outcome | Original NOT_RUN is retained; no shorter or easier chain is substituted. |
+
+The controlled tied C4 across C-major then G-major changes from member to
+nonmember. Writing the same pitches as untied repetitions preserves those same
+harmonic memberships; only the continuity relationship differs. This does not
+identify a suspension, preparation, resolution, local key or emotional function.

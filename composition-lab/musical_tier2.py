@@ -1145,3 +1145,37 @@ def written_tie_chains(upper):
                            source_timing_uncertain=uncertain,context_eligibility='quarantined_source_timing_uncertain' if uncertain else 'eligible_declared_nominal_continuity',
                            kind=next(link['kind'] for link in links if link['origin']==origin)))
     return dict(chains=chains,unresolved=deepcopy(upper['written_ties']['unresolved']),semantics='Declared nominal written continuity; not acoustic sustain, not new attacks')
+
+
+def tied_harmonic_context(upper,evidence,origin_ref,at_qs):
+    """Declared continuity -> ORIGINAL constituents -> SAME joint memberships."""
+    if type(at_qs) is not list or not 1<=len(at_qs)<=3:raise ValueError('One to three explicit clocks required')
+    clocks=list(map(fraction,at_qs));chains=written_tie_chains(upper)['chains']
+    index={m['id']:(g,m) for g in upper['coattacks'] for m in g['members']}
+    if origin_ref not in index:raise ValueError('Owned origin occurrence required')
+    chain=next((c for c in chains if c['origin_ref']==origin_ref),None)
+    if chain is None:
+        if any(origin_ref in c['occurrence_refs'] for c in chains):raise ValueError('Use declared chain origin, not a later constituent')
+        unresolved=next((r for r in upper['written_ties']['unresolved'] if r['destination']==origin_ref),None)
+        if unresolved is not None:return dict(status='UNRESOLVED_DECLARATION_WITHOUT_RESOLVED_CHAIN',origin_ref=origin_ref,requested_clocks_q=deepcopy(at_qs),unresolved_declaration=deepcopy(unresolved),membership=None,claim='Declared continuation is unresolved; no link or acoustic attack inferred')
+        return dict(status='NO_DECLARED_CHAIN',origin_ref=origin_ref,requested_clocks_q=deepcopy(at_qs),membership=None,claim='No declared continuity does not establish an acoustic attack')
+    if any(not F(chain['onset_q'])<=at<F(chain['written_end_q']) for at in clocks):raise ValueError('Clock outside half-open declared chain')
+    group,_=index[origin_ref];request=evidence.get('request',{})
+    if request.get('part_id') not in (None,group['part_id']) or F(request['start_q'])>F(chain['onset_q']) or F(request['end_q'])<F(chain['written_end_q']):raise ValueError('Harmonic evidence must cover this whole chain/part')
+    if not same(harmonic_span_evidence(upper,**request),evidence):raise ValueError('Stale harmonic evidence')
+    queries=[]
+    for at,clock in zip(clocks,at_qs):
+        matches=[i for i in chain['occurrence_refs'] if F(index[i][0]['onset_q'])<=at<F(index[i][0]['onset_q'])+F(index[i][1]['duration_q'])]
+        if len(matches)!=1:raise ValueError('Clock does not map to exactly one original constituent')
+        queries.append(dict(occurrence_ref=matches[0],at_q=clock))
+    reasons=[]
+    if chain['source_timing_uncertain']:reasons.append('source_timing_uncertain')
+    if chain['kind']=='written_dead_tie':reasons.append('unpitched_dead_notation')
+    if chain['origin_has_unresolved_incoming_tie']:reasons.append('unresolved_incoming_continuity')
+    if any(member_pitch(*index[i]) is None for i in chain['occurrence_refs']):reasons.append('unknown_written_pitch')
+    result=dict(origin_ref=origin_ref,chain=deepcopy(chain),requested_clocks_q=deepcopy(at_qs),resolved_original_queries=queries,
+                harmonic_request=deepcopy(request),harmonic_status=evidence['status'],quarantine_reasons=reasons,membership=None,
+                claim='Conditional chord membership of declared written continuity; original occurrences retained, no acoustic attack/sustain/function claim')
+    if reasons:return dict(result,status='QUARANTINED_CHAIN')
+    if evidence['status']!='SCORED_NOT_MUSICAL_TRUTH':return dict(result,status='HARMONIC_ANALYSIS_NOT_RUN')
+    return dict(result,status='CONDITIONAL_CONTINUITY_CONTEXT',membership=harmonic_membership_evidence(upper,evidence,queries))

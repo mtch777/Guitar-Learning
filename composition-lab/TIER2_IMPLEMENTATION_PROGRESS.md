@@ -602,3 +602,76 @@ scope/resourceoutcomes retained, no newweighting/keyclaim/techniquecodecs.
 Fresh random PinkFloyd Money15761/rev9854033,11tracks,seed15116332956693008344,
 querym frozen anddownloaded BEFOREnewchaincontextimplementation, no reroll.
 Do not implementnextuntilcurrentcommitCI verified. No humaninputneeded.
+
+Written-tie delivery164e981 main CI39837869218SUCCESS. Plannerapprovedclosure.
+
+## Chain-to-harmony context — START and midpoint
+Preimplementation Plannercontractapproved: up to3explicitclocks map uniquely to
+originalchainconstituents; wholechain/part harmoniccoverage, preserveclockorder,
+wholechain quarantine timing/dead/unresolvedincoming, nochaindoesnotproveattack.
+No harmonicweightingchange. Exactcontinuity and chordmembership distinct.
+
+Added tied_harmonic_context using SAME harmonic_membership_evidence. Controlled
+C4 tied acrossCmajor->Gmajor changes membership(member,nonmember) while original
+2writtenoccurrences retained. Untiedsamepitches have SAMEmemberships butNOchain;
+no manufacturedlabeldifference.6testsPASS including reverserequestorder, endpoint,
+part/time/stale/rootrefusals, dead/orphan/timingquarantine, resourceoutcome.
+Planner midpoint independently5testsPASS then caught orphan-onlytrue declaration
+being collapsed into NO_DECLARED_CHAIN. Fixed distinct unresolved-declaration
+status + exactreason/ref;6thregressionPASS. No inventedlink/attack.
+
+Frozennewrandom Money15761/rev9854033 seed15116332956693008344/querym11tracks,
+chaincontextplan frozen BEFOREcode/results. Everypart ALLchainorigins+unresolved
+inventory; firstsourceaddresschain, no quarantine/easierreplacement; first/last
+constituentmidpoints; ensembleH wholechain,50000cap. Source/codefreeze runner
+executes actualsharedquery+wholeT1inverse stripped andisolated. Independentraw
+source fields/ties/clockmapping and existingindependentharmonicDAGlabels verify
+jointwitnesses, notseparategenerationlogic. v1 newMoney+retainedMuse running.
+Acceptance pendingactualsource/Plannercompletion/fulltests/commitCI. No userinput.
+
+Chaincontext v1 interrupted beforecase completion for targetedprofiling; recorded
+asINTERRUPTED, not mathematicalfailure. SameMoney preserved, no reroll. Fullquery
+profile: extract0.14s,analyze5.11s,279chains8.13s; all11partchainqueries92.56s.
+Trace shows repeatedpublicfullsongvalidation, not harmonicDAG explosion. Planner
+approved smaller runner-only change: study consumesstrippedT2 justlikeisolatedworker;
+publicvalidation staysenabled, no privatealreadyvalidated bypass. ActualfixedMoney
+part0firstchain event:15761:0:20:0:2:0 clocks1031/8,259/2: full9.125s,
+stripped8.640s, STRICTOUTPUTEQUAL. Modestimprovementonly; notgeneralbenchmark.
+Syntheticstrip/full equality and invalid stripped/stale rejection testsPASS.
+Full schema4 inverse stillcompares completeexpectedT1 heldonlyinparent.
+
+v2 actualMoney+Muse source/context/isolatedQA running; scope first/lastmidpoints
+only, entirecandidate/refusal denominatorretained. ExistingindependentharmonicDAG
+oracle extended tovalidatejointpathwitnesses usingitsOWNcomputed72labels, not
+producerhelper. Sourcecheckerrejectsomittedeligiblemembership/invalidquarantine.
+No humaninputneeded; next fulltests/endPlanner/commitCI afterrealartifacts.
+
+Chaincontext sealedv2 completedtechnicalPASS code/sourceunchanged:Money7411notes,
+325true flags279chains11distinctparts:7selectedqueries4nochain;3of7membership
+changes(2member->nonmember,1reverse). Muse7629notes183true63chains10parts:
+4selectedqueries6nochain. All sourcefields/tiegraph/clock-to-original-constituent
+mapping/independentoptimalDAG+jointwitnesses andactualisolatedwholeT1+queryPASS.
+No annotatedkey/suspension/functionaccuracy claimed. Midpoints only, notallchain
+musicalchanges. No actualquarantinedfirstchain inthese2cases; syntheticcoverage.
+
+Planner caught checker denominatorgap; targetednegative testreproduced duplicate
+partrow incorrectlyPASS. AfterSEALEDv2 completed: requireexactuniqueIDinventory
+andcompleteperpart unresolvedsubset fromalreadyrawvalidatedgraph.8testsPASS,
+includingdup/missingpart/omittedunresolved. PerPlanner, no repeatunchanged180s
+producer/inverse solelyforvalidatorrepair. Repeatable reaudit_tied_harmonic_context
+validatesBOTHoriginalsavedstudies/upper/source, exactstagedcode/inputhashes and
+actualworkeroutputstudy equality, core+producerstudyfunctionunchanged, separate
+validatorversionhashes; originalverdictunmodified. Correctedreaudit-v1PASS6.69s,
+allinputs/source unchanged. DoesNOTclaimnewinverseexecution. Originalred retained.
+Planner finalreviewrequested; fullcurrenttests running. No userinputneeded.
+
+Chain-to-harmony finalPlannerAPPROVED bounded slice afteractualsealedv2+corrected
+reaudit inspection, independently8testsPASS. Full863tests862PASS1optionalskip
+23.372s;bare863tests861PASS2skip23.373s. DiffcheckPASS. NextverifiedcommitpushCI.
+No source/annotations/audio published; no acoustic/key/function/artistclaim.
+
+NextPlanner direction: explicitexistingtonalcandidate -> optionalreferencecollection
+degree/register viaSAMEintervalrelations; compareidenticalnotes underparallelmajor/
+naturalminor; eligibleconsecutivepairs differentiatechromaticdistance vsadjacent
+scaledegree. Outsidecollectionunmapped; no nearestdegree/authoredspelling/chordmode/
+inferredkey. ReusecontextIDs, no bulknote*candidate products. Startcontractbeforecode.
