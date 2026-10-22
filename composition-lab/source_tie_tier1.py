@@ -1,14 +1,20 @@
 """Pure source tie/position declarations required by written-lane eligibility."""
 import json
 from source_key_tier1 import extract as extract_context
+from source_key_tier1 import extract_documents as extract_context_documents
 
 
 def extract(capture):
-    lower=extract_context(capture)
-    metadata=json.loads((capture/'metadata.json').read_text(encoding='utf-8-sig'))
+    files=[capture/'metadata.json']+sorted(capture.glob('track-*.json'),key=lambda p:int(p.stem.split('-')[-1]))
+    return extract_documents({p.name:json.loads(p.read_text(encoding='utf-8-sig')) for p in files})
+
+
+def extract_documents(documents):
+    lower=extract_context_documents(documents)
+    metadata=documents['metadata.json']
     parts=[];occurrences=[]
-    for path in sorted(capture.glob('track-*.json'),key=lambda p:int(p.stem.split('-')[-1])):
-        part=json.loads(path.read_text(encoding='utf-8-sig'));pid=part['partId']
+    for name in sorted((n for n in documents if n.startswith('track-') and n.endswith('.json')),key=lambda n:int(n[:-5].split('-')[-1])):
+        part=documents[name];pid=part['partId']
         parts.append(dict(part_id=pid,fields={k:part[k] for k in ('instrumentId','tuning','capo') if k in part}))
         for mi,measure in enumerate(part.get('measures',[]),1):
             for vi,voice in enumerate(measure.get('voices',[])):

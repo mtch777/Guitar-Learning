@@ -2,13 +2,19 @@
 import json
 from fractions import Fraction as F
 from run_reversible_tier_qa import extract as extract_written
+from run_reversible_tier_qa import extract_documents as extract_written_documents
 
 
 def extract(capture):
-    lower=extract_written(capture)
+    files=[capture/'metadata.json']+sorted(capture.glob('track-*.json'),key=lambda p:int(p.stem.split('-')[-1]))
+    return extract_documents({p.name:json.loads(p.read_text(encoding='utf-8-sig')) for p in files})
+
+
+def extract_documents(documents):
+    lower=extract_written_documents(documents)
     from source_semantics import layout, filled
-    files=sorted(capture.glob('track-*.json'),key=lambda p:int(p.stem.split('-')[-1]))
-    parts=[json.loads(p.read_text(encoding='utf-8-sig')) for p in files]
+    files=sorted((name for name in documents if name.startswith('track-') and name.endswith('.json')),key=lambda name:int(name[:-5].split('-')[-1]))
+    parts=[documents[name] for name in files]
     headers,warnings=layout(parts)
     if any(w["reason"]=="conflicting_track_meter" for w in warnings): raise ValueError("Conflicting source meter; no forced shared geometry")
     frames=[];last_explicit=0
@@ -31,7 +37,7 @@ def extract(capture):
         pickup=part.get("anacrusis")
         if pickup is not None and type(pickup) is not bool:raise ValueError("Unsupported source pickup encoding")
         geometry_parts.append(dict(part_id=part["partId"],frame_refs=[f"measure:{i+1}" for i in range(len(part.get("measures",[])))],source_pickup_declared=pickup))
-    meta=json.loads((capture/"metadata.json").read_text(encoding="utf-8-sig"))
+    meta=documents['metadata.json']
     geometry=dict(source_format="songsterr_json",source_id=f"songsterr:{meta['songId']}:{meta['revisionId']}",frames=frames,parts=geometry_parts,first_notated_span_q=str(max((filled(p['measures'][0]) for p in parts if p.get('measures')),default=F(0))) if frames else None)
     lower.update(schema='normalized-written-context-facts/3',scope='written_context_facts_geometry_and_optional_source_keys',measure_geometry=geometry,source_key_declarations=declarations,source_key_inventory=inventory)
     return lower

@@ -16,14 +16,19 @@ def read(path):return json.loads(Path(path).read_text(encoding="utf-8-sig"))
 
 
 def extract(capture):
+    files=[capture/'metadata.json']+sorted(capture.glob('track-*.json'),key=lambda p:int(p.stem.split('-')[-1]))
+    return extract_documents({p.name:read(p) for p in files})
+
+
+def extract_documents(documents):
     # Stage1: only captured Tier0 documents, through existing pure source parsers.
     api=Path(__file__).parent/"songsterr_automation/songsterr_api"
     sys.path.insert(0,str(api))
     from source_semantics import layout
     from analyze_relationships import occurrences
-    meta=read(capture/"metadata.json")
-    files=sorted(capture.glob("track-*.json"),key=lambda p:int(p.stem.split("-")[-1]))
-    parts=[read(p) for p in files];headers,layout_warnings=layout(parts)
+    meta=documents['metadata.json']
+    files=sorted((Path(name) for name in documents if name.startswith('track-') and name.endswith('.json')),key=lambda p:int(p.stem.split('-')[-1]))
+    parts=[documents[p.name] for p in files];headers,layout_warnings=layout(parts)
     if len(parts)!=len(meta["tracks"]):raise ValueError("Missing captured tracks")
     result=[];warnings=[];expected=0
     for file,part in zip(files,parts):
