@@ -285,5 +285,68 @@ class MusicalTier2Tests(unittest.TestCase):
         self.assertEqual(TONAL_PROVENANCE,original)
         self.assertEqual(hashlib.sha256(json.dumps(TONAL_PROFILES,separators=(",", ":")).encode()).hexdigest(),TONAL_PROVENANCE["profiles_sha256"])
 
+    def test_source_signature_same_relation_and_spelling_gauges(self):
+        from musical_tier2 import signature_relation
+        for count,mode,direction,tonic in ((2,"minor","b",7),(2,"major","b",10),(2,"minor","#",11),(0,"minor","b",9),(-2,"minor","#",11)):
+            source=dict(accidentalCount=count,mode=mode,transposeAs=direction)
+            forward=signature_relation(source=source)
+            self.assertEqual(forward["notation_tonic_pc"],tonic)
+            self.assertEqual(signature_relation(parameters=forward["parameters"])["source"],source)
+        with self.assertRaises(ValueError): signature_relation(source=dict(accidentalCount=2,mode="mystery",transposeAs="b"))
+        with self.assertRaises(ValueError): signature_relation(source=dict(accidentalCount=True,mode="minor",transposeAs="b"))
+
+    def test_source_signature_present_absent_null_inheritance_and_inverse(self):
+        lower=facts([(0,60,0,1),(0,64,4,1)])
+        lower.update(schema="normalized-written-and-declared-keys/2",scope="base_pitch_metric_time_and_source_key_declarations",
+                     source_key_inventory=[dict(part_id=0,measure_count=4,end_q="16")],source_key_declarations=[])
+        for bar,value in ((1,dict(accidentalCount=2,mode="minor",transposeAs="b")),(2,dict(accidentalCount=2,mode="minor",transposeAs="b")),(3,None)):
+            lower["source_key_declarations"].append(dict(id=f"key:0:{bar}",part_id=0,bar=bar,onset_q=str((bar-1)*4),source_pointer=f"track-0.json#/measures/{bar-1}/keySignature",value=value))
+        upper=analyze(lower)
+        self.assertEqual(len(upper["source_keys"]["definitions"]),2)
+        self.assertNotIn("source",upper["source_keys"]["definitions"][0]["relation"])
+        contexts=upper["source_keys"]["contexts"]
+        self.assertEqual([(c["start_q"],c["end_q"]) for c in contexts],[("0","8"),("8","16")])
+        self.assertEqual(contexts[1]["status"],"unknown_no_active_declaration")
+        from musical_tier2 import declared_key_context
+        candidate=declared_key_context(upper,0,"0")
+        self.assertEqual(candidate["decoded_notation_tonic_pc"],7)
+        self.assertEqual(candidate["agreement_or_conflict"],"not_asserted")
+        self.assertIsNone(candidate["established_key"])
+        self.assertEqual(declared_key_context(upper,0,"8")["status"],"unknown_no_active_source_declaration")
+        self.assertEqual(reconstruct(strip_lower(upper),{"variation":0}),lower)
+        bad=strip_lower(upper);bad["source_keys"]["definitions"][0]["relation"]["notation_tonic_pc"]=0
+        with self.assertRaises(ValueError): reconstruct(bad,{"variation":0})
+
+    def test_source_formatting_variants_do_not_create_semantic_key_changes(self):
+        lower=facts([(0,60,0,1)])
+        lower.update(schema="normalized-written-and-declared-keys/2",scope="base_pitch_metric_time_and_source_key_declarations",source_key_inventory=[dict(part_id=0,measure_count=2,end_q="8")],source_key_declarations=[])
+        for bar,count in ((1,2),(2,-2)):
+            lower["source_key_declarations"].append(dict(id=f"key:0:{bar}",part_id=0,bar=bar,onset_q=str((bar-1)*4),source_pointer=f"track-0.json#/measures/{bar-1}/keySignature",value=dict(accidentalCount=count,mode="minor",transposeAs="b")))
+        upper=analyze(lower)
+        self.assertEqual(len(upper["source_keys"]["definitions"]),2)
+        self.assertEqual(len(upper["source_keys"]["contexts"]),1)
+        self.assertEqual(len(upper["source_keys"]["contexts"][0]["definition_refs"]),2)
+        self.assertEqual(reconstruct(strip_lower(upper),{"variation":0}),lower)
+
+    def test_empty_measure_signature_and_independent_inventory_multiplicity(self):
+        import json,tempfile
+        from pathlib import Path
+        from source_key_tier1 import extract
+        from check_musical_tier2_source import check_declared_keys
+        from musical_tier2 import declared_key_context
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            (root/"metadata.json").write_text(json.dumps(dict(songId=1,revisionId=1,tracks=[{}])))
+            part=dict(partId=0,songId=1,revisionId=1,tuning=[64],measures=[dict(signature=[4,4],voices=[],keySignature=dict(accidentalCount=0,mode="major",transposeAs="#"))])
+            (root/"track-0.json").write_text(json.dumps(part))
+            lower=extract(root); upper=analyze(lower)
+            self.assertEqual(check_declared_keys(root,lower)["status"],"PASS")
+            self.assertEqual(reconstruct(strip_lower(upper),{"variation":0}),lower)
+            self.assertEqual(declared_key_context(upper,0,"0")["decoded_notation_tonic_pc"],0)
+            for invalid in (True,0.0,"0"):
+                with self.assertRaises(ValueError): declared_key_context(upper,invalid,"0")
+            bad=deepcopy(lower);bad["source_key_inventory"].append(deepcopy(bad["source_key_inventory"][0]))
+            self.assertEqual(check_declared_keys(root,bad)["status"],"FAIL")
+
 
 if __name__ == "__main__": unittest.main()

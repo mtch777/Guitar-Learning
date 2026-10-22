@@ -65,3 +65,37 @@ def check_overlaps(capture, upper):
             for candidate in evidence["interpretation"]["chord_candidates"]:
                 if sorted({F((candidate["root_pc"]+d)%12) for d in candidate["formula"]}) != pcs: issues.append("Overlap candidate fails raw pitch-set witness")
     return dict(status="PASS" if not issues else "FAIL", nominal_spans=len(expected), issues=issues[:20], scope="Raw source half-open written-duration overlaps, not acoustic sustain")
+
+
+def check_declared_keys(capture, lower):
+    """Raw declaration values/absence + independently computed written clocks."""
+    import json
+    parts=[json.loads(p.read_text(encoding="utf-8-sig")) for p in sorted(capture.glob("track-*.json"),key=lambda p:int(p.stem.split("-")[-1]))]
+    # Reuse independent raw arithmetic oracle, NOT extraction/layout/core code.
+    topology=source_expectation(capture,include_topology=True)
+    raw_layout=source_expectation(capture,include_layout=True)
+    starts={}
+    for beat in topology["beats"]:
+        _,_,part,bar,*_=beat["id"].split(":")
+        key=(int(part),int(bar)); value=F(beat["onset_q"])
+        starts[key]=min(starts.get(key,value),value)
+    expected=[];issues=[]
+    expected_inventory=[dict(part_id=p["partId"],measure_count=len(p.get("measures",[])),end_q=str(sum(raw_layout[len(p["measures"])-1])) if p.get("measures") else "0") for p in parts]
+    if json.dumps(expected_inventory,sort_keys=True,allow_nan=False)!=json.dumps(lower["source_key_inventory"],sort_keys=True,allow_nan=False): issues.append("Typed inventory population/multiplicity differs")
+    inventory={r["part_id"]:r for r in lower["source_key_inventory"]}
+    if len(inventory)!=len(parts) or set(inventory)!={p["partId"] for p in parts}:issues.append("Source inventory parts differ")
+    for part in parts:
+        pid=part["partId"];measures=part.get("measures",[])
+        expected_end=str(sum(raw_layout[len(measures)-1])) if measures else "0"
+        if pid not in inventory or inventory[pid]["measure_count"]!=len(measures) or inventory[pid]["end_q"]!=expected_end:issues.append("Raw measure inventory/end clock differs")
+        for index,measure in enumerate(measures):
+            if "keySignature" not in measure:continue
+            onset=raw_layout[index][0]
+            if (pid,index+1) in starts and starts[(pid,index+1)]!=onset: issues.append("First beat conflicts with raw declaration bar start")
+            expected.append(dict(id=f"key:{pid}:{index+1}",part_id=pid,bar=index+1,onset_q=str(onset),source_pointer=f"track-{pid}.json#/measures/{index}/keySignature",value=measure["keySignature"]))
+    # Typed JSON comparison protects int/bool, absent/null and every occurrence.
+    canonical=lambda x:json.dumps(x,sort_keys=True,allow_nan=False)
+    if canonical(expected)!=canonical(lower["source_key_declarations"]):issues.append("Raw present/null/absent declaration population/value/time differs")
+    return dict(status="PASS" if not issues else "FAIL",declarations=len(expected),parts=len(parts),issues=issues,
+                scope="Every present/null declaration and absence inventory; onset from independent raw meter/pickup layout, including empty measures",
+                end_q_scope="Independently recomputed raw meter/pickup layout end")

@@ -7,7 +7,7 @@ from fractions import Fraction as F
 import json
 
 
-def source_expectation(capture,include_topology=False):
+def source_expectation(capture,include_topology=False,include_layout=False):
     meta=json.loads((capture/"metadata.json").read_text(encoding="utf-8-sig"))
     parts=[json.loads(p.read_text(encoding="utf-8-sig")) for p in sorted(capture.glob("track-*.json"),key=lambda p:int(p.stem.split("-")[-1]))]
     def sentinel(m,v):
@@ -27,6 +27,7 @@ def source_expectation(capture,include_topology=False):
             pickup=max(filled,default=F(0))
             if 0<pickup<span:span=pickup
         layout.append((start,span));start+=span
+    if include_layout:return layout
     expected={};unknown=Counter();beats=0;topology=dict(measures=[],voices=[],beats=[],notes=[])
     for part in parts:
         tuning=part.get("tuning") or []

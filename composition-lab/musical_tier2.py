@@ -113,12 +113,113 @@ def interpreted(group):
                    sum(m["voicing_interval"] is None for m in group["members"]), group["timing_uncertain"])
 
 
+SIGNATURE_PROVENANCE = {
+    "primary_client_vendor_sha256":"4e815b69e2bc8237e1680582c04a8c137029336675fb766c36dcffee7a16e6af",
+    "primary_client_common_sha256":"a1e364ca45d13df13dc3cc47ca07e11fbbb6d8a9cecf38a943a6dc659c62e2cc",
+    "verified_semantics":"signed fifths from transposeAs and abs count; explicit minor offset; missing inherits/null cancels",
+    "coordinate_limit":"instrument/display transforms unverified; no established tonic claim"}
+
+
+def signature_relation(*, source=None, parameters=None):
+    """SAME declared-signature equations, retaining necessary spelling gauges.
+
+    Verified Songsterr client semantics; NOT an inferred tonic/key or concert frame.
+    """
+    if (source is None)==(parameters is None): raise ValueError("Supply exactly one signature side")
+    if source is not None:
+        if type(source) is not dict or set(source)!={"accidentalCount","mode","transposeAs"}: raise ValueError("Unsupported source signature fields")
+        count=source["accidentalCount"]; mode=source["mode"]; direction=source["transposeAs"]
+        if type(count) is not int or mode not in ("major","minor") or direction not in ("b","#"): raise ValueError("Unsupported signature encoding; no guessed mode")
+        fifths=(-1 if direction=="b" else 1)*abs(count)
+        parameters=dict(signed_fifths=fifths,source_count_sign=-1 if count<0 else 1,
+                        zero_accidental_spelling=direction if count==0 else None, declared_mode=mode)
+    if type(parameters) is not dict or set(parameters)!={"signed_fifths","source_count_sign","zero_accidental_spelling","declared_mode"}: raise ValueError("Unsupported signature parameters")
+    fifths=parameters["signed_fifths"]; sign=parameters["source_count_sign"]; zero=parameters["zero_accidental_spelling"]; mode=parameters["declared_mode"]
+    if type(fifths) is not int or type(sign) is not int or sign not in (-1,1) or mode not in ("major","minor"): raise ValueError("Invalid signature parameters")
+    if (fifths==0 and (zero not in ("b","#") or sign!=1)) or (fifths!=0 and zero is not None): raise ValueError("Invalid signature spelling gauge")
+    rebuilt=dict(accidentalCount=sign*abs(fifths),mode=mode,transposeAs=zero if fifths==0 else "b" if fifths<0 else "#")
+    return dict(parameters=parameters,source=rebuilt,notation_tonic_pc=(7*fifths-(3 if mode=="minor" else 0))%12,
+                coordinate_domain="source_declared_signature", transposition_status="unverified_instrument_display_transform",
+                status="declared_not_established_key")
+
+
+def source_key_relations(lower):
+    inventory=deepcopy(lower["source_key_inventory"])
+    if type(inventory) is not list or len(inventory)!=lower["source_coverage"]["tracks"]: raise ValueError("Complete source key inventory required")
+    parts={}
+    for record in inventory:
+        if set(record)!={"part_id","measure_count","end_q"} or any(type(record[k]) is not int or record[k]<0 for k in ("part_id","measure_count")) or fraction(record["end_q"])<0: raise ValueError("Invalid declaration inventory")
+        if record["part_id"] in parts: raise ValueError("Duplicate declaration inventory")
+        parts[record["part_id"]]=record
+    if set(parts)!=set(range(lower["source_coverage"]["tracks"])): raise ValueError("Incomplete track inventory")
+    definitions=[];lookup={};occurrences=[];seen=set()
+    for row in lower["source_key_declarations"]:
+        if set(row)!={"id","part_id","bar","onset_q","source_pointer","value"}: raise ValueError("Unsupported declaration facts")
+        part,bar=row["part_id"],row["bar"]
+        if type(part) is not int or part not in parts or type(bar) is not int or not 1<=bar<=parts[part]["measure_count"]: raise ValueError("Invalid declaration source address")
+        if row["id"]!=f"key:{part}:{bar}" or row["source_pointer"]!=f"track-{part}.json#/measures/{bar-1}/keySignature" or (part,bar) in seen: raise ValueError("Declaration identity/ownership mismatch")
+        seen.add((part,bar))
+        if not 0<=fraction(row["onset_q"])<fraction(parts[part]["end_q"]): raise ValueError("Declaration outside source clock")
+        decoded=signature_relation(source=row["value"]) if row["value"] is not None else None
+        if decoded is not None: decoded.pop("source")
+        token=json.dumps(decoded,sort_keys=True)
+        if token not in lookup:
+            lookup[token]=f"declared-signature:{len(definitions)}"
+            definitions.append(dict(id=lookup[token],kind="cancel" if decoded is None else "signature",relation=decoded))
+        occurrences.append(dict(id=row["id"],part_id=part,bar=bar,onset_q=row["onset_q"],definition_ref=lookup[token]))
+    contexts=[]
+    for part,record in sorted(parts.items()):
+        ordered=sorted((o for o in occurrences if o["part_id"]==part),key=lambda o:o["bar"])
+        if any(F(a["onset_q"])>=F(b["onset_q"]) for a,b in zip(ordered,ordered[1:])): raise ValueError("Declaration clocks disagree with source order")
+        active=None;support=[];active_definitions=[];start="0";start_bar=1
+        def add(end,end_bar):
+            if F(end)>F(start): contexts.append(dict(part_id=part,start_q=start,end_q=end,start_bar=start_bar,end_bar_exclusive=end_bar,
+                signature_state=None if active is None else dict(signed_fifths=active[0],declared_mode=active[1]), definition_refs=list(active_definitions), declaration_refs=list(support), status="unknown_no_active_declaration" if active is None else "inherited_source_declaration_not_tonal_truth"))
+        for occurrence in ordered:
+            definition=next(d for d in definitions if d["id"]==occurrence["definition_ref"])
+            params=definition["relation"]["parameters"] if definition["kind"]=="signature" else None
+            target=(params["signed_fifths"],params["declared_mode"]) if params is not None else None
+            if target==active:
+                support.append(occurrence["id"])
+                if definition["id"] not in active_definitions: active_definitions.append(definition["id"])
+                continue
+            add(occurrence["onset_q"],occurrence["bar"])
+            active=target;support=[occurrence["id"]];active_definitions=[definition["id"]];start=occurrence["onset_q"];start_bar=occurrence["bar"]
+        add(record["end_q"],record["measure_count"]+1)
+    return dict(provenance=deepcopy(SIGNATURE_PROVENANCE),definitions=definitions,occurrences=occurrences,inventory=inventory,contexts=contexts,
+                inference_comparison="coordinate_frame_compatibility_unverified_no_agreement_or_conflict_claim",
+                repeated_declarations_are_not_independent_votes=True)
+
+
+def restore_source_keys(model):
+    if set(model)!={"provenance","definitions","occurrences","inventory","contexts","inference_comparison","repeated_declarations_are_not_independent_votes"}: raise ValueError("Unsupported source-key payload")
+    definitions={d["id"]:d for d in model["definitions"]}
+    if len(definitions)!=len(model["definitions"]): raise ValueError("Duplicate signature definitions")
+    rows=[]
+    for o in model["occurrences"]:
+        if set(o)!={"id","part_id","bar","onset_q","definition_ref"}: raise ValueError("Unsupported declaration occurrence")
+        d=definitions[o["definition_ref"]]
+        if set(d)!={"id","kind","relation"}: raise ValueError("Unsupported signature definition")
+        if d["kind"]=="cancel":
+            if d["relation"] is not None: raise ValueError("Cancellation cannot hide signature parameters")
+            value=None
+        elif d["kind"]=="signature":
+            resolved=signature_relation(parameters=d["relation"]["parameters"])
+            witness={k:v for k,v in resolved.items() if k!="source"}
+            if not same(witness,d["relation"]): raise ValueError("Signature decoding conflicts with SAME equations")
+            value=resolved["source"]
+        else: raise ValueError("Unsupported signature kind")
+        rows.append(dict(id=o["id"],part_id=o["part_id"],bar=o["bar"],onset_q=o["onset_q"],source_pointer=f"track-{o['part_id']}.json#/measures/{o['bar']-1}/keySignature",value=value))
+    return dict(source_key_declarations=rows,source_key_inventory=deepcopy(model["inventory"]))
+
+
 def analyze(tier1):
     """Consumes ONLY T1; published theory vocabulary is versioned shared code."""
-    if set(tier1) != TOP_FIELDS or tier1["schema"] != "normalized-written-fields/1" or type(tier1["tier"]) is not int or tier1["tier"] != 1:
+    extended=tier1.get("schema")=="normalized-written-and-declared-keys/2"
+    required=TOP_FIELDS|({"source_key_declarations","source_key_inventory"} if extended else set())
+    expected_scope="base_pitch_metric_time_and_source_key_declarations" if extended else "base_pitch_and_metric_onset_duration_only"
+    if set(tier1)!=required or type(tier1["tier"]) is not int or tier1["tier"]!=1 or tier1["schema"] not in ("normalized-written-fields/1","normalized-written-and-declared-keys/2") or tier1["scope"]!=expected_scope:
         raise ValueError("Unsupported T1 interface; no implicit field loss")
-    if tier1["scope"] != "base_pitch_and_metric_onset_duration_only":
-        raise ValueError("Declare new field ownership before extending reconstruction scope")
     coverage(tier1["source_coverage"])
     events = tier1["events"]
     if len({e["id"] for e in events}) != len(events):
@@ -154,6 +255,7 @@ def analyze(tier1):
                   theory=deepcopy(THEORY_PROVENANCE), coattacks=groups,
                   realization_order=order, source_quality=deepcopy(tier1["source_coverage"]),
                   lower_scope=tier1["scope"], ensemble_coattacks=ensemble(groups), nominal_written_spans=written_spans(groups), tonal_evidence=tonal_evidence(groups))
+    output["source_keys"] = source_key_relations(tier1) if extended else None
     # SAME relation checks operate on observed analysis and stripped reconstruction.
     validate(output)
     return output
@@ -272,11 +374,11 @@ def tonal_evidence(groups):
 def validate(upper):
     if upper.get("schema") != "musical-coattack-relations/1" or type(upper.get("tier")) is not int or upper.get("tier") != 2:
         raise ValueError("Unsupported T2 interface")
-    allowed = {"tier", "schema", "input", "theory", "coattacks", "realization_order", "source_quality", "lower_scope", "ensemble_coattacks", "nominal_written_spans", "tonal_evidence"}
+    allowed = {"tier", "schema", "input", "theory", "coattacks", "realization_order", "source_quality", "lower_scope", "ensemble_coattacks", "nominal_written_spans", "tonal_evidence", "source_keys"}
     if set(upper) - allowed:
         raise ValueError("Undeclared upper payload")
     coverage(upper["source_quality"])
-    if upper["lower_scope"] != "base_pitch_and_metric_onset_duration_only": raise ValueError("Unsupported lower scope")
+    if upper["lower_scope"] not in ("base_pitch_and_metric_onset_duration_only","base_pitch_metric_time_and_source_key_declarations"): raise ValueError("Unsupported lower scope")
     if not same(upper["theory"], THEORY_PROVENANCE):
         raise ValueError("Theory version mismatch")
     identities = []
@@ -329,6 +431,11 @@ def validate(upper):
 
     if not same(tonal_evidence(upper["coattacks"]), upper["tonal_evidence"]):
         raise ValueError("Tonal evidence conflicts with shared pitch/duration relationships")
+    if upper["lower_scope"]=="base_pitch_metric_time_and_source_key_declarations":
+        facts=restore_source_keys(upper["source_keys"])
+        facts["source_coverage"]=upper["source_quality"]
+        if not same(source_key_relations(facts),upper["source_keys"]): raise ValueError("Source declaration contexts conflict with shared signature relations")
+    elif upper["source_keys"] is not None: raise ValueError("Source keys outside declared lower scope")
     if "input" in upper and not same(upper["input"], realize(upper)):
         raise ValueError("Nested lower tier conflicts with its higher relationships")
 
@@ -357,8 +464,11 @@ def realize(upper):
             event = {k: deepcopy(member[k]) for k in ("id", "bar", "voice", "beat", "note", "duration_q")}
             event.update(part_id=group["part_id"], onset_q=group["onset_q"], pitch=member_pitch(group, member))
             events[event["id"]] = event
-    return dict(tier=1, schema="normalized-written-fields/1", events=[events[i] for i in upper["realization_order"]],
+    result = dict(tier=1, schema="normalized-written-fields/1", events=[events[i] for i in upper["realization_order"]],
                 source_coverage=deepcopy(upper["source_quality"]), scope=upper["lower_scope"])
+    if upper["source_keys"] is not None:
+        result.update(schema="normalized-written-and-declared-keys/2", **restore_source_keys(upper["source_keys"]))
+    return result
 
 
 def note_context(upper, ident):
@@ -453,6 +563,35 @@ def tonal_note_context(upper, ident, candidate_id, at_q=None, ensemble_scope=Tru
     return dict(occurrence_ref=ident, tonal_scope_ref=scope["id"], candidate_ref=candidate_id, harmonic_context_ref=harmonic_context,
                 interval_of_note_base_key_candidate=coordinate, interval_of_note_current_chord_mode=None,
                 chord_root_coordinates=chords, established_key=None, established_mode=None)
+
+
+def declared_key_context(upper, part_id, at_q):
+    """Compare source declarations to evidence ONLY conditional on pitch frame.
+
+    A matching candidate coordinate is not inferred agreement or tonal truth.
+    """
+    validate(upper); at=fraction(at_q)
+    if type(part_id) is not int or part_id<0: raise ValueError("Exact nonnegative part ID required")
+    model=upper["source_keys"]
+    if model is None: return dict(status="source_declarations_not_in_input_scope")
+    if part_id not in {r["part_id"] for r in model["inventory"]}: raise ValueError("Part outside source inventory")
+    matches=[c for c in model["contexts"] if c["part_id"]==part_id and F(c["start_q"])<=at<F(c["end_q"])]
+    if len(matches)!=1: raise ValueError("No unique source declaration context at requested point")
+    context=matches[0]; state=context["signature_state"]
+    if state is None: return dict(part_id=part_id,at_q=at_q,status="unknown_no_active_source_declaration",declaration_refs=context["declaration_refs"],established_key=None)
+    definition=next(d for d in model["definitions"] if d["id"]==context["definition_refs"][0])
+    tonic=definition["relation"]["notation_tonic_pc"]; mode=state["declared_mode"]
+    scores=[]
+    for scope in upper["tonal_evidence"]["scopes"]:
+        if scope["id"] not in ("song-pooled",f"part:{part_id}"): continue
+        for candidate in scope["candidates"]:
+            if candidate["tonic_pc"]==tonic and candidate["quality"]==mode:
+                scores.append(dict(scope_ref=scope["id"],candidate_ref=candidate["id"],score=candidate["score"],
+                                   condition="ONLY_if_source_signature_and_note_coordinate_frames_align"))
+    return dict(part_id=part_id,at_q=at_q,source_context_span=[context["start_q"],context["end_q"]],
+                declaration_refs=context["declaration_refs"],declared_signed_fifths=state["signed_fifths"],
+                declared_mode=mode,decoded_notation_tonic_pc=tonic,profile_scores_if_frames_align=scores,
+                coordinate_frame_compatibility="unverified",agreement_or_conflict="not_asserted",established_key=None)
 
 
 def transpose(upper, semitones):

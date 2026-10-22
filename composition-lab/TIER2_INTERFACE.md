@@ -68,10 +68,38 @@ context to an explicit tonal candidate. Root coordinates are separate from harmo
 function; minor reference membership means natural-minor reference ONLY, not that
 raised sixth/seventh notes are wrong. The tonic register reference is a coordinate
 convention, not an observed tonic note. Source declarations cannot be reread by
-Tier2; they are unavailable until faithfully added to its preceding input.
+Tier2; schema1 lacks them and expanded schema2 carries them faithfully.
 
 Fresh Last Nite: 6152 exact occurrences, 4395 used for distributional exposure,
 1757 unknown-pitch occurrences retained/excluded. Independent raw-source music21
 oracle matched288 scores. Beatles regression matched384 more. These verify method
 arithmetic and context links, NOT tonal-center accuracy. Full suite:816 tests,
 815 passed/1optional skip. Planner approval and delivered commit recorded in log.
+
+## Source-declared signatures (expanded preceding input)
+
+T1 schema2 adds exact measure-level keySignature present/null occurrences with
+part/bar/rational onset/source pointer and complete track measure/end inventory.
+Missing is distinct from null. Opaque track.key strings are NOT musical signatures.
+The core consumes this T1 only; it never reopens captures.
+
+T2 stores signature definitions via signed fifths, explicit major/minor and minimal
+source spelling gauges (raw count sign; zero-accidental direction). It does not
+carry the raw source object. SAME equations reconstruct every raw declaration;
+tonic PC alone cannot recover enharmonic spelling. Repeated formatting variants
+share a semantic signature context; original declaration occurrences are retained.
+Missing inherits; null cancels the active declaration; neither defaults to C major.
+Unknown encodings fail closed with retained input/failure rather than guessed mode.
+
+Primary Songsterr client semantics are frozen by source hashes. Instrument/display
+transposition has not been verified; decoded source notation tonic is not declared
+concert tonic. Candidate scores can be shown conditionally if frames align, with
+no claim of agreement/conflict or established key. Repeated signatures do not count
+as independent votes or changes.
+
+Actual positive source: Chop Suey, 8719 note occurrences and1221 declarations on
+11tracks/111bars -> one signature definition/11semanticcontexts. Actual negative
+sources: recent random captures and495 Invent Animate track files have no measure
+key declarations. Null/change/sign/zero cases are primary-client-backed synthetic
+tests, not claimed actual corpus occurrences. Expanded blind inverse and raw
+presence/value/clock/absence checks are recorded in the progress log.

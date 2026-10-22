@@ -1,4 +1,4 @@
-# Tier2 implementation — active authorization
+# Tier2 implementation â€” active authorization
 
 2026-10-22. User explicitly authorized resolving the Tier2 interface with
 ProjectPlanner3000, implementing SAME relationships forward/backward, and running
@@ -37,7 +37,7 @@ musical-abstraction pass. All gates must name their field/tier scope.
 Next: freeze vocabulary from installed music21 theory definitions; implement
 new shared relations and source-backed tests; no revival of the retired codecs.
 
-## First completed boundary � 2026-10-22
+## First completed boundary — 2026-10-22
 
 - Shared equation `pitch = bass_register + voicing_interval`, solved both ways.
 - Fixed music21 9.9.2 vocabulary (50 definitions), all compatible roots retained;
@@ -65,7 +65,7 @@ new shared relations and source-backed tests; no revival of the retired codecs.
 - Full Tier2 remains INCOMPLETE: no key/mode/function, acoustic sustain/technique/
   GP recreation or artist-style nonzero percentages. No musical audio claim.
 
-## Next boundary � nominal written-duration overlap
+## Next boundary — nominal written-duration overlap
 
 Planner recommends and verifies actual q123 Beatles: E-only written starts versus
 C/E/G nominal overlaps. Implement event-boundary half-open intervals using ONLY
@@ -121,7 +121,7 @@ Prioritize evidence-backed tonal context (key/collection/diatonic relationships)
 retain exact voicing choices, and do not force unvalidated harmonic boundaries.
 Full Tier2 acceptance remains open; continued work does not require user input yet.
 
-## Next endeavor contract � tonal evidence, not a guessed key
+## Next endeavor contract — tonal evidence, not a guessed key
 
 Planner start review: shared-core whole-song/per-part duration-weighted pitch-class
 exposure, two published music21 9.9.2 profile families (KrumhanslSchmuckler and
@@ -187,3 +187,63 @@ Planner completion: independently28testsPASS; actual both v2inverses and
 Bounded tonal Gate3 APPROVED; no further same-baseline runs recommended. No key/
 mode/function truth claimed. Both prior gates PASS declared fields. Verification
 suite816tests815PASS1optionalSKIP; commit/push followed after independent review.
+
+## Tonal checkpoint delivered
+
+Commitfb6272d01a2b257fbb4d23a55b82c3026ff55b12 pushed. RemoteCI39820275078
+SUCCESS. Final suite816tests815PASS1optionalSKIP18.127s. No site source changed.
+
+## Source-signature endeavor — contract and evidence
+
+- Negative audit: four recent captures +495InventAnimate trackfiles lack measure
+  keySignature. Three opaque top-level track.key strings are NOT tonal fields.
+- Positive: retained ChopSuey3708/rev9044289 has1221measurefields on11tracks x
+  111bars, exact{accidentalCount:2,mode:minor,transposeAs:b}. Primary client vendor/
+  common source hashes recorded in output. Verified signedfifths from direction
+  and abs(count), minor offset; missing inherits, null cancels, no Cmajor default.
+  Instrument/display transposition remains unverified; no inferred tonic claim.
+- Explicit T1 schema2: every present/null occurrence, sourcepart/bar/path/onset,
+  complete trackmeasure/end inventory. Core reads T1 ONLY. T2 source_keys owns
+  deduplicated signed-fifths/mode definitions plus minimal raw-count sign and
+  zero-direction spelling gauges. No rawsourceobject survives in higherdefinitions.
+  SAME equations recreate every declaration. TonicPC alone cannot invert spelling.
+- Repeated fields retain every occurrence but are not independent votes/keychanges.
+  Planner found formatting variants split contexts; fixed semantic state grouping
+  by signedfifths+mode, retaining multiple format definitions for exact inverse.
+- Unknown schema/enums failclosed, originalcapture/failure retained. Synthetic
+  tests cover null/absence/change/zero/negativecount/type/format gauges; these are
+  primary-client-backed tests, not claimed actual corpus coverage.
+- Initial extractor syntaxerror caught/fixed before artifact run. Initial oracle
+  checked firstbeat, not endclock; independent rawlayout API now checks both and
+  handles empty/no-beat measures. Exact typed inventory list catches duplicates;
+  query rejects bool/float/string part IDs. Existing raw arithmetic unchanged;
+  optional include_layout exposes independent expected layout.
+- Fresh random REM LosingMyReligion16245/rev8954603 seed7764154184538583810,
+  querym,11tracks11205occurrences,0keyfields. Final musical-tier2-key-qa-v3:
+  independent raw fields/keyabsence/clock, expandedT1 audited inverse, five actual
+  denial challenges, source+codeintegrity PASS. Elevenunknown declarationcontexts.
+- Positive final musical-tier2-declarations-positive-v4:8719notes+1221declarations
+  exact; one definition/11contexts. All same raw/technical/inverse/denial checks
+  PASS. Decoded notation Gpc7/minor is a declaration, NOT established concert key.
+  Conditional profile query explicitly keeps frame compatibility unverified and
+  asserts no agreement/conflict. No extra artist/musical-quality claim.
+- Planner independently32targetedtestsPASS; reconstructed both final actualinputs,
+  reran rawkey oracle, checked merge/typeguards/unknowns. Bounded Gate3 APPROVED.
+- Fullsuite820tests819PASS1optionalSKIP17.435s. Commands: unittest discover
+  test_musical_tier2.py; full test_*.py; run_musical_tier2_qa.py on freshREM and
+  retainedpositive capture. All private artifacts remain under local-artifacts.
+- Logging-only encoding error while appending this section truncated the progress
+  file. Restored committed history from HEAD (legacycp1252), reconstructed this
+  uncommitted source-signature log from actual commands/results, and normalized
+  this file to UTF-8. Code/privateartifacts unaffected; prior history preserved.
+
+## Next priority — inference, not more descriptors
+
+Planner: stop extra affine/scale-list work. Timed tonal candidate inference must
+live in actual Tier2 via T1-only adapter/frozen model, with reference alignment and
+vocabulary verified BEFORE predictions. Existing AnalysisGNN localkey is a candidate
+(tonkey is NOT globalkey; degree1 is NOT note interval). Compare existingprofiles
+and order controls; retain help/hurt, unknown training overlap/classical-domain
+limits. No unvalidated argmax/reference annotation promoted into truth. SAMEinverse
+and actual context links required. Resolve model/runtime/inverse contract first;
+no disconnected benchmark. No need for user input identified yet.
