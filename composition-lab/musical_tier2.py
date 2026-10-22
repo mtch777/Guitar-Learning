@@ -957,6 +957,9 @@ def _candidate_note_context(upper,ident,group,member,pitch,scope_id,candidate,at
                         relative_octaves=int(distance//12), tonic_reference_convention="tonic_pc_in_MIDI_zero_octave_not_observed_tonic_note", reference_is_not_an_added_note=True, reference_collection=candidate["reference_collection"],
                         in_reference_collection=distance%12 in candidate["reference_intervals"],
                         status="conditional_reference_collection_not_established_key_or_function")
+        mapped=collection_degree_relation(candidate['tonic_pc'],candidate['reference_intervals'],pitch=str(pitch)) if distance%12 in candidate['reference_intervals'] else None
+        coordinate['reference_collection_degree']=mapped['degree'] if mapped is not None else None
+        coordinate['diatonic_coordinate']=mapped['diatonic_coordinate'] if mapped is not None else None
     if at_q is not None:
         local = note_context_at(upper,ident,at_q,ensemble_scope)
         harmony = local["interpretation"]
@@ -1179,3 +1182,49 @@ def tied_harmonic_context(upper,evidence,origin_ref,at_qs):
     if reasons:return dict(result,status='QUARANTINED_CHAIN')
     if evidence['status']!='SCORED_NOT_MUSICAL_TRUTH':return dict(result,status='HARMONIC_ANALYSIS_NOT_RUN')
     return dict(result,status='CONDITIONAL_CONTINUITY_CONTEXT',membership=harmonic_membership_evidence(upper,evidence,queries))
+
+
+def collection_degree_relation(tonic_pc,reference_intervals,*,pitch=None,degree=None,relative_octaves=None):
+    """ONE pitch equation, exact members of an explicit seven-note reference.
+
+    pitch = tonic_pc + 12*relative_octaves + reference_intervals[degree-1].
+    This does not select a key, spell a note, or map chromatic notes by proximity.
+    """
+    if type(tonic_pc) is not int or not 0<=tonic_pc<12:raise ValueError('Exact tonic pitch-class integer required')
+    if type(reference_intervals) is not list or len(reference_intervals)!=7 or any(type(i) is not int for i in reference_intervals) or reference_intervals[0]!=0 or sorted(set(reference_intervals))!=reference_intervals or reference_intervals[-1]>=12:raise ValueError('Seven ordered distinct reference pitch classes beginning at zero required')
+    if degree is not None and (type(degree) is not int or not 1<=degree<=7):raise ValueError('Exact degree integer1..7 required')
+    if relative_octaves is not None and type(relative_octaves) is not int:raise ValueError('Exact relative octave integer required')
+    if pitch is not None:
+        value=fraction(pitch);distance=F(relation(anchor=tonic_pc,pitch=value)['interval']);pc=distance%12
+        if pc not in reference_intervals:raise ValueError('Pitch is outside this reference collection')
+        inferred_degree=reference_intervals.index(pc)+1;inferred_octave=int(distance//12)
+        if degree is not None and degree!=inferred_degree or relative_octaves is not None and relative_octaves!=inferred_octave:raise ValueError('Conflicting degree/register/pitch coordinates')
+        degree,relative_octaves=inferred_degree,inferred_octave
+    if degree is None or relative_octaves is None:raise ValueError('Underdetermined collection-degree relation')
+    interval=12*relative_octaves+reference_intervals[degree-1]
+    realized=relation(anchor=tonic_pc,interval=interval,pitch=pitch)['pitch']
+    return dict(degree=degree,relative_octaves=relative_octaves,diatonic_coordinate=7*relative_octaves+degree-1,pitch=realized)
+
+
+def collection_motion_context(upper,occurrence_refs,candidate_id):
+    """Conditional degree movement; no passing/neighbor or true-key assertion."""
+    motion=note_motion_evidence(upper,occurrence_refs)
+    found=[(scope,c) for scope in upper['tonal_evidence']['scopes'] for c in scope['candidates'] if c['id']==candidate_id]
+    if len(found)!=1:raise ValueError('One explicit existing global/part tonal candidate required')
+    scope,candidate=found[0];index={m['id']:(g,m) for g in upper['coattacks'] for m in g['members']};contexts=[];pitches=[]
+    for ident in occurrence_refs:
+        group,member=index[ident]
+        if group['id'] not in scope['group_refs']:raise ValueError('Occurrence outside tonal candidate scope')
+        pitch=member_pitch(group,member);pitches.append(None if pitch is None else F(pitch))
+        contexts.append(_candidate_note_context(upper,ident,group,member,pitch,scope['id'],candidate,None,True))
+    eligible=motion['eligibility']=='eligible_owned_written_sequence';pairs=[]
+    for i in (0,1):
+        coordinates=[contexts[j]['interval_of_note_base_key_candidate'] for j in (i,i+1)]
+        mapped=all(c is not None and c['reference_collection_degree'] is not None for c in coordinates)
+        displacement=coordinates[1]['diatonic_coordinate']-coordinates[0]['diatonic_coordinate'] if mapped and eligible else None
+        chromatic=str(pitches[i+1]-pitches[i]) if pitches[i] is not None and pitches[i+1] is not None else None
+        pairs.append(dict(from_ref=occurrence_refs[i],to_ref=occurrence_refs[i+1],chromatic_distance_semitones=chromatic,
+                          signed_diatonic_displacement=displacement,adjacent_degree_movement=abs(displacement)==1 if displacement is not None else None,
+                          status='eligible_mapped_reference_motion' if mapped and eligible else 'unmapped_reference_collection' if not mapped else 'source_sequence_interpretation_refused'))
+    return dict(candidate_ref=candidate_id,tonal_scope_ref=scope['id'],reference_collection=candidate['reference_collection'],source_motion=motion,note_contexts=contexts,pairs=pairs,
+                established_key=None,established_mode=None,passing_tone=None,neighbor_tone=None,claim='Degrees and adjacent movement conditional on explicit reference, not authored spelling or musical function')

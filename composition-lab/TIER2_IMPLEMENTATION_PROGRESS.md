@@ -675,3 +675,54 @@ degree/register viaSAMEintervalrelations; compareidenticalnotes underparallelmaj
 naturalminor; eligibleconsecutivepairs differentiatechromaticdistance vsadjacent
 scaledegree. Outsidecollectionunmapped; no nearestdegree/authoredspelling/chordmode/
 inferredkey. ReusecontextIDs, no bulknote*candidate products. Startcontractbeforecode.
+
+Delivered chaincontext f255003 main, CI39840366808SUCCESS.
+
+## Conditional reference-collection degree — START beforeimplementation
+Plannerstartcontractapproved: exactinteger degree1..7/register integer, signed
+7*octavedifference+degreedifference; adjacencyabs1 includingoctavecrossing.
+Preserve chromaticdistance, outside/unknownunmapped; no nearestdegree, authored
+spelling, chordmode, selectedtruekey/function or nonzero generation. Existing
+motioneligibility handlesgrace/polyphony/gaps withoutskips. SAMEequation bothways
+forMAPPEDmembers; outside pitches retainexistingexactrealization. No bulkproducts.
+
+Fresh frozen Nirvana Aneurysm14355/rev9766773,6tracks, seed13554092013439674791,
+queryn BEFOREcollectioncode/analysis. collection-plan.json frozen1e-12 KS maximum
+numeric tie tolerance; uniquehighestfinite pooledKS is QUERYREFERENCEONLY, original
+scoresretained + bothparallelmajor/naturalminor candidates. Tied/undefined maxima
+inconclusive no arbitrarywinner. Everypart/voice first3originalsourceaddresses,
+no grace/unknown/polyphony/rejectedsequence replacements. Native music21oracle
+explicitnaturalminor +pitchclassonly, registerequation separatelychecked.
+
+Acceptancechecklist:
+- [ ] Sharedpuredegree/registerequation solvedforward/backward, stricttypes.
+- [ ] Existingglobal/temporalnotecontexts exposeoptionaldegree usingSAMEhelper.
+- [ ] Candidate-conditional motion distinguisheschromaticdistance/diatonicadjacency;
+      preserve sourceeligibility/refusals, outside/unknown no guesseddegree.
+- [ ] Frozenparallelcollectioncontrasts/octavecrossings/leaps/strictnegativecases.
+- [ ] Newrandomsource +independentnativeScale/raworacle, strippedsamequery+T1inverse.
+- [ ] Planner midpoint/end, fulltests, ownfilescommitpush, actualCI.
+No human inputneeded. Next implementboundedcore+tests, thenactualsourceQA.
+
+Collection actualv1PASS9254rawoccurrences/actualstrippedwholeT1+queryinverse,
+3072nativeScale checksall12tonics MIDI0..127. Strengthenedv2 adds independentnative
+KS/TKPprofileoracle336scores, exactquerywinner/tolerance/tiedmaxima/parallelmetadata
+checks+negativeunit; no musicalcore changes. v2technicalPASS/code+sourceunchanged.
+12parallelcontexts36candidate-noteevaluations25mappedshared-degreeinverses;
+unmapped/unknownretained.6triples:3sourceeligible3refused, no replacements.
+ExplicitqueryrefBminorKS0.7702642669585642 vsparallelBmajor0.3999940666498063;
+NOTestablishedkey/mode. Actualpart2notesdegree7undermajor vsunmappednaturalminor.
+Nativeoracle comparisonpitchClass, no inventedauthoredspelling; sourcewarning
+provenance remainsacceptedwarninggenerator, notnewindependentwarningvalidation.
+PlannerfinalAPPROVED afteractualv2/source/oracleinspection+independently8testsPASS.
+Fullsuite results next; no audio/listening/stylequality claim. No userinputneeded.
+
+NextPlannerapproveddirection: one explicitreference+existingharmoniccontext query
+connects outside-reference vschordmember distinction. Preservejointpathalternatives;
+no newscore/vocab/candidateproduct. Authoredcontrast unchangedA# outsideBnaturalminor
+butmemberF#major; actualsource maydisagree/unknown, preserveit. DoNOTinferharmonicminor,
+tonicization,function,chordmode orkey. Implementaftercurrentcommit/CI gate.
+
+Collection full871tests870PASS1optionalskip26.104s;bare871tests869PASS2skip26.102s.
+Acceptancecheckboxes core/global+temporal/motion/contrasts/native+raw+isolated/
+Plannerfulltests DONE. NextcommitpushCI. Existinglockedsource/techniques untouched.

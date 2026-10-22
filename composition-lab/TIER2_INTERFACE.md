@@ -270,3 +270,31 @@ The controlled tied C4 across C-major then G-major changes from member to
 nonmember. Writing the same pitches as untied repetitions preserves those same
 harmonic memberships; only the continuity relationship differs. This does not
 identify a suspension, preparation, resolution, local key or emotional function.
+
+## Conditional reference-collection degrees
+
+An explicit existing tonal-candidate ID supplies the tonic and reference
+collection. This is a reference for the query, not a chosen true key or mode.
+
+| Relationship | Meaning / limit |
+|---|---|
+| Optional degree | Exact integer1–7 for a note inside that reference collection. Chromatic and unknown notes remain unmapped; no nearest-degree guess. |
+| Register | Existing tonic-PC/MIDI-zero reference convention. It is not authored letter spelling or a newly added tonic note. |
+| Shared equation | `pitch = tonic_pc + 12 × relative_octaves + reference_intervals[degree − 1]`. Solved and checked in both directions for mapped members. |
+| Signed diatonic movement | `7 × octave_difference + degree_difference`. Adjacent movement has magnitude1, including7→1 across an octave. |
+| Chromatic distance | Exact semitone distance retained separately. A14-semitone leap can span eight scale degrees; it is not an adjacent step. |
+| Source eligibility | Diatonic melodic movement is withheld for ambiguous/nonconsecutive/grace/unknown/gapped sequences. Individual note coordinates remain separately visible. |
+| Shared contexts | Global and temporal note contexts use the SAME degree calculation and existing source/candidate/time references. No bulk note×candidate products. |
+
+Exact inverse scope is explicit: mapped reference coordinates solve their pitch;
+outside-collection notes still reconstruct through their existing exact written
+realization. This does not identify passing tones, authored spelling, chord modes,
+harmonic function or style-preserving variation.
+
+Fresh frozen Songsterr14355/rev9766773:9,254source occurrences match and reconstruct
+exactly from stripped T2. All six first-owned-voice triples remain, including three
+melodic refusals. Twelve parallel-reference contexts contain36note evaluations:
+25mapped degree inversions plus explicit unmapped/unknown cases. Independent
+native major/natural-minor checks cover3,072tonic/MIDI combinations;336published
+profile-score comparisons pass. The winning KS score chooses only a query reference;
+tied/undefined maxima remain inconclusive. No source key-accuracy claim follows.
