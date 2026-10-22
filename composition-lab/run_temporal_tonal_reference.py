@@ -8,8 +8,6 @@ from fractions import Fraction as F
 import hashlib
 import json
 from pathlib import Path
-from music21 import corpus, converter
-from music21.analysis import discrete
 from musicxml_context_tier1 import extract
 from check_musicxml_context_source import check, raw_notes
 from musical_tier2 import analyze, strip_lower
@@ -26,6 +24,7 @@ def independent_scores(path,upper):
 
 
 def compare_raw_scores(raw,upper):
+    from music21.analysis import discrete
     issues=[];comparisons=0
     blocked={w['bar'] for category in ('layout_warnings','timing_warnings') for w in upper['source_quality'][category]}
     for scope in upper['temporal_tonal_evidence']['scopes']:
@@ -62,6 +61,7 @@ def winners(candidates,field):
 
 
 def evaluate(annotation,upper,alignment):
+    from music21 import converter
     score=converter.parse(str(annotation))
     offset=alignment['annotation_to_source_pc_offset']
     if type(offset) is not int or not 0<=offset<12:raise ValueError('Typed audited reference coordinate offset required')
@@ -99,6 +99,7 @@ def evaluate(annotation,upper,alignment):
 
 
 def run(selection,output,alignment_path=None):
+    from music21 import corpus
     output.mkdir(parents=True,exist_ok=False)
     selected=json.loads(selection.read_text(encoding='utf-8'));results=[]
     code=Path(__file__).with_name('musical_tier2.py').read_text(encoding='utf-8')

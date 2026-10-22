@@ -356,3 +356,12 @@ published Pardo-Birmingham joint chord segmentation+labelling using noteon/off
 candidate boundaries and DAG path, compare instantaneousbaseline on arpeggios,
 passingnotes/repeats/heldchanges; preserve alternatives/unsupportedcases. No
 chord=key or cartesianlabelinflation. Audit published score/vocabulary/ties first.
+
+
+Delivery4c9c27f pushed. CI39829042803 failed dependency-free discovery: new research
+helper imported music21 at module load through runner imports. Fixed by lazy
+imports inside research-only functions (no runtime musical math change). Actual
+-S focused37PASS; -S full825tests823PASS/2optionalSKIP18.560s. Repeated frozen
+referencev3 alltechnicalPASS and identical metrics. Fix commit pending. Temporal
+full-installed suite previously824PASS/1skip. Next bounded harmonic query WIP is
+uncommitted and not included in the dependency-only repair.

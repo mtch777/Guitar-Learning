@@ -5,11 +5,11 @@ All parts must independently agree on their source measure clock and meter.
 """
 from fractions import Fraction as F
 from pathlib import Path
-from music21 import converter, stream
 from musical_tier2 import geometry_relation, geometry_inventory
 
 
 def extract(path):
+    from music21 import converter, stream
     score=converter.parse(str(path))
     frames=None;parts=[];events=[];first_extent=F(0)
     for part_id,part in enumerate(score.parts):

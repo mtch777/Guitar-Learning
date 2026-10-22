@@ -2,11 +2,11 @@
 from collections import Counter
 from fractions import Fraction as F
 import re
-from music21 import converter, stream
 from check_musicxml_context_source import raw_notes
 
 
 def audit(source,annotation):
+    from music21 import converter, stream
     raw,parts=raw_notes(source);gold=converter.parse(str(annotation))
     frames=parts[0]
     if any(p!=frames for p in parts):raise ValueError('Unaligned source parts')
