@@ -365,3 +365,74 @@ imports inside research-only functions (no runtime musical math change). Actual
 referencev3 alltechnicalPASS and identical metrics. Fix commit pending. Temporal
 full-installed suite previously824PASS/1skip. Next bounded harmonic query WIP is
 uncommitted and not included in the dependency-only repair.
+
+
+## Bounded harmonic-span refinement — active
+Acceptance checklist:
+- [x] Read primary Pardo-Birmingham2002 paper, renderedFigure3: published six
+  families/72roots, S=positive-negative-missing, note-cell count NOTduration;
+  fullDAG maxsum. Declared no-tiebreak variant; no corpuspriors/dimresolutionrules.
+- [x] Explicit rational interval+part/ensemble request; heldstarts clipped without
+  newattack; no barforcedcuts; operational edgecap returnsNOT_RUN, never truncates.
+- [x] EightinitialanalyticalcontrasttestsPASS inclalloptimalpaths compared to
+  independent exhaustiveenumeration, paper6pointtie, arpeggio/repeats/heldchange.
+- [x] Planner midpoint caught MATERIAL unknown-boundary leak: unknown/percussion
+  interval1..2 multiplied heldC/E/G score3->9 despite excludedpitch. Corrected:
+  onlyeligibleintegerpitch intervals form scoringgrid; unknownintervals preserved
+  separate exactoverlays, edge/notecontext partialflags. Newinvariance regression
+  passes; source records retained. Nineharmonic tests nowPASS;46combinedPASS.
+- [x] Same _chord_coordinates nowserves writtenstart/overlap/inferredspan contexts;
+  heldC becomesrootunderC, fifthunderF. Explicit optimaledge selection, no hidden
+  preferredpath. Staleanalysisrefused. QueryisdeterministicT2refinement, not anew
+  pitchowner/generator or completedhigher-level abstraction.
+- [ ] Frozenreference+newrandom actualsource/DAGoracle/isolation andlabels.
+  Newseed6105411479077065199/queryx selectedStaticX TheOnly54387/rev9800793,
+  7tracks. Requests frozen BEFORETier2analysis:part0+ensemble, first8 actualsource
+  frames0..31q, max50000edges. No easierreplacement onunsupported/resourcecase.
+  Primary3annotatedreferences retained with qualifiedfrozenalignment assumptions;
+  reuseddiagnostics, not newheldoutaccuracyclaim. No methodparameter tuning.
+- [ ] Plannercompletion/fullsuite/verifiedsourcecommit+CI.
+
+Temporaldependencyrepair5734bde pushed; actualCI39829621412SUCCESS.
+Harmonicprivateactualrun musical-tier2-harmonic-qa-v1 isrunning. Independentraw
+oracleimports noTier2/extractor andchecks ALLcandidateedge scores/optimalpredecessors;
+actualworkerrecomputesquery+exactinverse fromstrippedT2only. GoldonlyparentQA.
+
+
+Harmonicv3 actualPASS with preloadedtransitivelocalcodefreeze+complete declared
+source/plans endrehash. Oraclemetricrenamed independently_computed_template_scores:
+it computes72peredge andcompares wholeDAGoptimum/predecessors pluscanonicaledges,
+NOTevery producerrow. Plannerrequestedprecision; oldv2retainedlimitedfreeze.
+
+Next approved bounded refinement: actualStaticXensemble has22799473113563136
+optimal BOUNDARYpaths (not full labelassignments),part0has108. Preserve allpaths
+compressedDAG, notenumeration. Added mandatoryboundary prefix*suffixcount and
+percelllabelunionover ALLterminalreachableoptimaledges+no-pitchedpossibility.
+Repeatedtriad4boundarypaths butunanimousCmajorunderobjective.11harmonictestsPASS,
+including exhaustiveconsensus/mandatory/no-evidence cases. No confirmedchordclaim.
+BEFOREreferencev4 results: consensus diagnostic strictdurationcredit only ifunion
+hasonecorrectlabel andnounknownoption; fractionalcredit1/numberalternatives ifgold
+included, unknownoptioncountsasalternative. NOTprobability. Allunsupportedgold
+labels andsourceunknownsremainindenominator. Canonicalmetrics unchanged/qualified.
+
+
+Harmonicv5 actualtechnicalPASS; all3references+newStaticX requests, source/code
+endhashesunchanged; frozen preloadedlocalmodules copiedprivately forreplay. All
+rawsource and isolatedquery+sameinversechecksPASS. StaticX4181occurrences,
+401deadpitchunknown/1743unusablepitchedmapping(includingpercussion) retained.
+Part0/ensemble31q requests have108/22799473113563136 optimalBOUNDARYpaths;
+part0unanimity0q, ensemble91/4q(73.39%) underobjective, not truth/confidence.
+Canonicalstrictannotationduration00487.5/01086.54/01474.11%; instantaneousexact
+76.875/84.62/71.875%. Allpathconsensusstrict86.25/81.73/72.32%. 014outsidevocab3q
+keptindenominator. Exactcanonicalboundary P/R90/92.31%,90.70/92.86%,85.96/90.74%;
+mandatory00489.74/89.74%,otherssame. No tolerance/modeltuning/goldpathselection.
+Planner actualv5review: APPROVED boundedharmonicspanmethod; independently12tests
+PASS. Full837tests836PASS1optionalSKIP18.866s; bare-S837tests835PASS2skip18.875s.
+No source scores/annotations/audio published, no new UI/audioquality claim.
+
+Nextendeavor approveddirection: audit Raphael-Stoddard jointprobabilistickey/
+harmony model parameters/inputs/availability beforeimplementation. Preserve span
+alternatives; testunchangedchordwithdifferentcontext, secondarydominant, actual
+keychange. ConditionalRoman-degreecoordinates distinctfrominferredfunction.
+Nevermultiply uncalibrated chordscore/keycorrelationasindependentprobabilities.
+Need unknown/outofvocab +unchangedexactsourceinverse. No inputneeded yet.

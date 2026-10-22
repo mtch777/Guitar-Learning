@@ -501,6 +501,118 @@ def temporal_tonal_evidence(groups, geometry):
     return dict(provenance=deepcopy(TEMPORAL_PROVENANCE),scopes=scopes)
 
 
+def harmonic_template_scores(weights):
+    """Published Pardo-Birmingham Figure3 score, no stylistic tie breakers.
+
+    Positive note-cell evidence minus negative evidence minus missing PCs.
+    Weights count nominal minimal segments, not seconds or note durations.
+    """
+    if len(weights)!=12 or any(type(v) is not int or v<0 for v in weights):raise ValueError('Twelve nonnegative integer note-cell weights required')
+    kinds=('major','dominant-seventh','minor','diminished-seventh','half-diminished-seventh','diminished')
+    forms=dict(THEORY_FORMS);total=sum(weights);rows=[]
+    for kind in kinds:
+        formula=forms[kind]
+        for root in range(12):
+            pcs={(root+d)%12 for d in formula};positive=sum(weights[pc] for pc in pcs);missing=sum(weights[pc]==0 for pc in pcs)
+            rows.append(dict(root_pc=root,kind=kind,formula=list(formula),positive=positive,negative=total-positive,missing=missing,score=2*positive-total-missing))
+    return rows
+
+
+def harmonic_span_evidence(upper,start_q,end_q,part_id=None,max_edges=50000):
+    """Bounded deterministic T2 refinement, not a separate generation engine.
+
+    Every candidate boundary is a nominal written occurrence start/end; request
+    edges clip already-active notes without inventing attacks. Full DAG search
+    within the declared interval; no hidden bar cuts or musical duration cap.
+    """
+    validate(upper);start,end=fraction(start_q),fraction(end_q)
+    if start<0 or end<=start:raise ValueError('Positive ordered explicit query interval required')
+    if part_id is not None and (type(part_id) is not int or not 0<=part_id<upper['source_quality']['tracks']):raise ValueError('Typed owned part scope required')
+    if type(max_edges) is not int or max_edges<1:raise ValueError('Positive explicit edge resource limit required')
+    request=dict(start_q=start_q,end_q=end_q,part_id=part_id,max_edges=max_edges)
+    if upper['measure_geometry'] is not None:
+        inventory=geometry_inventory(upper['measure_geometry'])
+        horizon=max((F(r['end_q']) for r in inventory if part_id is None or r['part_id']==part_id),default=F(0))
+        if end>horizon:raise ValueError('Query beyond owned source measure geometry')
+    rows=[];excluded=dict(zero_duration=[],unknown_pitch=[]);uncertain=[]
+    for group in upper['coattacks']:
+        if part_id is not None and group['part_id']!=part_id:continue
+        for member in group['members']:
+            a=F(group['onset_q']);b=a+F(member['duration_q'])
+            if b==a:
+                if start<=a<end:excluded['zero_duration'].append(member['id'])
+                continue
+            if b<=start or a>=end:continue
+            if group['timing_uncertain']:uncertain.append(member['id'])
+            pitch=member_pitch(group,member)
+            if pitch is None or F(pitch).denominator!=1:excluded['unknown_pitch'].append(member['id'])
+            rows.append(dict(occurrence_ref=member['id'],start=max(a,start),end=min(b,end),pitch=pitch,started_before_request=a<start))
+    result=dict(analytical_stage='deterministic_refinement_of_T2_nominal_relations_not_new_pitch_owner',request=request,
+                method=dict(source='Pardo-Birmingham2002 Figure3 + full DAG relaxation',url='https://interactiveaudiolab.github.io/assets/papers/pardo-birmingham-cmj02.pdf',vocabulary='published_six_chord_families_72_roots',weight='count_of_nominal_minimal_segments_per_occurrence',tie_breaking='NONE_all_equal_scores_and_optimal_predecessors_retained',limits='No key/mode/function/style inference; written intervals not acoustic sustain; no prior or resolution tie-breaks'),
+                excluded_member_refs=excluded,source_timing_uncertain_refs=uncertain)
+    if uncertain:return dict(result,status='NOT_RUN_SOURCE_TIMING_UNCERTAIN')
+    eligible=[r for r in rows if r['pitch'] is not None and F(r['pitch']).denominator==1]
+    unknown=[r for r in rows if r not in eligible]
+    overlays=[dict(occurrence_ref=r['occurrence_ref'],start_q=str(r['start']),end_q=str(r['end']),status='unknown_or_noninteger_pitch_not_in_scoring_grid') for r in unknown]
+    result['unknown_pitch_overlays']=overlays
+    points=sorted({start,end}|{t for r in eligible for t in (r['start'],r['end'])});n=len(points);edge_count=n*(n-1)//2
+    result.update(partition_points_q=list(map(str,points)),candidate_edges=edge_count)
+    if edge_count>max_edges:return dict(result,status='NOT_RUN_RESOURCE_LIMIT',required_edges=edge_count)
+    cells=[];prefix=[[0]*12]
+    for a,b in zip(points,points[1:]):
+        active=[r for r in eligible if r['start']<=a<r['end']];uncertain_active=[r for r in unknown if r['start']<b and r['end']>a];weights=[0]*12
+        for row in active:
+            if row['pitch'] is not None and F(row['pitch']).denominator==1:weights[int(F(row['pitch'])%12)]+=1
+        prefix.append([x+y for x,y in zip(prefix[-1],weights)])
+        cells.append(dict(start_q=str(a),end_q=str(b),occurrence_refs=[r['occurrence_ref'] for r in active],
+                          unknown_overlapping_refs=[r['occurrence_ref'] for r in uncertain_active],
+                          already_active_at_request_refs=[r['occurrence_ref'] for r in active if r['started_before_request']],
+                          status='no_known_pitched_evidence' if not any(weights) else 'conditional_known_pitch_subset' if uncertain_active else 'known_written_pitch_evidence'))
+    # Predecessor lists retain ALL globally optimal boundary alternatives.
+    best=[0]+[None]*(n-1);predecessors=[[] for _ in range(n)];edge_cache={}
+    for stop in range(1,n):
+        for begin in range(stop):
+            weights=[b-a for a,b in zip(prefix[begin],prefix[stop])]
+            scores=harmonic_template_scores(weights) if any(weights) else []
+            local=max((r['score'] for r in scores),default=0)
+            edge_cache[begin,stop]=(local,weights,[r for r in scores if r['score']==local])
+            value=best[begin]+local
+            if best[stop] is None or value>best[stop]:best[stop]=value;predecessors[stop]=[begin]
+            elif value==best[stop]:predecessors[stop].append(begin)
+    path_count=[1]+[0]*(n-1)
+    for stop in range(1,n):path_count[stop]=sum(path_count[p] for p in predecessors[stop])
+    suffix=[0]*n;suffix[-1]=1
+    for stop in range(n-1,0,-1):
+        for begin in predecessors[stop]:suffix[begin]+=suffix[stop]
+    mandatory=[i for i in range(n) if path_count[i]*suffix[i]==path_count[-1]]
+    label_union=[{} for _ in cells];no_evidence=[False]*len(cells)
+    for stop in range(1,n):
+        if not suffix[stop]:continue
+        for begin in predecessors[stop]:
+            labels=edge_cache[begin,stop][2]
+            for cell_index in range(begin,stop):
+                if not labels:no_evidence[cell_index]=True
+                for label in labels:label_union[cell_index][label['root_pc'],label['kind']]=dict(root_pc=label['root_pc'],kind=label['kind'],formula=label['formula'])
+    consensus=[]
+    for i,cell in enumerate(cells):
+        labels=[label_union[i][key] for key in sorted(label_union[i])]
+        consensus.append(dict(start_q=cell['start_q'],end_q=cell['end_q'],candidate_labels=labels,no_pitched_evidence_possibility=no_evidence[i],
+                              status='unanimous_under_this_objective' if len(labels)==1 and not no_evidence[i] else 'ambiguous_under_this_objective' if labels else 'no_pitched_evidence',
+                              direct_evidence_status=cell['status']))
+    path=[];cursor=n-1
+    while cursor:
+        begin=min(predecessors[cursor]);score,weights,labels=edge_cache[begin,cursor]
+        refs=list(dict.fromkeys(ref for c in cells[begin:cursor] for ref in c['occurrence_refs']))
+        partial=[o['occurrence_ref'] for o in overlays if F(o['start_q'])<points[cursor] and F(o['end_q'])>points[begin]]
+        path.append(dict(start_index=begin,end_index=cursor,start_q=str(points[begin]),end_q=str(points[cursor]),score=score,pitch_class_note_cell_weights=weights,
+                         occurrence_refs=refs,unknown_overlapping_refs=partial,candidates=labels,status='no_known_pitched_evidence' if not labels else 'partial_known_pitch_scored_alternatives' if partial else 'conditional_scored_alternatives_not_adjudicated_chord'))
+        cursor=begin
+    return dict(result,status='SCORED_NOT_MUSICAL_TRUTH',minimal_cells=cells,optimal_score=best[-1],optimal_boundary_path_count=str(path_count[-1]),
+                path_count_scope='boundary_paths_NOT_full_chord_label_assignments',mandatory_boundary_indices=mandatory,all_optimal_path_cell_consensus=consensus,
+                optimal_predecessors=predecessors,canonical_display_path=list(reversed(path)),canonical_path_rule='minimum_predecessor_for_serialization_only_not_preferred_music',
+                unknown_regions=[dict(start_q=c['start_q'],end_q=c['end_q'],status=c['status']) for c in cells if c['status']!='known_written_pitch_evidence'])
+
+
 def validate(upper):
     if upper.get("schema") != "musical-context-relations/2" or type(upper.get("tier")) is not int or upper.get("tier") != 2:
         raise ValueError("Unsupported T2 interface")
@@ -620,6 +732,19 @@ def realize(upper):
     return result
 
 
+def _chord_coordinates(pitch,bass,candidates,status):
+    """Same pitch/root/register equation for start, overlap and inferred spans."""
+    coordinates=[]
+    if pitch is None:return coordinates
+    for candidate in candidates:
+        root=relation(pitch=bass,interval=candidate['bass_interval_pc'])['anchor']
+        distance=F(relation(anchor=root,pitch=pitch)['interval'])
+        coordinates.append(dict(root_pc=candidate['root_pc'],kind=candidate['kind'],root_register_reference=root,
+                                unwrapped_semitones=str(distance),semitones_mod12=str(distance%12),relative_octaves=int(distance//12),
+                                chord_member=distance%12 in candidate['formula'],reference_is_not_an_added_note=True,status=status))
+    return coordinates
+
+
 def note_context(upper, ident):
     """On-demand conditional coordinates, not a copied note stream per context."""
     validate(upper)
@@ -628,16 +753,7 @@ def note_context(upper, ident):
             if member["id"] != ident:
                 continue
             pitch = member_pitch(group, member)
-            coordinates = []
-            if pitch is not None:
-                for candidate in group["interpretation"]["chord_candidates"]:
-                    root_register = relation(pitch=group["bass_register_anchor"], interval=candidate["bass_interval_pc"])["anchor"]
-                    distance = F(relation(anchor=root_register, pitch=pitch)["interval"])
-                    coordinates.append(dict(root_pc=candidate["root_pc"], kind=candidate["kind"],
-                                            root_register_reference=root_register, reference_is_not_an_added_note=True,
-                                            unwrapped_semitones=str(distance), semitones_mod12=str(distance % 12), relative_octaves=int(distance // 12),
-                                            chord_member=distance % 12 in candidate["formula"],
-                                            status="conditional_on_candidate_not_a_note_function"))
+            coordinates = _chord_coordinates(pitch,group['bass_register_anchor'],group['interpretation']['chord_candidates'],'conditional_on_candidate_not_a_note_function')
             return dict(occurrence_ref=ident, coattack_ref=group["id"], onset_q=group["onset_q"], duration_q=member["duration_q"],
                         coordinates=coordinates, interval_of_note_base_key=None,
                         interval_of_note_current_chord_mode=None,
@@ -663,21 +779,48 @@ def note_context_at(upper, ident, at_q, ensemble_scope=False):
     evidence = span["ensemble_context"] if ensemble_scope else next((p for p in span["part_contexts"] if p["part_id"] == group["part_id"]), None)
     if evidence is None or ident not in evidence["occurrence_refs"]: raise ValueError("Note is not present at requested nominal time")
     pitches = [p for ref in evidence["occurrence_refs"] if (p := member_pitch(*index[ref])) is not None]
-    coordinates = []
-    if pitch is not None:
-        bass = min(map(F,pitches))
-        for candidate in evidence["interpretation"]["chord_candidates"]:
-            root = relation(pitch=bass, interval=candidate["bass_interval_pc"])["anchor"]
-            distance = F(relation(anchor=root,pitch=pitch)["interval"])
-            coordinates.append(dict(root_pc=candidate["root_pc"], kind=candidate["kind"], root_register_reference=root,
-                                    unwrapped_semitones=str(distance), semitones_mod12=str(distance%12),
-                                    relative_octaves=int(distance//12), chord_member=distance%12 in candidate["formula"],
-                                    reference_is_not_an_added_note=True,
-                                    status="conditional_on_nominal_overlap_candidate_not_note_function"))
+    coordinates = _chord_coordinates(pitch,min(map(F,pitches)) if pitches else None,evidence['interpretation']['chord_candidates'],'conditional_on_nominal_overlap_candidate_not_note_function')
     return dict(occurrence_ref=ident, span_ref=span["id"], at_q=at_q,
                 context_scope="ensemble" if ensemble_scope else "part", coordinates=coordinates,
                 interval_of_note_base_key=None, interval_of_note_current_chord_mode=None,
                 interpretation=evidence["interpretation"])
+
+
+def harmonic_note_context(upper,ident,evidence,begin,stop):
+    """One explicitly selected optimal-edge hypothesis, never hidden path choice."""
+    request=evidence.get('request',{})
+    expected=harmonic_span_evidence(upper,**request)
+    if not same(expected,evidence):raise ValueError('Stale harmonic refinement contradicts current relationships')
+    if evidence['status']!='SCORED_NOT_MUSICAL_TRUTH':raise ValueError('No scored harmonic hypothesis')
+    n=len(evidence['partition_points_q'])
+    if any(type(v) is not int for v in (begin,stop)) or not 0<=begin<stop<n:raise ValueError('Typed ordered edge indices required')
+    reachable={n-1};pending=[n-1]
+    while pending:
+        j=pending.pop()
+        for i in evidence['optimal_predecessors'][j]:
+            if i not in reachable:reachable.add(i);pending.append(i)
+    if stop not in reachable or begin not in evidence['optimal_predecessors'][stop]:raise ValueError('Edge is not on any optimal boundary path')
+    index={m['id']:(g,m) for g in upper['coattacks'] for m in g['members']}
+    group,member=index[ident];pitch=member_pitch(group,member)
+    a,b=map(F,(evidence['partition_points_q'][begin],evidence['partition_points_q'][stop]))
+    note_start=F(group['onset_q']);note_end=note_start+F(member['duration_q'])
+    refs=list(dict.fromkeys(ref for c in evidence['minimal_cells'][begin:stop] for key in ('occurrence_refs','unknown_overlapping_refs') for ref in c[key]))
+    if ident not in refs or max(a,note_start)>=min(b,note_end):raise ValueError('Note outside requested harmonic edge')
+    weights=[0]*12
+    for cell in evidence['minimal_cells'][begin:stop]:
+        for ref in cell['occurrence_refs']:
+            p=member_pitch(*index[ref])
+            if p is not None and F(p).denominator==1:weights[int(F(p)%12)]+=1
+    scores=harmonic_template_scores(weights) if any(weights) else [];best=max((r['score'] for r in scores),default=0)
+    candidates=[r for r in scores if r['score']==best]
+    pitches=[F(p) for ref in refs if (p:=member_pitch(*index[ref])) is not None]
+    bass=min(pitches) if pitches else None
+    for candidate in candidates:candidate['bass_interval_pc']=str((bass-candidate['root_pc'])%12) if bass is not None else None
+    return dict(occurrence_ref=ident,edge_ref=[begin,stop],context_start_q=str(max(a,note_start)),context_end_q=str(min(b,note_end)),
+                evidence_status='partial_known_pitch_evidence' if any(F(o['start_q'])<b and F(o['end_q'])>a for o in evidence['unknown_pitch_overlays']) else 'known_written_pitch_evidence',
+                coordinates=_chord_coordinates(pitch,bass,candidates,'conditional_on_scored_span_not_adjudicated_chord_or_function'),
+                reference_register_scope='lowest_written_pitch_anywhere_in_edge_not_simultaneous_bass',
+                edge_selection='explicit_one_of_retained_optimal_hypotheses',established_key=None,established_mode=None)
 
 
 def tonal_note_context(upper, ident, candidate_id, at_q=None, ensemble_scope=True):

@@ -159,3 +159,44 @@ membership, not established key, mode or melodic function.
 
 Full suite825tests:824pass/1optional skip; Vite build passes. Actual commands,
 private artifacts and independent Planner review are in the progress log.
+
+## Bounded chord-span refinement
+
+`harmonic_span_evidence(T2, start_q, end_q, part_id, max_edges)` consumes only
+the existing T2 relationships. It is an on-demand deterministic refinement,
+not a separate generator or a new pitch-owning tier.
+
+| Output | What it establishes |
+|---|---|
+| Nominal note-on/off boundaries | Possible harmonic boundaries; no forced bar cuts. Already-held notes are clipped to the request without inventing attacks. |
+| Segment scores | Published Pardo–Birmingham six-family/72-root baseline. Positive note-cell evidence minus negative evidence minus missing chord PCs. Cell counts, not duration weights. No stylistic tie breakers. |
+| Optimal predecessor DAG | Every equally optimal boundary path, stored compactly. Canonical path is serialization only, not preferred music. |
+| Mandatory boundaries | Boundaries present on every globally optimal path. Counts refer to boundary paths, not full chord-label assignments. |
+| Cell label consensus | Union of winning labels across every globally optimal covering edge, including no-evidence alternatives. `unanimous_under_this_objective` is not a confirmed chord. |
+| Unknown overlays | Exact unknown/noninteger-pitch intervals retained separately. They cannot multiply pitched evidence by splitting the scoring grid. Partial evidence is explicit. |
+| Conditional note context | Explicit optimal-edge selection; shared note/root/register equation. A held note can change chord-relative role without changing pitch. Stale analysis is rejected. |
+| Operational refusal | Invalid timing or excessive requested DAG edges produce explicit NOT_RUN status. No silent truncation or easier replacement. |
+
+The method combines sequential chord tones into spans: the controlled C–E–G
+arpeggio gains a C-major hypothesis despite no simultaneous triad. Repeated
+triads retain optional boundaries without forcing chord changes. Incomplete
+sonorities remain ambiguous; this vocabulary does not cover all guitar harmony.
+
+Three frozen annotated-reference diagnostics: canonical-path strict duration
+agreement87.5/86.5/74.1%, versus instantaneous exact sets76.9/84.6/71.9%.
+All-optimal-path consensus strict agreement86.3/81.7/72.3%. Out-of-vocabulary
+labels remain in denominators. These are qualified analyst-label comparisons,
+not general accuracy or musical quality. Exact boundary agreement is recorded
+separately; chord changes are not key changes.
+
+New random Static X54387/rev9800793:4181source occurrences reconstruct exactly;
+frozen first8source-frame requests cover part0 and ensemble. Independent raw
+source arithmetic verifies the DAG optimum, all optimal predecessors and
+canonical-edge labels/weights; actual isolated worker recomputes analysis AND
+inverse from strippedT2. Code/source hashes and frozen local code snapshots are
+retained privately. Planner approved this bounded method after fixing the
+unknown-grid leak and strengthening the freeze. Existing detectors are untouched.
+
+Still missing: justified local key/harmony-function inference, general modes,
+non-chord-note functions, sounding/tie-aware context, artist context, nonzero
+style-preserving choices, and full all-field/all-tier GP reconstruction.
