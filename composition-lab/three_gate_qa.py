@@ -261,12 +261,18 @@ def run(capture, selection_path, output, evidence=None):
         raise ValueError("Fresh output directory required; preserve failure history")
     output.mkdir(parents=True)
     evidence = {} if evidence is None else evidence
+    resources = evidence.get("resources") if isinstance(evidence, dict) else None
     lab = Path(__file__).resolve().parent
     execution_files = [Path(__file__), lab / "run_reversible_tier_qa.py",
                        lab / "check_reversible_source.py",
                        lab / "songsterr_automation/songsterr_api/source_semantics.py",
                        lab / "songsterr_automation/songsterr_api/analyze_relationships.py"]
     inputs = [selection_path, capture / "metadata.json", *sorted(capture.glob("track-*.json"))]
+    if resources is not None:
+        execution_files.append(lab / "source_resource_qa.py")
+        if isinstance(resources, dict):
+            inputs.extend(Path(resources[k]) for k in ("baseline_path", "supplemental_metadata", "supplemental_text")
+                          if isinstance(resources.get(k), str))
     frozen_paths = [p for p in execution_files + inputs if p.is_file()]
     frozen = {str(p.resolve()): digest(p) for p in frozen_paths}
     (output / "before-analysis-freeze.json").write_text(json.dumps(dict(
@@ -274,6 +280,20 @@ def run(capture, selection_path, output, evidence=None):
         note="Selected direct extractor/checker dependencies; not a transitive environment lock"), indent=2), encoding="utf-8")
     try:
         gate1 = portability(capture, selection_path)
+        if resources is not None:
+            if not isinstance(resources, dict) or "baseline_path" not in resources:
+                resource_result = result("FAIL", "Requested resource provenance", ["Invalid resource evidence request"])
+            elif set(resources) - {"baseline_path", "supplemental_metadata", "supplemental_text", "claims"}:
+                resource_result = result("FAIL", "Requested resource provenance", ["Undeclared resource evidence fields"])
+            else:
+                from source_resource_qa import audit as audit_resources
+                resource_result = audit_resources(capture, resources["baseline_path"],
+                                                 resources.get("supplemental_metadata"), resources.get("supplemental_text"),
+                                                 resources.get("claims"))
+            gate1["resource_provenance"] = resource_result
+            if resource_result["status"] != "PASS_PROVENANCE_ONLY":
+                gate1["status"] = "FAIL"
+                gate1["issues"].append("Requested source-resource provenance check failed")
     except Exception as error:
         gate1 = result("FAIL", "Source extraction", [type(error).__name__ + ": " + str(error)])
     changed = [p for p in frozen_paths if not p.is_file() or digest(p) != frozen[str(p.resolve())]]

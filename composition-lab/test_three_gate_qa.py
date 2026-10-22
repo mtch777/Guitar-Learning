@@ -38,7 +38,8 @@ def sign(c):
 class ThreeGateQATests(unittest.TestCase):
     def source_case(self, root):
         capture = root / "capture"; capture.mkdir()
-        (capture / "metadata.json").write_text(json.dumps(dict(songId=1, revisionId=2, tracks=[{}])))
+        (capture / "metadata.json").write_text(json.dumps(dict(songId=1, revisionId=2, tracks=[{}],
+                                                               artistId=2, artist="Fixture", title="Fixture", hasChords=True)))
         (capture / "track-0.json").write_text(json.dumps(dict(partId=0, tuning=[40], measures=[
             dict(signature=[4, 4], voices=[dict(beats=[dict(duration=[1, 1], notes=[dict(string=0, fret=3)])])])])))
         rng = random.Random(42)
@@ -64,6 +65,35 @@ class ThreeGateQATests(unittest.TestCase):
             self.assertFalse(report["completion_allowed"])
             frozen = json.loads((root / "qa/before-analysis-freeze.json").read_text())
             self.assertEqual(frozen["files"][str(selection.resolve())], digest(selection))
+
+    def test_resource_provenance_integrates_without_musical_promotion(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); capture, selection = self.source_case(root)
+            metadata, text, baseline = root / "supplement.json", root / "supplement.chordpro", root / "baseline.json"
+            metadata.write_text(json.dumps(dict(songId=1, artistId=2, artist="Fixture", title="Fixture", chordsRevisionId=3)))
+            text.write_text("[SyntheticChord] fixture without score time")
+            baseline.write_text(json.dumps(dict(original_hashes={p.name: digest(p) for p in capture.iterdir()},
+                                                separate_resource_hashes={p.name: digest(p) for p in (metadata, text)})))
+            resources = dict(baseline_path=str(baseline), supplemental_metadata=str(metadata), supplemental_text=str(text))
+            report = run(capture, selection, root / "good", dict(resources=resources))
+            gate = report["gates"]["1_portability"]
+            self.assertEqual(gate["status"], "PASS", gate)
+            self.assertEqual(gate["resource_provenance"]["alignment"], "UNKNOWN")
+            self.assertFalse(report["completion_allowed"])
+            self.assertEqual(report["gates"]["2_exact_reversal"]["status"], "NOT RUN")
+            frozen = json.loads((root / "good/before-analysis-freeze.json").read_text())
+            self.assertEqual(frozen["files"][str(baseline.resolve())], digest(baseline))
+            resources["claims"] = dict(automatic_time_alignment=True)
+            report = run(capture, selection, root / "bad", dict(resources=resources))
+            self.assertEqual(report["gates"]["1_portability"]["status"], "FAIL")
+
+    def test_malformed_resource_evidence_is_retained(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); capture, selection = self.source_case(root)
+            report = run(capture, selection, root / "qa", dict(resources=[]))
+            self.assertEqual(report["gates"]["1_portability"]["status"], "FAIL")
+            self.assertIn("independent_check", report["gates"]["1_portability"])
+            self.assertTrue((root / "qa/result.json").exists())
 
     def test_null_missing_false_zero_and_float_distinct(self):
         for a, b in (({}, {"x": None}), (False, 0), (1, 1.0), ([1], [1, 2])):

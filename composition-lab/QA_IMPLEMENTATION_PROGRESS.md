@@ -283,3 +283,64 @@ without a new decision; consolidate the already demonstrated context counterexam
 - Supplemental chord source verified against the exact public acquisition path;
   eight frozen notation files unchanged. Untimed supplemental chords are not timed
   ground truth. All raw public-page/chord resources and source score data private.
+
+## Tier2 acceptance consolidation — planning completed
+
+ProjectPlanner3000 saved TIER2_MUSICAL_ACCEPTANCE_MAP.md: source/coordinate facts,
+conditional key/chord/mode/note-role hypotheses, missing labels and exact inverse
+obligations are separate. Existing real-source cases include local/global context
+help AND hurt, incomplete/part-versus-ensemble sonorities, source repetitions,
+Sum41 missing timed labels and RoughBoy separate untimed resource. No new source
+truth, inference, tier implementation or musical acceptance was manufactured.
+
+Smallest next executable check: existing resource/source-address integrity and
+unknown/provenance assertions. Conditional interval/context checks require an
+actual approved candidate interface first; nested previous-tier/ownership checks
+cannot be claimed from the current flat adapter. Active inverse remains NOT RUN,
+meaningful-tier FAIL/PENDING, percentage levers unimplemented. More codecs/reports/
+benchmarks are not a substitute for a musical contract and same-relations inverse.
+
+Delivery checkpoint reported and independently queried by root:795c79a,
+CI39728372583SUCCESS. Installed reviewed worker guards are QA infrastructure only,
+not musical-tier acceptance. This consolidation changes documentation only; no
+new tests or model runs claimed. Next is a bounded real-interface contract/validation
+review, not another inference run or unreviewed engine implementation.
+
+
+## Source-resource QA integration
+
+- Implemented narrow actual-resource provenance guard and attached optional
+  evidence.resources to the existing Gate1 runner. It independently rehashes original
+  and supplemental files, checks typed song/artist/title identity, preserves distinct
+  revision identifiers and leaves alignment UNKNOWN. No inferred harmonic labels.
+- Planner implementation had a root-reproduced false pass: same metadata file could
+  also stand in for supplemental text. Fixed canonical-path and baseline-identity
+  collisions; independent regression tests now reject it. Nine resource tests pass.
+- Root added two integration tests: valid provenance never promotes musical/inverse
+  gates; unsupported timed-truth claims fail, while earlier extraction evidence remains
+  visible. Malformed resource evidence retains failure.40combined tests pass in
+  preparation workspace; installed-repo dependency freeze/full suite still to run.
+- Root and Planner independently reviewed actual8notation+2supplement files against
+  retained baseline. Provenance-only pass; no timed harmonic truth or source rewrite.
+- Updated owned QA files only after exact original-code hash checks; originals saved
+  privately before update. New guard/tests installed with explicit write escalation.
+  No source score, detector, converter, model, or musical engine was modified.
+
+
+## Installed resource guard verification
+
+-40targeted testsPASS; full785tests in16.140s:784PASS/1optionalSKIP.
+-Integrated unchanged RoughBoy run:5012sourceoccurrences exact; requested provenance
+  PASS_PROVENANCE_ONLY, supplemental alignment UNKNOWN, timed_truth_accepted=false.
+  Active inverse NOT RUN/musical-tier FAIL; CLI exits1 as intended, not a tool crash.
+-Explicit manifest assertions confirm installed extractor/checker/source_semantics/
+  analyze_relationships/resourceguard plus baseline and BOTH supplemental resources
+  are sealed. This resolves the preparation-workspace dependency-manifest limitation.
+-Planner independently reviewed integration and actual bytes. Root's alias falsePASS
+  was fixed and independently retested. Preservation/alignment report booleans never
+  replace byte hashes or time evidence. Source-resource guard changes no music.
+
+Next: keep source/meaning/inverse gate statuses distinct. Review remaining executable
+obligations only against actual interfaces. No additional reference runs without a
+specific unanswered decision; no copied source payloads, invented modes, revived
+codec or premature musical-tier implementation to make a gate green.
