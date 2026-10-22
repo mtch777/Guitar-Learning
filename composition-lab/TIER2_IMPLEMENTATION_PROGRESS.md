@@ -726,3 +726,41 @@ tonicization,function,chordmode orkey. Implementaftercurrentcommit/CI gate.
 Collection full871tests870PASS1optionalskip26.104s;bare871tests869PASS2skip26.102s.
 Acceptancecheckboxes core/global+temporal/motion/contrasts/native+raw+isolated/
 Plannerfulltests DONE. NextcommitpushCI. Existinglockedsource/techniques untouched.
+
+Collection8bfe08e deliveredmain, CI39842382929SUCCESS.
+
+## Explicit reference + harmonic context — START contract / midpoint
+Plannerstartapproved and jointreference-plan.json frozenBEFOREimplementation:
+EricJohnsonCliffsOfDover6701/rev9071983,3tracks,seed11284217123988564840/queryd.
+UniqueKSqueryreference1e-12 tiepolicyONLY. Everyownedpartvoice first3sourceaddresses,
+positive-durationmembers atmidpoints, graceexplicitunqueryable, no replacements.
+Hensemble coversfullminstart..maxend,50000cap. Resource/unknown/timingretained.
+
+Contract: ALLmarginalcoveringlabels retained (notCartesianjointassignments);
+existingjointmembershipvectors unchanged +onewitness each(existence,notuniqueness).
+CompleteHpackage/DAG/scoring inputs storedONCE withcanonicalSHA256/requestref.
+Global/partreferences respectpartscope; temporalreferences enforceactualqueryclock
+inframe. SAMEdegree/rootrelations, nonewscore/vocabulary/keyproduct. Controlled
+A#outsideBnaturalminor canbeF#majorchordmember; explicitF#minortheorynonmember
+isNOTassertionminorwins afteraddingA#toobservedsource. No function/modeinference.
+
+Acceptancechecklist:
+- [x] Purejointquery+stablecompleteHreference, scopes/unknowns/nonrunexplicit.
+- [x] Sharedpitch/chordmembershiphelper factored withouteligibilitychange;
+      jointMunchanged andallmarginals;5authoredcontrast/ambiguity/scope testsPASS.
+- [ ] Newfrozencapture source+nativeexplicitreference/independentHjoint checks.
+- [ ] ActualstrippedwholeT1+samequeryinverse, producer/sourceintegrity.
+- [ ] Planner midpoint/end +fulltests +owncommitpushCI.
+No humaninputneeded; nextsourceQA. Existingtechniquedetectors/conversionunchanged.
+
+Joint-reference v1 actual PASS, source/code unchanged. Fresh Cliffs Of Dover
+6701/rev9071983:3842source occurrences,192native profile comparisons, all3fixed
+ownedvoice triples. Pitched selected notes inside reference ANDchord; percussion
+unknown retained. Outside-reference/chordmember contrast controlledtest only.
+312resolved/11unresolved ties retained. Complete independent DAG+ALLfeasible
+jointvectors/marginals+native reference/sourceclocks/hash checks PASS.
+Actual -I -S worker, no source/lower input, reconstructs ENTIREownedT1 +SAMEstudy.
+Planner final independently rehashedfreeze/worker equality and5testsPASS:
+APPROVEDboundedQA3, no newblocker. No truekey/mode/function/audio/styleclaim.
+Full876tests875PASS1optionalskip26.449s;bare876tests874PASS2skip21.144s.
+Allremaining acceptance boxes above DONE except delivery commit/CI, next.

@@ -298,3 +298,31 @@ melodic refusals. Twelve parallel-reference contexts contain36note evaluations:
 native major/natural-minor checks cover3,072tonic/MIDI combinations;336published
 profile-score comparisons pass. The winning KS score chooses only a query reference;
 tied/undefined maxima remain inconclusive. No source key-accuracy claim follows.
+
+## Joint reference-collection and harmonic context
+
+`joint_reference_harmonic_context(T2, harmonic_evidence, queries, candidate_id)`
+joins existing relationships without introducing another score or chord vocabulary.
+
+| Stored relationship | Exact meaning |
+|---|---|
+| Explicit reference | Existing global, part or temporal candidate ID; never silently promoted to the true key. Temporal candidates apply only inside their actual frame. |
+| Note → reference | The SAME scale-degree/register equation; chromatic and unknown cases remain explicit. |
+| Note → chord | Every covering optimal chord label and its note membership. These are marginal possibilities, not independent choices that can be freely combined. |
+| Joint alternatives | Existing path-consistent membership vectors, with one whole-path witness per vector. A witness proves existence, not uniqueness or every possible label interpretation. |
+| Complete evidence | Full harmonic DAG/scoring package stored once, referenced by canonical SHA256 and exact request. The hash alone cannot replace that package. |
+| Unresolved meaning | Established key, mode, chord mode and harmonic function remain unset. No emotional intent is inferred. |
+
+A controlled A# against an explicit B-natural-minor reference is outside that
+collection while remaining a member of a supported F#-major chord. This does
+not prove B minor, harmonic minor, tonicization or a particular artistic intent.
+
+Fresh frozen Songsterr6701/rev9071983:3,842source occurrences match; the entire
+owned Tier1 and the same joint query output reconstruct from stripped Tier2 in
+the isolated worker. All three first-owned-voice triples remain; percussion
+queries retain unknown pitch. Independent checks verify192profile scores,
+the complete bounded harmonic DAG and feasible membership vectors, all marginal
+labels, native reference degrees, source clocks and stored evidence hashes.
+The source's312resolved and11unresolved explicit tie declarations are preserved.
+The selected pitched source notes happen to belong to both reference and chords;
+the outside-reference contrast is controlled-test evidence, not a source finding.

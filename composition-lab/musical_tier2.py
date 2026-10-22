@@ -910,7 +910,7 @@ def harmonic_membership_evidence(upper,evidence,queries):
                 updates={}
                 for k in covered:
                     pitch=query_values[k][1]
-                    updates[k]='unknown' if pitch is None or F(pitch).denominator!=1 or label is None else 'chord_member' if F(relation(anchor=label['root_pc'],pitch=pitch)['interval'])%12 in label['formula'] else 'nonmember'
+                    updates[k]=_chord_membership(pitch,label)
                 for previous in states[begin]:
                     current=tuple(updates.get(k,value) for k,value in enumerate(previous))
                     if current not in states[stop]:states[stop][current]=(begin,previous,None if label is None else dict(root_pc=label['root_pc'],kind=label['kind'],formula=label['formula']))
@@ -1228,3 +1228,59 @@ def collection_motion_context(upper,occurrence_refs,candidate_id):
                           status='eligible_mapped_reference_motion' if mapped and eligible else 'unmapped_reference_collection' if not mapped else 'source_sequence_interpretation_refused'))
     return dict(candidate_ref=candidate_id,tonal_scope_ref=scope['id'],reference_collection=candidate['reference_collection'],source_motion=motion,note_contexts=contexts,pairs=pairs,
                 established_key=None,established_mode=None,passing_tone=None,neighbor_tone=None,claim='Degrees and adjacent movement conditional on explicit reference, not authored spelling or musical function')
+
+
+def _chord_membership(pitch,label):
+    """The SAME pitch/root equation for joint vectors and marginal hypotheses."""
+    if pitch is None or F(pitch).denominator!=1 or label is None:return 'unknown'
+    return 'chord_member' if F(relation(anchor=label['root_pc'],pitch=pitch)['interval'])%12 in label['formula'] else 'nonmember'
+
+
+def joint_reference_harmonic_context(upper,evidence,queries,candidate_id):
+    """One explicit reference; preserve the complete harmonic package by hash.
+
+    Marginal labels are NOT a Cartesian set of jointly compatible assignments.
+    Existing joint vectors/witnesses retain their original meaning and limits.
+    """
+    validate(upper)
+    if type(queries) is not list or not 1<=len(queries)<=3:raise ValueError('One to three explicit note/time queries required')
+    found=[(scope,c,None,None) for scope in upper['tonal_evidence']['scopes'] for c in scope['candidates'] if c['id']==candidate_id]
+    temporal=upper['temporal_tonal_evidence']
+    if temporal is not None:
+        frames={f['id']:f for f in upper['measure_geometry']['frames']}
+        for scope in temporal['scopes']:
+            for record in scope['measures']:
+                for c in record['candidates']:
+                    if c['id']==candidate_id:
+                        frame=frames[record['frame_ref']];a=F(frame['start_q']);b=a+F(frame['duration_q'])
+                        found.append((scope,c,record['frame_ref'],[str(a),str(b)]))
+    if len(found)!=1:raise ValueError('One explicit existing tonal candidate required')
+    scope,candidate,frame_ref,time_span=found[0];request=evidence.get('request',{})
+    if not same(harmonic_span_evidence(upper,**request),evidence):raise ValueError('Stale harmonic evidence')
+    index={m['id']:(g,m) for g in upper['coattacks'] for m in g['members']};rows=[]
+    for query in queries:
+        if type(query) is not dict or set(query)!={'occurrence_ref','at_q'}:raise ValueError('Exact occurrence/time query required')
+        ident=query['occurrence_ref'];at=fraction(query['at_q']);group,member=index[ident];a=F(group['onset_q']);b=a+F(member['duration_q'])
+        if not a<=at<b or not F(request['start_q'])<=at<F(request['end_q']):raise ValueError('Query outside half-open written note/harmonic request')
+        if request['part_id'] not in (None,group['part_id']) or (scope['id']!='song-pooled' and scope['id']!=f"part:{group['part_id']}"):raise ValueError('Note outside harmonic or tonal part scope')
+        if time_span is not None and not F(time_span[0])<=at<F(time_span[1]):raise ValueError('Query outside temporal tonal candidate frame')
+        pitch=member_pitch(group,member)
+        context=_candidate_note_context(upper,ident,group,member,pitch,scope['id'],candidate,None,True)
+        coordinate=context['interval_of_note_base_key_candidate']
+        state='unknown' if pitch is None or F(pitch).denominator!=1 else 'in_reference_collection' if coordinate['in_reference_collection'] else 'outside_reference_collection'
+        marginal=None
+        if evidence['status']=='SCORED_NOT_MUSICAL_TRUTH':
+            cell=next(c for c in evidence['all_optimal_path_cell_consensus'] if F(c['start_q'])<=at<F(c['end_q']))
+            marginal=dict(cell_span_q=[cell['start_q'],cell['end_q']],labels=[dict(label,note_membership=_chord_membership(pitch,label)) for label in cell['candidate_labels']],no_pitched_evidence_possibility=cell['no_pitched_evidence_possibility'],scope='Marginal possibilities only; do not independently combine labels across queries')
+        rows.append(dict(occurrence_ref=ident,at_q=query['at_q'],reference_coordinates=coordinate,reference_membership=state,marginal_harmonic_context=marginal))
+    digest=hashlib.sha256(json.dumps(evidence,sort_keys=True,separators=(',',':'),allow_nan=False).encode('utf-8')).hexdigest()
+    membership=harmonic_membership_evidence(upper,evidence,queries) if evidence['status']=='SCORED_NOT_MUSICAL_TRUTH' else None
+    combined=[]
+    if membership is not None:
+        for vector in membership['feasible_membership_vectors']:
+            combined.append([dict(occurrence_ref=row['occurrence_ref'],at_q=row['at_q'],reference_membership=row['reference_membership'],chord_membership=value) for row,value in zip(rows,vector['memberships'])])
+    return dict(status='CONDITIONAL_JOINT_CONTEXT' if membership is not None else 'HARMONIC_ANALYSIS_NOT_RUN',reference=dict(candidate_ref=candidate_id,scope_ref=scope['id'],frame_ref=frame_ref,time_span_q=time_span,reference_collection=candidate['reference_collection'],scores={k:candidate[k] for k in ('score','raw_score','smoothed_score','score_type') if k in candidate}),
+                harmonic_evidence_ref=dict(sha256=digest,request=deepcopy(request),requirement='Complete matching harmonic package/DAG/scoring inputs must remain stored once'),queries=rows,
+                joint_membership=membership,combined_membership_vectors=combined,harmonic_status=evidence['status'],
+                interpretation_limits='Labels are marginals; vectors are jointly feasible; each witness proves existence, not uniqueness or every chord-label interpretation',
+                established_key=None,established_mode=None,harmonic_function=None,chord_mode=None)

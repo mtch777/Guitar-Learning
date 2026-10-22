@@ -60,6 +60,20 @@ def check(raw,evidence,membership=None,owned_occurrences=None):
         # Reuse INDEPENDENTLY computed labels above, not producer helper scores.
         # Each witness uses one label per edge for all queried occurrences.
         queries=membership['queries'];vectors=membership['feasible_membership_vectors'];seen=set()
+        if not 1<=len(queries)<=3:raise ValueError('Independent joint oracle is bounded to three queries')
+        states=[set() for _ in points];states[0].add(tuple('not_visited' for _ in queries));form_by_kind=dict(forms)
+        for stop in range(1,len(points)):
+            if not remaining[stop]:continue
+            for begin in pred[stop]:
+                for label in labels[begin,stop] or {None}:
+                    updates={}
+                    for slot,query in enumerate(queries):
+                        at=F(query['at_q'])
+                        if not points[begin]<=at<points[stop]:continue
+                        note=owned_occurrences[query['occurrence_ref']];pitch=None if note['pitch'] is None else F(note['pitch'])
+                        updates[slot]='unknown' if pitch is None or pitch.denominator!=1 or label is None else 'chord_member' if (pitch-label[0])%12 in form_by_kind[label[1]] else 'nonmember'
+                    for old in states[begin]:states[stop].add(tuple(updates.get(slot,value) for slot,value in enumerate(old)))
+        if {tuple(v['memberships']) for v in vectors}!=states[-1]:issues.append('Complete independent joint membership inventory differs')
         if not vectors:issues.append('Empty joint membership inventory')
         for vector in vectors:
             values=tuple(vector['memberships']);witness=vector['one_valid_path_and_label_witness']
@@ -80,4 +94,4 @@ def check(raw,evidence,membership=None,owned_occurrences=None):
                 if len(covering)!=1:issues.append('Joint query has no unique witness edge');expected.append('invalid');continue
                 label=covering[0]['label'];expected.append('unknown' if p is None or p.denominator!=1 or label is None else 'chord_member' if (p-label['root_pc'])%12 in label['formula'] else 'nonmember')
             if list(values)!=expected:issues.append('Raw joint membership differs')
-    return dict(status='FAIL' if issues else 'PASS',issues=issues,independently_computed_template_scores=comparisons,source_partition_points=len(points),scope='Raw nominal intervals; compares whole DAG optimum/predecessors and canonical-edge scores/labels, not every producer template row or chord truth',**({'joint_membership_witnesses_checked':len(membership['feasible_membership_vectors'])} if membership is not None else {}))
+    return dict(status='FAIL' if issues else 'PASS',issues=issues,independently_computed_template_scores=comparisons,source_partition_points=len(points),scope='Raw nominal intervals; compares whole DAG optimum/predecessors and canonical-edge scores/labels, not every producer template row or chord truth',**({'joint_membership_witnesses_checked':len(membership['feasible_membership_vectors']),'independently_verified_joint_membership_vectors':len(states[-1])} if membership is not None else {}))
