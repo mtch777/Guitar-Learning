@@ -55,35 +55,12 @@ def solve_links(links,ctx,required,extra_equations=(),extra_known=None):
 
 
 def analyze(physical_upper,true_ids):
-    ctx=context(physical_upper);lanes=defaultdict(lambda:defaultdict(list));links=[];unresolved=[]
-    for ident,row in ctx.items():
-        if row["duration"]<=0:
-            if ident in true_ids:unresolved.append(dict(destination=ident,reason="zero_metric_duration"))
-        elif row["lane"] is None:
-            if ident in true_ids:unresolved.append(dict(destination=ident,reason="invalid_string_lane"))
-        else:lanes[row["lane"]][row["onset"]].append(row)
-    for groups in lanes.values():
-        previous=None
-        for q,group in sorted(groups.items()):
-            if len(group)!=1:
-                unresolved.extend(dict(destination=r["id"],reason="ambiguous_lane_onset") for r in group if r["id"] in true_ids)
-                previous=None;continue
-            row=group[0]
-            if row["id"] in true_ids:
-                reason=("no_predecessor" if previous is None else
-                        "noncontiguous" if previous["onset"]+previous["duration"]!=q else
-                        "unmapped_position" if previous["kind"]!="pitched_position" or row["kind"]!="pitched_position" or previous["position"] is None or row["position"] is None else
-                        "invalid_written_position" if not previous["valid_position"] or not row["valid_position"] else
-                        "dead_transition" if previous["dead"]!=row["dead"] else
-                        "different_written_position" if previous["position"]!=row["position"] else None)
-                if reason:unresolved.append(dict(destination=row["id"],reason=reason))
-                else:links.append(dict(origin=previous["id"],destination=row["id"],kind="written_dead_tie" if row["dead"] else "written_pitched_tie"))
-            previous=row
-    links=sorted(links,key=lambda r:r["destination"]);unresolved=sorted(unresolved,key=lambda r:r["destination"])
-    if {x["destination"] for x in links+unresolved}!=set(true_ids):raise ConstraintError("Tie ownership incomplete")
+    from musical_tier2 import written_tie_edges
+    ctx=context(physical_upper)
+    try:links,unresolved=written_tie_edges(ctx,true_ids)
+    except ValueError as exc:raise ConstraintError(str(exc)) from exc
     solve_links(links,ctx,[])
     return links,unresolved
-
 
 def strip_coordinates(model,removed):
     rows={r["id"]:r for r in realize_numeric(model)}

@@ -286,11 +286,12 @@ def materialized_source_keys(upper):
 
 def analyze(tier1):
     """Consumes ONLY T1; published theory vocabulary is versioned shared code."""
-    geometry_owned=tier1.get("schema")=="normalized-written-context-facts/3"
+    ties_owned=tier1.get('schema')=='normalized-written-tie-context/4'
+    geometry_owned=ties_owned or tier1.get("schema")=="normalized-written-context-facts/3"
     extended=geometry_owned or tier1.get("schema")=="normalized-written-and-declared-keys/2"
-    required=TOP_FIELDS|({"source_key_declarations","source_key_inventory"} if extended else set())|({"measure_geometry"} if geometry_owned else set())
-    expected_scope="written_context_facts_geometry_and_optional_source_keys" if geometry_owned else "base_pitch_metric_time_and_source_key_declarations" if extended else "base_pitch_and_metric_onset_duration_only"
-    if set(tier1)!=required or type(tier1["tier"]) is not int or tier1["tier"]!=1 or tier1["schema"] not in ("normalized-written-fields/1","normalized-written-and-declared-keys/2","normalized-written-context-facts/3") or tier1["scope"]!=expected_scope:
+    required=TOP_FIELDS|({"source_key_declarations","source_key_inventory"} if extended else set())|({"measure_geometry"} if geometry_owned else set())|({'tie_notation'} if ties_owned else set())
+    expected_scope='written_context_geometry_keys_and_tie_notation' if ties_owned else "written_context_facts_geometry_and_optional_source_keys" if geometry_owned else "base_pitch_metric_time_and_source_key_declarations" if extended else "base_pitch_and_metric_onset_duration_only"
+    if set(tier1)!=required or type(tier1["tier"]) is not int or tier1["tier"]!=1 or tier1["schema"] not in ("normalized-written-fields/1","normalized-written-and-declared-keys/2","normalized-written-context-facts/3",'normalized-written-tie-context/4') or tier1["scope"]!=expected_scope:
         raise ValueError("Unsupported T1 interface; no implicit field loss")
     coverage(tier1["source_coverage"])
     events = tier1["events"]
@@ -334,6 +335,7 @@ def analyze(tier1):
         output["source_keys"].pop("inventory")
         output["source_keys"]["inventory_ref"]="measure_geometry"
     output["temporal_tonal_evidence"] = temporal_tonal_evidence(groups,output["measure_geometry"])
+    if ties_owned:output['written_ties']=lift_written_ties(tier1['tie_notation'],output)
     # SAME relation checks operate on observed analysis and stripped reconstruction.
     validate(output)
     return output
@@ -616,11 +618,11 @@ def harmonic_span_evidence(upper,start_q,end_q,part_id=None,max_edges=50000):
 def validate(upper):
     if upper.get("schema") != "musical-context-relations/2" or type(upper.get("tier")) is not int or upper.get("tier") != 2:
         raise ValueError("Unsupported T2 interface")
-    allowed = {"tier", "schema", "input", "theory", "coattacks", "realization_order", "source_quality", "lower_scope", "ensemble_coattacks", "nominal_written_spans", "tonal_evidence", "source_keys", "measure_geometry", "temporal_tonal_evidence"}
+    allowed = {"tier", "schema", "input", "theory", "coattacks", "realization_order", "source_quality", "lower_scope", "ensemble_coattacks", "nominal_written_spans", "tonal_evidence", "source_keys", "measure_geometry", "temporal_tonal_evidence",'written_ties'}
     if set(upper) - allowed:
         raise ValueError("Undeclared upper payload")
     coverage(upper["source_quality"])
-    if upper["lower_scope"] not in ("base_pitch_and_metric_onset_duration_only","base_pitch_metric_time_and_source_key_declarations","written_context_facts_geometry_and_optional_source_keys"): raise ValueError("Unsupported lower scope")
+    if upper["lower_scope"] not in ("base_pitch_and_metric_onset_duration_only","base_pitch_metric_time_and_source_key_declarations","written_context_facts_geometry_and_optional_source_keys",'written_context_geometry_keys_and_tie_notation'): raise ValueError("Unsupported lower scope")
     if not same(upper["theory"], THEORY_PROVENANCE):
         raise ValueError("Theory version mismatch")
     identities = []
@@ -673,7 +675,8 @@ def validate(upper):
 
     if not same(tonal_evidence(upper["coattacks"]), upper["tonal_evidence"]):
         raise ValueError("Tonal evidence conflicts with shared pitch/duration relationships")
-    geometry_owned=upper["lower_scope"]=="written_context_facts_geometry_and_optional_source_keys"
+    ties_owned=upper['lower_scope']=='written_context_geometry_keys_and_tie_notation'
+    geometry_owned=ties_owned or upper["lower_scope"]=="written_context_facts_geometry_and_optional_source_keys"
     if geometry_owned:
         geometry_relation(parameters=upper["measure_geometry"])
         inventory=geometry_inventory(upper["measure_geometry"])
@@ -694,6 +697,10 @@ def validate(upper):
                 if occurrence["onset_q"]!=upper["measure_geometry"]["frames"][occurrence["bar"]-1]["start_q"]: raise ValueError("Declaration clock conflicts with owned geometry")
     elif upper["source_keys"] is not None: raise ValueError("Source keys outside declared lower scope")
     if not same(temporal_tonal_evidence(upper["coattacks"],upper["measure_geometry"]),upper["temporal_tonal_evidence"]): raise ValueError("Temporal evidence conflicts with shared pitch/duration/frame relationships")
+    if ties_owned:
+        model=upper['written_ties'];notation=restore_written_ties(model)
+        if not same(lift_written_ties(notation,upper),model):raise ValueError('Written tie graph conflicts with SAME source relations')
+    elif 'written_ties' in upper:raise ValueError('Tie notation outside declared T1 scope')
     if "input" in upper and not same(upper["input"], realize(upper)):
         raise ValueError("Nested lower tier conflicts with its higher relationships")
 
@@ -729,6 +736,8 @@ def realize(upper):
     if upper["measure_geometry"] is not None:
         result.update(schema="normalized-written-context-facts/3", measure_geometry=geometry_relation(parameters=upper["measure_geometry"])["source"],source_key_inventory=geometry_inventory(upper["measure_geometry"]))
         if upper["source_keys"] is None: result["source_key_declarations"]=None
+    if upper['lower_scope']=='written_context_geometry_keys_and_tie_notation':
+        result.update(schema='normalized-written-tie-context/4',tie_notation=restore_written_ties(upper['written_ties']))
     return result
 
 
@@ -1021,3 +1030,118 @@ def transpose(upper, semitones):
     changed["temporal_tonal_evidence"] = temporal_tonal_evidence(changed["coattacks"],changed["measure_geometry"])
     validate(changed)
     return changed
+
+
+def written_tie_edges(ctx,true_ids):
+    """Accepted written-lane eligibility, shared by legacy and musical contexts."""
+    lanes=defaultdict(lambda:defaultdict(list));links=[];unresolved=[]
+    for ident,row in ctx.items():
+        if row["duration"]<=0:
+            if ident in true_ids:unresolved.append(dict(destination=ident,reason="zero_metric_duration"))
+        elif row["lane"] is None:
+            if ident in true_ids:unresolved.append(dict(destination=ident,reason="invalid_string_lane"))
+        else:lanes[row["lane"]][row["onset"]].append(row)
+    for groups in lanes.values():
+        previous=None
+        for q,group in sorted(groups.items()):
+            if len(group)!=1:
+                unresolved.extend(dict(destination=r["id"],reason="ambiguous_lane_onset") for r in group if r["id"] in true_ids)
+                previous=None;continue
+            row=group[0]
+            if row["id"] in true_ids:
+                reason=("no_predecessor" if previous is None else
+                        "noncontiguous" if previous["onset"]+previous["duration"]!=q else
+                        "unmapped_position" if previous["kind"]!="pitched_position" or row["kind"]!="pitched_position" or previous["position"] is None or row["position"] is None else
+                        "invalid_written_position" if not previous["valid_position"] or not row["valid_position"] else
+                        "dead_transition" if previous["dead"]!=row["dead"] else
+                        "different_written_position" if previous["position"]!=row["position"] else None)
+                if reason:unresolved.append(dict(destination=row["id"],reason=reason))
+                else:links.append(dict(origin=previous["id"],destination=row["id"],kind="written_dead_tie" if row["dead"] else "written_pitched_tie"))
+            previous=row
+    links=sorted(links,key=lambda r:r["destination"]);unresolved=sorted(unresolved,key=lambda r:r["destination"])
+    if {x["destination"] for x in links+unresolved}!=set(true_ids):raise ValueError("Tie ownership incomplete")
+    return links,unresolved
+
+
+def written_tie_context(notation,upper):
+    """Minimum exact source declarations -> accepted written-lane predicate.
+
+    Position is tuning+capo+fret, never a claimed acoustic frequency. No
+    second onset/duration/base-pitch stream is stored in notation.
+    """
+    if type(notation) is not dict or set(notation)!={'parts','occurrences'}:raise ValueError('Exact tie notation owners required')
+    settings={}
+    for row in notation['parts']:
+        if type(row) is not dict or set(row)!={'part_id','fields'} or type(row['part_id']) is not int or row['part_id'] in settings or type(row['fields']) is not dict or set(row['fields'])-{'instrumentId','tuning','capo'}:raise ValueError('Invalid tie settings')
+        values=row['fields']
+        for key in ('instrumentId','capo'):
+            if values.get(key) is not None:
+                if type(values[key]) not in (int,float):raise ValueError('Unsupported numeric setting')
+                F(str(values[key]))
+        tuning=values.get('tuning')
+        if tuning is not None and (type(tuning) is not list or any(type(p) not in (int,float) for p in tuning)):raise ValueError('Unsupported source tuning')
+        if tuning is not None:
+            for pitch in tuning:F(str(pitch))
+        settings[row['part_id']]=values
+    if set(settings)!=set(range(upper['source_quality']['tracks'])):raise ValueError('Tie settings part coverage mismatch')
+    index={m['id']:(g,m) for g in upper['coattacks'] for m in g['members']};ctx={};true=set()
+    for row in notation['occurrences']:
+        if type(row) is not dict or set(row)!={'occurrence_ref','fields'} or row['occurrence_ref'] not in index or row['occurrence_ref'] in ctx or type(row['fields']) is not dict or set(row['fields'])-{'string','fret','dead','tie'}:raise ValueError('Invalid tie occurrence ownership')
+        ident=row['occurrence_ref'];values=row['fields'];group,member=index[ident];part=settings[group['part_id']]
+        for key in ('string','fret'):
+            if values.get(key) is not None:
+                if type(values[key]) not in (int,float):raise ValueError('Unsupported source position')
+                F(str(values[key]))
+        if values.get('dead') is not None and type(values['dead']) is not bool:raise ValueError('Unsupported dead declaration')
+        if values.get('tie') is not None and type(values['tie']) not in (bool,int,float,str):raise ValueError('Unsupported tie scalar')
+        if type(values.get('tie')) is float:F(str(values['tie']))
+        string=values.get('string');fret=values.get('fret');tuning=part.get('tuning');position=None
+        lane=(group['part_id'],member['voice'],string) if type(string) is int and string>=0 else None
+        if part.get('instrumentId')!=1024 and type(string) is int and tuning is not None and 0<=string<len(tuning) and type(fret) in (int,float):
+            position=F(str(tuning[string]))+F(str(part.get('capo') or 0))+F(str(fret))
+        pitch=member_pitch(group,member)
+        if values.get('dead') is True and pitch is not None:raise ValueError('Dead notation conflicts with owned unknown base pitch')
+        if values.get('dead') is not True and position is not None and pitch is not None and position!=F(pitch):raise ValueError('Physical position conflicts with shared pitch relation')
+        ctx[ident]=dict(id=ident,lane=lane,onset=F(group['onset_q']),duration=F(member['duration_q']),position=position,kind='pitched_position' if position is not None else 'unmapped_position',valid_position=type(fret) in (int,float) and fret>=0,dead=values.get('dead') is True)
+        if values.get('tie') is True:true.add(ident)
+    if set(ctx)!=set(index):raise ValueError('Tie notation note coverage mismatch')
+    return ctx,true
+
+
+def lift_written_ties(notation,upper):
+    ctx,true=written_tie_context(notation,upper);links,unresolved=written_tie_edges(ctx,true)
+    # Exact explicit true declarations are represented by relationship ownership;
+    # all missing/null/false/other scalar choices remain exact physical witnesses.
+    physical=deepcopy(notation)
+    for row in physical['occurrences']:
+        if row['occurrence_ref'] in true:row['fields'].pop('tie')
+    return dict(schema='written-tie-context/1',physical_choices=physical,links=links,unresolved=unresolved,
+                semantics='Explicit written continuation only; no acoustic sustain or verified attack claim')
+
+
+def restore_written_ties(model):
+    if type(model) is not dict or set(model)!={'schema','physical_choices','links','unresolved','semantics'} or model['schema']!='written-tie-context/1' or model['semantics']!='Explicit written continuation only; no acoustic sustain or verified attack claim':raise ValueError('Unsupported written tie model')
+    notation=deepcopy(model['physical_choices']);rows={r['occurrence_ref']:r for r in notation['occurrences']};seen=set()
+    for link in model['links']+model['unresolved']:
+        ident=link['destination']
+        if ident not in rows or ident in seen or 'tie' in rows[ident]['fields']:raise ValueError('Duplicate/invalid tie declaration ownership')
+        rows[ident]['fields']['tie']=True;seen.add(ident)
+    return notation
+
+
+def written_tie_chains(upper):
+    """References and derived nominal endpoints; original occurrences preserved."""
+    validate(upper)
+    if 'written_ties' not in upper:raise ValueError('Tie declarations outside owned scope')
+    index={m['id']:(g,m) for g in upper['coattacks'] for m in g['members']};links=upper['written_ties']['links']
+    next_note={link['origin']:link['destination'] for link in links};destinations={link['destination'] for link in links};unresolved={r['destination'] for r in upper['written_ties']['unresolved']};chains=[]
+    for origin in next_note:
+        if origin in destinations:continue
+        refs=[origin]
+        while refs[-1] in next_note:refs.append(next_note[refs[-1]])
+        first,_=index[origin];last,member=index[refs[-1]];a=F(first['onset_q']);b=F(last['onset_q'])+F(member['duration_q'])
+        uncertain=any(index[i][0]['timing_uncertain'] for i in refs)
+        chains.append(dict(origin_ref=origin,occurrence_refs=refs,onset_q=str(a),written_end_q=str(b),nominal_span_q=str(b-a),origin_has_unresolved_incoming_tie=origin in unresolved,
+                           source_timing_uncertain=uncertain,context_eligibility='quarantined_source_timing_uncertain' if uncertain else 'eligible_declared_nominal_continuity',
+                           kind=next(link['kind'] for link in links if link['origin']==origin)))
+    return dict(chains=chains,unresolved=deepcopy(upper['written_ties']['unresolved']),semantics='Declared nominal written continuity; not acoustic sustain, not new attacks')

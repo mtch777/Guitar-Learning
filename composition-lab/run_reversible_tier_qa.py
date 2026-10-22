@@ -98,7 +98,8 @@ def _run(capture,output,topology=False,positions=False,annotations=False,ties=Fa
         upper=encode_rhythm(upper)
     highest=upper
     isolated=output/"isolated";isolated.mkdir()
-    for filename in ("reversible_relationships.py","reverse_tier_worker.py","reversible_topology.py","reversible_positions.py","reversible_annotations.py","reversible_ties.py","reversible_voicings.py","reversible_temporal.py","reversible_song.py","reversible_control.py","reversible_numeric_view.py","reversible_written_clock.py","reversible_rhythm.py"):shutil.copyfile(Path(__file__).parent/filename,isolated/filename)
+    for filename in ("musical_tier2.py","reversible_relationships.py","reverse_tier_worker.py","reversible_topology.py","reversible_positions.py","reversible_annotations.py","reversible_ties.py","reversible_voicings.py","reversible_temporal.py","reversible_song.py","reversible_control.py","reversible_numeric_view.py","reversible_written_clock.py","reversible_rhythm.py"):shutil.copyfile(Path(__file__).parent/filename,isolated/filename)
+    (output/"isolated-code-hashes.json").write_text(json.dumps({p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in isolated.glob("*.py")},indent=2),encoding="utf-8")
     (isolated/"tier2-only.json").write_text(json.dumps(upper,indent=2),encoding="utf-8")
     # These copied files are the only task inputs available to the audited worker.
     command=[sys.executable,"-I","-S",str((isolated/"reverse_tier_worker.py").resolve()),str((isolated/"tier2-only.json").resolve()),str((isolated/"reconstructed.json").resolve()),str((isolated/"read-audit.json").resolve())]

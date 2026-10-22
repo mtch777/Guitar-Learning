@@ -509,3 +509,96 @@ artifact inspection and independently10testsPASS. Full847tests:846PASS1optionalS
 Next recommended: narrowly connect owned source tie declarations/validated written
 continuations to musical contexts; no acoustic sustain/attack inference, no broad
 metadata codec project, no reopening pedals. Start review before implementation.
+
+Delivered notecontext8c553ee main; CI39835747211SUCCESS. No Pages changes.
+
+## Written tie-context endeavor — START, before implementation
+Planner approved narrow ownership: T1 exact tie/string/fret/dead declarations,
+only instrument/tuning/capo settings required by accepted predicate. T2 refs existing
+occurrences, no second pitch/time stream, exact true flags elevated to links/unresolved.
+Do not remove destination coordinates yet. No acoustic attack/sustain claim, no
+codec revival or generic metadata expansion. Preserve old detector behavior.
+
+Acceptance checklist:
+- [ ] Inventory actual fields consumed by accepted written-tie predicate.
+- [ ] Factor pure eligibility shared with existing detector; differential tests.
+- [ ] Optional exact T1 notation/settings -> T2 tie graph, same shared equations
+      and strict typed declarations roundtrip; all current schemas unaffected.
+- [ ] Named written-chain context vs existing written-occurrence context; tied
+      segments vs untied repeats, gaps/voice/dead/unknown/ambiguity contrasts.
+- [ ] New random song frozen preanalysis + actual-source chains/unresolved checks;
+      stripped isolated same inverse, independent Planner midpoint/end.
+- [ ] Full tests, commit/push verifiedsource, actual CI. Never publish raw scores.
+
+Fresh frozen Muse Time Is Running Out87577/rev9575540,10tracks. Acquisition initially
+assumed metadata tracks own partId, failed. Public CLI uses CDN enumerated indices;
+resumed SAME revision/no reroll, raw metadata unchanged; failure retained privately.
+No Tier2 analysis on new capture yet. New capture selection/source private under
+musical-tier2-tie-fresh-v1. Numb655has0ties; StaticX4181has113true;REM11205has1217;
+ChopSuey8719has138. Missing declarations remain distinct from acoustic attacks.
+
+Written tie field inventory established: accepted predicate consumes lane(track,
+voice,string), nominal position(tuning+capo+fret with percussion domain exclusion),
+position validity(nonnegative fret), explicit dead equality, explicit true tie,
+positive duration, exact adjacency and unique neighboring lane-onsets. Source
+bar/voice membership and pitch/time already owned; only physical/declaration facts
+added. Pure written_tie_edges factored into shared core; legacy caller retains
+existing solve_links validation and exception compatibility. No coordinate removal.
+
+Optional T1 schema4 exact raw parts settings and note fields -> T2physicalchoices
+plus trueflags elevated to links/unresolved; inverse reuses same sharedpredicate,
+restores exactflags; missing/null/false/numeric1 distinguished. Shared physical
+position/basepitch consistency; source occurrence coordinates unchanged. Named
+written_tie_chains derives originalIDs/endpoints/nominalextent, preserves unresolved
+incoming origins and timing uncertainty, never verified attacks or acoustic sustain.
+
+Planner midpoint independently6new+10legacytestsPASS, architectureapproved.
+Requested timingquarantine + independent raw added-fieldpresence/type/value checks.
+Added both;8newtestsPASS. Initial actualtie QA-v1 PASS: freshMuse7629notes,
+183trueflags183resolved63chains; StaticX4181/113/113/107; REM11205/1217/1217/1189.
+All stripped isolated sharedinverse+chainquery and rawsource checksPASS, code/source
+unchanged. No actualunresolvedcases in these3; notclaimed. Added prior targeteddead
+regressions1161150 and959603 to v2 (originalprobe rawcaptures, no source mutations),
+run now. No human inputneeded. Next explicit note-to-chain/context relationship,
+then final QA/Planner/fulltests/commit. Preserve existing written contexts.
+
+Planner timingquarantine and independent literal presence/type/value checks added;
+8newtestsPASS. Actualtie QA-v2 technicalPASS, allcode/sourceunchanged.5captures:
+Muse7629notes183true63chains;StaticX4181/113/107;REM11205/1217/1189;
+deadprobe11611503918/267/244;deadprobe9596032302/56/55. All1836true flags
+mechanically resolved under acceptedpredicate;0actual unresolved in these5, not
+claimedotherwise.13deadnotation chains retained explicitlyunpitched. Total29235
+originalnote occurrences, no coordinatesremoved. Alladdedphysicalsettings/occurrence
+fieldpresence/type/value independently compared to rawsource. All chain endpoints
+and extent independently compared, actualstrippedsource workerreconstructs T1+
+chains with SAMEcode. v3 adds actual5I/Odenialchallenges onnewcapture; running.
+Fullinstalled/baretests running. No needforuserinput.
+
+Full855tests exposed13historical-isolation regressions (6failures/7errors): old
+worker explicitstaging omitted newpurepredicate dependency musical_tier2.py.
+Original failures retained ties-full-tests.txt/ties-bare-tests.txt. Planner chose
+minimal exactstaging/readallowlist/hash fix, not newcodegenerationlayer. Added
+ONLY musical_tier2.py to legacy stagedfiles/workerreadallowlist/corpuscodehashes;
+parentrecords exactstagedcodehashes. No broaderrepo/source/cache/networkaccess.
+Targeted8legacytierQA+7corpusQA tests nowPASS. Fullretets/v4real-source rerun
+withall5captures nowactive. No musicaleligibility changed. No userinputneeded.
+
+Written tie slice final: PlannerAPPROVED actualv4 + independently8testsPASS.
+v5replay after EOFwhitespacecleanup also technicalPASS all5captures, source/code
+unchanged;5actualI/OdenialsPASS. Full855tests854PASS1optionalskip22.068s;
+bare855tests853PASS2skip22.064s. All13historicalregressions repaired, retained
+originalfailures. gitdiffcheckPASS. Originalfields/techniques/pedaldetectors intact.
+No acoustic/listening/artistquality claims. Allsource-derivedartifacts private.
+
+Acceptance checklist closure: fieldinventory/sharedpurepredicate/exact schema4
+sourcefacts+sameinverse/namedwrittenchains+timingquarantine/frozenactualnewsource
+and4regressions/Plannerend/fulltests DONE. Commitpush/CI next.
+
+Planner nextstartcontractapproved: pure chain-to-existingharmoniccontext query,
+1..3explicitclocks -> originalconstituents -> SAMEjointmembershiphelper; halfopen
+unique mapping, preserveclockorder+origin+constituentIDs. Wholechain quarantine
+fortiming/dead/unresolvedincoming; nochaindoesnotproveattack. Compatibleharmonic
+scope/resourceoutcomes retained, no newweighting/keyclaim/techniquecodecs.
+Fresh random PinkFloyd Money15761/rev9854033,11tracks,seed15116332956693008344,
+querym frozen anddownloaded BEFOREnewchaincontextimplementation, no reroll.
+Do not implementnextuntilcurrentcommitCI verified. No humaninputneeded.

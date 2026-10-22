@@ -225,3 +225,28 @@ Independent raw arithmetic checks source motion/refusals and returned witnesses;
 exhaustive small-case tests establish joint-vector completeness separately.
 The initial failed source-order test is retained. No claim of annotated note-role
 accuracy follows from these results.
+
+## Written tie continuity
+
+Optional T1 `normalized-written-tie-context/4` extends the existing geometry/key
+facts with only the source declarations consumed by accepted tie eligibility:
+
+| Owner | Exact data / relationship |
+|---|---|
+| T1 part | Instrument domain, tuning and capo; original field presence/type/value. |
+| T1 occurrence | Existing note ID plus string, fret, dead and tie declarations; original presence/type/value. No duplicate pitch/time stream. |
+| T2 physical choices | Those source choices once; explicit true tie flags removed and represented by links or unresolved destinations. Missing/null/false/other scalars remain distinct. |
+| T2 written tie link | Existing origin/destination IDs; same part/voice/string lane, exact adjacency, valid equal nominal position, explicit tie and compatible dead state. |
+| T2 unresolved tie | Original destination plus reason; never repaired by guessing another note. |
+| Written chain | Original occurrence references and derived nominal endpoints/extent. Unresolved incoming origins stay explicit. Timing-uncertain chains are quarantined. |
+
+The pure `written_tie_edges` predicate is shared with the retained tie detector;
+its legacy caller keeps the existing numeric constraint validation. Forward
+analysis and stripped inverse rederive the SAME predicates and restore exact
+declarations. Existing note coordinates are not removed or duplicated.
+
+A tied three-segment notation and three untied repetitions therefore differ
+in declared continuity while retaining all three original occurrences. Neither
+an absent tie flag nor a resolved link proves a physical attack or acoustic
+sustain. Existing written-occurrence harmonic evidence is unchanged; tie-aware
+harmonic weighting and preparation/resolution identification remain open.
