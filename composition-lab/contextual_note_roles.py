@@ -13,7 +13,7 @@ import musical_tier2 as music
 
 VERSION='conditional-passing-neighbor/1'
 PACKAGE_VERSION='conditional-musical-context/2'
-QUERY_KINDS={VERSION:'passing_neighbor','conditional-chord-voice-motion/1':'chord_voice_motion'}
+QUERY_KINDS={VERSION:'passing_neighbor','conditional-chord-voice-motion/1':'chord_voice_motion','conditional-chord-voice-motion/2':'chord_voice_motion'}
 MAX_REQUESTS=32
 MAX_WINDOW_Q=32
 

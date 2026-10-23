@@ -9,7 +9,7 @@ import unittest
 from source_fact_tier1 import extract_documents
 from connected_tier2 import analyze,strip_lower,reconstruct
 from contextual_note_roles import attach,evaluate,VERSION as ROLE_VERSION
-from contextual_chord_motion import VERSION
+from contextual_chord_motion import VERSION,LEGACY_VERSION,observed_sonority,compare_sonority
 from test_contextual_note_roles import source as role_source,request as role_request
 from test_collection_degrees import candidate
 from test_musical_tier2 import facts
@@ -61,6 +61,37 @@ def brute_pairs(lower,evidence,queries):
 
 
 class ChordMotionTests(unittest.TestCase):
+    def test_observed_dyad_does_not_invent_third_or_root(self):
+        for pitches in ((40,47),(47,52),(38,42),(40,44,47)):
+            docs=source();docs['track-1.json']['measures'][0]['voices'][0]['beats'][0]['notes']=[dict(string=i,fret=p-40) for i,p in enumerate(pitches)]
+            music_upper=analyze(extract_documents(docs))['musical_relationships']
+            observed=observed_sonority(music_upper,'0',1)
+            self.assertEqual(observed['pitch_classes'],sorted({p%12 for p in pitches}))
+            self.assertEqual(F(observed['lowest_known_pitch']),min(pitches))
+            for row in observed['intervals_above_lowest_known']:
+                self.assertEqual(F(row['anchor'])+F(row['interval']),F(row['pitch']))
+            compared=compare_sonority(observed,dict(root_pc=4,formula=[0,4,7]))
+            self.assertEqual(compared['unobserved_template_pitch_classes'],sorted({4,8,11}-{p%12 for p in pitches}))
+
+    def test_observation_is_recomputed_and_legacy_output_stays_unchanged(self):
+        lower=extract_documents(source());req=request(lower);upper=attach(analyze(lower),[req])
+        row=upper['contextual_constraints']['results'][0]['alternatives'][0]['contexts'][0]
+        self.assertIn('observed_sonority',row)
+        bad=strip_lower(upper)
+        bad['contextual_constraints']['results'][0]['alternatives'][0]['contexts'][0]['observed_sonority']['pitch_classes']=[]
+        with self.assertRaises(ValueError):reconstruct(bad,dict(variation=0))
+        req['version']=LEGACY_VERSION;legacy=attach(analyze(lower),[req])
+        self.assertNotIn('observed_sonority',legacy['contextual_constraints']['results'][0]['alternatives'][0]['contexts'][0])
+        self.assertEqual(reconstruct(strip_lower(legacy),dict(variation=0)),lower)
+
+    def test_observation_exposes_uncertain_timing_and_unknown_scope(self):
+        upper=analyze(extract_documents(source()))['musical_relationships']
+        for group in upper['coattacks']:group['timing_uncertain']=True
+        observed=observed_sonority(upper,'0',1)
+        self.assertEqual(observed['completeness'],'UNCERTAIN_SOURCE_TIMING')
+        self.assertTrue(observed['timing_uncertain_refs'])
+        with self.assertRaises(ValueError):observed_sonority(upper,'0',777)
+
     def test_E7_to_Aminor_versus_C_and_nonmoving_voice(self):
         for destination,melody,root,motion in (((45,48,52),(68,69),9,'1'),((48,52,55),(68,67),0,'-1'),((45,48,52),(68,68),9,'0')):
             lower=extract_documents(source(destination,melody));out=evaluate(lower,[request(lower)])['results'][0]

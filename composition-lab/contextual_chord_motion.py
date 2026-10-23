@@ -4,7 +4,43 @@ from fractions import Fraction as F
 import musical_tier2 as music
 from contextual_note_roles import source_refusals,partial_path_possibilities
 
-VERSION='conditional-chord-voice-motion/1'
+VERSION='conditional-chord-voice-motion/2'
+LEGACY_VERSION='conditional-chord-voice-motion/1'
+
+
+def observed_sonority(upper,clock,part_id=None):
+    """Written overlap evidence; never complete acoustic sustain or chord quality."""
+    at=F(clock);domains={r['occurrence_ref']:r['domain'] for r in music.occurrence_pitch_domains(upper)}
+    if part_id is not None and part_id not in {g['part_id'] for g in upper['coattacks']}:raise ValueError('Unknown observed part scope')
+    known=[];unresolved=[];nonpitched=[];uncertain_timing=[]
+    for group in upper['coattacks']:
+        if part_id is not None and group['part_id']!=part_id:continue
+        for member in group['members']:
+            if not F(group['onset_q'])<=at<F(group['onset_q'])+F(member['duration_q']):continue
+            ref=member['id'];domain=domains[ref]
+            if group.get('timing_uncertain'):uncertain_timing.append(ref)
+            if domain=='explicit_nonpitched':nonpitched.append(ref);continue
+            pitch=music.member_pitch(group,member)
+            if pitch is None or F(pitch).denominator!=1:
+                unresolved.append(dict(occurrence_ref=ref,domain=domain,written_pitch=pitch));continue
+            if domain!='pitched':unresolved.append(dict(occurrence_ref=ref,domain=domain,written_pitch=pitch))
+            known.append(dict(occurrence_ref=ref,written_pitch=pitch,pitch_class=int(F(pitch)%12)))
+    known.sort(key=lambda n:(F(n['written_pitch']),n['occurrence_ref']))
+    bass=None if not known else known[0]['written_pitch']
+    return dict(at_q=str(at),part_id=part_id,known_occurrences=known,
+        pitch_classes=sorted({n['pitch_class'] for n in known}),lowest_known_pitch=bass,
+        intervals_above_lowest_known=[] if bass is None else [dict(occurrence_ref=n['occurrence_ref'],**music.relation(anchor=bass,pitch=n['written_pitch'])) for n in known],
+        unresolved_occurrences=unresolved,explicit_nonpitched_refs=nonpitched,
+        timing_uncertain_refs=uncertain_timing,
+        completeness='UNCERTAIN_SOURCE_TIMING' if uncertain_timing else 'PARTIAL_WRITTEN_PITCH_EVIDENCE' if unresolved else 'COMPLETE_NOMINAL_WRITTEN_OVERLAP',
+        meaning='Observed written sonority; lowest pitch is not an inferred chord root')
+
+
+def compare_sonority(observed,label):
+    played=set(observed['pitch_classes']);template={(label['root_pc']+d)%12 for d in label['formula']}
+    return dict(unobserved_template_pitch_classes=sorted(template-played),observed_pitch_classes_outside_template=sorted(played-template),
+        exact_known_pc_set=played==template,partial_evidence=bool(observed['unresolved_occurrences']),
+        meaning='Template completion is a hypothesis, not additional sounding notes')
 
 
 def reference_coordinate(reference,pitch):
@@ -16,7 +52,7 @@ def reference_coordinate(reference,pitch):
 
 
 def evaluate_query(upper,documents,events,request):
-    if set(request)!={'version','occurrence_refs','at_qs','candidate_ref','harmonic_request'} or request['version']!=VERSION:raise ValueError('Typed chord/voice request required')
+    if set(request)!={'version','occurrence_refs','at_qs','candidate_ref','harmonic_request'} or request['version'] not in (VERSION,LEGACY_VERSION):raise ValueError('Typed chord/voice request required')
     refs=request['occurrence_refs'];clocks=request['at_qs'];harmonic=request['harmonic_request']
     if type(clocks) is not list or len(clocks)!=2 or F(clocks[0])>=F(clocks[1]):raise ValueError('Two ordered explicit clocks required')
     if type(harmonic) is not dict or set(harmonic)!={'start_q','end_q','part_id'}:raise ValueError('Explicit harmonic time/part scope required')
@@ -44,13 +80,17 @@ def evaluate_query(upper,documents,events,request):
         partial=partial_path_possibilities(evidence,queries)
         for pair in joint['feasible_label_pairs']:
             labels=pair['labels'];contexts=[]
-            for pitch,label in zip(pitches,labels):
+            for clock,pitch,label in zip(clocks,pitches,labels):
                 if label is None:contexts.append(None);continue
                 interval=music.relation(anchor=label['root_pc'],pitch=pitch)['interval'] if pitch is not None else None
                 membership=music._chord_membership(pitch,label)
                 contexts.append(dict(chord=deepcopy(label),root_against_reference=reference_coordinate(reference,str(label['root_pc'])),
                     note_against_chord=None if interval is None else dict(unwrapped_semitones=interval,interval_pc=str(F(interval)%12),membership=membership,chord_member=None if membership=='unknown' else membership=='chord_member'),
                     chord_tone_pitch_classes_outside_reference=[(label['root_pc']+d)%12 for d in label['formula'] if (label['root_pc']+d-reference['tonic_pc'])%12 not in reference['reference_intervals']]))
+                if request['version']==VERSION:
+                    observed=observed_sonority(upper,clock,harmonic['part_id'])
+                    contexts[-1]['observed_sonority']=observed
+                    contexts[-1]['template_against_observation']=compare_sonority(observed,label)
             alternatives.append(dict(**deepcopy(pair),contexts=contexts,
                 root_displacement_pc=None if any(l is None for l in labels) else str(F(music.relation(anchor=labels[0]['root_pc'],pitch=labels[1]['root_pc'])['interval'])%12),
                 all_optimal_path_partial_possibilities=partial))
