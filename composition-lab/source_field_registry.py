@@ -179,5 +179,5 @@ REGISTERED_SOURCE_FIELDS[('track','/measures/*/tripletFeel')] = ('string',)
 
 # Source chord labels are annotations, not inferred/verified chord identity.
 REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/chord/text')] = ('string',)
-REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/chord/width')] = ('integer',)
+REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/chord/width')] = ('integer','float')
 REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/downStroke')] = ('integer',)

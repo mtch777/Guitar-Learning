@@ -13,7 +13,7 @@ from check_technique_connections import check as check_connections
 
 
 def bundle(root):
-    names=('source_fact_tier1','source_field_registry','technique_observation_relations','musical_tier2','connected_tier2')
+    names=('source_fact_tier1','source_field_registry','technique_observation_relations','musical_tier2','contextual_note_roles','connected_tier2')
     code='import sys,types\n'
     hashes={}
     for name in names:
@@ -31,6 +31,12 @@ def bundle(root):
     parser=ast.parse((root/'run_reversible_tier_qa.py').read_text(encoding='utf-8-sig'))
     function=next(n for n in parser.body if isinstance(n,ast.FunctionDef) and n.name=='extract_documents')
     sources['run_reversible_tier_qa']='import sys\nfrom pathlib import Path\nfrom fractions import Fraction as F\n'+ast.unparse(function)
+    # Exact existing pure context adapters, not hand-written inverse copies.
+    for name,dependency in (('source_key_tier1','from fractions import Fraction as F\nfrom run_reversible_tier_qa import extract_documents as extract_written_documents\n'),
+                            ('source_tie_tier1','from source_key_tier1 import extract_documents as extract_context_documents\n')):
+        tree=ast.parse((root/(name+'.py')).read_text(encoding='utf-8-sig'))
+        function=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='extract_documents')
+        sources[name]=dependency+ast.unparse(function)
     for name,source in sources.items():
         code+=f"_m=types.ModuleType({name!r});_m.__file__={str(root/(name+'.py'))!r};sys.modules[{name!r}]=_m\nexec(compile({source!r},{name!r},'exec'),_m.__dict__)\n"
         hashes[name]=hashlib.sha256(source.encode()).hexdigest()

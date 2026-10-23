@@ -520,6 +520,25 @@ def harmonic_template_scores(weights):
     return rows
 
 
+def occurrence_pitch_domains(upper):
+    """Source instrument domain, separate from whether a pitch was recovered.
+
+    Songsterr1024 is the percussion declaration already used by the verified
+    converter. GM0..127 are pitched programs. Missing/unrecognized declarations
+    remain unknown; dead/harmonic notes do NOT become nonpitched exclusions.
+    """
+    settings={r['part_id']:r['fields'] for r in upper.get('written_ties',{}).get('physical_choices',{}).get('parts',[])}
+    rows=[]
+    for group in upper['coattacks']:
+        instrument=settings.get(group['part_id'],{}).get('instrumentId')
+        domain='explicit_nonpitched' if type(instrument) is int and instrument==1024 else 'pitched' if type(instrument) is int and 0<=instrument<=127 else 'unknown'
+        for member in group['members']:
+            rows.append(dict(occurrence_ref=member['id'],domain=domain,
+                source_evidence_ref=f"track-{group['part_id']}.json#/instrumentId" if 'instrumentId' in settings.get(group['part_id'],{}) else None,
+                interpretation_provenance='Songsterr instrument declaration; existing converter percussion1024 and GMprogram0..127' if domain!='unknown' else 'Missing or unsupported instrument declaration; no name/tuning guess'))
+    return rows
+
+
 def harmonic_span_evidence(upper,start_q,end_q,part_id=None,max_edges=50000):
     """Bounded deterministic T2 refinement, not a separate generation engine.
 
@@ -536,7 +555,8 @@ def harmonic_span_evidence(upper,start_q,end_q,part_id=None,max_edges=50000):
         inventory=geometry_inventory(upper['measure_geometry'])
         horizon=max((F(r['end_q']) for r in inventory if part_id is None or r['part_id']==part_id),default=F(0))
         if end>horizon:raise ValueError('Query beyond owned source measure geometry')
-    rows=[];excluded=dict(zero_duration=[],unknown_pitch=[]);uncertain=[]
+    domains={r['occurrence_ref']:r['domain'] for r in occurrence_pitch_domains(upper)}
+    rows=[];excluded=dict(zero_duration=[],unknown_pitch=[],explicit_nonpitched=[]);uncertain=[]
     for group in upper['coattacks']:
         if part_id is not None and group['part_id']!=part_id:continue
         for member in group['members']:
@@ -545,6 +565,8 @@ def harmonic_span_evidence(upper,start_q,end_q,part_id=None,max_edges=50000):
                 if start<=a<end:excluded['zero_duration'].append(member['id'])
                 continue
             if b<=start or a>=end:continue
+            if domains[member['id']]=='explicit_nonpitched':
+                excluded['explicit_nonpitched'].append(member['id']);continue
             if group['timing_uncertain']:uncertain.append(member['id'])
             pitch=member_pitch(group,member)
             if pitch is None or F(pitch).denominator!=1:excluded['unknown_pitch'].append(member['id'])
