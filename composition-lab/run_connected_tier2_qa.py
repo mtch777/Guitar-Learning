@@ -13,7 +13,7 @@ from check_technique_connections import check as check_connections
 
 
 def bundle(root):
-    names=('source_fact_tier1','source_field_registry','technique_observation_relations','musical_tier2','contextual_note_roles','contextual_chord_motion','connected_tier2')
+    names=('source_fact_tier1','source_field_registry','technique_observation_relations','musical_tier2','chord_degree_definitions','chord_degree_relations','contextual_note_roles','contextual_chord_motion','contextual_passage_roles','connected_tier2')
     code='import sys,types\n'
     hashes={}
     for name in names:

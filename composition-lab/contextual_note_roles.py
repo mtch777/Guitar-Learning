@@ -14,6 +14,7 @@ import musical_tier2 as music
 VERSION='conditional-passing-neighbor/1'
 PACKAGE_VERSION='conditional-musical-context/2'
 QUERY_KINDS={VERSION:'passing_neighbor','conditional-chord-voice-motion/1':'chord_voice_motion','conditional-chord-voice-motion/2':'chord_voice_motion'}
+QUERY_KINDS['conditional-passage-note-roles/1']='passage_note_roles'
 MAX_REQUESTS=32
 MAX_WINDOW_Q=32
 
@@ -74,6 +75,12 @@ def evaluate(tier1,requests):
     results=[];packages={}
     for request in requests:
         if type(request) is not dict or request.get('version') not in QUERY_KINDS:raise ValueError('Registered typed context request required')
+        if QUERY_KINDS[request['version']]=='passage_note_roles':
+            from contextual_passage_roles import evaluate_query
+            row,evidence=evaluate_query(upper,documents,events,request)
+            digest=None if evidence is None else hashlib.sha256(json.dumps(evidence,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
+            if digest is not None:packages[digest]=evidence
+            row['harmonic_evidence_ref']=digest;results.append(row);continue
         if QUERY_KINDS[request['version']]=='chord_voice_motion':
             from contextual_chord_motion import evaluate_query
             row,evidence=evaluate_query(upper,documents,events,request)
