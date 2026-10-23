@@ -21,7 +21,7 @@ def check(documents,upper):
     actual_tracks=[t['part_id'] for t in tracks]
     if len(actual_tracks)!=len(set(actual_tracks)) or set(actual_tracks)!=set(expected_tracks):issues.append('Technique track inventory/uniqueness differs')
     note_fields={'hp','bend','slide','harmonic','harmonicFret','ghost','staccato','accentuated','tremolo','vibrato','wideVibrato','leftHandVibrato','velocity'}
-    beat_fields={'palmMute','tapping','letRing','brushStroke','downStroke','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','tremolo','harmonic','gradualVelocity','velocity'}
+    beat_fields={'palmMute','tapping','letRing','brushStroke','downStroke','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity'}
     expected_roots={}
     for name,part in documents.items():
         if not name.startswith('track-'):continue
@@ -36,6 +36,9 @@ def check(documents,upper):
     if len(actual_roots)!=len(set(actual_roots)) or set(actual_roots)!=set(expected_roots):issues.append('Technique declaration root inventory/uniqueness differs')
     declaration_links=[]
     for group in upper['owned_parameters']['technique_declarations']['groups']:
+        expected_owner,expected_field=group['source_fact_ref'].rsplit('/',1)
+        expected_scope='note' if '/notes/' in expected_owner else 'beat'
+        if group['owner_ref']!=expected_owner or group['field']!=expected_field or group['scope']!=expected_scope:issues.append('Technique declaration source owner/field/scope differs')
         shape={r['id']:r for r in group['structure']}
         expected_scalars=[]
         def scalar_refs(ref,value):

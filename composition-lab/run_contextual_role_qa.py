@@ -14,7 +14,7 @@ from check_complete_source_facts import check
 import musical_tier2 as music
 
 
-def inventory(lower,normalized):
+def inventory(lower,normalized,length=3):
     """Every consecutive source-voice triple; no result-driven selection."""
     docs=project_documents(lower);events={e['id']:e for e in normalized['events']};voices=defaultdict(list)
     for e in events.values():voices[(e['part_id'],e['voice'])].append(e)
@@ -22,13 +22,13 @@ def inventory(lower,normalized):
     for lane,notes in sorted(voices.items()):
         notes.sort(key=lambda e:(e['bar'],e['beat'],e['note']))
         onset_counts=Counter(e['onset_q'] for e in notes)
-        for i in range(len(notes)-2):
-            triple=notes[i:i+3];refs=[e['id'] for e in triple];reasons=source_refusals(docs,events,refs)
+        for i in range(len(notes)-length+1):
+            triple=notes[i:i+length];refs=[e['id'] for e in triple];reasons=source_refusals(docs,events,refs)
             starts=[F(e['onset_q']) for e in triple];durations=[F(e['duration_q']) for e in triple]
             if any(onset_counts[e['onset_q']]!=1 for e in triple):reasons.append('ambiguous_same_voice_simultaneity')
             if any(d<=0 for d in durations):reasons.append('zero_duration_or_grace_occurrence')
             if any(e['pitch'] is None for e in triple):reasons.append('unknown_pitch_occurrence')
-            if any(starts[j+1]!=starts[j]+durations[j] for j in (0,1)):reasons.append('noncontiguous_written_intervals')
+            if any(starts[j+1]!=starts[j]+durations[j] for j in range(length-1)):reasons.append('noncontiguous_written_intervals')
             a=min(starts);b=max(t+d for t,d in zip(starts,durations))
             if any(e['id'] not in refs and F(e['onset_q'])<b and F(e['onset_q'])+F(e['duration_q'])>a for e in notes):reasons.append('ambiguous_same_voice_overlap')
             if not 0<b-a<=32:reasons.append('outside_role_window_bound')

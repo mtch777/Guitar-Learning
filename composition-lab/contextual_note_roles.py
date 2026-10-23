@@ -12,6 +12,8 @@ from source_fact_tier1 import project_documents,validate
 import musical_tier2 as music
 
 VERSION='conditional-passing-neighbor/1'
+PACKAGE_VERSION='conditional-musical-context/2'
+QUERY_KINDS={VERSION:'passing_neighbor','conditional-chord-voice-motion/1':'chord_voice_motion'}
 MAX_REQUESTS=32
 MAX_WINDOW_Q=32
 
@@ -55,7 +57,7 @@ def source_refusals(documents,events,refs):
             # A zero harmonic fret is still a declaration. Empty curves are
             # unsupported expression, not evidence of an ordinary picked note.
             if field in note and note[field] is not False and note[field] is not None:reasons.append('unresolved_sounding_pitch_'+field)
-        for field in ('tremoloBar','vibrato','leftHandVibrato','wideVibrato','harmonic'):
+        for field in ('tremoloBar','vibrato','leftHandVibrato','wideVibrato','vibratoWithTremoloBar','harmonic'):
             if field in beat and beat[field] is not False and beat[field] is not None:reasons.append('unresolved_sounding_pitch_beat_'+field)
         if note.get('graceNote') or beat.get('graceNote'):reasons.append('source_grace_declaration')
     return list(dict.fromkeys(reasons))
@@ -71,6 +73,13 @@ def evaluate(tier1,requests):
     index={m['id']:(g,m) for g in upper['coattacks'] for m in g['members']}
     results=[];packages={}
     for request in requests:
+        if type(request) is not dict or request.get('version') not in QUERY_KINDS:raise ValueError('Registered typed context request required')
+        if QUERY_KINDS[request['version']]=='chord_voice_motion':
+            from contextual_chord_motion import evaluate_query
+            row,evidence=evaluate_query(upper,documents,events,request)
+            digest=None if evidence is None else hashlib.sha256(json.dumps(evidence,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
+            if digest is not None:packages[digest]=evidence
+            row['harmonic_evidence_ref']=digest;results.append(row);continue
         if type(request) is not dict or set(request)!={'version','occurrence_refs','candidate_ref','harmonic_request'} or request['version']!=VERSION:raise ValueError('Typed versioned role request required')
         refs=request['occurrence_refs'];harmonic=request['harmonic_request']
         if type(harmonic) is not dict or set(harmonic)!={'start_q','end_q','part_id'}:raise ValueError('Explicit harmonic time/part scope required')
@@ -104,7 +113,7 @@ def evaluate(tier1,requests):
             limitations=['Conditional evidence, not established key, mode, intended function or emotional meaning',
                         'Written base pitches and nominal note intervals, not acoustic sustain',
                         'Diatonic passing/neighbor only; chromatic ornaments and other roles remain unclassified']))
-    return dict(version=VERSION,pitch_domains=music.occurrence_pitch_domains(upper),harmonic_evidence=packages,results=results)
+    return dict(version=PACKAGE_VERSION,pitch_domains=music.occurrence_pitch_domains(upper),harmonic_evidence=packages,results=results)
 
 
 def attach(upper,requests):
@@ -117,7 +126,12 @@ def attach(upper,requests):
 
 
 def verify(tier1,constraints):
-    if type(constraints) is not dict or set(constraints)!={'version','pitch_domains','harmonic_evidence','results'} or constraints['version']!=VERSION:raise ValueError('Versioned contextual assertions required')
+    if type(constraints) is not dict or set(constraints)!={'version','pitch_domains','harmonic_evidence','results'} or constraints['version'] not in (VERSION,PACKAGE_VERSION):raise ValueError('Versioned contextual assertions required')
     expected=evaluate(tier1,[row['request'] for row in constraints['results']])
+    # Preserve the existing role-only request/package decoder. Its stored
+    # derived assertions are still checked, never used to repair source notes.
+    if constraints['version']==VERSION:
+        if any(r['request']['version']!=VERSION for r in constraints['results']):raise ValueError('Legacy package cannot contain new query kinds')
+        expected['version']=VERSION
     if json.dumps(expected,sort_keys=True)!=json.dumps(constraints,sort_keys=True):raise ValueError('Stale or contradictory contextual relationship')
     return expected

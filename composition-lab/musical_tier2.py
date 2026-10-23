@@ -856,8 +856,20 @@ def harmonic_note_context(upper,ident,evidence,begin,stop):
 
 def note_motion_evidence(upper,occurrence_refs):
     """Measured three-occurrence shape; NEVER identifies passing/neighbor intent."""
+    if type(occurrence_refs) is not list or len(occurrence_refs)!=3:raise ValueError('Three distinct owned occurrences required')
+    return _note_sequence_evidence(upper,occurrence_refs)
+
+
+def note_pair_motion_evidence(upper,occurrence_refs):
+    """Same source topology and interval equations for a two-event query."""
+    if type(occurrence_refs) is not list or len(occurrence_refs)!=2:raise ValueError('Two distinct owned occurrences required')
+    return _note_sequence_evidence(upper,occurrence_refs)
+
+
+def _note_sequence_evidence(upper,occurrence_refs):
     validate(upper)
-    if type(occurrence_refs) is not list or len(occurrence_refs)!=3 or len(set(occurrence_refs))!=3:raise ValueError('Three distinct owned occurrences required')
+    count=len(occurrence_refs)
+    if count not in (2,3) or len(set(occurrence_refs))!=count:raise ValueError('Distinct owned source sequence required')
     index={m['id']:(g,m) for g in upper['coattacks'] for m in g['members']}
     rows=[index[i] for i in occurrence_refs];parts={g['part_id'] for g,m in rows};voices={m['voice'] for g,m in rows};reasons=[]
     if len(parts)!=1 or len(voices)!=1:reasons.append('different_source_part_or_voice')
@@ -868,7 +880,7 @@ def note_motion_evidence(upper,occurrence_refs):
         sequence=sorted((i for i in upper['realization_order'] if index[i][0]['part_id']==rows[0][0]['part_id'] and index[i][1]['voice']==rows[0][1]['voice']),
                         key=lambda i:(index[i][1]['bar'],index[i][1]['beat'],index[i][1]['note']))
         position=sequence.index(occurrence_refs[0])
-        if sequence[position:position+3]!=occurrence_refs:reasons.append('not_consecutive_owned_occurrences')
+        if sequence[position:position+count]!=occurrence_refs:reasons.append('not_consecutive_owned_occurrences')
         for g,m in rows:
             if sum(index[i][0]['onset_q']==g['onset_q'] for i in sequence)!=1:reasons.append('ambiguous_same_voice_simultaneity');break
     pitches=[member_pitch(g,m) for g,m in rows];starts=[F(g['onset_q']) for g,m in rows];durations=[F(m['duration_q']) for g,m in rows]
@@ -878,13 +890,16 @@ def note_motion_evidence(upper,occurrence_refs):
     if len(parts)==1 and len(voices)==1:
         left=min(starts);right=max(a+d for a,d in zip(starts,durations))
         if any(i not in occurrence_refs and F(index[i][0]['onset_q'])<right and F(index[i][0]['onset_q'])+F(index[i][1]['duration_q'])>left for i in sequence):reasons.append('ambiguous_same_voice_overlap')
-    gaps=[starts[i+1]-starts[i]-durations[i] for i in (0,1)]
+    gaps=[starts[i+1]-starts[i]-durations[i] for i in range(count-1)]
     if any(gap!=0 for gap in gaps):reasons.append('noncontiguous_written_intervals')
     motion=None
     if all(p is not None for p in pitches):
-        approach=F(relation(anchor=pitches[0],pitch=pitches[1])['interval']);departure=F(relation(anchor=pitches[1],pitch=pitches[2])['interval'])
-        shape='strictly_monotonic' if approach*departure>0 else 'departure_and_return' if approach!=0 and F(pitches[0])==F(pitches[2]) else 'contains_repetition' if approach==0 or departure==0 else 'direction_change_without_register_return'
-        motion=dict(approach_semitones=str(approach),departure_semitones=str(departure),register_return=F(pitches[0])==F(pitches[2]),shape=shape,diatonic_step=None)
+        approach=F(relation(anchor=pitches[0],pitch=pitches[1])['interval'])
+        if count==2:motion=dict(displacement_semitones=str(approach),diatonic_step=None)
+        else:
+            departure=F(relation(anchor=pitches[1],pitch=pitches[2])['interval'])
+            shape='strictly_monotonic' if approach*departure>0 else 'departure_and_return' if approach!=0 and F(pitches[0])==F(pitches[2]) else 'contains_repetition' if approach==0 or departure==0 else 'direction_change_without_register_return'
+            motion=dict(approach_semitones=str(approach),departure_semitones=str(departure),register_return=F(pitches[0])==F(pitches[2]),shape=shape,diatonic_step=None)
     return dict(occurrence_refs=occurrence_refs,source_part_id=next(iter(parts)) if len(parts)==1 else None,source_voice=next(iter(voices)) if len(voices)==1 else None,
                 clocks=[dict(occurrence_ref=i,onset_q=str(a),duration_q=str(d)) for i,a,d in zip(occurrence_refs,starts,durations)],
                 gaps_q=list(map(str,gaps)),motion=motion,eligibility='eligible_owned_written_sequence' if not reasons else 'refused_unique_melodic_interpretation',refusal_reasons=list(dict.fromkeys(reasons)),
@@ -897,6 +912,16 @@ def harmonic_membership_evidence(upper,evidence,queries):
     State is a bounded tuple, not a general-purpose new inference engine.
     An edge uses one label for every queried note/time it covers.
     """
+    return _joint_harmonic_queries(upper,evidence,queries,'membership')
+
+
+def harmonic_label_pair_evidence(upper,evidence,queries):
+    """All feasible two-clock label pairs, not Cartesian marginal labels."""
+    if type(queries) is not list or len(queries)!=2:raise ValueError('Two explicit harmonic queries required')
+    return _joint_harmonic_queries(upper,evidence,queries,'label')
+
+
+def _joint_harmonic_queries(upper,evidence,queries,kind):
     if type(queries) is not list or not 1<=len(queries)<=3:raise ValueError('One to three explicit occurrence/time queries required')
     expected=harmonic_span_evidence(upper,**evidence.get('request',{}))
     if not same(evidence,expected) or evidence['status']!='SCORED_NOT_MUSICAL_TRUTH':raise ValueError('Current scored harmonic relationships required')
@@ -932,10 +957,13 @@ def harmonic_membership_evidence(upper,evidence,queries):
                 updates={}
                 for k in covered:
                     pitch=query_values[k][1]
-                    updates[k]=_chord_membership(pitch,label)
+                    updates[k]=_chord_membership(pitch,label) if kind=='membership' else json.dumps(None if label is None else {k:label[k] for k in ('root_pc','kind','formula')},sort_keys=True,separators=(',',':'))
                 for previous in states[begin]:
                     current=tuple(updates.get(k,value) for k,value in enumerate(previous))
-                    if current not in states[stop]:states[stop][current]=(begin,previous,None if label is None else dict(root_pc=label['root_pc'],kind=label['kind'],formula=label['formula']))
+                    if current not in states[stop]:
+                        states[stop][current]=(begin,previous,None if label is None else dict(root_pc=label['root_pc'],kind=label['kind'],formula=label['formula']))
+                        if kind=='label' and sum(map(len,states))>100000:
+                            return dict(status='NOT_RUN_STATE_RESOURCE_LIMIT',state_limit=100000,queries=deepcopy(queries),feasible_label_pairs=None)
     alternatives=[]
     for vector in sorted(states[-1]):
         if 'not_visited' in vector:raise ValueError('Incomplete membership coverage')
@@ -946,9 +974,13 @@ def harmonic_membership_evidence(upper,evidence,queries):
             edges.append(dict(begin=begin,stop=cursor,label=label,supporting_edge_has_partial_known_pitch_evidence=partial));cursor=begin;state=previous
         witness=list(reversed(edges))
         supporting=[next(e['supporting_edge_has_partial_known_pitch_evidence'] for e in witness if points[e['begin']]<=at<points[e['stop']]) for at,pitch in query_values]
-        alternatives.append(dict(memberships=list(vector),one_valid_path_and_label_witness=witness,witness_supporting_edge_has_partial_evidence=supporting))
+        values=dict(memberships=list(vector)) if kind=='membership' else dict(labels=[json.loads(value) for value in vector])
+        alternatives.append(dict(**values,one_valid_path_and_label_witness=witness,witness_supporting_edge_has_partial_evidence=supporting))
     partial=[any(F(o['start_q'])<=at<F(o['end_q']) for o in evidence['unknown_pitch_overlays']) for at,pitch in query_values]
     domains=['unknown_pitch' if pitch is None else 'outside_supported_12_pitch_class_domain' if F(pitch).denominator!=1 else 'integer_pitch_class' for at,pitch in query_values]
+    if kind=='label':
+        return dict(status='JOINT_SCORED_LABEL_ALTERNATIVES',queries=deepcopy(queries),query_pitch_domain=domains,query_has_partial_known_pitch_evidence=partial,feasible_label_pairs=alternatives,
+                    limits='One witness proves pair existence; not all paths, probability, function or preferred harmony')
     return dict(queries=deepcopy(queries),query_pitch_domain=domains,query_has_partial_known_pitch_evidence=partial,feasible_membership_vectors=alternatives,
                 dependence='Jointly feasible under existing harmonic objective; not independent unions or probabilities',
                 established_key=None,established_mode=None,passing_tone=None,neighbor_tone=None,attack_and_tie_status='outside_owned_T1_scope')

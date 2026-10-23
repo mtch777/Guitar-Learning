@@ -10,7 +10,7 @@ import re
 from source_fact_tier1 import validate
 
 NOTE_EFFECTS=frozenset(('hp','bend','slide','harmonic','harmonicFret','ghost','staccato','accentuated','tremolo','vibrato','wideVibrato','leftHandVibrato','velocity'))
-BEAT_EFFECTS=frozenset(('palmMute','tapping','letRing','brushStroke','downStroke','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','tremolo','harmonic','gradualVelocity','velocity'))
+BEAT_EFFECTS=frozenset(('palmMute','tapping','letRing','brushStroke','downStroke','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity'))
 _UNSET=object()
 
 
