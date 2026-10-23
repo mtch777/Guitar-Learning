@@ -1,5 +1,15 @@
 # Tonal meaning implementation — active 2026-10-23
 
+**2026-10-23 validity correction:** historical ordered-factor results below used
+an evaluation-annotation-conditioned inference stream: target uncertainty could
+drop source-valid cells/reset predecessor sequences. They are NOT clean-source
+inference evidence. All54pieces independently show129annotation-only omissions
+(111train/18test),46extra breaks(6test). Models were never deployed as reliable
+guitar/mode inference. New source-only stream/evaluation-mask separation and
+fixed-model replay are recorded in BASS_CENTER_EVIDENCE_PROGRESS.md. Original
+reports/models/seals retained; complete-source inverse/technique/role proofs
+are unaffected. No silent overwrite or reclassification of old acceptance.
+
 User authorized keys/chords/modes/note roles, shared forward/backward relationships,
 all three QA gates, autonomous iteration with ProjectPlanner3000.
 
