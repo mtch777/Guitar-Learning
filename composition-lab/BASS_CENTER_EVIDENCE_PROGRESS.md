@@ -82,7 +82,7 @@ analysis; no easier replacement or per-song fix.
 
 Musical audit checks: 39 primary chord-degree inverses; 432 compatible theory
 entries with 1,836 degree checks; 466 conditional reference comparisons; all
-30 source triples, including four conditional patterns and 26 refusals.
+30 source triples, including four eligible conditional-pattern analyses and 26 refusals.
 No actual held boundary in this bar; positive held-note coverage is elsewhere.
 
 The reference A-minor candidate remains provisional, with equivalent alternatives.
@@ -122,3 +122,7 @@ Do not chase this inspected piano test with extra features or invented artist
 rules. Preserve source-linked chord alternatives and note roles. Reliable guitar
 key/mode/function selection still needs independent, domain-appropriate evidence
 or expert adjudication; exact reconstruction cannot substitute for it.
+
+Delivery: source/tests/docs committed as 053179e and pushed to main. Independent
+Planner END accepted the scoped checks; no reliable key/mode promotion.
+
