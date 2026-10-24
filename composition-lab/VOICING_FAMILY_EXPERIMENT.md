@@ -155,4 +155,3 @@ stage blocks them and stop this experiment. Do not relax context, open rules or
 physical evidence after outcomes. Any next hypothesis needs a separately frozen
 comparison. This experiment does not close key/mode/function accuracy, all creative
 levers, human playability, artist style or whole-song generation.
-
