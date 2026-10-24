@@ -27,9 +27,16 @@ def effect_reasons(beat,note):
     reasons=source_refusals({'track-0.json':dict(measures=[dict(voices=[dict(beats=[dict(beat,notes=[note])])])])},{'note':fake},['note'])
     for field in ('hp','tieOrigin','tieDestination','rest','fingerVibrato'):
         if field in note and note[field] is not False and note[field] is not None:reasons.append('NOTE_DEPENDENCY:'+field)
-    for field in ('letRing',):
+    for field in ('letRing','arpeggio','brushStroke'):
         if field in beat and beat[field] is not False and beat[field] is not None:reasons.append('BEAT_DEPENDENCY:'+field)
     return reasons
+
+
+def tie_relationships(context):
+    """Accepted written continuity, including outgoing endpoints outside overlap."""
+    from musical_tier2 import analyze
+    graph=analyze(context)['written_ties']
+    return {k:graph[k] for k in ('links','unresolved')}
 
 
 def inventory(tier1):
@@ -38,6 +45,8 @@ def inventory(tier1):
     from source_tie_tier1 import extract_documents
     from musical_tier2 import geometry_relation
     documents=project_documents(tier1);lower=extract_documents(documents);events=lower['events']
+    ties=tie_relationships(lower)
+    incident={ref for edge in ties['links'] for ref in (edge['origin'],edge['destination'])}
     frames=geometry_relation(source=lower['measure_geometry'])['parameters']['frames']
     index={e['id']:e for e in events};groups=defaultdict(list);by_part=defaultdict(list);pitched=[];fret_ranges=defaultdict(list);span_ranges=defaultdict(list);expression={}
     for event in events:
@@ -95,12 +104,21 @@ def inventory(tier1):
         row.update(refusal_reasons=sorted(set(reasons)),context_key=token(base),full_context_key=token([base,neighbors[part_id,onset]]),
                    realization=dict(anchor=str(anchor),intervals=[str(p-anchor) for p in pitches]),duration_q=members[0]['duration_q'])
         row['fixed_output_strings']=strings
+        row['locked_tie_members']=[ref for ref in row['member_refs'] if ref in incident]
         row['fixed_string_bases']=[str(F(str(part['tuning'][s]))+F(str(part.get('capo') or 0))) for s in strings]
         row['pooled_context_key']=token({k:base[k] for k in ('part_id','instrument','member_pitch_classes')}|dict(duration_q=row['duration_q']))
+        # Musical conditioning is distinct from immutable target notation and
+        # execution refusals. Do not condition on graphic beam/note-array slots.
+        context={k:base[k] for k in ('part_id','instrument','member_pitch_classes','meter','metrical_offset_q','overlaps')}
+        context['duration_q']=row['duration_q']
+        row['musical_context_key']=token(context)
+        row['musical_full_context_key']=token([context,neighbors[part_id,onset]])
+        row['source_geometry']=dict(instrument=part['instrumentId'],tuning=part['tuning'],capo=part.get('capo') or 0,
+            members=sorted([[str(F(e['pitch'])),s,str(F(str(f)))] for e,s,f in zip(members,strings,unit_frets)],key=token))
         result.append(row)
     envelopes={str(part):dict(min_fret=min(values),max_fret=max(values),max_simultaneous_span=max(span_ranges[part],default=0),
                             declared_frets=documents[f'track-{part}.json'].get('frets')) for part,values in fret_ranges.items()}
-    return dict(units=result,source_occurrences=len(events),physical_envelopes=envelopes,refusal_counts=dict(Counter(r for row in result for r in row['refusal_reasons'])),
+    return dict(units=result,source_occurrences=len(events),written_tie_relationships=ties,physical_envelopes=envelopes,refusal_counts=dict(Counter(r for row in result for r in row['refusal_reasons'])),
                 scope='Observed nominal written voicings with fixed member/string PCs; no inferred key, performed harmony or artist intent')
 
 
@@ -115,23 +133,44 @@ def physical_choice(target,realization,envelope,declared_only=False):
     return not fingered or max(fingered)-min(fingered)<=envelope['max_simultaneous_span']
 
 
+POLICIES=('exact_context','pooled_source','pooled_declared_geometry','source_witnessed_fixed_strings')
+
+
+def witnessed_geometry(target,donor,realization):
+    """Joint simultaneous shape witness, not independent note/fret bounds."""
+    geometry=donor.get('source_geometry');original=target.get('source_geometry')
+    if geometry is None or original is None:return False
+    pitches=[F(realization['anchor'])+F(i) for i in realization['intervals']]
+    if len(pitches)!=len(target['member_refs']):return False
+    proposed=dict(instrument=original['instrument'],tuning=original['tuning'],capo=original['capo'],
+        members=sorted([[str(p),s,str(p-F(b))] for p,s,b in zip(pitches,target['fixed_output_strings'],target['fixed_string_bases'])],key=token))
+    return proposed==geometry
+
+
 def empirical_options(catalog,target_id,policy='exact_context'):
-    if policy not in ('exact_context','pooled_source','pooled_declared_geometry'):raise ValueError('Declared context policy required')
+    if policy not in POLICIES:raise ValueError('Declared context policy required')
     rows=catalog['units'];target=next(r for r in rows if r['id']==target_id)
     if target['refusal_reasons']:return dict(status='REFUSED_TARGET',reasons=target['refusal_reasons'],options=[])
-    levels=[]
-    for field in (('full_context_key','context_key') if policy=='exact_context' else ('pooled_context_key',)):
+    levels=[];rejected=[]
+    fields=('musical_full_context_key','musical_context_key') if policy=='source_witnessed_fixed_strings' else ('full_context_key','context_key') if policy=='exact_context' else ('pooled_context_key',)
+    for field in fields:
         donors=[r for r in rows if r['id']!=target_id and not r['refusal_reasons'] and r[field]==target[field]]
         choices={}
         for donor in donors:
+            if policy=='source_witnessed_fixed_strings' and any(
+                ref in target['locked_tie_members'] and F(target['realization']['anchor'])+F(old)!=F(donor['realization']['anchor'])+F(new)
+                for ref,old,new in zip(target['member_refs'],target['realization']['intervals'],donor['realization']['intervals'])):
+                rejected.append(dict(level=field,donor_ref=donor['id'],reason='LOCKED_WRITTEN_TIE_ENDPOINT',realization=donor['realization']));continue
+            if policy=='source_witnessed_fixed_strings' and not witnessed_geometry(target,donor,donor['realization']):
+                rejected.append(dict(level=field,donor_ref=donor['id'],reason='NO_JOINT_FIXED_STRING_WITNESS',realization=donor['realization']));continue
             key=token(donor['realization']);choices.setdefault(key,dict(realization=deepcopy(donor['realization']),donor_refs=[]))['donor_refs'].append(donor['id'])
         all_options=[choices[k] for k in sorted(choices)]
-        options=all_options if policy=='exact_context' else [o for o in all_options if physical_choice(target,o['realization'],catalog['physical_envelopes'][str(target['part_id'])],policy=='pooled_declared_geometry')]
+        options=all_options if policy in ('exact_context','source_witnessed_fixed_strings') else [o for o in all_options if physical_choice(target,o['realization'],catalog['physical_envelopes'][str(target['part_id'])],policy=='pooled_declared_geometry')]
         alternative=any(o['realization']!=target['realization'] for o in options)
         levels.append(dict(level=field,donor_units=len(donors),distinct_realizations=len(all_options),physically_feasible_realizations=len(options),has_alternative=alternative))
-        if alternative:return dict(status='SUPPORTED_EMPIRICAL_ALTERNATIVES',target_ref=target_id,context_level=field,levels=levels,options=options)
-    if options:return dict(status='OBSERVED_SINGLE_REALIZATION',target_ref=target_id,context_level=field,levels=levels,options=options)
-    return dict(status='NO_ELIGIBLE_ALTERNATIVE',target_ref=target_id,levels=levels,options=[])
+        if alternative:return dict(status='SUPPORTED_EMPIRICAL_ALTERNATIVES',target_ref=target_id,context_level=field,levels=levels,options=options,rejected=rejected)
+    if options:return dict(status='OBSERVED_SINGLE_REALIZATION',target_ref=target_id,context_level=field,levels=levels,options=options,rejected=rejected)
+    return dict(status='NO_ELIGIBLE_ALTERNATIVE',target_ref=target_id,levels=levels,options=[],rejected=rejected)
 
 
 def select_target(catalog,policy='exact_context'):
@@ -148,7 +187,7 @@ CONTROL_FIELDS={'voicing','register','target_ref','seed'}
 
 def validate_controls(controls):
     if type(controls)is not dict or set(controls) not in (CONTROL_FIELDS,CONTROL_FIELDS|{'context_policy'}):raise ValueError('Explicit voicing/register scope, target and seed required')
-    if controls.get('context_policy','exact_context') not in ('exact_context','pooled_source','pooled_declared_geometry'):raise ValueError('Declared context policy required')
+    if controls.get('context_policy','exact_context') not in POLICIES:raise ValueError('Declared context policy required')
     if any(type(controls[k])is not int or not 0<=controls[k]<=100 for k in ('voicing','register')):raise ValueError('Integer reference-release controls0..100 required')
     if type(controls['seed'])is not int or type(controls['target_ref'])not in (str,type(None)):raise ValueError('Typed target/seed required')
     if (controls['voicing'] or controls['register']) and not controls['target_ref']:raise ValueError('Nonzero edit requires an explicit source unit')
@@ -207,6 +246,9 @@ def intervene(upper,controls):
     after=realize(edited)
     from source_fact_tier1 import project_documents
     documents=project_documents(after)
+    from source_tie_tier1 import extract_documents as tie_context
+    if tie_relationships(tie_context(documents))!=catalog['written_tie_relationships']:
+        raise ValueError('Locked written tie relationship changed, despite retained source flags')
     # Observed fixed-string geometry is required in addition to pitch-class lock.
     from run_reversible_tier_qa import extract_documents
     events={e['id']:e for e in extract_documents(documents)['events']}
@@ -217,7 +259,10 @@ def intervene(upper,controls):
         frets.append(fret)
     envelope=catalog['physical_envelopes'][str(target['part_id'])]
     fingered=[f for f in frets if f>0]
-    if controls.get('context_policy')=='pooled_declared_geometry':
+    if controls.get('context_policy')=='source_witnessed_fixed_strings':
+        donors={r['id']:r for r in catalog['units']}
+        if not all(witnessed_geometry(target,donors[ref],decision['chosen']['realization']) for ref in decision['chosen']['donor_refs']):raise ValueError('Joint source geometry witness lost')
+    elif controls.get('context_policy')=='pooled_declared_geometry':
         if type(envelope['declared_frets'])is not int or min(frets)<0 or max(frets)>envelope['declared_frets']:raise ValueError('Choice exceeds declared fret geometry')
     elif min(frets)<envelope['min_fret'] or max(frets)>envelope['max_fret'] or fingered and max(fingered)-min(fingered)>envelope['max_simultaneous_span']:raise ValueError('Observed musical choice violates target physical envelope')
     return edited,dict(decision,

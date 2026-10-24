@@ -8,13 +8,13 @@ import secrets
 import sys
 
 
-def sample(output,client_root,exclude_corpus=None,seed=None,previous_selections=()):
+def sample(output,client_root,exclude_corpus=None,seed=None,previous_selections=(),extra_excluded_ids=()):
     if output.exists():raise ValueError("Fresh private selection folder required")
     output.mkdir(parents=True)
     seed=secrets.randbits(64) if seed is None else seed
     rng=random.Random(seed);query=rng.choice("abcdefghijklmnopqrstuvwxyz")
     excluded=sorted(int(p.name) for p in exclude_corpus.iterdir() if p.is_dir() and p.name.isdigit()) if exclude_corpus else []
-    excluded=sorted(set(excluded)|{json.loads(p.read_text())["selected_song_id"] for p in previous_selections if "selected_song_id" in json.loads(p.read_text())})
+    excluded=sorted(set(excluded)|set(map(int,extra_excluded_ids))|{json.loads(p.read_text())["selected_song_id"] for p in previous_selections if "selected_song_id" in json.loads(p.read_text())})
     manifest=dict(seed=seed,query=query,excluded_ids=excluded,pool_rule="first100 public search results for seed-selected alphabet letter, valid previously uncaptured IDs only; not uniform catalog sampling",status="pool_request_pending",started_utc=datetime.now(timezone.utc).isoformat())
     path=output/"selection.json"
     def save():path.write_text(json.dumps(manifest,indent=2),encoding="utf-8")

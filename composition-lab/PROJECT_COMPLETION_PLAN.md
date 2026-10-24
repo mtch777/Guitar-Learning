@@ -143,6 +143,19 @@ source inspected during development. Exact-context alternatives absent; pooled
 source evidence is weaker. Ten-fret fixed-string shape is NOT approved playability.
 Full lever and Tier2 closure remain OPEN.
 
+## Current correction: generic logic before fresh-song tests
+
+See VOICING_GENERALIZATION_PLAN.md and VOICING_GENERALIZATION_RESULTS.md.
+AI plans/challenges the implementation; executable relationships and declared
+empirical evidence make decisions. Freeze before testing. No handpicked offsets,
+policy shopping, fresh-song replacement or weakening requirements for a demo.
+Two frozen new cases exposed zero eligible choices and a source arpeggio-ownership
+gap. Generic ownership is repaired; same-source development replays reconstruct
+9795notes/110476typed facts exactly. Original fresh failure is retained. Neither
+case provides positive nonzero musical evidence, so voicing/register remains
+PARTIAL, not a finished lever. No physical-string-unlock decision is required
+merely to proceed with analysis/coverage work.
+
 ## Final completion gate
 
 All implemented tier boundaries pass all three QA gates, individually and

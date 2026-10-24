@@ -51,7 +51,7 @@ class VoicingRegisterTests(unittest.TestCase):
     def test_zero_empty_expression_unknowns_not_plain_notes(self):
         for field,value in (('harmonicFret',0),('bend',{}),('vibrato',True),('leftHandVibrato',True),('wideVibrato',True),('tie',True),('hp',True)):
             self.assertTrue(effect_reasons({},dict(string=0,fret=0,**{field:value})),field)
-        for field in ('tremoloBar','vibrato','letRing'):
+        for field in ('tremoloBar','vibrato','letRing','arpeggio','brushStroke'):
             self.assertTrue(effect_reasons({field:{}},dict(string=0,fret=0)),field)
 
     def test_physical_conflict_refused_without_source_patch(self):
@@ -107,6 +107,61 @@ class VoicingRegisterTests(unittest.TestCase):
         self.assertTrue(decision['changed'])
         self.assertNotEqual(upper['contextual_constraints'],edited['contextual_constraints'])
         reconstruct(edited,dict(variation=0))
+
+    def witnessed_fixture(self):
+        docs=documents();part=docs['track-0.json'];part['measures']=part['measures'][:3]
+        for i in (1,2):
+            part['measures'][i]['voices'][0]['beats'][0]['notes']=[dict(string=5,fret=12),dict(string=4,fret=14),dict(string=3,fret=14)]
+            part['measures'][i]['voices'][0]['beats'][0]['beamStart']=True
+        lower=extract_documents(docs);catalog=inventory(lower)
+        target=select_target(catalog,'source_witnessed_fixed_strings')['target_ref']
+        return lower,catalog,target
+
+    def test_joint_shape_witness_and_notation_separate_from_context(self):
+        lower,catalog,target=self.witnessed_fixture();self.assertIsNotNone(target)
+        upper=strip_lower(analyze(lower));controls=dict(voicing=100,register=100,target_ref=target,seed=9427,context_policy='source_witnessed_fixed_strings')
+        edited,decision=intervene(upper,controls);self.assertTrue(decision['changed'])
+        self.assertEqual(decision['fixed_string_frets'],[12,14,14])
+        from run_voicing_register_qa import locked_diff
+        self.assertEqual(locked_diff(lower,reconstruct(edited,dict(variation=0)),decision['member_refs'])['status'],'PASS_LOCKED_DIMENSIONS')
+        from run_connected_tier2_qa import bundle
+        from qa_isolation_harness import execute
+        code,_=bundle(Path(__file__).parent)
+        with tempfile.TemporaryDirectory() as temp:
+            result=execute(code,upper,controls,reconstruct(edited,dict(variation=0)),Path(temp)/'worker',timeout=30,purpose='voicing_register_intervention')
+        self.assertEqual(result['status'],'PASS',result)
+
+    def test_pitches_on_other_strings_cannot_witness_fixed_shape(self):
+        lower=extract_documents(documents());catalog=inventory(lower)
+        selection=select_target(catalog,'source_witnessed_fixed_strings')
+        self.assertIsNone(selection['target_ref'])
+        from voicing_register import empirical_options
+        evidence=empirical_options(catalog,catalog['units'][0]['id'],'source_witnessed_fixed_strings')
+        self.assertTrue(any(r['reason']=='NO_JOINT_FIXED_STRING_WITNESS' for r in evidence['rejected']))
+
+    def test_witness_requires_whole_shape_and_tuning_capo(self):
+        from voicing_register import witnessed_geometry
+        _,catalog,target_id=self.witnessed_fixture();target=next(r for r in catalog['units'] if r['id']==target_id)
+        donor=catalog['units'][1];self.assertTrue(witnessed_geometry(target,donor,donor['realization']))
+        for field,value in [('capo',1),('tuning',[65,59,55,50,45,40]),('instrument',26)]:
+            changed=deepcopy(donor);changed['source_geometry'][field]=value
+            self.assertFalse(witnessed_geometry(target,changed,donor['realization']))
+        changed=deepcopy(donor);changed['source_geometry']['members'].pop()
+        self.assertFalse(witnessed_geometry(target,changed,donor['realization']))
+
+    def test_final_guard_rejects_broken_tie_even_if_candidate_filter_is_corrupt(self):
+        from unittest.mock import patch
+        docs=documents();part=docs['track-0.json'];part['measures']=part['measures'][:3]
+        for i,measure in enumerate(part['measures']):
+            frets=[0,2,2] if i==0 else [12,14,14]
+            measure['voices'][0]['beats']=[dict(duration=[1,2],notes=[dict(string=s,fret=f) for s,f in zip((5,4,3),frets)]),dict(duration=[1,2],notes=[dict(string=5,fret=frets[0],tie=True)])]
+        lower=extract_documents(docs);catalog=inventory(lower);target=catalog['units'][0]['id']
+        self.assertTrue(catalog['units'][0]['locked_tie_members'])
+        for unit in catalog['units']:unit['locked_tie_members']=[]
+        upper=strip_lower(analyze(lower));controls=dict(voicing=100,register=100,target_ref=target,seed=9427,context_policy='source_witnessed_fixed_strings')
+        with patch('voicing_register.inventory',return_value=catalog):
+            with self.assertRaisesRegex(ValueError,'Locked written tie relationship'):intervene(upper,controls)
+        self.assertEqual(reconstruct(upper,dict(variation=0)),lower)
 
 
 if __name__=='__main__':unittest.main()

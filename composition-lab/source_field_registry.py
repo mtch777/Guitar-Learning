@@ -182,3 +182,9 @@ REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/chord/text')] = 
 REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/chord/width')] = ('integer','float')
 REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/vibratoWithTremoloBar')] = ('string',)
 REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/downStroke')] = ('integer',)
+
+# Literal rolled/strummed-note declaration. Units and execution remain unknown;
+# these are not inferred per-note onset offsets or a verified performance.
+REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/arpeggio/direction')] = ('string',)
+REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/arpeggio/duration')] = ('integer',)
+REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/arpeggio/shift')] = ('integer',)

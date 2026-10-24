@@ -21,7 +21,7 @@ def check(documents,upper):
     actual_tracks=[t['part_id'] for t in tracks]
     if len(actual_tracks)!=len(set(actual_tracks)) or set(actual_tracks)!=set(expected_tracks):issues.append('Technique track inventory/uniqueness differs')
     note_fields={'hp','bend','slide','harmonic','harmonicFret','ghost','staccato','accentuated','tremolo','vibrato','wideVibrato','leftHandVibrato','velocity'}
-    beat_fields={'palmMute','tapping','letRing','brushStroke','downStroke','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity'}
+    beat_fields={'palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity'}
     expected_roots={}
     for name,part in documents.items():
         if not name.startswith('track-'):continue
@@ -88,7 +88,7 @@ def check(documents,upper):
                 if note.get(field):
                     counts[field+'_source_declarations']=counts.get(field+'_source_declarations',0)+1
                     sample(field,dict(source_value=note[field],source=note,time=references[ident],execution='Only the source declaration is known; performed depth/speed/duration not inferred'))
-            for field in ('palmMute','tapping','letRing','brushStroke','tremolo'):
+            for field in ('palmMute','tapping','letRing','brushStroke','arpeggio','tremolo'):
                 if beats[ident].get(field):sample(field,dict(source_value=beats[ident][field],time=references[ident],scope='beat declaration, not independent performed-note proof'))
         groups=track['coattack_groups']+track['relationship_details'].get('recovered_coattack_groups',[])
         for group in groups:

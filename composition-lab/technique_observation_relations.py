@@ -10,7 +10,7 @@ import re
 from source_fact_tier1 import validate
 
 NOTE_EFFECTS=frozenset(('hp','bend','slide','harmonic','harmonicFret','ghost','staccato','accentuated','tremolo','vibrato','wideVibrato','leftHandVibrato','velocity'))
-BEAT_EFFECTS=frozenset(('palmMute','tapping','letRing','brushStroke','downStroke','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity'))
+BEAT_EFFECTS=frozenset(('palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity'))
 _UNSET=object()
 
 
@@ -74,8 +74,15 @@ def supported_structure(owner,root,rows):
             if not walk(child):return False
         return True
     if not walk(root) or visited!=[r['id'] for r in rows]:return False
-    if root['type'] not in ('object','array'):return len(rows)==1
     field=owner['field']
+    if field=='arpeggio':
+        # Registered source declaration only. Duration/shift units and performed
+        # note offsets are not established by these literal field names.
+        types={'direction':'string','duration':'integer','shift':'integer'}
+        return root['type']=='object' and all(
+            r['parent']==root['id'] and r['slot'] in types and r['type']==types[r['slot']]
+            for r in rows[1:])
+    if root['type'] not in ('object','array'):return len(rows)==1
     if field in ('bend','tremoloBar'):
         if root['type']!='object':return False
         for row in rows[1:]:
