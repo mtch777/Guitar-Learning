@@ -1,5 +1,13 @@
 # Musical Tier2 — implemented interface
 
+**Scope correction, 2026-10-23:** this document describes the bounded core and
+historical expansions below. Complete captured-source T1 ownership is now supplied
+by `source_fact_tier1.py` / `connected_tier2.py`; older "full T1 open" statements
+below are historical core-interface limits, not the current integrated status.
+Current creative-lever requirements and mandatory tier gateways are in
+[PROJECT_COMPLETION_PLAN.md](PROJECT_COMPLETION_PLAN.md). The connected inverse
+still accepts only 0% variation; no nonzero creative lever is declared complete.
+
 This is a bounded musical-analysis boundary, not the completed song engine.
 `musical_tier2.py` consumes only its preceding T1 facts. Its shared pitch
 relationship is `pitch = bass_register_anchor + voicing_interval`; analysis solves

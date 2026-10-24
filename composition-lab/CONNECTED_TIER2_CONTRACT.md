@@ -1,5 +1,11 @@
 # Connected Tier1 / Tier2 contract
 
+Completion and creative-lever acceptance are governed by
+[PROJECT_COMPLETION_PLAN.md](PROJECT_COMPLETION_PLAN.md). Exact source reversal
+and retained detector parity do not complete the Tier2 creative levers. Each
+declared lever must pass its own musical, same-relation inverse, control/lock,
+GP/playback and three-QA gateway before the tier can be marked complete.
+
 Active scope: complete captured source ownership and integration of retained
 musical/technique analysis. Accepted detectors and JSON/GP conversion are unchanged.
 No new composition engine, artist model or performed-sound claim.
