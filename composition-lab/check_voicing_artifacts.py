@@ -83,10 +83,11 @@ def check(root,qa):
                 for bi,beat in enumerate(v.get('beats',[])):
                     for ni,note in enumerate(beat.get('notes',[])):
                         new=after['measures'][mi]['voices'][vi]['beats'][bi]['notes'][ni]
-                        if note.get('fret')!=new.get('fret'):
+                        if note.get('fret')!=new.get('fret') or note.get('string')!=new.get('string'):
                             ident=source_note_id(trees['source'],part,mi+1,vi,bi,ni)
-                            expected[ident]=dict(old_fret=note['fret'],new_fret=new['fret'],shift=new['fret']-note['fret'])
-    actual_notes=set();allowed_properties={'ConcertPitch','TransposedPitch','Fret','Midi'}
+                            expected[ident]=dict(old_fret=note['fret'],new_fret=new['fret'],old_gp_string=len(before['tuning'])-1-note['string'],new_gp_string=len(after['tuning'])-1-new['string'],
+                                shift=after['tuning'][new['string']]+(after.get('capo')or 0)+new['fret']-before['tuning'][note['string']]-(before.get('capo')or 0)-note['fret'])
+    actual_notes=set();allowed_properties={'ConcertPitch','TransposedPitch','Fret','Midi','String'}
     old_notes={r.get('id'):r for r in trees['source'].find('Notes')};new_notes={r.get('id'):r for r in trees['changed'].find('Notes')}
     for ident,node in old_notes.items():
         delta=differences(node,new_notes[ident])
@@ -95,7 +96,8 @@ def check(root,qa):
         if ident not in expected:issues.append('Unexpected GP note changed: '+ident);continue
         before={p.get('name'):p for p in node.find('Properties')};after={p.get('name'):p for p in new_notes[ident].find('Properties')};e=expected[ident]
         if int(before['Fret'].find('Fret').text)!=e['old_fret'] or int(after['Fret'].find('Fret').text)!=e['new_fret']:issues.append('GP fret does not match owned source equation')
-        if int(after['Midi'].find('Number').text)-int(before['Midi'].find('Number').text)!=e['shift']:issues.append('GP MIDI shift differs from fixed-string fret shift')
+        if int(before['String'].find('String').text)!=e['old_gp_string'] or int(after['String'].find('String').text)!=e['new_gp_string']:issues.append('GP string does not match owned source assignment')
+        if int(after['Midi'].find('Number').text)-int(before['Midi'].find('Number').text)!=e['shift']:issues.append('GP MIDI shift differs from physical pitch equation')
         for pitch_name in ('ConcertPitch','TransposedPitch'):
             old=before[pitch_name].find('Pitch');new=after[pitch_name].find('Pitch')
             if int(new.find('Octave').text)-int(old.find('Octave').text)!=e['shift']//12 or e['shift']%12:issues.append('Unexpected GP spelling/register change')
@@ -107,7 +109,7 @@ def check(root,qa):
                 prop_match=re.search(r'/Property\[(\d+)\]',path)
                 if prop_match:
                     prop=list(node.find('Properties'))[int(prop_match.group(1))].get('name')
-                    allowed=prop in allowed_properties and path.endswith(('/Octave[2]','/Fret[0]','/Number[0]'))
+                    allowed=prop in allowed_properties and path.endswith(('/Octave[2]','/Fret[0]','/Number[0]','/String[0]'))
             if not allowed or change['old_attributes']!=change['new_attributes']:issues.append('Other GP note field changed: '+path)
     if actual_notes!=set(expected):issues.append('Changed GP note identity set differs from source changes')
     # Entire score differences must be restricted to those same note nodes.
@@ -119,16 +121,16 @@ def check(root,qa):
         if rate!=zr or rate!=cr or len(source)!=len(zero) or len(source)!=len(changed):raise ValueError('Audio clocks differ')
         delta=[b-a for a,b in zip(source,changed)];nonzero=[i for i,v in enumerate(delta) if v]
         if source!=zero:issues.append('Source/zero rendered samples differ')
-        if not nonzero:issues.append('No actual rendered change')
-        audio_checks[mode]=dict(source_zero_sample_exact=source==zero,frames=len(source),rate=rate,seconds=len(source)/rate,
+        if not nonzero and any(e['shift'] for e in expected.values()):issues.append('No actual rendered pitch change')
+        audio_checks[mode]=dict(source_zero_sample_exact=source==zero,changed_sample_frames=len(nonzero),frames=len(source),rate=rate,seconds=len(source)/rate,
             delta_rms=math.sqrt(sum(v*v for v in delta)/len(delta))/32768,
             delta_start_seconds=nonzero[0]/rate if nonzero else None,delta_end_seconds=nonzero[-1]/rate if nonzero else None)
-    report=dict(status='PASS_NATIVE_GP_AND_AUDIO_CHANGE' if not issues else 'FAIL',issues=issues,
+    report=dict(status=('PASS_NATIVE_GP_AND_AUDIO_CHANGE' if any(e['shift'] for e in expected.values()) else 'PASS_NATIVE_GP_AND_RENDER_CHECKS') if not issues else 'FAIL',issues=issues,
         normalized_generated_chord_definitions=uuid_counts,source_zero_normalized_gpif_exact=not zero_diff,
         changed_gp_note_ids=sorted(actual_notes),dependent_gp_scalar_changes=len(changed_diff),expected_fret_changes=expected,audio=audio_checks,
-        scope='Native GP data and actual waveform difference, not human listening, source-feel or physical playability')
+        scope='Native GP data and rendering check (physical-only changes need not alter MIDI audio), not human listening, source-feel or physical playability')
     (root/'independent-gp-audio-check.json').write_text(json.dumps(report,indent=2),encoding='utf-8');return report
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('root',type=Path);p.add_argument('qa',type=Path);a=p.parse_args();r=check(a.root,a.qa);print(json.dumps(r));raise SystemExit(0 if r['status']=='PASS_NATIVE_GP_AND_AUDIO_CHANGE' else 1)
+    p=argparse.ArgumentParser();p.add_argument('root',type=Path);p.add_argument('qa',type=Path);a=p.parse_args();r=check(a.root,a.qa);print(json.dumps(r));raise SystemExit(0 if r['status'] in ('PASS_NATIVE_GP_AND_AUDIO_CHANGE','PASS_NATIVE_GP_AND_RENDER_CHECKS') else 1)

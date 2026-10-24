@@ -3,7 +3,30 @@
 Finite exact paths/types; numerical array indices are structural placeholders.
 Unknown additions require explicit review and remain unsupported meanwhile.
 """
-REGISTERED_SOURCE_FIELDS = {('metadata', '/aiGenerated'): ('boolean',),
+REGISTERED_SOURCE_CONTAINERS = {
+ ('metadata', '/nextAudioMeta'): ('object',),
+ ('metadata', '/audios/next'): ('object',),
+ ('metadata', '/audios/next/meta'): ('object',),
+ ('track', '/measures/*/keySignature'): ('object',),
+ ('track', '/measures/*/voices/*/beats/*/notes/*/spn'): ('array',),
+}
+
+REGISTERED_SOURCE_FIELDS = {('metadata', '/nextAudio'): ('string',),
+ ('metadata', '/nextAudioGenerated'): ('string',),
+ ('metadata', '/nextMidi'): ('string',),
+ ('metadata', '/nextAudioMeta/hasQuickMix'): ('boolean',),
+ ('metadata', '/nextAudioMeta/hasMixLayout'): ('boolean',),
+ ('metadata', '/audios/next/hash'): ('string',),
+ ('metadata', '/audios/next/meta/hasQuickMix'): ('boolean',),
+ ('metadata', '/audios/next/meta/hasMixLayout'): ('boolean',),
+ ('track', '/measures/*/keySignature/accidentalCount'): ('integer',),
+ ('track', '/measures/*/keySignature/mode'): ('string',),
+ ('track', '/measures/*/keySignature/transposeAs'): ('string',),
+ ('track', '/measures/*/voices/*/beats/*/notes/*/spn/*'): ('integer',),
+ ('track', '/measures/*/voices/*/beats/*/notes/*/courtesyAccidental'): ('boolean',),
+ ('track', '/measures/*/clef'): ('string',),
+ ('track', '/grandStaffGroup'): ('integer',),
+ ('metadata', '/aiGenerated'): ('boolean',),
  ('metadata', '/artist'): ('string',),
  ('metadata', '/artistId'): ('integer',),
  ('metadata', '/audio'): ('string',),

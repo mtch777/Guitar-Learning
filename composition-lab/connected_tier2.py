@@ -8,7 +8,7 @@ from fractions import Fraction as F
 import json
 import re
 from source_fact_tier1 import validate as validate_source,project_documents
-from source_field_registry import REGISTERED_SOURCE_FIELDS
+from source_field_registry import REGISTERED_SOURCE_FIELDS,REGISTERED_SOURCE_CONTAINERS
 from technique_observation_relations import lift,realize as realize_effects,scalar_relation
 import musical_tier2 as music
 
@@ -23,7 +23,9 @@ def registered(row):
 
 def registered_container(row):
     scope,path=address_pattern(row)
-    return not path or any(scope==d and (p.startswith(path+'/') or p==path) for d,p in REGISTERED_SOURCE_FIELDS)
+    if (scope,path) in REGISTERED_SOURCE_CONTAINERS:
+        return row['type'] in REGISTERED_SOURCE_CONTAINERS[scope,path]
+    return not path or any(scope==d and p.startswith(path+'/') for d,p in REGISTERED_SOURCE_FIELDS)
 
 
 def owner_kind(row):
@@ -72,9 +74,9 @@ def analyze(tier1):
         if event is not None and event['pitch'] is not None and row['type'] in ('integer','float'):
             part=documents[row['document']];note_ref=row['parent']
             string_ref=note_ref+'/string';string=source_index[string_ref]['value']
-            tuning_ref=row['document']+f'#/tuning/{string}';capo_ref=row['document']+'#/capo'
+            capo_ref=row['document']+'#/capo'
             if physical_relation(fret=row['value'],tuning=part['tuning'][string],capo=part.get('capo') or 0)!=event['pitch']:raise ValueError('Source pitch physical equation differs')
-            positions.append(dict(fact_ref=row['id'],occurrence_ref=event['id'],string_ref=string_ref,tuning_ref=tuning_ref,capo_ref=capo_ref if 'capo' in part else None,negative_zero=row['type']=='float' and str(row['value'])=='-0.0'))
+            positions.append(dict(fact_ref=row['id'],occurrence_ref=event['id'],string_ref=string_ref,tuning_array_ref=row['document']+'#/tuning',capo_ref=capo_ref if 'capo' in part else None,negative_zero=row['type']=='float' and str(row['value'])=='-0.0'))
             coverage.append(dict(fact_ref=row['id'],owner='written_pitch_relationship'));continue
         if not registered(row):
             unsupported.append(dict(fact_ref=row['id'],reason='UNREGISTERED_SOURCE_FIELD_OR_TYPE'));coverage.append(dict(fact_ref=row['id'],owner='unsupported'));continue
@@ -124,18 +126,25 @@ def realize(upper):
         if not registered(row) or choice['owner']!=owner_kind(row):raise ValueError('Unregistered source choice')
         assign(row['id'],scalar_relation(row['type'],parameter=choice['parameter']),choice['owner'])
     for position in parameters['physical_positions']:
-        if set(position)!={'fact_ref','occurrence_ref','string_ref','tuning_ref','capo_ref','negative_zero'}:raise ValueError('Unregistered physical payload')
+        common={'fact_ref','occurrence_ref','string_ref','capo_ref','negative_zero'}
+        if set(position) not in (common|{'tuning_ref'},common|{'tuning_array_ref'}):raise ValueError('Unregistered physical payload')
         row=index[position['fact_ref']];event=events[position['occurrence_ref']]
         note=event_pointer(event)
         if row['id']!=note+'/fret' or position['string_ref']!=note+'/string' or row['type'] not in ('integer','float') or type(position['negative_zero']) is not bool:raise ValueError('Physical occurrence owner conflict')
         string=index[position['string_ref']]['value']
-        if type(string) is not int or position['tuning_ref']!=row['document']+f'#/tuning/{string}':raise ValueError('Physical string/tuning conflict')
+        tuning_array=row['document']+'#/tuning'
+        if type(string) is not int or string<0 or tuning_array not in index or index[tuning_array]['type']!='array':raise ValueError('Physical string/tuning conflict')
+        tuning_ref=tuning_array+f'/{string}'
+        if tuning_ref not in index[tuning_array]['children'] or tuning_ref not in assigned:raise ValueError('Physical string/tuning conflict')
+        if 'tuning_array_ref' in position:
+            if position['tuning_array_ref']!=tuning_array:raise ValueError('Physical tuning array conflict')
+        elif position['tuning_ref']!=tuning_ref:raise ValueError('Physical string/tuning conflict')
         expected_capo=row['document']+'#/capo'
         if position['capo_ref']!=(expected_capo if expected_capo in index else None):raise ValueError('Physical capo presence conflict')
         capo=index[expected_capo]['value'] if expected_capo in index else None
         # Existing source semantics treats absent/null/zero capo as no shift;
         # the declaration choice itself remains distinct and exactly owned.
-        value=physical_relation(pitch=event['pitch'],tuning=index[position['tuning_ref']]['value'],capo=capo or 0)
+        value=physical_relation(pitch=event['pitch'],tuning=index[tuning_ref]['value'],capo=capo or 0)
         assign(row['id'],scalar_relation(row['type'],parameter=dict(normalized=value,negative_zero=position['negative_zero'])),'written_pitch_relationship')
     for row in realize_effects(parameters['technique_declarations']):
         if row['id'] in index:raise ValueError('Overlapping technique/structure ownership')

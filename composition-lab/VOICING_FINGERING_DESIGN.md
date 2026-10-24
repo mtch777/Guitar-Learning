@@ -1,7 +1,9 @@
 # Next contract: joint voicing and fingering relationships
 
-PROPOSED, not implemented or activated. ProjectPlanner3000 recommendation after
-the frozen incident-dependency trial. Existing strict experiment stays unchanged.
+User authorized joint physical scope on 2026-10-24. The dynamic tuning relationship
+and opt-in `joint_source_fingering` implementation are under QA; see
+JOINT_FINGERING_PROGRESS.md. This does not activate family normalization or widen
+musical context matching. Existing frozen experiments stay unchanged.
 
 ## Observed reason to change the abstraction
 

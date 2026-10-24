@@ -91,7 +91,7 @@ constitute current creative acceptance.
 | T2-10 Dynamics / accents | Source velocity/markings and retained dynamic analysis | Context-supported expressive alternatives; inherited versus explicit values; acoustic/rendering consequences and locked surrounding expression | OPEN |
 | T2-11 Articulation | Preserved staccato/ringing/connected markings and technique links | Separate execution/edit contract for each articulation; attack/end/sustain dependencies and actual rendering checks | OPEN |
 | T2-12 Individual techniques | Source declarations, retained identification and bounded inverses | Per-technique musical placement/trajectory/destination relationships, supported proposals, dependencies, same-relation edit and playback evidence; see individual rows below | OPEN per technique |
-| T2-13 Physical realization | Shared pitch = tuning + capo + fret relationship; source string/position choices | Supported alternative fingering/position/tuning/capo proposals, coordinated dependent changes and explicit machine/human playability limits | OPEN |
+| T2-13 Physical realization | Shared pitch = tuning[selected string] + capo + fret; independently controlled source-observed joint string/voicing choices; exact stripped inverse | Positive fresh-song musical change and GP/audio evidence; physical execution/listening; tuning/capo variation not implemented | PARTIAL: joint control contracts verified; creative acceptance OPEN |
 
 Melody function and octave are distinct locks. Revoicing/register changes cannot
 claim to preserve a locked melodic octave. Changing harmony while locking
@@ -166,6 +166,18 @@ Both genuinely new frozen songs reconstruct15544notes/134168typed facts exactly,
 with unchanged accepted detectors. Neither provides a supported alternative
 voicing. Creative-lever/Tier2 acceptance remains OPEN; no listening example forced.
 
+## Joint physical/voicing checkpoint (2026-10-24)
+
+See JOINT_FINGERING_PROGRESS.md. User authorized physical string freedom;
+`joint_source_fingering` keeps existing musical conditioning and uses whole observed
+assignments. Same musical and physical equations; no extra generator. Independent
+seed/source/lock checks, collisions, dependency pins and declared fret limits pass.
+An actual fresh trial exposed unowned source declaration shapes: failures retained,
+generic typed-schema repair, then same-song development replay. A NEW frozen trial
+passes 5689 notes/47905 source facts exactly across two songs; neither offers an
+allowed alternative. Synthetic positive controls do not close the fresh musical
+gate. Further random sampling is not the solution to missing contextual choices.
+
 ## Final completion gate
 
 All implemented tier boundaries pass all three QA gates, individually and
@@ -175,7 +187,7 @@ style support and copying/diversity. Native GP fidelity, conversion limitations,
 actual playback, physical execution and human musical/source-feel acceptance
 remain distinct checks. No artifact count or test total substitutes for them.
 
-## Plan-change verification
+## Original plan-change verification (2026-10-23)
 
 This update changes requirements and acceptance documentation only. No detector,
 inverse, source, model, GP, audio or website changes. Prior source/math/CI results

@@ -42,7 +42,7 @@ def _source_units(documents,policy='source_witnessed_fixed_strings'):
     tie_graph=_written_ties(documents,events)
     endpoints={link[key]for link in tie_graph['links']for key in ('origin','destination')}
     dependencies=None
-    if policy=='incident_dependencies':
+    if policy in ('incident_dependencies','joint_source_fingering'):
         from check_execution_dependencies import expected
         from source_fact_tier1 import extract_documents as complete_facts
         dependencies=expected(complete_facts(documents))
@@ -93,7 +93,7 @@ def _source_units(documents,policy='source_witnessed_fixed_strings'):
             if other['id']in selected or not a<stop or not b>onset:continue
             unknown=other['pitch']is None or F(other['pitch']).denominator!=1
             if unknown or expression[other['id']]:
-                if policy!='incident_dependencies' or other['part_id']==pid:reasons.append('UNRESOLVED_OVERLAP_EXECUTION')
+                if policy not in ('incident_dependencies','joint_source_fingering') or other['part_id']==pid:reasons.append('UNRESOLVED_OVERLAP_EXECUTION')
                 else:
                     descriptor=dict(written_pitch_status='unknown_or_noninteger' if unknown else 'known_base_only',execution_reasons=sorted(set(expression[other['id']])),claim='Nominal source overlap; sounding pitch/end unknown')
                     uncertainty.append(dict(occurrence_ref=other['id'],**descriptor))
@@ -101,6 +101,11 @@ def _source_units(documents,policy='source_witnessed_fixed_strings'):
             overlaps.append([other['part_id'],other['voice'],str(max(a,onset)-onset),str(min(b,stop)-onset),None if unknown else str(F(other['pitch'])%12)])
         frame=frames[rows[0]['bar']-1];sig=frame['signature'];pitches=[F(e['pitch'])for e in rows]
         strings=[raw(e)[2]['string']for e in rows]
+        if policy=='joint_source_fingering':
+            unit['declared_frets']=part.get('frets')
+            unit['occupied_strings']=sorted({raw(other)[2]['string']for other,a,b in pitched
+                if other['part_id']==pid and other['id']not in selected and a<stop and b>onset
+                and type(raw(other)[2].get('string'))is int})
         context=dict(part_id=pid,instrument=part['instrumentId'],member_pitch_classes=[str(p%12)for p in pitches],meter=dict(beats=sig[0],beat_unit_q=str(F(4,sig[1]))),metrical_offset_q=str(onset-F(frame['start_q'])),overlaps=sorted(overlaps,key=encoded),duration_q=rows[0]['duration_q'])
         unit.update(refusal_reasons=sorted(set(reasons)),duration_q=rows[0]['duration_q'],realization=dict(anchor=str(min(pitches)),intervals=[str(p-min(pitches))for p in pitches]),fixed_output_strings=strings,
             fixed_string_bases=[str(F(str(part['tuning'][s]))+F(str(part.get('capo')or 0)))for s in strings],
@@ -117,7 +122,7 @@ def _source_units(documents,policy='source_witnessed_fixed_strings'):
 
 
 def _expected_rows(units,policy='source_witnessed_fixed_strings'):
-    keys=('dependency_full_context_key','dependency_context_key') if policy=='incident_dependencies' else ('musical_full_context_key','musical_context_key')
+    keys=('dependency_full_context_key','dependency_context_key') if policy in ('incident_dependencies','joint_source_fingering') else ('musical_full_context_key','musical_context_key')
     grouped={field:defaultdict(list)for field in keys}
     for row in units:
         if not row['refusal_reasons']:
@@ -133,13 +138,27 @@ def _expected_rows(units,policy='source_witnessed_fixed_strings'):
                 original=[F(target['realization']['anchor'])+F(v)for v in target['realization']['intervals']]
                 if any(ref in target['locked_tie_members']and pitch!=old for ref,pitch,old in zip(target['member_refs'],pitches,original)):
                     rejected.append(dict(level=field,donor_ref=donor['id'],reason='LOCKED_WRITTEN_TIE_ENDPOINT',realization=value));continue
-                if policy=='incident_dependencies' and any(ref in target['locked_execution_members']and pitch!=old for ref,pitch,old in zip(target['member_refs'],pitches,original)):
+                if policy in ('incident_dependencies','joint_source_fingering') and any(ref in target['locked_execution_members']and pitch!=old for ref,pitch,old in zip(target['member_refs'],pitches,original)):
                     rejected.append(dict(level=field,donor_ref=donor['id'],reason='LOCKED_EXECUTION_DEPENDENCY',realization=value));continue
-                actual=dict(instrument=target['source_geometry']['instrument'],tuning=target['source_geometry']['tuning'],capo=target['source_geometry']['capo'],members=sorted([[str(p),s,str(p-F(b))]for p,s,b in zip(pitches,target['fixed_output_strings'],target['fixed_string_bases'])],key=encoded))
-                if actual!=donor['source_geometry']:
-                    rejected.append(dict(level=field,donor_ref=donor['id'],reason='NO_JOINT_FIXED_STRING_WITNESS',realization=value));continue
+                if policy=='joint_source_fingering':
+                    if any(target['source_geometry'][k]!=donor['source_geometry'][k]for k in ('instrument','tuning','capo')):continue
+                    value=dict(value,strings=donor['fixed_output_strings'])
+                    limit=donor['declared_frets']
+                    if any(F(member[2])<0 or F(member[2]).denominator!=1 or(type(limit)is int and limit>0 and F(member[2])>limit)for member in donor['source_geometry']['members']):
+                        rejected.append(dict(level=field,donor_ref=donor['id'],reason='INVALID_OBSERVED_FRET',realization=value));continue
+                    if any(new!=old and new in target['occupied_strings']for old,new in zip(target['fixed_output_strings'],value['strings'])):
+                        rejected.append(dict(level=field,donor_ref=donor['id'],reason='OVERLAPPING_STRING_OCCUPIED',realization=value));continue
+                    pinned=set(target['locked_tie_members'])|set(target['locked_execution_members'])
+                    if any(ref in pinned and old!=new for ref,old,new in zip(target['member_refs'],target['fixed_output_strings'],value['strings'])):
+                        rejected.append(dict(level=field,donor_ref=donor['id'],reason='LOCKED_EXECUTION_STRING',realization=value));continue
+                else:
+                    actual=dict(instrument=target['source_geometry']['instrument'],tuning=target['source_geometry']['tuning'],capo=target['source_geometry']['capo'],members=sorted([[str(p),s,str(p-F(b))]for p,s,b in zip(pitches,target['fixed_output_strings'],target['fixed_string_bases'])],key=encoded))
+                    if actual!=donor['source_geometry']:
+                        rejected.append(dict(level=field,donor_ref=donor['id'],reason='NO_JOINT_FIXED_STRING_WITNESS',realization=value));continue
                 key=encoded(value);choices.setdefault(key,dict(realization=value,donor_refs=[]))['donor_refs'].append(donor['id'])
-            options=[choices[k]for k in sorted(choices)];alternative=any(x['realization']!=target['realization']for x in options)
+            options=[choices[k]for k in sorted(choices)]
+            original=dict(target['realization'],strings=target['fixed_output_strings'])if policy=='joint_source_fingering'else target['realization']
+            alternative=any(x['realization']!=original for x in options)
             levels.append(dict(level=field,donor_units=len(donors),distinct_realizations=len(options),physically_feasible_realizations=len(options),has_alternative=alternative))
             if alternative:status='SUPPORTED_EMPIRICAL_ALTERNATIVES';break
         if status is None:status='OBSERVED_SINGLE_REALIZATION'if options else'NO_ELIGIBLE_ALTERNATIVE'
@@ -155,9 +174,9 @@ def check(documents,catalog,reported=None,policy='source_witnessed_fixed_strings
     """
     issues=[]
     try:
-        if policy not in ('source_witnessed_fixed_strings','incident_dependencies'):raise ValueError('Explicit oracle policy required')
+        if policy not in ('source_witnessed_fixed_strings','incident_dependencies','joint_source_fingering'):raise ValueError('Explicit oracle policy required')
         units,event_count,tie_graph,dependencies=_source_units(documents,policy);actual=catalog['units']
-        if policy=='incident_dependencies' and encoded(catalog.get('execution_dependencies'))!=encoded(dependencies):issues.append('EXECUTION_DEPENDENCIES_MISMATCH')
+        if policy in ('incident_dependencies','joint_source_fingering') and encoded(catalog.get('execution_dependencies'))!=encoded(dependencies):issues.append('EXECUTION_DEPENDENCIES_MISMATCH')
         if encoded(catalog.get('written_tie_relationships'))!=encoded(tie_graph):issues.append('WRITTEN_TIE_RELATIONSHIPS_MISMATCH')
         if encoded(catalog['source_occurrences'])!=encoded(event_count):issues.append('SOURCE_OCCURRENCE_COUNT_MISMATCH')
         if len(actual)!=len(units)or [u['id']for u in actual]!=[u['id']for u in units]:issues.append('SOURCE_UNIT_INVENTORY_MISMATCH')
