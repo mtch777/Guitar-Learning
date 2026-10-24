@@ -110,4 +110,6 @@ wrong-context negatives and physical witnesses. A bass-relative family must not
 be labeled a chord root or known harmonic function without evidence. No more
 random draws to fish for an example; no arbitrary matching relaxation.
 
-Commit/push and CI verification recorded below when complete.
+Delivered commit `6359eb4`, pushed to main. GitHub Actions run `40119958499`
+completed SUCCESS. No private source captures, scores or audio were published;
+unrelated unfinished work remains unstaged.
