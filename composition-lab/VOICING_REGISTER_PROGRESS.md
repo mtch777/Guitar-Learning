@@ -15,7 +15,7 @@ Approved detectors/codecs and unrelated work remain unchanged.
 - [x] Source/zero/changed native GP exports, imports and independent comparison.
 - [x] Audio renders and independent PCM comparison; actual browser UI/control QA.
 - [x] Python/JS regressions.
-- [ ] Commit/push and remote CI verification.
+- [x] Commit/push and remote CI verification:5c0724d; run40070620417 SUCCESS.
 - [ ] Human musical listening and physical execution acceptance; full lever OPEN.
 
 ## Frozen source and locks
@@ -124,3 +124,5 @@ checks. Commercial scores/captures/audio remain ignored and unpublished.
 Next: optional user approval to reassign only affected strings to actual observed
 donor fingering; current all-other-dimensions-locked scope cannot silently permit
 that. Musical listening is a separate judgment. Other Tier2 levers remain open.
+
+Additional JS source-inspector/dead-tie/bend suites:19PASS.

@@ -136,7 +136,7 @@ and close-interval textures belong to harmony/voicing, not extra effect sliders.
 - [x] Compare source-to-GP and reconstructed-to-GP baseline fidelity separately.
 - [x] Produce changed GP and audio, verify exact unaffected locks and audible
   difference; no human quality judgment invented.
-- [ ] Planner MID/END, actual review QA and delivery. This is not Tier2 closure.
+- [x] Planner MID/END, actual review QA and delivery. This is not Tier2 closure.
 
 Evidence: VOICING_REGISTER_PROGRESS.md. Contracts revised transparently V1-V4;
 source inspected during development. Exact-context alternatives absent; pooled
