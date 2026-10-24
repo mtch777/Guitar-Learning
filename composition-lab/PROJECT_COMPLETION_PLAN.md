@@ -156,6 +156,16 @@ case provides positive nonzero musical evidence, so voicing/register remains
 PARTIAL, not a finished lever. No physical-string-unlock decision is required
 merely to proceed with analysis/coverage work.
 
+## Incident versus contextual execution uncertainty
+
+EXECUTION_DEPENDENCY_PLAN.md / EXECUTION_DEPENDENCY_RESULTS.md record the next
+completed bounded experiment. Tier2 now stores a recomputable source-linked
+execution graph. Incident pins and global HP/slide semantic guards preserve
+relationships; unrelated part uncertainty remains explicit nominal context.
+Both genuinely new frozen songs reconstruct15544notes/134168typed facts exactly,
+with unchanged accepted detectors. Neither provides a supported alternative
+voicing. Creative-lever/Tier2 acceptance remains OPEN; no listening example forced.
+
 ## Final completion gate
 
 All implemented tier boundaries pass all three QA gates, individually and

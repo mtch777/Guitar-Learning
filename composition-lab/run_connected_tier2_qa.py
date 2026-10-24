@@ -13,7 +13,7 @@ from check_technique_connections import check as check_connections
 
 
 def bundle(root):
-    names=('source_fact_tier1','source_field_registry','technique_observation_relations','musical_tier2','chord_degree_definitions','chord_degree_relations','contextual_note_roles','contextual_chord_motion','contextual_passage_roles','voicing_register','connected_tier2')
+    names=('source_fact_tier1','source_field_registry','technique_observation_relations','musical_tier2','chord_degree_definitions','chord_degree_relations','contextual_note_roles','contextual_chord_motion','contextual_passage_roles','execution_dependencies','voicing_register','connected_tier2')
     code='import sys,types\n'
     hashes={}
     for name in names:
@@ -26,8 +26,13 @@ def bundle(root):
     sources={}
     sources['source_semantics']=(api/'source_semantics.py').read_text(encoding='utf-8-sig')
     parsed=ast.parse((api/'analyze_relationships.py').read_text(encoding='utf-8-sig'))
-    selected=[n for n in parsed.body if isinstance(n,ast.FunctionDef) and n.name in ('pitch','occurrences') or isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id in ('NOTE_FIELDS','BEAT_FIELDS') for t in n.targets)]
-    sources['analyze_relationships']='from fractions import Fraction as F\nfrom source_semantics import layout,marker_text,whole_measure_rest\n'+ast.unparse(ast.Module(body=selected,type_ignores=[]))
+    selected=[n for n in parsed.body if isinstance(n,ast.FunctionDef) and n.name in ('pitch','occurrences','hopo') or isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id in ('NOTE_FIELDS','BEAT_FIELDS') for t in n.targets)]
+    sources['analyze_relationships']='from fractions import Fraction as F\nfrom collections import defaultdict\nfrom source_semantics import layout,marker_text,whole_measure_rest\n'+ast.unparse(ast.Module(body=selected,type_ignores=[]))
+    parsed=ast.parse((root/'technique_analysis.py').read_text(encoding='utf-8-sig'))
+    selected=[n for n in parsed.body if isinstance(n,ast.FunctionDef) and n.name=='classify_group']
+    sources['technique_analysis']=ast.unparse(ast.Module(body=selected,type_ignores=[]))
+    for name in ('source_slides','source_timing_regions','source_relationship_details'):
+        sources[name]=(api/(name+'.py')).read_text(encoding='utf-8-sig')
     parser=ast.parse((root/'run_reversible_tier_qa.py').read_text(encoding='utf-8-sig'))
     function=next(n for n in parser.body if isinstance(n,ast.FunctionDef) and n.name=='extract_documents')
     sources['run_reversible_tier_qa']='import sys\nfrom pathlib import Path\nfrom fractions import Fraction as F\n'+ast.unparse(function)

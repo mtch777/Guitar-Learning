@@ -40,12 +40,12 @@ def raw_geometry(documents,refs):
     return dict(settings=settings,members=sorted(result))
 
 
-def audit_choices(documents,catalog):
+def audit_choices(documents,catalog,policy=POLICY):
     issues=[];accepted=0;alternatives=0;rejections=Counter();selection=None;rows=[]
     by_id={r['id']:r for r in catalog['units']}
     for target in catalog['units']:
         if target['refusal_reasons']:continue
-        evidence=empirical_options(catalog,target['id'],POLICY)
+        evidence=empirical_options(catalog,target['id'],policy)
         rows.append(dict(target_ref=target['id'],status=evidence['status'],levels=evidence['levels'],rejected=evidence['rejected'],options=evidence['options']))
         rejections.update(r['reason'] for r in evidence['rejected'])
         if selection is None and evidence['status']=='SUPPORTED_EMPIRICAL_ALTERNATIVES':selection=target
@@ -70,8 +70,10 @@ def audit_choices(documents,catalog):
 def run(capture,output,freeze):
     if output.exists() or 'local-artifacts' not in output.resolve().parts:raise ValueError('Fresh private output required')
     frozen=json.loads(freeze.read_text(encoding='utf-8'))
+    policy=frozen.get('policy',POLICY)
+    if policy not in ('source_witnessed_fixed_strings','incident_dependencies'):raise ValueError('Frozen declared policy required')
     if any(digest(Path(p))!=h for p,h in frozen['code_hashes'].items()):raise ValueError('Frozen logic changed; no fresh-test result permitted')
-    output.mkdir(parents=True);result=dict(status='RUNNING',policy=POLICY)
+    output.mkdir(parents=True);result=dict(status='RUNNING',policy=policy)
     freeze_digest=digest(freeze)
     source_hashes={str(p.resolve()):digest(p) for p in capture.glob('*.json')}
     dump(output/'source-hashes-before.json',source_hashes)
@@ -84,13 +86,19 @@ def run(capture,output,freeze):
         actual=json.loads((output/'zero-isolated/worker/output.json').read_text(encoding='utf-8')) if zero['status']=='PASS' else None
         exact=check(capture,actual) if actual is not None else dict(status='FAIL_WORKER')
         connections=source_relationships(documents,upper);parity=comparable_to_baseline(upper['derived_views']['techniques'],json.loads(json.dumps(baseline)))
-        catalog=inventory(lower);dump(output/'catalog.json',catalog)
-        meaning,target=audit_choices(documents,catalog)
+        catalog=inventory(lower,policy);dump(output/'catalog.json',catalog)
+        meaning,target=audit_choices(documents,catalog,policy)
         from check_voicing_policy import check as independent_policy_check
-        independent=independent_policy_check(documents,catalog,reported=meaning['rows'])
+        independent=independent_policy_check(documents,catalog,reported=meaning['rows'],policy=policy)
         dump(output/'independent-policy-audit.json',independent)
         meaning['independent_denominator_check']={k:v for k,v in independent.items() if k!='expected_rows'}
         if independent['status']!='PASS_INDEPENDENT_POLICY':meaning['status']='FAIL'
+        if policy=='incident_dependencies':
+            from check_execution_dependencies import check as check_dependencies
+            dependency_check=check_dependencies(lower,catalog['execution_dependencies'])
+            dump(output/'independent-execution-audit.json',dependency_check)
+            meaning['independent_execution_check']={k:v for k,v in dependency_check.items() if k not in ('expected','expected_graph')}
+            if dependency_check['status']!='PASS_INDEPENDENT_EXECUTION_DEPENDENCIES':meaning['status']='FAIL'
         dump(output/'source-witness-audit.json',meaning)
         draws=[];changed_run=None;locks=None;decision=None
         # All source units were inventoried. First supported alternative is a
@@ -100,7 +108,7 @@ def run(capture,output,freeze):
             for voicing,register in [(s,s) for s in (0,50,100)]+[(100,0),(0,100)]:
                 seeds=range(9427,9447) if voicing==register else [9427]
                 for seed in seeds:
-                    controls=dict(voicing=voicing,register=register,seed=seed,target_ref=target['id'],context_policy=POLICY)
+                    controls=dict(voicing=voicing,register=register,seed=seed,target_ref=target['id'],context_policy=policy)
                     _,choice=sample_choice(catalog,controls);draws.append(dict(controls=controls,decision=choice))
             demo=next((r for r in draws if r['decision']['changed']),None)
             if demo:
@@ -108,12 +116,21 @@ def run(capture,output,freeze):
                 changed_run=execute(code,stripped,demo['controls'],changed,output/'changed-isolated',timeout=300,purpose='voicing_register_intervention')
                 changed_actual=json.loads((output/'changed-isolated/worker/output.json').read_text(encoding='utf-8')) if changed_run['status']=='PASS' else None
                 locks=locked_diff(lower,changed_actual,target['member_refs']) if changed_actual is not None else dict(status='FAIL_WORKER')
+                if changed_actual is not None and policy=='incident_dependencies':
+                    from check_execution_dependencies import expected as expected_dependencies
+                    from check_voicing_policy import _written_ties
+                    from run_reversible_tier_qa import extract_documents as written_events
+                    after_documents=project_documents(changed_actual)
+                    semantic_locks=dict(execution_signatures_equal=expected_dependencies(lower)['signature']==expected_dependencies(changed_actual)['signature'],
+                        written_ties_equal=_written_ties(documents,written_events(documents)['events'])==_written_ties(after_documents,written_events(after_documents)['events']))
+                    locks['independent_semantic_locks']=semantic_locks
+                    if not all(semantic_locks.values()):locks['status']='FAIL';locks['issues'].append('Independent execution/tie relationship changed')
                 save_capture(actual,output/'zero-capture');save_capture(changed_actual,output/'changed-capture')
         dump(output/'ALL-control-draws.json',draws)
         unchanged=set(source_hashes)=={str(p.resolve()) for p in capture.glob('*.json')} and all(digest(Path(p))==h for p,h in source_hashes.items()) and all(digest(Path(p))==h for p,h in frozen['code_hashes'].items()) and digest(freeze)==freeze_digest
         passed=unchanged and zero['status']=='PASS' and exact['status']=='PASS_COMPLETE_CAPTURED_JSON_FACTS' and connections['status']=='PASS_SOURCE_BACKED_RELATIONSHIPS' and parity and meaning['status']=='PASS_BOUNDED_SOURCE_WITNESSES'
         if changed_run is not None:passed=passed and changed_run['status']=='PASS' and locks['status']=='PASS_LOCKED_DIMENSIONS'
-        result=dict(status='PASS_BOUNDED_PORTABILITY_AND_REVERSAL' if passed else 'FAIL_RETAINED',policy=POLICY,unchanged=unchanged,
+        result=dict(status='PASS_BOUNDED_PORTABILITY_AND_REVERSAL' if passed else 'FAIL_RETAINED',policy=policy,unchanged=unchanged,
             song_id=documents['metadata.json']['songId'],title=documents['metadata.json'].get('title'),artist=documents['metadata.json'].get('artist'),
             source_occurrences=catalog['source_occurrences'],source_facts=len(lower['facts']),units=len(catalog['units']),eligible_units=sum(not r['refusal_reasons'] for r in catalog['units']),
             refusal_counts=catalog['refusal_counts'],qa1=dict(source_relationships=connections,technique_parity=parity),qa2=dict(zero=zero,independent_source=exact,changed=changed_run,locks=locks),

@@ -83,7 +83,9 @@ def analyze(tier1):
         coverage.append(dict(fact_ref=row['id'],owner=owner))
     tech=techniques(tier1);tech.pop('input');tech.pop('technique_observations')
     # These are derived views. Neither is an inverse input or pitch authority.
-    derived=dict(harmonic_context=music.strip_lower(music.analyze(full_context(documents))),techniques=tech)
+    from execution_dependencies import build as execution_dependencies
+    derived=dict(harmonic_context=music.strip_lower(music.analyze(full_context(documents))),techniques=tech,
+                 execution_dependencies=execution_dependencies(tier1))
     output=dict(tier=2,schema='connected-source-musical-relations/1',input=deepcopy(tier1),
                 source_structure=dict(documents=deepcopy(tier1['documents']),facts=skeleton,source_scope=tier1['scope']),
                 owned_parameters=dict(source_choices=choices,physical_positions=positions,technique_declarations=effect),

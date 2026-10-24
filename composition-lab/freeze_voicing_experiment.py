@@ -25,7 +25,7 @@ def freeze(output,client_root):
             if type(data)is dict and type(data.get('selected_song_id'))is int:excluded.add(data['selected_song_id']);origins.append(str(path.resolve()))
         except (ValueError,UnicodeError):continue
     files=list(root.glob('*.py'))+list((root/'songsterr_automation/songsterr_api').glob('*.py'))+list((client_root/'songsterr_dl').rglob('*.py'))
-    manifest=dict(version=1,started_utc=datetime.now(timezone.utc).isoformat(),policy='source_witnessed_fixed_strings',case_count=2,
+    manifest=dict(version=2,started_utc=datetime.now(timezone.utc).isoformat(),policy='incident_dependencies',case_count=2,
         seeds=[secrets.randbits(64),secrets.randbits(64)],excluded_song_ids=sorted(excluded),exclusion_evidence_files=sorted(origins),
         sampling='Existing seed-selected letter search first100 IDs, uniform choice among previously uncaptured results; NOT uniform catalog. Two preregistered slots, never replacement after failure.',
         code_hashes={str(p.resolve()):sha(p) for p in sorted(files)},client_root=str(client_root.resolve()),

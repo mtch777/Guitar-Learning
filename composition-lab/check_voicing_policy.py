@@ -36,11 +36,16 @@ def _written_ties(documents,events):
     return dict(links=links,unresolved=unresolved)
 
 
-def _source_units(documents):
+def _source_units(documents,policy='source_witnessed_fixed_strings'):
     lower=extract_documents(documents)
     events=lower['events']; by_id={e['id']:e for e in events}
     tie_graph=_written_ties(documents,events)
     endpoints={link[key]for link in tie_graph['links']for key in ('origin','destination')}
+    dependencies=None
+    if policy=='incident_dependencies':
+        from check_execution_dependencies import expected
+        from source_fact_tier1 import extract_documents as complete_facts
+        dependencies=expected(complete_facts(documents))
     frames=lower['measure_geometry']['frames']
     grouped=defaultdict(list)
     for e in events:grouped[e['part_id'],F(e['onset_q'])].append(e)
@@ -83,11 +88,17 @@ def _source_units(documents):
         rows=sorted(rows,key=lambda e:(F(e['pitch'])%12,F(e['pitch']),e['voice'],e['note']))
         unit['member_refs']=[e['id']for e in rows]
         unit['locked_tie_members']=[ref for ref in unit['member_refs']if ref in endpoints]
-        stop=onset+F(rows[0]['duration_q']);selected=set(unit['member_refs']);overlaps=[]
+        stop=onset+F(rows[0]['duration_q']);selected=set(unit['member_refs']);overlaps=[];uncertainty=[];uncertainty_context=[]
         for other,a,b in pitched:
             if other['id']in selected or not a<stop or not b>onset:continue
-            if other['pitch']is None or F(other['pitch']).denominator!=1 or expression[other['id']]:reasons.append('UNRESOLVED_OVERLAP_EXECUTION')
-            overlaps.append([other['part_id'],other['voice'],str(max(a,onset)-onset),str(min(b,stop)-onset),None if other['pitch']is None else str(F(other['pitch'])%12)])
+            unknown=other['pitch']is None or F(other['pitch']).denominator!=1
+            if unknown or expression[other['id']]:
+                if policy!='incident_dependencies' or other['part_id']==pid:reasons.append('UNRESOLVED_OVERLAP_EXECUTION')
+                else:
+                    descriptor=dict(written_pitch_status='unknown_or_noninteger' if unknown else 'known_base_only',execution_reasons=sorted(set(expression[other['id']])),claim='Nominal source overlap; sounding pitch/end unknown')
+                    uncertainty.append(dict(occurrence_ref=other['id'],**descriptor))
+                    uncertainty_context.append([other['part_id'],other['voice'],str(max(a,onset)-onset),str(min(b,stop)-onset),descriptor])
+            overlaps.append([other['part_id'],other['voice'],str(max(a,onset)-onset),str(min(b,stop)-onset),None if unknown else str(F(other['pitch'])%12)])
         frame=frames[rows[0]['bar']-1];sig=frame['signature'];pitches=[F(e['pitch'])for e in rows]
         strings=[raw(e)[2]['string']for e in rows]
         context=dict(part_id=pid,instrument=part['instrumentId'],member_pitch_classes=[str(p%12)for p in pitches],meter=dict(beats=sig[0],beat_unit_q=str(F(4,sig[1]))),metrical_offset_q=str(onset-F(frame['start_q'])),overlaps=sorted(overlaps,key=encoded),duration_q=rows[0]['duration_q'])
@@ -95,12 +106,19 @@ def _source_units(documents):
             fixed_string_bases=[str(F(str(part['tuning'][s]))+F(str(part.get('capo')or 0)))for s in strings],
             musical_context_key=encoded(context),musical_full_context_key=encoded([context,neighbors[pid,onset]]),
             source_geometry=dict(instrument=part['instrumentId'],tuning=part['tuning'],capo=part.get('capo')or 0,members=sorted([[str(p),s,str(F(str(raw(e)[2]['fret'])))]for e,p,s in zip(rows,pitches,strings)],key=encoded)))
+        if dependencies is not None:
+            unit['locked_execution_members']=[ref for ref in unit['member_refs'] if ref in dependencies['pinned_members']]
+            unit['context_uncertainty']=sorted(uncertainty,key=lambda r:r['occurrence_ref'])
+            context['execution_uncertainty']=sorted(uncertainty_context,key=encoded)
+            unit['dependency_context_key']=encoded(context)
+            unit['dependency_full_context_key']=encoded([context,neighbors[pid,onset]])
         units.append(unit)
-    return units,len(events),tie_graph
+    return units,len(events),tie_graph,dependencies
 
 
-def _expected_rows(units):
-    grouped={field:defaultdict(list)for field in ('musical_full_context_key','musical_context_key')}
+def _expected_rows(units,policy='source_witnessed_fixed_strings'):
+    keys=('dependency_full_context_key','dependency_context_key') if policy=='incident_dependencies' else ('musical_full_context_key','musical_context_key')
+    grouped={field:defaultdict(list)for field in keys}
     for row in units:
         if not row['refusal_reasons']:
             for field in grouped:grouped[field][row[field]].append(row)
@@ -115,6 +133,8 @@ def _expected_rows(units):
                 original=[F(target['realization']['anchor'])+F(v)for v in target['realization']['intervals']]
                 if any(ref in target['locked_tie_members']and pitch!=old for ref,pitch,old in zip(target['member_refs'],pitches,original)):
                     rejected.append(dict(level=field,donor_ref=donor['id'],reason='LOCKED_WRITTEN_TIE_ENDPOINT',realization=value));continue
+                if policy=='incident_dependencies' and any(ref in target['locked_execution_members']and pitch!=old for ref,pitch,old in zip(target['member_refs'],pitches,original)):
+                    rejected.append(dict(level=field,donor_ref=donor['id'],reason='LOCKED_EXECUTION_DEPENDENCY',realization=value));continue
                 actual=dict(instrument=target['source_geometry']['instrument'],tuning=target['source_geometry']['tuning'],capo=target['source_geometry']['capo'],members=sorted([[str(p),s,str(p-F(b))]for p,s,b in zip(pitches,target['fixed_output_strings'],target['fixed_string_bases'])],key=encoded))
                 if actual!=donor['source_geometry']:
                     rejected.append(dict(level=field,donor_ref=donor['id'],reason='NO_JOINT_FIXED_STRING_WITNESS',realization=value));continue
@@ -127,7 +147,7 @@ def _expected_rows(units):
     return result
 
 
-def check(documents,catalog,reported=None):
+def check(documents,catalog,reported=None,policy='source_witnessed_fixed_strings'):
     """Authenticate all units/eligible contexts and complete donor decisions.
 
     reported is the producer's all-target audit rows (including options), not
@@ -135,7 +155,9 @@ def check(documents,catalog,reported=None):
     """
     issues=[]
     try:
-        units,event_count,tie_graph=_source_units(documents);actual=catalog['units']
+        if policy not in ('source_witnessed_fixed_strings','incident_dependencies'):raise ValueError('Explicit oracle policy required')
+        units,event_count,tie_graph,dependencies=_source_units(documents,policy);actual=catalog['units']
+        if policy=='incident_dependencies' and encoded(catalog.get('execution_dependencies'))!=encoded(dependencies):issues.append('EXECUTION_DEPENDENCIES_MISMATCH')
         if encoded(catalog.get('written_tie_relationships'))!=encoded(tie_graph):issues.append('WRITTEN_TIE_RELATIONSHIPS_MISMATCH')
         if encoded(catalog['source_occurrences'])!=encoded(event_count):issues.append('SOURCE_OCCURRENCE_COUNT_MISMATCH')
         if len(actual)!=len(units)or [u['id']for u in actual]!=[u['id']for u in units]:issues.append('SOURCE_UNIT_INVENTORY_MISMATCH')
@@ -146,7 +168,7 @@ def check(documents,catalog,reported=None):
             if row is None:continue
             for field,value in expected.items():
                 if field not in row or encoded(row[field])!=encoded(value):issues.append('SOURCE_UNIT_FIELD_MISMATCH:'+expected['id']+':'+field)
-        expected_rows=_expected_rows(units)
+        expected_rows=_expected_rows(units,policy)
         if reported is not None and encoded(reported)!=encoded(expected_rows):issues.append('COMPLETE_POLICY_DECISIONS_MISMATCH')
         return dict(status='PASS_INDEPENDENT_POLICY'if not issues else'FAIL_INDEPENDENT_POLICY',issues=issues,source_occurrences=event_count,source_units=len(units),eligible_units=len(expected_rows),expected_rows=expected_rows,
             accepted_donor_links=sum(len(c['donor_refs'])for r in expected_rows for c in r['options']),rejected_donor_links=sum(len(r['rejected'])for r in expected_rows),
