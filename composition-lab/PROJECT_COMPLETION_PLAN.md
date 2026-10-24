@@ -72,19 +72,19 @@ rewrite observed source facts or supply invented intent/emotional labels.
 
 ## Tier 2: readiness and missing pieces
 
-No row below is a completed nonzero lever. Current `connected_tier2.reconstruct`
-accepts ONLY explicit `variation=0`. Historical eleven-control prototypes,
-conditional analysis reports and deterministic transposition tests do not change
-that fact.
+No row below is a fully accepted nonzero lever. The current voicing/register
+prototype has bounded shared-relation, source-lock, GP and rendered-change proof.
+Physical execution and musical listening remain OPEN. Historical controls do not
+constitute current creative acceptance.
 
 | ID / lever | Existing testable foundation | Missing before creative acceptance | Status |
 |---|---|---|---|
 | T2-01 Key / tonal center / mode | Source signatures; provisional global/local candidates; candidate-relative intervals and collection degrees | Independently supported center/collection selection and alternatives; coordinated pitch/harmony changes; missing/ambiguous contexts; mode changes beyond a forced major/minor choice | OPEN |
 | T2-02 Chord progression | Candidate roots/qualities, harmonic paths, chord degrees and voice motion | Context-supported sequence proposals, joint path/role consistency and reconciliation of melody/bass/other locked parts; no automatic functional labels from template fits | OPEN |
 | T2-03 Chord timing | Rational harmonic-span alternatives and active-note/overlap evidence | Supported changed harmonic rhythm; coupled held-note, rest, voice and tie updates; exact unaffected timing | OPEN |
-| T2-04 Chord voicing / inversion | Actual sonorities, compatible chord PCs, bass versus root, interval/register relationships | Source-supported alternative selection, active edit interface, re-evaluation of context, physical/lock checks and GP/audio proof | FIRST IMPLEMENTATION CANDIDATE |
+| T2-04 Chord voicing / inversion | Actual sonorities, compatible chord PCs, bass versus root, interval/register relationships | Source-supported alternative selection, active edit interface, re-evaluation of context, physical/lock checks and GP/audio proof | PARTIAL: bounded edit/GP/audio proved; physical/listening OPEN |
 | T2-05 Melody function / contour | Conditional chord/collection degrees; directed motion; bounded passing/neighbor evidence | Coherent passage-level proposals; contextual non-chord roles; independent function, contour and octave locks; optional internal literal-pitch constraints; same-relation remapping and verification | OPEN |
-| T2-06 Register | Exact pitch/octave/position relationships | Supported register choices, scoped propagation and conflicts with melodic octave, voicing and physical locks; active edit interface and GP/audio proof | FIRST IMPLEMENTATION CANDIDATE with T2-04 |
+| T2-06 Register | Exact pitch/octave/position relationships | Supported register choices, scoped propagation and conflicts with melodic octave, voicing and physical locks; active edit interface and GP/audio proof | PARTIAL: bounded edit/GP/audio proved; physical/listening OPEN |
 | T2-07 Local rhythm | Rational onsets/durations and source event/voice topology | Context-supported rhythmic alternatives; pulse/subdivision/accent relationships; coupled placement, meter/voice totals, rests and ties; no arbitrary time perturbation | OPEN |
 | T2-08 Pauses / holds | Source rests, nominal durations, tie and sustain observations | Meaningful silence/hold alternatives; clear sounding versus notated duration; surrounding timing and technique dependencies | OPEN |
 | T2-09 Local tempo / pulse / meter | Source tempo/meter declarations and measure geometry | Explicit local pulse/grouping/regrouping relations, tempo-map dependencies, re-metering and notation/time reconciliation; large-scale tempo routes remain T4/T5 | OPEN |
@@ -127,16 +127,21 @@ and close-interval textures belong to harmony/voicing, not extra effect sliders.
 - [x] New random song selected/captured before analysis: Rolling Stones,
   Satisfaction, Songsterr 16453 / revision 7421771, six tracks;
   seed 9084737611129534236, query c. Prior corpus/captures excluded before draw.
-- [ ] Freeze generic candidate eligibility and selection before seeing outcomes.
-- [ ] Complete one bounded T2 passage and run all three source/inverse/meaning gates.
-- [ ] Find an actual supported alternative realization in this song, or retain
+- [x] Freeze generic candidate eligibility and selection before seeing outcomes.
+- [x] Complete one bounded T2 passage and run all three source/inverse/meaning gates.
+- [x] Find an actual supported alternative realization in this song, or retain
   explicit no-eligible-candidate outcome. No replacement song or manual offset.
-- [ ] Unlock only declared voicing/register scope; solve pitches/frets using the
+- [x] Unlock only declared voicing/register scope; solve pitches/frets using the
   existing relations, refusing conflicting melody/technique/physical locks.
-- [ ] Compare source-to-GP and reconstructed-to-GP baseline fidelity separately.
-- [ ] Produce changed GP and audio, verify exact unaffected locks and audible
+- [x] Compare source-to-GP and reconstructed-to-GP baseline fidelity separately.
+- [x] Produce changed GP and audio, verify exact unaffected locks and audible
   difference; no human quality judgment invented.
 - [ ] Planner MID/END, actual review QA and delivery. This is not Tier2 closure.
+
+Evidence: VOICING_REGISTER_PROGRESS.md. Contracts revised transparently V1-V4;
+source inspected during development. Exact-context alternatives absent; pooled
+source evidence is weaker. Ten-fret fixed-string shape is NOT approved playability.
+Full lever and Tier2 closure remain OPEN.
 
 ## Final completion gate
 

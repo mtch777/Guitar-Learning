@@ -117,8 +117,15 @@ def worker(stage, challenge=None, forbidden=None):
         else:
             data = strict_json((stage / "input.json").read_text(encoding="utf-8"))
             controls = data["controls"]
-            if not isinstance(controls, dict) or not controls or any(type(v) not in (int, float) or v != 0 for v in controls.values()):
-                raise ValueError("Explicit numeric zero controls required")
+            purpose=data.get('purpose','exact_zero')
+            if purpose=='exact_zero':
+                if not isinstance(controls, dict) or not controls or any(type(v) not in (int, float) or v != 0 for v in controls.values()):
+                    raise ValueError("Explicit numeric zero controls required")
+            elif purpose=='voicing_register_intervention':
+                if type(controls)is not dict or set(controls) not in ({'voicing','register','target_ref','seed'},{'voicing','register','target_ref','seed','context_policy'}):raise ValueError('Declared intervention controls required')
+                if any(type(controls[k])is not int or not 0<=controls[k]<=100 for k in ('voicing','register')) or type(controls['seed'])is not int or type(controls['target_ref'])is not str or not controls['target_ref'].startswith('event:'):raise ValueError('Only bounded controls and source identity may enter intervention')
+                if controls.get('context_policy','exact_context') not in ('exact_context','pooled_source','pooled_declared_geometry'):raise ValueError('Unknown intervention context policy')
+            else:raise ValueError('Unknown audited execution purpose')
             # Only this staged module is executable task code. No repo import path.
             # Compile the frozen source directly: importlib otherwise probes an
             # unstaged __pycache__ before reading source, creating a false denial.
@@ -136,7 +143,7 @@ def worker(stage, challenge=None, forbidden=None):
     return 0 if error is None or audit["challenge_denied"] else 1
 
 
-def execute(operator_code, upper, controls, expected, output, timeout=10, challenge=None, forbidden=None):
+def execute(operator_code, upper, controls, expected, output, timeout=10, challenge=None, forbidden=None,purpose='exact_zero'):
     """Run reviewed code, never stage expected lower representation.
 
     A helper PASS certifies only audited execution/exact comparison on this input.
@@ -151,7 +158,7 @@ def execute(operator_code, upper, controls, expected, output, timeout=10, challe
     try:
         shutil.copyfile(__file__, stage / "worker.py")
         (stage / "relationships.py").write_text(operator_code, encoding="utf-8")
-        (stage / "input.json").write_text(json.dumps(dict(upper=upper, controls=controls), allow_nan=False), encoding="utf-8")
+        (stage / "input.json").write_text(json.dumps(dict(upper=upper, controls=controls,purpose=purpose), allow_nan=False), encoding="utf-8")
     except Exception as exc:
         report = dict(status="FAIL", issues=["Preparation " + type(exc).__name__ + ": " + str(exc)],
                       scope="QA fixture preparation only; no musical-tier acceptance")
@@ -195,7 +202,7 @@ def execute(operator_code, upper, controls, expected, output, timeout=10, challe
             issues.append("Frozen worker input/code changed")
     except Exception as exc:
         issues.append(type(exc).__name__ + ": " + str(exc))
-    report = dict(status="FAIL" if issues else "PASS", issues=issues, command=command,
+    report = dict(status="FAIL" if issues else "PASS", issues=issues, command=command,purpose=purpose,
                   scope="QA worker execution only; not active musical-tier Gate2 acceptance",
                   policy="Python audit, NOT OS sandbox", frozen_files=hashes,
                   parent_expected_staged=False, transitive_runtime_lock=False,

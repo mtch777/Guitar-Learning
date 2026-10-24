@@ -161,8 +161,11 @@ def realize(upper):
 
 
 def reconstruct(upper,controls):
-    if controls!={'variation':0} or type(controls['variation']) not in (int,float):raise ValueError('Explicit locked control required')
-    return realize(upper)
+    if controls=={'variation':0} and type(controls['variation']) in (int,float):
+        return realize(upper)
+    from voicing_register import intervene
+    edited,_=intervene(upper,controls)
+    return realize(edited)
 
 
 def validate(upper):

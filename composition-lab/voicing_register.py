@@ -1,0 +1,225 @@
+"""Observed contextual voicing/register choices; no new pitch-generation rules.
+
+Only existing anchor/interval owners change. Fixed-string frets are obtained by
+the existing inverse. Catalogs are ephemeral, source-linked empirical evidence.
+"""
+from collections import defaultdict,Counter
+from copy import deepcopy
+from fractions import Fraction as F
+import json
+import random
+
+
+def token(value):return json.dumps(value,sort_keys=True,separators=(',',':'))
+
+
+def notation(documents,event):
+    part=documents[f"track-{event['part_id']}.json"]
+    beat=part['measures'][event['bar']-1]['voices'][event['voice']]['beats'][event['beat']]
+    return part,beat,beat['notes'][event['note']]
+
+
+def effect_reasons(beat,note):
+    # This finite execution contract is deliberately narrower than identification.
+    # Unknown nonzero declarations never silently become a playable plain chord.
+    from contextual_note_roles import source_refusals
+    fake=dict(part_id=0,bar=1,voice=0,beat=0,note=0)
+    reasons=source_refusals({'track-0.json':dict(measures=[dict(voices=[dict(beats=[dict(beat,notes=[note])])])])},{'note':fake},['note'])
+    for field in ('hp','tieOrigin','tieDestination','rest','fingerVibrato'):
+        if field in note and note[field] is not False and note[field] is not None:reasons.append('NOTE_DEPENDENCY:'+field)
+    for field in ('letRing',):
+        if field in beat and beat[field] is not False and beat[field] is not None:reasons.append('BEAT_DEPENDENCY:'+field)
+    return reasons
+
+
+def inventory(tier1):
+    """Reads complete preceding facts ONLY, preserving all refusal outcomes."""
+    from source_fact_tier1 import project_documents
+    from source_tie_tier1 import extract_documents
+    from musical_tier2 import geometry_relation
+    documents=project_documents(tier1);lower=extract_documents(documents);events=lower['events']
+    frames=geometry_relation(source=lower['measure_geometry'])['parameters']['frames']
+    index={e['id']:e for e in events};groups=defaultdict(list);by_part=defaultdict(list);pitched=[];fret_ranges=defaultdict(list);span_ranges=defaultdict(list);expression={}
+    for event in events:
+        groups[event['part_id'],event['onset_q']].append(event)
+        part,beat,note=notation(documents,event)
+        if part.get('instrumentId')==1024:continue
+        pitched.append((event,F(event['onset_q']),F(event['onset_q'])+F(event['duration_q'])))
+        expression[event['id']]=effect_reasons(beat,note)
+        if type(note.get('fret'))in (int,float) and note['fret']>=0:fret_ranges[event['part_id']].append(note['fret'])
+    pitched.sort(key=lambda row:row[1])
+    for (part,onset),members in groups.items():by_part[part].append((F(onset),members))
+    for part in by_part:by_part[part].sort(key=lambda x:(x[0],x[1][0]['id']))
+    neighbors={}
+    def pcs(members):return sorted((int(F(e['pitch'])%12) if e['pitch'] is not None and F(e['pitch']).denominator==1 else None for e in members),key=lambda p:-1 if p is None else p)
+    for part,rows in by_part.items():
+        for i,(_,members) in enumerate(rows):neighbors[part,members[0]['onset_q']]=[pcs(rows[i-1][1]) if i else None,pcs(rows[i+1][1]) if i+1<len(rows) else None]
+    result=[]
+    for (part_id,onset),members in sorted(groups.items(),key=lambda row:(F(row[0][1]),row[0][0],row[1][0]['id'])):
+        members=sorted(members,key=lambda e:(e['voice'],e['beat'],e['note']));part=documents[f'track-{part_id}.json'];reasons=[]
+        if type(part.get('instrumentId'))is not int or not 24<=part['instrumentId']<=39:reasons.append('NOT_GUITAR_OR_BASS_PROGRAM')
+        if len(members)<2:reasons.append('FEWER_THAN_TWO_NOTES')
+        if len({e['voice'] for e in members})!=1:reasons.append('MULTIPLE_VOICES')
+        if len({e['duration_q'] for e in members})!=1 or any(F(e['duration_q'])<=0 for e in members):reasons.append('NONUNIFORM_OR_ZERO_DURATION')
+        if any(e['pitch'] is None or F(e['pitch']).denominator!=1 for e in members):reasons.append('UNKNOWN_OR_NONINTEGER_PITCH')
+        bars={e['bar'] for e in members}
+        if len(bars)!=1:reasons.append('CROSS_BAR_COATTACK')
+        if any(w['bar'] in bars for k in ('layout_warnings','timing_warnings') for w in lower['source_coverage'][k]):reasons.append('SOURCE_TIMING_UNCERTAIN')
+        strings=[];signatures=[]
+        for event in members:
+            _,beat,note=notation(documents,event);reasons+=effect_reasons(beat,note);strings.append(note.get('string'))
+            signatures.append(dict(voice=event['voice'],note_index=event['note'],note={k:v for k,v in note.items() if k!='fret'},beat={k:v for k,v in beat.items() if k!='notes'}))
+        if any(type(s)is not int or s<0 for s in strings) or len(set(strings))!=len(strings):reasons.append('AMBIGUOUS_FIXED_STRINGS')
+        row=dict(id=members[0]['id'],part_id=part_id,bar=members[0]['bar'],onset_q=onset,member_refs=[e['id'] for e in members],refusal_reasons=sorted(set(reasons)))
+        if reasons:result.append(row);continue
+        # Pitch-class/rank correspondence is musical, not the donor's string or
+        # serialization slot. Physical OUTPUT strings and occurrence IDs lock.
+        members=sorted(members,key=lambda e:(F(e['pitch'])%12,F(e['pitch']),e['voice'],e['note']))
+        row['member_refs']=[e['id'] for e in members]
+        signatures=[];strings=[];unit_frets=[]
+        for event in members:
+            _,beat,note=notation(documents,event);strings.append(note['string']);unit_frets.append(note['fret'])
+            signatures.append(dict(voice=event['voice'],note={k:v for k,v in note.items() if k not in ('fret','string')},beat={k:v for k,v in beat.items() if k!='notes'}))
+        fretted=[f for f in unit_frets if f>0]
+        span_ranges[part_id].append(max(fretted)-min(fretted) if fretted else 0)
+        start=F(onset);end=start+F(members[0]['duration_q']);selected=set(row['member_refs']);overlaps=[]
+        for other,a,b in pitched:
+            if a>=end:break
+            if other['id'] in selected:continue
+            if b<=start:continue
+            if other['pitch'] is None or F(other['pitch']).denominator!=1 or expression[other['id']]:reasons.append('UNRESOLVED_OVERLAP_EXECUTION')
+            overlaps.append([other['part_id'],other['voice'],str(max(a,start)-start),str(min(b,end)-start),None if other['pitch'] is None else str(F(other['pitch'])%12)])
+        frame=frames[members[0]['bar']-1];pitches=[F(e['pitch']) for e in members];anchor=min(pitches)
+        base=dict(part_id=part_id,instrument=part['instrumentId'],member_pitch_classes=[str(p%12) for p in pitches],
+                  member_notation=signatures,meter=frame['meter'],metrical_offset_q=str(start-F(frame['start_q'])),overlaps=sorted(overlaps,key=token))
+        row.update(refusal_reasons=sorted(set(reasons)),context_key=token(base),full_context_key=token([base,neighbors[part_id,onset]]),
+                   realization=dict(anchor=str(anchor),intervals=[str(p-anchor) for p in pitches]),duration_q=members[0]['duration_q'])
+        row['fixed_output_strings']=strings
+        row['fixed_string_bases']=[str(F(str(part['tuning'][s]))+F(str(part.get('capo') or 0))) for s in strings]
+        row['pooled_context_key']=token({k:base[k] for k in ('part_id','instrument','member_pitch_classes')}|dict(duration_q=row['duration_q']))
+        result.append(row)
+    envelopes={str(part):dict(min_fret=min(values),max_fret=max(values),max_simultaneous_span=max(span_ranges[part],default=0),
+                            declared_frets=documents[f'track-{part}.json'].get('frets')) for part,values in fret_ranges.items()}
+    return dict(units=result,source_occurrences=len(events),physical_envelopes=envelopes,refusal_counts=dict(Counter(r for row in result for r in row['refusal_reasons'])),
+                scope='Observed nominal written voicings with fixed member/string PCs; no inferred key, performed harmony or artist intent')
+
+
+def physical_choice(target,realization,envelope,declared_only=False):
+    pitches=[F(realization['anchor'])+F(i) for i in realization['intervals']]
+    frets=[p-F(b) for p,b in zip(pitches,target['fixed_string_bases'])]
+    upper=envelope['declared_frets'] if declared_only else envelope['max_fret'];lower=0 if declared_only else envelope['min_fret']
+    if type(upper)is not int or upper<=0:return False
+    if len(frets)!=len(target['member_refs']) or any(f.denominator!=1 or f<lower or f>upper for f in frets):return False
+    if declared_only:return True
+    fingered=[f for f in frets if f>0]
+    return not fingered or max(fingered)-min(fingered)<=envelope['max_simultaneous_span']
+
+
+def empirical_options(catalog,target_id,policy='exact_context'):
+    if policy not in ('exact_context','pooled_source','pooled_declared_geometry'):raise ValueError('Declared context policy required')
+    rows=catalog['units'];target=next(r for r in rows if r['id']==target_id)
+    if target['refusal_reasons']:return dict(status='REFUSED_TARGET',reasons=target['refusal_reasons'],options=[])
+    levels=[]
+    for field in (('full_context_key','context_key') if policy=='exact_context' else ('pooled_context_key',)):
+        donors=[r for r in rows if r['id']!=target_id and not r['refusal_reasons'] and r[field]==target[field]]
+        choices={}
+        for donor in donors:
+            key=token(donor['realization']);choices.setdefault(key,dict(realization=deepcopy(donor['realization']),donor_refs=[]))['donor_refs'].append(donor['id'])
+        all_options=[choices[k] for k in sorted(choices)]
+        options=all_options if policy=='exact_context' else [o for o in all_options if physical_choice(target,o['realization'],catalog['physical_envelopes'][str(target['part_id'])],policy=='pooled_declared_geometry')]
+        alternative=any(o['realization']!=target['realization'] for o in options)
+        levels.append(dict(level=field,donor_units=len(donors),distinct_realizations=len(all_options),physically_feasible_realizations=len(options),has_alternative=alternative))
+        if alternative:return dict(status='SUPPORTED_EMPIRICAL_ALTERNATIVES',target_ref=target_id,context_level=field,levels=levels,options=options)
+    if options:return dict(status='OBSERVED_SINGLE_REALIZATION',target_ref=target_id,context_level=field,levels=levels,options=options)
+    return dict(status='NO_ELIGIBLE_ALTERNATIVE',target_ref=target_id,levels=levels,options=[])
+
+
+def select_target(catalog,policy='exact_context'):
+    checked=[]
+    for row in catalog['units']:
+        if row['refusal_reasons']:continue
+        option=empirical_options(catalog,row['id'],policy);checked.append(dict(target_ref=row['id'],status=option['status'],levels=option['levels']))
+        if option['status']=='SUPPORTED_EMPIRICAL_ALTERNATIVES':return dict(target_ref=row['id'],checked=checked,evidence=option)
+    return dict(target_ref=None,checked=checked,status='NO_ELIGIBLE_ALTERNATIVE')
+
+
+CONTROL_FIELDS={'voicing','register','target_ref','seed'}
+
+
+def validate_controls(controls):
+    if type(controls)is not dict or set(controls) not in (CONTROL_FIELDS,CONTROL_FIELDS|{'context_policy'}):raise ValueError('Explicit voicing/register scope, target and seed required')
+    if controls.get('context_policy','exact_context') not in ('exact_context','pooled_source','pooled_declared_geometry'):raise ValueError('Declared context policy required')
+    if any(type(controls[k])is not int or not 0<=controls[k]<=100 for k in ('voicing','register')):raise ValueError('Integer reference-release controls0..100 required')
+    if type(controls['seed'])is not int or type(controls['target_ref'])not in (str,type(None)):raise ValueError('Typed target/seed required')
+    if (controls['voicing'] or controls['register']) and not controls['target_ref']:raise ValueError('Nonzero edit requires an explicit source unit')
+
+
+def sample_choice(catalog,controls):
+    """Same finite empirical choice, separated for reproducible control auditing."""
+    validate_controls(controls)
+    if not controls['voicing'] and not controls['register']:
+        return None,dict(status='EXACT_ZERO_LOCK',released=dict(voicing=False,register=False),changed=False)
+    target=next((r for r in catalog['units'] if r['id']==controls['target_ref']),None)
+    if target is None:raise ValueError('Target is not a source unit')
+    evidence=empirical_options(catalog,target['id'],controls.get('context_policy','exact_context'))
+    if evidence['status'] not in ('SUPPORTED_EMPIRICAL_ALTERNATIVES','OBSERVED_SINGLE_REALIZATION'):
+        return None,dict(status=evidence['status'],evidence=evidence,changed=False)
+    rng=random.Random(controls['seed']);released={k:rng.random()<controls[k]/100 for k in ('voicing','register')}
+    original=target['realization'];options=[o for o in evidence['options'] if
+        (released['voicing'] or o['realization']['intervals']==original['intervals']) and
+        (released['register'] or o['realization']['anchor']==original['anchor'])]
+    if not options:return None,dict(status='NO_OBSERVED_CHOICE_SATISFIES_LOCKS',released=released,evidence=evidence,changed=False)
+    population=[o for o in options for _ in o['donor_refs']];chosen=deepcopy(rng.choice(population));changed=original!=chosen['realization']
+    return chosen['realization'],dict(status='SOURCE_SUPPORTED_REALIZATION' if changed else 'OBSERVED_COINCIDENCE',released=released,changed=changed,
+        target_ref=target['id'],member_refs=target['member_refs'],original=original,chosen=chosen,
+        context_level=evidence['context_level'],levels=evidence['levels'],eligible_donor_units=len(population),
+        semantics='Leave-target-out observed choices; original register is not preferred; no forced difference or inferred artist style')
+
+
+def intervene(upper,controls):
+    """Propose only observed owned parameters, then solve the existing relations."""
+    validate_controls(controls)
+    from connected_tier2 import realize
+    import musical_tier2 as music
+    edited=deepcopy(upper)
+    # Even all-zero inputs must satisfy the actual shared inverse, not bypass it.
+    before=realize(upper)
+    if not controls['voicing'] and not controls['register']:
+        return edited,dict(status='EXACT_ZERO_LOCK',released=dict(voicing=False,register=False),changed=False)
+    catalog=inventory(before);target=next((r for r in catalog['units'] if r['id']==controls['target_ref']),None)
+    if target is None:raise ValueError('Target is not a source unit')
+    realization,decision=sample_choice(catalog,controls)
+    if realization is None:return edited,decision
+    groups=edited['musical_relationships']['coattacks'];refs=set(target['member_refs'])
+    group=next(g for g in groups if {m['id'] for m in g['members']}==refs)
+    group['bass_register_anchor']=realization['anchor']
+    mapping=dict(zip(target['member_refs'],realization['intervals']))
+    for member in group['members']:member['voicing_interval']=mapping[member['id']]
+    # Existing musical equations realize pitches; the same analysis recomputes
+    # derived contexts. No lower facts or raw frets are patched to force an edit.
+    normalized=music.realize(edited['musical_relationships'])
+    edited['musical_relationships']=music.strip_lower(music.analyze(normalized))
+    if 'contextual_constraints' in edited:
+        requests=[row['request'] for row in edited['contextual_constraints']['results']]
+        edited.pop('contextual_constraints')
+        from contextual_note_roles import evaluate
+        edited['contextual_constraints']=evaluate(realize(edited),requests)
+    after=realize(edited)
+    from source_fact_tier1 import project_documents
+    documents=project_documents(after)
+    # Observed fixed-string geometry is required in addition to pitch-class lock.
+    from run_reversible_tier_qa import extract_documents
+    events={e['id']:e for e in extract_documents(documents)['events']}
+    frets=[]
+    for ref in target['member_refs']:
+        part,beat,note=notation(documents,events[ref]);fret=note['fret']
+        if type(fret)not in (int,float) or F(str(fret)).denominator!=1 or fret<0:raise ValueError('Observed proposal conflicts with fixed-string geometry')
+        frets.append(fret)
+    envelope=catalog['physical_envelopes'][str(target['part_id'])]
+    fingered=[f for f in frets if f>0]
+    if controls.get('context_policy')=='pooled_declared_geometry':
+        if type(envelope['declared_frets'])is not int or min(frets)<0 or max(frets)>envelope['declared_frets']:raise ValueError('Choice exceeds declared fret geometry')
+    elif min(frets)<envelope['min_fret'] or max(frets)>envelope['max_fret'] or fingered and max(fingered)-min(fingered)>envelope['max_simultaneous_span']:raise ValueError('Observed musical choice violates target physical envelope')
+    return edited,dict(decision,
+        fixed_string_frets=frets,fretted_span=max(fingered)-min(fingered) if fingered else 0,physical_envelope=envelope,
+        execution_status='HUMAN_EXECUTION_UNVERIFIED')
