@@ -46,7 +46,7 @@ New opt-in policy `incident_dependencies` only:
   musical/creative acceptance stays OPEN if no supported changed draw occurs.
 - [ ] Supported changed output requires native GP + rendering/locks verification
   before any listening demonstration; subjective quality not inferred from PCM.
-- [ ] Planner END, regressions, actual results, commit/push/CI.
+- [x] Planner END, regressions, actual results, commit/push/CI:47f494e /40113974539 SUCCESS.
 
 Actual outcomes:EXECUTION_DEPENDENCY_RESULTS.md. Positive fresh nonzero gate is
 OPEN: both cases passed source/inverse/meaningful dependency checks but produced

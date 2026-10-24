@@ -92,3 +92,7 @@ no distinct alternatives; Over The Hills has alternatives but none meets the
 current fixed-string whole-shape evidence rule. See VOICING_FINGERING_DESIGN.md
 for the proposed joint voicing/fingering relationship and separate-lock contract.
 No physical control was silently released and no trial policy was changed.
+
+Delivery:47f494e pushed to main; Actions40113974539 SUCCESS. Source/score files
+remain private. Subsequent documentation/EOF cleanup does not change trial policy;
+original frozen inputs, actor snapshots and results remain retained.
