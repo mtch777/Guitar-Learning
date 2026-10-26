@@ -165,4 +165,6 @@ checks. PASS for bounded source fidelity and physical choices; actual spacing,
 audible variation and artistic suitability remain OPEN. Review artifact:
 `voicing-family-fresh-v3/planner-independent-end-review.json`.
 
-Commit/push/CI recorded when verified.
+Delivered source commit `9e07985`, pushed to main. GitHub Actions run
+`40287065602` completed SUCCESS. No private scores, captures, audio or model
+weights were published. Unrelated unfinished work remains unstaged.
