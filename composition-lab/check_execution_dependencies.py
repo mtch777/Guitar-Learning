@@ -18,9 +18,9 @@ def expected(tier1):
     all_edges=[];unknown=[];part_signatures=[];declarations=[]
     roots=[]
     for fact in tier1['facts']:
-        m=re.fullmatch(r'/measures/(\d+)/voices/(\d+)/beats/(\d+)/(arpeggio|brushStroke|letRing)',fact['pointer'])
+        m=re.fullmatch(r'/measures/(\d+)/voices/(\d+)/beats/(\d+)/(arpeggio|brushStroke|letRing|downArpeggio)',fact['pointer'])
         if m and fact['document']in names:roots.append((fact['document'],int(m[1]),int(m[2]),int(m[3]),m[4],fact['id']))
-    roots.sort(key=lambda r:(names.index(r[0]),r[1],r[2],r[3],('arpeggio','brushStroke','letRing').index(r[4])))
+    roots.sort(key=lambda r:(names.index(r[0]),r[1],r[2],r[3],('arpeggio','brushStroke','letRing','downArpeggio').index(r[4])))
     def literal(value):
         if type(value)in(str,int,float,bool,type(None)):return value
         if isinstance(value,dict)and set(value)<={'direction','duration','shift'}and all(type(v)in(str,int,float,bool,type(None))for v in value.values()):return dict(value)
@@ -65,7 +65,10 @@ def expected(tier1):
             members=sorted(global_ref(r['occurrence'])for r in original_rows if r['bar']==mi+1 and r['voice']==vi and r['beat']==bi)
             declarations.append(dict(source_fact_ref=source,member_refs=members,value=literal(value)))
             if value is False or value is None:continue
-            if field=='letRing':
+            if field=='downArpeggio':
+                if value==0:continue
+                edge(field,'declaration_only_unknown_roll_execution',members,dict(source_fact_ref=source,declaration=literal(value),performed_note_offsets=None),'roll_execution_not_established')
+            elif field=='letRing':
                 edge(field,'declaration_only_unknown_end',members,dict(source_fact_ref=source,declaration=literal(value),performed_end_q=None),'sounding_end_unspecified')
             else:
                 edge(field,'declaration_only_unknown_performed_offsets',members,dict(source_fact_ref=source,declaration=literal(value),performed_note_offsets=None),'performed_roll_offsets_unspecified')

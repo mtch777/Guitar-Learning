@@ -13,6 +13,9 @@ def check(documents,upper):
     def sample(kind,value):
         if kind not in examples:examples[kind]=value
     core=upper['musical_relationships'];events={}
+    if core.get('schema')=='source-voicing-families/1':
+        from voicing_families import realize as family_core
+        core=family_core(core)
     for group in core['coattacks']:
         for member in group['members']:
             events[member['id']]=dict(onset_q=group['onset_q'],duration_q=member['duration_q'])
@@ -21,7 +24,7 @@ def check(documents,upper):
     actual_tracks=[t['part_id'] for t in tracks]
     if len(actual_tracks)!=len(set(actual_tracks)) or set(actual_tracks)!=set(expected_tracks):issues.append('Technique track inventory/uniqueness differs')
     note_fields={'hp','bend','slide','harmonic','harmonicFret','ghost','staccato','accentuated','tremolo','vibrato','wideVibrato','leftHandVibrato','velocity'}
-    beat_fields={'palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity'}
+    beat_fields={'palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','downArpeggio','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity'}
     expected_roots={}
     for name,part in documents.items():
         if not name.startswith('track-'):continue

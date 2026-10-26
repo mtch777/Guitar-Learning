@@ -26,6 +26,7 @@ REGISTERED_SOURCE_FIELDS = {('metadata', '/nextAudio'): ('string',),
  ('track', '/measures/*/voices/*/beats/*/notes/*/courtesyAccidental'): ('boolean',),
  ('track', '/measures/*/clef'): ('string',),
  ('track', '/grandStaffGroup'): ('integer',),
+ ('track', '/clef'): ('string',),
  ('metadata', '/aiGenerated'): ('boolean',),
  ('metadata', '/artist'): ('string',),
  ('metadata', '/artistId'): ('integer',),
@@ -205,6 +206,7 @@ REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/chord/text')] = 
 REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/chord/width')] = ('integer','float')
 REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/vibratoWithTremoloBar')] = ('string',)
 REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/downStroke')] = ('integer',)
+REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/downArpeggio')] = ('integer',)
 
 # Literal rolled/strummed-note declaration. Units and execution remain unknown;
 # these are not inferred per-note onset offsets or a verified performance.

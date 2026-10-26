@@ -1,9 +1,9 @@
 # Preregistered voicing-family experiment
 
-Status: DESIGN ONLY. No family policy is implemented or accepted by this document.
-The current source-witnessed policies and all frozen trials remain unchanged.
-This is the next bounded experiment after commit 6359eb4; record its final code
-hashes and input hashes before execution. Do not replace historical results.
+Status: bounded ownership/policy IMPLEMENTED, results in VOICING_FAMILY_PROGRESS.md.
+Actual audible spacing and full creative-lever acceptance remain OPEN. The
+preregistered protocol below remains the record of the experiment after6359eb4;
+failed trials and earlier source-witnessed policies are preserved unchanged.
 
 ## Question and fixed development material
 

@@ -27,8 +27,8 @@ def effect_reasons(beat,note):
     reasons=source_refusals({'track-0.json':dict(measures=[dict(voices=[dict(beats=[dict(beat,notes=[note])])])])},{'note':fake},['note'])
     for field in ('hp','tieOrigin','tieDestination','rest','fingerVibrato'):
         if field in note and note[field] is not False and note[field] is not None:reasons.append('NOTE_DEPENDENCY:'+field)
-    for field in ('letRing','arpeggio','brushStroke'):
-        if field in beat and beat[field] is not False and beat[field] is not None:reasons.append('BEAT_DEPENDENCY:'+field)
+    for field in ('letRing','arpeggio','brushStroke','downArpeggio'):
+        if field in beat and beat[field] is not False and beat[field] is not None and not (field=='downArpeggio' and beat[field]==0):reasons.append('BEAT_DEPENDENCY:'+field)
     return reasons
 
 
@@ -44,6 +44,9 @@ def inventory(tier1,policy='exact_context'):
     from source_fact_tier1 import project_documents
     from source_tie_tier1 import extract_documents
     from musical_tier2 import geometry_relation
+    if policy=='transposed_voicing_family':
+        from family_policy import catalog as family_catalog
+        return family_catalog(inventory(tier1,'joint_source_fingering'),project_documents(tier1))
     documents=project_documents(tier1);lower=extract_documents(documents);events=lower['events']
     ties=tie_relationships(lower)
     dependencies=None
@@ -155,7 +158,7 @@ def physical_choice(target,realization,envelope,declared_only=False):
     return not fingered or max(fingered)-min(fingered)<=envelope['max_simultaneous_span']
 
 
-POLICIES=('exact_context','pooled_source','pooled_declared_geometry','source_witnessed_fixed_strings','incident_dependencies','joint_source_fingering')
+POLICIES=('exact_context','pooled_source','pooled_declared_geometry','source_witnessed_fixed_strings','incident_dependencies','joint_source_fingering','transposed_voicing_family')
 
 
 def witnessed_geometry(target,donor,realization):
@@ -171,6 +174,9 @@ def witnessed_geometry(target,donor,realization):
 
 def empirical_options(catalog,target_id,policy='exact_context'):
     if policy not in POLICIES:raise ValueError('Declared context policy required')
+    if policy=='transposed_voicing_family':
+        from family_policy import options
+        return options(catalog,target_id)
     rows=catalog['units'];target=next(r for r in rows if r['id']==target_id)
     if target['refusal_reasons']:return dict(status='REFUSED_TARGET',reasons=target['refusal_reasons'],options=[])
     levels=[];rejected=[]
@@ -228,8 +234,9 @@ CONTROL_FIELDS={'voicing','register','target_ref','seed'}
 
 def validate_controls(controls):
     if type(controls)is not dict or set(controls) not in (CONTROL_FIELDS,CONTROL_FIELDS|{'context_policy'},CONTROL_FIELDS|{'context_policy','physical'}):raise ValueError('Explicit voicing/register scope, target and seed required')
-    if 'physical' in controls and (controls.get('context_policy')!='joint_source_fingering' or type(controls['physical'])is not int or not 0<=controls['physical']<=100):raise ValueError('Explicit bounded joint physical control required')
-    if controls.get('context_policy')=='joint_source_fingering' and 'physical' not in controls:raise ValueError('Joint policy requires physical control')
+    if 'physical' in controls and (controls.get('context_policy') not in ('joint_source_fingering','transposed_voicing_family') or type(controls['physical'])is not int or not 0<=controls['physical']<=100):raise ValueError('Explicit bounded joint physical control required')
+    if controls.get('context_policy') in ('joint_source_fingering','transposed_voicing_family') and 'physical' not in controls:raise ValueError('Joint policy requires physical control')
+    if controls.get('context_policy')=='transposed_voicing_family' and controls.get('register')!=0:raise ValueError('Family experiment locks bass register')
     if controls.get('context_policy','exact_context') not in POLICIES:raise ValueError('Declared context policy required')
     if any(type(controls[k])is not int or not 0<=controls[k]<=100 for k in ('voicing','register')):raise ValueError('Integer reference-release controls0..100 required')
     if type(controls['seed'])is not int or type(controls['target_ref'])not in (str,type(None)):raise ValueError('Typed target/seed required')
@@ -249,7 +256,7 @@ def sample_choice(catalog,controls):
     rng=random.Random(controls['seed']);released={k:rng.random()<controls[k]/100 for k in ('voicing','register')}
     if 'physical' in controls:released['physical']=rng.random()<controls['physical']/100
     original=target['realization']
-    if controls.get('context_policy')=='joint_source_fingering':original=dict(original,strings=target['fixed_output_strings'])
+    if controls.get('context_policy') in ('joint_source_fingering','transposed_voicing_family'):original=dict(original,strings=target['fixed_output_strings'])
     options=[o for o in evidence['options'] if
         (released['voicing'] or o['realization']['intervals']==original['intervals']) and
         (released['register'] or o['realization']['anchor']==original['anchor']) and
@@ -272,15 +279,24 @@ def intervene(upper,controls):
     before=realize(upper)
     if not controls['voicing'] and not controls['register'] and not controls.get('physical',0):
         return edited,dict(status='EXACT_ZERO_LOCK',released=dict(voicing=False,register=False,**({'physical':False} if 'physical' in controls else {})),changed=False)
+    family_mode=controls.get('context_policy')=='transposed_voicing_family'
+    if (upper['musical_relationships'].get('schema')=='source-voicing-families/1')!=family_mode:
+        raise ValueError('Nonzero policy must match musical ownership representation')
     catalog=inventory(before,controls.get('context_policy','exact_context'));target=next((r for r in catalog['units'] if r['id']==controls['target_ref']),None)
     if target is None:raise ValueError('Target is not a source unit')
     realization,decision=sample_choice(catalog,controls)
     if realization is None:return edited,decision
-    groups=edited['musical_relationships']['coattacks'];refs=set(target['member_refs'])
+    if family_mode:
+        from voicing_families import choose,realize as family_core
+        edited['musical_relationships']=choose(edited['musical_relationships'],target['member_refs'],realization['intervals'])
+        core=family_core(edited['musical_relationships'])
+    else:core=edited['musical_relationships']
+    groups=core['coattacks'];refs=set(target['member_refs'])
     group=next(g for g in groups if {m['id'] for m in g['members']}==refs)
-    group['bass_register_anchor']=realization['anchor']
+    if not family_mode:group['bass_register_anchor']=realization['anchor']
     mapping=dict(zip(target['member_refs'],realization['intervals']))
-    for member in group['members']:member['voicing_interval']=mapping[member['id']]
+    if not family_mode:
+        for member in group['members']:member['voicing_interval']=mapping[member['id']]
     # Existing musical equations realize pitches; the same analysis recomputes
     # derived contexts. No lower facts or raw frets are patched to force an edit.
     if 'strings' in realization:
@@ -290,8 +306,16 @@ def intervene(upper,controls):
             position=positions[ref]
             if 'tuning_array_ref' not in position:raise ValueError('Joint change requires dynamic physical ownership')
             choices[position['string_ref']]['parameter']['normalized']=str(string)
-    normalized=music.realize(edited['musical_relationships'])
-    edited['musical_relationships']=music.strip_lower(music.analyze(normalized))
+            if family_mode and position['negative_zero']:
+                from connected_tier2 import physical_relation
+                index=target['member_refs'].index(ref)
+                pitch=F(realization['anchor'])+F(realization['intervals'][index])
+                geometry=target['source_geometry']
+                if F(physical_relation(pitch=pitch,tuning=geometry['tuning'][string],capo=geometry['capo']))!=0:
+                    position['negative_zero']=False
+    if not family_mode:
+        normalized=music.realize(core)
+        edited['musical_relationships']=music.strip_lower(music.analyze(normalized))
     if 'contextual_constraints' in edited:
         requests=[row['request'] for row in edited['contextual_constraints']['results']]
         edited.pop('contextual_constraints')
@@ -303,7 +327,7 @@ def intervene(upper,controls):
     from source_tie_tier1 import extract_documents as tie_context
     if tie_relationships(tie_context(documents))!=catalog['written_tie_relationships']:
         raise ValueError('Locked written tie relationship changed, despite retained source flags')
-    if controls.get('context_policy') in ('incident_dependencies','joint_source_fingering'):
+    if controls.get('context_policy') in ('incident_dependencies','joint_source_fingering','transposed_voicing_family'):
         from execution_dependencies import build
         if build(after)['signature']!=catalog['execution_dependencies']['signature']:
             raise ValueError('Locked execution dependency semantics changed')
@@ -317,7 +341,13 @@ def intervene(upper,controls):
         frets.append(fret)
     envelope=catalog['physical_envelopes'][str(target['part_id'])]
     fingered=[f for f in frets if f>0]
-    if controls.get('context_policy')=='joint_source_fingering':
+    if family_mode:
+        from family_policy import admissible
+        donors={r['id']:r for r in catalog['units']}
+        for ref in decision['chosen']['donor_refs']:
+            witness,reason=admissible(target,donors[ref])
+            if reason or witness!=realization:raise ValueError('Translated whole-source shape witness lost')
+    elif controls.get('context_policy')=='joint_source_fingering':
         donors={r['id']:r for r in catalog['units']}
         for ref in decision['chosen']['donor_refs']:
             donor=donors[ref]
@@ -332,5 +362,5 @@ def intervene(upper,controls):
         if type(envelope['declared_frets'])is not int or min(frets)<0 or max(frets)>envelope['declared_frets']:raise ValueError('Choice exceeds declared fret geometry')
     elif min(frets)<envelope['min_fret'] or max(frets)>envelope['max_fret'] or fingered and max(fingered)-min(fingered)>envelope['max_simultaneous_span']:raise ValueError('Observed musical choice violates target physical envelope')
     return edited,dict(decision,
-        **({'selected_string_frets':frets} if controls.get('context_policy')=='joint_source_fingering' else {'fixed_string_frets':frets}),fretted_span=max(fingered)-min(fingered) if fingered else 0,physical_envelope=envelope,
+        **({'selected_string_frets':frets} if controls.get('context_policy') in ('joint_source_fingering','transposed_voicing_family') else {'fixed_string_frets':frets}),fretted_span=max(fingered)-min(fingered) if fingered else 0,physical_envelope=envelope,
         execution_status='HUMAN_EXECUTION_UNVERIFIED')

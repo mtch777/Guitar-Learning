@@ -30,10 +30,16 @@ def check(before_T1,after_T1,controls,decision):
     issues=[];changed=[];allowed=set()
     try:
         fields={'voicing','register','physical','context_policy','target_ref','seed'}
-        if type(controls)is not dict or set(controls)!=fields or controls['context_policy']!='joint_source_fingering':raise ValueError('Explicit joint controls required')
+        if type(controls)is not dict or set(controls)!=fields or controls['context_policy']not in('joint_source_fingering','transposed_voicing_family'):raise ValueError('Explicit joint controls required')
         if any(type(controls[k])is not int or not 0<=controls[k]<=100 for k in ('voicing','register','physical'))or type(controls['seed'])is not int:raise ValueError('Typed bounded release controls required')
+        family=controls['context_policy']=='transposed_voicing_family'
+        if family and controls['register']!=0:raise ValueError('Family experiment locks register at zero')
         before=project_documents(before_T1);after=project_documents(after_T1)
-        units,_,ties,dependencies=_source_units(before,'joint_source_fingering');by_id={r['id']:r for r in units}
+        if family:
+            from check_family_policy import normalized_units,expected_rows
+            units,_,ties,dependencies=normalized_units(before)
+        else:units,_,ties,dependencies=_source_units(before,'joint_source_fingering')
+        by_id={r['id']:r for r in units}
         all_zero=not any(controls[k]for k in ('voicing','register','physical'))
         target=by_id.get(controls['target_ref'])
         if target is None and not all_zero:raise ValueError('Unknown source target')
@@ -56,7 +62,8 @@ def check(before_T1,after_T1,controls,decision):
         if not all_zero:
             if target['refusal_reasons']:expected_status='REFUSED_TARGET'
             else:
-                evidence=next(r for r in _expected_rows(units,'joint_source_fingering')if r['target_ref']==target['id'])
+                rows=expected_rows(units)if family else _expected_rows(units,'joint_source_fingering')
+                evidence=next(r for r in rows if r['target_ref']==target['id'])
                 if evidence['status']not in('SUPPORTED_EMPIRICAL_ALTERNATIVES','OBSERVED_SINGLE_REALIZATION'):expected_status=evidence['status']
                 else:
                     rng=random.Random(controls['seed']);released={k:rng.random()<controls[k]/100 for k in ('voicing','register','physical')}
@@ -85,8 +92,13 @@ def check(before_T1,after_T1,controls,decision):
             if len({r[1]for r in after_geometry})!=len(after_geometry):issues.append('DUPLICATE_SELECTED_STRING')
             for donor_ref in selected['donor_refs']:
                 donor=by_id[donor_ref];raw_geometry=[]
+                delta=F(target['realization']['anchor'])-F(donor['realization']['anchor'])if family else F(0)
                 for member in donor['member_refs']:
-                    part,note,_=_note(before,member);raw_geometry.append([str(_pitch(part,note)),note['string'],str(F(str(note['fret'])))])
+                    part,note,_=_note(before,member);source_pitch=_pitch(part,note);source_fret=F(str(note['fret']));fret=source_fret+delta
+                    if family:
+                        if any(part[k]!=_note(before,refs[0])[0][k]for k in ('instrumentId','tuning'))or (part.get('capo')or 0)!=(_note(before,refs[0])[0].get('capo')or 0):issues.append('INCOMPATIBLE_TRANSFER_SETTINGS')
+                        if (source_fret==0)!=(fret==0):issues.append('TRANSFER_OPEN_STATUS_CHANGED')
+                    raw_geometry.append([str(source_pitch+delta),note['string'],str(fret)])
                 if sorted(after_geometry,key=encoded)!=sorted(raw_geometry,key=encoded):issues.append('NO_COMPLETE_RAW_JOINT_SOURCE_WITNESS:'+donor_ref)
             # Candidate intervals/register were already independently filtered;
             # this also authenticates the actual source pitches after inversion.

@@ -58,8 +58,8 @@ def _source_units(documents,policy='source_witnessed_fixed_strings'):
         reasons=source_refusals(documents,by_id,[e['id']])
         for k in ('hp','tieOrigin','tieDestination','rest','fingerVibrato'):
             if k in note and note[k] is not False and note[k] is not None:reasons.append('NOTE_DEPENDENCY:'+k)
-        for field in ('letRing','arpeggio','brushStroke'):
-            if field in beat and beat[field] is not False and beat[field] is not None:reasons.append('BEAT_DEPENDENCY:'+field)
+        for field in ('letRing','arpeggio','brushStroke','downArpeggio'):
+            if field in beat and beat[field] is not False and beat[field] is not None and not(field=='downArpeggio'and beat[field]==0):reasons.append('BEAT_DEPENDENCY:'+field)
         return reasons
     expression={e['id']:expressions(e) for e in events}
     def pcs(rows):

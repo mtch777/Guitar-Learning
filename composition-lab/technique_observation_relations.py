@@ -10,7 +10,7 @@ import re
 from source_fact_tier1 import validate
 
 NOTE_EFFECTS=frozenset(('hp','bend','slide','harmonic','harmonicFret','ghost','staccato','accentuated','tremolo','vibrato','wideVibrato','leftHandVibrato','velocity'))
-BEAT_EFFECTS=frozenset(('palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity'))
+BEAT_EFFECTS=frozenset(('palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','downArpeggio','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity'))
 _UNSET=object()
 
 
@@ -75,6 +75,7 @@ def supported_structure(owner,root,rows):
         return True
     if not walk(root) or visited!=[r['id'] for r in rows]:return False
     field=owner['field']
+    if field=='downArpeggio':return len(rows)==1 and root['type']=='integer'
     if field=='arpeggio':
         # Registered source declaration only. Duration/shift units and performed
         # note offsets are not established by these literal field names.

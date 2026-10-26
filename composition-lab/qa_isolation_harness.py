@@ -124,8 +124,8 @@ def worker(stage, challenge=None, forbidden=None):
             elif purpose=='voicing_register_intervention':
                 if type(controls)is not dict or set(controls) not in ({'voicing','register','target_ref','seed'},{'voicing','register','target_ref','seed','context_policy'},{'voicing','register','physical','target_ref','seed','context_policy'}):raise ValueError('Declared intervention controls required')
                 if any(type(controls[k])is not int or not 0<=controls[k]<=100 for k in ('voicing','register')) or type(controls['seed'])is not int or type(controls['target_ref'])is not str or not controls['target_ref'].startswith('event:'):raise ValueError('Only bounded controls and source identity may enter intervention')
-                if controls.get('context_policy','exact_context') not in ('exact_context','pooled_source','pooled_declared_geometry','source_witnessed_fixed_strings','incident_dependencies','joint_source_fingering'):raise ValueError('Unknown intervention context policy')
-                if 'physical' in controls and (controls.get('context_policy')!='joint_source_fingering' or type(controls['physical'])is not int or not 0<=controls['physical']<=100):raise ValueError('Unknown physical release')
+                if controls.get('context_policy','exact_context') not in ('exact_context','pooled_source','pooled_declared_geometry','source_witnessed_fixed_strings','incident_dependencies','joint_source_fingering','transposed_voicing_family'):raise ValueError('Unknown intervention context policy')
+                if 'physical' in controls and (controls.get('context_policy') not in ('joint_source_fingering','transposed_voicing_family') or type(controls['physical'])is not int or not 0<=controls['physical']<=100):raise ValueError('Unknown physical release')
             else:raise ValueError('Unknown audited execution purpose')
             # Only this staged module is executable task code. No repo import path.
             # Compile the frozen source directly: importlib otherwise probes an

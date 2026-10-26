@@ -50,7 +50,7 @@ def event_pointer(event):
     return f"track-{event['part_id']}.json#/measures/{event['bar']-1}/voices/{event['voice']}/beats/{event['beat']}/notes/{event['note']}"
 
 
-def analyze(tier1):
+def analyze(tier1,*,families=False):
     validate_source(tier1)
     from run_reversible_tier_qa import extract_documents
     from source_tie_tier1 import extract_documents as full_context
@@ -58,6 +58,9 @@ def analyze(tier1):
     documents=project_documents(tier1)
     normalized=extract_documents(documents)
     core=music.strip_lower(music.analyze(normalized))
+    if families:
+        from voicing_families import lift as family_lift
+        core=family_lift(core)
     effect=lift(tier1);effect_ids={r['id'] for r in realize_effects(effect)}
     events={event_pointer(e):e for e in normalized['events']}
     source_index={r['id']:r for r in tier1['facts']}
@@ -117,7 +120,11 @@ def realize(upper):
     def assign(ident,value,owner):
         if ident not in index or ident in assigned:raise ValueError('Duplicate or absent scalar owner')
         index[ident]['value']=value;assigned[ident]=owner
-    normalized=music.reconstruct(upper['musical_relationships'],dict(variation=0));events={e['id']:e for e in normalized['events']}
+    core=upper['musical_relationships']
+    if core.get('schema')=='source-voicing-families/1':
+        from voicing_families import validate as family_core
+        core=family_core(core)
+    normalized=music.reconstruct(core,dict(variation=0));events={e['id']:e for e in normalized['events']}
     known_frets={event_pointer(e)+'/fret' for e in normalized['events'] if e['pitch'] is not None}
     for choice in parameters['source_choices']:
         if set(choice)!={'fact_ref','owner','parameter'}:raise ValueError('Unregistered source choice payload')
@@ -183,7 +190,7 @@ def validate(upper):
     lower=realize(strip_lower(upper))
     if 'input' in upper and json.dumps(lower,sort_keys=True)!=json.dumps(upper['input'],sort_keys=True):raise ValueError('Nested T1 conflicts')
     # Recompute all views to reject a second unchecked analysis authority.
-    computed=analyze(lower)
+    computed=analyze(lower,families=upper['musical_relationships'].get('schema')=='source-voicing-families/1')
     if json.dumps(computed['musical_relationships'],sort_keys=True)!=json.dumps(upper['musical_relationships'],sort_keys=True):raise ValueError('Pitch/time authority conflicts with source choices')
     if 'derived_views' in upper and json.dumps(computed['derived_views'],sort_keys=True)!=json.dumps(upper['derived_views'],sort_keys=True):raise ValueError('Stale or altered derived musical view')
     return lower

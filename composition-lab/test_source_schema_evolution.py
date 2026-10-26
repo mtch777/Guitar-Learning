@@ -11,7 +11,7 @@ from connected_tier2 import analyze, strip_lower, reconstruct
 def fixture():
     docs=documents()
     docs['metadata.json'].update(nextAudio='provider-a',nextAudioGenerated='provider-b',nextMidi='provider-c',nextAudioMeta=dict(hasQuickMix=False,hasMixLayout=True),audios=dict(next=dict(hash='provider-d',meta=dict(hasQuickMix=True,hasMixLayout=False))))
-    track=docs['track-0.json'];track['grandStaffGroup']=1
+    track=docs['track-0.json'];track['grandStaffGroup']=1;track['clef']='F4'
     bar=track['measures'][0]
     bar.update(clef='treble',keySignature=dict(accidentalCount=1,mode='minor',transposeAs='b'))
     note=bar['voices'][0]['beats'][0]['notes'][0]
@@ -52,7 +52,7 @@ class SourceSchemaEvolutionTests(unittest.TestCase):
         self.exact(docs)
 
     def test_strict_scalar_types(self):
-        cases=[('metadata','nextAudio',True),('metadata','nextMidi',1),('flag','hasQuickMix',1),('signature','accidentalCount',True),('signature','mode',1),('signature','transposeAs',False),('note','spn',[True]),('note','spn',[1.5]),('note','courtesyAccidental',1),('bar','clef',1),('track','grandStaffGroup',True)]
+        cases=[('metadata','nextAudio',True),('metadata','nextMidi',1),('flag','hasQuickMix',1),('signature','accidentalCount',True),('signature','mode',1),('signature','transposeAs',False),('note','spn',[True]),('note','spn',[1.5]),('note','courtesyAccidental',1),('bar','clef',1),('track','clef',False),('track','grandStaffGroup',True)]
         for scope,key,value in cases:
             with self.subTest(scope=scope,key=key,value=value):
                 docs=fixture();bar=docs['track-0.json']['measures'][0]

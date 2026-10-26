@@ -82,7 +82,7 @@ constitute current creative acceptance.
 | T2-01 Key / tonal center / mode | Source signatures; provisional global/local candidates; candidate-relative intervals and collection degrees | Independently supported center/collection selection and alternatives; coordinated pitch/harmony changes; missing/ambiguous contexts; mode changes beyond a forced major/minor choice | OPEN |
 | T2-02 Chord progression | Candidate roots/qualities, harmonic paths, chord degrees and voice motion | Context-supported sequence proposals, joint path/role consistency and reconciliation of melody/bass/other locked parts; no automatic functional labels from template fits | OPEN |
 | T2-03 Chord timing | Rational harmonic-span alternatives and active-note/overlap evidence | Supported changed harmonic rhythm; coupled held-note, rest, voice and tie updates; exact unaffected timing | OPEN |
-| T2-04 Chord voicing / inversion | Actual sonorities, compatible chord PCs, bass versus root, interval/register relationships | Source-supported alternative selection, active edit interface, re-evaluation of context, physical/lock checks and GP/audio proof | PARTIAL: bounded edit/GP/audio proved; physical/listening OPEN |
+| T2-04 Chord voicing / inversion | Written sonorities, compatible chord hypotheses, shared bass-relative spacing and source-shape transfers | Actual audible spacing change; supported harmonic/degree/doubling/inversion ownership; learned context and listening evidence | PARTIAL: shared inverse verified; audible voicing OPEN |
 | T2-05 Melody function / contour | Conditional chord/collection degrees; directed motion; bounded passing/neighbor evidence | Coherent passage-level proposals; contextual non-chord roles; independent function, contour and octave locks; optional internal literal-pitch constraints; same-relation remapping and verification | OPEN |
 | T2-06 Register | Exact pitch/octave/position relationships | Supported register choices, scoped propagation and conflicts with melodic octave, voicing and physical locks; active edit interface and GP/audio proof | PARTIAL: bounded edit/GP/audio proved; physical/listening OPEN |
 | T2-07 Local rhythm | Rational onsets/durations and source event/voice topology | Context-supported rhythmic alternatives; pulse/subdivision/accent relationships; coupled placement, meter/voice totals, rests and ties; no arbitrary time perturbation | OPEN |
@@ -91,7 +91,7 @@ constitute current creative acceptance.
 | T2-10 Dynamics / accents | Source velocity/markings and retained dynamic analysis | Context-supported expressive alternatives; inherited versus explicit values; acoustic/rendering consequences and locked surrounding expression | OPEN |
 | T2-11 Articulation | Preserved staccato/ringing/connected markings and technique links | Separate execution/edit contract for each articulation; attack/end/sustain dependencies and actual rendering checks | OPEN |
 | T2-12 Individual techniques | Source declarations, retained identification and bounded inverses | Per-technique musical placement/trajectory/destination relationships, supported proposals, dependencies, same-relation edit and playback evidence; see individual rows below | OPEN per technique |
-| T2-13 Physical realization | Shared pitch = tuning[selected string] + capo + fret; independently controlled source-observed joint string/voicing choices; exact stripped inverse | Positive fresh-song musical change and GP/audio evidence; physical execution/listening; tuning/capo variation not implemented | PARTIAL: joint control contracts verified; creative acceptance OPEN |
+| T2-13 Physical realization | Shared pitch = tuning[selected string] + capo + fret; fresh source-supported fingering changes with independent locks and native GP proof | Human execution/timbre; tuning/capo variation; a physical change is not automatically an audible musical change | PARTIAL: fresh fingering/GP verified; broader scope OPEN |
 
 Melody function and octave are distinct locks. Revoicing/register changes cannot
 claim to preserve a locked melodic octave. Changing harmony while locking
@@ -177,6 +177,22 @@ generic typed-schema repair, then same-song development replay. A NEW frozen tri
 passes 5689 notes/47905 source facts exactly across two songs; neither offers an
 allowed alternative. Synthetic positive controls do not close the fresh musical
 gate. Further random sampling is not the solution to missing contextual choices.
+
+## Shared voicing-family checkpoint (2026-10-26)
+
+VOICING_FAMILY_PROGRESS.md records the bounded implementation and retained failures.
+Shared definitions replace eligible interval owners; pair-isolated and composed
+full-source inverses pass. Approved detectors unchanged. Final frozen new songs
+Paralyzer/In My Darkest Hour recover14482notes/141654facts exactly; independent
+source/context/candidate/physical checks pass. The real alternatives are fingering
+only. Native GP verifies selected string/fret changes; rendered pitches/audio stay
+unchanged. This does NOT accept a full voicing lever or musical suitability.
+
+Source-field repairs have same-input development replays; original failed fresh
+runs remain failures. No source/model rules were relaxed to manufacture music.
+Next: MUSICAL_CONTEXT_CHOICE_PLAN.md separately tests source-context prediction
+and reviews harmonic/doubling/inversion ownership. Current per-member-PC,
+multiplicity and lowest-pitch locks remain until a separately defined scope passes.
 
 ## Final completion gate
 
