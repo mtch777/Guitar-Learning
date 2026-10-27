@@ -55,11 +55,22 @@ for the entire tier or for another lever.
 
 ## Tier ownership and required lever register
 
+2026-10-27 verification checkpoint: conditional semantic locks and opt-in
+source-observed incident physical-lane relationships are implemented, using the
+existing spacing/string owners and SAME inverse. Seventeen focused tests and
+1148 Python passes (one optional skip) verify bounded mechanics and regressions.
+No admitted real audible voicing change: the actual-source candidates still lack
+required motion/execution evidence. One new capture refuses unregistered
+`pickScrape` declarations; one performance-interrupted fresh case passes an explicit
+same-input DEVELOPMENT replay. Do not call this two fresh creative successes or
+complete Tier2. See `AUDIBLE_VOICING_PROGRESS.md` and
+`PROJECT_STATUS_2026-10-27.md` for exact scope, failures and remaining roadmap.
+
 | Tier | Responsibility | Levers that must pass here | Current state |
 |---|---|---|---|
 | T0 | Immutable captured Songsterr JSON | None; source provenance/fidelity gate | Verified captured-source scope |
 | T1 | Complete typed score facts | None; complete extraction, time/source ownership and reconstruction gate | Verified complete captured-JSON scope; not all acoustic execution |
-| T2 | Local musical context and gestures | Every T2 row below, including each named technique separately | OPEN: exact source inverse and bounded conditional analyses; no active nonzero creative lever |
+| T2 | Local musical context and gestures | Every T2 row below, including each named technique separately | OPEN: exact source inverse, conditional analyses and bounded nonzero fingering; no fully accepted creative lever |
 | T3 | Ideas and phrases | Idea/riff/motif development; call/response; phrase endings/resolution; phrase density; recurring rhythmic, pause/hold and accent patterns | Pending replacement architecture |
 | T4 | Sections and arrangement | Part roles/interactions; texture/layering; instrumentation; section lengths; transitions; section density; section tempo/meter organization | Pending replacement architecture |
 | T5 | Whole-song development | Section order/form; returns/transformations; whole-song tonal, tempo and intensity routes | Pending replacement architecture |
@@ -82,7 +93,7 @@ constitute current creative acceptance.
 | T2-01 Key / tonal center / mode | Source signatures; provisional global/local candidates; candidate-relative intervals and collection degrees | Independently supported center/collection selection and alternatives; coordinated pitch/harmony changes; missing/ambiguous contexts; mode changes beyond a forced major/minor choice | OPEN |
 | T2-02 Chord progression | Candidate roots/qualities, harmonic paths, chord degrees and voice motion | Context-supported sequence proposals, joint path/role consistency and reconciliation of melody/bass/other locked parts; no automatic functional labels from template fits | OPEN |
 | T2-03 Chord timing | Rational harmonic-span alternatives and active-note/overlap evidence | Supported changed harmonic rhythm; coupled held-note, rest, voice and tie updates; exact unaffected timing | OPEN |
-| T2-04 Chord voicing / inversion | Written sonorities, compatible chord hypotheses, shared bass-relative spacing and source-shape transfers | Actual audible spacing change; supported harmonic/degree/doubling/inversion ownership; learned context and listening evidence | PARTIAL: shared inverse verified; audible voicing OPEN |
+| T2-04 Chord voicing / inversion | Written sonorities, compatible hypotheses, shared spacing/inverse, source-shape transfers; checked conditional formula-support/doubling/inversion/bass/register locks | Grounded harmonic selection and sole-owner integration for broader edits; supported audible spacing; learned contextual choice and listening | PARTIAL: conditional lock checks verified; prediction study inconclusive; audible voicing OPEN |
 | T2-05 Melody function / contour | Conditional chord/collection degrees; directed motion; bounded passing/neighbor evidence | Coherent passage-level proposals; contextual non-chord roles; independent function, contour and octave locks; optional internal literal-pitch constraints; same-relation remapping and verification | OPEN |
 | T2-06 Register | Exact pitch/octave/position relationships | Supported register choices, scoped propagation and conflicts with melodic octave, voicing and physical locks; active edit interface and GP/audio proof | PARTIAL: bounded edit/GP/audio proved; physical/listening OPEN |
 | T2-07 Local rhythm | Rational onsets/durations and source event/voice topology | Context-supported rhythmic alternatives; pulse/subdivision/accent relationships; coupled placement, meter/voice totals, rests and ties; no arbitrary time perturbation | OPEN |
