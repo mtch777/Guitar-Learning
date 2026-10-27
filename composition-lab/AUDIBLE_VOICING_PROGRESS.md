@@ -19,7 +19,7 @@ a result. Existing source, detectors, baselines and unrelated work stay preserve
 - [ ] If an actual admitted pitch change exists, export GP, verify native content,
   render original/zero/changed and measure audible consequences. Human feel and
   execution judgments remain separate.
-- [ ] Planner midpoint/end challenge, regression suite, persistent results and
+- [x] Planner midpoint/end challenge, regression suite, persistent results and
   accurate reporting. No positive result manufactured by offsets or replacement songs.
 
 ## Starting facts
@@ -161,3 +161,40 @@ Reference scores, datasets, audio and unrelated WIP are preserved.
 Remaining after this bounded closure: source-marking coverage; source-supported
 context/gesture relationships sufficient for an admitted change; then native GP,
 audio and human review. Full roadmap: `PROJECT_STATUS_2026-10-27.md`.
+
+## Commands and delivered source
+
+Final current-code source commit: `0097f34`, pushed to main. GitHub Actions
+`40476531318` (Composition Lab isolated GP7 tests) completed SUCCESS. No website
+source changed; no Pages deployment or musical-quality claim.
+
+Actual replay commands (paths relative to repository root):
+
+```powershell
+.venv/Scripts/python.exe composition-lab/run_lane_voicing_qa.py composition-lab/local-artifacts/execution-dependency-fresh-v1/case-2/capture composition-lab/local-artifacts/lane-voicing-development-v3/over-the-hills composition-lab/local-artifacts/lane-voicing-development-v3/freeze.json
+.venv/Scripts/python.exe composition-lab/run_lane_voicing_qa.py composition-lab/local-artifacts/lane-voicing-fresh-v1/case-2/capture composition-lab/local-artifacts/lane-voicing-development-v3/wasted-years-replay composition-lab/local-artifacts/lane-voicing-development-v3/freeze.json
+.venv/Scripts/python.exe -m unittest discover -s composition-lab -p 'test_*.py'
+```
+
+Both replay commands returned PASS_BOUNDED_LANE_RELATION_QA, with no admitted
+changed real choice. The fresh Zero command returned FAIL_RETAINED before the
+inverse; unregistered mark details are retained in its private `unsupported.json`.
+
+Accepted scope explicitly excludes a universal guarantee that every derived
+technique classification remains unchanged under a future edit (e.g. close dyad
+texture versus octave spacing, or every approved pedal identity). Source flags
+and accepted HP/slide/tie signatures are guarded; complete per-technique edit
+contracts remain OPEN. Detectors and zero-control analysis were not changed.
+
+Planner FINAL END: all485 code/archive/source/worker hashes and complete reported
+choice counts verified. For Over The Hills, all16 physically valid rejected
+proposals were ACTUALLY realized through `apply_family_choice` and the same
+`realize` inverse. The independently authored raw checker confirmed all16 whole
+source-geometry witnesses, then refused all16 under incident motion/execution
+obligations: ZERO refusal mismatches. This is insufficient evidence for admission,
+not proof that every proposal is inherently unmusical. Wasted's independent replay
+review likewise confirms9,023 notes/80,080 facts and all955 unchanged choices.
+Private repeatable audit: `lane-voicing-development-v3/planner_end_probe.py`.
+
+Bounded endeavor CLOSED with the stated negative result and coverage limits.
+The final project goal and audible voicing acceptance remain OPEN.
