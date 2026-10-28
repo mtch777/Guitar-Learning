@@ -13,7 +13,7 @@ from check_technique_connections import check as check_connections
 
 
 def bundle(root):
-    names=('source_fact_tier1','source_field_registry','technique_observation_relations','musical_tier2','voicing_families','chord_degree_definitions','chord_degree_relations','contextual_note_roles','contextual_chord_motion','contextual_passage_roles','execution_dependencies','family_policy','voicing_context_relations','voicing_register','connected_tier2')
+    names=('source_fact_tier1','source_field_registry','technique_observation_relations','musical_tier2','voicing_families','chord_degree_definitions','chord_degree_relations','contextual_note_roles','contextual_chord_motion','contextual_passage_roles','execution_dependencies','family_policy','voicing_context_relations','voicing_gestures','voicing_register','connected_tier2')
     code='import sys,types\n'
     hashes={}
     for name in names:
@@ -45,6 +45,22 @@ def bundle(root):
     for name,source in sources.items():
         code+=f"_m=types.ModuleType({name!r});_m.__file__={str(root/(name+'.py'))!r};sys.modules[{name!r}]=_m\nexec(compile({source!r},{name!r},'exec'),_m.__dict__)\n"
         hashes[name]=hashlib.sha256(source.encode()).hexdigest()
+    # Frozen approved detectors are also required INSIDE a changed-gesture
+    # worker. Copy exact function ASTs, never a separately maintained detector.
+    pedal_sources={name:(root/(name+'.py')).read_text(encoding='utf-8-sig') for name in ('pedal_patterns','pedal_register','pedal_evidence','pedal_expansion')}
+    pedal_sources['source_dynamics']=(api/'source_dynamics.py').read_text(encoding='utf-8-sig')
+    tree=ast.parse((api/'analyze_relationships.py').read_text(encoding='utf-8-sig'))
+    body=[n for n in tree.body if isinstance(n,(ast.FunctionDef,ast.Assign))]
+    pedal_sources['analyze_relationships']='from collections import Counter,defaultdict\nfrom fractions import Fraction as F\nimport json,re,hashlib\nfrom pathlib import Path\nfrom technique_analysis import classify_group\nfrom pedal_patterns import detect_bursts\nfrom source_semantics import marker_text,layout,playback_order,rests,mechanics,timeline,seconds_between,sustain_context,whole_measure_rest\nfrom source_dynamics import dynamic_observations\nfrom source_relationship_details import relationship_details\n'+ast.unparse(ast.Module(body=body,type_ignores=[]))
+    tree=ast.parse((api/'build_pedal_evidence_review.py').read_text(encoding='utf-8-sig'))
+    support=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='support_regions')
+    pedal_sources['build_pedal_evidence_review']='from fractions import Fraction as F\n'+ast.unparse(support)
+    tree=ast.parse((root/'freeze_technique_baseline.py').read_text(encoding='utf-8-sig'))
+    body=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in ('canonical','retained')]
+    pedal_sources['freeze_technique_baseline']='from copy import deepcopy\nfrom fractions import Fraction as F\nimport json\nfrom pathlib import Path\nfrom analyze_relationships import track_analysis\nfrom source_semantics import layout,timeline,playback_order\nfrom pedal_evidence import analyze_evidence\nfrom build_pedal_evidence_review import support_regions\nfrom pedal_expansion import expand_phrases\n'+ast.unparse(ast.Module(body=body,type_ignores=[]))
+    for name,source in pedal_sources.items():
+        code+=f"_m=types.ModuleType({name!r});sys.modules[{name!r}]=_m\nexec(compile({source!r},{name!r},'exec'),_m.__dict__)\n"
+        hashes['gesture_guard:'+name]=hashlib.sha256(source.encode()).hexdigest()
     return code+'reconstruct=sys.modules[\'connected_tier2\'].reconstruct\n',hashes
 
 

@@ -13,6 +13,27 @@ def documents():
 
 
 class ConnectedTierTests(unittest.TestCase):
+    def test_pick_scrape_is_owned_but_never_certified_as_plain_pitch(self):
+        from contextual_note_roles import source_refusals
+        from voicing_register import effect_reasons
+        from check_technique_connections import check
+        docs=documents();note=docs['track-0.json']['measures'][0]['voices'][0]['beats'][0]['notes'][0]
+        note.clear();note.update(string=0,fret=5,pickScrape='down')
+        lower=extract_documents(docs);upper=analyze(lower)
+        self.assertEqual(upper['unsupported'],[])
+        self.assertEqual(reconstruct(strip_lower(upper),dict(variation=0)),lower)
+        group=next(g for g in upper['owned_parameters']['technique_declarations']['groups'] if g['field']=='pickScrape')
+        self.assertEqual(group['parameters'][0]['parameter'],dict(symbol='down'))
+        self.assertEqual(check(docs,upper)['status'],'PASS_SOURCE_BACKED_RELATIONSHIPS')
+        event=dict(part_id=0,bar=1,voice=0,beat=0,note=0)
+        self.assertIn('unresolved_sounding_pitch_pickScrape',source_refusals(docs,{'e':event},['e']))
+        self.assertIn('unresolved_sounding_pitch_pickScrape',effect_reasons({},note))
+        for value in (True,1,None,[],{'direction':'down'}):
+            note['pickScrape']=value
+            bad=analyze(extract_documents(docs))
+            self.assertTrue(bad['unsupported'])
+            with self.assertRaises(ValueError):reconstruct(strip_lower(bad),dict(variation=0))
+
     def model(self):
         lower=extract_documents(documents());return lower,analyze(lower)
 

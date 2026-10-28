@@ -87,15 +87,27 @@ def evidence(g):
 
 def check_paths(g,target,realization,source_evidence=None,*,allow_string_changes=False):
     """Evaluate actual after-neighborhoods using ONLY original source witnesses."""
+    return check_many(g,[(target,realization)],source_evidence,allow_string_changes=allow_string_changes)
+
+
+def check_many(g,choices,source_evidence=None,*,allow_string_changes=False):
+    """Same incident obligations for the UNION of simultaneous group choices."""
+    if not choices or len({t['part_id'] for t,v in choices})!=1:raise ValueError('One part and nonempty choices required')
+    part_id=choices[0][0]['part_id'];assignments={}
+    for target,realization in choices:
+        if len(target['member_refs'])!=len(realization['intervals']) or len(target['member_refs'])!=len(realization['strings']):raise ValueError('Complete group assignment required')
+        for ref,interval,string in zip(target['member_refs'],realization['intervals'],realization['strings']):
+            if ref in assignments or g['nodes'][ref]['part_id']!=part_id:raise ValueError('Overlapping or wrong-part assignment')
+            assignments[ref]=(str(F(realization['anchor'])+F(interval)),string)
     # Lanes and their witnesses are explicitly part-local. Other parts remain in
     # independent vertical-cell checks; they cannot alter this part's adjacency.
-    g=dict(nodes={r:n for r,n in g['nodes'].items()if n['part_id']==target['part_id']},
-        rests=[r for r in g['rests']if r['part_id']==target['part_id']])
+    g=dict(nodes={r:n for r,n in g['nodes'].items()if n['part_id']==part_id},
+        rests=[r for r in g['rests']if r['part_id']==part_id])
     before,index=evidence(g)if source_evidence is None else source_evidence
     before={k:p for k,p in before.items()if k[1]in g['nodes']}
     after_graph=deepcopy(g);changed=set()
-    for ref,interval,string in zip(target['member_refs'],realization['intervals'],realization['strings']):
-        n=after_graph['nodes'][ref];p=str(F(realization['anchor'])+F(interval))
+    for ref,(p,string) in assignments.items():
+        n=after_graph['nodes'][ref]
         if n['string']!=string and not allow_string_changes:return dict(status='REFUSED',reasons=['STRINGS_LOCKED'],witnesses=[])
         if p!=n['pitch']or n['string']!=string:changed.add(ref);n.update(pitch=p,string=string)
     if not changed:return dict(status='PASS_UNCHANGED_PITCH_RELATIONSHIPS',reasons=[],witnesses=[])

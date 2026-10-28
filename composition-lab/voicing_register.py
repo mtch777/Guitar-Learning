@@ -41,6 +41,9 @@ def tie_relationships(context):
 
 def inventory(tier1,policy='exact_context'):
     """Reads complete preceding facts ONLY, preserving all refusal outcomes."""
+    if policy=='source_gesture_context':
+        from voicing_gestures import catalog
+        return catalog(tier1)
     from source_fact_tier1 import project_documents
     from source_tie_tier1 import extract_documents
     from musical_tier2 import geometry_relation
@@ -161,7 +164,7 @@ def physical_choice(target,realization,envelope,declared_only=False):
     return not fingered or max(fingered)-min(fingered)<=envelope['max_simultaneous_span']
 
 
-POLICIES=('exact_context','pooled_source','pooled_declared_geometry','source_witnessed_fixed_strings','incident_dependencies','joint_source_fingering','transposed_voicing_family','source_lane_context','source_joint_lane_context')
+POLICIES=('exact_context','pooled_source','pooled_declared_geometry','source_witnessed_fixed_strings','incident_dependencies','joint_source_fingering','transposed_voicing_family','source_lane_context','source_joint_lane_context','source_gesture_context')
 
 
 def witnessed_geometry(target,donor,realization):
@@ -177,6 +180,9 @@ def witnessed_geometry(target,donor,realization):
 
 def empirical_options(catalog,target_id,policy='exact_context'):
     if policy not in POLICIES:raise ValueError('Declared context policy required')
+    if policy=='source_gesture_context':
+        from voicing_gestures import options
+        return options(catalog,target_id)
     if policy in ('source_lane_context','source_joint_lane_context'):
         from voicing_context_relations import options
         return options(catalog,target_id)
@@ -240,9 +246,9 @@ CONTROL_FIELDS={'voicing','register','target_ref','seed'}
 
 def validate_controls(controls):
     if type(controls)is not dict or set(controls) not in (CONTROL_FIELDS,CONTROL_FIELDS|{'context_policy'},CONTROL_FIELDS|{'context_policy','physical'}):raise ValueError('Explicit voicing/register scope, target and seed required')
-    if 'physical' in controls and (controls.get('context_policy') not in ('joint_source_fingering','transposed_voicing_family','source_lane_context','source_joint_lane_context') or type(controls['physical'])is not int or not 0<=controls['physical']<=100):raise ValueError('Explicit bounded joint physical control required')
-    if controls.get('context_policy') in ('joint_source_fingering','transposed_voicing_family','source_lane_context','source_joint_lane_context') and 'physical' not in controls:raise ValueError('Joint policy requires physical control')
-    if controls.get('context_policy') in ('transposed_voicing_family','source_lane_context','source_joint_lane_context') and controls.get('register')!=0:raise ValueError('Family experiment locks bass register')
+    if 'physical' in controls and (controls.get('context_policy') not in ('joint_source_fingering','transposed_voicing_family','source_lane_context','source_joint_lane_context','source_gesture_context') or type(controls['physical'])is not int or not 0<=controls['physical']<=100):raise ValueError('Explicit bounded joint physical control required')
+    if controls.get('context_policy') in ('joint_source_fingering','transposed_voicing_family','source_lane_context','source_joint_lane_context','source_gesture_context') and 'physical' not in controls:raise ValueError('Joint policy requires physical control')
+    if controls.get('context_policy') in ('transposed_voicing_family','source_lane_context','source_joint_lane_context','source_gesture_context') and controls.get('register')!=0:raise ValueError('Family experiment locks bass register')
     if controls.get('context_policy')=='source_lane_context'and controls.get('physical')!=0:raise ValueError('Incident lane experiment locks strings')
     if controls.get('context_policy','exact_context') not in POLICIES:raise ValueError('Declared context policy required')
     if any(type(controls[k])is not int or not 0<=controls[k]<=100 for k in ('voicing','register')):raise ValueError('Integer reference-release controls0..100 required')
@@ -253,6 +259,9 @@ def validate_controls(controls):
 def sample_choice(catalog,controls):
     """Same finite empirical choice, separated for reproducible control auditing."""
     validate_controls(controls)
+    if controls.get('context_policy')=='source_gesture_context':
+        from voicing_gestures import sample_choice as gesture_choice
+        return gesture_choice(catalog,controls)
     if not controls['voicing'] and not controls['register'] and not controls.get('physical',0):
         return None,dict(status='EXACT_ZERO_LOCK',released=dict(voicing=False,register=False,**({'physical':False} if 'physical' in controls else {})),changed=False)
     target=next((r for r in catalog['units'] if r['id']==controls['target_ref']),None)
@@ -278,24 +287,34 @@ def sample_choice(catalog,controls):
 
 def apply_family_choice(upper,target,realization):
     """Shared owned-choice operation for sampling AND exhaustive QA realization."""
-    from voicing_families import choose
+    return apply_family_choices(upper,[(target,realization)])
+
+
+def apply_family_choices(upper,choices_to_apply):
+    """Atomic multi-group operation using the SAME spacing and physical owners."""
+    from voicing_families import choose_many
     from connected_tier2 import physical_relation
     edited=deepcopy(upper)
-    edited['musical_relationships']=choose(upper['musical_relationships'],target['member_refs'],realization['intervals'])
+    edited['musical_relationships']=choose_many(upper['musical_relationships'],[(t['member_refs'],v['intervals']) for t,v in choices_to_apply])
     choices={c['fact_ref']:c for c in edited['owned_parameters']['source_choices']}
     positions={p['occurrence_ref']:p for p in edited['owned_parameters']['physical_positions']}
-    for i,(ref,string)in enumerate(zip(target['member_refs'],realization['strings'])):
-        position=positions[ref]
-        if 'tuning_array_ref'not in position:raise ValueError('Joint change requires dynamic physical ownership')
-        choices[position['string_ref']]['parameter']['normalized']=str(string)
-        pitch=F(realization['anchor'])+F(realization['intervals'][i]);geometry=target['source_geometry']
-        if position['negative_zero']and F(physical_relation(pitch=pitch,tuning=geometry['tuning'][string],capo=geometry['capo']))!=0:position['negative_zero']=False
+    for target,realization in choices_to_apply:
+        if len(realization['strings'])!=len(target['member_refs']):raise ValueError('Complete physical assignment required')
+        for i,(ref,string)in enumerate(zip(target['member_refs'],realization['strings'])):
+            position=positions[ref]
+            if 'tuning_array_ref'not in position:raise ValueError('Joint change requires dynamic physical ownership')
+            choices[position['string_ref']]['parameter']['normalized']=str(string)
+            pitch=F(realization['anchor'])+F(realization['intervals'][i]);geometry=target['source_geometry']
+            if position['negative_zero']and F(physical_relation(pitch=pitch,tuning=geometry['tuning'][string],capo=geometry['capo']))!=0:position['negative_zero']=False
     return edited
 
 
 def intervene(upper,controls):
     """Propose only observed owned parameters, then solve the existing relations."""
     validate_controls(controls)
+    if controls.get('context_policy')=='source_gesture_context':
+        from voicing_gestures import intervene as gesture_intervention
+        return gesture_intervention(upper,controls)
     from connected_tier2 import realize
     import musical_tier2 as music
     edited=deepcopy(upper)

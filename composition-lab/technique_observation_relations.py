@@ -9,7 +9,7 @@ import math
 import re
 from source_fact_tier1 import validate
 
-NOTE_EFFECTS=frozenset(('hp','bend','slide','harmonic','harmonicFret','ghost','staccato','accentuated','tremolo','vibrato','wideVibrato','leftHandVibrato','velocity'))
+NOTE_EFFECTS=frozenset(('hp','bend','slide','harmonic','harmonicFret','ghost','staccato','accentuated','tremolo','vibrato','wideVibrato','leftHandVibrato','velocity','pickScrape'))
 BEAT_EFFECTS=frozenset(('palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','downArpeggio','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity'))
 _UNSET=object()
 
@@ -75,6 +75,9 @@ def supported_structure(owner,root,rows):
         return True
     if not walk(root) or visited!=[r['id'] for r in rows]:return False
     field=owner['field']
+    # Captured direction is a declaration, not a pitched trajectory or a
+    # performance model. Future structures/types still require explicit review.
+    if field=='pickScrape':return len(rows)==1 and root['type']=='string'
     if field=='downArpeggio':return len(rows)==1 and root['type']=='integer'
     if field=='arpeggio':
         # Registered source declaration only. Duration/shift units and performed

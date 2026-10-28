@@ -54,7 +54,7 @@ def source_refusals(documents,events,refs):
         beat=part['measures'][event['bar']-1]['voices'][event['voice']]['beats'][event['beat']]
         note=beat['notes'][event['note']]
         if 'tie' in note and note['tie'] is not False and note['tie'] is not None:reasons.append('written_tie_continuation_or_unsupported_tie')
-        for field in ('bend','slide','harmonic','harmonicFret','vibrato','leftHandVibrato','wideVibrato','dead'):
+        for field in ('bend','slide','harmonic','harmonicFret','vibrato','leftHandVibrato','wideVibrato','dead','pickScrape'):
             # A zero harmonic fret is still a declaration. Empty curves are
             # unsupported expression, not evidence of an ordinary picked note.
             if field in note and note[field] is not False and note[field] is not None:reasons.append('unresolved_sounding_pitch_'+field)

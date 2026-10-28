@@ -11,18 +11,36 @@ listening evidence. Exact JSON recovery alone does not meet that goal.
 Green = accepted within named scope. Yellow = partial. White = not yet delivered
 in the current architecture. Historical retired prototypes are not completion.
 
-| Roadmap step | Proven / delivered | Still required to complete |
-|---|---|---|
-| 1. Source pipeline | 🟢 Captured Songsterr JSON as T0; usable JSON↔GP conversion | Preserve explicit conversion/execution limits; unsupported fields must fail closed |
-| 2. Analysis | 🟢 Complete typed/time/source ownership on supported captures; approved technique/pedal identification retained | 🟡 Musical interpretation remains conditional; newly encountered fields can still block T2 coverage |
-| ↳ Musical context | 🟡 Chord/tonal/mode candidates, note relationships, nominal overlaps and written motion | Context-supported harmony and roles, ambiguity handling and complete gesture execution; no guessed intent |
-| 3. Artist profiles | 🟡 Source corpus and individual observations available | ⚪ Connect choices across songs, local contexts, repetition/variation, sections and tracks; measure independent held-out predictive support |
-| 4. Generation methods | 🟡 Shared inverse and source-supported local choice operations | Coherent musical choices across a passage using the same representation; no separate generator or assistant-picked notes |
-| 5. Controlled experiments | 🟢 Frozen inputs, failure retention, audited inverses, independent source checks and targeted contrasts | 🟡 Broader positive creative evidence, held-out style tests and listening; a no-choice outcome is not creative acceptance |
-| 6. Levers | 🟡 Exact0 and bounded source-supported fingering; local spacing/context work under verification | Every declared lever must prove its musical scope, locks, dependencies, source support, same inverse and audible consequences |
-| ↳ T2 levers | 🟡 Foundations for key/mode, progression, chord timing, voicing/inversion, melody, register, rhythm, holds, pulse/meter, dynamics, articulation, techniques and fingering | None is fully accepted across the final intended musical scope; technique execution/placement remains open individually |
-| 7. Composition engine | 🟡 Local relationship/inverse machinery | ⚪ T3 motifs/riffs/phrases/call-response; T4 arrangement/sections/transitions; T5 form/returns/development; T6 artist-conditioned support; coherent full-song GP |
-| 8. Validation and delivery | 🟢 Automated fidelity/worker/lock infrastructure | 🟡 Three gates on every new boundary and lever; native GP/render checks on actual changes; human source-feel and playability; final complete-song review |
+| Roadmap step | Status | What is done | What remains |
+|---|---|---|---|
+| **1. Source pipeline** | Usable; export limitations remain | Songsterr JSON retained as T0; 98 tested GP files reopen; paired playback restores 866 pre-export bend curves. | Standalone GP still changes bend curves in 23 tested files and one track's instrument sound in another. The converter omits fine bend timing/point vibrato, pick scrapes, crescendo/diminuendo marks, sustain-pedal marks, dead-slap marks, lyrics and specified notation details. See the exact limits below; these are not all active blockers. |
+| **2. Analysis** | Partial | Connected source facts, musical relationships and retained technique analysis share source/time references. | Turn conditional evidence into supported musical interpretations and complete execution relationships. |
+| ↳ Source coverage | Verified for supported captures | Complete typed T1 facts; isolated exact reconstruction of supported captured JSON. The 30 pick-scrape declarations that blocked Zero now have exact typed T2 ownership; that capture passes complete reversal. | Unknown future source fields may still need T2 owners. Pick-scrape acoustic execution and GP export remain unsupported; preserved declarations are not a sounding model. |
+| ↳ Technique identification | Protected within approved scope | Existing approved technique and pedal identification integrated; source declarations and accepted tie/HP/slide dependencies checked. | Identification is not full recreation: contextual placement, execution, sounding behavior and edit dependencies remain open per technique. |
+| ↳ Musical understanding | Conditional / partial | Chord/key/mode hypotheses, note roles, overlaps, spacing, doubling/inversion distinctions and written lane-motion checks. | Reliable contextual choice, harmonic/voice-role evidence and ambiguity handling; no inferred artist intent or established harmony from template fits alone. |
+| **3. Artist profiles** | Not delivered | Source corpus and individual observations are available as foundations. | Multi-song, context-dependent patterns and exceptions; independent held-out evidence of artist-specific choices. |
+| **4. Creation methods** | Partial | Same relationships reconstruct source and realize bounded source-supported local choices; simultaneous multi-chord choices now use one atomic inverse. Controlled tests pass where each isolated chord change fails. | All four real-song sequence trials still returned only existing voicings. Coherent musical decisions and an approved audible change remain undelivered. |
+| **5. Controlled experiments** | Working infrastructure; musical acceptance partial | Frozen inputs, retained failures, stripped inverse workers, independent source/lock checks and positive/negative contrast tests. All 16 physically valid voicing proposals were independently checked and refused for insufficient context evidence. | Positive real musical changes, generalization and listening evidence. Refusal correctness and no-choice outcomes do not prove creativity. |
+| **6. Levers** | Partial; none fully accepted at intended scope | Exact0 and measurable bounded controls; source-supported fingering changes verified through GP. | Each lever's supported alternatives, independent locks/dependencies, same inverse and relevant audible/playability evidence. No admitted real audible voicing change in the latest work. |
+| ↳ T2 lever coverage | Foundations available | Relationships for key/mode, chords/timing, voicing, melody/register, rhythm/holds, pulse/meter, dynamics/articulation, techniques and fingering. | Finish each declared lever separately; doubling/inversion freedom and complete technique creation are not implied by existing coordinate or fingering proofs. |
+| **7. Composition engine** | Local core only | Connected local relationships and inverse machinery exist. | Accepted higher tiers and coherent new whole-song GP output, using the same relationship chain. |
+| ↳ T3: ideas and phrases | Not delivered | No accepted implementation in the current architecture. | Motifs/riffs, phrases, call-response, recurrence and development, with reversible ownership and controls. |
+| ↳ T4: arrangement and sections | Not delivered | No accepted implementation in the current architecture. | Part roles, texture/instrumentation, sections, transitions and their musical dependencies. |
+| ↳ T5: whole-song development | Not delivered | No accepted implementation in the current architecture. | Form, returns, transformations and whole-song tonal, tempo and intensity routes. T6 artist evidence must condition these choices. |
+| **8. Validation and delivery** | Partial | Automated fidelity/lock infrastructure, native GP/render checks on tested changes; current checkpoint tested and delivered. | All three QA gates per boundary/lever, artist/style validation, human source-feel/playability and final complete-song listening/release review. |
+
+## Specific source-pipeline limits
+
+- **Bends in a GP file by itself:** 23 of the 98 tested files have changed bend curves after export/reopen. Our paired JSON companion restores 866 pre-export model curves for our playback path. Making the GP file alone equally faithful remains parked.
+- **Bend detail lost before export:** the converter rounds bend time/height and does not use the source's finer `precisePosition` or point-specific vibrato flags. The companion cannot restore information that never entered the converted model. Raw Songsterr JSON still retains it.
+- **Unconverted performance markings:** the converter explicitly does not export pick scrapes, crescendo/diminuendo markings, sustain-pedal markings or dead-slap markings. These are capability gaps when the fields occur, not a claim that every song contains them. Zero has 30 pick-scrape declarations. Their separate Tier2 ownership gap is now repaired; the exporter remains unchanged.
+- **Unconverted notation/text:** lyrics, track title lines, written key signatures, original clef, grand-staff grouping, flat spelling of tuning and short/drone-string markings. These affect notation and player instructions; they do not by themselves prove changed note pitches.
+- **Instrument sound:** one tested track reopens with program 27 instead of 30. Its playback sound selection changes. The other 23 native failures in this corpus are bend-curve differences; these 24 reports contain no separate whammy/tie/slide/duration difference category.
+- **Playback verification:** automated reopen/render tests use alphaTab. Playback in the Guitar Pro desktop application has not been verified; this is missing verification, not a demonstrated additional defect.
+
+Whole-bar-rest and dead/tied-flag conversion fixes are already delivered. Remaining
+overlong source bars, ambiguous slide endpoints and mixed dead-to-pitched ties are
+separate source-interpretation issues, not evidence those repairs are unfinished.
 
 ## Dependency order from here
 
@@ -44,9 +62,11 @@ not a final testing phase. A reliable overall completion percentage is unavailab
 Current experiment details and final commands/results:
 `AUDIBLE_VOICING_PROGRESS.md` and `CONTEXT_PREDICTION_PROGRESS.md`.
 
-Latest delivered checkpoint: `0097f34`, CI40476531318 SUCCESS. Local1148 Python
-passes /one optional skip,43 JS passes, production build passes. Planner verified
-all16 physically valid source proposals through the actual shared inverse and
-independently refused16/16 for insufficient/uncertain context evidence. No admitted
-real audible voicing change. New `pickScrape` T2 ownership coverage remains open;
-the raw data is retained. No overall creative or complete-project acceptance.
+Previous delivered source checkpoint: `0097f34`, CI40476531318 SUCCESS. Current
+local iteration: 1,161 Python passes /one optional skip, 43 JS passes, production
+build passes. Four actual isolated reconstructions recovered 28,020 occurrences
+and 247,802 typed source facts exactly, including the repaired pick-scrape capture
+and one newly selected song. All 901 admitted sequence realizations matched the
+original; no real audible voicing change was admitted. Controlled nonzero tests
+pass, but real-song musical/lever acceptance is still open. Details and source
+freeze: `MUSICAL_ITERATION_PROGRESS.md`.

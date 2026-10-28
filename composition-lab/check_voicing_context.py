@@ -71,15 +71,28 @@ def _paths(nodes,rests):
 
 
 def check(tier1_before,tier1_after,target_refs,donor_refs,allow_string_changes=False):
+    return check_many(tier1_before,tier1_after,[target_refs],[donor_refs],allow_string_changes)
+
+
+def check_many(tier1_before,tier1_after,target_groups,donor_ids_by_group,allow_string_changes=False):
+    """Independent shared validator: one whole after graph, never partial edits."""
     issues=[];witnesses=[];changed=[]
     try:
         if type(allow_string_changes)is not bool:raise ValueError('Explicit typed lane-topology permission required')
-        if type(target_refs)is not list or not target_refs or any(type(r)is not str for r in target_refs)or len(set(target_refs))!=len(target_refs):raise ValueError('Exact unique target references required')
-        if type(donor_refs)is not list or not donor_refs or any(type(r)is not str for r in donor_refs)or len(set(donor_refs))!=len(donor_refs):raise ValueError('Whole observed donor references required')
+        if type(target_groups)is not list or not target_groups or type(donor_ids_by_group)is not list or len(target_groups)!=len(donor_ids_by_group):raise ValueError('Exact paired group lists required')
+        for target_refs,donor_refs in zip(target_groups,donor_ids_by_group):
+            if type(target_refs)is not list or not target_refs or any(type(r)is not str for r in target_refs)or len(set(target_refs))!=len(target_refs):raise ValueError('Exact unique target references required')
+            if type(donor_refs)is not list or not donor_refs or any(type(r)is not str for r in donor_refs)or len(set(donor_refs))!=len(donor_refs):raise ValueError('Whole observed donor references required')
+        flat=[r for group in target_groups for r in group]
+        if len(set(flat))!=len(flat):raise ValueError('Overlapping target groups')
         docs,lower,nodes,rests=_nodes(tier1_before);after_docs,after_lower,new_nodes,new_rests=_nodes(tier1_after)
-        units,_,ties,deps=normalized_units(docs);unit=next((u for u in units if set(u['member_refs'])==set(target_refs)),None)
-        if unit is None or unit['refusal_reasons']:raise ValueError('Target outside admitted complete source unit')
-        by_id={u['id']:u for u in units};refs=unit['member_refs'];selected=set(refs)
+        units,_,ties,deps=normalized_units(docs);by_id={u['id']:u for u in units};targets=[]
+        for group in target_groups:
+            unit=next((u for u in units if set(u['member_refs'])==set(group)),None)
+            if unit is None or unit['refusal_reasons']:raise ValueError('Target outside admitted complete source unit')
+            targets.append(unit)
+        refs=[ref for unit in targets for ref in unit['member_refs']];selected=set(refs)
+        pinned={ref for unit in targets for field in ('locked_tie_members','locked_execution_members')for ref in unit[field]}
         allowed=set()
         for ref in refs:
             e=next(e for e in lower['events']if e['id']==ref)
@@ -97,31 +110,33 @@ def check(tier1_before,tier1_after,target_refs,donor_refs,allow_string_changes=F
             if n['string']!=m['string']and not allow_string_changes:issues.append('STRINGS_LOCKED')
             if n['pitch']is None or m['pitch']is None or n['pitch']%12!=m['pitch']%12:issues.append('MEMBER_PC_CHANGED')
             if n['pitch']!=m['pitch']or n['string']!=m['string']:changed.append(ref)
-            if ref in set(unit['locked_tie_members'])|set(unit['locked_execution_members']):
+            if ref in pinned:
                 if n['pitch']!=m['pitch']or n['string']!=m['string']:issues.append('PINNED_EXECUTION_PITCH_OR_STRING_CHANGED')
             if m['string']!=n['string']:
                 if not any((x['part'],x['voice'],x['string'])==(n['part'],n['voice'],n['string'])for x in new_nodes.values()):issues.append('EMPTY_OLD_LANE_BOUNDARY_UNSUPPORTED')
             for ident,other in new_nodes.items():
-                if ident in selected or other['part']!=m['part']or other['string']!=m['string']:continue
+                if ident==ref or other['part']!=m['part']or other['string']!=m['string']:continue
                 if other['onset']<m['onset']+m['duration']and other['onset']+other['duration']>m['onset']:issues.append('OCCUPIED_TARGET_STRING')
-        if len({new_nodes[r]['string']for r in refs})!=len(refs):issues.append('DUPLICATE_SELECTED_STRING')
-        if min(nodes[r]['pitch']for r in refs)!=min(new_nodes[r]['pitch']for r in refs):issues.append('BASS_REGISTER_CHANGED')
-        for donor_ref in donor_refs:
-            donor=by_id.get(donor_ref)
-            if donor is None or donor['refusal_reasons']or set(donor['member_refs'])&selected:issues.append('INVALID_OR_TARGET_DONOR');continue
-            context=json.loads(unit['family_context_key']);other=json.loads(donor['family_context_key'])
-            if len(donor['member_refs'])!=len(refs)or any(context[k]!=other[k]for k in('part_id','instrument','member_pitch_classes','duration_q','meter','metrical_offset_q')):issues.append('DONOR_BASE_CONTEXT_CHANGED')
-            if any(unit['source_geometry'][k]!=donor['source_geometry'][k]for k in('instrument','tuning','capo')):issues.append('INCOMPATIBLE_SOURCE_SETTINGS')
-            delta=min(nodes[r]['pitch']for r in refs)-min(nodes[r]['pitch']for r in donor['member_refs'])
-            for target,source in zip(refs,donor['member_refs']):
-                n,m,d=nodes[target],new_nodes[target],nodes[source]
-                se=next(e for e in lower['events']if e['id']==source);te=next(e for e in after_lower['events']if e['id']==target)
-                sp,_,sn=_raw(docs,se);tp,_,tn=_raw(after_docs,te);sf=F(str(sn['fret']));tf=F(str(tn['fret']))
-                if m['pitch']!=d['pitch']+delta or m['string']!=d['string']or tf!=sf+delta:issues.append('NO_WHOLE_TRANSLATED_FIXED_STRING_WITNESS')
-                if(sf==0)!=(tf==0):issues.append('OPEN_STATUS_CHANGED')
-                for fret,part in((sf,sp),(tf,tp)):
-                    limit=part.get('frets')
-                    if fret<0 or fret.denominator!=1 or(type(limit)is int and limit>0 and fret>limit):issues.append('INVALID_SOURCE_OR_TRANSLATED_FRET')
+        for unit,donor_refs in zip(targets,donor_ids_by_group):
+            refs=unit['member_refs']
+            if len({new_nodes[r]['string']for r in refs})!=len(refs):issues.append('DUPLICATE_SELECTED_STRING')
+            if min(nodes[r]['pitch']for r in refs)!=min(new_nodes[r]['pitch']for r in refs):issues.append('BASS_REGISTER_CHANGED')
+            for donor_ref in donor_refs:
+                donor=by_id.get(donor_ref)
+                if donor is None or donor['refusal_reasons']or set(donor['member_refs'])&selected:issues.append('INVALID_OR_TARGET_DONOR');continue
+                context=json.loads(unit['family_context_key']);other=json.loads(donor['family_context_key'])
+                if len(donor['member_refs'])!=len(refs)or any(context[k]!=other[k]for k in('part_id','instrument','member_pitch_classes','duration_q','meter','metrical_offset_q')):issues.append('DONOR_BASE_CONTEXT_CHANGED')
+                if any(unit['source_geometry'][k]!=donor['source_geometry'][k]for k in('instrument','tuning','capo')):issues.append('INCOMPATIBLE_SOURCE_SETTINGS')
+                delta=min(nodes[r]['pitch']for r in refs)-min(nodes[r]['pitch']for r in donor['member_refs'])
+                for target,source in zip(refs,donor['member_refs']):
+                    n,m,d=nodes[target],new_nodes[target],nodes[source]
+                    se=next(e for e in lower['events']if e['id']==source);te=next(e for e in after_lower['events']if e['id']==target)
+                    sp,_,sn=_raw(docs,se);tp,_,tn=_raw(after_docs,te);sf=F(str(sn['fret']));tf=F(str(tn['fret']))
+                    if m['pitch']!=d['pitch']+delta or m['string']!=d['string']or tf!=sf+delta:issues.append('NO_WHOLE_TRANSLATED_FIXED_STRING_WITNESS')
+                    if(sf==0)!=(tf==0):issues.append('OPEN_STATUS_CHANGED')
+                    for fret,part in((sf,sp),(tf,tp)):
+                        limit=part.get('frets')
+                        if fret<0 or fret.denominator!=1 or(type(limit)is int and limit>0 and fret>limit):issues.append('INVALID_SOURCE_OR_TRANSLATED_FRET')
         from check_execution_dependencies import expected
         if encoded(_written_ties(after_docs,after_lower['events']))!=encoded(ties):issues.append('TIE_RELATIONSHIPS_CHANGED')
         if encoded(expected(tier1_after)['signature'])!=encoded(deps['signature']):issues.append('EXECUTION_RELATIONSHIPS_CHANGED')

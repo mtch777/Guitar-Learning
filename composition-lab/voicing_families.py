@@ -86,14 +86,24 @@ def validate(shared):
 
 def choose(shared,member_refs,intervals):
     """Select a source definition; never manufacture a new interval owner."""
-    result=deepcopy(shared);wanted=set(member_refs)
-    group=next(g for g in result['core']['coattacks'] if {m['id'] for m in g['members']}==wanted)
-    ref=identifier(intervals)
-    if ref not in {d['id'] for d in result['spacings']}:raise ValueError('Choice has no observed spacing definition')
-    if 'spacing_ref' not in group:raise ValueError('Choice outside family-owned scope')
-    by_ref=dict(zip(member_refs,intervals));indices={m['id']:i for i,m in enumerate(group['members'])}
-    ordered=sorted(member_refs,key=lambda r:(F(by_ref[r])%12,F(by_ref[r]),r))
-    group['spacing_ref']=ref;group['member_permutation']=[indices[r] for r in ordered]
+    return choose_many(shared,[(member_refs,intervals)])
+
+
+def choose_many(shared,selections):
+    """Atomic choices from ONE original definition pool; prune only at the end."""
+    result=deepcopy(shared);available={d['id'] for d in shared['spacings']};selected=set()
+    for member_refs,intervals in selections:
+        if len(member_refs)!=len(intervals) or len(set(member_refs))!=len(member_refs):raise ValueError('Bijective occurrence choice required')
+        wanted=frozenset(member_refs)
+        if selected.intersection(wanted):raise ValueError('Overlapping atomic choice')
+        selected.update(wanted)
+        group=next(g for g in result['core']['coattacks'] if {m['id'] for m in g['members']}==wanted)
+        ref=identifier(intervals)
+        if ref not in available:raise ValueError('Choice has no observed spacing definition')
+        if 'spacing_ref' not in group:raise ValueError('Choice outside family-owned scope')
+        by_ref=dict(zip(member_refs,intervals));indices={m['id']:i for i,m in enumerate(group['members'])}
+        ordered=sorted(member_refs,key=lambda r:(F(by_ref[r])%12,F(by_ref[r]),r))
+        group['spacing_ref']=ref;group['member_permutation']=[indices[r] for r in ordered]
     used={g['spacing_ref'] for g in result['core']['coattacks'] if 'spacing_ref' in g}
     result['spacings']=[d for d in result['spacings'] if d['id'] in used]
     validate(result)
