@@ -19,6 +19,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install pinned native theory oracle
+        run: python -m pip install music21==9.9.2
       - name: Test independent GP7 module
         working-directory: composition-lab
         run: python -m unittest discover -s . -p 'test_*.py' -v

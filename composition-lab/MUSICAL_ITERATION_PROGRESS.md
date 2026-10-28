@@ -588,3 +588,9 @@ and complementary note-context populations, following NOMINAL_HARMONY_CONTEXT_ST
 Self-containing exact-fit membership must not masquerade as independently
 supported note role. No added preferred roots, accompaniment labels or physical
 relaxation. Source-only commit/CI follows this checkpoint.
+
+Published checkpoint `389a50a`. CI40682745029 found an environment omission:
+the workflow installed no music21, while the new independent native checks
+require pinned 9.9.2. Local source/corpus results remain unchanged. Add the
+explicit pinned oracle install to CI instead of skipping the new checks; await
+the actual Linux result. No new song draw is required for a workflow-only fix.
