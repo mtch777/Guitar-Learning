@@ -594,3 +594,77 @@ the workflow installed no music21, while the new independent native checks
 require pinned 9.9.2. Local source/corpus results remain unchanged. Add the
 explicit pinned oracle install to CI instead of skipping the new checks; await
 the actual Linux result. No new song draw is required for a workflow-only fix.
+
+CI follow-up `f764688`: run40684615763 completed **success**. Pinned native
+theory checks now run in Linux CI; no analysis code changed for that repair.
+
+### Nominal written harmony / complementary note roles — 2026-10-28
+
+START/MID reviewed with ProjectPlanner3000. Frozen development roster: the prior
+nine captures plus Deutschland,78parts. Pre-edit rest outputs saved before an
+opt-in provenance extension; all10 default outputs (including warnings/order)
+remain byte-identical. No pedal/technique detector or creative guard changed.
+
+Implemented checked measure geometry from existing stripped owners; all original
+events must match the source temporal projection exactly. Reused written spans,
+exact chord compatibility and root/degree/octave equations. Four explicit
+support populations distinguish descriptive full-part fit from same-part,
+other-part and ensemble fits excluding the focal occurrence. Held occurrences
+retain their IDs across cells. Empty intervals, explicit/structural rests,
+missing part frames, grace points and interval crossings are separate.
+
+Initial development run retained ten bootstrap failures: fresh-process loading
+of existing owners imported the parser helper before initializing the accepted
+source parser. Moved import after the existing extraction call and added a
+fresh-process regression. `development-results-v2`: all10 source/native checks
+pass,54,383 original notes. Source snapshot/hashes retained. This is development
+evidence, not a new-song gate or completed inverse gate.
+
+Command `..\.venv\Scripts\python.exe -m unittest test_nominal_harmony
+test_check_nominal_harmony -q`:32tests passed (2.948s), including an actual
+source-denied context recomputation. Planner independently checks interval
+partitions, support sets, native formula/degree coordinates and raw rest pointers.
+Authored contrasts include held C changing role over C-major/G-major, D excluded
+from a C-major support population, missing thirds, duplicate unisons, sequential
+notes, expression, ties, grace, missing track frames and crossing quarantine.
+
+MID precision correction pending: distinguish percussion-role not-applicable
+from missing pitched information, unknown instrument domain, and known fractional
+pitch outside the current12-PC role scope. Existing population fits/guards stay
+unchanged. Next: apply that reporting distinction, freeze stable code, run both
+actual isolated workers on all10 and a preregistered new draw, then full suite
+and independent END. No creative/audio/style/key/mode completion claim.
+
+END: domain distinction completed;36 targeted tests pass (3.072s), including
+fresh-process startup and actual isolated recomputation. Full suite command
+`..\.venv\Scripts\python.exe -m unittest discover -s . -p 'test_*.py' -q`:
+1,303 run,1,302 passed,one optional skip (146.587s).
+
+`nominal-harmony-v1/integration-v3`: all10 cases pass both actual isolated workers
+and independent source/native checks.54,383 notes/534,317 facts;13,850 cells,
+99,677 active incidences,254,824 distinct per-cell support populations and143,381
+degree coordinates. Missing pitched values1,815; the15,204 explicit nonpitched
+occurrences are accounted separately. These are not musical-accuracy percentages.
+
+New-song gate froze525 project and266 native files before seed9448772484146180843
+selected November Rain (Guns N' Roses),song8452/revision9927032,18tracks.
+Letter i /first100 public search results:89 eligible new IDs,169 exclusions;
+not uniform catalog sampling. `nominal-harmony-fresh-v1/qa`: both actual workers
+and independent source/native checks pass11,402 notes/145,447 facts;2,272 cells,
+34,514 active incidences,82,337 populations and64,564 degree coordinates.
+No reroll or source-specific rule. Private failed bootstrap/development versions
+remain retained. No changed detector outputs or creative activation.
+
+ProjectPlanner3000 scoped END approval: independently checked actual outputs,
+source/native/snapshot hashes and seeded selection; all10 v2-to-v3 views match
+after normalizing only domain reporting and added counters. Real captures have
+zero crossings/unknown-domain/fractional cases: those paths remain authored-test
+coverage, not empirical proof. Verified source meter remains required. Native
+fits are conditional compatibility, not chord intent or timing certification.
+
+Next: source-only checkpoint and CI. Planner is auditing whether the current
+voicing blockers follow explicit user locks or conservative implementation
+assumptions, to identify a bounded musical operation rather than producing
+another report that cannot lead to an audible change. Policies remain unchanged
+during that audit. Whole-edit-set exclusion is a useful future context check;
+it does not itself solve current outer-envelope/physical-geometry refusals.

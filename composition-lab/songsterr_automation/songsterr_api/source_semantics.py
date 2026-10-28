@@ -126,8 +126,21 @@ def curve_at(shape,fraction):
     return value
 
 
-def rests(part,headers):
+def rests(part,headers,*,include_provenance=False):
+    if type(include_provenance)is not bool:raise ValueError('Boolean provenance switch required')
     out=[];warnings=[]
+    def provenance(mi,vi,bi=None):
+        m=part['measures'][mi];mp=f'/measures/{mi}'
+        actual=vi<len(m.get('voices',[]));vp=f'{mp}/voices/{vi}' if actual else None
+        v=m['voices'][vi] if actual else {};bp=f'{vp}/beats/{bi}' if bi is not None else None
+        b=v['beats'][bi] if bi is not None else {};refs=[]
+        for node,path in ((m,mp),(v,vp),(b,bp)):
+            if path is not None and node.get('rest'):refs.append(path+'/rest')
+        if bp is not None:
+            refs.extend(f'{bp}/notes/{ni}/rest' for ni,n in enumerate(b.get('notes',[])) if n.get('rest'))
+        return dict(source_measure_ref=mp,source_voice_ref=vp,source_beat_ref=bp,
+                    rest_flag_refs=refs,evidence_kind='literal_rest_flags' if refs else 'structural_empty_beat',
+                    structural_ref=bp if bp is not None else (vp or mp))
     for mi,m in enumerate(part.get('measures',[])):
         h=headers[mi];span=F(h['span_q']);base=F(h['start_q'])
         voices=m.get('voices',[]) or ([dict(rest=True)] if m.get('rest') else [])
@@ -136,7 +149,9 @@ def rests(part,headers):
         for vi,v in enumerate(voices):
             beats=v.get('beats',[]);local=F(0)
             if not beats and (v.get('rest') or m.get('rest')):
-                out.append(dict(bar=mi+1,voice=vi,onset_q=str(base),duration_q=str(span),source='whole_rest_flag'));continue
+                record=dict(bar=mi+1,voice=vi,onset_q=str(base),duration_q=str(span),source='whole_rest_flag')
+                if include_provenance:record['provenance']=provenance(mi,vi)
+                out.append(record);continue
             if v.get('rest') and any(not n.get('rest') for b in beats for n in b.get('notes',[])):
                 warnings.append(dict(bar=mi+1,voice=vi,reason='voice_rest_conflicts_with_notes'))
             for bi,b in enumerate(beats):
@@ -148,6 +163,7 @@ def rests(part,headers):
                 if not pitched:
                     record=dict(bar=mi+1,voice=vi,onset_q=str(base+local),duration_q=str(d),source='explicit_rest_beat')
                     if whole_measure_rest(m,v):record.update(written_duration_q=str(written),duration_semantics='whole_measure_rest')
+                    if include_provenance:record['provenance']=provenance(mi,vi,bi)
                     out.append(record)
                 local+=d
     return out,warnings

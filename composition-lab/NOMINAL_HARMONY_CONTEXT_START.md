@@ -1,6 +1,6 @@
 # Common harmony over written spans: bounded START contract
 
-2026-10-28. Design only; common coattack-evidence END approval remains pending.
+2026-10-28. Bounded implementation and independent END review complete.
 No physical-policy expansion, creative activation or source-label inference.
 
 ## Existing functions and actual gap
@@ -104,38 +104,71 @@ a coherent musical chord sequence by themselves.
 
 ## Acceptance checklist and finite done condition
 
-- [ ] START review fixes these scopes before inference implementation.
-- [ ] Complete ten-capture source denominator: all original events; positive,
+- [x] START review fixes these scopes before inference implementation.
+- [x] Complete ten-capture source denominator: all original events; positive,
   grace, nonpitched, unknown, crossing and timing-refused events; all source-bar
   cells including empty/rest/quarantined gaps; all active-note/cell incidences.
   Distinguish source groups, durations, hypotheses, population and role counts.
   Existing `written_spans` omits empty intervals: add accounting via real measure
   frames rather than calling its nonempty list the complete time denominator.
-- [ ] Independent literal raw interval arithmetic verifies every active set,
+- [x] Independent literal raw interval arithmetic verifies every active set,
   included/excluded ref, population equivalence, boundary and focal role.
-- [ ] Focal-pitch mutation leaves complementary population fits unchanged when
+- [x] Focal-pitch mutation leaves complementary population fits unchanged when
   identity/time/domain and other source facts are fixed; only focal coordinates
   change. Deleting another same-PC note must change its witness inventory.
-- [ ] Contrasts: C/E/G background with focal D as nonmember; full-population fit
+- [x] Contrasts: C/E/G background with focal D as nonmember; full-population fit
   tautology marked descriptive; too little/no-fit complementary evidence;
   E-only new start over held C/G; same held C across C-major versus G-major
   complementary contexts; duplicate unisons; same versus other-part scopes;
   ties; unknown/dead/expression/percussion; grace and exact half-open boundaries.
   Sequential nonoverlapping C/E/G must NOT become a simultaneous triad.
-- [ ] Label masking cannot change observation-derived span fits. Part/string
+- [x] Label masking cannot change observation-derived span fits. Part/string
   renaming cannot introduce an accompaniment or melody preference. Preserve
   source IDs and global transposition equivariance through the degree equation.
-- [ ] Omitted/extra refs, altered population scope, falsely excluded unknowns,
+- [x] Omitted/extra refs, altered population scope, falsely excluded unknowns,
   invented source-label duration, omitted alternatives, stale degrees and
   duplicated/overlapping temporal cells all fail independent and SAME validation.
-- [ ] MID review of complete accounting before fresh sampling.
-- [ ] Actual source-denied zero/full-source and common-relationship workers
+- [x] MID review of complete accounting before fresh sampling.
+- [x] Actual source-denied zero/full-source and common-relationship workers
   recompute without T0/T1 files, caches or expected answers. Exact zero remains
   unconditional even when no harmonic hypothesis is supported.
-- [ ] Freeze stable code, then preregister a bounded fresh-source gate; retain
+- [x] Freeze stable code, then preregister a bounded fresh-source gate; retain
   failures and no-fit populations. END audits actual worker outputs and all
   temporal/role denominators. No creative/audio/artist-quality pass is implied.
 
 Done means a common time-scoped source relationship usable for held-note context
 with direct self-support clearly separated from complementary evidence. It is
 not another ranking study or permission to loosen the current voicing controls.
+
+## Verified result and limits
+
+Ten development captures:54,383 notes/534,317 facts;20 actual isolated workers.
+Fresh preregistered November Rain8452/revision9927032:11,402 notes/145,447 facts;
+both workers and independent source/native checks pass. Seed9448772484146180843,
+letter i,89 eligible new IDs among first100 public search results,169 exclusions.
+This is a bounded reproducible draw, not uniform catalog sampling.
+
+Full suite:1,303 run,1,302 pass,one optional skip. ProjectPlanner3000 independently
+audited actual worker outputs, raw source, native coordinates, frozen hashes and
+random selection. Private repeatable audit/results are under
+`local-artifacts/nominal-harmony-v1/` and `nominal-harmony-fresh-v1/`.
+
+The independent checker shares the previously accepted source clock/rest-duration
+primitives. Its interval partitioning, populations, fits, roles, counts, native
+theory provenance and new raw rest pointers are independently computed.
+Verified meter is a source-pipeline prerequisite: some missing-meter inputs fail
+before this module's unavailable-geometry branch. Crossing, unknown-domain and
+fractional branches have authored tests but no positive instances in these11
+real captures. Population fit counts are exact PC compatibilities; timing-safe
+role queries also require clear scope/focal refusals.
+
+`unknown_pitch_occurrences` counts absent normalized pitch values across all
+domains; `pitched_unknown_pitch_occurrences` isolates missing pitched values.
+Nonpitched, unknown-instrument, unsupported fractional and genuinely missing
+focal roles have separate statuses. `written_pitch_qualifications` is deliberately
+not a complete execution-safety inventory; existing execution/technique/tie guards
+remain authoritative. No source detector, permission or creative policy changed.
+
+This closes the written-context contract, not Tier2, inferred key/mode, chosen
+chord function, artist style or audible editing. Existing owners reconstruct
+source; conditional hypotheses alone are not claimed sufficient for inversion.
