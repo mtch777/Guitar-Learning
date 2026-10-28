@@ -47,7 +47,7 @@ Existing degree, tuning and fret equations still reconstruct every occurrence.
   workers and complete proposal ledgers verified. Independent raw inventory
   agrees on all 6,511 mixed paths / 1,466 dead occurrences / 2,801 known-pitch
   pair intervals, including 1,860 refused paths and every maximal dead span.
-- [ ] Source-only commit/push and CI.
+- [x] Source-only commit `31978f0`, pushed; CI 40645451613 succeeded.
 - [x] No real changed layout admitted; changed export/render is not applicable.
   Authored positive tests prove capability, not a successful real-song lever.
 

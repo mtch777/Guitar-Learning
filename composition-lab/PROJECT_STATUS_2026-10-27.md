@@ -106,3 +106,21 @@ change the highest note and lack some observed neighboring patterns; four also
 touch unresolved slides. Literal top-note movement is measurable; melody identity
 is not yet established. Real musical acceptance and an audible voicing example
 remain open. Prior checkpoint `0d2510f` is pushed with CI passed.
+
+Latest: **1,238 Python passes, one optional skip**. A new inner-voicing scope
+can combine source-observed inner chord degrees while keeping every literal
+highest/lowest note fixed. Doubling may change; the complete chord, timing,
+strings, outside facts and execution protections remain locked. The authored
+example passes the actual isolated inverse and independent raw checker.
+
+Four real captures recover **19,548 notes / 189,565 facts** exactly. The new
+random Linkin Park capture passes; a previous random Texas Flood failure exposed
+missing structured trill ownership, now repaired and independently verified.
+Trill speed is retained without guessing its units or repairing GP playback.
+
+**Still no admitted real audible change.** Four Queen combinations retain the
+chord and outer notes but lack a complete physical-shape witness; six lose chord
+tones and are correctly rejected. Planner's next recommendation is explicit
+physical-only reference evidence from the existing corpus, with musical donors
+kept inside the current song. Keys/modes, full melodic roles and artist fidelity
+remain unfinished. Typed-context checkpoint `31978f0` has CI passed.

@@ -435,3 +435,51 @@ occurrences, 2,801 known-pitch intervals, including 1,860 refused paths. No
 disagreement or dropped span. Private audit scripts/results are retained.
 Approval covers the bounded ownership/context checks and honest negative
 outcomes; it does not approve real musical output or the entire voicing lever.
+
+Typed nominal checkpoint `31978f08d501709316163093d4ce2554d038ca35` pushed;
+CI 40645451613 succeeded. No website assets changed.
+
+### Source-supported inner voicing
+
+- Planner START: separate literal outer occurrences from coupled inner chord
+  degrees. Same inverse, explicit doubling release, complete formula protected.
+  No inference that the extrema are melody/bass voices; no string reassignment.
+- Keep source execution, timing, outside facts, approved techniques and pedals
+  locked. Require independent whole fret-geometry evidence with matching physical
+  settings, open status and uniform translation. Geometry is not human playability.
+- Planner supplied independent raw oracle and complete source denominators.
+  MID verifies authored actual output and all proposed components/geometry.
+- Fifteen targeted tests passed. Full v1 suite: 1,235 passes / one optional skip,
+  109.409 seconds. Actual zero and changed workers pass on the authored example.
+- Freeze `local-artifacts/inner-voicing-v1`: 504 project / 266 native files;
+  seed 6689848996157294462, 163 excluded IDs. New Texas Flood8709/rev8728167.
+- `run_inner_voicing_qa.py <capture> <output> <freeze>` on Queen/Smiths/fresh.
+  Queen+Smiths actual whole/pair inverses recover 11,951 notes / 107,491 facts.
+  Complete raw denominators: 5,998 geometry groups / 300 component pairs,
+  including 40 changed Queen pairs. No changed real layout admitted.
+- Queen's ten different inner layouts: six fail full chord-tone support; four
+  lack whole geometry witnesses. Smiths offers no different inner component.
+  Lack of observed geometry does not establish that a shape is unplayable.
+- Fresh Texas Flood retained FAIL: unsupported trill object and two integer
+  children. Planner END verified all hashes, actual outputs and full ledgers.
+- Trill repair: typed note-level auxiliaryFret/speed ownership, exact same scalar
+  inverse; execution remains unknown and cannot pass plain-context checks.
+  Speed65 is retained without interpretation; converter hardcoding16 is a known
+  separate conversion limitation. Accepted identification detectors unchanged.
+- Planner caught missing independent trill-root coverage; fixed, with a regression
+  that fails when the owner is omitted. Three targeted trill tests pass, including
+  actual isolated reconstruction. V2 full tests and new random gate next.
+
+V2 finished: 1,238 passes / one optional skip, 118.090 seconds. Freeze505project /
+266native; seed5690346822287915302 excludes164IDs. FreshLinkinPark3711 /
+A Place For My Head / revision9918577 / eighttracks passes unchanged logic.
+Queen, Smiths, repairedTexasFlood and freshLinkinPark recover19,548notes /
+189,565facts in eightactualwhole/pairworkers. Freshcase has23declaredgroups,
+18eligible targets and42unchangedcomponent links; no differentcomponent.
+Planner END verified all source/native/capture hashes, actual outputs, all11,852
+rawgeometry keys/eligibility,342component links and complete refusal ledgers.
+Exactlyone TexasFloodtrill is independently accounted for and remains execution
+unknown. OriginalFAIL retained. No realchanged layout, playback or artist-fit
+acceptance claimed. Source-only commit/CI next. Then investigate an explicit
+physical-reference library from the already-frozen corpus; never hidden access
+or a weaker musical-donor rule. Queen geometry absence is not unplayability.

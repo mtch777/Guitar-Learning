@@ -9,7 +9,7 @@ import math
 import re
 from source_fact_tier1 import validate
 
-NOTE_EFFECTS=frozenset(('hp','bend','slide','harmonic','harmonicFret','ghost','staccato','accentuated','tremolo','vibrato','wideVibrato','leftHandVibrato','velocity','pickScrape'))
+NOTE_EFFECTS=frozenset(('hp','bend','slide','harmonic','harmonicFret','ghost','staccato','accentuated','tremolo','vibrato','wideVibrato','leftHandVibrato','velocity','pickScrape','trill'))
 BEAT_EFFECTS=frozenset(('palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','downArpeggio','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity','wahwah','golpe','sustainPedal'))
 _UNSET=object()
 
@@ -78,6 +78,10 @@ def supported_structure(owner,root,rows):
     # Captured direction is a declaration, not a pitched trajectory or a
     # performance model. Future structures/types still require explicit review.
     if field=='sustainPedal':return owner['scope']=='beat' and len(rows)==1 and root['type']=='boolean'
+    if field=='trill':
+        # Source auxiliary position and speed code, not a decoded oscillation
+        # rate or generated alternating note sequence. Missing fields stay absent.
+        return owner['scope']=='note' and root['type']=='object' and all(r['parent']==root['id'] and r['slot'] in ('auxiliaryFret','speed') and r['type']=='integer' for r in rows[1:])
     if field in ('wahwah','golpe'):return owner['scope']=='beat' and len(rows)==1 and root['type']=='string'
     if field=='pickScrape':return len(rows)==1 and root['type']=='string'
     if field=='downArpeggio':return len(rows)==1 and root['type']=='integer'

@@ -9,6 +9,7 @@ REGISTERED_SOURCE_CONTAINERS = {
  ('metadata', '/audios/next/meta'): ('object',),
  ('track', '/measures/*/keySignature'): ('object',),
  ('track', '/measures/*/voices/*/beats/*/notes/*/spn'): ('array',),
+ ('track', '/measures/*/voices/*/beats/*/notes/*/trill'): ('object',),
 }
 
 REGISTERED_SOURCE_FIELDS = {('metadata', '/nextAudio'): ('string',),
@@ -24,6 +25,8 @@ REGISTERED_SOURCE_FIELDS = {('metadata', '/nextAudio'): ('string',),
  ('track', '/measures/*/keySignature/mode'): ('string',),
  ('track', '/measures/*/keySignature/transposeAs'): ('string',),
  ('track', '/measures/*/voices/*/beats/*/notes/*/spn/*'): ('integer',),
+ ('track', '/measures/*/voices/*/beats/*/notes/*/trill/auxiliaryFret'): ('integer',),
+ ('track', '/measures/*/voices/*/beats/*/notes/*/trill/speed'): ('integer',),
  ('track', '/measures/*/voices/*/beats/*/notes/*/courtesyAccidental'): ('boolean',),
  ('track', '/measures/*/clef'): ('string',),
  ('track', '/grandStaffGroup'): ('integer',),
