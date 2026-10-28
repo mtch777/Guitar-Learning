@@ -10,12 +10,13 @@ import json
 import random
 
 POLICY='declared_degree_allocation'
+NOMINAL_POLICY='declared_degree_nominal_slots'
 
 
 def encoded(value):return json.dumps(value,sort_keys=True,separators=(',',':'))
 
 
-def catalog(upper):
+def catalog(upper,*,typed_nominal=False):
     from connected_tier2 import realize
     from source_fact_tier1 import project_documents
     from declared_chord_ownership import label_values,capo_values,validate
@@ -30,7 +31,7 @@ def catalog(upper):
     labels=label_values(upper['owned_parameters']['source_choices'],upper['source_structure']['facts'])
     capos=capo_values(upper['owned_parameters']['source_choices'],upper['source_structure']['facts'])
     core=validate(shared,labels,capos);groups={g['id']:g for g in core['coattacks']}
-    nodes=graph(before);ties=tie_relationships(context);execution=build(before)
+    nodes=graph(before,typed_nominal=typed_nominal);ties=tie_relationships(context);execution=build(before)
     pinned=set(execution['pinned_members'])|{r for e in ties['links'] for r in (e['origin'],e['destination'])}|{e['destination'] for e in ties['unresolved']}
     events={e['id']:e for e in context['events']};units=[]
     for g in shared['core']['coattacks']:
@@ -55,7 +56,7 @@ def catalog(upper):
         roles=[dict(degree_token=m['degree_token'],relative_octaves=m['relative_octaves']) for m in g['members']]
         key=encoded([g['part_id'],h['root_pc'],h['kind'],len(refs),sorted(Counter(m['degree_token'] for m in g['members']).items()),str(min(pitches)),sorted(strings)])
         units.append(dict(id=refs[0],group_ref=g['id'],part_id=g['part_id'],member_refs=refs,strings=strings,roles=roles,pitches=list(map(str,pitches)),key=key,reasons=sorted(reasons)))
-    return dict(before=before,documents=docs,units=units,lane_graph=nodes)
+    return dict(before=before,documents=docs,units=units,lane_graph=nodes,typed_nominal=typed_nominal)
 
 
 def apply(upper,target,roles):
@@ -69,7 +70,7 @@ def apply(upper,target,roles):
     return edited
 
 
-def verify(before,after,target,donor,lanes):
+def verify(before,after,target,donor,lanes,*,typed_nominal=False):
     from source_fact_tier1 import project_documents
     from voicing_context_relations import check_paths,graph
     from freeze_technique_baseline import retained
@@ -83,7 +84,7 @@ def verify(before,after,target,donor,lanes):
     for a,b in zip(before['facts'],after['facts']):
         if encoded(a)==encoded(b):continue
         if a['id'] not in allowed or encoded({k:v for k,v in a.items() if k!='value'})!=encoded({k:v for k,v in b.items() if k!='value'}):raise ValueError('Locked source fact changed')
-    after_graph=graph(after);old=lanes['nodes'];new=after_graph['nodes'];refs=target['member_refs']
+    after_graph=graph(after,typed_nominal=typed_nominal);old=lanes['nodes'];new=after_graph['nodes'];refs=target['member_refs']
     docs=project_documents(before);after_docs=project_documents(after)
     if encoded(build(before)['signature'])!=encoded(build(after)['signature']):raise ValueError('Execution relationships changed')
     if encoded(tie_relationships(extract_documents(docs)))!=encoded(tie_relationships(extract_documents(after_docs))):raise ValueError('Tie relationships changed')
@@ -113,7 +114,7 @@ def verify(before,after,target,donor,lanes):
     def classes(values):return classify_group([dict(midi=int(p),string=s) for p,s in zip(values,target['strings'])])
     if classes(pitches)!=classes([F(old[r]['pitch']) for r in refs]):raise ValueError('Coattack technique classification changed')
     realization=dict(anchor=str(min(pitches)),intervals=[str(p-min(pitches)) for p in pitches],strings=target['strings'])
-    motion=check_paths(lanes,target,realization)
+    motion=check_paths(lanes,target,realization,typed_nominal=typed_nominal)
     if motion['status']=='REFUSED':raise ValueError(dict(incident_motion=motion))
     motion['written_vertical_invariance']=dict(target_contribution='EXACT_PER_TIME_PC_MULTISET',outside_projection='EXACT_UNCHANGED',unchanged_outside_uncertainty=outside_unknown,acoustic_harmony_verified=False)
     a=retained(docs);b=retained(after_docs)
@@ -121,9 +122,10 @@ def verify(before,after,target,donor,lanes):
     return motion
 
 
-def options(upper,target_ref,prepared=None):
+def options(upper,target_ref,prepared=None,*,typed_nominal=False):
     from connected_tier2 import realize
-    c=catalog(upper) if prepared is None else prepared
+    c=catalog(upper,typed_nominal=typed_nominal) if prepared is None else prepared
+    if c.get('typed_nominal',False)!=typed_nominal:raise ValueError('Prepared path model differs from requested evidence')
     target=next((u for u in c['units'] if u['id']==target_ref),None)
     if target is None:raise ValueError('Target has no declared degree ownership')
     if target['reasons']:return dict(status='REFUSED_TARGET',target=target,options=[],rejected=[],reasons=target['reasons'])
@@ -138,7 +140,7 @@ def options(upper,target_ref,prepared=None):
         try:
             if changed:
                 edited=apply(upper,target,roles);after=realize(edited)
-                motion=verify(c['before'],after,target,donors[0],c['lane_graph'])
+                motion=verify(c['before'],after,target,donors[0],c['lane_graph'],typed_nominal=typed_nominal)
             else:motion=dict(status='PASS_UNCHANGED_PITCH_RELATIONSHIPS')
             accepted.append(dict(roles=roles,donor_refs=[d['id'] for d in donors],changed=changed,motion=motion))
         except (ValueError,KeyError,TypeError) as error:rejected.append(dict(roles=roles,donor_refs=[d['id'] for d in donors],reason=str(error)))
@@ -159,6 +161,6 @@ def intervene(upper,controls):
     if controls.get('register')!=0:raise ValueError('This release locks bass register')
     realize(upper)
     if controls['voicing']==0:return deepcopy(upper),dict(status='EXACT_ZERO_LOCK',released=False,changed=False)
-    evidence=options(upper,controls['target_ref']);chosen,report=sample(evidence,controls)
+    evidence=options(upper,controls['target_ref'],typed_nominal=controls.get('context_policy')==NOMINAL_POLICY);chosen,report=sample(evidence,controls)
     report['evidence']=evidence
     return (deepcopy(upper) if chosen is None else apply(upper,evidence['target'],chosen['roles'])),report

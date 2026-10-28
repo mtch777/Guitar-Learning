@@ -6,21 +6,27 @@ from pathlib import Path
 import traceback
 from run_declared_chord_qa import run as zero_and_pair,sha,dump
 from run_connected_tier2_qa import bundle
-from declared_degree_choices import catalog,options,apply,sample,encoded
+from declared_degree_choices import catalog,options,apply,sample,encoded,POLICY,NOMINAL_POLICY
 from connected_tier2 import realize
 from check_declared_allocation import check,proposal_inventory
 from qa_isolation_harness import execute
 
 
-def run(capture,output,freeze):
+def run(capture,output,freeze,policy=POLICY):
     output.mkdir(parents=True,exist_ok=False);frozen=json.loads(freeze.read_text())
     original={str(p.resolve()):sha(p) for p in capture.glob('*.json')}
     try:
+        if policy not in (POLICY,NOMINAL_POLICY):raise ValueError('Unknown allocation policy')
+        typed_nominal=policy==NOMINAL_POLICY
         if any(sha(Path(p))!=h for p,h in frozen['code_hashes'].items()):raise ValueError('Source code differs from preregistered freeze')
         zero=zero_and_pair(capture,output/'zero-and-pair',freeze)
         if zero['status']!='PASS_DECLARED_WRITTEN_CHORD_QA':raise ValueError('Exact-zero/source gate failed; original failure retained')
-        upper=json.loads((output/'zero-and-pair/stripped-tier2.json').read_text());c=catalog(upper)
+        upper=json.loads((output/'zero-and-pair/stripped-tier2.json').read_text());c=catalog(upper,typed_nominal=typed_nominal)
         dump(output/'catalog.json',dict(units=c['units']))
+        if typed_nominal:
+            from voicing_context_relations import paths
+            pp=paths(c['lane_graph'],typed_nominal=True)
+            dump(output/'typed-incidence.json',[dict(kind=k[0],center=k[1],**v) for k,v in pp.items() if 'nominal_incidence' in v])
         raw_inventory=proposal_inventory(c['before']);dump(output/'independent-proposal-inventory.json',raw_inventory)
         if {u['id'] for u in raw_inventory['units']}!={u['id'] for u in c['units']}:raise ValueError('Independent declared-unit inventory disagreement')
         if {u['id'] for u in raw_inventory['units'] if not u['reasons']}!={u['id'] for u in c['units'] if not u['reasons']}:raise ValueError('Independent eligible-unit inventory disagreement')
@@ -38,12 +44,12 @@ def run(capture,output,freeze):
             counts['eligible_targets']+=1;counts['changed_donor_pairs']+=len(changed)
             if not changed:
                 results.append(dict(target=target['id'],status='NO_DIFFERENT_OBSERVED_LAYOUT',peer_refs=[p['id'] for p in peers]));continue
-            evidence=options(upper,target['id'],c);results.append(evidence)
+            evidence=options(upper,target['id'],c,typed_nominal=typed_nominal);results.append(evidence)
             for choice in evidence['options']:
                 if not choice['changed']:continue
                 after=realize(apply(upper,target,choice['roles']));counts['admitted_changed_layouts']+=1
                 for ref in choice['donor_refs']:
-                    audit=check(c['before'],after,target['member_refs'],byid[ref]['member_refs'])
+                    audit=check(c['before'],after,target['member_refs'],byid[ref]['member_refs'],typed_nominal=typed_nominal)
                     independent.append(dict(target=target['id'],donor=ref,result=audit));counts['independently_checked_changed_pairs']+=1
                     if audit['status']!='PASS_LOCKED_DECLARED_ALLOCATION':raise ValueError(dict(independent_disagreement=independent[-1]))
                 if first is None:first=(evidence,choice,after)
@@ -53,7 +59,7 @@ def run(capture,output,freeze):
         demonstration=None
         if first is not None:
             evidence,choice,expected=first
-            control=dict(voicing=100,register=0,target_ref=evidence['target']['id'],seed=0,context_policy='declared_degree_allocation')
+            control=dict(voicing=100,register=0,target_ref=evidence['target']['id'],seed=0,context_policy=policy)
             seed=next((i for i in range(100000) if sample(evidence,dict(control,seed=i))[0]==choice),None)
             if seed is None:raise ValueError('No deterministic demonstration seed found')
             control['seed']=seed;code,_=bundle(Path(__file__).parent.resolve())
@@ -61,7 +67,7 @@ def run(capture,output,freeze):
             if isolated['status']!='PASS':raise ValueError(isolated)
             actual=json.loads((output/'changed-isolated/worker/output.json').read_text())
             target=evidence['target'];donor=byid[choice['donor_refs'][0]]
-            actual_audit=check(c['before'],actual,target['member_refs'],donor['member_refs'])
+            actual_audit=check(c['before'],actual,target['member_refs'],donor['member_refs'],typed_nominal=typed_nominal)
             if actual_audit['status']!='PASS_LOCKED_DECLARED_ALLOCATION':raise ValueError(actual_audit)
             frequencies=[]
             for strength in (0,50,100):
@@ -71,7 +77,7 @@ def run(capture,output,freeze):
                 actual_worker_audit=actual_audit,isolated=isolated,frequencies=frequencies)
             dump(output/'demonstration.json',demonstration)
         if any(sha(Path(p))!=h for p,h in original.items()) or any(sha(Path(p))!=h for p,h in frozen['code_hashes'].items()):raise ValueError('Source or code drift')
-        result=dict(status='PASS_DECLARED_ALLOCATION_QA',song_id=zero['song_id'],title=zero['title'],notes=zero['note_occurrences'],facts=zero['source_facts'],declared_groups=len(c['units']),counts=dict(counts),changed_demonstration=demonstration is not None,
+        result=dict(status='PASS_DECLARED_ALLOCATION_QA',policy=policy,song_id=zero['song_id'],title=zero['title'],notes=zero['note_occurrences'],facts=zero['source_facts'],declared_groups=len(c['units']),counts=dict(counts),changed_demonstration=demonstration is not None,
             independent_denominator=raw_inventory['counts'],qa1='Untuned frozen full capture retained, including no-declaration cases',qa2='Actual source-free whole and degree-pair zero workers; changed worker if admitted',
             qa3='Conditional source-declared degrees; whole source-supported allocation and witnessed incident motion. Not identified melody, inferred acoustic harmony, style preference or human listening acceptance.')
     except Exception as error:
@@ -80,8 +86,8 @@ def run(capture,output,freeze):
 
 
 def main(argv=None):
-    p=argparse.ArgumentParser();p.add_argument('capture',type=Path);p.add_argument('output',type=Path);p.add_argument('freeze',type=Path);a=p.parse_args(argv)
-    result=run(a.capture,a.output,a.freeze);print(json.dumps(result,indent=2))
+    p=argparse.ArgumentParser();p.add_argument('capture',type=Path);p.add_argument('output',type=Path);p.add_argument('freeze',type=Path);p.add_argument('--policy',choices=(POLICY,NOMINAL_POLICY),default=POLICY);a=p.parse_args(argv)
+    result=run(a.capture,a.output,a.freeze,a.policy);print(json.dumps(result,indent=2))
     return 0 if result['status']=='PASS_DECLARED_ALLOCATION_QA' else 1
 
 

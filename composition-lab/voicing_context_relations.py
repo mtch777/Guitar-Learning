@@ -16,7 +16,8 @@ BASE_FIELDS=('part_id','instrument','member_pitch_classes','duration_q','meter',
 def token(v):return json.dumps(v,sort_keys=True,separators=(',',':'))
 
 
-def graph(tier1):
+def graph(tier1,*,typed_nominal=False):
+    if type(typed_nominal)is not bool:raise ValueError('Typed nominal permission must be bool')
     from source_fact_tier1 import project_documents
     from source_tie_tier1 import extract_documents
     from voicing_register import effect_reasons,notation
@@ -41,11 +42,15 @@ def graph(tier1):
             beat={k:v for k,v in beat.items()if k not in ('notes','duration')})
         nodes[e['id']]=dict(id=e['id'],part_id=e['part_id'],voice=e['voice'],string=s,pitch=e['pitch'],
             onset_q=e['onset_q'],duration_q=e['duration_q'],bar=e['bar'],reasons=sorted(set(reasons)),articulation=articulation)
+        if typed_nominal:
+            nodes[e['id']]['nominal_dead_declaration']=dict(eligible=note.get('dead')is True and e['pitch']is None and note.get('spn')is None and note.get('courtesyAccidental')is not True and type(part.get('instrumentId'))is int and 0<=part['instrumentId']<=127 and type(s)is int and s>=0,
+                fret=dict(present='fret'in note,type=type(note.get('fret')).__name__,value=deepcopy(note.get('fret'))))
     return dict(nodes=nodes,rests=rest_rows)
 
 
-def paths(g):
+def paths(g,*,typed_nominal=False):
     """Every lane edge and center triple, including explicit song-lane boundaries."""
+    if type(typed_nominal)is not bool:raise ValueError('Typed nominal permission must be bool')
     lanes=defaultdict(list);unknown=defaultdict(list);result={};rest_index=defaultdict(list)
     for r in g['rests']:rest_index[r['part_id'],r['voice']].append((F(r['onset_q']),F(r['onset_q'])+F(r['duration_q']),r))
     for n in g['nodes'].values():
@@ -53,12 +58,21 @@ def paths(g):
         else:lanes[n['part_id'],n['voice'],n['string']].append(n)
     for lane,rows in lanes.items():
         rows.sort(key=lambda n:(F(n['onset_q']),n['id']))
+        windows=[]
         for i,n in enumerate(rows):
             for kind,window in (('edge',rows[i:i+2]),('triple',rows[max(0,i-1):i+2])):
                 if kind=='edge' and len(window)<2:window=[n,None]
                 if kind=='triple':window=([None]if i==0 else[])+window+([None]if i==len(rows)-1 else[])
+                windows.append((kind,n['id'],window))
+        if typed_nominal:
+            from nominal_event_incidence import spans,describe
+            windows.extend(spans(rows))
+        for kind,center,window in windows:
                 reasons=[];present=[v for v in window if v is not None];rest_patterns=[]
-                for v in present:reasons.extend(v['reasons'])
+                typed=describe(window) if typed_nominal else None
+                if typed is not None:reasons.extend(typed['reasons'])
+                else:
+                    for v in present:reasons.extend(v['reasons'])
                 for v in unknown[lane[:2]]:
                     at=F(v['onset_q']);lo=F(present[0]['onset_q']);hi=F(present[-1]['onset_q'])+F(present[-1]['duration_q'])
                     if(window[0]is None or at>=lo or at+F(v['duration_q'])>lo)and(window[-1]is None or at<hi):reasons.append('UNKNOWN_INTERVENING_LANE')
@@ -74,23 +88,25 @@ def paths(g):
                 gaps=[None if a is None or b is None else str(F(b['onset_q'])-F(a['onset_q'])-F(a['duration_q']))for a,b in zip(window,window[1:])]
                 key=token([kind,list(lane),[None if p is None else str(p%12)for p in pitches],motion,times,gaps,
                     [None if v is None else v['articulation']for v in window],rest_patterns])
-                result[kind,n['id']]=dict(key=key,refs=[v['id']for v in present],reasons=sorted(set(reasons)))
+                if typed is not None and typed['has_unpitched']:key=token([key,typed['slot_kinds'],typed['dead_fret_declarations'],typed['known_pitch_pairs']])
+                result[kind,center]=dict(key=key,refs=[v['id']for v in present],reasons=sorted(set(reasons)))
+                if typed is not None and typed['has_unpitched']:result[kind,center]['nominal_incidence']=typed
     return result
 
 
-def evidence(g):
-    original=paths(g);index=defaultdict(list)
+def evidence(g,*,typed_nominal=False):
+    original=paths(g,typed_nominal=typed_nominal);index=defaultdict(list)
     for path in original.values():
         if not path['reasons']:index[path['key']].append(path['refs'])
     return original,index
 
 
-def check_paths(g,target,realization,source_evidence=None,*,allow_string_changes=False):
+def check_paths(g,target,realization,source_evidence=None,*,allow_string_changes=False,typed_nominal=False):
     """Evaluate actual after-neighborhoods using ONLY original source witnesses."""
-    return check_many(g,[(target,realization)],source_evidence,allow_string_changes=allow_string_changes)
+    return check_many(g,[(target,realization)],source_evidence,allow_string_changes=allow_string_changes,typed_nominal=typed_nominal)
 
 
-def check_many(g,choices,source_evidence=None,*,allow_string_changes=False):
+def check_many(g,choices,source_evidence=None,*,allow_string_changes=False,typed_nominal=False):
     """Same incident obligations for the UNION of simultaneous group choices."""
     if not choices or len({t['part_id'] for t,v in choices})!=1:raise ValueError('One part and nonempty choices required')
     part_id=choices[0][0]['part_id'];assignments={}
@@ -103,7 +119,7 @@ def check_many(g,choices,source_evidence=None,*,allow_string_changes=False):
     # independent vertical-cell checks; they cannot alter this part's adjacency.
     g=dict(nodes={r:n for r,n in g['nodes'].items()if n['part_id']==part_id},
         rests=[r for r in g['rests']if r['part_id']==part_id])
-    before,index=evidence(g)if source_evidence is None else source_evidence
+    before,index=evidence(g,typed_nominal=typed_nominal)if source_evidence is None else source_evidence
     before={k:p for k,p in before.items()if k[1]in g['nodes']}
     after_graph=deepcopy(g);changed=set()
     for ref,(p,string) in assignments.items():
@@ -111,7 +127,7 @@ def check_many(g,choices,source_evidence=None,*,allow_string_changes=False):
         if n['string']!=string and not allow_string_changes:return dict(status='REFUSED',reasons=['STRINGS_LOCKED'],witnesses=[])
         if p!=n['pitch']or n['string']!=string:changed.add(ref);n.update(pitch=p,string=string)
     if not changed:return dict(status='PASS_UNCHANGED_PITCH_RELATIONSHIPS',reasons=[],witnesses=[])
-    after=paths(after_graph)
+    after=paths(after_graph,typed_nominal=typed_nominal)
     old_lanes={(n['part_id'],n['voice'],n['string'])for n in g['nodes'].values()if type(n['string'])is int and n['string']>=0}
     new_lanes={(n['part_id'],n['voice'],n['string'])for n in after_graph['nodes'].values()if type(n['string'])is int and n['string']>=0}
     if old_lanes-new_lanes:return dict(status='REFUSED',reasons=['EMPTY_SOURCE_LANE_CREATED'],witnesses=[])

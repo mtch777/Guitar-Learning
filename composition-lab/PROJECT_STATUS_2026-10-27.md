@@ -95,3 +95,14 @@ are retained, but connectedmusicalcore does NOT yet integrate the separately
 tested source-declared keycontext module. Inferredkey/mode and artistic roles
 remain incomplete. Next:typedunpitched incidence and clearseparation of actual
 execution dependencies from merelyobserved string-lane patterns.
+
+2026-10-28 update: **1,220 Python passes, one optional skip**. Explicit dead
+notes now remain unpitched rhythmic events in an opt-in voicing-context model;
+the pitched notes on both sides remain connected, including across long dead
+runs. Same inverse, unchanged accepted detectors. Four whole-song/pair checks
+recover **30,684 notes / 294,008 facts** exactly, including a new random Smiths
+song. Queen still has **zero admitted real changes**: its ten proposed layouts
+change the highest note and lack some observed neighboring patterns; four also
+touch unresolved slides. Literal top-note movement is measurable; melody identity
+is not yet established. Real musical acceptance and an audible voicing example
+remain open. Prior checkpoint `0d2510f` is pushed with CI passed.

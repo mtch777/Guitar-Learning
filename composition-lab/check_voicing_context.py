@@ -42,19 +42,31 @@ def _nodes(tier1):
         if F(e['duration_q'])<=0:reasons.append('GRACE_OR_NONPOSITIVE_DURATION')
         string=note.get('string')
         if type(string)is not int or string<0:reasons.append('UNKNOWN_STRING_LANE')
-        nodes[e['id']]=dict(id=e['id'],part=e['part_id'],voice=e['voice'],string=string,pitch=None if e['pitch']is None else F(e['pitch']),onset=F(e['onset_q']),duration=F(e['duration_q']),reasons=sorted(set(reasons)),note_declarations={k:v for k,v in note.items()if k not in('fret','string','spn','tieOrigin','tieDestination')},beat_declarations={k:v for k,v in beat.items()if k not in('notes','duration')},instrument=part.get('instrumentId'))
+        nodes[e['id']]=dict(id=e['id'],part=e['part_id'],voice=e['voice'],string=string,pitch=None if e['pitch']is None else F(e['pitch']),onset=F(e['onset_q']),duration=F(e['duration_q']),reasons=sorted(set(reasons)),note_declarations={k:v for k,v in note.items()if k not in('fret','string','spn','tieOrigin','tieDestination')},beat_declarations={k:v for k,v in beat.items()if k not in('notes','duration')},instrument=part.get('instrumentId'),dead_fret_declaration=dict(present='fret'in note,type=type(note.get('fret')).__name__,value=note.get('fret'))if note.get('dead')is True else None,pure_dead_nominal=note.get('dead')is True and e['pitch']is None and note.get('spn')is None and note.get('courtesyAccidental')is not True and type(part.get('instrumentId'))is int and 0<=part['instrumentId']<=127 and type(string)is int and string>=0)
     return docs,lower,nodes,rest_rows
 
 
-def _paths(nodes,rests):
+def _paths(nodes,rests,typed_nominal=False):
+    if type(typed_nominal)is not bool:raise ValueError('Typed nominal permission must be bool')
+    def nominal_kind(n):
+        if n is None:return 'BOUNDARY'
+        if n.get('pure_dead_nominal')is True and n['pitch']is None:return 'UNPITCHED_DEAD'
+        if n['pitch']is not None and F(n['pitch']).denominator==1 and n['note_declarations'].get('dead')is not True:return 'PITCHED'
+        return 'UNKNOWN'
     lanes=defaultdict(list);out={};unknown=[n for n in nodes.values()if type(n['string'])is not int or n['string']<0]
     for n in nodes.values():lanes[n['part'],n['voice'],n['string']].append(n)
     for lane,values in lanes.items():
         values.sort(key=lambda n:(n['onset'],n['id']))
         for i,n in enumerate(values):
             windows={'edge':[n,values[i+1]if i+1<len(values)else None], 'triple':[values[i-1]if i else None,n,values[i+1]if i+1<len(values)else None]}
+            if typed_nominal and nominal_kind(n)=='UNPITCHED_DEAD'and(i==0 or nominal_kind(values[i-1])!='UNPITCHED_DEAD'):
+                stop=i+1
+                while stop<len(values)and nominal_kind(values[stop])=='UNPITCHED_DEAD':stop+=1
+                windows['unpitched_span']=[values[i-1]if i else None]+values[i:stop]+[values[stop]if stop<len(values)else None]
             for kind,window in windows.items():
-                present=[x for x in window if x is not None];reasons=[r for x in present for r in x['reasons']]
+                present=[x for x in window if x is not None]
+                reasons=[r for x in present for r in x['reasons']if not(typed_nominal and nominal_kind(x)=='UNPITCHED_DEAD'and r in('UNKNOWN_PITCH','unresolved_sounding_pitch_dead'))]
+                if typed_nominal and any(nominal_kind(x)=='UNKNOWN'for x in present):reasons.append('UNKNOWN_NOMINAL_SLOT')
                 lo=None if window[0]is None else present[0]['onset'];hi=None if window[-1]is None else present[-1]['onset']+present[-1]['duration']
                 if any((x['part'],x['voice'])==lane[:2]
                        and(lo is None or x['onset']>=lo or x['onset']+x['duration']>lo)
@@ -66,6 +78,14 @@ def _paths(nodes,rests):
                     if b['onset']<=a['onset']or gap<0:reasons.append('AMBIGUOUS_OR_OVERLAPPING_LANE')
                     patterns.append(sorted([[str(F(r['onset_q'])-a['onset']),r['duration_q'],r['source']]for r in rests if(r['part_id'],r['voice'])==lane[:2]and F(r['onset_q'])<b['onset']and F(r['onset_q'])+F(r['duration_q'])>a['onset']]))
                 signature=[kind,list(lane),[None if x is None or x['pitch']is None else str(x['pitch']%12)for x in window],motion,[None if x is None else str(x['duration'])for x in window],gaps,[None if x is None else x['note_declarations']for x in window],patterns,[None if x is None else x['beat_declarations']for x in window]]
+                if typed_nominal and any(nominal_kind(x)=='UNPITCHED_DEAD'for x in present):
+                    # Keep the unpitched event in its original slot. Pair-index
+                    # coordinates explicitly distinguish bracketing from adjacency.
+                    slot_kinds=[nominal_kind(x)for x in window]
+                    known_indices=[i for i,k in enumerate(slot_kinds)if k=='PITCHED']
+                    known_pairs=[[a,b,str(window[b]['pitch']-window[a]['pitch'])]for ai,a in enumerate(known_indices)for b in known_indices[ai+1:]]
+                    dead_positions=[None if x is None or nominal_kind(x)!='UNPITCHED_DEAD'else x.get('dead_fret_declaration')for x in window]
+                    signature=['typed-nominal-slots/1',signature,slot_kinds,known_pairs,dead_positions]
                 out[kind,n['id']]=dict(signature=encoded(signature),refs=[x['id']for x in present],reasons=sorted(set(reasons)))
     return out
 

@@ -391,3 +391,47 @@ noeligible release; freshKillswitch has0declared groups. Queen still48directed
 changedlinks/10layouts/0admitted. Do not label that a successful audiblelever.
 OriginalPoliceFAIL and everyv1negative outcome remain retained. Fullsuite1206pass,
 1optional skip. Source/CIcheckpoint pending PlannerEND audit.
+
+### Typed unpitched context: 2026-10-28
+
+- Previous allocation checkpoint: `0d2510ff78d6ecac663ce0befb6f39304cb947d7`,
+  pushed; GitHub CI 40640762328 succeeded.
+- Planner START/MID approved explicit dead events as unpitched rhythmic slots.
+  They retain their occurrence, timing, string, rest/gap and typed fret notation.
+  No pitch is invented. Consecutive dead runs retain BOTH pitched neighbors;
+  changing an octave across several dead events cannot escape checking.
+- Existing policies stay unchanged. New policy `declared_degree_nominal_slots`
+  changes contextual evidence only. Same chord-degree/tuning/fret equations own
+  and reconstruct pitches. Unknown slides, ties, clocks and lanes remain guarded.
+- Planner's independent raw checker passes the authored actual inverse example:
+  21 witnessed paths, zero issues. Wrong dead types, conflicting SPN, slides,
+  missing witnesses, altered bracketing intervals and dead-fret values tested.
+- `.venv/Scripts/python.exe -m unittest discover -s composition-lab -p 'test_*.py'`
+  -> 1,220 passed / one optional skip; 86.044 seconds.
+- Private freeze: `local-artifacts/typed-nominal-v1`; 499 project and 266 native
+  Python files. Preregistered seed 1204003730266738499, 162 excluded song IDs.
+  New random capture: The Smiths / Heaven Knows I'm Miserable Now / 17400 /
+  revision 9332590 / ten tracks. No substitute or source edits.
+- `run_declared_allocation_qa.py <capture> <output> <freeze> --policy
+  declared_degree_nominal_slots` on Queen, fresh Smiths, Police and Killswitch:
+  all actual source-free whole/pair inverses pass; 30,684 notes / 294,008 facts.
+  Independent raw proposal denominators and all outside locks checked.
+- Queen: unchanged 48 donor pairs / ten distinct changed layouts / zero admitted.
+  All ten lack some source path witnesses; four also touch unresolved slides.
+  The explicit-dead-note pitch veto is gone, but no creative win is claimed.
+- Fresh Smiths: 62 declared groups, 17 eligible targets, 205 identical-layout
+  links, zero different source layouts. Absence of a donor is not evidence that
+  different voicing is musically impossible.
+- Literal pitch-envelope audit: all ten Queen changes keep bass but change
+  highest pitch C5 <-> A4, on a source-named Lead Guitar part. Highest pitch is
+  not automatically melody. Exact string adjacency is not melodic identity.
+- Next: Planner END audit, then identify the missing musical relationship rather
+  than weakening execution locks or forcing an audible result.
+
+Planner END passed: 499 project ZIP entries, 266 native files and all four
+capture hash sets intact. Eight actual whole/pair worker outputs independently
+compared. Complete typed-path inventory: 6,511 mixed paths, 1,466 explicit dead
+occurrences, 2,801 known-pitch intervals, including 1,860 refused paths. No
+disagreement or dropped span. Private audit scripts/results are retained.
+Approval covers the bounded ownership/context checks and honest negative
+outcomes; it does not approve real musical output or the entire voicing lever.

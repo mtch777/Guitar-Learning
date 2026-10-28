@@ -81,9 +81,10 @@ def nominal_contribution(before,after,selected):
     return dict(status='PASS_EXACT_NOMINAL_CONTRIBUTION'if not issues else'FAIL',issues=sorted(set(issues)),cells=cells,unchanged_outside_uncertainty_refs=sorted(uncertain),all_unchanged_context_completions_invariant=not issues,scope='Exact written target contribution and outside projection, not known acoustic harmony or performed endpoints')
 
 
-def check(before_T1,after_T1,target_refs,donor_refs):
+def check(before_T1,after_T1,target_refs,donor_refs,typed_nominal=False):
     issues=[];witnesses=[];changed=[];touched=set()
     try:
+        if type(typed_nominal)is not bool:raise ValueError('Typed nominal permission must be bool')
         docs,lower,nodes,rests=_nodes(before_T1);after_docs,after_lower,new_nodes,new_rests=_nodes(after_T1)
         target=_group(nodes,target_refs);donor=_group(nodes,donor_refs);selected=set(target_refs)
         if selected&set(donor_refs):raise ValueError('Leave-target-out whole source donor required')
@@ -137,7 +138,7 @@ def check(before_T1,after_T1,target_refs,donor_refs):
                 if fret<0 or fret.denominator!=1 or(type(limit)is int and limit>0 and fret>limit):issues.append('INVALID_OBSERVED_OR_RESULTING_FRET')
             for other in new_nodes.values():
                 if other['id']!=m['id']and other['part']==m['part']and other['string']==m['string']and other['onset']<m['onset']+m['duration']and other['onset']+other['duration']>m['onset']:issues.append('OCCUPIED_STRING')
-        before_paths=_paths(nodes,rests);after_paths=_paths(new_nodes,new_rests)
+        before_paths=_paths(nodes,rests,typed_nominal);after_paths=_paths(new_nodes,new_rests,typed_nominal)
         if set(before_paths)!=set(after_paths):raise ValueError('Fixed-lane path centers changed')
         touched={key for key in before_paths if set(changed)&(set(before_paths[key]['refs'])|set(after_paths[key]['refs']))}
         excluded={r for key in touched for r in before_paths[key]['refs']+after_paths[key]['refs']}
@@ -153,7 +154,7 @@ def check(before_T1,after_T1,target_refs,donor_refs):
         if encoded([t['approved_pedal_phrases']for t in retained(docs)['tracks']])!=encoded([t['approved_pedal_phrases']for t in retained(after_docs)['tracks']]):issues.append('APPROVED_PEDAL_CHANGED')
         contribution=nominal_contribution(nodes,new_nodes,selected)
         issues.extend(contribution['issues'])
-        return dict(status='PASS_LOCKED_DECLARED_ALLOCATION'if not issues else'FAIL',issues=sorted(set(issues)),changed_refs=changed,affected_paths=len(touched),witness_count=len(witnesses),witnesses=witnesses,nominal_contribution=contribution,unchanged_outside_uncertainty_refs=contribution['unchanged_outside_uncertainty_refs'],scope='Source-observed whole fixed-string degree placement; no identified melody, acoustic harmony, preference or artist-fit claim')
+        return dict(status='PASS_LOCKED_DECLARED_ALLOCATION'if not issues else'FAIL',issues=sorted(set(issues)),changed_refs=changed,affected_paths=len(touched),witness_count=len(witnesses),typed_nominal=typed_nominal,witnesses=witnesses,nominal_contribution=contribution,unchanged_outside_uncertainty_refs=contribution['unchanged_outside_uncertainty_refs'],scope='Source-observed whole fixed-string degree placement; no identified melody, acoustic harmony, preference or artist-fit claim')
     except Exception as error:return dict(status='FAIL',issues=sorted(set(issues+[type(error).__name__+': '+str(error)])),changed_refs=changed,witness_count=len(witnesses))
 
 
