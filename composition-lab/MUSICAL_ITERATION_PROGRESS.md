@@ -668,3 +668,130 @@ assumptions, to identify a bounded musical operation rather than producing
 another report that cannot lead to an audible change. Policies remain unchanged
 during that audit. Whole-edit-set exclusion is a useful future context check;
 it does not itself solve current outer-envelope/physical-geometry refusals.
+
+Checkpoint `5a34ed6` pushed; CI40752902700 completed **success**. No website
+files changed. Supplemental unchanged-view test also verifies a string/tuning
+permutation preserving every pitch; no source or test code changed after freeze.
+
+Planner's requirements audit distinguishes user locks from pilot assumptions:
+whole-fret-diagram equality and literal outer-pitch preservation are conservative
+named experimental scopes, not universal definitions of musical playability or
+melody/bass identity. Existing policies remain unchanged. Direct inspection of
+all four retained Queen candidates using existing apply/realize yields the same
+fixed-string change: inner contacts change, outer contacts remain fixed. Exact
+source positions stay in the private audit. A release-to-open shortcut is false
+and rejected. Candidate
+pitches were produced from existing source donors, not selected for this report.
+The next proposed check is explicit contact/barre coverage, with hand reach and
+listening acceptance still open; no mechanical or creative acceptance yet.
+
+## Provisional inner-voicing contact preview — active, 2026-10-28
+
+Persistent acceptance contract: `FRETTING_CONTACT_PREVIEW_START.md`. Planner
+START/MID separates a bounded four-digit contact model from human playability.
+Existing whole-geometry policy remains default and unchanged. The new opt-in
+replaces only its whole-shape witness; subsequent source, technique, pedal and
+execution checks still run. SAME degree/register and tuning/fret equations.
+
+- Implemented generic maximum-contact relation and complete minimum covers;
+  no anatomical span heuristic or manual pitch selection. Independent Planner
+  oracle tested all256 four-string shapes with frets0..3 plus corruption cases.
+- Independent full-source checker retains all other locks. Authored actual
+  isolated zero/changed worker test passes; no source/cache in worker.
+- Targeted command: `python -m unittest test_contact_preview_qa
+  test_check_provisional_inner test_provisional_inner_contacts
+  test_check_fretting_contacts test_fretting_contacts test_inner_gp_artifacts -q`
+  **27PASS,27.205s**. Separate GP/register regression: **7PASS,0.223s**.
+- Private diagnostic `local-artifacts/contact-preview-v1/development-survey/`
+  enumerated Queen47/Smiths62/TexasFlood2/prior-fresh23 targets. Four Queen
+  layouts pass provisional producer guards; six formula-support failures stay
+  rejected. Other three captures have no admitted changed layout.
+- That diagnostic's final hash check deliberately FAILED after parent edited
+  intervention dispatch during its run. Results remain diagnostic, not frozen
+  QA evidence. Full integration run must use a new stable freeze. No source
+  changes or favorable-song reroll occurred.
+- Next: Planner MID code review, stable full tests, frozen complete-source and
+  fresh random gates; only then native GP/audio and private review. Human
+  reach/comfort/listening and full creative-gateway acceptance remain OPEN.
+
+## Provisional voicing preview — delivered checks, 2026-10-28
+
+The bounded implementation and review artifact are complete. This does not
+complete the creative lever: comfortable execution, listening quality and
+artist fit remain unverified. Approved detectors and default policy unchanged.
+
+### Frozen execution and all three QA gates
+
+Private evidence root: `local-artifacts/contact-preview-v1/frozen-v1/`.
+`freeze.json` pins Python/native files, captures, candidate ordering, seed
+list and fresh-selection rule before execution. `prepare.py` and
+`run_frozen.py` under the private parent record exact reproducible commands.
+The earlier diagnostic hash failure remains retained and excluded from passes.
+
+| Capture | Exact source notes / facts | Changed result |
+|---|---:|---|
+| Queen development capture | 3,384 / 37,953 | Four eligible layouts; 20 independent target/donor checks passed |
+| Smiths development capture | 8,567 / 69,538 | No admitted change |
+| Texas Flood development capture | 3,526 / 38,100 | No admitted change |
+| Prior fresh Linkin Park capture | 4,071 / 43,974 | No admitted change |
+| New random Departure capture | 778 / 12,114 | No source chord declarations; no eligible target |
+
+All five ran actual isolated whole and degree-pair inverses plus explicit
+preview0. The changed Queen worker separately passed full independent source
+locks. Six rejected Queen layouts remain rejected for chord/formula support.
+Selection seed and original public search response are retained privately;
+Departure was not replaced with an easier song. Its zero-eligible outcome does
+not establish fresh positive creative behavior. Current change logic depends
+on source-declared chords; selecting inferred harmonic contexts remains open.
+
+QA3 is bounded source-supported chord-degree abstraction with shared inverse,
+not demonstrated artistic judgment. Literal outer notes stay fixed; this does
+not establish melody identity. Contact coverage establishes nominal contact
+consistency only, not reach, posture, clean tone or transitions between grips.
+
+### GP/audio and actual UI
+
+`node build_contact_preview.mjs` ran with the frozen Queen QA directory, its
+original capture, backend Python/exporter, pinned alphaTab/font and fresh QA
+paths (full arguments retained in private build logs). Actual worker outputs
+were bound to source/zero/changed captures before and after export. Native GP
+roundtrips passed; independent GP audit found two changed notes and eight
+necessary dependent scalar changes. Source and0% GPIF match after generated
+chord-UUID normalization; focused and ensemble PCM match sample for sample.
+Changed audio differs only around the selected chord. No listening judgment.
+
+Private viewer: `queen-qa/native-preview/index.html`, served locally on5222.
+Actual browser checks covered source/changed synchronized switching, cue,
+keyboard seeks, focused/ensemble playback, every speed setting0–100%,0%pause,
+visible four-note comparison, two highlighted changes, and QA/data links.
+The slider uses10%increments because this browser rejected5%. Rapid play/pause
+and seek readiness bugs were found, fixed and retested. Final control checks
+have no new console errors. Browser QA and full screenshot are retained.
+
+The HTML changed after native export. Original metadata/hash records remain in
+`ui-revisions/pre-seal-preview.json`; `revision-1.json` seals the final template
+and copied index, all nine unchanged GP/WAV files and four actual worker
+outputs. Frozen Python/native/source hashes remained unchanged. The initial
+Planner END report retains its UI-hash failure; the separate sealed revision
+review passes. Nothing is represented as an unchanged original build.
+
+### Validation and Planner END
+
+- `..\.venv\Scripts\python.exe -m unittest discover -s . -p 'test_*.py' -q`:
+  **1,331 run; 1,330 passed; one optional skip**,135.767s.
+- `node --test` for `test_restore_dead_ties.mjs`, `test_source_inspector.mjs`
+  and `test_bend_fidelity.mjs`: **19 passed**, zero failures/skips.
+- npm is not on PATH. Equivalent available build command
+  `node node_modules/vite/bin/vite.js build`: **passed**,1.11s.
+- Planner independently replayed all five actual-source/worker/inventory
+  comparisons, all five donors for the actual changed output, and native
+  GP/PCM on new private copies. Final UI-only re-audit verified the revision,
+  worker/source bindings, original artifact hashes and screenshot framing.
+- END verdict: **ready for concrete human listening/playability review**.
+  Full creative gateway remains open. No copyrighted capture/audio published.
+
+Next: obtain listening/physical feedback on this concrete experiment; separately
+resolve reversible selected harmonic contexts for scores without chord labels.
+Do not promote contact coverage to anatomical proof or call a no-change fresh
+case a positive creative result. Commit/CI evidence follows after publication
+of verified source only; no public Pages deployment is claimed for this viewer.

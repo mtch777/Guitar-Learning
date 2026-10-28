@@ -62,7 +62,15 @@ def audio(path):
     return samples,rate
 
 
-def check(root,qa):
+def written_pitch(pitch):
+    step=pitch.findtext('Step');accidental=pitch.findtext('Accidental') or ''
+    if type(step)is not str or len(step)!=1 or step not in 'CDEFGAB' or accidental not in ('','b','bb','#','##'):
+        raise ValueError('Unknown GP pitch spelling')
+    return 12*(int(pitch.findtext('Octave'))+1)+dict(C=0,D=2,E=4,F=5,G=7,A=9,B=11)[step]+accidental.count('#')-accidental.count('b')
+
+
+def check(root,qa,*,allow_inner_degree_changes=False):
+    if type(allow_inner_degree_changes)is not bool:raise ValueError('Explicit pitch audit scope required')
     sources={name:zipfile.ZipFile(root/name/'score.gp') for name in ('source','zero','changed')};issues=[]
     names=sources['source'].namelist()
     if any(z.namelist()!=names for z in sources.values()):issues.append('Archive member inventory/order changed')
@@ -100,7 +108,10 @@ def check(root,qa):
         if int(after['Midi'].find('Number').text)-int(before['Midi'].find('Number').text)!=e['shift']:issues.append('GP MIDI shift differs from physical pitch equation')
         for pitch_name in ('ConcertPitch','TransposedPitch'):
             old=before[pitch_name].find('Pitch');new=after[pitch_name].find('Pitch')
-            if int(new.find('Octave').text)-int(old.find('Octave').text)!=e['shift']//12 or e['shift']%12:issues.append('Unexpected GP spelling/register change')
+            if allow_inner_degree_changes:
+                if written_pitch(new)-written_pitch(old)!=e['shift']:issues.append('GP spelling does not realize the owned pitch change')
+                if written_pitch(old)%12!=int(before['Midi'].find('Number').text)%12:issues.append('GP spelling disagrees with source MIDI pitch class')
+            elif int(new.find('Octave').text)-int(old.find('Octave').text)!=e['shift']//12 or e['shift']%12:issues.append('Unexpected GP spelling/register change')
         # Only these dependent scalar leaves may change inside the owned note.
         for change in delta:
             path=change['path']
@@ -109,7 +120,9 @@ def check(root,qa):
                 prop_match=re.search(r'/Property\[(\d+)\]',path)
                 if prop_match:
                     prop=list(node.find('Properties'))[int(prop_match.group(1))].get('name')
-                    allowed=prop in allowed_properties and path.endswith(('/Octave[2]','/Fret[0]','/Number[0]','/String[0]'))
+                    leaves=('/Octave[2]','/Fret[0]','/Number[0]','/String[0]')
+                    if allow_inner_degree_changes:leaves+=('/Step[0]','/Accidental[1]')
+                    allowed=prop in allowed_properties and path.endswith(leaves)
             if not allowed or change['old_attributes']!=change['new_attributes']:issues.append('Other GP note field changed: '+path)
     if actual_notes!=set(expected):issues.append('Changed GP note identity set differs from source changes')
     # Entire score differences must be restricted to those same note nodes.
@@ -129,6 +142,7 @@ def check(root,qa):
         normalized_generated_chord_definitions=uuid_counts,source_zero_normalized_gpif_exact=not zero_diff,
         changed_gp_note_ids=sorted(actual_notes),dependent_gp_scalar_changes=len(changed_diff),expected_fret_changes=expected,audio=audio_checks,
         scope='Native GP data and rendering check (physical-only changes need not alter MIDI audio), not human listening, source-feel or physical playability')
+    if allow_inner_degree_changes:report.update(pitch_audit_scope='Source-owned inner degree changes; symbolic inner/outer/source-component checks required separately',human_playability='UNVERIFIED')
     (root/'independent-gp-audio-check.json').write_text(json.dumps(report,indent=2),encoding='utf-8');return report
 
 

@@ -11,6 +11,7 @@ from declared_degree_choices import catalog as degree_catalog,apply,sample,encod
 from voicing_context_relations import paths,graph,check_paths
 
 POLICY='source_inner_degree_component'
+PREVIEW_POLICY='provisional_contact_inner_preview'
 
 
 def notation(docs,ref):
@@ -120,7 +121,8 @@ def component_links(c,target):
     return result
 
 
-def verify(c,after,target,donor):
+def verify(c,after,target,donor,*,physical_policy=POLICY):
+    if physical_policy not in (POLICY,PREVIEW_POLICY):raise ValueError('Unknown physical evidence policy')
     from source_fact_tier1 import project_documents
     from execution_dependencies import build
     from source_tie_tier1 import extract_documents
@@ -152,7 +154,14 @@ def verify(c,after,target,donor):
     if shape['reasons']:raise ValueError(dict(geometry=shape['reasons']))
     excluded=set(target['excluded_neighborhood'])
     witnesses=[g for g in c['geometries'] if not g['reasons'] and g['key']==shape['key'] and not excluded.intersection(g['member_refs'])]
-    if not witnesses:raise ValueError('NO_INDEPENDENT_WHOLE_GEOMETRY')
+    contact=None
+    if physical_policy==POLICY:
+        if not witnesses:raise ValueError('NO_INDEPENDENT_WHOLE_GEOMETRY')
+    else:
+        from fretting_contacts import analyze
+        required=[dict(string=new[r]['string'],fret=int(F(str(notation(docs,r)[1]['fret'])))) for r in refs]
+        contact=analyze(required)
+        if contact['status']!='COVERED':raise ValueError(dict(contact_model=contact))
     oldpaths=paths(c['lane_graph'],typed_nominal=True);newpaths=paths(newgraph,typed_nominal=True)
     if set(oldpaths)!=set(newpaths):raise ValueError('PATH_TOPOLOGY_CHANGED')
     changed={r for r in selected if old[r]['pitch']!=new[r]['pitch']}
@@ -164,11 +173,16 @@ def verify(c,after,target,donor):
     if encoded([t['approved_pedal_phrases'] for t in retained(c['documents'])['tracks']])!=encoded([t['approved_pedal_phrases'] for t in retained(docs)['tracks']]):raise ValueError('APPROVED_PEDAL_CHANGED')
     pitches=[F(new[r]['pitch']) for r in refs]
     context=check_paths(c['lane_graph'],target,dict(anchor=str(lo),intervals=[str(p-lo) for p in pitches],strings=target['strings']),typed_nominal=True)
-    return dict(status='PASS_INNER_COMPONENT_RELATIONSHIPS',geometry_witness_refs=[g['member_refs'] for g in witnesses],context_observation=context,
+    result=dict(status='PASS_INNER_COMPONENT_RELATIONSHIPS',geometry_witness_refs=[g['member_refs'] for g in witnesses],context_observation=context,
         protection='Exact literal outer occurrences, complete chord PC set, unchanged outside facts; doubling may change',melody_identity='UNKNOWN',artist_fit='UNVERIFIED',physical_evidence='Observed whole fret geometry, not human playability verification')
+    if contact is not None:
+        result.update(status='PROVISIONAL_INNER_CONTACT_RELATIONSHIPS',physical_policy=PREVIEW_POLICY,contact_coverage=contact,
+            physical_evidence='Bounded contact coverage only; reach, posture, clean tone and movement remain unverified',human_playability='UNVERIFIED')
+    return result
 
 
-def options(upper,target_ref,prepared=None):
+def options(upper,target_ref,prepared=None,*,physical_policy=POLICY):
+    if physical_policy not in (POLICY,PREVIEW_POLICY):raise ValueError('Unknown physical evidence policy')
     from connected_tier2 import realize
     c=catalog(upper) if prepared is None else prepared;target=next(u for u in c['units'] if u['id']==target_ref)
     if target['reasons']:return dict(status='REFUSED_TARGET',target=target,reasons=target['reasons'],options=[],rejected=[])
@@ -178,7 +192,7 @@ def options(upper,target_ref,prepared=None):
     for key,links in sorted(buckets.items()):
         roles=json.loads(key);changed=roles!=target['roles'];donors=[r['donor']['id'] for r in links]
         try:
-            relation=verify(c,realize(apply(upper,target,roles)),target,links[0]['donor']) if changed else dict(status='UNCHANGED_INNER_COMPONENT')
+            relation=verify(c,realize(apply(upper,target,roles)),target,links[0]['donor'],physical_policy=physical_policy) if changed else dict(status='UNCHANGED_INNER_COMPONENT')
             accepted.append(dict(roles=roles,donor_refs=donors,changed=changed,relationship=relation))
         except (ValueError,KeyError,TypeError) as error:rejected.append(dict(roles=roles,donor_refs=donors,reason=str(error)))
     return dict(status='SUPPORTED_INNER_CHOICES' if any(o['changed'] for o in accepted) else 'NO_ADMITTED_CHANGED_INNER_COMPONENT',target=target,options=accepted,rejected=rejected)
@@ -187,7 +201,12 @@ def options(upper,target_ref,prepared=None):
 def intervene(upper,controls):
     from connected_tier2 import realize
     if controls.get('register')!=0:raise ValueError('This scope locks literal outer registers')
+    policy=controls.get('context_policy',POLICY)
+    if policy not in (POLICY,PREVIEW_POLICY):raise ValueError('Unknown inner-voicing policy')
     realize(upper)
     if controls['voicing']==0:return deepcopy(upper),dict(status='EXACT_ZERO_LOCK',released=False,changed=False)
-    evidence=options(upper,controls['target_ref']);chosen,report=sample(evidence,controls);report['evidence']=evidence
+    evidence=options(upper,controls['target_ref'],physical_policy=policy);chosen,report=sample(evidence,controls);report['evidence']=evidence
+    if policy==PREVIEW_POLICY:
+        report.update(physical_policy=policy,human_playability='UNVERIFIED')
+        if report['changed']:report['status']='PROVISIONAL_'+report['status']
     return (deepcopy(upper) if chosen is None else apply(upper,evidence['target'],chosen['roles'])),report

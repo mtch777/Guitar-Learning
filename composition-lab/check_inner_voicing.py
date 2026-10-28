@@ -144,18 +144,20 @@ def inventory(tier1):
     return dict(status='PASS_INDEPENDENT_INNER_SOURCE_INVENTORY',units=units,geometries=geometries,component_links=links,counts=dict(declared_groups=len(units),eligible_targets=sum(not u['reasons']for u in units),raw_geometry_groups=len(geometries),eligible_geometry_groups=sum(not g['reasons']for g in geometries),component_links=len(links),changed_component_links=sum(r['changed']for r in links)),scope='Complete source structural/component denominator before after-state formula/geometry/technique checks; no preference or artistic claim')
 
 
-def check(before_T1,after_T1,target_refs,donor_refs,geometry_refs):
+def check(before_T1,after_T1,target_refs,donor_refs,geometry_refs,*,contact_coverage=None):
     issues=[];novel=[];changed=[]
     try:
         docs,lower,nodes,rests,ties,execution,pinned,units,geometries=_prepare(before_T1)
         after_docs,after_lower,new_nodes,new_rests=_nodes(after_T1)
-        target=_group(nodes,target_refs);donor=_group(nodes,donor_refs);geometry=_group(nodes,geometry_refs,physical=True)
+        target=_group(nodes,target_refs);donor=_group(nodes,donor_refs)
+        if contact_coverage is None:geometry=_group(nodes,geometry_refs,physical=True)
+        elif type(geometry_refs)is not list or geometry_refs:raise ValueError('Contact route requires empty geometry_refs')
         unit=next((u for u in units if set(u['member_refs'])==set(target_refs)),None)
         dunit=next((u for u in units if set(u['member_refs'])==set(donor_refs)),None)
         geom=next((g for g in geometries if set(g['member_refs'])==set(geometry_refs)),None)
         if unit is None or unit['reasons']:raise ValueError('Ineligible complete declared target')
         if dunit is None or dunit['base_reasons']:raise ValueError('Ineligible complete source component')
-        if geom is None or geom['reasons']:raise ValueError('Ineligible whole geometry witness')
+        if contact_coverage is None and(geom is None or geom['reasons']):raise ValueError('Ineligible whole geometry witness')
         if(unit['part_id'],unit['root_pc'],unit['kind'])!=(dunit['part_id'],dunit['root_pc'],dunit['kind']):raise ValueError('Source root/formula/part mismatch')
         excluded=set(unit['excluded_neighborhood'])
         if excluded&set(donor_refs)or excluded&set(geometry_refs):raise ValueError('Source evidence inside complete target neighborhood')
@@ -178,12 +180,27 @@ def check(before_T1,after_T1,target_refs,donor_refs,geometry_refs):
         for a,b in zip(before_T1['facts'],after_T1['facts']):
             if encoded(a)==encoded(b):continue
             if a['id']not in allowed or encoded({k:v for k,v in a.items()if k!='value'})!=encoded({k:v for k,v in b.items()if k!='value'}):issues.append('LOCKED_SOURCE_FACT_CHANGED:'+a['id'])
-        settings,outfrets=_physical(after_docs,target_refs,new_nodes);gsettings,gfrets=_physical(docs,geometry_refs,nodes)
-        if settings!=gsettings or set(outfrets)!=set(gfrets):issues.append('GEOMETRY_SETTINGS_OR_STRINGS_MISMATCH')
+        settings,outfrets=_physical(after_docs,target_refs,new_nodes)
+        if contact_coverage is not None:
+            from check_fretting_contacts import check as contact_check
+            _group(new_nodes,target_refs,physical=True)
+            original_settings,original_frets=_physical(docs,target_refs,nodes)
+            if settings!=original_settings or set(outfrets)!=set(original_frets):issues.append('CONTACT_SETTINGS_OR_STRINGS_CHANGED')
+            physical_reasons=_plain_reasons(after_docs,new_nodes,target_refs,pinned)
+            if _has_outside_overlap(new_nodes,target_refs,_overlap_index(new_nodes)):physical_reasons.append('OUTSIDE_SAME_PART_OVERLAP')
+            issues.extend(physical_reasons)
+            required=[dict(string=s,fret=int(f))for s,f in sorted(outfrets.items())]
+            contact_verdict=contact_check(required,contact_coverage,max_digits=4,search_limit=100000)
+            if contact_coverage.get('status')!='COVERED'or contact_verdict['status']!='PASS_INDEPENDENT_FRETTING_CONTACTS'or not contact_verdict['complete']:
+                issues.append('CONTACT_COVERAGE_NOT_VERIFIED')
+                issues.extend(contact_verdict['issues'])
         else:
-            deltas={outfrets[s]-gfrets[s]for s in outfrets}
-            if len(deltas)!=1:issues.append('NO_UNIFORM_FRET_GEOMETRY_TRANSLATION')
-            if any((outfrets[s]==0)!=(gfrets[s]==0)for s in outfrets):issues.append('GEOMETRY_OPEN_STATUS_CHANGED')
+            gsettings,gfrets=_physical(docs,geometry_refs,nodes)
+            if settings!=gsettings or set(outfrets)!=set(gfrets):issues.append('GEOMETRY_SETTINGS_OR_STRINGS_MISMATCH')
+            else:
+                deltas={outfrets[s]-gfrets[s]for s in outfrets}
+                if len(deltas)!=1:issues.append('NO_UNIFORM_FRET_GEOMETRY_TRANSLATION')
+                if any((outfrets[s]==0)!=(gfrets[s]==0)for s in outfrets):issues.append('GEOMETRY_OPEN_STATUS_CHANGED')
         if set(nodes)!=set(new_nodes):raise ValueError('Source occurrence inventory changed')
         for r in target_refs:
             if nodes[r]['string']!=new_nodes[r]['string']:issues.append('SOURCE_STRINGS_CHANGED')
@@ -207,5 +224,9 @@ def check(before_T1,after_T1,target_refs,donor_refs,geometry_refs):
         if _classifications(nodes)!=_classifications(new_nodes):issues.append('COATTACK_TECHNIQUE_CLASS_CHANGED')
         from freeze_technique_baseline import retained
         if encoded([t['approved_pedal_phrases']for t in retained(docs)['tracks']])!=encoded([t['approved_pedal_phrases']for t in retained(after_docs)['tracks']]):issues.append('APPROVED_PEDAL_CHANGED')
-        return dict(status='PASS_LOCKED_INNER_VOICING'if not issues else'FAIL',issues=sorted(set(issues)),changed_refs=changed,protected_outer_refs=sorted(outer),source_inner_refs=[source_bystring.get(s)for s in inner_strings],geometry_refs=geometry_refs,novel_plain_contexts=novel,nominal_contribution=contribution,scope='Literal outer-envelope and source coupled inner degrees, doubling released. No identified melody, artist preference, acoustic or human-playability acceptance')
+        result=dict(status='PASS_LOCKED_INNER_VOICING'if not issues else'FAIL',issues=sorted(set(issues)),changed_refs=changed,protected_outer_refs=sorted(outer),source_inner_refs=[source_bystring.get(s)for s in inner_strings],geometry_refs=geometry_refs,novel_plain_contexts=novel,nominal_contribution=contribution,scope='Literal outer-envelope and source coupled inner degrees, doubling released. No identified melody, artist preference, acoustic or human-playability acceptance')
+        if contact_coverage is not None:
+            result.update(status='PASS_PROVISIONAL_INNER_CONTACTS'if not issues else'FAIL',human_playability='UNVERIFIED',contact_check=contact_verdict,
+                scope='Provisional nominal contact coverage replaces only observed-whole-geometry evidence; all source/music/execution guards retained. Reach, comfort, movement, clean tone, melodic identity and artist fit unverified')
+        return result
     except Exception as e:return dict(status='FAIL',issues=sorted(set(issues+[type(e).__name__+': '+str(e)])),changed_refs=changed,novel_plain_contexts=novel)
