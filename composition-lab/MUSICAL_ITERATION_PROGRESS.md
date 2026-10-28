@@ -483,3 +483,34 @@ unknown. OriginalFAIL retained. No realchanged layout, playback or artist-fit
 acceptance claimed. Source-only commit/CI next. Then investigate an explicit
 physical-reference library from the already-frozen corpus; never hidden access
 or a weaker musical-donor rule. Queen geometry absence is not unplayability.
+
+Checkpoint: `4228b84` pushed; CI40651904318 passed. Physical-reference START
+review agreed to investigate the existing corpus before changing the engine.
+Private manifest fixes 137 eligible original captures; Planner independently
+matches acquisition records and historical checksums. Four target song IDs are
+excluded across revisions; 23 other completed captures lack sufficient matching
+provenance. V1 retains 25 full inventories. Profiling motivates V2 using the SAME
+physical kernels without unrelated harmonic analysis; all 25 full inventories
+match exactly. Remaining 112 compile next. No target lookup until compilation
+is complete; no reference library is an engine input yet.
+
+Physical census complete: 137 captures, 415,324 raw coattacks, 204,774 eligible
+witnesses / 1,939 shapes. V2 retains one gradual-tempo ownership failure; V3
+reuses 136 proven-unaffected inventories and reruns the repaired capture only.
+All four Queen layouts miss exact/pooled-program complete-grip and containment
+lookups. No physical admission changed. Planner END independently passed the
+complete census; stop broadening physical matching.
+
+Minimal repair: boolean `/automations/gradualTempo` gets exact source ownership;
+no tempo interpolation invented. Commands: `.venv/Scripts/python.exe -m unittest
+discover -s composition-lab`; 1,241 passes / one optional skip. Freeze506/266,
+random seed7439582079567581977 selects Slayer17564 revision8815095. Fresh Slayer
+and Nirvana14355 replay pass `run_inner_voicing_qa.py`: 16,922 notes / 148,439
+facts, four actual whole/pair workers, zero changed layouts. Planner independently
+checks frozen hashes and source-vs-actual-zero outputs. Evidence:
+`local-artifacts/gradual-tempo-v1/planner-independent-end-review.json`.
+
+Next agreed experiment: exact root-relative voicing frames; A same-root absolute
+register, B same-root normalized register, C same-quality across roots. Enumerate
+complete development denominators and refusals before activating any policy.
+Preserve target outer notes/root/timing and all physical/technique gates.

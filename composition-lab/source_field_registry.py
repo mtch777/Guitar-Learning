@@ -101,6 +101,8 @@ REGISTERED_SOURCE_FIELDS = {('metadata', '/nextAudio'): ('string',),
  ('metadata', '/videos/*/videoId'): ('string',),
  ('metadata', '/views'): ('integer',),
  ('track', '/anacrusis'): ('boolean',),
+ # Literal ramp declaration only; interpolation and performed timing unknown.
+ ('track', '/automations/gradualTempo'): ('boolean',),
  ('track', '/automations/tempo/*/bpm'): ('integer',),
  ('track', '/automations/tempo/*/linear'): ('boolean',),
  ('track', '/automations/tempo/*/measure'): ('integer',),
