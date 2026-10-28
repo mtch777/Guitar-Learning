@@ -123,3 +123,100 @@ or select a song; the subsequent immutable freeze is the one used for every run.
 Next action: independent Planner outcome audit and a causal test of the failed
 real-song candidates. Do not repeat negative studies blindly, weaken locks to
 manufacture an audio example, or promote this local operation into a phrase tier.
+
+Planner END independently rechecked all 483 current/archive code hashes, four
+capture/worker inventories, raw reconstruction outputs, complete discovery and
+all ledger identities/counts. Private `planner-independent-end-review.json`
+and its repeatable script record acceptance of bounded source/inverse QA only.
+Verified checkpoint `45c87ab` pushed to main; remote CI40629084925 SUCCESS.
+
+## Next agreed musical target
+
+Use a source-declared chord, only where the actual source supports it, as the
+context for note degrees, doubling, inversion and register. Existing checked
+degree equations must become the SOLE selected pitch owner, replacing those
+groups' old bass-relative interval coordinates. Other groups keep their existing
+owner and explicit uncertainty. Source labels are conditional evidence, not true
+harmony, and have no invented duration. Do not use another pattern replay wrapper
+or prediction study as a substitute for this musical relationship work.
+
+Pending START design: exact source annotation provenance, lexical parsing from
+pinned library definitions, scope/ambiguity rules, no duplicate root/note authority,
+same equations in isolated inverse, independent raw/theory comparisons and
+note-degree/inversion contrasts. Existing candidate/lock policies stay unchanged.
+
+## Declared chord ownership acceptance checklist
+
+START contract: `DECLARED_HARMONIC_VOICING_CONTRACT.md` (Planner authored).
+Implementation uses the explicit option `declared_chords=True`.
+
+- [x] One literal source choice supplies chord identity. Degree token and octave
+  replace selected bass/interval coordinates; no backup pitch authority survives.
+- [x] Exact declaring beat/voice only; no label extension. Unknown/ambiguous/
+  incomplete/mismatched chords, mixed voices, grace, uncertain time and nonzero
+  or unverified capo conventions retain the previous owner.
+- [x] Ordinary C does not pin its bass; C/E does. Compound9 keeps degree9, not2.
+- [x] Same existing `note_role`/`pitch_from_degree` equation and physical inverse.
+  New nonzero lever policies explicitly refuse until separately accepted.
+- [x] MID review: Planner independently checks raw inventories, typed parameters,
+  clock/address scope, library degree arithmetic and selected/fallback coverage.
+- [x] 16 focused producer/oracle tests pass, including actual isolated inverse,
+  altered-owner rejection and source-scope negative contrasts.
+- [x] Stable full regression and frozen real annotated captures, retaining ALL
+  declarations and reasons for fallback. No accuracy claim from annotation fit.
+- [x] One newly frozen random capture through unchanged logic, with failures
+  retained. A no-label song tests fallback portability, not positive chord recall.
+- [x] Actual isolated complete-T1 AND musical-pair reconstruction, independently
+  checked against source facts and native theory arithmetic.
+- [x] END artifact review. Commit/push and remote CI recorded below when complete.
+
+During MID review Planner caught music21's triple-flat Unicode display colliding
+with ordinary-flat. The generated lexicon now uses the already-tested five
+standard Unicode accidental names and refuses conflicting mappings; no last-write
+wins. All integer ASCII accidental spellings remain explicit. A-flat8/C-flat11/
+D-flat1 regressions pass. This is bounded alias syntax from pinned theory data,
+not universal native free-text parsing or a musical preference rule.
+
+Initial technique test exposed the new wrapper's missing time-view access in the
+independent technique checker; it now reads unchanged occurrence/time fields
+directly, without calling the producer degree inverse. Two authored fixtures used
+unsupported source spellings/types (`fingerVibrato`, boolean `graceNote`); the
+existing schema correctly refused them. Fixtures now use supported `vibrato` and
+string `graceNote`; the schema was not weakened.
+
+### Frozen declared-owner v1 results
+
+Private evidence: `local-artifacts/declared-chord-ownership-v1`. All 490 project
+and 266 pinned native-library Python files were hashed before runs; project files
+were archived. New selection seed4311810769983572185 excluded156 previous IDs:
+Jump21889/revision9118962/nine tracks, selected before analysis. No replacement.
+
+| Capture | Notes | Typed facts | Declaring labels | Selected groups / degree coordinates |
+|---|---:|---:|---:|---:|
+| Another One Bites the Dust371 | 3,384 | 37,953 | 50 | 28 /118 |
+| Kickstart My Heart12719 | 9,031 | 94,324 | 14 | 6 /26 |
+| I Want To Hold Your Hand22793 | 4,050 | 36,937 | 38 | 20 /84 |
+| Fresh: Jump21889 | 7,336 | 71,531 | 135 | 4 /17 |
+
+All four `run_declared_chord_qa.py` commands passed actual isolated whole-T1 and
+musical-pair recovery: 23,801 notes /240,745 typed source facts. Independent raw
+and native-library checks passed. The 58 selected groups own245 degree/octave
+coordinates, without old bass/interval pitch backups. Other groups retain their
+previous owner and named fallback reasons. One Beatles declaration is unattached;
+no annotation scope was invented. This is conditional written chord meaning,
+not verified sounding harmony, key, artistic preference or creative permission.
+
+Full Python regression: 1,178 run, 1,177 passed, one optional skip (64.513s).
+After adding the pinned native-version guard, 16 targeted tests passed. Existing
+43 JS passes/build remain relevant: no JS/UI changes in this slice.
+Planner independently rehashed all code/archive/captures and checked actual
+worker outputs, selected/fallback inventories and degree equations; bounded END
+approval is recorded in `planner-independent-end-review.json` with its script.
+
+New random input exposed a concrete lexical gap: all131 unsupported Jump symbols
+end in5 (power chords). Native music21 produces root/fifth for C5 but leaves its
+chordKind empty; its power alias table only includes `power`. Do not misreport
+these as absent declarations or silently edit v1 evidence. Next bounded task:
+derive numeric suffixes from native degree vocabulary, canonicalize only unique
+exact native formula matches, retain rejected/colliding candidates, test root
+transposition and explicit slash scope, then replay v1 plus one new random input.

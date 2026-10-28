@@ -50,7 +50,8 @@ def event_pointer(event):
     return f"track-{event['part_id']}.json#/measures/{event['bar']-1}/voices/{event['voice']}/beats/{event['beat']}/notes/{event['note']}"
 
 
-def analyze(tier1,*,families=False):
+def analyze(tier1,*,families=False,declared_chords=False):
+    if type(declared_chords)is not bool or families and declared_chords:raise ValueError('Choose one explicit musical ownership representation')
     validate_source(tier1)
     from run_reversible_tier_qa import extract_documents
     from source_tie_tier1 import extract_documents as full_context
@@ -58,6 +59,12 @@ def analyze(tier1,*,families=False):
     documents=project_documents(tier1)
     normalized=extract_documents(documents)
     core=music.strip_lower(music.analyze(normalized))
+    declared_view=None
+    if declared_chords:
+        from declared_chord_ownership import LABEL,CAPO,lift as degree_lift,inspect as degree_inspect
+        labels={r['id']:r['value'] for r in tier1['facts'] if LABEL.fullmatch(r['id']) and 'value' in r}
+        capos={int(CAPO.fullmatch(r['id'])[1]):r['value'] for r in tier1['facts'] if CAPO.fullmatch(r['id']) and 'value' in r}
+        declared_view=degree_inspect(core,labels,capos);core=degree_lift(core,labels,capos)
     if families:
         from voicing_families import lift as family_lift
         core=family_lift(core)
@@ -91,6 +98,7 @@ def analyze(tier1,*,families=False):
     from execution_dependencies import build as execution_dependencies
     derived=dict(harmonic_context=music.strip_lower(music.analyze(full_context(documents))),techniques=tech,
                  execution_dependencies=execution_dependencies(tier1))
+    if declared_chords:derived['declared_chord_ownership']=declared_view
     output=dict(tier=2,schema='connected-source-musical-relations/1',input=deepcopy(tier1),
                 source_structure=dict(documents=deepcopy(tier1['documents']),facts=skeleton,source_scope=tier1['scope']),
                 owned_parameters=dict(source_choices=choices,physical_positions=positions,technique_declarations=effect),
@@ -121,6 +129,9 @@ def realize(upper):
         if ident not in index or ident in assigned:raise ValueError('Duplicate or absent scalar owner')
         index[ident]['value']=value;assigned[ident]=owner
     core=upper['musical_relationships']
+    if core.get('schema')=='source-declared-chord-degrees/1':
+        from declared_chord_ownership import validate as degree_core,label_values,capo_values
+        core=degree_core(core,label_values(parameters['source_choices'],facts),capo_values(parameters['source_choices'],facts))
     if core.get('schema')=='source-voicing-families/1':
         from voicing_families import validate as family_core
         core=family_core(core)
@@ -190,7 +201,7 @@ def validate(upper):
     lower=realize(strip_lower(upper))
     if 'input' in upper and json.dumps(lower,sort_keys=True)!=json.dumps(upper['input'],sort_keys=True):raise ValueError('Nested T1 conflicts')
     # Recompute all views to reject a second unchecked analysis authority.
-    computed=analyze(lower,families=upper['musical_relationships'].get('schema')=='source-voicing-families/1')
+    computed=analyze(lower,families=upper['musical_relationships'].get('schema')=='source-voicing-families/1',declared_chords=upper['musical_relationships'].get('schema')=='source-declared-chord-degrees/1')
     if json.dumps(computed['musical_relationships'],sort_keys=True)!=json.dumps(upper['musical_relationships'],sort_keys=True):raise ValueError('Pitch/time authority conflicts with source choices')
     if 'derived_views' in upper and json.dumps(computed['derived_views'],sort_keys=True)!=json.dumps(upper['derived_views'],sort_keys=True):raise ValueError('Stale or altered derived musical view')
     return lower

@@ -312,6 +312,8 @@ def apply_family_choices(upper,choices_to_apply):
 def intervene(upper,controls):
     """Propose only observed owned parameters, then solve the existing relations."""
     validate_controls(controls)
+    if upper['musical_relationships'].get('schema')=='source-declared-chord-degrees/1' and any(controls.get(k,0) for k in ('voicing','register','physical')):
+        raise ValueError('Declared-chord ownership has no accepted nonzero control policy yet')
     if controls.get('context_policy')=='source_gesture_context':
         from voicing_gestures import intervene as gesture_intervention
         return gesture_intervention(upper,controls)

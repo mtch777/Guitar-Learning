@@ -16,6 +16,10 @@ def check(documents,upper):
     if core.get('schema')=='source-voicing-families/1':
         from voicing_families import realize as family_core
         core=family_core(core)
+    if core.get('schema')=='source-declared-chord-degrees/1':
+        # This oracle needs only independently compared identity/time links.
+        # Do not call the producer's degree inverse to check technique links.
+        core=core['core']
     for group in core['coattacks']:
         for member in group['members']:
             events[member['id']]=dict(onset_q=group['onset_q'],duration_q=member['duration_q'])
