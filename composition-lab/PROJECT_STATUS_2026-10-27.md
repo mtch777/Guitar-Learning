@@ -17,7 +17,7 @@ in the current architecture. Historical retired prototypes are not completion.
 | **2. Analysis** | Partial | Connected source facts, musical relationships and retained technique analysis share source/time references. | Turn conditional evidence into supported musical interpretations and complete execution relationships. |
 | ↳ Source coverage | Verified for supported captures | Complete typed T1 facts; isolated exact reconstruction of supported captured JSON. The 30 pick-scrape declarations that blocked Zero now have exact typed T2 ownership; that capture passes complete reversal. | Unknown future source fields may still need T2 owners. Pick-scrape acoustic execution and GP export remain unsupported; preserved declarations are not a sounding model. |
 | ↳ Technique identification | Protected within approved scope | Existing approved technique and pedal identification integrated; source declarations and accepted tie/HP/slide dependencies checked. | Identification is not full recreation: contextual placement, execution, sounding behavior and edit dependencies remain open per technique. |
-| ↳ Musical understanding | Conditional / partial | Chord/key/mode hypotheses, note roles, overlaps, spacing, doubling/inversion distinctions and written lane-motion checks. Source-declared chord degrees now replace old pitch coordinates in58 supported real groups;245 notes reconstruct from root/degree/octave equations. | Reliable contextual choice, harmonic/voice-role evidence and ambiguity handling. Source labels do not establish sounding harmony or key. Numeric power-chord labels ending in5 currently fall back rather than use degree ownership. |
+| ↳ Musical understanding | Conditional / partial | Chord/key/mode hypotheses, note roles, overlaps, spacing, doubling/inversion distinctions and written lane-motion checks. Source-declared chord degrees replace old pitch coordinates in291 supported real groups;960 notes reconstruct from root/degree/octave equations. Numeric power-chord labels now use the same relationships. | Reliable contextual choice, harmonic/voice-role evidence and ambiguity handling. Source labels do not establish sounding harmony or key. Two newly tested songs have no source chord declarations; their exact recovery does not prove chord identification. |
 | **3. Artist profiles** | Not delivered | Source corpus and individual observations are available as foundations. | Multi-song, context-dependent patterns and exceptions; independent held-out evidence of artist-specific choices. |
 | **4. Creation methods** | Partial | Same relationships reconstruct source and realize bounded source-supported local choices; simultaneous multi-chord choices now use one atomic inverse. Controlled tests pass where each isolated chord change fails. | All four real-song sequence trials still returned only existing voicings. Coherent musical decisions and an approved audible change remain undelivered. |
 | **5. Controlled experiments** | Working infrastructure; musical acceptance partial | Frozen inputs, retained failures, stripped inverse workers, independent source/lock checks and positive/negative contrast tests. All 16 physically valid voicing proposals were independently checked and refused for insufficient context evidence. | Positive real musical changes, generalization and listening evidence. Refusal correctness and no-choice outcomes do not prove creativity. |
@@ -62,18 +62,22 @@ not a final testing phase. A reliable overall completion percentage is unavailab
 Current experiment details and final commands/results:
 `AUDIBLE_VOICING_PROGRESS.md` and `CONTEXT_PREDICTION_PROGRESS.md`.
 
-Previous delivered source checkpoint: `0097f34`, CI40476531318 SUCCESS. Current
-local iteration: 1,161 Python passes /one optional skip, 43 JS passes, production
-build passes. Four actual isolated reconstructions recovered 28,020 occurrences
-and 247,802 typed source facts exactly, including the repaired pick-scrape capture
-and one newly selected song. All 901 admitted sequence realizations matched the
-original; no real audible voicing change was admitted. Controlled nonzero tests
-pass, but real-song musical/lever acceptance is still open. Details and source
-freeze: `MUSICAL_ITERATION_PROGRESS.md`.
+Latest verified evidence: **1,188 Python passes, one optional skip**. The earlier
+43 JS checks and production build passed; this iteration changed no JS or UI.
+Seven real captures recover **41,755 notes and430,881 typed facts** exactly.
+**291 supported chord groups /960 degree coordinates** use the same equations in
+both directions. Four actual saved historical inputs also passed whole/pair
+reconstruction under the versioned grammar, without replacement extraction.
+Planner independently audited the frozen sources, captures and worker outputs.
 
-Subsequent declared-chord ownership slice: 1,177 Python passes /one optional skip.
-Four captures (including newly selected Jump) recover23,801 notes and240,745 typed
-facts exactly in actual stripped workers. Planner independently approved the
-bounded musical ownership result:58 selected groups /245 degree coordinates,
-no duplicate pitch authority. This adds chord-degree meaning to exact reversal;
-it does not deliver a nonzero creative voicing policy or audible change.
+Two new random inputs exposed missing technique declarations; both failures are
+retained and repaired replays are labeled development tests. The final new random
+input passes source fidelity but has no declared chord groups, so it supplies no
+positive chord-identification evidence. None of these results proves artist fit,
+global melody-role understanding, acoustic execution or an audible creative win.
+
+Next creation requirement: use observed degree-doubling/inversion alternatives
+through the same chord equations, with the intended voicing dimensions released
+and actual outside locks protected. Every highest chord note is NOT automatically
+the melody. A source-supported chord allocation still needs physical, execution
+and contextual validation before an audible example is admitted.

@@ -50,8 +50,9 @@ def event_pointer(event):
     return f"track-{event['part_id']}.json#/measures/{event['bar']-1}/voices/{event['voice']}/beats/{event['beat']}/notes/{event['note']}"
 
 
-def analyze(tier1,*,families=False,declared_chords=False):
+def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=None):
     if type(declared_chords)is not bool or families and declared_chords:raise ValueError('Choose one explicit musical ownership representation')
+    if declared_chord_profile is not None and not declared_chords:raise ValueError('Chord profile requires declared chord ownership')
     validate_source(tier1)
     from run_reversible_tier_qa import extract_documents
     from source_tie_tier1 import extract_documents as full_context
@@ -62,9 +63,11 @@ def analyze(tier1,*,families=False,declared_chords=False):
     declared_view=None
     if declared_chords:
         from declared_chord_ownership import LABEL,CAPO,lift as degree_lift,inspect as degree_inspect
+        from chord_symbol_lexicon import CURRENT_PROFILE
+        profile=CURRENT_PROFILE if declared_chord_profile is None else declared_chord_profile
         labels={r['id']:r['value'] for r in tier1['facts'] if LABEL.fullmatch(r['id']) and 'value' in r}
         capos={int(CAPO.fullmatch(r['id'])[1]):r['value'] for r in tier1['facts'] if CAPO.fullmatch(r['id']) and 'value' in r}
-        declared_view=degree_inspect(core,labels,capos);core=degree_lift(core,labels,capos)
+        declared_view=degree_inspect(core,labels,capos,profile=profile);core=degree_lift(core,labels,capos,profile=profile)
     if families:
         from voicing_families import lift as family_lift
         core=family_lift(core)
@@ -201,7 +204,10 @@ def validate(upper):
     lower=realize(strip_lower(upper))
     if 'input' in upper and json.dumps(lower,sort_keys=True)!=json.dumps(upper['input'],sort_keys=True):raise ValueError('Nested T1 conflicts')
     # Recompute all views to reject a second unchecked analysis authority.
-    computed=analyze(lower,families=upper['musical_relationships'].get('schema')=='source-voicing-families/1',declared_chords=upper['musical_relationships'].get('schema')=='source-declared-chord-degrees/1')
+    declared=upper['musical_relationships'].get('schema')=='source-declared-chord-degrees/1'
+    from chord_symbol_lexicon import LEGACY_PROFILE
+    profile=upper['musical_relationships'].get('admission_profile',LEGACY_PROFILE) if declared else None
+    computed=analyze(lower,families=upper['musical_relationships'].get('schema')=='source-voicing-families/1',declared_chords=declared,declared_chord_profile=profile)
     if json.dumps(computed['musical_relationships'],sort_keys=True)!=json.dumps(upper['musical_relationships'],sort_keys=True):raise ValueError('Pitch/time authority conflicts with source choices')
     if 'derived_views' in upper and json.dumps(computed['derived_views'],sort_keys=True)!=json.dumps(upper['derived_views'],sort_keys=True):raise ValueError('Stale or altered derived musical view')
     return lower

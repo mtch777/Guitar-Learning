@@ -28,7 +28,7 @@ def check(documents,upper):
     actual_tracks=[t['part_id'] for t in tracks]
     if len(actual_tracks)!=len(set(actual_tracks)) or set(actual_tracks)!=set(expected_tracks):issues.append('Technique track inventory/uniqueness differs')
     note_fields={'hp','bend','slide','harmonic','harmonicFret','ghost','staccato','accentuated','tremolo','vibrato','wideVibrato','leftHandVibrato','velocity','pickScrape'}
-    beat_fields={'palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','downArpeggio','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity'}
+    beat_fields={'palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','downArpeggio','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity','wahwah','golpe','sustainPedal'}
     expected_roots={}
     for name,part in documents.items():
         if not name.startswith('track-'):continue

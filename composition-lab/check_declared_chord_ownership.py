@@ -7,6 +7,29 @@ from collections import Counter
 from fractions import Fraction as F
 import json
 import re
+from functools import lru_cache
+
+@lru_cache(maxsize=1)
+def native_numeric_aliases():
+    """Independent text-parser probe; explicit slash bass is never in this probe."""
+    from music21 import harmony,__version__
+    if __version__!='9.9.2':raise ValueError('Pinned native theory oracle 9.9.2 required')
+    numbers=sorted({int(re.search(r"\d+",token).group()) for formula,_ in harmony.CHORD_TYPES.values() for token in formula.split(",")})
+    roots=("C","C#","D","E-","E","F","F#","G","A-","A","B-","B")
+    accepted={}
+    for number in numbers:
+        choices=[]
+        for root in roots:
+            try:
+                native=harmony.ChordSymbol(root+str(number));actual={p.pitchClass for p in native.pitches}
+                matches=[kind for kind in harmony.CHORD_TYPES if {p.pitchClass for p in harmony.ChordSymbol(root=root,kind=kind).pitches}==actual]
+            except (ValueError,TypeError):matches=[]
+            choices.append(matches)
+        if any(len(c)!=1 for c in choices) or len({c[0] for c in choices})!=1:continue
+        kind=choices[0][0];old={k for k,(_,aliases) in harmony.CHORD_TYPES.items() if str(number) in aliases}
+        if old and old!={kind}:continue
+        accepted[str(number)]=kind
+    return accepted
 
 class _File:
     def __init__(self,name,value):self.name=name;self.stem=name.rsplit('.',1)[0];self.value=value
@@ -16,9 +39,13 @@ class _Capture:
     def __truediv__(self,name):return _File(name,self.documents[name])
     def glob(self,pattern):return [_File(k,v) for k,v in self.documents.items() if k.startswith('track-') and k.endswith('.json')]
 
-def native_interpretations(text):
+LEGACY_PROFILE='music21-9.9.2-aliases'
+CURRENT_PROFILE='music21-9.9.2-aliases+numeric-degrees'
+
+def native_interpretations(text,profile=CURRENT_PROFILE):
     from music21 import harmony,pitch,__version__
     if __version__!='9.9.2':raise ValueError('Pinned native theory oracle 9.9.2 required')
+    if type(profile) is not str or profile not in (LEGACY_PROFILE,CURRENT_PROFILE):raise ValueError('Unknown native admission profile')
     if type(text) is not str:return []
     roots={}
     for letter in 'ABCDEFG':
@@ -36,7 +63,7 @@ def native_interpretations(text):
             if bass in roots:variants.append((quality,roots[bass][0]))
         for quality,bass in variants:
             for kind,(formula,aliases) in harmony.CHORD_TYPES.items():
-                if quality not in aliases:continue
+                if quality not in aliases and (profile!=CURRENT_PROFILE or native_numeric_aliases().get(quality)!=kind):continue
                 chord=harmony.ChordSymbol(root=ascii_root,kind=kind)
                 pcs=sorted({p.pitchClass for p in chord.pitches})
                 degrees=[]
@@ -56,7 +83,10 @@ def check(documents,upper,restored_tier1=None):
     try:
         expected,_=source_expectation(capture)
         wrapper=upper['musical_relationships']
-        if set(wrapper)!={'schema','core'} or wrapper['schema']!='source-declared-chord-degrees/1':raise ValueError('Wrong owner envelope')
+        if set(wrapper) not in ({'schema','core'},{'schema','core','admission_profile'}) or wrapper['schema']!='source-declared-chord-degrees/1':raise ValueError('Wrong owner envelope')
+        profile=wrapper.get('admission_profile',LEGACY_PROFILE)
+        if type(profile) is not str or profile not in (LEGACY_PROFILE,CURRENT_PROFILE):raise ValueError('Unknown owner admission profile')
+        if 'admission_profile' in wrapper and profile==LEGACY_PROFILE:raise ValueError('Explicit legacy profile is noncanonical')
         core=wrapper['core'];groups=core['coattacks'];seen=[];group_seen=set()
         topology=source_expectation(capture,include_topology=True);layout=source_expectation(capture,include_layout=True)
         invalid_bars=set()
@@ -101,7 +131,7 @@ def check(documents,upper,restored_tier1=None):
                 fields=member['id'].split(':')
                 if [member[k] for k in ('bar','voice','beat','note')]!=list(map(int,fields[3:])) or F(member['duration_q'])!=F(row['duration_q']):issues.append('Occurrence source address/duration mismatch')
             if any(F(r['onset_q'])!=F(g['onset_q']) for r in raw):issues.append('Source clock mismatch')
-            candidates=native_interpretations(attached[0][1]) if len(attached)==1 else []
+            candidates=native_interpretations(attached[0][1],profile=profile) if len(attached)==1 else []
             capo=parts[g['part_id']].get('capo');valid_capo=capo is None or (type(capo) in (int,float) and capo==0)
             known=all(r['pitch'] is not None and F(r['pitch']).denominator==1 for r in raw)
             pitches=[F(r['pitch']) for r in raw] if known else []

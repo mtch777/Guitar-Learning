@@ -86,3 +86,45 @@ class IndependentDeclaredTests(unittest.TestCase):
         bad=deepcopy(u)
         next(c for c in bad['owned_parameters']['source_choices'] if '/chord/text' in c['fact_ref'])['parameter']['symbol']='D'
         self.assertEqual(check(d,bad)['status'],'FAIL')
+
+    def test_numeric_native_domain_and_all_root_parity(self):
+        from check_declared_chord_ownership import native_numeric_aliases,native_interpretations
+        from chord_symbol_lexicon import parse
+        from music21 import harmony
+        mappings=native_numeric_aliases()
+        self.assertEqual(mappings['5'],'power')
+        self.assertFalse(any(x in mappings for x in ('2','3','4')))
+        for root in ('C','C#','D','E-','E','F','F#','G','A-','A','B-','B'):
+            for suffix,kind in mappings.items():
+                symbol=root+suffix;native=harmony.ChordSymbol(symbol)
+                result=parse(symbol)
+                self.assertTrue(any(h['kind']==kind for h in result['interpretations']),symbol)
+                interpretation=next(h for h in native_interpretations(symbol) if h['kind']==kind)
+                self.assertEqual(set(interpretation['pcs']),{p.pitchClass for p in native.pitches})
+
+    def test_slash_never_adds_formula_tones_and_singleton_fallback(self):
+        from test_declared_chord_ownership import documents
+        from source_fact_tier1 import extract_documents
+        from connected_tier2 import analyze
+        from check_declared_chord_ownership import check,native_interpretations
+        h=native_interpretations('C5/E')[0]
+        self.assertEqual((h['kind'],h['pcs'],h['slash_bass_pc']),('power',[0,7],4))
+        for label,pitches,selected in [('C5',(48,55,60),True),('C5/E',(52,55,60),False),('C5/G',(55,60,67),True),('C1',(48,60),False),('C3',(48,52),False)]:
+            docs=documents(label,pitches);upper=analyze(extract_documents(docs),declared_chords=True)
+            result=check(docs,upper)
+            self.assertEqual(result['issues'],[],label)
+            self.assertEqual(result['counts'].get('selected',0),int(selected),label)
+
+    def test_immutable_legacy_and_current_admission_profiles(self):
+        from test_declared_chord_ownership import documents
+        from source_fact_tier1 import extract_documents
+        from connected_tier2 import analyze
+        from check_declared_chord_ownership import check,native_interpretations,LEGACY_PROFILE,CURRENT_PROFILE
+        self.assertEqual(native_interpretations('C5',LEGACY_PROFILE),[])
+        self.assertEqual(native_interpretations('C5',CURRENT_PROFILE)[0]['kind'],'power')
+        docs=documents('C5',(48,55,60));upper=analyze(extract_documents(docs),declared_chords=True)
+        self.assertFalse(check(docs,upper)['issues'])
+        wrong=deepcopy(upper);wrong['musical_relationships'].pop('admission_profile')
+        self.assertEqual(check(docs,wrong)['status'],'FAIL')
+        wrong=deepcopy(upper);wrong['musical_relationships']['admission_profile']='future-unknown'
+        self.assertEqual(check(docs,wrong)['status'],'FAIL')

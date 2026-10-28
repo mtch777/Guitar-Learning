@@ -95,5 +95,41 @@ class DeclaredChordTests(unittest.TestCase):
         for text in ('F#m3','Bb','nonsense','C6/9'):
             self.assertNotEqual(parse(text)['status'],'UNIQUE_LIBRARY_SYMBOL')
 
+    def test_numeric_power_syntax_and_slash_bass_have_separate_meaning(self):
+        for label,pitches,selected in [('C5',(48,55,60),True),('C5/G',(43,48,55),True),
+                                     ('C5/E',(52,55,60),False),('C1',(48,60),False),('C3',(48,52),False)]:
+            lower=extract_documents(documents(label,pitches));upper=analyze(lower,declared_chords=True)
+            self.assertEqual('declared_chord_ref' in owner(upper),selected,label)
+            self.assertEqual(reconstruct(strip_lower(upper),{'variation':0}),lower)
+        self.assertEqual(parse('C5/E')['interpretations'],[dict(root_pc=0,kind='power',explicit_bass_pc=4)])
+
+    def test_numeric_compilation_records_entire_native_domain(self):
+        from chord_symbol_lexicon import NUMERIC_QUALITY_AUDIT,QUALITY_ALIASES
+        self.assertEqual({r['suffix'] for r in NUMERIC_QUALITY_AUDIT},{'1','2','3','4','5','6','7','9','11','13'})
+        self.assertEqual(QUALITY_ALIASES['5'],['power'])
+        for row in NUMERIC_QUALITY_AUDIT:
+            self.assertEqual(len(row['roots']),12)
+            if row['status'].startswith('ACCEPTED'):
+                self.assertTrue(all(len(r['matches'])==1 for r in row['roots']))
+                self.assertEqual(len({(tuple(r['intervals']),tuple(r['matches'])) for r in row['roots']}),1)
+            else:self.assertNotIn(row['suffix'],QUALITY_ALIASES)
+
+    def test_admission_version_preserves_old_fallbacks_without_new_inverse(self):
+        from chord_symbol_lexicon import LEGACY_PROFILE,CURRENT_PROFILE
+        lower=extract_documents(documents('C5',(48,55,60)))
+        old=analyze(lower,declared_chords=True,declared_chord_profile=LEGACY_PROFILE)
+        self.assertNotIn('admission_profile',old['musical_relationships'])
+        self.assertNotIn('declared_chord_ref',owner(old))
+        self.assertEqual(validate(old),lower)
+        self.assertEqual(reconstruct(strip_lower(old),{'variation':0}),lower)
+        new=analyze(lower,declared_chords=True)
+        self.assertEqual(new['musical_relationships']['admission_profile'],CURRENT_PROFILE)
+        self.assertIn('declared_chord_ref',owner(new));self.assertEqual(validate(new),lower)
+        for profile in ('unknown',LEGACY_PROFILE,None):
+            bad=strip_lower(new);bad['musical_relationships']['admission_profile']=profile
+            with self.assertRaises(ValueError):reconstruct(bad,{'variation':0})
+        bad=strip_lower(new);bad['musical_relationships'].pop('admission_profile')
+        with self.assertRaises(ValueError):reconstruct(bad,{'variation':0})
+
 
 if __name__=='__main__':unittest.main()

@@ -220,3 +220,119 @@ these as absent declarations or silently edit v1 evidence. Next bounded task:
 derive numeric suffixes from native degree vocabulary, canonicalize only unique
 exact native formula matches, retain rejected/colliding candidates, test root
 transposition and explicit slash scope, then replay v1 plus one new random input.
+
+V1 source checkpoint `db141f5` pushed; remote CI40631989703 SUCCESS.
+
+### Numeric grammar v2: useful correction, failed promotion
+
+Finite native degree vocabulary gives10 candidate suffixes, tested at all12
+roots. Only unique exact canonical native formula matches are admitted; all
+93 existing aliases are unchanged. New aliases1/pedal and5/power raise the table
+to95;2/3/4 are explicitly refused. A single pitch class still cannot become a
+selected declared chord. Explicit slash bass is excluded from formula discovery:
+C5/E cannot invent C-major identity. The full accepted/refused build audit is
+stored in generated `NUMERIC_QUALITY_AUDIT`; it contains no corpus material.
+
+Full regression:1,182 run /1,181 passed /one optional skip,74.042s. Four immutable
+v1 captures replay with exact source/pair recovery. All58 old selections remain
+byte-for-byte identical;157 additional power-symbol groups become degree owners:
+Queen+19, Motley+6, Beatles+1, Jump+131 (215groups /598degree coordinates total).
+Planner independently verified code/archive/capture hashes and actual outputs.
+
+V2 is NOT promoted: new seed14974035343903006621 (157 excluded IDs) selected
+Pantera I'm Broken23782/revision9978132/five tracks. That capture failed before
+inverse because2874 tremoloBar.extend booleans,23 wahwah strings and one golpe
+string lack registered ownership. Precise-position errors are consequences of
+the refused curve parent, not a demonstrated unit conversion defect. Full
+failure retained in `local-artifacts/declared-chord-ownership-v2/fresh-qa`.
+
+Independent storage regression: new grammar retroactively made historical C5
+fallbacks noncanonical. Actual saved v1 Jump failed with `Noncanonical or missed
+declared-chord ownership`. Do not relax canonical validation. V2 is a preserved
+unversioned intermediate experiment, not a released storage contract.
+
+### V3 repair acceptance checklist
+
+- [x] START/MID Planner agreement: historical absent profile means immutable
+ 93-alias grammar; new explicit profile means95-alias numeric grammar. Unknown
+ profiles refuse; SAME pitch equation/inverse and canonical checks remain.
+- [x] Strictly typed tremoloBar.extend:boolean, beat wahwah:string/golpe:string
+ ownership and independent inventory checks; no detector or acoustic model edits.
+- [x]22 chord tests and8 technique tests pass, including wrong types, missing
+ declarations, unknown profiles and legacy canonical relift.
+- [ ] Full regression; frozen replay of allfive captures including failed Pantera.
+- V3 completed these replay checks; its new random Hurt case failed separately.
+- [ ] One new random capture after the code freeze, with no replacement on failure.
+- [ ] Actual saved v1 upper AND pair worker inputs reconstruct under new code;
+ no legacy re-extraction used to repair them. Compare actual output to raw facts.
+- [ ] Planner END output/hash/compatibility review, source-only commit/push and CI.
+
+V3 full regression:1,187 run /1,186 passed /one optional skip,71.765s. Allfive
+development replays PASS complete source and pair recovery. Pantera's repaired
+5,688notes /78,592facts include2874 extend flags,23wahwah and1golpe; it has zero
+chord declarations, so this is preservation coverage, not positive chord recall.
+Allfour ACTUAL saved-v1 upper/pair inputs pass under current code with unchanged
+historical ownership, verified against raw source facts. `run_declared_compatibility_qa.py`
+loads saved worker inputs rather than reconstructing substitute legacy fixtures.
+
+V3 fresh gate FAILED and is retained: seed6413993306478529234,158excluded IDs,
+Johnny Cash Hurt455130/revision8616981/five tracks. Exactly181 beat-level Boolean
+sustainPedal declarations were unregistered. No other unknown field is reported.
+The source converter separately omits sustain-pedal export; a declaration-owner
+repair must not claim sounding duration, release behavior or GP playback support.
+
+V4 bounded continuation: register Boolean sustainPedal ownership (False and
+absence remain distinct), reject impostor types, preserve every raw value/time
+link, rerun the failed capture and prior cases, then test one new frozen random
+input. Every failed version remains on disk; do not replace failed selections.
+
+### V4 result: bounded acceptance
+
+- [x] Boolean-only sustainPedal declaration owner; exactTrue/False/absence,
+  wrong types and independent omitted-False inventory tests. No sounding release
+  model, exporter or approved detector change.
+- [x] Full regression:1,189 run /1,188 passed /one optional skip,89.114s.
+- [x] Six development captures replay, including both previously failed songs.
+- [x] Fresh seed6400206326608052471,159prior IDs excluded: Bat Country61111,
+  revision9779842/eight tracks. PASS complete inverse for9,487notes/87,319facts.
+  Zero declared chord selections: fresh portability evidence, not chord recall.
+- [x] Planner END independently rehashed491project+266native files, projectZIP,
+  seven capture sets and actual whole/pair outputs. All issues lists empty.
+- [x] V3 actual saved-v1 compatibility proof retained: four unchanged historical
+  inputs passed both workers and raw-source checks. The subsequent Boolean-only
+  addition does not change the pinned chord admission profiles.
+- [ ] Source-only commit/push and remote CI recorded below when complete.
+
+| V4 capture | Notes | Typed facts | Selected groups / degree coordinates |
+|---|---:|---:|---:|
+| Queen371 | 3,384 | 37,953 | 47 /156 |
+| Motley12719 | 9,031 | 94,324 | 12 /44 |
+| Beatles22793 | 4,050 | 36,937 | 21 /87 |
+| Jump21889 | 7,336 | 71,531 | 135 /311 |
+| Pantera23782 | 5,688 | 78,592 | 0 /0 |
+| Hurt455130 | 2,779 | 24,225 | 76 /362 |
+| Fresh Bat Country61111 | 9,487 | 87,319 | 0 /0 |
+
+Total41,755notes /430,881facts,291selected groups /960degree coordinates. Earlier
+failed versions remain immutable; successful repair replays are development
+evidence, not newly unseen input. Source input selection uses a seeded public
+search sample, not a uniform sample of the whole Songsterr catalog.
+
+Private `planner-degree-allocation-scope.json` (v3) finds215selected groups in
+24same-song/part/kind/cardinality strata:2vary doubling,2vary bass degree,5vary
+normalized register layout. All26different-allocation pairs change an outer note.
+Planner corrected the scope: locking EVERY highest chord note as melody was a
+conservative audit assumption, not the user's universal voicing requirement.
+An explicit degree-allocation release may change chord tones while retaining
+root/formula, cardinality, timing, source techniques and outside occurrences.
+It must not claim global melody-role or artist-fit preservation without evidence.
+
+Specific major-five-voice evidence: C atBeatles part3/bar14 vsG atbar78 has
+different third/fifth doubling. C's source includes a brush stroke; that existing
+execution/dependency uncertainty is substantive and remains to resolve. No
+allocation policy, musical context acceptance or audible change has been claimed.
+
+Next musical relationship after these repairs: source-supported degree allocation
+(doubling, bass/inversion and register) inside a locked declared harmonic formula.
+First audit existing selected groups; do not start another model/song search or
+weaken constraints merely to manufacture an audio example.

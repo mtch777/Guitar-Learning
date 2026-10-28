@@ -15,6 +15,12 @@ from check_technique_connections import check as technique_check
 from check_declared_chord_ownership import check as degree_check
 from declared_chord_ownership import LABEL,CAPO
 
+PAIR_RECONSTRUCTOR='''\nfrom declared_chord_ownership import validate as _degree_validate,label_values as _label_values,capo_values as _capo_values
+def reconstruct(value,controls):
+    if controls!={'variation':0}:raise ValueError('This pair accepts exact zero only')
+    return _degree_validate(value['musical_relationships'],_label_values(value['source_choices'],value['facts']),_capo_values(value['source_choices'],value['facts']))
+'''
+
 
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def dump(p,v):p.write_text(json.dumps(v,indent=2),encoding='utf-8')
@@ -47,11 +53,7 @@ def run(capture,output,freeze):
         import musical_tier2 as music
         from run_reversible_tier_qa import extract_documents
         previous=music.strip_lower(music.analyze(extract_documents(docs)))
-        pair_code=code+'''\nfrom declared_chord_ownership import validate as _degree_validate,label_values as _label_values,capo_values as _capo_values
-def reconstruct(value,controls):
-    if controls!={'variation':0}:raise ValueError('This pair accepts exact zero only')
-    return _degree_validate(value['musical_relationships'],_label_values(value['source_choices'],value['facts']),_capo_values(value['source_choices'],value['facts']))
-'''
+        pair_code=code+PAIR_RECONSTRUCTOR
         pair=execute(pair_code,pair_input,{'variation':0},previous,output/'pair-isolated',timeout=180)
         if pair['status']!='PASS':raise ValueError(pair)
         coverage=upper['derived_views']['declared_chord_ownership']
@@ -68,5 +70,8 @@ def reconstruct(value,controls):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('capture',type=Path);p.add_argument('output',type=Path);p.add_argument('freeze',type=Path);a=p.parse_args()
-    result=run(a.capture,a.output,a.freeze);print(json.dumps({k:v for k,v in result.items() if k not in ('modules','qa2')}),flush=True)
+    result=run(a.capture,a.output,a.freeze)
+    summary={k:v for k,v in result.items() if k not in ('modules','qa2','traceback','error')}
+    if 'error' in result:summary.update(error=result['error'][:600],complete_error_file=str(a.output/'result.json'))
+    print(json.dumps(summary),flush=True)
     raise SystemExit(0 if result['status']=='PASS_DECLARED_WRITTEN_CHORD_QA' else 1)

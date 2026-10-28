@@ -10,7 +10,7 @@ import re
 from source_fact_tier1 import validate
 
 NOTE_EFFECTS=frozenset(('hp','bend','slide','harmonic','harmonicFret','ghost','staccato','accentuated','tremolo','vibrato','wideVibrato','leftHandVibrato','velocity','pickScrape'))
-BEAT_EFFECTS=frozenset(('palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','downArpeggio','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity'))
+BEAT_EFFECTS=frozenset(('palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','downArpeggio','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity','wahwah','golpe','sustainPedal'))
 _UNSET=object()
 
 
@@ -77,6 +77,8 @@ def supported_structure(owner,root,rows):
     field=owner['field']
     # Captured direction is a declaration, not a pitched trajectory or a
     # performance model. Future structures/types still require explicit review.
+    if field=='sustainPedal':return owner['scope']=='beat' and len(rows)==1 and root['type']=='boolean'
+    if field in ('wahwah','golpe'):return owner['scope']=='beat' and len(rows)==1 and root['type']=='string'
     if field=='pickScrape':return len(rows)==1 and root['type']=='string'
     if field=='downArpeggio':return len(rows)==1 and root['type']=='integer'
     if field=='arpeggio':
@@ -95,6 +97,8 @@ def supported_structure(owner,root,rows):
                 if row['type']!='array':return False
             elif re.fullmatch(r'/points/\d+',tail):
                 if row['type']!='object':return False
+            elif tail=='/extend' and field=='tremoloBar':
+                if row['type']!='boolean':return False
             elif tail=='/tone' or re.fullmatch(r'/points/\d+/(?:tone|position|precisePosition|vibrato)',tail):
                 if row['type'] in ('object','array'):return False
             else:return False
