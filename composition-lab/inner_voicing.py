@@ -76,11 +76,11 @@ def geometry(docs,nodes,refs,pinned,index=None):
     return dict(id=refs[0],member_refs=refs,reasons=sorted(reasons),key=key if not reasons else None)
 
 
-def catalog(upper):
+def decorate(c):
     from source_tie_tier1 import extract_documents
     from voicing_register import tie_relationships
     from execution_dependencies import build
-    c=degree_catalog(upper,typed_nominal=True);nodes=c['lane_graph']['nodes']
+    nodes=c['lane_graph']['nodes']
     index=overlap_index(nodes)
     ties=tie_relationships(extract_documents(c['documents']));execution=build(c['before'])
     pinned=set(execution['pinned_members'])|{r for e in ties['links'] for r in (e['origin'],e['destination'])}|{e['destination'] for e in ties['unresolved']}
@@ -102,6 +102,10 @@ def catalog(upper):
     c['geometries']=[geometry(c['documents'],nodes,refs,pinned,index) for refs in groups.values()]
     c['pinned']=pinned;c['overlap_index']=index
     return c
+
+
+def catalog(upper):
+    return decorate(degree_catalog(upper,typed_nominal=True))
 
 
 def component_links(c,target):

@@ -27,7 +27,7 @@ def effect_reasons(beat,note):
     reasons=source_refusals({'track-0.json':dict(measures=[dict(voices=[dict(beats=[dict(beat,notes=[note])])])])},{'note':fake},['note'])
     for field in ('hp','tieOrigin','tieDestination','rest','fingerVibrato'):
         if field in note and note[field] is not False and note[field] is not None:reasons.append('NOTE_DEPENDENCY:'+field)
-    for field in ('letRing','arpeggio','brushStroke','downArpeggio'):
+    for field in ('letRing','arpeggio','brushStroke','downArpeggio','slapping'):
         if field in beat and beat[field] is not False and beat[field] is not None and not (field=='downArpeggio' and beat[field]==0):reasons.append('BEAT_DEPENDENCY:'+field)
     return reasons
 

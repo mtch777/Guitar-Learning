@@ -514,3 +514,77 @@ Next agreed experiment: exact root-relative voicing frames; A same-root absolute
 register, B same-root normalized register, C same-quality across roots. Enumerate
 complete development denominators and refusals before activating any policy.
 Preserve target outer notes/root/timing and all physical/technique gates.
+
+## 2026-10-28 — source harmony without source chord-name annotations
+
+Planner START/MID: stop broadening physical matching. The frame experiment
+did not unlock a valid change. Same-root normalization added no changed layouts;
+across-root normalization added twelve, first rejected by the protected outer
+envelope (eleven) or chord formula (one). No policy was activated. The nine
+fixed development captures remain the population; no easier songs substituted.
+
+Three preregistered frame draws exposed a five-occurrence boolean beat `slapping`
+ownership gap in RHCP. Its original failure is retained. Literal absence/false/
+true now reverses exactly and active declarations pin their incident notes;
+performed attack is explicitly unknown. Repaired development replays of all
+three captures pass six actual whole/pair workers: 11,603 notes / 115,376 facts.
+This did not change approved technique detectors or synthesize slap execution.
+
+The common harmonic-evidence interface reuses the existing exact PC-set fits
+and degree equation. It retains every root/kind hypothesis, source declaration
+and refusal separately. Unnamed source groups now feed the SAME component
+catalog guards; no source chord names or additional pitch owner are created.
+Whole-source pitch ownership remains where it was before this integration.
+
+Source-pattern alternatives use the existing same-part/root/kind relation.
+Concrete layouts are deduplicated by original group and actual pitches. Every
+target hypothesis remains in the support denominator, including ineligible
+ones. ALL/SOME assumption support is not a chord-truth or creative-admission
+claim. Normalized pattern statistics pair each degree/register offset with its
+actual string, sorted by string; source occurrence order is never rewritten.
+
+QA artifacts are private under `local-artifacts/harmonic-evidence-v1`.
+Initial native failures are retained: the new checker lost compound octaves
+through music21's periodic `pitchFromDegree`. Explicit simple-degree plus
+compound-octave evaluation fixes the checker; all fifty definitions match and
+all nine source inventories pass `native-summary-v3.json`. No producer pitch
+fix was needed. Forged declaration status/provenance and source serialization
+permutations have regression tests. Planner identified both verification gaps.
+
+The first full integration attempt exposed a missing parser-profile handoff
+in the QA runner before it reached either worker. That attempt is retained;
+the source-pattern result now exposes the profile it already used. The full
+raw-source smoke test passes both isolated workers. `integration-freeze-v3.json`
+runs all nine again; source files, lower payloads, cached evidence/catalog/ledger
+and expected answers are absent from each worker's input namespace.
+
+Fresh common-interface gate: seed 15098617080527523032, query `r`, Rammstein
+Deutschland 451140 / revision 8448763 / thirteen tracks. Sampling is the recorded
+first-100 query pool with prior captures excluded, not uniform catalogue sampling.
+Frozen before sampling; no result-driven reroll. Evidence:
+`local-artifacts/harmonic-evidence-fresh-v1`.
+
+Current acceptance: common-interface code and targeted checks complete;
+nine actual integrations, fresh gate, final suite and Planner END in progress.
+No audible creative change, preferred harmony, inferred key/mode, artist fit or
+full Tier2 completion is claimed. Next: inspect every frozen result and failure,
+complete independent review, then commit only verified source and this log.
+
+Scoped END approved: all nine integration-v3 cases PASS; 48,073 notes / 453,380
+facts and eighteen actual workers. Fresh Deutschland independently passes both
+workers and 80,937 facts. Native and ledger oracles pass; all 520 project / 266
+native hashes match. Final suite command `.venv/Scripts/python.exe -m unittest
+discover -s composition-lab -p "test_*.py"`: 1,267 run, 1,266 passed, one optional
+skip (132.394 s). Planner independently re-enumerated every native degree and
+ledger and compared actual worker outputs, not just result statuses.
+
+Development: 5,529 exact-fit groups, 5,142 without literal source labels; 2,521
+eligible target groups / 2,678 concrete layouts. Of 185 changed layouts, 181 first
+fail outer-envelope and four whole-geometry support. Fresh: fifteen changed, all
+envelope refusals. No active creative change.
+
+Next requirement-sized step agreed with Planner: existing nominal written spans
+and complementary note-context populations, following NOMINAL_HARMONY_CONTEXT_START.md.
+Self-containing exact-fit membership must not masquerade as independently
+supported note role. No added preferred roots, accompaniment labels or physical
+relaxation. Source-only commit/CI follows this checkpoint.

@@ -16,6 +16,29 @@ NOMINAL_POLICY='declared_degree_nominal_slots'
 def encoded(value):return json.dumps(value,sort_keys=True,separators=(',',':'))
 
 
+def source_unit(group,label,roles,docs,nodes,events,pinned):
+    """Shared source eligibility; a supplied hypothesis is not a source label."""
+    from voicing_register import notation
+    refs=[m['id'] for m in group['members']];rows=[nodes['nodes'][r] for r in refs]
+    reasons={r for row in rows for r in row['reasons']}
+    if pinned.intersection(refs):reasons.add('PINNED_EXECUTION')
+    strings=[row['string'] for row in rows]
+    if any(type(s)is not int or s<0 for s in strings) or len(set(strings))!=len(strings):reasons.add('NONUNIQUE_OR_UNKNOWN_STRING')
+    if len({row['duration_q'] for row in rows})!=1:reasons.add('NONUNIFORM_WRITTEN_CHORD_DURATION')
+    pitches=[F(group['bass_register_anchor'])+F(m['voicing_interval']) for m in group['members']]
+    for ref in refs:
+        part,beat,note=notation(docs,events[ref])
+        if type(part.get('instrumentId'))is not int or not 24<=part['instrumentId']<=39:reasons.add('OUTSIDE_GUITAR_SCOPE')
+        if any(b.get('sustainPedal')is True for measure in part.get('measures',[]) for voice in measure.get('voices',[]) for b in voice.get('beats',[])):reasons.add('UNKNOWN_PEDAL_SOUNDING_END')
+        if set(beat.get('chord',{}))-{'text','width'}:reasons.add('UNINTERPRETED_CHORD_DIAGRAM')
+        if note.get('spn')is not None or note.get('courtesyAccidental')is True:reasons.add('UNCOUPLED_SOURCE_PITCH_SPELLING')
+        if any(k in note for k in ('leftFinger','rightFinger','fingering')):reasons.add('UNCOUPLED_FINGER_DECLARATION')
+        fret=F(str(note['fret']));limit=part.get('frets')
+        if fret<0 or fret.denominator!=1 or type(limit)is int and limit>0 and fret>limit:reasons.add('INVALID_SOURCE_FRET')
+    key=encoded([group['part_id'],label['root_pc'],label['kind'],len(refs),sorted(Counter(m['degree_token'] for m in roles).items()),str(min(pitches)),sorted(strings)])
+    return dict(id=refs[0],group_ref=group['id'],part_id=group['part_id'],member_refs=refs,strings=strings,roles=roles,pitches=list(map(str,pitches)),key=key,reasons=sorted(reasons))
+
+
 def catalog(upper,*,typed_nominal=False):
     from connected_tier2 import realize
     from source_fact_tier1 import project_documents
@@ -36,26 +59,9 @@ def catalog(upper,*,typed_nominal=False):
     events={e['id']:e for e in context['events']};units=[]
     for g in shared['core']['coattacks']:
         if 'declared_chord_ref' not in g:continue
-        refs=[m['id'] for m in g['members']];rows=[nodes['nodes'][r] for r in refs]
         h=parse(labels[g['declared_chord_ref']],profile=shared.get('admission_profile',LEGACY_PROFILE))['interpretations'][0]
-        reasons={r for row in rows for r in row['reasons']}
-        if pinned.intersection(refs):reasons.add('PINNED_EXECUTION')
-        strings=[row['string'] for row in rows]
-        if any(type(s)is not int or s<0 for s in strings) or len(set(strings))!=len(strings):reasons.add('NONUNIQUE_OR_UNKNOWN_STRING')
-        if len({row['duration_q'] for row in rows})!=1:reasons.add('NONUNIFORM_WRITTEN_CHORD_DURATION')
-        pitches=[F(groups[g['id']]['bass_register_anchor'])+F(m['voicing_interval']) for m in groups[g['id']]['members']]
-        for ref in refs:
-            part,beat,note=notation(docs,events[ref])
-            if type(part.get('instrumentId'))is not int or not 24<=part['instrumentId']<=39:reasons.add('OUTSIDE_GUITAR_SCOPE')
-            if any(b.get('sustainPedal')is True for measure in part.get('measures',[]) for voice in measure.get('voices',[]) for b in voice.get('beats',[])):reasons.add('UNKNOWN_PEDAL_SOUNDING_END')
-            if set(beat.get('chord',{}))-{'text','width'}:reasons.add('UNINTERPRETED_CHORD_DIAGRAM')
-            if note.get('spn')is not None or note.get('courtesyAccidental')is True:reasons.add('UNCOUPLED_SOURCE_PITCH_SPELLING')
-            if any(k in note for k in ('leftFinger','rightFinger','fingering')):reasons.add('UNCOUPLED_FINGER_DECLARATION')
-            fret=F(str(note['fret']));limit=part.get('frets')
-            if fret<0 or fret.denominator!=1 or type(limit)is int and limit>0 and fret>limit:reasons.add('INVALID_SOURCE_FRET')
         roles=[dict(degree_token=m['degree_token'],relative_octaves=m['relative_octaves']) for m in g['members']]
-        key=encoded([g['part_id'],h['root_pc'],h['kind'],len(refs),sorted(Counter(m['degree_token'] for m in g['members']).items()),str(min(pitches)),sorted(strings)])
-        units.append(dict(id=refs[0],group_ref=g['id'],part_id=g['part_id'],member_refs=refs,strings=strings,roles=roles,pitches=list(map(str,pitches)),key=key,reasons=sorted(reasons)))
+        units.append(source_unit(groups[g['id']],h,roles,docs,nodes,events,pinned))
     return dict(before=before,documents=docs,units=units,lane_graph=nodes,typed_nominal=typed_nominal)
 
 

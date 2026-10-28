@@ -34,7 +34,7 @@ def _nodes(tier1):
         part,beat,note=_raw(docs,e);reasons=source_refusals(docs,by_id,[e['id']])
         for k in ('hp','tieOrigin','tieDestination','rest','fingerVibrato'):
             if k in note and note[k]is not False and note[k]is not None:reasons.append('NOTE_DEPENDENCY:'+k)
-        for k in ('letRing','arpeggio','brushStroke','downArpeggio'):
+        for k in ('letRing','arpeggio','brushStroke','downArpeggio','slapping'):
             if k in beat and beat[k]is not False and beat[k]is not None and not(k=='downArpeggio'and beat[k]==0):reasons.append('BEAT_DEPENDENCY:'+k)
         if e['bar']in warnings:reasons.append('UNCERTAIN_SOURCE_CLOCK')
         if(e['part_id'],e['bar'])in rest_bad:reasons.append('CONFLICTING_SOURCE_REST')

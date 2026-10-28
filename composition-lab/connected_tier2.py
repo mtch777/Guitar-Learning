@@ -34,6 +34,7 @@ def owner_kind(row):
     if '/chord/' in path:return 'source_chord_annotation'
     if '/duration/' in path or path.endswith(('/dots','/dotted','/tuplet','/type','/graceNote','/beamStart','/beamStop','/tupletStart','/tupletStop')):return 'source_notation_choice'
     if '/notes/' in path:return 'physical_or_note_declaration'
+    if path.endswith('/beats/*/slapping'):return 'source_beat_execution_declaration'
     if '/automations/' in path or '/trackAutomations/' in path or '/tempo/' in path:return 'source_clock_or_control'
     if '/measures/' in path:return 'source_structure_declaration'
     return 'instrument_or_track_setting'
