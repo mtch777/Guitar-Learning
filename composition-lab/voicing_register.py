@@ -41,6 +41,7 @@ def tie_relationships(context):
 
 def inventory(tier1,policy='exact_context'):
     """Reads complete preceding facts ONLY, preserving all refusal outcomes."""
+    if policy=='declared_degree_allocation':raise ValueError('Degree allocation requires its owned T2 catalog')
     if policy=='source_gesture_context':
         from voicing_gestures import catalog
         return catalog(tier1)
@@ -164,7 +165,7 @@ def physical_choice(target,realization,envelope,declared_only=False):
     return not fingered or max(fingered)-min(fingered)<=envelope['max_simultaneous_span']
 
 
-POLICIES=('exact_context','pooled_source','pooled_declared_geometry','source_witnessed_fixed_strings','incident_dependencies','joint_source_fingering','transposed_voicing_family','source_lane_context','source_joint_lane_context','source_gesture_context')
+POLICIES=('exact_context','pooled_source','pooled_declared_geometry','source_witnessed_fixed_strings','incident_dependencies','joint_source_fingering','transposed_voicing_family','source_lane_context','source_joint_lane_context','source_gesture_context','declared_degree_allocation')
 
 
 def witnessed_geometry(target,donor,realization):
@@ -259,6 +260,7 @@ def validate_controls(controls):
 def sample_choice(catalog,controls):
     """Same finite empirical choice, separated for reproducible control auditing."""
     validate_controls(controls)
+    if controls.get('context_policy')=='declared_degree_allocation':raise ValueError('Use the explicit degree-allocation sampler')
     if controls.get('context_policy')=='source_gesture_context':
         from voicing_gestures import sample_choice as gesture_choice
         return gesture_choice(catalog,controls)
@@ -312,6 +314,9 @@ def apply_family_choices(upper,choices_to_apply):
 def intervene(upper,controls):
     """Propose only observed owned parameters, then solve the existing relations."""
     validate_controls(controls)
+    if controls.get('context_policy')=='declared_degree_allocation':
+        from declared_degree_choices import intervene as allocation_intervention
+        return allocation_intervention(upper,controls)
     if upper['musical_relationships'].get('schema')=='source-declared-chord-degrees/1' and any(controls.get(k,0) for k in ('voicing','register','physical')):
         raise ValueError('Declared-chord ownership has no accepted nonzero control policy yet')
     if controls.get('context_policy')=='source_gesture_context':

@@ -81,3 +81,17 @@ through the same chord equations, with the intended voicing dimensions released
 and actual outside locks protected. Every highest chord note is NOT automatically
 the melody. A source-supported chord allocation still needs physical, execution
 and contextual validation before an audible example is admitted.
+
+
+Latest allocation iteration: **1,206 Python passes, one optional skip**.
+A bounded degree-placement control now changes authored chords through the
+same inverse while locking root/formula/doubling/bass/strings/timing/outsidefacts.
+Real-source enumeration is independentlychecked; all48Queen candidates still
+fail surrounding dead/slide/motion checks. **No real audible change is accepted.**
+FreshPolice revealed72explicitnull key-signature fields; exactnull ownership is
+fixed, with no invented key. RepairedPolice, freshKillswitch and Queen pass
+actualwhole/pair reversal for22,117notes/224,470facts. Complete key declarations
+are retained, but connectedmusicalcore does NOT yet integrate the separately
+tested source-declared keycontext module. Inferredkey/mode and artistic roles
+remain incomplete. Next:typedunpitched incidence and clearseparation of actual
+execution dependencies from merelyobserved string-lane patterns.

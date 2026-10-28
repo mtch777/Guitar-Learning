@@ -260,12 +260,13 @@ unversioned intermediate experiment, not a released storage contract.
  ownership and independent inventory checks; no detector or acoustic model edits.
 - [x]22 chord tests and8 technique tests pass, including wrong types, missing
  declarations, unknown profiles and legacy canonical relift.
-- [ ] Full regression; frozen replay of allfive captures including failed Pantera.
+- [x] Full regression; frozen replay of allfive captures including failed Pantera.
 - V3 completed these replay checks; its new random Hurt case failed separately.
-- [ ] One new random capture after the code freeze, with no replacement on failure.
-- [ ] Actual saved v1 upper AND pair worker inputs reconstruct under new code;
+- [x] One new random capture after the code freeze, with no replacement on failure.
+- [x] Actual saved v1 upper AND pair worker inputs reconstruct under new code;
  no legacy re-extraction used to repair them. Compare actual output to raw facts.
-- [ ] Planner END output/hash/compatibility review, source-only commit/push and CI.
+- [x] Planner END output/hash/compatibility review, source-only commit/push and CI;
+  consolidated with the V4 checkpoint below.
 
 V3 full regression:1,187 run /1,186 passed /one optional skip,71.765s. Allfive
 development replays PASS complete source and pair recovery. Pantera's repaired
@@ -301,7 +302,8 @@ input. Every failed version remains on disk; do not replace failed selections.
 - [x] V3 actual saved-v1 compatibility proof retained: four unchanged historical
   inputs passed both workers and raw-source checks. The subsequent Boolean-only
   addition does not change the pinned chord admission profiles.
-- [ ] Source-only commit/push and remote CI recorded below when complete.
+- [x] Source-only commit/push and remote CI recorded below.
+- Verified source checkpoint `c9e7f34` pushed; CI40634685538 SUCCESS.
 
 | V4 capture | Notes | Typed facts | Selected groups / degree coordinates |
 |---|---:|---:|---:|
@@ -336,3 +338,56 @@ Next musical relationship after these repairs: source-supported degree allocatio
 (doubling, bass/inversion and register) inside a locked declared harmonic formula.
 First audit existing selected groups; do not start another model/song search or
 weaken constraints merely to manufacture an audio example.
+
+
+### Declared allocation, frozen v1 and v2
+
+Contract:DECLARED_ALLOCATION_CONTRACT.md. Source-supported whole chord-degree
+placement releases degree-to-string allocation while retaining formula, doubling,
+bass, actual strings, source timing/declarations and outside occurrences. It uses
+existing degree/fret equations in both directions; no separate generator.
+
+- Authored actual isolated changed inverse passes. Source note-list order is not
+  string correspondence. 0/50/100 release tests permit source-weighted coincidence.
+- Planner independent raw inventory exactly agrees:Queen47declared/29eligible,
+  193directed donor links,48changed links,10unique changedtarget/layouts.
+- Full pre-freeze suite:1203run/1202pass/1optional skip,84.067s.
+- Allocation-v1 frozen496project/266native Python files. Seven real development
+  captures pass complete source/pair inverse:41,755notes/430,881facts,291declared
+  groups. No changed layout admitted. Entire before/outcome ledger retained.
+- New random seed7416361845595734554,160excluded IDs:Police Message In A Bottle
+  3706/revision9697344/nine tracks. FAIL_RETAINED on72explicit nullkeySignature
+  declarations. No substitute song or source edits. Source itself remains intact.
+- Planner proved all48proposals retain targettime/PCmultiplicity; all4096outside
+  PCsets each preserve the union (196,608checks). Outside-knownness was an
+  unnecessary veto for this nominalwritten claim. Four such layouts ALSO fail
+  dead/slide incident paths in actualcounterfactual reconstruction/checking.
+- V2 replaces only that veto with exactper-cell targetcontribution + exactoutside
+  projection/uncertainty. Selectedunknown, physical, execution/tie and incident
+  source-witness guards remain.9independent checker tests pass.
+- Known nullkey root gains stricttyped ownership; no key is invented. Absence,
+  explicitnull and validobject remain distinct; wrongtypes refuse. Connected
+  sourcechoices preserve these declarations but its musicalcore does not yet
+  integrate the separate declared-key context module. Tests assert that limit.
+- CLI QA failures now return nonzero, not just a FAIL_RETAINED JSON status.
+- V2 full suite:1207run/1206pass/1optional skip,90.081s.
+- V2 freeze496project/266native, seed2262269046133190369,161excluded IDs selected
+  Killswitch Engage The End Of Heartache10851/revision8700891/nine tracks.
+  Queen+failedPolice+fresh runs in progress; no output acceptance inferred.
+
+Next agreed investigation:explicitdead notes are nominalunpitched slots, not
+missing pitched notes. Preserve their exact occurrence/time/declarations and
+bracketing knownpitch evidence; never skip them or invent pitch. Unresolved
+slides remain separate. Physical string-lane evidence is not established
+melodic identity. Any new protection policy must distinguish actual source
+execution dependencies from contextual support without claiming artistfit.
+
+
+Allocation-v2 finished:allthree actual whole/pair source-free workers PASS,
+with independentraw checks and completeproposal denominators.
+Queen3,384notes/37,953facts; repairedPolice8,786/95,664; freshKillswitch9,947/90,853.
+Total22,117notes/224,470facts for this frozenrun. Police118declared groups have
+noeligible release; freshKillswitch has0declared groups. Queen still48directed
+changedlinks/10layouts/0admitted. Do not label that a successful audiblelever.
+OriginalPoliceFAIL and everyv1negative outcome remain retained. Fullsuite1206pass,
+1optional skip. Source/CIcheckpoint pending PlannerEND audit.

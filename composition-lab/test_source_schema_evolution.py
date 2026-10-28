@@ -20,6 +20,34 @@ def fixture():
 
 
 class SourceSchemaEvolutionTests(unittest.TestCase):
+    def test_explicit_null_key_is_owned_and_not_a_key_or_absence(self):
+        docs=documents();bar=docs['track-0.json']['measures'][0];bar['keySignature']=None
+        upper=self.exact(docs);ref='track-0.json#/measures/0/keySignature'
+        choice=next(c for c in upper['owned_parameters']['source_choices'] if c['fact_ref']==ref)
+        self.assertEqual(choice,dict(fact_ref=ref,owner='source_structure_declaration',parameter=dict(symbol=None)))
+        from musical_tier2 import declared_key_context
+        self.assertEqual(declared_key_context(upper['musical_relationships'],0,'0')['status'],'source_declarations_not_in_input_scope')
+        absent=deepcopy(docs);absent['track-0.json']['measures'][0].pop('keySignature')
+        self.assertFalse(any(c['fact_ref']==ref for c in self.exact(absent)['owned_parameters']['source_choices']))
+        bad=strip_lower(upper);next(c for c in bad['owned_parameters']['source_choices'] if c['fact_ref']==ref)['parameter']['symbol']=0
+        with self.assertRaises(ValueError):reconstruct(bad,dict(variation=0))
+        for wrong in (False,0,'C',[]):
+            altered=deepcopy(docs);altered['track-0.json']['measures'][0]['keySignature']=wrong;self.rejected(altered)
+
+    def test_declared_key_then_null_does_not_resurrect_on_absence(self):
+        docs=documents();part=docs['track-0.json'];bar=part['measures'][0]
+        part['measures']=[deepcopy(bar) for _ in range(3)]
+        part['measures'][0]['keySignature']=dict(accidentalCount=2,mode='minor',transposeAs='b')
+        part['measures'][1]['keySignature']=None
+        upper=self.exact(docs)
+        from musical_tier2 import declared_key_context,analyze as analyze_keys,reconstruct as reverse_keys,strip_lower as strip_keys
+        from source_key_tier1 import extract_documents as key_input
+        keys=key_input(docs);meaning=analyze_keys(keys)
+        self.assertEqual(reverse_keys(strip_keys(meaning),dict(variation=0)),keys)
+        self.assertEqual(declared_key_context(meaning,0,'0')['decoded_notation_tonic_pc'],7)
+        for q in ('4','8'):
+            c=declared_key_context(meaning,0,q)
+            self.assertEqual(c['status'],'unknown_no_active_source_declaration');self.assertIsNone(c['established_key'])
     def exact(self,docs):
         lower=extract_documents(docs);upper=analyze(lower)
         self.assertEqual(upper['unsupported'],[])
