@@ -98,6 +98,16 @@ test('player clips Time Solo with chords and always uses solo-relative controls'
   assert.equal(api.tickPosition, 93 * 960);
   assert.equal(get('CurrentTime').textContent, '0:00');
   assert.equal(get('Duration').textContent, '0:25');
+  for (const speed of ['0.25', '0.5', '0.75', '0.9', '1', '1.1', '1.25', '1.5', '2']) {
+    get('Speed').value = speed;
+    get('Speed').fire('change');
+    assert.equal(get('CurrentTime').textContent, '0:00', `${speed}× before Play`);
+    assert.equal(get('Progress').value, '0', `${speed}× before Play`);
+    get('PlayPause').fire('click');
+    assert.equal(api.calls.at(-1), 'play', `${speed}× starts playback`);
+    get('Stop').fire('click');
+    assert.equal(api.tickPosition, 93 * 960, `${speed}× Stop resets to solo start`);
+  }
   get('Speed').value = '0.75';
   get('Speed').fire('change');
   assert.equal(get('CurrentTime').textContent, '0:00');

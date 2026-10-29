@@ -27,3 +27,25 @@
 - [x] Published fix `8b5d866118934dbbf27112079e83484c5a328a29`; GitHub Pages run `40918525330` passed. Live browser loaded `main-BEJkct6H.js` and the full private `time(4).gp`. Switching to 0.75× before Play stayed at `0:00 / 1:31`; Play advanced from the solo start with visible red active notes. Changing speed from 0.75× to 1× and back during playback held `0:19` steady. Space paused/resumed; single Right/Left steps moved about five seconds; a 50% scrub showed `0:45`, resumed with visible notes; Stop returned to `0:00` at 0.75×.
 
 Next: the speed-order regression is verified live. Keep the private GP file outside Git.
+
+2026-10-29 full speed-order matrix: in desktop Chrome, each case reloaded the
+current deployed build, freshly uploaded `time(4).gp`, selected speed before the
+first Play, then waited for a visible selected solo note. All nine were `0:00 /
+1:31` before Play and advanced with selected notes afterward:
+
+| Speed | First visible note | Playhead when observed |
+| --- | ---: | ---: |
+| 0.25× | 2 selected notes | 0:01 |
+| 0.5× | 2 | 0:01 |
+| 0.75× | 2 | 0:02 |
+| 0.9× | 2 | 0:02 |
+| 1× | 2 | 0:02 |
+| 1.1× | 2 | 0:02 |
+| 1.25× | 2 | 0:03 |
+| 1.5× | 2 | 0:03 |
+| 2× | 1 | 0:04 |
+
+The 2× sample caught one note after the initial two-note beat had advanced;
+the actual criterion is a visible solo note, not an exact sustained-note count.
+The focused fake-player regression now loops through all nine speeds before
+Play and checks position, playback command, and Stop reset for each.
