@@ -59,7 +59,10 @@ Play and checks position, playback command, and Stop reset for each.
   F# minor = i, A major = ♭III; C# major can still be V.
 - [x] Add a focused mapping regression and run all 27 JavaScript tests plus
   Vite production build successfully.
-- [ ] Publish and verify the first timed buttons on the live page after
-  uploading the private full score.
+- [x] Published source commit `95451b93d41dcd8776506fdb92ba92d54872201b`;
+  GitHub Pages run `40923817903` passed. Live browser loaded
+  `main-B-WLUskY.js`, uploaded the private full `time(4).gp`, and showed
+  E major = ♭VII, F# minor = i, A major = ♭III in its first three timed
+  buttons (repeated in subsequent sections). Base key showed F# Aeolian.
 
-Next: verify rendered timed chord labels live. Keep the GP source outside Git.
+Next: timed chord labels are verified live. Keep the GP source outside Git.
