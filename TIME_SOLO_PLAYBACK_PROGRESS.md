@@ -19,4 +19,11 @@
 
 ## Next action
 
-The bounded Time Solo playback is verified live. Retain the private GP file outside Git.
+2026-10-29 speed-regression follow-up:
+
+- [x] Reproduce user sequence on the published site: upload `time(4).gp`, select 0.75× before Play. The UI jumped from `0:00` to `1:00` before playback because alphaTab scales its millisecond position on speed changes.
+- [x] Use score ticks for solo-relative display and seeks; add the inverse tempo-map conversion. Do not reapply an unchanged speed at Play.
+- [x] Test changed speed before and during Play, keyboard seeking, tempo change conversion, and other lesson fallback. All 26 JS tests and Vite build passed. Original private file: start/mid/end tick-to-time conversions match within rounding.
+- [ ] Publish fix and verify both speed-change orders, playback notes, scrubber, and keyboard controls live with the original file.
+
+Next: publish the bounded fix and complete the live regression check. Keep the private GP file outside Git.

@@ -17,6 +17,8 @@ test('solo window follows score bars and integrates tempo changes', () => {
   assert.equal(window.startMs, 93 * 500);
   assert.equal(window.endMs, 94 * 500 + 49 * 1000);
   assert.equal(window.durationMs, 500 + 49 * 1000);
+  assert.equal(window.tickToMs(95 * 960), 94 * 500 + 1000);
+  assert.equal(window.msToTick(94 * 500 + 1000), 95 * 960);
   assert.equal(createTimeSoloWindow({ masterBars: [0] }, tickCache), null);
 });
 
@@ -61,6 +63,23 @@ test('player clips Time Solo with chords and always uses solo-relative controls'
       };
       this.calls = [];
     }
+    get playbackSpeed() { return this._speed || 1; }
+    set playbackSpeed(speed) {
+      const oldSpeed = this.playbackSpeed;
+      this._speed = speed;
+      // Match alphaTab: changing speed scales reported milliseconds while
+      // leaving the same musical tick selected.
+      if (this._tickPosition != null) {
+        this.timePosition *= oldSpeed / speed;
+        this.playerPositionChanged.emit({ currentTime: this.timePosition,
+          endTime: 72000 / speed, currentTick: this._tickPosition });
+      }
+    }
+    get tickPosition() { return this._tickPosition; }
+    set tickPosition(tick) {
+      this._tickPosition = tick;
+      this.timePosition = tick / 960 * 500 / this.playbackSpeed;
+    }
     changeTrackTranspositionPitch() {}
     renderTracks() {}
     updateSettings() {}
@@ -79,13 +98,20 @@ test('player clips Time Solo with chords and always uses solo-relative controls'
   assert.equal(api.tickPosition, 93 * 960);
   assert.equal(get('CurrentTime').textContent, '0:00');
   assert.equal(get('Duration').textContent, '0:25');
+  get('Speed').value = '0.75';
+  get('Speed').fire('change');
+  assert.equal(get('CurrentTime').textContent, '0:00');
+  assert.equal(get('Progress').value, '0');
+  get('PlayPause').fire('click');
+  assert.equal(api.calls.at(-1), 'play');
 
-  api.playerPositionChanged.emit({ currentTime: 48500, endTime: 72000, currentTick: 97 * 960 });
+  api.playerPositionChanged.emit({ currentTime: 48500 / 0.75,
+    endTime: 72000 / 0.75, currentTick: 97 * 960 });
   assert.equal(get('CurrentTime').textContent, '0:02');
   assert.equal(get('Progress').value, '80');
   get('Progress').value = '500';
   get('Progress').fire('change');
-  assert.equal(api.timePosition, 59000);
+  assert.equal(api.tickPosition, 118 * 960);
 
   const key = code => {
     const event = { code, repeat: false, prevented: false, stopped: false,
@@ -95,19 +121,23 @@ test('player clips Time Solo with chords and always uses solo-relative controls'
     assert.equal(event.stopped, true);
   };
   key('ArrowLeft');
-  assert.equal(api.timePosition, 54000);
+  assert.equal(api.tickPosition, 108 * 960);
   key('ArrowRight');
-  assert.equal(api.timePosition, 59000);
+  assert.equal(api.tickPosition, 118 * 960);
   globalThis.requestAnimationFrame = () => 1;
   globalThis.cancelAnimationFrame = () => {};
   api.playerStateChanged.emit({ state: 1 });
+  get('Speed').value = '0.5';
+  get('Speed').fire('change');
+  assert.equal(get('CurrentTime').textContent, '0:13');
+  assert.equal(api.tickPosition, 118 * 960);
   key('Space');
   assert.equal(api.calls.at(-1), 'pause');
   api.playerStateChanged.emit({ state: 0 });
   key('Space');
   assert.equal(api.calls.at(-1), 'play');
   get('Stop').fire('click');
-  assert.equal(api.timePosition, 46500);
+  assert.equal(api.tickPosition, 93 * 960);
   assert.equal(get('CurrentTime').textContent, '0:00');
   soloLesson = false;
   elements.get('lessonTypeSelect').fire('change');

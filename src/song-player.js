@@ -196,6 +196,7 @@ export function setupSongPlayer({
     if (!alphaTabApi) return;
     const speed = Number(speedSelect.value);
     if (!Number.isFinite(speed) || speed <= 0) return;
+    if (alphaTabApi.playbackSpeed === speed) return;
     alphaTabApi.playbackSpeed = speed;
   }
 
@@ -557,8 +558,17 @@ export function setupSongPlayer({
     const absoluteMs = soloWindow
       ? Math.max(soloWindow.startMs, Math.min(soloWindow.endMs, targetMs))
       : Math.max(0, Math.min(endTimeMs, targetMs));
-    lastPositionMs = absoluteMs;
-    alphaTabApi.timePosition = absoluteMs;
+    if (soloWindow) {
+      currentTick = Math.max(soloWindow.startTick,
+        Math.min(soloWindow.endTick, soloWindow.msToTick(absoluteMs)));
+      lastPositionMs = soloWindow.tickToMs(currentTick);
+      alphaTabApi.tickPosition = currentTick;
+      onPositionChanged?.({ fraction: endTimeMs > 0
+        ? (lastPositionMs - soloWindow.startMs) / endTimeMs : 0, tick: currentTick });
+    } else {
+      lastPositionMs = absoluteMs;
+      alphaTabApi.timePosition = absoluteMs;
+    }
     const relativeMs = soloWindow ? absoluteMs - soloWindow.startMs : absoluteMs;
     currentTime.textContent = formatTime(relativeMs);
     if (endTimeMs > 0) progress.value = String(Math.round(relativeMs / endTimeMs * 1000));
@@ -1038,17 +1048,13 @@ export function setupSongPlayer({
           ? soloWindow.durationMs
           : Math.max(0, Number(args.endTime || 0));
 
-        currentTick =
-          Number(
-            args.currentTick ||
-            currentTick
-          );
+        currentTick = Number(args.currentTick ?? currentTick);
 
         const absoluteMs = Math.max(0, Number(args.currentTime || 0));
-        lastPositionMs = absoluteMs;
         const nowMs = soloWindow
-          ? Math.max(0, Math.min(endTimeMs, absoluteMs - soloWindow.startMs))
+          ? Math.max(0, Math.min(endTimeMs, soloWindow.tickToMs(currentTick) - soloWindow.startMs))
           : absoluteMs;
+        lastPositionMs = soloWindow ? soloWindow.startMs + nowMs : absoluteMs;
         onPositionChanged?.({fraction: endTimeMs > 0 ? nowMs / endTimeMs : 0, tick: currentTick});
 
         emitActiveNotes(
