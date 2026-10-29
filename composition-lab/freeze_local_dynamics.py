@@ -5,7 +5,8 @@ from pathlib import Path
 from run_declared_chord_qa import sha,dump
 
 
-def freeze(output,backend,module,font):
+def freeze(output,backend,module,font,policy='source_local_dynamic_level'):
+    if policy not in ('source_local_dynamic_level','source_local_dynamic_transition'):raise ValueError('Explicit supported dynamics policy required')
     root=Path(__file__).resolve().parent
     if output.exists()or'local-artifacts'not in output.resolve().parts:raise ValueError('Fresh private output required')
     excluded=set();origins=[]
@@ -17,7 +18,7 @@ def freeze(output,backend,module,font):
             except(ValueError,UnicodeError):pass
     code=list(root.glob('*.py'))+list((root/'songsterr_automation/songsterr_api').glob('*.py'))
     native=list(root.glob('*.mjs'))+list((root/'songsterr_automation/songsterr_api').glob('*.mjs'))+list((backend/'songsterr_dl').rglob('*.py'))+list(module.parent.glob('*.mjs'))+[font]
-    manifest=dict(schema='local-dynamics-freeze/1',started_utc=datetime.now(timezone.utc).isoformat(),seed=secrets.randbits(64),
+    manifest=dict(schema='local-dynamics-freeze/1',policy=policy,started_utc=datetime.now(timezone.utc).isoformat(),seed=secrets.randbits(64),
         excluded_song_ids=sorted(excluded),exclusion_evidence=sorted(origins),backend=str(backend.resolve()),case_count=1,
         code_hashes={str(p.resolve()):sha(p)for p in sorted(code)},native_hashes={str(p.resolve()):sha(p)for p in sorted(native)},
         sampling='Existing seed-selected letter search, first100 returned IDs; uniform among previously uncaptured candidate IDs, not uniform catalog. Exactly one slot; failure/no choice retained.',
@@ -42,6 +43,7 @@ def capture(output):
 if __name__=='__main__':
     p=argparse.ArgumentParser();s=p.add_subparsers(dest='action',required=True)
     a=s.add_parser('freeze');a.add_argument('output',type=Path);a.add_argument('backend',type=Path);a.add_argument('module',type=Path);a.add_argument('font',type=Path)
+    a.add_argument('--policy',choices=['source_local_dynamic_level','source_local_dynamic_transition'],default='source_local_dynamic_level')
     a=s.add_parser('capture');a.add_argument('output',type=Path);a=p.parse_args()
-    r=freeze(a.output,a.backend,a.module,a.font)if a.action=='freeze'else capture(a.output)
+    r=freeze(a.output,a.backend,a.module,a.font,a.policy)if a.action=='freeze'else capture(a.output)
     print(json.dumps({k:v for k,v in r.items()if k in ('seed','case_count','status','selected_song_id','title','artist','tracks','capture_error')}))

@@ -37,6 +37,11 @@ def build(qa,native,fresh):
         facts=result['facts'],source_notes=result['notes'],native_status=audit['status'],fidelity_scope=audit['fidelity_scope'],standalone_roundtrip_pass=all(r['standalone_roundtrip_pass']for r in audit['artifact_fidelity']),
         fresh=dict(title=fr['title'],status=fr['status'],notes=fr['notes'],facts=fr['facts'],counts=fr['counts'],actual_changed=fr['actual_changed'],seed=str(selection['seed']),sampling=selection['pool_rule']),
         evidence_hashes={str(p.resolve()):sha(p)for p in [qa/'demonstration.json',qa/'result.json',native/'independent-dynamic-artifacts.json',native/'dynamic-native-snapshot.json',fresh/'result.json',capture.parent/'selection.json']})
+    if demo['controls']['context_policy']=='source_local_dynamic_transition':
+        evidence=demo['decision']['evidence'];context=evidence['context']
+        data['dynamic_context']=dict(incoming=context['incoming_marking'],position_q=context['position_q'],meter=context['source_meter'],
+            options=[dict(marking=o['marking'],declarations=len(o['donor_refs']))for o in evidence['options']],
+            witness_pair=evidence['witness_pair'],scope=context['scope'])
     (native/'preview.json').write_text(json.dumps(data,indent=2),encoding='utf-8')
     (native/'index.html').write_text((Path(__file__).parent/'dynamic-preview.html').read_text(encoding='utf-8'),encoding='utf-8')
     return dict(status='REVIEW_BUILT_UI_QA_PENDING',path=str((native/'index.html').resolve()))

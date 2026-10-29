@@ -20,8 +20,8 @@ def make(base):
     for folder,docs in [(source,d),(qa/'zero-capture',d),(qa/'changed-capture',changed)]:
         for name,v in docs.items():dump(folder/name,v)
     before=extract_documents(d);after=extract_documents(changed);inv=inventory(before);target=next(x for x in inv['declarations']if x['fact_ref']==TARGET);chosen=next(o for o in choices(before,TARGET)['options']if o['marking']=='mf')
-    dump(qa/'inventory.json',inv);dump(qa/'demonstration.json',dict(target=target,chosen=chosen,decision=dict(released=True,changed=True,chosen=chosen),controls={},clip=dict(first=1,last=3,part=0)))
-    dump(qa/'plan.json',dict(source_hashes={str(p.resolve()):sha(p)for p in source.glob('*.json')}))
+    dump(qa/'inventory.json',inv);dump(qa/'demonstration.json',dict(target=target,chosen=chosen,decision=dict(released=True,changed=True,chosen=chosen),controls=dict(context_policy='source_local_dynamic_level'),clip=dict(first=1,last=3,part=0)))
+    dump(qa/'plan.json',dict(policy='source_local_dynamic_level',source_hashes={str(p.resolve()):sha(p)for p in source.glob('*.json')}))
     dump(qa/'zero-and-pair/zero-isolated/worker/output.json',before);dump(qa/'changed-isolated/worker/output.json',after)
     module=base/'alphaTab.mjs';module.write_text('// Synthetic test dependency, no actual alphaTab execution');core=base/'alphaTab.core.mjs';core.write_text('// Synthetic core')
     snapshot=dict(schema='native-dynamic-snapshot/1',module_path=str(module.resolve()),module_sha256=sha(module),core_sha256=sha(core),snapshot_script_sha256=sha(Path(__file__).with_name('audit_dynamic_gp.mjs')),cases={});renders=[]
@@ -67,6 +67,13 @@ class DynamicArtifactTests(unittest.TestCase):
         return check(native,qa)
  def test_exact_native_locks_and_coupled_midi_velocities(self):
     r=self.run_case();self.assertEqual(r['status'],STATUS,r);self.assertTrue(r['gp_dynamic_changes']);self.assertEqual({r['kind']for r in r['midi_velocity_changes']},{'NoteOnEvent','NoteOffEvent'})
+ def test_unknown_or_changed_policy_cannot_downgrade_the_checker(self):
+    def mutation(n,q):mutate_json(q/'demonstration.json',lambda j:j['controls'].update(context_policy='source_local_dynamic_transition'))
+    r=self.run_case(mutation);self.assertEqual(r['status'],'FAIL');self.assertIn('policy differs',r['issues'][0])
+    def unknown(n,q):
+        mutate_json(q/'demonstration.json',lambda j:j['controls'].update(context_policy='pretend'))
+        mutate_json(q/'plan.json',lambda j:j.update(policy='pretend'))
+    r=self.run_case(unknown);self.assertEqual(r['status'],'FAIL');self.assertIn('Unknown dynamic',r['issues'][0])
  def test_roundtrip_failure_is_not_repaired_or_ignored(self):
     r=self.run_case(lambda n,q:mutate_json(n/'source/gp7-validation.json',lambda x:x.update(roundtripPass=False)))
     self.assertEqual(r['status'],'FAIL');self.assertIn('full roundtrip',r['issues'][0])

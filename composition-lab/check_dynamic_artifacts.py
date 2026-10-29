@@ -66,12 +66,22 @@ def check(root,qa,*,fidelity_scope='standalone_gp'):
         if encoded(extract(sourcefolder))!=encoded(before):raise ValueError('Original and exact-zero captures differ')
         for value,p in [(before,qa/'zero-and-pair/zero-isolated/worker/output.json'),(after,qa/'changed-isolated/worker/output.json')]:
             if encoded(read(p))!=encoded(value):raise ValueError('Export capture not bound to actual worker')
-        iv=inventory(before);av=inventory(after)
+        policy=demo['controls']['context_policy']
+        if plan['policy']!=policy:raise ValueError('Demonstration dynamic policy differs from plan')
+        if policy=='source_local_dynamic_transition':
+            from check_dynamic_context import Oracle
+            independent=Oracle(before);iv=independent.inventory();av=Oracle(after).inventory()
+        elif policy=='source_local_dynamic_level':iv=inventory(before);av=inventory(after)
+        else:raise ValueError('Unknown dynamic source policy')
         if encoded(iv)!=encoded(read(qa/'inventory.json')):raise ValueError('Saved source dynamic inventory differs')
         target=next(d for d in iv['declarations']if d['fact_ref']==demo['target']['fact_ref'])
         if encoded(target)!=encoded(demo['target']):raise ValueError('Demonstration target differs from original raw source')
-        audit=source_check(before,after,target['fact_ref'],demo['chosen']['donor_refs'],demo['decision'])
+        audit=(independent.check(after,target['fact_ref'],demo['chosen']['donor_refs'],demo['decision'])if policy=='source_local_dynamic_transition'else
+            source_check(before,after,target['fact_ref'],demo['chosen']['donor_refs'],demo['decision']))
         if audit['status']!='PASS_INDEPENDENT_LOCAL_DYNAMICS':raise ValueError(audit)
+        if policy=='source_local_dynamic_transition':
+            draw=independent.check_sample(target['fact_ref'],demo['controls'],demo['chosen'],demo['decision'])
+            if draw['status']!='PASS_INDEPENDENT_DYNAMIC_CONTEXT_SAMPLE':raise ValueError(draw)
         affected=set(audit['affected_refs'])
         if not affected:raise ValueError('Actual changed dynamic influence required for audible gate')
         states={name:{s['occurrence_ref']:s for s in view['states']}for name,view in [('source',iv),('zero',iv),('changed',av)]}

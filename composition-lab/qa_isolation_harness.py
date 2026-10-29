@@ -128,7 +128,7 @@ def worker(stage, challenge=None, forbidden=None):
                 if 'physical' in controls and (controls.get('context_policy') not in ('joint_source_fingering','transposed_voicing_family','source_lane_context','source_joint_lane_context','source_gesture_context') or type(controls['physical'])is not int or not 0<=controls['physical']<=100):raise ValueError('Unknown physical release')
             elif purpose=='local_dynamics_intervention':
                 import re
-                if type(controls)is not dict or set(controls)!={'dynamics','target_ref','seed','context_policy'} or controls['context_policy']!='source_local_dynamic_level':raise ValueError('Declared local dynamics controls required')
+                if type(controls)is not dict or set(controls)!={'dynamics','target_ref','seed','context_policy'} or controls['context_policy']not in ('source_local_dynamic_level','source_local_dynamic_transition'):raise ValueError('Declared local dynamics controls required')
                 level=controls['dynamics']
                 if type(level)not in (int,float)or not math.isfinite(level)or not 0<=level<=100 or type(controls['seed'])is not int:raise ValueError('Bounded dynamic release and typed seed required')
                 if type(controls['target_ref'])is not str or not re.fullmatch(r'track-\d+\.json#/measures/\d+/voices/\d+/beats/\d+(?:/notes/\d+)?/velocity',controls['target_ref']):raise ValueError('Source dynamic declaration identity required')
