@@ -199,6 +199,10 @@ def realize(upper):
 def reconstruct(upper,controls):
     if controls=={'variation':0} and type(controls['variation']) in (int,float):
         return realize(upper)
+    if controls.get('context_policy')=='source_local_dynamic_level':
+        from local_dynamics import intervene
+        edited,_=intervene(upper,controls)
+        return realize(edited)
     from voicing_register import intervene
     edited,_=intervene(upper,controls)
     return realize(edited)

@@ -37,7 +37,7 @@ musical suitability. Keep every original tier/lever gateway.
   is not the complete Songsterr interface; annotation-backed role accuracy is
   not claimed. No adapter detour was required for this optional constraint.
 - [x] Planner MID/END and evidence-bound progress record.
-- [ ] Verified source delivery
+- [x] Verified source delivery
   and exact-commit CI. New audio/UI only for a genuinely new verified change.
 
 ## Division of work
@@ -145,4 +145,11 @@ all locked pitches/timing/techniques. This is the NEXT proposed capability, not
 implemented work. Verify its placement against the existing tier/lever plan before
 starting; do not introduce arbitrary velocity offsets or call it artist fidelity.
 
-Next: commit the verified source/checks and verify exact-commit CI.
+Delivered commit `fe521a15df3e020928d32297dbea11863ea553ce` to main.
+GitHub Actions run40893992302 completed successfully for that exact commit;
+confirmed2026-10-29. No website sources changed, so Pages was not required.
+Private source/annotations/audio remain ignored; unrelated unfinished work was
+not staged. This post-CI receipt is retained locally for the next handoff commit.
+
+Next: scope T2-10 local dynamics/accents as above. Recurring phrase accent patterns
+remain T3 and are not authorized by this local lever's gateway.

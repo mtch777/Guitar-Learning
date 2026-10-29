@@ -1,0 +1,33 @@
+// Existing codec and native renderer; every musical choice comes from the audited worker.
+import fs from 'node:fs';import path from 'node:path';import crypto from 'node:crypto';import {spawnSync} from 'node:child_process';import {fileURLToPath,pathToFileURL} from 'node:url';
+import {loadPlaybackScore} from './songsterr_automation/songsterr_api/playback_score.mjs';
+const [qaArg,captureArg,python,backend,modulePath,font,fidelityScope='standalone_gp']=process.argv.slice(2);
+if(!font)throw Error('qa capture backendPython backendRoot alphaTabModule soundfont required');
+if(!['standalone_gp','gp_with_exact_model_bends'].includes(fidelityScope))throw Error('Explicit recognized fidelity scope required');
+const qa=path.resolve(qaArg),capture=path.resolve(captureArg),root=path.dirname(fileURLToPath(import.meta.url)),out=path.join(qa,fidelityScope==='standalone_gp'?'native-preview':'native-preview-bundle');
+const read=p=>JSON.parse(fs.readFileSync(p,'utf8')),hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const result=read(path.join(qa,'result.json')),demo=read(path.join(qa,'demonstration.json')),plan=read(path.join(qa,'plan.json'));
+if(result.status!=='PASS_SYMBOLIC_LOCAL_DYNAMICS_CHANGE'||demo.actual_worker_audit.status!=='PASS_INDEPENDENT_LOCAL_DYNAMICS')throw Error('Actual verified symbolic change required');
+const names=Object.keys(plan.source_hashes).map(p=>path.basename(p)).sort();
+if(JSON.stringify(names)!==JSON.stringify(fs.readdirSync(capture).filter(n=>n.endsWith('.json')).sort()))throw Error('Capture inventory drift');
+for(const [p,h]of Object.entries(plan.source_hashes))if(hash(p)!==h||hash(path.join(capture,path.basename(p)))!==h)throw Error('Source capture drift');
+if(fs.existsSync(out))throw Error('Fresh native preview folder required');fs.mkdirSync(out);
+fs.writeFileSync(path.join(out,'fidelity-scope.json'),JSON.stringify({fidelity_scope:fidelityScope,standalone_required:fidelityScope==='standalone_gp'},null,2));
+process.on('uncaughtException',error=>{fs.writeFileSync(path.join(out,'failure.json'),JSON.stringify({status:'FAIL_RETAINED',fidelity_scope:fidelityScope,error:String(error),stack:error.stack},null,2));console.error(error);process.exitCode=1;});
+const run=(exe,args,log)=>{const r=spawnSync(exe,args,{cwd:root,encoding:'utf8',timeout:600000,windowsHide:true});fs.writeFileSync(path.join(out,log),(r.stdout||'')+'\n'+(r.stderr||''));if(r.status!==0)throw Error('Command failed: '+log+' '+(r.error||''));};
+const bind="from pathlib import Path; import json,sys; from source_fact_tier1 import extract; q=Path(sys.argv[1]); c=Path(sys.argv[2]); z=json.loads((q/'zero-and-pair/zero-isolated/worker/output.json').read_text()); a=json.loads((q/'changed-isolated/worker/output.json').read_text()); assert extract(c)==z; assert extract(q/'zero-capture')==z; assert extract(q/'changed-capture')==a; print('PASS_ACTUAL_WORKER_BINDING')";
+run(python,['-c',bind,qa,capture],'worker-binding-before.log');
+for(const name of ['source','zero','changed'])run(python,[path.join(root,'export_owned_capture.py'),name==='source'?capture:path.join(qa,name+'-capture'),backend,path.join(out,name)],name+'-export.log');
+run(process.execPath,[path.join(root,'songsterr_automation/songsterr_api/export_csv_gp7.mjs'),modulePath,out],'native-gp.log');
+for(const name of ['source','zero','changed']){const r=read(path.join(out,name,'gp7-validation.json'));if((fidelityScope==='standalone_gp'&&!r.roundtripPass)||r.error||r.directSource?.differences!==0)throw Error('Native GP/source check failed: '+name);}
+const at=await import(pathToFileURL(path.resolve(modulePath))),score=loadPlaybackScore(at,path.join(out,'zero/score.gp'),{}).score;
+const t=demo.target,{first,last,part}=demo.clip;
+const regular=score.tracks[part]?.staves[0]?.bars[t.bar-1]?.voices[t.voice]?.beats.filter(b=>b.graceType===0),beat=regular?.[t.beat];
+if(!beat||!Number.isFinite(beat.playbackStart))throw Error('Explicit dynamic source beat cannot be located');
+const jobs=[];for(const name of ['source','zero','changed'])for(const mode of ['focused','ensemble'])jobs.push({case_id:name+'-'+mode,method:name,mode,file:path.join(out,name,'score.gp'),out:path.join(out,name,mode+'.wav'),track:part,start_bar:first,end_bar:last,target_bar:t.bar,target_offset_q:String(beat.playbackStart/960)});
+fs.writeFileSync(path.join(out,'audio-jobs.json'),JSON.stringify(jobs,null,2));
+run(process.execPath,[path.join(root,'audit_dynamic_gp.mjs'),modulePath,qa,out,fidelityScope],'native-snapshot.log');
+run(process.execPath,[path.join(root,'render_source_passages.mjs'),modulePath,font,path.join(out,'audio-jobs.json')],'audio-render.log');
+run(python,['-c',"from pathlib import Path; from check_dynamic_artifacts import check; import sys,json; r=check(Path(sys.argv[1]),Path(sys.argv[2]),fidelity_scope=sys.argv[3]); print(json.dumps(r)); expected='PASS_NATIVE_GP_AND_AUDIO_DYNAMICS' if sys.argv[3]=='standalone_gp' else 'PASS_GP_BUNDLE_AND_AUDIO_DYNAMICS'; raise SystemExit(0 if r['status']==expected else 1)",out,qa,fidelityScope],'native-audio-audit.log');
+run(python,['-c',bind,qa,capture],'worker-binding-after.log');
+console.log(JSON.stringify({status:'NATIVE_DYNAMIC_PREVIEW_AUDITED',output:out,title:result.title,clip:demo.clip,before:t.marking,after:demo.chosen.marking,affected_notes:t.influence_refs.length,listening_judgment:null}));
