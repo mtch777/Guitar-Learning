@@ -144,3 +144,15 @@ realism. Leper remains a fresh symbolic positive and native baseline failure.
 No human accent-fit acceptance and no full T2-10/Tier2 promotion.
 
 Safely fast-forwarded unrelated upstream UI work to `a49f96b`; no private baseline or WIP reset. Root JavaScript suite:28/28 passed; Vite build passed after the fast-forward. The separate lab workflow suites previously passed21/21. A transient Git index lock cleared on its own; none was deleted.
+
+### Published CI and portability correction
+Published `19d4f65413825c2ca9acf416ad31ef22f8e3e70b`. CI40930227857 failed
+four artifact tests: the synthetic fixture built its fake worker output from
+filesystem enumeration order, unlike the canonical metadata-first extractor.
+Reproduced locally by reversing directory enumeration: same binding failure.
+Fixed the fixture to use the actual canonical extractor and added that adversarial
+order test. Production analysis, inverse, artifact locks and old private outputs
+are unchanged. The original frozen test file is retained privately; this is a
+disclosed post-freeze test-only revision, not a rerun claim for original573hashes.
+
+Corrected fixture suite:11/11 passed, including reversed enumeration. Whole-capture native follow-up finds53 pitched grace ghost losses; the earlier four were only within the initially inspected failing bars. The original failure is preserved.

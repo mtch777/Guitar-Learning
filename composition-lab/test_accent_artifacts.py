@@ -3,7 +3,7 @@ from copy import deepcopy
 import hashlib,json,tempfile,unittest,zipfile
 from pathlib import Path
 import xml.etree.ElementTree as ET
-from source_fact_tier1 import extract_documents
+from source_fact_tier1 import extract_documents,extract
 from check_local_accents import Oracle,POLICY
 from check_accent_artifacts import check,STATUS
 from test_dynamic_artifacts import make as base_fixture,dump,sha,wav,paired_fixture
@@ -31,7 +31,7 @@ def make(base,mark='mf'):
     changed=deepcopy(docs);changed['track-0.json']['measures'][0]['voices'][0]['beats'][0]['notes'][0]['accentuated']=1
     for folder,d in((source,docs),(qa/'zero-capture',docs),(qa/'changed-capture',changed)):
         for name,value in d.items():dump(folder/name,value)
-    before=extract_documents(docs);after=extract_documents(changed);oracle=Oracle(before);ev=oracle.options(TARGET)
+    before=extract(source);after=extract(qa/'changed-capture');oracle=Oracle(before);ev=oracle.options(TARGET)
     from declared_degree_choices import sample
     for seed in range(32):
         chosen,decision=sample(ev,dict(voicing=100,seed=seed))
@@ -88,6 +88,13 @@ class AccentArtifactTests(unittest.TestCase):
 
     def test_one_accent_with_locked_dynamics_and_actual_velocity(self):
         r=self.run_case();self.assertEqual(r['status'],STATUS,r);self.assertEqual(len(r['gp_accent_changes']),1);self.assertEqual(len(r['midi_velocity_changes']),2)
+
+    def test_capture_directory_enumeration_does_not_change_worker_fixture(self):
+        from unittest.mock import patch
+        original=Path.glob
+        with patch.object(Path,'glob',lambda p,pattern:iter(sorted(original(p,pattern),key=lambda f:f.name,reverse=True))):
+            r=self.run_case()
+        self.assertEqual(r['status'],STATUS,r)
 
     def test_wrong_note_or_written_dynamic_or_unrelated_gp_field(self):
         for mutation in(lambda t:t.find('Beats')[0].find('Dynamic').__setattr__('text','F'),lambda t:t.find('Notes')[1].set('other','changed'),lambda t:ET.SubElement(t.find('Notes')[1],'Accent').__setattr__('text','8')):
