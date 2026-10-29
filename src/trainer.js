@@ -110,6 +110,8 @@ document
   .value =
     'timeSoloChords';
 
+document.getElementById('timeSoloIntervalType').value = 'baseKey';
+
 document
   .getElementById(
     'rrColorToggle'
