@@ -6,6 +6,7 @@
 - [x] Interval Type switches sounding-note labels between Base Key and Current Chord. Acceptance: test checks E changes from R in E major to b7 in F# minor and back.
 - [x] Run JavaScript tests and production build. `node --test tests/*.test.mjs`: 28 passed, 0 failed. `npm run build`: passed. `sha256sum public/time.gp dist/time.gp`: both `bd656f927c89b00fbc366b8659879d606937e4ff33fef60367023802c53aa89b`.
 - [x] Verify published page in a fresh browser session. Commit `ac86497`: score loaded automatically, Guitar Solo track selected, solo duration 1:31, 23 score-timed chord sections. Clicking midpoint of chord strip sought to 0:45 / progress 493; Up changed 1× to 1.1×, Down restored 1× without changing position; Space paused playback; switching Interval Type on the same held pitch changed its displayed interval from 6 (Current Chord) to 5 (Base Key).
-- [x] Default Interval Type to Base Key in the public lesson. The HTML selects Base Key, and startup sets the selector explicitly to override browser form restoration. Focused tests: 4 passed; Vite build passed. Live fresh-page verification pending deployment.
+- [x] Default Interval Type to Base Key in the public lesson. The HTML selects Base Key, and startup sets the selector explicitly to override browser form restoration. Focused tests: 4 passed; Vite build passed. Live page loaded the 1:31 Guitar Solo with Base Key selected; after choosing Current Chord and reloading, Base Key was selected again (commit `4f42806`).
+- [x] Analyze all solo pitch classes and resolution targets relative to F# minor. Results and scope are recorded in `TIME_SOLO_INTERVAL_ANALYSIS.md`; source pitch agrees with tuning + fret + capo for all 147 counted attacks.
 
 Next action: user review on the public site.
