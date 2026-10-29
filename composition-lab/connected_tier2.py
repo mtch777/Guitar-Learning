@@ -51,7 +51,8 @@ def event_pointer(event):
     return f"track-{event['part_id']}.json#/measures/{event['bar']-1}/voices/{event['voice']}/beats/{event['beat']}/notes/{event['note']}"
 
 
-def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=None):
+def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=None,note_accent_slots=False):
+    if type(note_accent_slots)is not bool:raise ValueError('Explicit optional-accent ownership mode required')
     if type(declared_chords)is not bool or families and declared_chords:raise ValueError('Choose one explicit musical ownership representation')
     if declared_chord_profile is not None and not declared_chords:raise ValueError('Chord profile requires declared chord ownership')
     validate_source(tier1)
@@ -72,11 +73,17 @@ def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=
     if families:
         from voicing_families import lift as family_lift
         core=family_lift(core)
-    effect=lift(tier1);effect_ids={r['id'] for r in realize_effects(effect)}
+    effect=lift(tier1);slot_model=None;slot_ids=set()
+    if note_accent_slots:
+        from optional_accent_slots import lift as lift_slots,realize as realize_slots
+        slot_model=lift_slots(tier1);slot_ids={r['id']for r in realize_slots(slot_model)}
+        effect['groups']=[g for g in effect['groups']if g['source_fact_ref']not in slot_ids]
+    effect_ids={r['id'] for r in realize_effects(effect)}
     events={event_pointer(e):e for e in normalized['events']}
     source_index={r['id']:r for r in tier1['facts']}
     skeleton=[];choices=[];positions=[];coverage=[];unsupported=deepcopy(effect['unsupported'])
     for row in tier1['facts']:
+        if row['id']in slot_ids:continue
         if row['id'] in effect_ids:
             coverage.append(dict(fact_ref=row['id'],owner='technique_declaration'));continue
         skeleton.append({k:deepcopy(v) for k,v in row.items() if k!='value'})
@@ -107,6 +114,11 @@ def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=
                 source_structure=dict(documents=deepcopy(tier1['documents']),facts=skeleton,source_scope=tier1['scope']),
                 owned_parameters=dict(source_choices=choices,physical_positions=positions,technique_declarations=effect),
                 musical_relationships=core,derived_views=derived,coverage=coverage,unsupported=unsupported)
+    if note_accent_slots:
+        output['schema']='connected-source-musical-relations/2'
+        output['owned_parameters']['optional_note_accents']=slot_model
+        output['coverage']=dict(schema='conditional-source-ownership/1',fixed=coverage,
+            rules=[dict(relation=g['id'])for g in slot_model['groups']])
     if not unsupported:
         restored=realize(strip_lower(output))
         if json.dumps(restored,sort_keys=True)!=json.dumps(tier1,sort_keys=True):raise ValueError('Complete forward/reverse discrepancy')
@@ -121,14 +133,21 @@ def strip_lower(upper):
 def realize(upper):
     """No source/lower/derived-view access. Unknown owners block reconstruction."""
     fields={'tier','schema','source_structure','owned_parameters','musical_relationships','coverage','unsupported'}
-    if set(upper)-{'contextual_constraints','membership_lock'}!=fields or upper['schema']!='connected-source-musical-relations/1' or upper['tier']!=2:raise ValueError('Unsupported unified interface or hidden payload')
+    if set(upper)-{'contextual_constraints','membership_lock'}!=fields or upper['schema']not in ('connected-source-musical-relations/1','connected-source-musical-relations/2') or upper['tier']!=2:raise ValueError('Unsupported unified interface or hidden payload')
     if upper['unsupported']:raise ValueError('Unsupported source facts block full inverse')
     structure=upper['source_structure'];parameters=upper['owned_parameters']
-    if set(structure)!={'documents','facts','source_scope'} or set(parameters)!={'source_choices','physical_positions','technique_declarations'}:raise ValueError('Unregistered owner payload')
+    optional=upper['schema']=='connected-source-musical-relations/2'
+    expected_parameters={'source_choices','physical_positions','technique_declarations'}|({'optional_note_accents'}if optional else set())
+    if set(structure)!={'documents','facts','source_scope'} or set(parameters)!=expected_parameters:raise ValueError('Unregistered owner payload')
     facts=deepcopy(structure['facts']);index={r['id']:r for r in facts}
     if len(index)!=len(facts) or any('value' in r for r in facts):raise ValueError('Raw or duplicate skeleton scalar')
     if any(r['type'] in ('object','array') and not registered_container(r) for r in facts):raise ValueError('Unregistered source container')
     assigned={r['id']:'source_structure' for r in facts if r['type'] in ('object','array')}
+    if optional:
+        from optional_accent_slots import realize as realize_slots
+        for row in realize_slots(parameters['optional_note_accents']):
+            if row['id']in index:raise ValueError('Overlapping optional-accent/structure ownership')
+            index[row['id']]=row;assigned[row['id']]='optional_note_accent'
     def assign(ident,value,owner):
         if ident not in index or ident in assigned:raise ValueError('Duplicate or absent scalar owner')
         index[ident]['value']=value;assigned[ident]=owner
@@ -171,7 +190,13 @@ def realize(upper):
     for row in realize_effects(parameters['technique_declarations']):
         if row['id'] in index:raise ValueError('Overlapping technique/structure ownership')
         index[row['id']]=row;assigned[row['id']]='technique_declaration'
-    if len(upper['coverage'])!=len(index) or {r['fact_ref']:r['owner'] for r in upper['coverage']}!=assigned or any(set(r)!={'fact_ref','owner'} for r in upper['coverage']):raise ValueError('Incomplete/duplicate ownership ledger')
+    coverage=upper['coverage']
+    if optional:
+        from optional_accent_slots import coverage as slot_coverage
+        model=parameters['optional_note_accents']
+        if type(coverage)is not dict or set(coverage)!={'schema','fixed','rules'}or coverage['schema']!='conditional-source-ownership/1' or type(coverage['fixed'])is not list or coverage['rules']!=[dict(relation=g['id'])for g in model['groups']]:raise ValueError('Invalid conditional ownership ledger')
+        coverage=coverage['fixed']+slot_coverage(model)
+    if type(coverage)is not list or any(type(r)is not dict or set(r)!={'fact_ref','owner'}for r in coverage) or len(coverage)!=len(index) or {r['fact_ref']:r['owner'] for r in coverage}!=assigned:raise ValueError('Incomplete/duplicate ownership ledger')
     # Source order is defined only by ordered skeleton membership, not caches.
     ordered=[];seen=set()
     def visit(ident):
@@ -199,6 +224,10 @@ def realize(upper):
 def reconstruct(upper,controls):
     if controls=={'variation':0} and type(controls['variation']) in (int,float):
         return realize(upper)
+    if controls.get('context_policy')=='source_local_note_accent':
+        from local_accents import intervene
+        edited,_=intervene(upper,controls)
+        return realize(edited)
     if controls.get('context_policy')=='source_local_dynamic_transition':
         from dynamic_context import intervene
         edited,_=intervene(upper,controls)
@@ -219,7 +248,7 @@ def validate(upper):
     declared=upper['musical_relationships'].get('schema')=='source-declared-chord-degrees/1'
     from chord_symbol_lexicon import LEGACY_PROFILE
     profile=upper['musical_relationships'].get('admission_profile',LEGACY_PROFILE) if declared else None
-    computed=analyze(lower,families=upper['musical_relationships'].get('schema')=='source-voicing-families/1',declared_chords=declared,declared_chord_profile=profile)
+    computed=analyze(lower,families=upper['musical_relationships'].get('schema')=='source-voicing-families/1',declared_chords=declared,declared_chord_profile=profile,note_accent_slots=upper['schema']=='connected-source-musical-relations/2')
     if json.dumps(computed['musical_relationships'],sort_keys=True)!=json.dumps(upper['musical_relationships'],sort_keys=True):raise ValueError('Pitch/time authority conflicts with source choices')
     if 'derived_views' in upper and json.dumps(computed['derived_views'],sort_keys=True)!=json.dumps(upper['derived_views'],sort_keys=True):raise ValueError('Stale or altered derived musical view')
     return lower

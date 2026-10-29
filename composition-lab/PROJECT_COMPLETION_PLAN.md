@@ -1,6 +1,7 @@
 # Composition Lab — tier and creative-lever acceptance plan
 
-Updated 2026-10-23 with ProjectPlanner3000, against main `14f5d42`.
+Living plan with ProjectPlanner3000. Requirements began2026-10-23; current
+verification update2026-10-29, following published context work at`8f32a28`.
 This is the active completion plan under the musical-analysis reset, not a
 promotion of historical generation/profile/control prototypes.
 
@@ -55,7 +56,7 @@ for the entire tier or for another lever.
 
 ## Tier ownership and required lever register
 
-2026-10-27 verification checkpoint: conditional semantic locks and opt-in
+Historical2026-10-27 checkpoint (superseded below): conditional semantic locks and opt-in
 source-observed incident physical-lane relationships are implemented, using the
 existing spacing/string owners and SAME inverse. Seventeen focused tests and
 1148 Python passes (one optional skip) verify bounded mechanics and regressions.
@@ -66,11 +67,20 @@ same-input DEVELOPMENT replay. Do not call this two fresh creative successes or
 complete Tier2. See `AUDIBLE_VOICING_PROGRESS.md` and
 `PROJECT_STATUS_2026-10-27.md` for exact scope, failures and remaining roadmap.
 
+Current correction: one provisional Queen voicing excerpt has actual audio and
+the user's scoped "feels like it belongs" acceptance. That does not approve the
+whole voicing lever or untested output. Unlabeled integration and local dynamics
+have since passed their bounded checks; see`UNLABELED_INNER_PREVIEW_PROGRESS.md`
+and`DYNAMIC_CONTEXT_PROGRESS.md`. Accent control now has a development inverse, GP/MIDI/audio proof and inspected
+UI. The frozen fresh source passes exact reconstruction and accent changes, but
+its GP baseline fails on grace timing. Planner approved this bounded result;
+human accent fit and the full T2 gateway remain OPEN.
+
 | Tier | Responsibility | Levers that must pass here | Current state |
 |---|---|---|---|
 | T0 | Immutable captured Songsterr JSON | None; source provenance/fidelity gate | Verified captured-source scope |
 | T1 | Complete typed score facts | None; complete extraction, time/source ownership and reconstruction gate | Verified complete captured-JSON scope; not all acoustic execution |
-| T2 | Local musical context and gestures | Every T2 row below, including each named technique separately | OPEN: exact source inverse, conditional analyses and bounded nonzero fingering; no fully accepted creative lever |
+| T2 | Local musical context and gestures | Every T2 row below, including each named technique separately | OPEN: exact source inverse; bounded fingering, voicing and dynamics changes. One Queen voicing excerpt has scoped human fit; full levers remain open |
 | T3 | Ideas and phrases | Idea/riff/motif development; call/response; phrase endings/resolution; phrase density; recurring rhythmic, pause/hold and accent patterns | Pending replacement architecture |
 | T4 | Sections and arrangement | Part roles/interactions; texture/layering; instrumentation; section lengths; transitions; section density; section tempo/meter organization | Pending replacement architecture |
 | T5 | Whole-song development | Section order/form; returns/transformations; whole-song tonal, tempo and intensity routes | Pending replacement architecture |
@@ -93,13 +103,13 @@ constitute current creative acceptance.
 | T2-01 Key / tonal center / mode | Source signatures; provisional global/local candidates; candidate-relative intervals and collection degrees | Independently supported center/collection selection and alternatives; coordinated pitch/harmony changes; missing/ambiguous contexts; mode changes beyond a forced major/minor choice | OPEN |
 | T2-02 Chord progression | Candidate roots/qualities, harmonic paths, chord degrees and voice motion | Context-supported sequence proposals, joint path/role consistency and reconciliation of melody/bass/other locked parts; no automatic functional labels from template fits | OPEN |
 | T2-03 Chord timing | Rational harmonic-span alternatives and active-note/overlap evidence | Supported changed harmonic rhythm; coupled held-note, rest, voice and tie updates; exact unaffected timing | OPEN |
-| T2-04 Chord voicing / inversion | Written sonorities, compatible hypotheses, shared spacing/inverse, source-shape transfers; checked conditional formula-support/doubling/inversion/bass/register locks | Grounded harmonic selection and sole-owner integration for broader edits; supported audible spacing; learned contextual choice and listening | PARTIAL: conditional lock checks verified; prediction study inconclusive; audible voicing OPEN |
+| T2-04 Chord voicing / inversion | Written sonorities, compatible hypotheses, shared spacing/inverse, source-shape transfers; conditional formula/doubling/inversion/bass/register locks; one audible Queen excerpt accepted by the user | Broader supported choices and generalization; ambiguous harmonic context, execution and new-output listening | PARTIAL: scoped Queen audible/user-fit pass; unlabeled integration checked; full voicing/inversion acceptance OPEN |
 | T2-05 Melody function / contour | Conditional chord/collection degrees; directed motion; bounded passing/neighbor evidence | Coherent passage-level proposals; contextual non-chord roles; independent function, contour and octave locks; optional internal literal-pitch constraints; same-relation remapping and verification | OPEN |
 | T2-06 Register | Exact pitch/octave/position relationships | Supported register choices, scoped propagation and conflicts with melodic octave, voicing and physical locks; active edit interface and GP/audio proof | PARTIAL: bounded edit/GP/audio proved; physical/listening OPEN |
 | T2-07 Local rhythm | Rational onsets/durations and source event/voice topology | Context-supported rhythmic alternatives; pulse/subdivision/accent relationships; coupled placement, meter/voice totals, rests and ties; no arbitrary time perturbation | OPEN |
 | T2-08 Pauses / holds | Source rests, nominal durations, tie and sustain observations | Meaningful silence/hold alternatives; clear sounding versus notated duration; surrounding timing and technique dependencies | OPEN |
 | T2-09 Local tempo / pulse / meter | Source tempo/meter declarations and measure geometry | Explicit local pulse/grouping/regrouping relations, tempo-map dependencies, re-metering and notation/time reconciliation; large-scale tempo routes remain T4/T5 | OPEN |
-| T2-10 Dynamics / accents | Same-owner written levels and inherited-note scope; context choices use incoming level + exact source-meter position. Independent raw/isolated inverse/GP/MIDI/audio checks; 55 supported development targets, fresh song preserves source at100% when context lacks contrasting levels | Independent accent control; phrase/artist intent and human musical-fit acceptance. Local source-transition support does not establish expressive intent | PARTIAL: context-based bass mp→mf playback verified; full lever OPEN. See DYNAMIC_CONTEXT_PROGRESS.md |
+| T2-10 Dynamics / accents | Written dynamics and inherited scope; independent optional accents with exact absence/order ownership. Source-local choices and isolated inverses verified. Queen accent: GP/MIDI/audio verified. Fresh Leper: 94,113 facts exact; 456 notes with supported alternatives | Leper GP bridge turns 22 grace beats into regular beats in 15 bars and loses four other grace ghost markings. Fresh audio withheld. Phrase/artist intent and human accent fit unjudged | PARTIAL: bounded dynamics and accent control; full lever OPEN. See DYNAMIC_CONTEXT_PROGRESS.md and ACCENT_PRESENCE_PROGRESS.md |
 | T2-11 Articulation | Preserved staccato/ringing/connected markings and technique links | Separate execution/edit contract for each articulation; attack/end/sustain dependencies and actual rendering checks | OPEN |
 | T2-12 Individual techniques | Source declarations, retained identification and bounded inverses | Per-technique musical placement/trajectory/destination relationships, supported proposals, dependencies, same-relation edit and playback evidence; see individual rows below | OPEN per technique |
 | T2-13 Physical realization | Shared pitch = tuning[selected string] + capo + fret; fresh source-supported fingering changes with independent locks and native GP proof | Human execution/timbre; tuning/capo variation; a physical change is not automatically an audible musical change | PARTIAL: fresh fingering/GP verified; broader scope OPEN |

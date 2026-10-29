@@ -126,6 +126,12 @@ def worker(stage, challenge=None, forbidden=None):
                 if any(type(controls[k])is not int or not 0<=controls[k]<=100 for k in ('voicing','register')) or type(controls['seed'])is not int or type(controls['target_ref'])is not str or not controls['target_ref'].startswith('event:'):raise ValueError('Only bounded controls and source identity may enter intervention')
                 if controls.get('context_policy','exact_context') not in ('exact_context','pooled_source','pooled_declared_geometry','source_witnessed_fixed_strings','incident_dependencies','joint_source_fingering','transposed_voicing_family','source_lane_context','source_joint_lane_context','source_gesture_context','declared_degree_allocation','declared_degree_nominal_slots','source_inner_degree_component','provisional_contact_inner_preview','all_hypothesis_inner_preview'):raise ValueError('Unknown intervention context policy')
                 if 'physical' in controls and (controls.get('context_policy') not in ('joint_source_fingering','transposed_voicing_family','source_lane_context','source_joint_lane_context','source_gesture_context') or type(controls['physical'])is not int or not 0<=controls['physical']<=100):raise ValueError('Unknown physical release')
+            elif purpose=='local_accents_intervention':
+                import re
+                if type(controls)is not dict or set(controls)!={'accents','target_ref','seed','context_policy'} or controls['context_policy']!='source_local_note_accent':raise ValueError('Declared local accent controls required')
+                level=controls['accents']
+                if type(level)not in (int,float)or not math.isfinite(level)or not 0<=level<=100 or type(controls['seed'])is not int:raise ValueError('Bounded accent release and typed seed required')
+                if type(controls['target_ref'])is not str or not re.fullmatch(r'event:\d+:\d+:\d+:\d+:\d+:\d+',controls['target_ref']):raise ValueError('Source note identity required')
             elif purpose=='local_dynamics_intervention':
                 import re
                 if type(controls)is not dict or set(controls)!={'dynamics','target_ref','seed','context_policy'} or controls['context_policy']not in ('source_local_dynamic_level','source_local_dynamic_transition'):raise ValueError('Declared local dynamics controls required')

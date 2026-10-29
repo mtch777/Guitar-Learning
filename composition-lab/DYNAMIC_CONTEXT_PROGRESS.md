@@ -13,7 +13,7 @@ No inferred emotion, musical-quality claim, or new generator.
 - [x] Complete fixed-seed development test; actual source-denied 0/changed inverse.
 - [x] Freeze a new random source before analysis; retain failure/no-choice.
 - [x] Native GP/companion, actual MIDI and PCM independently checked if change exists.
-- [ ] Planner midpoint/end review; source publication and exact-commit CI checked.
+- [x] Planner midpoint/end review; source publication and exact-commit CI checked.
 
 ## Start
 Planner's fixed three-capture census found 55 supported SweetChild targets, zero
@@ -103,7 +103,10 @@ private census while final source delivery proceeds. Do not change pitches,
 rhythm, dynamics, approved detectors, or invent phrase/emotional roles.
 
 Final Planner UI END approved against actual screenshots and current display
-hashes (planner-final-end-review.json). Source publication/CI next.
+hashes (planner-final-end-review.json). Source delivered in e3caab8, merged safely
+with unrelated main changes and published as8f32a28bfbfa45315df0920c077e09fa718c85d7.
+Exact-head CI40918781636 completed SUCCESS. Earlier running/pending entries above
+are historical checkpoints. The100% fresh no-choice worker also passed.
 Accent census START is sealed before counts. Existing accentuated is an integer
 technique owner (normal1/heavy2); absent keys have no owner. Do not silently
 permit topology changes or conflate this with dynamic/ghost/dead behavior.

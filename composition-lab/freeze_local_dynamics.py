@@ -6,7 +6,7 @@ from run_declared_chord_qa import sha,dump
 
 
 def freeze(output,backend,module,font,policy='source_local_dynamic_level'):
-    if policy not in ('source_local_dynamic_level','source_local_dynamic_transition'):raise ValueError('Explicit supported dynamics policy required')
+    if policy not in ('source_local_dynamic_level','source_local_dynamic_transition','source_local_note_accent'):raise ValueError('Explicit supported local expression policy required')
     root=Path(__file__).resolve().parent
     if output.exists()or'local-artifacts'not in output.resolve().parts:raise ValueError('Fresh private output required')
     excluded=set();origins=[]
@@ -25,6 +25,9 @@ def freeze(output,backend,module,font,policy='source_local_dynamic_level'):
         review_selection='All declaration palettes checked. First changed fixed draw in onset/part/ref order, entire pitched influence <=7 source bars plus1 context bar each side. Preview scope only.',
         controls=dict(strengths=[0,50,100],seeds=list(range(32))),
         acceptance='Complete inverse/raw field parity; independent full palette/influence; actual stripped zero and selected changed worker; native GP/MIDI/audio. Source observation support is not intended expression or human musical-fit approval.')
+    if policy=='source_local_note_accent':
+        manifest.update(schema='local-accents-freeze/1',review_selection='Every note/context/option and all fixed draws checked. First source-time-ordered changed sound-level draw,100%,seeds0..31. One adjacent source bar each side. Notation-only changes retained in ledger; native clamping cannot count as audible progress.',
+            acceptance='Complete optional-owner inverse/raw parity; independent all-options/all-draws and all other fields locked; actual stripped zero/no-choice/changed workers; native GP/MIDI/audio. Source attack emphasis is not phrase intent, artist taste or human musical-fit approval.')
     output.mkdir(parents=True);dump(output/'freeze.json',manifest);return manifest
 
 
