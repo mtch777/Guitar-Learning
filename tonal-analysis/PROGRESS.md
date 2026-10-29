@@ -10,7 +10,7 @@ Authorized 2026-10-29: a separate GitHub section/scripts to implement and test d
 - [x] Scope: analyze whole song, source sections and overlapping windows without creating attacks or phrase endings at window edges.
 - [x] Reproducibility: CLI, synthetic examples, documented formulas/limitations, standard-library tests, dedicated GitHub Actions job.
 - [x] Verification: adversarial synthetic and transposition/doubling tests; unchanged private capture smoke with independent occurrence check; existing applicable Python tests, JS tests and UI build.
-- [ ] Delivery: isolate staged files, publish branch/PR, inspect remote CI. No private source or derived song report enters Git.
+- [x] Delivery: isolate staged files, publish branch/PR, inspect remote CI. No private source or derived song report enters Git.
 
 ## Design contract
 
@@ -54,4 +54,7 @@ Commands: `python -B tonal-analysis/analyze.py analyze <fixed-private-capture> -
 - Musical prediction accuracy, calibration and human listening agreement are NOT TESTED. Independent annotated held-out evaluation is the next research gate.
 - Sounding-pitch techniques, physical sustain, expanded repeat order, arpeggiated/rootless harmony, reliable borrowed/applied-chord labels and additional scale systems remain explicit limits, not claimed implementations.
 - Same-relationships inverse/GP/playback gates are NOT APPLICABLE to this additive read-only tool; it is not promoted into the existing tier engine.
-- Next delivery action: inspect staged paths, commit/push the isolated branch, create the PR and verify its remote checks.
+- Delivered code commit `656f3ba69610c0f7b151676a91a00479ddab3d66` on `codex/songsterr-tonal-analysis`; [PR #2](https://github.com/mtch777/Guitar-Learning/pull/2) targets main and is not merged.
+- GitHub Actions [run 40934319241](https://github.com/mtch777/Guitar-Learning/actions/runs/40934319241) completed **SUCCESS** for the delivered code (Python 3.10/3.12 tests and demo CLI). This delivery-log follow-up changes documentation only.
+- Git inspection confirmed exactly the intended 14 public files and no tracked `.local` content. Existing main working-copy edits and private sources remain untouched.
+- No required implementation work remains for this bounded prototype. Next research action is independent labeled evaluation and calibration, without treating these synthetic/preservation tests as musical accuracy.
