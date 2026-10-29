@@ -121,7 +121,7 @@ def strip_lower(upper):
 def realize(upper):
     """No source/lower/derived-view access. Unknown owners block reconstruction."""
     fields={'tier','schema','source_structure','owned_parameters','musical_relationships','coverage','unsupported'}
-    if set(upper)-{'contextual_constraints'}!=fields or upper['schema']!='connected-source-musical-relations/1' or upper['tier']!=2:raise ValueError('Unsupported unified interface or hidden payload')
+    if set(upper)-{'contextual_constraints','membership_lock'}!=fields or upper['schema']!='connected-source-musical-relations/1' or upper['tier']!=2:raise ValueError('Unsupported unified interface or hidden payload')
     if upper['unsupported']:raise ValueError('Unsupported source facts block full inverse')
     structure=upper['source_structure'];parameters=upper['owned_parameters']
     if set(structure)!={'documents','facts','source_scope'} or set(parameters)!={'source_choices','physical_positions','technique_declarations'}:raise ValueError('Unregistered owner payload')
@@ -190,6 +190,9 @@ def realize(upper):
     if 'contextual_constraints' in upper:
         from contextual_note_roles import verify
         verify(restored,upper['contextual_constraints'])
+    if 'membership_lock' in upper:
+        from context_membership import verify
+        verify(restored,upper['membership_lock'])
     return restored
 
 

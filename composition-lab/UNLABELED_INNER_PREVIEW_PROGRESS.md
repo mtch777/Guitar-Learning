@@ -30,7 +30,7 @@
 - [x] Actual browser checks: playback, source/change switching, cue, keyboard
   seek, zero-speed pause, 10% and 100% speed, guitar and full ensemble.
 - [x] Complete old Queen policy rerun matches its frozen baseline.
-- [ ] Verified source committed/pushed; exact-commit CI checked.
+- [x] Verified source committed/pushed; exact-commit CI checked.
 
 ## Commands/results
 
@@ -110,4 +110,12 @@ execution and provisional contact guards; first enumerate the fixed existing
 source population and retain no-choice. It is a proposed next endeavor, not an
 implemented or accepted cross-root creative result.
 
-Next: publish only verified source and check exact-commit CI.
+Published source: `2c263df5fa06a0734e5b74e3822dde03b0399a37` on main.
+Composition Lab CI run `40815672010` completed successfully for that exact SHA.
+Private publication record: `local-artifacts/unlabeled-inner-preview-v1/publication.json`.
+No public-site entry changed; no Pages deployment is claimed. Unrelated WIP,
+private captures, model files, annotations, GP files and audio were preserved.
+
+Next: agree the small cross-root canonical-frame START with Planner, then
+compare old and proposed source relationships on the fixed existing population
+before a new frozen random capture. The next policy is not implemented yet.

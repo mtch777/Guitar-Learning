@@ -21,9 +21,24 @@ def encoded(v):return json.dumps(v,sort_keys=True,separators=(',',':'),allow_nan
 
 def prepare(upper):
     """Geometry is a checked projection of already owned source declarations."""
+    return _prepare(owned_context(upper))
+
+
+def prepare_tier1(tier1):
+    """Same projection for inverse validation; never re-enter connected.realize."""
+    from source_fact_tier1 import validate, project_documents
+    from run_reversible_tier_qa import extract_documents
+    validate(tier1)
+    documents=project_documents(tier1)
+    core=music.strip_lower(music.analyze(extract_documents(documents)))
+    instruments={str(p['partId']):p.get('instrumentId') for name,p in documents.items() if name.startswith('track-')}
+    return _prepare(dict(before=tier1,documents=documents,core=core,instruments=instruments))
+
+
+def _prepare(c):
     from source_tie_tier1 import extract_documents
     from contextual_note_roles import source_refusals
-    c=owned_context(upper);lower=extract_documents(c['documents']);events={e['id']:e for e in lower['events']}
+    lower=extract_documents(c['documents']);events={e['id']:e for e in lower['events']}
     from source_semantics import layout, rests
     solved=music.realize(c['core'])
     if encoded(solved['events'])!=encoded(lower['events']):raise ValueError('Owned pitches and source temporal projection disagree')
