@@ -7,7 +7,7 @@
 - [x] The scrubber displays 0:00 through the solo duration and seeks within those bounds, including tempo changes.
 - [x] Space toggles pause/resume without scrolling; Left/Right seek backward/forward within the solo, regardless of focus on player controls.
 - [x] Other lessons and non-Time uploads retain their full-song behavior.
-- [ ] Run focused transport tests, JS tests, build, and a browser upload/playback check against the private original file.
+- [x] Run focused transport tests, JS tests, build, and a browser upload/playback check against the private original file.
 
 ## Evidence log
 
@@ -15,7 +15,8 @@
 - Parsed the private file with alphaTab 1.8.4: 209 master bars, 15 tracks, 960 ticks/quarter; bar 94 starts at tick 357120, bar 143 ends at tick 549120. Tempo changes exist, so the UI must convert ticks through the actual tempo map.
 - Derived from the original score: start 179405 ms (~2:59), end 270385 ms (~4:30), duration 90979 ms (~1:31). User's 3:01/3:02 beginning is approximate; measure 94 has an immediate solo guitar attack, so retaining that measure avoids truncating the phrase.
 - `node --test tests/*.test.mjs`: 26/26 passed; `npm run build`: passed. Focused transport test exercises Play/Stop, relative scrubber, Space, arrows, and tempo changes.
+- Published source commit `832c61fd79650d39ec5c43371fdcba1d01e59894` on `main`; GitHub Pages workflow run `40916179333` succeeded. The browser loaded new `main-Cno8-O8K.js` and uploaded the original `time(4).gp` without publishing it. Solo guitar was selected; transport displayed `0:00 / 1:31`. Play advanced from 0:00; Space paused/resumed from focused button and slider; Right advanced about five seconds, Left reversed about five seconds; halfway scrub showed `0:45`; end scrub showed `1:31`; Play from end returned to `0:00`; Stop returned to `0:00`.
 
 ## Next action
 
-Publish source changes, then perform the browser upload/playback check. The private GP file must stay outside Git.
+The bounded Time Solo playback is verified live. Retain the private GP file outside Git.
