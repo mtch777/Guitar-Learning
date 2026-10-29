@@ -31,6 +31,8 @@ jobs:
         run: node --test composition-lab/songsterr_automation/songsterr_api/test_restore_dead_ties.mjs
       - name: Test source inspector clock and occurrence joins
         run: node --test composition-lab/test_source_inspector.mjs
+      - name: Test preview source addresses and shared playback onset
+        run: node --test composition-lab/test_source_preview_notes.mjs
       - name: Install pinned alphaTab for bend fidelity checks
         run: npm install --prefix .local/qa --no-save --ignore-scripts @coderline/alphatab@1.8.4
       - name: Test opt-in exact model bend preservation

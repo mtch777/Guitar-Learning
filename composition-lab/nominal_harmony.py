@@ -70,6 +70,18 @@ def focal_coordinate(domain,pitch,hypothesis):
     return dict(status=status,degree_relationships=[]) if status else coordinate(pitch,hypothesis)
 
 
+def population(events,rows,refs,ident):
+    """One exact support population, shared by focal and edited-set queries."""
+    key=tuple(sorted(refs));included=[r for r in key if rows[r]['domain']!='nonpitched']
+    excluded=[dict(occurrence_ref=r,reason='EXPLICIT_NONPITCHED_INSTRUMENT') for r in key if rows[r]['domain']=='nonpitched']
+    reasons=sorted({v for r in included for v in rows[r]['qualifications']})
+    values=[events[r]['pitch'] for r in included if events[r]['pitch'] is not None]
+    if len({F(v)%12 for v in values})<2:reasons.append('INSUFFICIENT_DISTINCT_PITCH_CLASSES')
+    hypotheses=() if reasons else _fits(tuple(sorted({int(F(v)%12) for v in values})))
+    return dict(id=ident,support_refs=list(key),included_refs=included,excluded_refs=excluded,refusals=reasons,
+                hypotheses=[dict(root_pc=root,kind=kind,formula=list(formula)) for root,kind,formula in hypotheses])
+
+
 def build(c):
     events=c['events'];parts=sorted(int(p) for p in c['instruments']);geometry=c['geometry']
     rows={};unlocated=sorted(set(c['raw_refs'])-set(events))
@@ -142,17 +154,10 @@ def build(c):
                       crossing_refs=crossed,rest_refs=active_rests,part_refusals=[dict(part_id=p,reasons=sorted(v)) for p,v in sorted(issues.items()) if v],
                       populations=[],focal_contexts=[])
             populations={}
-            def population(refs):
+            def cell_population(refs):
                 key=tuple(sorted(refs))
                 if key in populations:return populations[key]
-                pid=f'{cell_id}:population:{len(populations)}';included=[r for r in key if rows[r]['domain']!='nonpitched']
-                excluded=[dict(occurrence_ref=r,reason='EXPLICIT_NONPITCHED_INSTRUMENT') for r in key if rows[r]['domain']=='nonpitched']
-                reasons=sorted({v for r in included for v in rows[r]['qualifications']})
-                values=[events[r]['pitch'] for r in included if events[r]['pitch'] is not None]
-                if len({F(v)%12 for v in values})<2:reasons.append('INSUFFICIENT_DISTINCT_PITCH_CLASSES')
-                hypotheses=() if reasons else _fits(tuple(sorted({int(F(v)%12) for v in values})))
-                p=dict(id=pid,support_refs=list(key),included_refs=included,excluded_refs=excluded,refusals=reasons,
-                       hypotheses=[dict(root_pc=root,kind=kind,formula=list(formula)) for root,kind,formula in hypotheses])
+                p=population(events,rows,key,f'{cell_id}:population:{len(populations)}')
                 populations[key]=p;cell['populations'].append(p);return p
             for ref in active:
                 e=events[ref];part=e['part_id'];own=[r for r in active if events[r]['part_id']==part]
@@ -160,7 +165,7 @@ def build(c):
                 queries=((own,[part]),([r for r in own if r!=ref],[part]),([r for r in active if events[r]['part_id']!=part],others),([r for r in active if r!=ref],parts))
                 q=dict(occurrence_ref=ref,scopes={});paths[ref].append(cell_id)
                 for scope,(refs,scope_parts) in zip(SCOPES,queries):
-                    pop=population(refs);refusals=sorted({v for p in scope_parts for v in issues[p]})
+                    pop=cell_population(refs);refusals=sorted({v for p in scope_parts for v in issues[p]})
                     focal_refusals=sorted(issues[part])
                     roles=[] if refusals or focal_refusals else [focal_coordinate(rows[ref]['domain'],e['pitch'],h) for h in pop['hypotheses']]
                     q['scopes'][scope]=dict(population_ref=pop['id'],part_ids=scope_parts,scope_refusals=refusals,
@@ -198,6 +203,36 @@ def counts(view,raw_count):
 
 
 def analyze(upper):return build(prepare(upper))
+
+
+def edited_set_context(c,view,after_events,changed_refs):
+    """Query unchanged support; no edited note certifies another edited note."""
+    changed=set(changed_refs);events=c['events'];rows={r['occurrence_ref']:r for r in view['occurrence_inventory']}
+    if not changed<=set(events) or not changed<=set(after_events):raise ValueError('Unknown edited occurrence')
+    cells=[];parts=sorted(int(p) for p in c['instruments'])
+    for cell in view['cells']:
+        active=sorted(changed.intersection(cell['active_refs']))
+        if not active:continue
+        issues={p['part_id']:p['reasons'] for p in cell['part_refusals']}
+        for part in sorted({events[r]['part_id'] for r in active}):
+            for scope,scope_parts in (('focal_part_minus_edited',[part]),('ensemble_minus_edited',parts)):
+                support=[r for r in cell['active_refs'] if r not in changed and events[r]['part_id'] in scope_parts]
+                pop=population(events,rows,support,f"{cell['id']}:{part}:{scope}")
+                refusals=sorted({v for p in scope_parts for v in issues.get(p,[])})
+                focal_refusals=issues.get(part,[]);queries=[]
+                for ref in active:
+                    if events[ref]['part_id']!=part:continue
+                    roles=[] if refusals or focal_refusals else [dict(hypothesis=h,
+                        before=focal_coordinate(rows[ref]['domain'],events[ref]['pitch'],h),
+                        after=focal_coordinate(rows[ref]['domain'],after_events[ref]['pitch'],h)) for h in pop['hypotheses']]
+                    queries.append(dict(occurrence_ref=ref,role_changes=roles))
+                cells.append(dict(cell_ref=cell['id'],start_q=cell['start_q'],end_q=cell['end_q'],scope=scope,
+                    part_ids=scope_parts,excluded_edited_refs=sorted(changed.intersection(cell['active_refs'])),
+                    population=pop,scope_refusals=refusals,focal_refusals=focal_refusals,queries=queries))
+    return dict(schema='edited-set-nominal-context/1',changed_refs=sorted(changed),cells=cells,
+        unscoped_edited_refs=sorted(changed.intersection(view['unscoped_positive_occurrence_refs'])),
+        crossing_edited_refs=sorted(changed.intersection(view['crossing_occurrence_refs'])),
+        semantics='Conditional roles against unchanged written support; unknown/no fit remains unresolved, not a musical intent or role lock')
 
 
 def validate(upper,view):

@@ -145,15 +145,25 @@ def inventory(tier1):
 
 
 def check(before_T1,after_T1,target_refs,donor_refs,geometry_refs,*,contact_coverage=None):
+    return _check_raw(before_T1,after_T1,target_refs,donor_refs,geometry_refs,contact_coverage=contact_coverage)
+
+
+def _check_raw(before_T1,after_T1,target_refs,donor_refs,geometry_refs,*,contact_coverage=None,native_context=None):
+    """Shared unchanged raw guards; conditional callers supply RAW/native units.
+
+    native_context is built by the independent unlabeled oracle, never taken
+    from a producer catalog or a reported candidate. Public default is unchanged.
+    """
     issues=[];novel=[];changed=[]
     try:
-        docs,lower,nodes,rests,ties,execution,pinned,units,geometries=_prepare(before_T1)
+        prepared=_prepare(before_T1)if native_context is None else native_context['prepared']
+        docs,lower,nodes,rests,ties,execution,pinned,units,geometries=prepared
         after_docs,after_lower,new_nodes,new_rests=_nodes(after_T1)
         target=_group(nodes,target_refs);donor=_group(nodes,donor_refs)
         if contact_coverage is None:geometry=_group(nodes,geometry_refs,physical=True)
         elif type(geometry_refs)is not list or geometry_refs:raise ValueError('Contact route requires empty geometry_refs')
-        unit=next((u for u in units if set(u['member_refs'])==set(target_refs)),None)
-        dunit=next((u for u in units if set(u['member_refs'])==set(donor_refs)),None)
+        unit=next((u for u in units if set(u['member_refs'])==set(target_refs)),None)if native_context is None else native_context['target_unit']
+        dunit=next((u for u in units if set(u['member_refs'])==set(donor_refs)),None)if native_context is None else native_context['donor_unit']
         geom=next((g for g in geometries if set(g['member_refs'])==set(geometry_refs)),None)
         if unit is None or unit['reasons']:raise ValueError('Ineligible complete declared target')
         if dunit is None or dunit['base_reasons']:raise ValueError('Ineligible complete source component')
@@ -161,7 +171,8 @@ def check(before_T1,after_T1,target_refs,donor_refs,geometry_refs,*,contact_cove
         if(unit['part_id'],unit['root_pc'],unit['kind'])!=(dunit['part_id'],dunit['root_pc'],dunit['kind']):raise ValueError('Source root/formula/part mismatch')
         excluded=set(unit['excluded_neighborhood'])
         if excluded&set(donor_refs)or excluded&set(geometry_refs):raise ValueError('Source evidence inside complete target neighborhood')
-        part,beat,text,h=_label(docs,target_refs);dp,db,dt,dh=_label(docs,donor_refs)
+        if native_context is None:part,beat,text,h=_label(docs,target_refs);dp,db,dt,dh=_label(docs,donor_refs)
+        else:h=native_context['native_hypothesis']
         before_roles=_roles(target,h);after_roles=_roles([new_nodes[r]for r in target_refs],h)
         outer=set(unit['outer_refs']);inner=unit['inner_refs'];inner_strings=unit['inner_strings'];low=min(n['pitch']for n in target);high=max(n['pitch']for n in target)
         if any(new_nodes[r]['pitch']!=nodes[r]['pitch']for r in outer):issues.append('PROTECTED_OUTER_PITCH_CHANGED')

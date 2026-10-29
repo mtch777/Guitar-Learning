@@ -795,3 +795,30 @@ resolve reversible selected harmonic contexts for scores without chord labels.
 Do not promote contact coverage to anatomical proof or call a no-change fresh
 case a positive creative result. Commit/CI evidence follows after publication
 of verified source only; no public Pages deployment is claimed for this viewer.
+
+Source checkpoint `8e92d34` pushed to main. CI40763585563 completed **success**
+for full SHA8e92d3403680bb55abb955f840bae7d1358e60e9. Final frozen Python,
+native, UI revision and GP/WAV hashes still match. Publication evidence is in
+`local-artifacts/contact-preview-v1/publication.json`. No Pages deployment: the
+viewer is private/local and no public-site build entry changed.
+
+## Label-independent inner voicing (2026-10-28)
+
+`all_hypothesis_inner_preview` connects the existing conditional harmonic
+patterns to the same owned inverse without requiring source chord text. It
+requires every retained interpretation to support the same placement, counts
+each source donor once, and excludes the whole edited set from context support.
+Existing defaults and approved technique detectors are unchanged.
+
+The preregistered fresh capture reconstructed 6,513 notes and 60,358 facts;
+all 3,794 candidate groups were independently checked. Of 364 eligible groups,
+324 had no written chord label. None produced a different allowed placement.
+Queen's four changed options all remain source-labeled; its chosen GP and all
+six WAVs reproduce the previously approved experiment exactly. Departure
+retains its no-fit/no-choice result. These are bounded compatibility and exact
+recovery results, not a new unlabeled audible or artist-wide success.
+
+Planner's START/MID/END and actual browser review passed. Full results, tests,
+remaining limits and the proposed next source relationship are recorded in
+`UNLABELED_INNER_PREVIEW_PROGRESS.md`. Publication/CI follow there; private
+captures, source annotations and audio remain outside Git.
