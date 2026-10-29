@@ -156,3 +156,19 @@ are unchanged. The original frozen test file is retained privately; this is a
 disclosed post-freeze test-only revision, not a rerun claim for original573hashes.
 
 Corrected fixture suite:11/11 passed, including reversed enumeration. Whole-capture native follow-up finds53 pitched grace ghost losses; the earlier four were only within the initially inspected failing bars. The original failure is preserved.
+
+### Native follow-up2026-10-29
+`GRACE_BRIDGE_PROGRESS.md` supersedes the Leper native blockage for the explicitly
+one-to-one pitched grace scope. An opt-in repair restores22grace classifications
+and53ghost markings; independent full-score checks restrict changes to those
+fields plus native glyph/derived-clock consequences. Actual original isolated
+accent outputs now pass GP/MIDI/PCM checks after a disclosed UTF-8 audit recovery.
+First failed outputs remain preserved; this is a DEVELOPMENT repair, not a new
+fresh Leper success or human listening acceptance.
+
+A new frozen capture, Green Day92866, passes74,586fact parity,10,598note-object
+inventory,1,017,408fixed draws and actual isolated workers.74targets have supported
+accent changes. Native output correctly refuses a different GP5 limitation:
+one simultaneous two-note grace is split into two native beats. No fresh audio
+claim. Full accent/Tier2 gateways remain OPEN. The existing Queen UI is an earlier
+sealed review; its fresh-source failure text describes the original Leper run.

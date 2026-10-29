@@ -96,6 +96,18 @@ class AccentArtifactTests(unittest.TestCase):
             r=self.run_case()
         self.assertEqual(r['status'],STATUS,r)
 
+    def test_native_json_unicode_does_not_depend_on_windows_locale(self):
+        from unittest.mock import patch
+        from check_dynamic_artifacts import read
+        original=Path.read_text
+        def legacy_locale(path,*args,**kwargs):
+            if not args and not kwargs.get('encoding'):kwargs['encoding']='cp1252'
+            return original(path,*args,**kwargs)
+        value={'source_title':'C\u266f_4: \u201csource\u201d'}
+        with tempfile.TemporaryDirectory()as tmp:
+            p=Path(tmp)/'native.json';p.write_text(json.dumps(value,ensure_ascii=False),encoding='utf-8')
+            with patch.object(Path,'read_text',legacy_locale):self.assertEqual(read(p),value)
+
     def test_wrong_note_or_written_dynamic_or_unrelated_gp_field(self):
         for mutation in(lambda t:t.find('Beats')[0].find('Dynamic').__setattr__('text','F'),lambda t:t.find('Notes')[1].set('other','changed'),lambda t:ET.SubElement(t.find('Notes')[1],'Accent').__setattr__('text','8')):
             r=self.run_case(lambda n,q:change_gp(n,mutation));self.assertEqual(r['status'],'FAIL')

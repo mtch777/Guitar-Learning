@@ -15,7 +15,7 @@ from source_fact_tier1 import extract
 from check_local_dynamics import inventory,check as source_check,encoded,MARKINGS
 
 STATUS='PASS_NATIVE_GP_AND_AUDIO_DYNAMICS'
-def read(p):return json.loads(Path(p).read_text())
+def read(p):return json.loads(Path(p).read_bytes())
 def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def _native_velocity(note):
     name=note['dynamic']

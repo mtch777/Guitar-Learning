@@ -37,3 +37,5 @@ jobs:
         run: npm install --prefix .local/qa --no-save --ignore-scripts @coderline/alphatab@1.8.4
       - name: Test opt-in exact model bend preservation
         run: node --test composition-lab/songsterr_automation/songsterr_api/test_bend_fidelity.mjs
+      - name: Test identity-checked pitched grace restoration and independent source oracle
+        run: node --test composition-lab/songsterr_automation/songsterr_api/test_restore_source_graces.mjs composition-lab/songsterr_automation/songsterr_api/test_check_source_graces.mjs

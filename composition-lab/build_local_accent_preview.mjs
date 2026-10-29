@@ -2,24 +2,26 @@
 import fs from 'node:fs';import path from 'node:path';import crypto from 'node:crypto';
 import {spawnSync} from 'node:child_process';import {fileURLToPath,pathToFileURL} from 'node:url';
 import {loadPlaybackScore} from './songsterr_automation/songsterr_api/playback_score.mjs';
-const [qaArg,captureArg,python,backend,modulePath,font,fidelityScope='standalone_gp']=process.argv.slice(2);
+const [qaArg,captureArg,python,backend,modulePath,font,fidelityScope='standalone_gp',graceOption]=process.argv.slice(2);
 if(!font||!['standalone_gp','gp_with_exact_model_bends'].includes(fidelityScope))throw Error('qa capture backendPython backendRoot alphaTabModule soundfont [fidelityScope] required');
+if(graceOption!==undefined&&graceOption!=='--restore-pitched-graces')throw Error('Unknown grace export option');
+const restorePitchedGraces=graceOption==='--restore-pitched-graces';
 const qa=path.resolve(qaArg),capture=path.resolve(captureArg),root=path.dirname(fileURLToPath(import.meta.url));
-const out=path.join(qa,fidelityScope==='standalone_gp'?'native-preview':'native-preview-bundle');
+const out=path.join(qa,restorePitchedGraces?'native-preview-pitched-graces':fidelityScope==='standalone_gp'?'native-preview':'native-preview-bundle');
 const read=p=>JSON.parse(fs.readFileSync(p,'utf8')),hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const result=read(path.join(qa,'result.json')),demo=read(path.join(qa,'demonstration.json')),plan=read(path.join(qa,'plan.json'));
 if(result.status!=='PASS_SYMBOLIC_LOCAL_ACCENTS_CHANGE'||demo.actual_worker_audit.status!=='PASS_INDEPENDENT_LOCAL_ACCENTS')throw Error('Actual verified accent change required');
 if(JSON.stringify(Object.keys(plan.source_hashes).map(p=>path.basename(p)).sort())!==JSON.stringify(fs.readdirSync(capture).filter(n=>n.endsWith('.json')).sort()))throw Error('Capture inventory drift');
 for(const [p,h]of Object.entries(plan.source_hashes))if(hash(p)!==h||hash(path.join(capture,path.basename(p)))!==h)throw Error('Original capture drift');
 if(fs.existsSync(out))throw Error('Fresh native output required');fs.mkdirSync(out);
-fs.writeFileSync(path.join(out,'fidelity-scope.json'),JSON.stringify({fidelity_scope:fidelityScope},null,2));
+fs.writeFileSync(path.join(out,'fidelity-scope.json'),JSON.stringify({fidelity_scope:fidelityScope,...restorePitchedGraces?{pitched_source_grace_repair:true}:{}},null,2));
 process.on('uncaughtException',error=>{fs.writeFileSync(path.join(out,'failure.json'),JSON.stringify({status:'FAIL_RETAINED',error:String(error),stack:error.stack},null,2));console.error(error);process.exitCode=1;});
 const run=(exe,args,log)=>{const r=spawnSync(exe,args,{cwd:root,encoding:'utf8',timeout:600000,windowsHide:true});fs.writeFileSync(path.join(out,log),(r.stdout||'')+'\n'+(r.stderr||''));if(r.status!==0)throw Error('Command failed: '+log+' '+(r.error||''));};
 const bind="from pathlib import Path; import json,sys; from source_fact_tier1 import extract; q=Path(sys.argv[1]); c=Path(sys.argv[2]); z=json.loads((q/'zero-and-pair/zero-isolated/worker/output.json').read_text()); a=json.loads((q/'changed-isolated/worker/output.json').read_text()); assert extract(c)==z; assert extract(q/'zero-capture')==z; assert extract(q/'changed-capture')==a; print('PASS_ACTUAL_WORKER_BINDING')";
 run(python,['-c',bind,qa,capture],'worker-binding-before.log');
 for(const name of ['source','zero','changed'])run(python,[path.join(root,'export_owned_capture.py'),name==='source'?capture:path.join(qa,name+'-capture'),backend,path.join(out,name)],name+'-export.log');
-run(process.execPath,[path.join(root,'songsterr_automation/songsterr_api/export_csv_gp7.mjs'),modulePath,out],'native-gp.log');
-for(const name of ['source','zero','changed']){const v=read(path.join(out,name,'gp7-validation.json'));if((fidelityScope==='standalone_gp'&&!v.roundtripPass)||v.error||v.directSource?.differences!==0)throw Error('Native GP/source fidelity failed: '+name);}
+run(process.execPath,[path.join(root,'songsterr_automation/songsterr_api/export_csv_gp7.mjs'),modulePath,out,...restorePitchedGraces?[graceOption]:[]],'native-gp.log');
+for(const name of ['source','zero','changed']){const v=read(path.join(out,name,'gp7-validation.json'));if((fidelityScope==='standalone_gp'&&!v.roundtripPass)||v.error||v.directSource?.differences!==0||restorePitchedGraces&&(!v.pitchedGraceRestoration||!['PASS_INDEPENDENT_PITCHED_SOURCE_GRACES','NO_COVERED_PITCHED_GRACE_VOICES'].includes(v.directPitchedGraces?.status)))throw Error('Native GP/source fidelity failed: '+name);}
 run(process.execPath,[path.join(root,'audit_local_accent_gp.mjs'),modulePath,qa,out,fidelityScope,capture],'native-snapshot.log');
 const snapshot=read(path.join(out,'accent-native-snapshot.json')),mapped=snapshot.cases.zero.notes.filter(n=>n.source_ref===demo.target.occurrence_ref);
 if(mapped.length!==1)throw Error('Affected source note needs unique actual native correspondence');

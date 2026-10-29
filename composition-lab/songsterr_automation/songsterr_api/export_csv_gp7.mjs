@@ -2,9 +2,12 @@
 import fs from 'node:fs';import path from 'node:path';import {pathToFileURL} from 'node:url';import crypto from 'node:crypto';
 import {restoreDeadTies} from './restore_dead_ties.mjs';
 import {exportWithExactBends,loadWithExactBends} from './bend_fidelity.mjs';
+import {restoreSourceGraces} from './restore_source_graces.mjs';
+import {checkSourceGraces} from './check_source_graces.mjs';
 const [modulePath,root,...options]=process.argv.slice(2),at=await import(pathToFileURL(path.resolve(modulePath)));
 if(options.includes('--native-bends-only')&&options.includes('--exact-model-bends'))throw Error('Conflicting bend export options');
 const preserveBends=!options.includes('--native-bends-only');
+const preservePitchedGraces=options.includes('--restore-pitched-graces');
 // Guard an upstream alphaTab GP5 importer bug when adjacent bars omit a voice.
 let voicePaddingRepairs=0,emptyVoiceRestRepairs=0;
 at.model.Voice.prototype._chain=function(beat,bag){
@@ -76,6 +79,7 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
  if(!preserveBends&&fs.existsSync(path.join(folder,'score.exact-model-bends.json')))throw Error('Existing bend companion preserved; native-only export requires a fresh output without a companion');
  // Refusal must not overwrite a previous passing report in the catch below.
  if(!options.includes('--recheck')&&(fs.existsSync(target)||fs.existsSync(path.join(folder,'score.exact-model-bends.json')))){
+  if(preservePitchedGraces)throw Error('Existing GP and report preserved; pitched grace repair requires a fresh copied output');
   if(fs.existsSync(target)&&fs.existsSync(reportPath)){
    const old=JSON.parse(fs.readFileSync(reportPath,'utf8'));
    if(preserveBends&&old.exactModelBends&&fs.existsSync(path.join(folder,'score.exact-model-bends.json'))){loadWithExactBends(at,fs.readFileSync(target),JSON.parse(fs.readFileSync(path.join(folder,'score.exact-model-bends.json'),'utf8')),settings);results.push(old);continue;}
@@ -87,6 +91,11 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
  try{
   const map=JSON.parse(fs.readFileSync(path.join(folder,'bridge-map.json'),'utf8'));
   voicePaddingRepairs=0;emptyVoiceRestRepairs=0;const score=merge(load(path.join(folder,'bridge.gp5')),map);
+  // Source inventory must be independent of how many tracks survived the bridge.
+  const sourceNames=preservePitchedGraces?fs.readdirSync(folder).filter(n=>/^track-\d+\.json$/.test(n)).sort((a,b)=>Number(a.slice(6,-5))-Number(b.slice(6,-5))):[];
+  if(preservePitchedGraces&&sourceNames.some((n,i)=>n!==`track-${i}.json`))throw Error('Noncontiguous source track inventory');
+  const sourceParts=preservePitchedGraces?sourceNames.map(n=>JSON.parse(fs.readFileSync(path.join(folder,n),'utf8'))):null;
+  const pitchedGraceRestoration=preservePitchedGraces?restoreSourceGraces(score,sourceParts,at.model.GraceType):null;
   const metadata=JSON.parse(fs.readFileSync(path.join(folder,'metadata.json'),'utf8'));score.title=metadata.title||score.title;score.artist=metadata.artist||score.artist;
   let rhythmRestorations=0;
   for(const [ti,track] of score.tracks.entries()){
@@ -127,6 +136,11 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
   report={...report,rhythmRestorations,voicePaddingRepairs,emptyVoiceRestRepairs,percussionGraceRepairs,deadTieRestoration,exactModelBends,curveComparisonGrid:61,roundtripPass:JSON.stringify(before)===JSON.stringify(after),tracks:after.tracks.length,bars:after.bars.length,
     notes:after.tracks.reduce((n,t)=>n+t.staves.reduce((n,s)=>n+s.bars.reduce((n,b)=>n+b.reduce((n,v)=>n+v.reduce((n,e)=>n+e.notes.length,0),0),0),0),0),
     directSource:rawCheck(afterScore,folder),sha256:crypto.createHash('sha256').update(fs.readFileSync(target)).digest('hex'),bytes:fs.statSync(target).size};
+  if(preservePitchedGraces){
+   report.pitchedGraceRestoration=pitchedGraceRestoration;
+   report.directPitchedGraces=checkSourceGraces(afterScore,sourceParts,at.model.GraceType);
+   if(report.directPitchedGraces.status.startsWith('FAIL')){report.error='Independent pitched grace source check failed';report.roundtripPass=false;}
+  }
   if(!report.roundtripPass){fs.writeFileSync(path.join(folder,'roundtrip-before.json'),JSON.stringify(before));fs.writeFileSync(path.join(folder,'roundtrip-after.json'),JSON.stringify(after));}
  }catch(error){report.error=String(error);report.stack=error.stack;report.roundtripPass=false;}
  fs.writeFileSync(reportPath,JSON.stringify(report,null,2));results.push(report);console.log(JSON.stringify({songId:report.songId,roundtripPass:report.roundtripPass,notes:report.notes,sourceDifferences:report.directSource?.differences,error:report.error}));
