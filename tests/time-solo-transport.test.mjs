@@ -1,0 +1,122 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { createTimeSoloWindow } from '../src/time-solo-transport.js';
+
+test('solo window follows score bars and integrates tempo changes', () => {
+  const score = { tempo: 120, masterBars: Array.from({ length: 144 }, (_, i) => i) };
+  const tickCache = {
+    getMasterBar: index => ({ start: index * 960, end: (index + 1) * 960 }),
+    masterBars: [
+      { tempoChanges: [{ tick: 0, tempo: 120 }] },
+      { tempoChanges: [{ tick: 94 * 960, tempo: 60 }] }
+    ]
+  };
+  const window = createTimeSoloWindow(score, tickCache);
+  assert.equal(window.startTick, 93 * 960);
+  assert.equal(window.endTick, 143 * 960);
+  assert.equal(window.startMs, 93 * 500);
+  assert.equal(window.endMs, 94 * 500 + 49 * 1000);
+  assert.equal(window.durationMs, 500 + 49 * 1000);
+  assert.equal(createTimeSoloWindow({ masterBars: [0] }, tickCache), null);
+});
+
+test('player clips Time Solo with chords and always uses solo-relative controls', async () => {
+  const { setupSongPlayer } = await import('../src/song-player.js');
+  const elements = new Map();
+  const makeElement = () => ({
+    value: '0', disabled: false, textContent: '', innerHTML: '', files: null,
+    listeners: new Map(), appendChild() {},
+    addEventListener(name, fn) { this.listeners.set(name, fn); },
+    fire(name, event = {}) { return this.listeners.get(name)?.(event); }
+  });
+  for (const id of [
+    'songPlayerFile', 'songPlayerTrack', 'songPlayerPlayPause',
+    'songPlayerStop', 'songPlayerSpeed', 'songPlayerProgress',
+    'songPlayerCurrentTime', 'songPlayerDuration', 'songPlayerStatus',
+    'alphaTabSurface', 'lessonTypeSelect'
+  ]) elements.set(id, makeElement());
+  const keyListeners = [];
+  globalThis.document = {
+    getElementById: id => elements.get(id),
+    createElement: () => makeElement()
+  };
+  globalThis.window = {
+    addEventListener: (name, fn) => { if (name === 'keydown') keyListeners.push(fn); }
+  };
+  const score = {
+    tempo: 120, masterBars: Array.from({ length: 144 }, (_, i) => i),
+    tracks: [{ index: 0, name: 'Guitar Solo', staves: [{ stringTuning: { tunings: [40, 45, 50, 55, 59, 64] }, bars: [] }] }]
+  };
+  let api;
+  class FakeApi {
+    constructor() {
+      api = this;
+      for (const name of ['scoreLoaded', 'playerReady', 'playerStateChanged', 'playerPositionChanged', 'playerFinished', 'activeBeatsChanged', 'error']) {
+        this[name] = { on: fn => { this[name].emit = fn; } };
+      }
+      this.settings = { importer: {} };
+      this.tickCache = {
+        getMasterBar: i => ({ start: i * 960, end: (i + 1) * 960 }),
+        masterBars: [{ tempoChanges: [{ tick: 0, tempo: 120 }] }]
+      };
+      this.calls = [];
+    }
+    changeTrackTranspositionPitch() {}
+    renderTracks() {}
+    updateSettings() {}
+    stop() { this.calls.push('stop'); }
+    play() { this.calls.push('play'); }
+    pause() { this.calls.push('pause'); }
+    load() { this.scoreLoaded.emit(score); this.playerReady.emit(); }
+  }
+  window.alphaTab = { AlphaTabApi: FakeApi };
+  let soloLesson = true;
+  setupSongPlayer({ isTimeSoloChordsLesson: () => soloLesson });
+  const get = id => elements.get(`songPlayer${id}`);
+  get('File').files = [{ name: 'time.gp', arrayBuffer: async () => new ArrayBuffer(0) }];
+  await get('File').fire('change');
+  assert.deepEqual(api.playbackRange, { startTick: 93 * 960, endTick: 143 * 960 });
+  assert.equal(api.tickPosition, 93 * 960);
+  assert.equal(get('CurrentTime').textContent, '0:00');
+  assert.equal(get('Duration').textContent, '0:25');
+
+  api.playerPositionChanged.emit({ currentTime: 48500, endTime: 72000, currentTick: 97 * 960 });
+  assert.equal(get('CurrentTime').textContent, '0:02');
+  assert.equal(get('Progress').value, '80');
+  get('Progress').value = '500';
+  get('Progress').fire('change');
+  assert.equal(api.timePosition, 59000);
+
+  const key = code => {
+    const event = { code, repeat: false, prevented: false, stopped: false,
+      preventDefault() { this.prevented = true; }, stopPropagation() { this.stopped = true; } };
+    keyListeners[0](event);
+    assert.equal(event.prevented, true);
+    assert.equal(event.stopped, true);
+  };
+  key('ArrowLeft');
+  assert.equal(api.timePosition, 54000);
+  key('ArrowRight');
+  assert.equal(api.timePosition, 59000);
+  globalThis.requestAnimationFrame = () => 1;
+  globalThis.cancelAnimationFrame = () => {};
+  api.playerStateChanged.emit({ state: 1 });
+  key('Space');
+  assert.equal(api.calls.at(-1), 'pause');
+  api.playerStateChanged.emit({ state: 0 });
+  key('Space');
+  assert.equal(api.calls.at(-1), 'play');
+  get('Stop').fire('click');
+  assert.equal(api.timePosition, 46500);
+  assert.equal(get('CurrentTime').textContent, '0:00');
+  soloLesson = false;
+  elements.get('lessonTypeSelect').fire('change');
+  assert.equal(api.playbackRange, null);
+  get('File').files = [{ name: 'another.gp', arrayBuffer: async () => new ArrayBuffer(0) }];
+  await get('File').fire('change');
+  assert.equal(api.playbackRange, null);
+  delete globalThis.document;
+  delete globalThis.window;
+  delete globalThis.requestAnimationFrame;
+  delete globalThis.cancelAnimationFrame;
+});

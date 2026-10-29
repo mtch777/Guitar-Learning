@@ -1,5 +1,6 @@
 import { isTimeFile, applySongPitch, timeNotePosition } from './song-profile.js';
 import { TIME_SOLO_DROP_E_TUNING } from './data/time-solo.js';
+import { createTimeSoloWindow } from './time-solo-transport.js';
 
 const ALPHATAB_VERSION =
   '1.8.4';
@@ -184,6 +185,8 @@ export function setupSongPlayer({
   let playerReady = false;
   let playing = false;
   let endTimeMs = 0;
+  let soloWindow = null;
+  let lastPositionMs = 0;
   let scrubbing = false;
   let currentTick = 0;
   let activeNotes = [];
@@ -232,6 +235,7 @@ export function setupSongPlayer({
   const resetProgress =
     () => {
       endTimeMs = 0;
+      lastPositionMs = 0;
       progress.value = '0';
       progress.disabled = true;
       currentTime.textContent = '0:00';
@@ -472,12 +476,14 @@ export function setupSongPlayer({
     };
 
   function updateTransport() {
+    const needsSoloWindow = timeProfile && isTimeSoloChordsLesson?.();
     const canPlay =
       Boolean(
         score &&
         playerReady &&
         selectedTrackIndex !==
-          null
+          null &&
+        (!needsSoloWindow || soloWindow)
       );
 
     playPauseButton.disabled =
@@ -511,6 +517,65 @@ export function setupSongPlayer({
       ] ||
       null
     );
+  }
+
+  function syncSoloPlayback() {
+    if (!alphaTabApi || !score || !playerReady) return;
+    if (!(timeProfile && isTimeSoloChordsLesson?.())) {
+      if (soloWindow) {
+        alphaTabApi.stop();
+        alphaTabApi.playbackRange = null;
+        soloWindow = null;
+        resetProgress();
+      }
+      return;
+    }
+    if (soloWindow) return;
+    const window = createTimeSoloWindow(score, alphaTabApi.tickCache);
+    if (!window) {
+      setStatus('This Time score has no playable solo in measures 94–143.');
+      updateTransport();
+      return;
+    }
+    soloWindow = window;
+    alphaTabApi.playbackRange = {
+      startTick: window.startTick,
+      endTick: window.endTick
+    };
+    alphaTabApi.tickPosition = window.startTick;
+    lastPositionMs = window.startMs;
+    endTimeMs = window.durationMs;
+    progress.value = '0';
+    currentTime.textContent = '0:00';
+    duration.textContent = formatTime(window.durationMs);
+    onPositionChanged?.({ fraction: 0, tick: window.startTick });
+    updateTransport();
+  }
+
+  function seekToMs(targetMs) {
+    if (!alphaTabApi) return;
+    const absoluteMs = soloWindow
+      ? Math.max(soloWindow.startMs, Math.min(soloWindow.endMs, targetMs))
+      : Math.max(0, Math.min(endTimeMs, targetMs));
+    lastPositionMs = absoluteMs;
+    alphaTabApi.timePosition = absoluteMs;
+    const relativeMs = soloWindow ? absoluteMs - soloWindow.startMs : absoluteMs;
+    currentTime.textContent = formatTime(relativeMs);
+    if (endTimeMs > 0) progress.value = String(Math.round(relativeMs / endTimeMs * 1000));
+  }
+
+  function togglePlayback() {
+    if (!alphaTabApi || playPauseButton.disabled) return;
+    syncSoloPlayback();
+    if (playPauseButton.disabled) return;
+    applyPlaybackSpeed();
+    if (playing) alphaTabApi.pause();
+    else {
+      if (soloWindow && lastPositionMs >= soloWindow.endMs - 100) {
+        seekToMs(soloWindow.startMs);
+      }
+      alphaTabApi.play();
+    }
   }
 
   // The placeholder set must be computed from the same alphaTab notes and
@@ -726,6 +791,7 @@ export function setupSongPlayer({
     activeNotes = [];
     clearActiveNotes();
     resetProgress();
+    soloWindow = null;
 
     /*
       Rendering only this track also makes it the playback focus.
@@ -735,6 +801,7 @@ export function setupSongPlayer({
     );
     applySongPitch(alphaTabApi, score, timeProfile);
     applyPlaybackSpeed();
+    if (playerReady) syncSoloPlayback();
 
     onTrackChanged?.({
       timeProfile,
@@ -825,6 +892,8 @@ export function setupSongPlayer({
 
     alphaTabApi.scoreLoaded.on(
       loadedScore => {
+        playerReady = false;
+        soloWindow = null;
         score =
           loadedScore;
 
@@ -933,12 +1002,13 @@ export function setupSongPlayer({
           true;
         if (score) applySongPitch(alphaTabApi, score, timeProfile);
         applyPlaybackSpeed();
+        syncSoloPlayback();
         updateTransport();
 
         const track =
           getSelectedTrack();
 
-        if (track) {
+        if (track && (!timeProfile || !isTimeSoloChordsLesson?.() || soloWindow)) {
           setStatus(
             track.name
           );
@@ -963,14 +1033,10 @@ export function setupSongPlayer({
 
     alphaTabApi.playerPositionChanged.on(
       args => {
-        endTimeMs =
-          Math.max(
-            0,
-            Number(
-              args.endTime ||
-              0
-            )
-          );
+        if (timeProfile && isTimeSoloChordsLesson?.() && !soloWindow) return;
+        endTimeMs = soloWindow
+          ? soloWindow.durationMs
+          : Math.max(0, Number(args.endTime || 0));
 
         currentTick =
           Number(
@@ -978,16 +1044,12 @@ export function setupSongPlayer({
             currentTick
           );
 
-        onPositionChanged?.({fraction: endTimeMs > 0 ? Number(args.currentTime || 0) / endTimeMs : 0, tick: currentTick});
-
-        const nowMs =
-          Math.max(
-            0,
-            Number(
-              args.currentTime ||
-              0
-            )
-          );
+        const absoluteMs = Math.max(0, Number(args.currentTime || 0));
+        lastPositionMs = absoluteMs;
+        const nowMs = soloWindow
+          ? Math.max(0, Math.min(endTimeMs, absoluteMs - soloWindow.startMs))
+          : absoluteMs;
+        onPositionChanged?.({fraction: endTimeMs > 0 ? nowMs / endTimeMs : 0, tick: currentTick});
 
         emitActiveNotes(
           currentTick
@@ -1031,6 +1093,7 @@ export function setupSongPlayer({
       () => {
         playing =
           false;
+        if (soloWindow) lastPositionMs = soloWindow.endMs;
 
         stopBendAnimation();
         activeNotes = [];
@@ -1187,13 +1250,9 @@ export function setupSongPlayer({
 
   playPauseButton.addEventListener(
     'click',
-    async () => {
+    () => {
       try {
-        const api =
-          await ensureApi();
-
-        applyPlaybackSpeed();
-        api.playPause();
+        togglePlayback();
       } catch (error) {
         setStatus(
           'Playback failed: ' +
@@ -1213,6 +1272,7 @@ export function setupSongPlayer({
     'click',
     () => {
       alphaTabApi?.stop();
+      if (soloWindow) seekToMs(soloWindow.startMs);
       stopBendAnimation();
       activeNotes = [];
       clearActiveNotes();
@@ -1240,17 +1300,7 @@ export function setupSongPlayer({
           )
         );
 
-      const targetMs =
-        fraction *
-        endTimeMs;
-
-      currentTime.textContent =
-        formatTime(
-          targetMs
-        );
-
-      alphaTabApi.timePosition =
-        targetMs;
+      seekToMs((soloWindow?.startMs || 0) + fraction * endTimeMs);
     };
 
   progress.addEventListener(
@@ -1282,6 +1332,26 @@ export function setupSongPlayer({
         false;
     }
   );
+
+  window.addEventListener('keydown', event => {
+    if (!timeProfile || !isTimeSoloChordsLesson?.() || !score || !playerReady) return;
+    syncSoloPlayback();
+    if (!soloWindow) return;
+    const key = event.code;
+    if (key !== 'Space' && key !== 'ArrowLeft' && key !== 'ArrowRight') return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (key === 'Space') {
+      if (!event.repeat) togglePlayback();
+    } else {
+      seekToMs(lastPositionMs + (key === 'ArrowLeft' ? -5000 : 5000));
+    }
+  }, true);
+
+  document.getElementById('lessonTypeSelect')?.addEventListener('change', () => {
+    syncSoloPlayback();
+    updateTransport();
+  });
 
   resetProgress();
   updateTransport();
