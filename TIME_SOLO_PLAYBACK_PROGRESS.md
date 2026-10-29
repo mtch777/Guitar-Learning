@@ -24,6 +24,6 @@
 - [x] Reproduce user sequence on the published site: upload `time(4).gp`, select 0.75× before Play. The UI jumped from `0:00` to `1:00` before playback because alphaTab scales its millisecond position on speed changes.
 - [x] Use score ticks for solo-relative display and seeks; add the inverse tempo-map conversion. Do not reapply an unchanged speed at Play.
 - [x] Test changed speed before and during Play, keyboard seeking, tempo change conversion, and other lesson fallback. All 26 JS tests and Vite build passed. Original private file: start/mid/end tick-to-time conversions match within rounding.
-- [ ] Publish fix and verify both speed-change orders, playback notes, scrubber, and keyboard controls live with the original file.
+- [x] Published fix `8b5d866118934dbbf27112079e83484c5a328a29`; GitHub Pages run `40918525330` passed. Live browser loaded `main-BEJkct6H.js` and the full private `time(4).gp`. Switching to 0.75× before Play stayed at `0:00 / 1:31`; Play advanced from the solo start with visible red active notes. Changing speed from 0.75× to 1× and back during playback held `0:19` steady. Space paused/resumed; single Right/Left steps moved about five seconds; a 50% scrub showed `0:45`, resumed with visible notes; Stop returned to `0:00` at 0.75×.
 
-Next: publish the bounded fix and complete the live regression check. Keep the private GP file outside Git.
+Next: the speed-order regression is verified live. Keep the private GP file outside Git.
