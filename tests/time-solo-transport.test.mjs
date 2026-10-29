@@ -37,6 +37,10 @@ test('player clips Time Solo with chords and always uses solo-relative controls'
     'songPlayerCurrentTime', 'songPlayerDuration', 'songPlayerStatus',
     'alphaTabSurface', 'lessonTypeSelect'
   ]) elements.set(id, makeElement());
+  elements.get('songPlayerSpeed').options =
+    ['0.25', '0.5', '0.75', '0.9', '1', '1.1', '1.25', '1.5', '2']
+      .map(value => ({ value }));
+  elements.get('songPlayerSpeed').value = '1';
   const keyListeners = [];
   globalThis.document = {
     getElementById: id => elements.get(id),
@@ -86,12 +90,21 @@ test('player clips Time Solo with chords and always uses solo-relative controls'
     stop() { this.calls.push('stop'); }
     play() { this.calls.push('play'); }
     pause() { this.calls.push('pause'); }
-    load() { this.scoreLoaded.emit(score); this.playerReady.emit(); }
+    load(buffer) { this.loadedBuffer = buffer; this.scoreLoaded.emit(score); this.playerReady.emit(); }
   }
   window.alphaTab = { AlphaTabApi: FakeApi };
   let soloLesson = true;
-  setupSongPlayer({ isTimeSoloChordsLesson: () => soloLesson });
+  const bundledBuffer = new ArrayBuffer(7);
+  globalThis.fetch = async url => {
+    assert.equal(url, '/Guitar-Learning/time.gp');
+    return { ok: true, arrayBuffer: async () => bundledBuffer };
+  };
+  const player = setupSongPlayer({ isTimeSoloChordsLesson: () => soloLesson,
+    timeScoreUrl: '/Guitar-Learning/time.gp' });
   const get = id => elements.get(`songPlayer${id}`);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(api.loadedBuffer, bundledBuffer, 'public Time score loads without an upload');
+  assert.equal(get('Track').value, '0');
   get('File').files = [{ name: 'time.gp', arrayBuffer: async () => new ArrayBuffer(0) }];
   await get('File').fire('change');
   assert.deepEqual(api.playbackRange, { startTick: 93 * 960, endTick: 143 * 960 });
@@ -122,6 +135,10 @@ test('player clips Time Solo with chords and always uses solo-relative controls'
   get('Progress').value = '500';
   get('Progress').fire('change');
   assert.equal(api.tickPosition, 118 * 960);
+  player.seekToTick(103 * 960);
+  assert.equal(api.tickPosition, 103 * 960, 'chord timeline seeks by score tick');
+  assert.equal(get('CurrentTime').textContent, '0:05');
+  player.seekToTick(118 * 960);
 
   const key = code => {
     const event = { code, repeat: false, prevented: false, stopped: false,
@@ -141,6 +158,13 @@ test('player clips Time Solo with chords and always uses solo-relative controls'
   get('Speed').fire('change');
   assert.equal(get('CurrentTime').textContent, '0:13');
   assert.equal(api.tickPosition, 118 * 960);
+  key('ArrowUp');
+  assert.equal(get('Speed').value, '0.75');
+  assert.equal(api.playbackSpeed, 0.75);
+  assert.equal(api.tickPosition, 118 * 960);
+  key('ArrowDown');
+  assert.equal(get('Speed').value, '0.5');
+  assert.equal(api.playbackSpeed, 0.5);
   key('Space');
   assert.equal(api.calls.at(-1), 'pause');
   api.playerStateChanged.emit({ state: 0 });
@@ -159,4 +183,5 @@ test('player clips Time Solo with chords and always uses solo-relative controls'
   delete globalThis.window;
   delete globalThis.requestAnimationFrame;
   delete globalThis.cancelAnimationFrame;
+  delete globalThis.fetch;
 });

@@ -1866,6 +1866,7 @@ button.uiButton:disabled {
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
+  cursor: crosshair;
 }
 .timeSoloChordButton {
   flex: 0 0 auto;

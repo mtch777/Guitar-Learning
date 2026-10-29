@@ -2512,6 +2512,9 @@ function updateLessonControls() {
       !songPlayer;
   }
 
+  const intervalTypeField = document.getElementById('timeSoloIntervalTypeField');
+  if (intervalTypeField) intervalTypeField.hidden = lessonType !== 'timeSoloChords';
+
   const intervalFieldLabel =
     document.querySelector(
       '#intervalControlGroup .fieldLabel'
@@ -10262,6 +10265,8 @@ function drawBentString(
 // Never derive candidate membership from old DOM classes or selected buttons.
 let timeSoloSections = [];
 let timeSoloCurrentTick = -1;
+let songPlayerLastNotes = [];
+let songPlayerSeekToTick = null;
 
 function currentTimeSoloSection() {
   return timeSoloSections.find(section =>
@@ -10304,6 +10309,7 @@ function updateTimeSoloChordCandidates() {
 function displaySongPlayerNotes(
   notes
 ) {
+  songPlayerLastNotes = notes || [];
   if (
     !['songPlayer','timeSoloChords'].includes(getSelectedLessonType())
   ) {
@@ -10366,11 +10372,14 @@ function displaySongPlayerNotes(
         return;
       }
 
-      const chord = getSelectedLessonType() === 'timeSoloChords' ? currentTimeSoloSection() : null;
-      const interval = chord ? getIntervalForPitch(
+      const chord = getSelectedLessonType() === 'timeSoloChords' &&
+        document.getElementById('timeSoloIntervalType')?.value === 'currentChord'
+        ? currentTimeSoloSection() : null;
+      const interval = getSelectedLessonType() === 'timeSoloChords' ? getIntervalForPitch(
         midiToPitchClass(Number(cell.dataset.absolutePitch)),
-        chord.root,
-        chord.quality === 'major' ? 'ionian' : 'aeolian'
+        chord ? chord.root : Number(document.getElementById('rootSelect').value),
+        chord ? (chord.quality === 'major' ? 'ionian' : 'aeolian') :
+          document.getElementById('scaleSelect').value
       ) : null;
       revealCell(cell, interval);
       cell.classList.remove('timeSoloGrayNote', 'timeSoloCandidateNote');
@@ -10479,6 +10488,18 @@ function renderTimedTimeSoloSections(sections) {
     button.setAttribute('aria-label',button.title);
     track.appendChild(button);
   }
+  track.setAttribute('aria-label', 'Chord timeline; click to seek within the solo');
+  track.onclick = event => {
+    if (!songPlayerSeekToTick) return;
+    const first = timeSoloSections[0], last = timeSoloSections.at(-1);
+    if (!first || !last) return;
+    const button = event.target.closest?.('.timeSoloChordButton');
+    const rect = track.getBoundingClientRect();
+    const fraction = event.detail === 0 && button
+      ? (Number(button.dataset.startTick) - first.start) / (last.end - first.start)
+      : Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    songPlayerSeekToTick(first.start + fraction * (last.end - first.start));
+  };
 }
 
 function applySongPlayerTrack({
@@ -10576,8 +10597,9 @@ function applySongPlayerTrack({
   }
 }
 
-setupSongPlayer({
+songPlayerSeekToTick = setupSongPlayer({
   isTimeSoloChordsLesson: () => getSelectedLessonType() === 'timeSoloChords',
+  timeScoreUrl: import.meta.env.BASE_URL + 'time.gp',
   onActiveNotes: displaySongPlayerNotes,
   onPositionChanged: ({tick}) => {
     if (getSelectedLessonType()!=='timeSoloChords') return;
@@ -10634,6 +10656,10 @@ setupSongPlayer({
             .join(' · ');
       }
     }
+})?.seekToTick;
+
+document.getElementById('timeSoloIntervalType')?.addEventListener('change', () => {
+  displaySongPlayerNotes(songPlayerLastNotes);
 });
 
 setupLiveGuitarInput();

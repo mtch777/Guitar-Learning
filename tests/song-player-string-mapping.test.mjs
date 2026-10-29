@@ -5,7 +5,7 @@ import test from 'node:test';
 
 // Exercise the actual track-change and display callbacks, with DOM drawing stubbed.
 const source = readFileSync(process.env.TRAINER_SOURCE || new URL('../src/trainer.js', import.meta.url), 'utf8');
-const callbacks = source.slice(source.indexOf('function displaySongPlayerNotes('), source.indexOf('setupSongPlayer({'));
+const callbacks = source.slice(source.indexOf('function displaySongPlayerNotes('), source.indexOf('songPlayerSeekToTick = setupSongPlayer({'));
 
 test('track tuning and active notes agree for 6, 7, and 8 strings, including track switches', () => {
   const shown = [];

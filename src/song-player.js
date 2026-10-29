@@ -111,7 +111,8 @@ export function setupSongPlayer({
   onPositionChanged,
   isTimeSoloChordsLesson,
   onTrackChanged,
-  onScoreLoaded
+  onScoreLoaded,
+  timeScoreUrl = null
 } = {}) {
   const fileInput =
     document.getElementById(
@@ -572,6 +573,13 @@ export function setupSongPlayer({
     const relativeMs = soloWindow ? absoluteMs - soloWindow.startMs : absoluteMs;
     currentTime.textContent = formatTime(relativeMs);
     if (endTimeMs > 0) progress.value = String(Math.round(relativeMs / endTimeMs * 1000));
+  }
+
+  function seekToTick(tick) {
+    syncSoloPlayback();
+    if (!soloWindow || !Number.isFinite(Number(tick))) return;
+    seekToMs(soloWindow.tickToMs(Math.max(soloWindow.startTick,
+      Math.min(soloWindow.endTick, Number(tick)))));
   }
 
   function togglePlayback() {
@@ -1173,6 +1181,34 @@ export function setupSongPlayer({
     return alphaTabApi;
   }
 
+  async function loadScore(buffer, name) {
+    const api = await ensureApi();
+    setStatus('Loading ' + name + '…');
+    stopBendAnimation();
+    activeNotes = [];
+    clearActiveNotes();
+    api.settings.importer.encoding = /\.(gp3|gp4|gp5)$/i.test(name)
+      ? 'windows-1252' : 'utf-8';
+    api.updateSettings();
+    timeProfile = isTimeFile(name);
+    api.load(buffer);
+  }
+
+  async function loadBundledTimeScore() {
+    if (!timeScoreUrl || !isTimeSoloChordsLesson?.() || score || fileInput.files?.length) return;
+    try {
+      setStatus('Loading Time solo…');
+      const response = await fetch(timeScoreUrl);
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const buffer = await response.arrayBuffer();
+      if (!isTimeSoloChordsLesson?.() || score || fileInput.files?.length) return;
+      await loadScore(buffer, 'time.gp');
+    } catch (error) {
+      console.error('Bundled Time score load error:', error);
+      setStatus('Time score unavailable: ' + (error?.message || String(error)));
+    }
+  }
+
   fileInput.addEventListener(
     'change',
     async () => {
@@ -1184,35 +1220,9 @@ export function setupSongPlayer({
       }
 
       try {
-        const api =
-          await ensureApi();
-
-        setStatus(
-          'Loading ' +
-          file.name +
-          '…'
-        );
-
-        stopBendAnimation();
-        activeNotes = [];
-        clearActiveNotes();
-
         const buffer =
           await file.arrayBuffer();
-
-        api.settings
-          .importer
-          .encoding =
-            /\.(gp3|gp4|gp5)$/i
-              .test(file.name)
-              ? 'windows-1252'
-              : 'utf-8';
-
-        api.updateSettings();
-        timeProfile = isTimeFile(file.name);
-        api.load(
-          buffer
-        );
+        await loadScore(buffer, file.name);
       } catch (error) {
         console.error(
           'Song Player load error:',
@@ -1344,11 +1354,20 @@ export function setupSongPlayer({
     syncSoloPlayback();
     if (!soloWindow) return;
     const key = event.code;
-    if (key !== 'Space' && key !== 'ArrowLeft' && key !== 'ArrowRight') return;
+    if (!['Space','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(key)) return;
     event.preventDefault();
     event.stopPropagation();
     if (key === 'Space') {
       if (!event.repeat) togglePlayback();
+    } else if (key === 'ArrowUp' || key === 'ArrowDown') {
+      const options = [...speedSelect.options];
+      const current = options.findIndex(option => option.value === speedSelect.value);
+      const next = Math.max(0, Math.min(options.length - 1,
+        current + (key === 'ArrowUp' ? 1 : -1)));
+      if (next !== current && options[next]) {
+        speedSelect.value = options[next].value;
+        applyPlaybackSpeed();
+      }
     } else {
       seekToMs(lastPositionMs + (key === 'ArrowLeft' ? -5000 : 5000));
     }
@@ -1357,8 +1376,11 @@ export function setupSongPlayer({
   document.getElementById('lessonTypeSelect')?.addEventListener('change', () => {
     syncSoloPlayback();
     updateTransport();
+    loadBundledTimeScore();
   });
 
   resetProgress();
   updateTransport();
+  loadBundledTimeScore();
+  return { seekToTick };
 }

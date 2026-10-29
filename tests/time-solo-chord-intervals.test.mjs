@@ -7,6 +7,41 @@ const source=readFileSync(new URL('../src/trainer.js',import.meta.url),'utf8');
 const start=source.indexOf('function applyContinuousBendPitch(');
 const end=source.indexOf('function getPhysicalBendOffset(',start);
 assert.ok(start>=0 && end>start);
+test('Interval Type relabels the sounding E relative to F# minor or E major',()=>{
+  const begin=source.indexOf('function displaySongPlayerNotes(');
+  const finish=source.indexOf('function renderTimedTimeSoloSections(',begin);
+  const rendered=[];
+  const fields={
+    timeSoloIntervalType:{value:'currentChord'},
+    rootSelect:{value:'6'}, scaleSelect:{value:'aeolian'},
+    answerNote:{className:'',textContent:''}
+  };
+  const cell={dataset:{absolutePitch:'64',stringIndex:'0',fret:'0'},
+    classList:{remove(){},add(){},contains(){return false;}},
+    style:{removeProperty(){}}};
+  const ctx=vm.createContext({
+    songPlayerActiveCells:new Set(),songPlayerCells:new Map([['0:0',cell]]),
+    songPlayerStringOffset:0,songPlayerLastNotes:[],
+    getSelectedLessonType:()=> 'timeSoloChords',
+    currentTimeSoloSection:()=>({root:4,quality:'major'}),
+    getIntervalForPitch:(pitch,root)=>pitch===root?'R':'b7',
+    midiToPitchClass:p=>p%12,
+    makeCellKey:(s,f)=>`${s}:${f}`,
+    revealCell:(cell,interval)=>rendered.push(interval),
+    clearSongPlayerBendVisuals(){}, hideCell(){},
+    updateTimeSoloChordCandidates(){},
+    document:{getElementById:id=>fields[id]}
+  });
+  vm.runInContext(source.slice(begin,finish),ctx);
+  ctx.displaySongPlayerNotes([{string:1,fret:0}]);
+  assert.equal(rendered.at(-1),'R');
+  fields.timeSoloIntervalType.value='baseKey';
+  ctx.displaySongPlayerNotes(ctx.songPlayerLastNotes);
+  assert.equal(rendered.at(-1),'b7');
+  fields.timeSoloIntervalType.value='currentChord';
+  ctx.displaySongPlayerNotes(ctx.songPlayerLastNotes);
+  assert.equal(rendered.at(-1),'R');
+});
 test('Time solo note and bend rendering use active chord, not global base key',()=>{
   assert.match(source,/root: Number\(section\.root\)/);
   assert.match(source,/revealCell\(cell, interval\)/);
