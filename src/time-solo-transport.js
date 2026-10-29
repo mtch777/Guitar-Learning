@@ -11,8 +11,8 @@ export function createTimeSoloWindow(score, tickCache) {
   const endTick = Number(last?.end);
   if (!Number.isFinite(startTick) || !Number.isFinite(endTick) || endTick <= startTick) return null;
 
-  // PositionChanged reports whole-score milliseconds. Integrate the score's
-  // tempo map so seeks and displayed time agree even across tempo changes.
+  // The player's milliseconds scale with playback speed. Use the score's
+  // tempo map to translate between musical ticks and speed-independent time.
   const changes = [];
   for (const bar of tickCache.masterBars || []) {
     for (const change of bar.tempoChanges || []) {
@@ -43,7 +43,16 @@ export function createTimeSoloWindow(score, tickCache) {
     }
     return point.ms + (tick - point.tick) * 60000 / (TICKS_PER_QUARTER * point.tempo);
   };
+  const toTick = ms => {
+    let point = points[0];
+    for (const next of points) {
+      if (next.ms > ms) break;
+      point = next;
+    }
+    return Math.round(point.tick + (ms - point.ms) * TICKS_PER_QUARTER * point.tempo / 60000);
+  };
   const startMs = toMs(startTick);
   const endMs = toMs(endTick);
-  return { startTick, endTick, startMs, endMs, durationMs: endMs - startMs };
+  return { startTick, endTick, startMs, endMs, durationMs: endMs - startMs,
+    tickToMs: toMs, msToTick: toTick };
 }
