@@ -49,3 +49,17 @@ The 2× sample caught one note after the initial two-note beat had advanced;
 the actual criterion is a visible solo note, not an exact sustained-note count.
 The focused fake-player regression now loops through all nine speeds before
 Play and checks position, playback command, and Stop reset for each.
+
+2026-10-29 timed chord numerals:
+
+- [x] Inspect the loaded-score row: the inferred first chords are E major,
+  F# minor, A major, while the hardcoded timed label map treated E as tonic.
+- [x] Label timed chords against the source score's F# minor tonic, using each
+  inferred chord's actual major/minor/diminished quality. E major = ♭VII,
+  F# minor = i, A major = ♭III; C# major can still be V.
+- [x] Add a focused mapping regression and run all 27 JavaScript tests plus
+  Vite production build successfully.
+- [ ] Publish and verify the first timed buttons on the live page after
+  uploading the private full score.
+
+Next: verify rendered timed chord labels live. Keep the GP source outside Git.

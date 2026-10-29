@@ -29,6 +29,23 @@ export const TIME_SOLO_DROP_E_TUNING =
     64  // E4
   ]);
 
+// The uploaded Time score sounds in F# minor (pitch class 6). The fretboard's
+// Drop E tuning changes fingering, not the source harmony or its tonic.
+const TIME_SOLO_SOURCE_TONIC = 6;
+const MINOR_KEY_DEGREES = Object.freeze([
+  'I', '♭II', 'II', '♭III', 'III', 'IV',
+  '♭V', 'V', '♭VI', 'VI', '♭VII', 'VII'
+]);
+
+export function timeSoloChordNumeral(root, quality) {
+  if (!Number.isInteger(root) || root < 0 || root > 11 ||
+      !['major', 'minor', 'diminished'].includes(quality)) return null;
+  const interval = (root - TIME_SOLO_SOURCE_TONIC + 12) % 12;
+  const degree = MINOR_KEY_DEGREES[interval];
+  if (quality === 'major') return degree;
+  return degree.toLowerCase() + (quality === 'diminished' ? '°' : '');
+}
+
 const TIME_SOLO_ENCODED_FRETS =
   '6,0;6,2;6,2;6,2;6,0;6,2;6,2;6,2;6,2;6,4;6,3;6,3;6,5;6,3;6,5;6,3;6,5;6,3;6,5;5,2;6,2;6,0;6,2;6,4;6,7;6,7;4,7;6,7;6,8;6,8;6,7;6,7;6,7;6,7;6,7;6,14;6,12;6,15;6,15;6,15;6,15;6,15;6,15;6,15;6,15;6,14;6,14;6,14;6,14;6,14;6,14;6,14;6,14;6,15;6,15;6,14;6,12;5,14;6,12;6,15;6,15;6,15;6,15;6,15;6,14;6,12;6,14;6,12;6,14;6,17;6,17;6,17;6,17;6,17;6,14;6,15;6,15;6,17;6,15;6,17;6,15;6,15;6,12;6,12;6,12;6,0;5,2;6,5;6,5;6,8;6,10;6,8;6,7;6,8;6,7;6,3;6,3;6,3;6,5;6,7;6,7;6,5;6,3;6,3;6,5;6,3;6,0;6,3;6,0;6,2;6,2;6,2;6,2;6,2;6,0;6,2;6,0;6,2;6,0;6,0;6,2;6,4;6,4;6,2;6,0';
 
