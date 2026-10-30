@@ -51,6 +51,10 @@ def bundle(root):
         source=(root/(name+'.py')).read_text(encoding='utf-8-sig')
         code+=f"_m=types.ModuleType({name!r});sys.modules[{name!r}]=_m\nexec(compile({source!r},{name!r},'exec'),_m.__dict__)\n"
         hashes[name]=hashlib.sha256(source.encode()).hexdigest()
+    for name in ('reversible_relationships','reversible_topology','reversible_positions','reversible_annotations','reversible_temporal','check_reversible_temporal','tempo_source_census','step_tempo_relations','local_step_tempos'):
+        source=(root/(name+'.py')).read_text(encoding='utf-8-sig')
+        code+=f"_m=types.ModuleType({name!r});sys.modules[{name!r}]=_m\nexec(compile({source!r},{name!r},'exec'),_m.__dict__)\n"
+        hashes[name]=hashlib.sha256(source.encode()).hexdigest()
     # Frozen approved detectors are also required INSIDE a changed-gesture
     # worker. Copy exact function ASTs, never a separately maintained detector.
     pedal_sources={name:(root/(name+'.py')).read_text(encoding='utf-8-sig') for name in ('pedal_patterns','pedal_register','pedal_evidence','pedal_expansion')}

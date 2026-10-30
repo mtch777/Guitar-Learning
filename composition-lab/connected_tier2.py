@@ -51,7 +51,8 @@ def event_pointer(event):
     return f"track-{event['part_id']}.json#/measures/{event['bar']-1}/voices/{event['voice']}/beats/{event['beat']}/notes/{event['note']}"
 
 
-def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=None,note_accent_slots=False,rhythm_groups=False,rhythm_group_profile='plain_repeat',palm_mute_slots=False):
+def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=None,note_accent_slots=False,rhythm_groups=False,rhythm_group_profile='plain_repeat',palm_mute_slots=False,step_tempos=False):
+    if type(step_tempos)is not bool:raise ValueError('Explicit global step-tempo ownership mode required')
     if type(rhythm_groups)is not bool:raise ValueError('Explicit rhythm ownership mode required')
     if rhythm_group_profile not in ('plain_repeat','written_time')or (not rhythm_groups and rhythm_group_profile!='plain_repeat'):raise ValueError('Explicit supported rhythm-owner profile required')
     if type(palm_mute_slots)is not bool:raise ValueError('Explicit optional palm-mute ownership mode required')
@@ -80,6 +81,10 @@ def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=
     if rhythm_groups:
         from group_rhythm_relations import lift as rhythm_lift,expand as rhythm_expand
         core=rhythm_lift(tier1,core,structural=rhythm_group_profile=='written_time');_,timing_values=rhythm_expand(core)
+    tempo_model=None;tempo_values={}
+    if step_tempos:
+        from step_tempo_relations import lift as tempo_lift,expand as tempo_expand
+        tempo_model=tempo_lift(tier1);tempo_values=tempo_expand(tempo_model)
     effect=lift(tier1);slot_model=None;mute_model=None;slot_ids=set()
     if note_accent_slots:
         from optional_accent_slots import lift as lift_slots,realize as realize_slots
@@ -104,6 +109,9 @@ def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=
         if row['id']in timing_values:
             if row['value']!=timing_values[row['id']]:raise ValueError('Source notation rhythm encoding conflict')
             coverage.append(dict(fact_ref=row['id'],owner='source_group_rhythm'));continue
+        if row['id']in tempo_values:
+            if type(row['value'])is not int or row['value']!=tempo_values[row['id']]:raise ValueError('Source global tempo equation conflict')
+            coverage.append(dict(fact_ref=row['id'],owner='global_step_tempo'));continue
         event=events.get(row['parent']) if row['slot']=='fret' else None
         if event is not None and event['pitch'] is not None and row['type'] in ('integer','float'):
             part=documents[row['document']];note_ref=row['parent']
@@ -137,6 +145,9 @@ def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=
         output['owned_parameters']['optional_beat_palm_mutes']=mute_model
         output['coverage']=dict(schema='conditional-source-ownership/1',fixed=coverage,
             rules=[dict(relation=g['id'])for model in (slot_model,mute_model)if model for g in model['groups']])
+    if step_tempos:
+        output['schema']='connected-source-musical-relations/4'
+        output['owned_parameters']['global_step_tempos']=tempo_model
     if not unsupported:
         restored=realize(strip_lower(output))
         if json.dumps(restored,sort_keys=True)!=json.dumps(tier1,sort_keys=True):raise ValueError('Complete forward/reverse discrepancy')
@@ -151,12 +162,13 @@ def strip_lower(upper):
 def realize(upper):
     """No source/lower/derived-view access. Unknown owners block reconstruction."""
     fields={'tier','schema','source_structure','owned_parameters','musical_relationships','coverage','unsupported'}
-    if set(upper)-{'contextual_constraints','membership_lock'}!=fields or upper['schema']not in ('connected-source-musical-relations/1','connected-source-musical-relations/2','connected-source-musical-relations/3') or upper['tier']!=2:raise ValueError('Unsupported unified interface or hidden payload')
+    if set(upper)-{'contextual_constraints','membership_lock'}!=fields or upper['schema']not in ('connected-source-musical-relations/1','connected-source-musical-relations/2','connected-source-musical-relations/3','connected-source-musical-relations/4') or upper['tier']!=2:raise ValueError('Unsupported unified interface or hidden payload')
     if upper['unsupported']:raise ValueError('Unsupported source facts block full inverse')
     structure=upper['source_structure'];parameters=upper['owned_parameters']
-    mute_optional=upper['schema']=='connected-source-musical-relations/3'
-    optional=upper['schema']=='connected-source-musical-relations/2' or(mute_optional and 'optional_note_accents'in parameters)
-    expected_parameters={'source_choices','physical_positions','technique_declarations'}|({'optional_note_accents'}if optional else set())|({'optional_beat_palm_mutes'}if mute_optional else set())
+    tempo_optional=upper['schema']=='connected-source-musical-relations/4'
+    mute_optional=upper['schema']=='connected-source-musical-relations/3'or(tempo_optional and 'optional_beat_palm_mutes'in parameters)
+    optional=upper['schema']=='connected-source-musical-relations/2' or((mute_optional or tempo_optional)and 'optional_note_accents'in parameters)
+    expected_parameters={'source_choices','physical_positions','technique_declarations'}|({'optional_note_accents'}if optional else set())|({'optional_beat_palm_mutes'}if mute_optional else set())|({'global_step_tempos'}if tempo_optional else set())
     if set(structure)!={'documents','facts','source_scope'} or set(parameters)!=expected_parameters:raise ValueError('Unregistered owner payload')
     facts=deepcopy(structure['facts']);index={r['id']:r for r in facts}
     if len(index)!=len(facts) or any('value' in r for r in facts):raise ValueError('Raw or duplicate skeleton scalar')
@@ -175,6 +187,11 @@ def realize(upper):
     def assign(ident,value,owner):
         if ident not in index or ident in assigned:raise ValueError('Duplicate or absent scalar owner')
         index[ident]['value']=value;assigned[ident]=owner
+    if tempo_optional:
+        from step_tempo_relations import expand as tempo_expand
+        for ident,value in tempo_expand(parameters['global_step_tempos']).items():
+            if ident not in index or index[ident]['type']!='integer'or not registered(index[ident]):raise ValueError('Unknown tempo scalar')
+            assign(ident,value,'global_step_tempo')
     core=upper['musical_relationships']
     rhythm_model=None
     if core.get('schema')in('source-group-rhythm/1','source-group-rhythm/2'):
@@ -243,6 +260,9 @@ def realize(upper):
     if seen!=set(index):raise ValueError('Unreachable source owner')
     restored=dict(tier=1,schema='complete-source-facts/1',documents=deepcopy(structure['documents']),facts=ordered,scope=structure['source_scope'])
     validate_source(restored)
+    if tempo_optional:
+        from step_tempo_relations import validate_source as validate_tempos
+        validate_tempos(parameters['global_step_tempos'],restored)
     # SAME pure observation projection in both directions. No source files,
     # expected answers or cached views can repair inconsistent parameters.
     from run_reversible_tier_qa import extract_documents
@@ -263,6 +283,10 @@ def realize(upper):
 def reconstruct(upper,controls):
     if controls=={'variation':0} and type(controls['variation']) in (int,float):
         return realize(upper)
+    if controls.get('context_policy')=='source_rhythmic_component_tempo':
+        from local_step_tempos import intervene
+        edited,_=intervene(upper,controls)
+        return realize(edited)
     if controls.get('context_policy')=='source_local_palm_mute':
         from local_palm_mutes import intervene
         edited,_=intervene(upper,controls)
@@ -305,7 +329,7 @@ def validate(upper):
     declared=model.get('schema')=='source-declared-chord-degrees/1'
     from chord_symbol_lexicon import LEGACY_PROFILE
     profile=model.get('admission_profile',LEGACY_PROFILE) if declared else None
-    computed=analyze(lower,families=model.get('schema')=='source-voicing-families/1',declared_chords=declared,declared_chord_profile=profile,note_accent_slots='optional_note_accents'in upper['owned_parameters'],palm_mute_slots=upper['schema']=='connected-source-musical-relations/3',rhythm_groups=rhythm,rhythm_group_profile='written_time'if structural else'plain_repeat')
+    computed=analyze(lower,families=model.get('schema')=='source-voicing-families/1',declared_chords=declared,declared_chord_profile=profile,note_accent_slots='optional_note_accents'in upper['owned_parameters'],palm_mute_slots='optional_beat_palm_mutes'in upper['owned_parameters'],step_tempos=upper['schema']=='connected-source-musical-relations/4',rhythm_groups=rhythm,rhythm_group_profile='written_time'if structural else'plain_repeat')
     # Stable occurrence-group IDs may move relative to other parts in time.
     # For rhythm owners exact source comparison + canonical re-lift above checks
     # identity and equations without renumbering unrelated source occurrences.

@@ -15,7 +15,14 @@ COORDINATES={"meter":{"numerator":"nominal_span_q"},"beat_tempo":{"bpm":"quarter
 
 
 def extract(capture):
-    meta=json.loads((capture/"metadata.json").read_text(encoding="utf-8-sig"))
+    documents={path.name:json.loads(path.read_text(encoding="utf-8-sig")) for path in capture.glob("track-*.json")}
+    documents["metadata.json"]=json.loads((capture/"metadata.json").read_text(encoding="utf-8-sig"))
+    return extract_documents(documents)
+
+
+def extract_documents(documents):
+    """Same extraction from the preceding packet's reconstructed documents only."""
+    meta=documents["metadata.json"]
     records=[];unsupported=[]
     def fields(obj,owner):
         result={}
@@ -23,8 +30,8 @@ def extract(capture):
             if type(value) in (int,float,bool,str,type(None)):result[key]=scalar(value)
             else:unsupported.append(dict(owner=owner,field=key,source_type=type(value).__name__))
         return result
-    for path in sorted(capture.glob("track-*.json")):
-        part=json.loads(path.read_text(encoding="utf-8-sig"));pid=part["partId"]
+    for name in sorted(name for name in documents if name.startswith("track-") and name.endswith(".json")):
+        part=documents[name];pid=part["partId"]
         part_ref=f"part:{meta['songId']}:{pid}"
         for mi,m in enumerate(part.get("measures",[])):
             mid=f"measure:{meta['songId']}:{pid}:{mi+1}"

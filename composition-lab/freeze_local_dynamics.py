@@ -6,7 +6,7 @@ from run_declared_chord_qa import sha,dump
 
 
 def freeze(output,backend,module,font,policy='source_local_dynamic_level'):
-    if policy not in ('source_local_dynamic_level','source_local_dynamic_transition','source_local_note_accent','source_local_palm_mute','parallel_rhythm_melody'):raise ValueError('Explicit supported local expression policy required')
+    if policy not in ('source_local_dynamic_level','source_local_dynamic_transition','source_local_note_accent','source_local_palm_mute','source_rhythmic_component_tempo','parallel_rhythm_melody'):raise ValueError('Explicit supported local expression policy required')
     root=Path(__file__).resolve().parent
     if output.exists()or'local-artifacts'not in output.resolve().parts:raise ValueError('Fresh private output required')
     excluded=set();origins=[]
@@ -37,6 +37,10 @@ def freeze(output,backend,module,font,policy='source_local_dynamic_level'):
         manifest.update(schema='local-palm-mute-freeze/1',
             review_selection='All complete coattacks, exclusions, source alternatives and fixed draws retained. First source-ordered mute-state change at100 with seeds0..31. Absent/false changes counted separately. No replacement for no choice or unchanged PCM.',
             acceptance='Exact optional beat ownership and written time, actual stripped zero/no-choice/changed workers, independent full coattack/state/draw census, only selected mute declarations changed; GP/MIDI/PCM checked separately. Native duration damping is not realistic palm-contact timbre or human musical approval.')
+    if policy=='source_rhythmic_component_tempo':
+        manifest.update(schema='local-step-tempo-freeze/1',
+            review_selection='All global events, component evidence and fixed draws retained. First source-time/part/voice ordered changed BPM draw at100 with seeds0..31. PARTIAL component evidence stays PARTIAL; no reroll for missing choices, unchanged PCM or native failure.',
+            acceptance='One shared speed equation and exact global BPM aliases; all written notes/rhythm/expression locked. Actual stripped zero/no-choice/changed workers, independent full source/context/draw review, complete performed tempo/seconds and native consequence checks. Source-bar-aligned audio; no full-band, full-lifetime, transition or human artistic acceptance inferred.')
     output.mkdir(parents=True);dump(output/'freeze.json',manifest);return manifest
 
 

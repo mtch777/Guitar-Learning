@@ -22,7 +22,7 @@ Those are different questions.
 - [x] Complete palm-mute owner combinations, corruption checks and isolated runs.
 - [x] Complete real-source comparison and the unchanged new-song run.
 - [x] Independent Planner END review of the declared scope.
-- [ ] Publication and exact-commit CI.
+- [x] Publication and exact-commit CI.
 
 `python -m unittest test_structural_rhythm_ownership test_group_rhythm_relations
 test_local_group_rhythm test_local_lever_combinations -q`: **18 passed**.
@@ -77,7 +77,13 @@ The fixture now uses the same canonical capture loader, with a new test that
 reverses directory enumeration. Replaying the old fixture under reversed order
 reproduced the exact CI failure. All **10 native-audit tests pass** after the
 correction. No production musical logic, checker, original frozen artifacts or
-acceptance thresholds changed. Full corrected CI remains pending.
+acceptance thresholds changed. Corrected commit
+`92a21af6d0ee09f399b7926e32f6212e2affe176` passed its complete
+[CI run](https://github.com/mtch777/Guitar-Learning/actions/runs/40990411624).
+That clean published checkout ran **1,530 Python tests: 1,529 passed, one
+optional skip**, plus **48 JavaScript tests passed**. Its count is lower than
+the local checkout, which also contains unrelated unpublished work preserved
+outside this commit. Those two totals are not interchangeable.
 
 ## Previous verified checkpoint
 
