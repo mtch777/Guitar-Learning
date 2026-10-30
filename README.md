@@ -26,6 +26,10 @@ microphone → pitch → candidate strings → audio features → ringing-only c
 
 Muted recordings are excluded from the current MVP.
 
+## Songsterr tonal analysis
+
+[Independent key/mode analysis, CLI and tests](tonal-analysis/README.md): ranks tonal centers and collections from raw Songsterr captures using pitch, harmony, bass, melody and timing evidence. Reports ambiguous results and local changes; keeps private source-derived reports out of Git. This is a separate research tool with uncalibrated heuristic scores.
+
 ## Composition Lab — current handoff (2026-10-14)
 
 - [Handoff: architecture, latest V24 results, limitations, next steps](composition-lab/checkpoints/2026-10-14/HANDOFF_2026-10-14.md)
