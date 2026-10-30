@@ -3,6 +3,7 @@ from copy import deepcopy
 from pathlib import Path
 import hashlib,json,tempfile,unittest,zipfile
 import xml.etree.ElementTree as ET
+from unittest.mock import patch
 
 from source_fact_tier1 import extract,extract_documents,project_documents
 from test_dynamic_artifacts import make as dynamic_fixture,dump,sha,wav
@@ -30,7 +31,7 @@ def seal(native,snapshot,supplement):
 
 def make(base,*,start_muted=False,literal_only=False):
     native,qa=dynamic_fixture(base);source=base/'source-capture'
-    docs={p.name:read(p)for p in source.glob('*.json')}
+    docs=project_documents(extract(source))
     for vi in range(2):
         if start_muted:docs['track-0.json']['measures'][0]['voices'][vi]['beats'][0]['palmMute']=True
     before=extract_documents(docs);target=next(r for r in inventory(before)['coattacks']if r['coattack_ref']=='coattack:0:0')
@@ -102,6 +103,14 @@ class PalmMuteArtifactTests(unittest.TestCase):
             native,qa=make(Path(temp),**kwargs)
             if mutation:mutation(native,qa)
             return check(native,qa)
+
+    def test_fixture_does_not_depend_on_directory_enumeration_order(self):
+        original_glob=Path.glob
+        def reversed_glob(path,pattern):
+            return iter(reversed(list(original_glob(path,pattern))))
+        with patch.object(Path,'glob',reversed_glob):
+            result=self.run_case()
+        self.assertEqual(result['status'],'PASS_NATIVE_PALM_MUTE_PCM_CHANGED',result)
 
     def test_whole_multi_voice_coattack_mute_and_unmute(self):
         for start_muted in(False,True):

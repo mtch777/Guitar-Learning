@@ -64,6 +64,21 @@ actual zero and released no-choice outputs against all 91,443 raw source facts
 and rechecks all 667 live/archive hashes. Bounded implementation is accepted;
 whole-lever creative generalization and human musical judgment remain open.
 
+## Published CI failure and bounded correction
+
+Commit `3b7d0dd935eb8e4c9f114cb78d62acbcf10d9bc4` was pushed, but its
+CI run `40989729695` failed six new synthetic native-audit tests on Linux.
+The fixture built its zero-worker document list from filesystem enumeration
+order, whereas the real extractor consistently orders metadata then tracks.
+The checker correctly rejected that inconsistent fixture. Windows' directory
+order had hidden the test defect.
+
+The fixture now uses the same canonical capture loader, with a new test that
+reverses directory enumeration. Replaying the old fixture under reversed order
+reproduced the exact CI failure. All **10 native-audit tests pass** after the
+correction. No production musical logic, checker, original frozen artifacts or
+acceptance thresholds changed. Full corrected CI remains pending.
+
 ## Previous verified checkpoint
 
 Commit `fcf5cd609849aaa9cc5abaeebb90f3477572e657` was pushed to main. Its exact
