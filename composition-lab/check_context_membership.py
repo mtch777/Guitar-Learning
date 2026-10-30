@@ -11,6 +11,7 @@ from source_fact_tier1 import project_documents
 from source_tie_tier1 import extract_documents
 
 VERSION='conditional-chord-membership-lock/1'
+TIED_VERSION='conditional-chord-membership-lock/2'
 SCOPES=('ensemble_minus_edited','focal_part_minus_edited')
 def enc(v):return json.dumps(v,sort_keys=True,separators=(',',':'),allow_nan=False)
 
@@ -21,10 +22,17 @@ def _request(request):
     if type(request['scope'])is not str or request['scope']not in SCOPES:raise ValueError('Unknown membership scope')
     return refs
 
-def expected(tier1,request):
+def expected(tier1,request,*,pitch_support='strict'):
     refs=_request(request);view=raw_context(tier1);docs=project_documents(tier1);lower=extract_documents(docs);events={e['id']:e for e in lower['events']};inventory={r['occurrence_ref']:r for r in view['occurrence_inventory']}
     if not set(refs)<=set(events):return dict(status='MISSING',packet=None,reasons=['UNLOCATED_REQUESTED_OCCURRENCE'])
     reasons=set();coverage={r:F(0)for r in refs};contexts=[];parts=sorted(p['partId']for name,p in docs.items()if name.startswith('track-'))
+    if pitch_support not in ('strict','verified_written_ties'):raise ValueError('Registered support mode required')
+    tied=None
+    if pitch_support=='verified_written_ties':
+        from check_verified_written_tie_support import derive,REASON
+        tied=derive(tier1,view,refs)
+        if tied['blocked_edited_refs']:reasons.add('EDITED_NOTE_IN_TIE_CHAIN')
+        inventory={ref:dict(row,written_pitch_qualifications=[q for q in row['written_pitch_qualifications']if not(ref in tied['cleared_refs']and q==REASON)])for ref,row in inventory.items()}
     if view['geometry_status']!='AVAILABLE':reasons.add('UNAVAILABLE_SOURCE_GEOMETRY')
     if set(refs)&set(view['crossing_occurrence_refs']):reasons.add('CROSSING_EDITED_OCCURRENCE')
     for ref in refs:
@@ -54,10 +62,23 @@ def expected(tier1,request):
     for ref in refs:
         if F(events[ref]['duration_q'])<=0 or coverage[ref]!=F(events[ref]['duration_q']):reasons.add('INCOMPLETE_EDITED_COVERAGE')
     packet=None if reasons else dict(version=VERSION,request=deepcopy(request),contexts=contexts)
+    if packet is not None and tied is not None:
+        support={r for c in contexts for r in c['included_refs']}
+        packet.update(version=TIED_VERSION,pitch_support=pitch_support,
+            written_tie_support=[r for r in tied['chains']if support.intersection(r['occurrence_refs'])])
     return dict(status='MISSING'if reasons else'SUPPORTED',packet=packet,reasons=sorted(reasons))
 
 def _validate_packet(packet):
-    if type(packet)is not dict or set(packet)!={'version','request','contexts'}or packet['version']!=VERSION:raise ValueError('Exact membership packet required')
+    if type(packet)is not dict or packet.get('version')not in(VERSION,TIED_VERSION):raise ValueError('Exact membership packet required')
+    fields={'version','request','contexts'}
+    if packet['version']==TIED_VERSION:
+        fields|={'pitch_support','written_tie_support'}
+        if packet.get('pitch_support')!='verified_written_ties'or type(packet.get('written_tie_support'))is not list:raise ValueError('Explicit tie support required')
+        for row in packet['written_tie_support']:
+            if type(row)is not dict or set(row)!={'origin_ref','occurrence_refs','status'}or row['status']!='VERIFIED_WRITTEN_PITCH_CONTINUITY':raise ValueError('Complete chain evidence required')
+            refs=row['occurrence_refs']
+            if type(refs)is not list or len(refs)<2 or any(type(r)is not str for r in refs)or len(set(refs))!=len(refs)or row['origin_ref']!=refs[0]:raise ValueError('Ordered chain evidence required')
+    if set(packet)!=fields:raise ValueError('Exact membership fields required')
     _request(packet['request'])
     if type(packet['contexts'])is not list or not packet['contexts']:raise ValueError('Nonempty context denominator required')
     for c in packet['contexts']:
@@ -82,7 +103,7 @@ def _identity(packet):
     return x
 
 def assess(tier1,packet):
-    _validate_packet(packet);current=expected(tier1,packet['request'])
+    _validate_packet(packet);current=expected(tier1,packet['request'],pitch_support=packet.get('pitch_support','strict'))
     if current['status']=='MISSING':return dict(status='MISSING',reasons=current['reasons'],preserved=0,comparisons=0)
     if enc(_identity(current['packet']))!=enc(_identity(packet)):return dict(status='MISSING',reasons=['CONTEXT_CHANGED'],preserved=0,comparisons=0)
     comparisons=[a==b for c,d in zip(packet['contexts'],current['packet']['contexts'])for m,n in zip(c['memberships'],d['memberships'])for a,b in zip(m['values'],n['values'])]
@@ -92,7 +113,7 @@ def assess(tier1,packet):
 def check(before_tier1,after_tier1,packet,reported=None):
     issues=[];result=None
     try:
-        _validate_packet(packet);baseline=expected(before_tier1,packet['request'])
+        _validate_packet(packet);baseline=expected(before_tier1,packet['request'],pitch_support=packet.get('pitch_support','strict'))
         if baseline['status']!='SUPPORTED'or enc(baseline['packet'])!=enc(packet):raise ValueError('Packet differs from complete original raw/native contract')
         result=assess(after_tier1,packet)
         if reported is not None and reported.get('status')!=result['status']:raise ValueError('Reported semantic outcome differs')

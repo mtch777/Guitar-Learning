@@ -9,6 +9,7 @@ from fractions import Fraction as F
 import nominal_harmony as nominal
 
 VERSION='conditional-chord-membership-lock/1'
+TIED_VERSION='conditional-chord-membership-lock/2'
 SCOPES=('ensemble_minus_edited','focal_part_minus_edited')
 MEMBERSHIP={'TEMPLATE_CHORD_TONE':True,'TEMPLATE_NONMEMBER':False}
 
@@ -21,22 +22,31 @@ def validate_request(request):
         raise ValueError('Unique sorted occurrence refs required')
 
 
-def compile_lock(tier1,request):
+def compile_lock(tier1,request,*,pitch_support='strict'):
     """Derive semantic parameters from complete preceding-tier facts only."""
     validate_request(request)
     c=nominal.prepare_tier1(tier1);view=nominal.build(c)
-    return from_context(c,view,request)
+    return from_context(c,view,request,pitch_support=pitch_support)
 
 
-def from_context(c,view,request):
+def from_context(c,view,request,*,pitch_support='strict'):
     """Internal reuse for several scopes on the same immutable source view."""
     validate_request(request)
+    if pitch_support not in ('strict','verified_written_ties'):raise ValueError('Explicit registered pitch-support mode required')
     refs=request['edited_refs'];reasons=[];events=c['events']
     if not set(refs)<=set(events):
         return dict(status='MISSING',packet=None,reasons=['UNLOCATED_REQUESTED_OCCURRENCE'])
     edited=nominal.edited_set_context(c,view,events,refs)
     paths={ref:[] for ref in refs};contexts=[]
     rows={r['occurrence_ref']:r for r in view['occurrence_inventory']}
+    tied=None
+    if pitch_support=='verified_written_ties':
+        from verified_written_tie_support import qualify,TIE_REASON
+        tied=qualify(c,refs)
+        if tied['blocked_edited_refs']:reasons.append('EDITED_NOTE_IN_TIE_CHAIN')
+        cleared=set(tied['cleared_refs'])
+        rows={ref:dict(row,written_pitch_qualifications=[q for q in row['written_pitch_qualifications']
+            if not(ref in cleared and q==TIE_REASON)])for ref,row in rows.items()}
     for ref in refs:
         reasons.extend(rows[ref]['qualifications'])
         reasons.extend(rows[ref]['written_pitch_qualifications'])
@@ -67,12 +77,23 @@ def from_context(c,view,request):
         if not path or cursor!=end:reasons.append('INCOMPLETE_FOCAL_TIME_COVERAGE')
     if reasons:return dict(status='MISSING',packet=None,reasons=sorted(set(reasons)))
     packet=dict(version=VERSION,request=deepcopy(request),contexts=contexts)
+    if tied is not None:
+        from verified_written_tie_support import witnesses
+        packet.update(version=TIED_VERSION,pitch_support=pitch_support,
+            written_tie_support=witnesses(tied,{r for cell in contexts for r in cell['included_refs']}))
     return dict(status='SUPPORTED',packet=packet,reasons=[])
 
 
 def _split(packet):
-    if type(packet)is not dict or set(packet)!={'version','request','contexts'} or packet['version']!=VERSION:
+    if type(packet)is not dict or packet.get('version')not in (VERSION,TIED_VERSION):
         raise ValueError('Typed membership contract required')
+    fields={'version','request','contexts'}
+    if packet['version']==TIED_VERSION:
+        from verified_written_tie_support import validate_witness_shape
+        fields|={'pitch_support','written_tie_support'}
+        if packet.get('pitch_support')!='verified_written_ties':raise ValueError('Versioned written tie support required')
+        validate_witness_shape(packet.get('written_tie_support'))
+    if set(packet)!=fields:raise ValueError('Exact membership fields required')
     validate_request(packet['request'])
     if type(packet['contexts'])is not list or not packet['contexts']:raise ValueError('Complete context denominator required')
     descriptor=deepcopy(packet);values=[]
@@ -95,7 +116,7 @@ def _split(packet):
 def assess(tier1,packet):
     """Check requested semantic equality, not literal pitch equality."""
     wanted,old=_split(packet)
-    actual=compile_lock(tier1,packet['request'])
+    actual=compile_lock(tier1,packet['request'],pitch_support=packet.get('pitch_support','strict'))
     if actual['status']!='SUPPORTED':return dict(status='MISSING',reasons=actual['reasons'],preserved=0,changed=0)
     current,new=_split(actual['packet'])
     if nominal.encoded(wanted)!=nominal.encoded(current) or len(old)!=len(new):
@@ -111,9 +132,9 @@ def verify(tier1,packet):
     return result
 
 
-def attach(upper,request):
+def attach(upper,request,*,pitch_support='strict'):
     from connected_tier2 import strip_lower,realize
     if 'membership_lock'in upper:raise ValueError('Never silently replace an active membership lock')
-    result=compile_lock(realize(strip_lower(upper)),request)
+    result=compile_lock(realize(strip_lower(upper)),request,pitch_support=pitch_support)
     if result['status']!='SUPPORTED':raise ValueError('Membership lock unavailable: '+','.join(result['reasons']))
     out=deepcopy(upper);out['membership_lock']=result['packet'];return out

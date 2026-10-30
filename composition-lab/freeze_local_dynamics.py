@@ -6,7 +6,7 @@ from run_declared_chord_qa import sha,dump
 
 
 def freeze(output,backend,module,font,policy='source_local_dynamic_level'):
-    if policy not in ('source_local_dynamic_level','source_local_dynamic_transition','source_local_note_accent'):raise ValueError('Explicit supported local expression policy required')
+    if policy not in ('source_local_dynamic_level','source_local_dynamic_transition','source_local_note_accent','parallel_rhythm_melody'):raise ValueError('Explicit supported local expression policy required')
     root=Path(__file__).resolve().parent
     if output.exists()or'local-artifacts'not in output.resolve().parts:raise ValueError('Fresh private output required')
     excluded=set();origins=[]
@@ -28,6 +28,11 @@ def freeze(output,backend,module,font,policy='source_local_dynamic_level'):
     if policy=='source_local_note_accent':
         manifest.update(schema='local-accents-freeze/1',review_selection='Every note/context/option and all fixed draws checked. First source-time-ordered changed sound-level draw,100%,seeds0..31. One adjacent source bar each side. Notation-only changes retained in ledger; native clamping cannot count as audible progress.',
             acceptance='Complete optional-owner inverse/raw parity; independent all-options/all-draws and all other fields locked; actual stripped zero/no-choice/changed workers; native GP/MIDI/audio. Source attack emphasis is not phrase intent, artist taste or human musical-fit approval.')
+    if policy=='parallel_rhythm_melody':
+        manifest.update(schema='parallel-local-music-freeze/1',lever_policies=['source_complete_group_rhythm','source_local_melodic_contour'],
+            controls=dict(strengths=[0,50,100],rhythm_seeds=list(range(64)),melody_seeds=list(range(32))),
+            review_selection='One random source shared by both levers; all opportunities and failures retained independently. First eligible changed source-order draw under the lever-specific seed list. No replacement or manual pitch/rhythm selection.',
+            acceptance='Same relations, complete zero reconstruction with source access denied; 0/50/100 behavior, whole-song unrelated locks, independent musical evidence and actual output. Source-only choices. No-opportunity is coverage, not creative acceptance.')
     output.mkdir(parents=True);dump(output/'freeze.json',manifest);return manifest
 
 

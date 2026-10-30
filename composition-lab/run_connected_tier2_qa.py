@@ -16,6 +16,8 @@ def bundle(root):
     names=('source_fact_tier1','source_field_registry','technique_observation_relations','optional_accent_slots','musical_tier2','voicing_families','chord_degree_definitions','chord_degree_relations','chord_symbol_lexicon','declared_chord_ownership','contextual_note_roles','contextual_chord_motion','contextual_passage_roles','execution_dependencies','family_policy','nominal_event_incidence','voicing_context_relations','voicing_gestures','declared_degree_choices','fretting_contacts','inner_voicing','voicing_register','connected_tier2','voicing_frames','probe_voicing_frames','harmonic_evidence','harmonic_pattern_ledger','nominal_harmony','local_dynamics','dynamic_context','local_accents','context_membership','unlabeled_inner_voicing')
     code='import sys,types\n'
     hashes={}
+    at=names.index('context_membership')
+    names=names[:at]+('verified_written_tie_support',)+names[at:]+('source_rhythm_groups','group_rhythm_relations','local_group_rhythm','melodic_contour_choices','melodic_contour_intervention')
     for name in names:
         source=(root/(name+'.py')).read_text(encoding='utf-8-sig')
         hashes[name]=hashlib.sha256(source.encode()).hexdigest()

@@ -4,6 +4,7 @@ import {restoreDeadTies} from './restore_dead_ties.mjs';
 import {exportWithExactBends,loadWithExactBends} from './bend_fidelity.mjs';
 import {restoreSourceGraces} from './restore_source_graces.mjs';
 import {checkSourceGraces} from './check_source_graces.mjs';
+import {joinSourceGraceChords} from './join_source_grace_chords.mjs';
 const [modulePath,root,...options]=process.argv.slice(2),at=await import(pathToFileURL(path.resolve(modulePath)));
 if(options.includes('--native-bends-only')&&options.includes('--exact-model-bends'))throw Error('Conflicting bend export options');
 const preserveBends=!options.includes('--native-bends-only');
@@ -90,11 +91,13 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
  let report={songId:status.song_id,file:target};
  try{
   const map=JSON.parse(fs.readFileSync(path.join(folder,'bridge-map.json'),'utf8'));
-  voicePaddingRepairs=0;emptyVoiceRestRepairs=0;const score=merge(load(path.join(folder,'bridge.gp5')),map);
+  voicePaddingRepairs=0;emptyVoiceRestRepairs=0;let score=merge(load(path.join(folder,'bridge.gp5')),map);
   // Source inventory must be independent of how many tracks survived the bridge.
   const sourceNames=preservePitchedGraces?fs.readdirSync(folder).filter(n=>/^track-\d+\.json$/.test(n)).sort((a,b)=>Number(a.slice(6,-5))-Number(b.slice(6,-5))):[];
   if(preservePitchedGraces&&sourceNames.some((n,i)=>n!==`track-${i}.json`))throw Error('Noncontiguous source track inventory');
   const sourceParts=preservePitchedGraces?sourceNames.map(n=>JSON.parse(fs.readFileSync(path.join(folder,n),'utf8'))):null;
+  const graceCandidate=preservePitchedGraces?joinSourceGraceChords(score,sourceParts,at,settings):null;
+  if(graceCandidate)score=graceCandidate.score;
   const pitchedGraceRestoration=preservePitchedGraces?restoreSourceGraces(score,sourceParts,at.model.GraceType):null;
   const metadata=JSON.parse(fs.readFileSync(path.join(folder,'metadata.json'),'utf8'));score.title=metadata.title||score.title;score.artist=metadata.artist||score.artist;
   let rhythmRestorations=0;
@@ -137,6 +140,7 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
     notes:after.tracks.reduce((n,t)=>n+t.staves.reduce((n,s)=>n+s.bars.reduce((n,b)=>n+b.reduce((n,v)=>n+v.reduce((n,e)=>n+e.notes.length,0),0),0),0),0),
     directSource:rawCheck(afterScore,folder),sha256:crypto.createHash('sha256').update(fs.readFileSync(target)).digest('hex'),bytes:fs.statSync(target).size};
   if(preservePitchedGraces){
+   report.pitchedGraceChordJoins=graceCandidate.report;
    report.pitchedGraceRestoration=pitchedGraceRestoration;
    report.directPitchedGraces=checkSourceGraces(afterScore,sourceParts,at.model.GraceType);
    if(report.directPitchedGraces.status.startsWith('FAIL')){report.error='Independent pitched grace source check failed';report.roundtripPass=false;}

@@ -51,7 +51,8 @@ def event_pointer(event):
     return f"track-{event['part_id']}.json#/measures/{event['bar']-1}/voices/{event['voice']}/beats/{event['beat']}/notes/{event['note']}"
 
 
-def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=None,note_accent_slots=False):
+def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=None,note_accent_slots=False,rhythm_groups=False):
+    if type(rhythm_groups)is not bool:raise ValueError('Explicit rhythm ownership mode required')
     if type(note_accent_slots)is not bool:raise ValueError('Explicit optional-accent ownership mode required')
     if type(declared_chords)is not bool or families and declared_chords:raise ValueError('Choose one explicit musical ownership representation')
     if declared_chord_profile is not None and not declared_chords:raise ValueError('Chord profile requires declared chord ownership')
@@ -73,6 +74,10 @@ def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=
     if families:
         from voicing_families import lift as family_lift
         core=family_lift(core)
+    timing_values={}
+    if rhythm_groups:
+        from group_rhythm_relations import lift as rhythm_lift,expand as rhythm_expand
+        core=rhythm_lift(tier1,core);_,timing_values=rhythm_expand(core)
     effect=lift(tier1);slot_model=None;slot_ids=set()
     if note_accent_slots:
         from optional_accent_slots import lift as lift_slots,realize as realize_slots
@@ -91,6 +96,9 @@ def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=
             if not registered_container(row):
                 unsupported.append(dict(fact_ref=row['id'],reason='UNREGISTERED_SOURCE_CONTAINER'))
             coverage.append(dict(fact_ref=row['id'],owner='source_structure'));continue
+        if row['id']in timing_values:
+            if row['value']!=timing_values[row['id']]:raise ValueError('Source notation rhythm encoding conflict')
+            coverage.append(dict(fact_ref=row['id'],owner='source_group_rhythm'));continue
         event=events.get(row['parent']) if row['slot']=='fret' else None
         if event is not None and event['pitch'] is not None and row['type'] in ('integer','float'):
             part=documents[row['document']];note_ref=row['parent']
@@ -152,6 +160,13 @@ def realize(upper):
         if ident not in index or ident in assigned:raise ValueError('Duplicate or absent scalar owner')
         index[ident]['value']=value;assigned[ident]=owner
     core=upper['musical_relationships']
+    rhythm_model=None
+    if core.get('schema')=='source-group-rhythm/1':
+        from group_rhythm_relations import expand as rhythm_expand
+        rhythm_model=core;core,timing_values=rhythm_expand(core)
+        for ident,value in timing_values.items():
+            if ident not in index or index[ident]['type']!='integer' or not registered(index[ident]):raise ValueError('Unknown rhythmic notation scalar')
+            assign(ident,value,'source_group_rhythm')
     if core.get('schema')=='source-declared-chord-degrees/1':
         from declared_chord_ownership import validate as degree_core,label_values,capo_values
         core=degree_core(core,label_values(parameters['source_choices'],facts),capo_values(parameters['source_choices'],facts))
@@ -212,6 +227,9 @@ def realize(upper):
     from run_reversible_tier_qa import extract_documents
     observed=extract_documents(project_documents(restored))
     if json.dumps(observed,sort_keys=True)!=json.dumps(normalized,sort_keys=True):raise ValueError('Source choices conflict with pitch/time relationships')
+    if rhythm_model is not None:
+        from group_rhythm_relations import validate_source_groups
+        validate_source_groups(rhythm_model,restored)
     if 'contextual_constraints' in upper:
         from contextual_note_roles import verify
         verify(restored,upper['contextual_constraints'])
@@ -224,6 +242,14 @@ def realize(upper):
 def reconstruct(upper,controls):
     if controls=={'variation':0} and type(controls['variation']) in (int,float):
         return realize(upper)
+    if controls.get('context_policy')=='source_complete_group_rhythm':
+        from local_group_rhythm import intervene
+        edited,_=intervene(upper,controls)
+        return realize(edited)
+    if controls.get('context_policy')=='source_local_melodic_contour':
+        from melodic_contour_intervention import intervene
+        edited,_=intervene(upper,controls)
+        return realize(edited)
     if controls.get('context_policy')=='source_local_note_accent':
         from local_accents import intervene
         edited,_=intervene(upper,controls)
@@ -245,10 +271,18 @@ def validate(upper):
     lower=realize(strip_lower(upper))
     if 'input' in upper and json.dumps(lower,sort_keys=True)!=json.dumps(upper['input'],sort_keys=True):raise ValueError('Nested T1 conflicts')
     # Recompute all views to reject a second unchecked analysis authority.
-    declared=upper['musical_relationships'].get('schema')=='source-declared-chord-degrees/1'
+    model=upper['musical_relationships'];rhythm=model.get('schema')=='source-group-rhythm/1'
+    if rhythm:
+        from group_rhythm_relations import expand as rhythm_expand,lift as rhythm_lift
+        model,_=rhythm_expand(model)
+        if rhythm_lift(lower,model)!=upper['musical_relationships']:raise ValueError('Noncanonical shared rhythm ownership')
+    declared=model.get('schema')=='source-declared-chord-degrees/1'
     from chord_symbol_lexicon import LEGACY_PROFILE
-    profile=upper['musical_relationships'].get('admission_profile',LEGACY_PROFILE) if declared else None
-    computed=analyze(lower,families=upper['musical_relationships'].get('schema')=='source-voicing-families/1',declared_chords=declared,declared_chord_profile=profile,note_accent_slots=upper['schema']=='connected-source-musical-relations/2')
-    if json.dumps(computed['musical_relationships'],sort_keys=True)!=json.dumps(upper['musical_relationships'],sort_keys=True):raise ValueError('Pitch/time authority conflicts with source choices')
+    profile=model.get('admission_profile',LEGACY_PROFILE) if declared else None
+    computed=analyze(lower,families=model.get('schema')=='source-voicing-families/1',declared_chords=declared,declared_chord_profile=profile,note_accent_slots=upper['schema']=='connected-source-musical-relations/2',rhythm_groups=rhythm)
+    # Stable occurrence-group IDs may move relative to other parts in time.
+    # For rhythm owners exact source comparison + canonical re-lift above checks
+    # identity and equations without renumbering unrelated source occurrences.
+    if not rhythm and json.dumps(computed['musical_relationships'],sort_keys=True)!=json.dumps(upper['musical_relationships'],sort_keys=True):raise ValueError('Pitch/time authority conflicts with source choices')
     if 'derived_views' in upper and json.dumps(computed['derived_views'],sort_keys=True)!=json.dumps(upper['derived_views'],sort_keys=True):raise ValueError('Stale or altered derived musical view')
     return lower
