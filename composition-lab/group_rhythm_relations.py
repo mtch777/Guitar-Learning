@@ -8,7 +8,12 @@ from fractions import Fraction as F
 import musical_tier2 as music
 
 SCHEMA='source-group-rhythm/1'
+STRUCTURAL_SCHEMA='source-group-rhythm/2'
 VIEWS=('ensemble_coattacks','nominal_written_spans','tonal_evidence','temporal_tonal_evidence')
+
+
+def is_model(value):
+    return type(value)is dict and value.get('schema')in(SCHEMA,STRUCTURAL_SCHEMA)
 
 
 def coordinate(value):
@@ -23,7 +28,7 @@ def relation(*,start_q,span_q,shares=None,durations_q=None):
     if durations_q is not None:
         if type(durations_q)is not list:raise ValueError('Duration sequence required')
         shares=[str(coordinate(d)/span)for d in durations_q]
-    if type(shares)is not list or len(shares)<2:raise ValueError('Complete repeated group required')
+    if type(shares)is not list or len(shares)<2:raise ValueError('Complete group needs at least two attacks')
     weights=[coordinate(s)for s in shares]
     if any(s<=0 for s in weights)or sum(weights,F(0))!=1:raise ValueError('Positive shares must sum exactly to one')
     durations=[span*s for s in weights];pos=start;onsets=[]
@@ -45,13 +50,14 @@ def refresh(body):
     return body
 
 
-def lift(tier1,pitch,prepared=None):
-    from source_rhythm_groups import inventory
+def lift(tier1,pitch,prepared=None,*,structural=False):
+    from source_rhythm_groups import inventory,timing_owner_reasons
+    if type(structural)is not bool:raise ValueError('Explicit timing-owner admission required')
     evidence=inventory(tier1)if prepared is None else prepared
     result=deepcopy(pitch);body=body_of(result);facts={r['id']:r for r in tier1['facts']};groups=[]
     index={m['id']:(g,m)for g in body['coattacks']for m in g['members']}
     for row in evidence['groups']:
-        if row['reasons']:continue
+        if (timing_owner_reasons(row)if structural else row['reasons']):continue
         pairs=[index[ref]for ref in row['occurrence_refs']]
         if any(len(g['members'])!=1 for g,m in pairs):continue
         durations=[m['duration_q']for g,m in pairs]
@@ -65,12 +71,12 @@ def lift(tier1,pitch,prepared=None):
         groups.append(dict(id=row['id'],part_id=row['part_id'],bar=row['bar'],voice=row['voice'],start_q=row['start_q'],span_q=row['span_q'],shares=solved['shares'],members=members))
     for view in VIEWS:body.pop(view,None)
     for g in body['coattacks']:g.pop('interpretation',None)
-    return dict(schema=SCHEMA,pitch_relationships=result,groups=groups)
+    return dict(schema=STRUCTURAL_SCHEMA if structural else SCHEMA,pitch_relationships=result,groups=groups)
 
 
 def expand(shared):
     from source_rhythm_groups import TYPES
-    if type(shared)is not dict or set(shared)!={'schema','pitch_relationships','groups'}or shared['schema']!=SCHEMA:raise ValueError('Unknown rhythm owner payload')
+    if not is_model(shared)or set(shared)!={'schema','pitch_relationships','groups'}:raise ValueError('Unknown rhythm owner payload')
     if type(shared['groups'])is not list:raise ValueError('Ordered group list required')
     pitch=deepcopy(shared['pitch_relationships']);body=body_of(pitch)
     if 'input'in body or any(k in body for k in VIEWS)or any('interpretation'in g for g in body['coattacks']):raise ValueError('Hidden lower/derived timing payload')
@@ -108,8 +114,8 @@ def expand(shared):
 
 def validate_source_groups(shared,tier1):
     """Recheck admissibility against reconstructed source, not stored claims."""
-    from source_rhythm_groups import inventory
+    from source_rhythm_groups import inventory,timing_owner_reasons
     rows={r['id']:r for r in inventory(tier1)['groups']}
     for g in shared['groups']:
         r=rows.get(g['id'])
-        if r is None or r['reasons']or any(g[k]!=r[k]for k in('part_id','bar','voice','start_q','span_q','shares'))or [m['occurrence_ref']for m in g['members']]!=r['occurrence_refs']:raise ValueError('Rhythm group not supported by reconstructed source')
+        if r is None or (timing_owner_reasons(r)if shared['schema']==STRUCTURAL_SCHEMA else r['reasons'])or any(g[k]!=r[k]for k in('part_id','bar','voice','start_q','span_q','shares'))or [m['occurrence_ref']for m in g['members']]!=r['occurrence_refs']:raise ValueError('Rhythm group not supported by reconstructed source')

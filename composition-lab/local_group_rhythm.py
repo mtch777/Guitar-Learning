@@ -38,9 +38,9 @@ def sample(evidence,controls):
 
 
 def apply(upper,target_ref,shares):
-    from group_rhythm_relations import SCHEMA,expand
+    from group_rhythm_relations import is_model,expand
     edited=deepcopy(upper);model=edited['musical_relationships']
-    if model.get('schema')!=SCHEMA:raise ValueError('Sole complete-group time authority required')
+    if not is_model(model):raise ValueError('Sole complete-group time authority required')
     group=next((g for g in model['groups']if g['id']==target_ref),None)
     if group is None:raise ValueError('Group is not owned by the rhythm relation')
     group['shares']=deepcopy(shares);expand(model)

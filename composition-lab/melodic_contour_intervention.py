@@ -48,10 +48,11 @@ def apply_pitch(upper,target_ref,pitch):
     import musical_tier2 as music
     from voicing_families import SCHEMA as FAMILY
     from declared_chord_ownership import SCHEMA as DECLARED
+    from group_rhythm_relations import is_model as rhythm_model
     if type(pitch)is not str or str(F(pitch))!=pitch or F(pitch).denominator!=1:
         raise ValueError('Exact observed integer pitch required')
     result=deepcopy(upper);shared=result['musical_relationships']
-    rhythm=shared.get('schema')=='source-group-rhythm/1'
+    rhythm=rhythm_model(shared)
     rhythm_members={m['occurrence_ref']for g in shared['groups']for m in g['members']}if rhythm else set()
     if rhythm:shared=shared['pitch_relationships']
     wrapped=shared.get('schema')in(FAMILY,DECLARED)

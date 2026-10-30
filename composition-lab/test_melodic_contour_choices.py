@@ -147,6 +147,14 @@ class MelodicContourTests(unittest.TestCase):
             self.assertEqual(project_documents(realize(edit.apply_pitch(upper,'event:77:0:1:0:3:0','47'))),actual)
         # A proposed pitch edit cannot secretly invalidate a locked repeated-note group.
         with self.assertRaises(ValueError):realize(edit.apply_pitch(upper,'event:77:0:1:0:1:0','47'))
+        # Structural time ownership remains valid when an independent pitch
+        # relationship changes; admission of any rhythm edit is still separate.
+        _,upper=model(rhythm_documents(),rhythm_groups=True,rhythm_group_profile='written_time')
+        original=deepcopy(upper['musical_relationships']['groups'])
+        changed=edit.apply_pitch(upper,'event:77:0:1:0:1:0','47')
+        self.assertEqual(changed['musical_relationships']['schema'],'source-group-rhythm/2')
+        self.assertEqual(changed['musical_relationships']['groups'],original)
+        self.assertEqual(project_documents(realize(changed))['track-0.json']['measures'][0]['voices'][0]['beats'][1]['notes'][0]['fret'],7)
 
     def test_actual_isolated_zero_and_changed_inverse(self):
         from run_connected_tier2_qa import bundle

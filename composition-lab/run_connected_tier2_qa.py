@@ -47,6 +47,10 @@ def bundle(root):
     for name,source in sources.items():
         code+=f"_m=types.ModuleType({name!r});_m.__file__={str(root/(name+'.py'))!r};sys.modules[{name!r}]=_m\nexec(compile({source!r},{name!r},'exec'),_m.__dict__)\n"
         hashes[name]=hashlib.sha256(source.encode()).hexdigest()
+    for name in ('optional_palm_mute_slots','check_local_dynamics','check_local_accents','palm_mute_opportunity_census','local_palm_mutes'):
+        source=(root/(name+'.py')).read_text(encoding='utf-8-sig')
+        code+=f"_m=types.ModuleType({name!r});sys.modules[{name!r}]=_m\nexec(compile({source!r},{name!r},'exec'),_m.__dict__)\n"
+        hashes[name]=hashlib.sha256(source.encode()).hexdigest()
     # Frozen approved detectors are also required INSIDE a changed-gesture
     # worker. Copy exact function ASTs, never a separately maintained detector.
     pedal_sources={name:(root/(name+'.py')).read_text(encoding='utf-8-sig') for name in ('pedal_patterns','pedal_register','pedal_evidence','pedal_expansion')}

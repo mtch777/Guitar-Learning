@@ -6,7 +6,7 @@ from run_declared_chord_qa import sha,dump
 
 
 def freeze(output,backend,module,font,policy='source_local_dynamic_level'):
-    if policy not in ('source_local_dynamic_level','source_local_dynamic_transition','source_local_note_accent','parallel_rhythm_melody'):raise ValueError('Explicit supported local expression policy required')
+    if policy not in ('source_local_dynamic_level','source_local_dynamic_transition','source_local_note_accent','source_local_palm_mute','parallel_rhythm_melody'):raise ValueError('Explicit supported local expression policy required')
     root=Path(__file__).resolve().parent
     if output.exists()or'local-artifacts'not in output.resolve().parts:raise ValueError('Fresh private output required')
     excluded=set();origins=[]
@@ -33,6 +33,10 @@ def freeze(output,backend,module,font,policy='source_local_dynamic_level'):
             controls=dict(strengths=[0,50,100],rhythm_seeds=list(range(64)),melody_seeds=list(range(32))),
             review_selection='One random source shared by both levers; all opportunities and failures retained independently. First eligible changed source-order draw under the lever-specific seed list. No replacement or manual pitch/rhythm selection.',
             acceptance='Same relations, complete zero reconstruction with source access denied; 0/50/100 behavior, whole-song unrelated locks, independent musical evidence and actual output. Source-only choices. No-opportunity is coverage, not creative acceptance.')
+    if policy=='source_local_palm_mute':
+        manifest.update(schema='local-palm-mute-freeze/1',
+            review_selection='All complete coattacks, exclusions, source alternatives and fixed draws retained. First source-ordered mute-state change at100 with seeds0..31. Absent/false changes counted separately. No replacement for no choice or unchanged PCM.',
+            acceptance='Exact optional beat ownership and written time, actual stripped zero/no-choice/changed workers, independent full coattack/state/draw census, only selected mute declarations changed; GP/MIDI/PCM checked separately. Native duration damping is not realistic palm-contact timbre or human musical approval.')
     output.mkdir(parents=True);dump(output/'freeze.json',manifest);return manifest
 
 

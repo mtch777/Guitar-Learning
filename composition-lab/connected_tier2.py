@@ -51,8 +51,10 @@ def event_pointer(event):
     return f"track-{event['part_id']}.json#/measures/{event['bar']-1}/voices/{event['voice']}/beats/{event['beat']}/notes/{event['note']}"
 
 
-def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=None,note_accent_slots=False,rhythm_groups=False):
+def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=None,note_accent_slots=False,rhythm_groups=False,rhythm_group_profile='plain_repeat',palm_mute_slots=False):
     if type(rhythm_groups)is not bool:raise ValueError('Explicit rhythm ownership mode required')
+    if rhythm_group_profile not in ('plain_repeat','written_time')or (not rhythm_groups and rhythm_group_profile!='plain_repeat'):raise ValueError('Explicit supported rhythm-owner profile required')
+    if type(palm_mute_slots)is not bool:raise ValueError('Explicit optional palm-mute ownership mode required')
     if type(note_accent_slots)is not bool:raise ValueError('Explicit optional-accent ownership mode required')
     if type(declared_chords)is not bool or families and declared_chords:raise ValueError('Choose one explicit musical ownership representation')
     if declared_chord_profile is not None and not declared_chords:raise ValueError('Chord profile requires declared chord ownership')
@@ -77,12 +79,15 @@ def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=
     timing_values={}
     if rhythm_groups:
         from group_rhythm_relations import lift as rhythm_lift,expand as rhythm_expand
-        core=rhythm_lift(tier1,core);_,timing_values=rhythm_expand(core)
-    effect=lift(tier1);slot_model=None;slot_ids=set()
+        core=rhythm_lift(tier1,core,structural=rhythm_group_profile=='written_time');_,timing_values=rhythm_expand(core)
+    effect=lift(tier1);slot_model=None;mute_model=None;slot_ids=set()
     if note_accent_slots:
         from optional_accent_slots import lift as lift_slots,realize as realize_slots
         slot_model=lift_slots(tier1);slot_ids={r['id']for r in realize_slots(slot_model)}
-        effect['groups']=[g for g in effect['groups']if g['source_fact_ref']not in slot_ids]
+    if palm_mute_slots:
+        from optional_palm_mute_slots import lift as lift_mutes,realize as realize_mutes
+        mute_model=lift_mutes(tier1);slot_ids.update(r['id']for r in realize_mutes(mute_model))
+    effect['groups']=[g for g in effect['groups']if g['source_fact_ref']not in slot_ids]
     effect_ids={r['id'] for r in realize_effects(effect)}
     events={event_pointer(e):e for e in normalized['events']}
     source_index={r['id']:r for r in tier1['facts']}
@@ -127,6 +132,11 @@ def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=
         output['owned_parameters']['optional_note_accents']=slot_model
         output['coverage']=dict(schema='conditional-source-ownership/1',fixed=coverage,
             rules=[dict(relation=g['id'])for g in slot_model['groups']])
+    if palm_mute_slots:
+        output['schema']='connected-source-musical-relations/3'
+        output['owned_parameters']['optional_beat_palm_mutes']=mute_model
+        output['coverage']=dict(schema='conditional-source-ownership/1',fixed=coverage,
+            rules=[dict(relation=g['id'])for model in (slot_model,mute_model)if model for g in model['groups']])
     if not unsupported:
         restored=realize(strip_lower(output))
         if json.dumps(restored,sort_keys=True)!=json.dumps(tier1,sort_keys=True):raise ValueError('Complete forward/reverse discrepancy')
@@ -141,11 +151,12 @@ def strip_lower(upper):
 def realize(upper):
     """No source/lower/derived-view access. Unknown owners block reconstruction."""
     fields={'tier','schema','source_structure','owned_parameters','musical_relationships','coverage','unsupported'}
-    if set(upper)-{'contextual_constraints','membership_lock'}!=fields or upper['schema']not in ('connected-source-musical-relations/1','connected-source-musical-relations/2') or upper['tier']!=2:raise ValueError('Unsupported unified interface or hidden payload')
+    if set(upper)-{'contextual_constraints','membership_lock'}!=fields or upper['schema']not in ('connected-source-musical-relations/1','connected-source-musical-relations/2','connected-source-musical-relations/3') or upper['tier']!=2:raise ValueError('Unsupported unified interface or hidden payload')
     if upper['unsupported']:raise ValueError('Unsupported source facts block full inverse')
     structure=upper['source_structure'];parameters=upper['owned_parameters']
-    optional=upper['schema']=='connected-source-musical-relations/2'
-    expected_parameters={'source_choices','physical_positions','technique_declarations'}|({'optional_note_accents'}if optional else set())
+    mute_optional=upper['schema']=='connected-source-musical-relations/3'
+    optional=upper['schema']=='connected-source-musical-relations/2' or(mute_optional and 'optional_note_accents'in parameters)
+    expected_parameters={'source_choices','physical_positions','technique_declarations'}|({'optional_note_accents'}if optional else set())|({'optional_beat_palm_mutes'}if mute_optional else set())
     if set(structure)!={'documents','facts','source_scope'} or set(parameters)!=expected_parameters:raise ValueError('Unregistered owner payload')
     facts=deepcopy(structure['facts']);index={r['id']:r for r in facts}
     if len(index)!=len(facts) or any('value' in r for r in facts):raise ValueError('Raw or duplicate skeleton scalar')
@@ -156,12 +167,17 @@ def realize(upper):
         for row in realize_slots(parameters['optional_note_accents']):
             if row['id']in index:raise ValueError('Overlapping optional-accent/structure ownership')
             index[row['id']]=row;assigned[row['id']]='optional_note_accent'
+    if mute_optional:
+        from optional_palm_mute_slots import realize as realize_mutes
+        for row in realize_mutes(parameters['optional_beat_palm_mutes']):
+            if row['id']in index:raise ValueError('Overlapping optional palm-mute ownership')
+            index[row['id']]=row;assigned[row['id']]='optional_beat_palm_mute'
     def assign(ident,value,owner):
         if ident not in index or ident in assigned:raise ValueError('Duplicate or absent scalar owner')
         index[ident]['value']=value;assigned[ident]=owner
     core=upper['musical_relationships']
     rhythm_model=None
-    if core.get('schema')=='source-group-rhythm/1':
+    if core.get('schema')in('source-group-rhythm/1','source-group-rhythm/2'):
         from group_rhythm_relations import expand as rhythm_expand
         rhythm_model=core;core,timing_values=rhythm_expand(core)
         for ident,value in timing_values.items():
@@ -206,11 +222,16 @@ def realize(upper):
         if row['id'] in index:raise ValueError('Overlapping technique/structure ownership')
         index[row['id']]=row;assigned[row['id']]='technique_declaration'
     coverage=upper['coverage']
-    if optional:
-        from optional_accent_slots import coverage as slot_coverage
-        model=parameters['optional_note_accents']
-        if type(coverage)is not dict or set(coverage)!={'schema','fixed','rules'}or coverage['schema']!='conditional-source-ownership/1' or type(coverage['fixed'])is not list or coverage['rules']!=[dict(relation=g['id'])for g in model['groups']]:raise ValueError('Invalid conditional ownership ledger')
-        coverage=coverage['fixed']+slot_coverage(model)
+    if optional or mute_optional:
+        rules=[];emitted=[]
+        if optional:
+            from optional_accent_slots import coverage as slot_coverage
+            model=parameters['optional_note_accents'];rules.extend(dict(relation=g['id'])for g in model['groups']);emitted.extend(slot_coverage(model))
+        if mute_optional:
+            from optional_palm_mute_slots import coverage as mute_coverage
+            model=parameters['optional_beat_palm_mutes'];rules.extend(dict(relation=g['id'])for g in model['groups']);emitted.extend(mute_coverage(model))
+        if type(coverage)is not dict or set(coverage)!={'schema','fixed','rules'}or coverage['schema']!='conditional-source-ownership/1' or type(coverage['fixed'])is not list or coverage['rules']!=rules:raise ValueError('Invalid conditional ownership ledger')
+        coverage=coverage['fixed']+emitted
     if type(coverage)is not list or any(type(r)is not dict or set(r)!={'fact_ref','owner'}for r in coverage) or len(coverage)!=len(index) or {r['fact_ref']:r['owner'] for r in coverage}!=assigned:raise ValueError('Incomplete/duplicate ownership ledger')
     # Source order is defined only by ordered skeleton membership, not caches.
     ordered=[];seen=set()
@@ -242,6 +263,10 @@ def realize(upper):
 def reconstruct(upper,controls):
     if controls=={'variation':0} and type(controls['variation']) in (int,float):
         return realize(upper)
+    if controls.get('context_policy')=='source_local_palm_mute':
+        from local_palm_mutes import intervene
+        edited,_=intervene(upper,controls)
+        return realize(edited)
     if controls.get('context_policy')=='source_complete_group_rhythm':
         from local_group_rhythm import intervene
         edited,_=intervene(upper,controls)
@@ -271,15 +296,16 @@ def validate(upper):
     lower=realize(strip_lower(upper))
     if 'input' in upper and json.dumps(lower,sort_keys=True)!=json.dumps(upper['input'],sort_keys=True):raise ValueError('Nested T1 conflicts')
     # Recompute all views to reject a second unchecked analysis authority.
-    model=upper['musical_relationships'];rhythm=model.get('schema')=='source-group-rhythm/1'
+    model=upper['musical_relationships'];rhythm=model.get('schema')in('source-group-rhythm/1','source-group-rhythm/2')
+    structural=rhythm and model['schema']=='source-group-rhythm/2'
     if rhythm:
         from group_rhythm_relations import expand as rhythm_expand,lift as rhythm_lift
         model,_=rhythm_expand(model)
-        if rhythm_lift(lower,model)!=upper['musical_relationships']:raise ValueError('Noncanonical shared rhythm ownership')
+        if rhythm_lift(lower,model,structural=structural)!=upper['musical_relationships']:raise ValueError('Noncanonical shared rhythm ownership')
     declared=model.get('schema')=='source-declared-chord-degrees/1'
     from chord_symbol_lexicon import LEGACY_PROFILE
     profile=model.get('admission_profile',LEGACY_PROFILE) if declared else None
-    computed=analyze(lower,families=model.get('schema')=='source-voicing-families/1',declared_chords=declared,declared_chord_profile=profile,note_accent_slots=upper['schema']=='connected-source-musical-relations/2',rhythm_groups=rhythm)
+    computed=analyze(lower,families=model.get('schema')=='source-voicing-families/1',declared_chords=declared,declared_chord_profile=profile,note_accent_slots='optional_note_accents'in upper['owned_parameters'],palm_mute_slots=upper['schema']=='connected-source-musical-relations/3',rhythm_groups=rhythm,rhythm_group_profile='written_time'if structural else'plain_repeat')
     # Stable occurrence-group IDs may move relative to other parts in time.
     # For rhythm owners exact source comparison + canonical re-lift above checks
     # identity and equations without renumbering unrelated source occurrences.

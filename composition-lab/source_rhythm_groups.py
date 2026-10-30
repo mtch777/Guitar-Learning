@@ -15,6 +15,18 @@ SAFE_NOTE={'string','fret','rest','velocity','accentuated',*NOTE_EXPR}
 TYPES=(1,2,4,8,16,32,64,128)
 PROGRAMS=(*range(24,32),33,34,36,37)
 
+# These constrain changing a rhythm, not representing its written clock.
+# Unknown/new reasons remain failures: only named non-clock conditions differ.
+_NONCLOCK_REASONS=frozenset(('ACTIVE_BEAT_EXECUTION','ACTIVE_NOTE_EXECUTION',
+    'ACCENT_DECLARATION','NOTE_DYNAMIC_OVERRIDE','DYNAMIC_BOUNDARY','CHORD_BOUNDARY',
+    'NOT_IDENTICAL_PITCH','NOT_IDENTICAL_STRING_FRET','UNKNOWN_OR_CHANGING_DYNAMIC',
+    'BOUNDARY_EXECUTION'))
+
+
+def timing_owner_reasons(row):
+    """Versioned written-time admission; does NOT authorize a rhythm change."""
+    return [reason for reason in row['reasons']if reason not in _NONCLOCK_REASONS]
+
 
 def duration(beat):
     d=beat.get('duration')

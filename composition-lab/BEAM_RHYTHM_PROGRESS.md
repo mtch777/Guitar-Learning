@@ -28,7 +28,7 @@ the latter. This is not a learned artist style or a complete rhythm lever.
 - [x] Development source GP/MIDI/audio checks, then new frozen random source;
   preserve failures and distinguish reconstruction from a supported new change.
 - [x] Planner MID/END and relevant regressions.
-- [ ] Commit/push and exact-head CI.
+- [x] Commit/push and exact-head CI: `fcf5cd6`, run `40984761613`, success.
 
 ## Fixed scope
 Single ordinary pitched note per beat, repeated identical pitch/string/fret,
