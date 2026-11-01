@@ -36,7 +36,7 @@ function sourceCapo(raw){
 
 export function checkSourceGraces(score,parts,types={None:0,OnBeat:1,BeforeBeat:2}){
   const differences=[],witnesses=[],uncheckedPercussion=[],glyphDurationDifferences=[];
-  const counts={sourceGraceVoices:0,pitchedGraceVoicesChecked:0,checkedVoiceBeats:0,checkedNotes:0,checkedGraceBeats:0,checkedGraceNotes:0,uncheckedPercussionGraceBeats:0,uncheckedPercussionGraceNotes:0};
+  const counts={sourceGraceVoices:0,pitchedGraceVoicesChecked:0,checkedVoiceBeats:0,checkedNotes:0,checkedGraceBeats:0,checkedGraceNotes:0,checkedGraceLetRingNotes:0,uncheckedPercussionGraceBeats:0,uncheckedPercussionGraceNotes:0};
   const fail=(code,where,expected,actual)=>differences.push({code,...where,expected:expected??null,actual:actual??null});
   try{
     if(types?.None!==0||types?.OnBeat!==1||types?.BeforeBeat!==2)throw Error('Pinned native grace enum required');
@@ -80,6 +80,9 @@ export function checkSourceGraces(score,parts,types={None:0,OnBeat:1,BeforeBeat:
           const a=source[bi],b=native[bi],loc={...where,beat:bi},sourceRef=`track-${ti}.json#/measures/${mi}/voices/${vi}/beats/${bi}`;
           if(!b||!Array.isArray(b.notes)){fail('NATIVE_BEAT',loc,'native beat with notes',null);continue;}
           counts.checkedVoiceBeats++;
+          const letRingPresent=Object.hasOwn(a,'letRing');
+          const letRingValid=!letRingPresent||typeof a.letRing==='boolean';
+          if(kinds[bi]&&!letRingValid)fail('UNKNOWN_SOURCE_LET_RING',{...loc,source_ref:sourceRef},'boolean/absent',a.letRing);
           if(b.index!==bi||b.isEmpty)fail('NATIVE_BEAT_IDENTITY',loc,{index:bi,empty:false},{index:b.index,empty:b.isEmpty});
           if(b.graceType!==kinds[bi])fail('GRACE_MODE',loc,kinds[bi],b.graceType);
           let start;try{start=ticks(cursor);}catch(e){fail('UNSUPPORTED_EXACT_GRID',loc,e.message,null);continue;}
@@ -120,9 +123,13 @@ export function checkSourceGraces(score,parts,types={None:0,OnBeat:1,BeforeBeat:
               counts.checkedGraceNotes++;
               if(n.ghost!==undefined&&typeof n.ghost!=='boolean')fail('UNKNOWN_SOURCE_GHOST',loc,'boolean/absent',n.ghost);
               else if(actual.isGhost!==(n.ghost===true))fail('GHOST_FLAG',loc,n.ghost===true,actual.isGhost);
+              if(letRingValid){
+                counts.checkedGraceLetRingNotes++;
+                if(actual.isLetRing!==(a.letRing===true))fail('LET_RING_FLAG',{...loc,source_ref:sourceRef,member_key:key,source_present:letRingPresent},a.letRing===true,actual.isLetRing);
+              }
             }
           }
-          beatWitnesses.push({source_ref:sourceRef,native_index:bi,source_grace_type:kinds[bi],expected_display_start:start,actual_display_start:b.displayStart,actual_display_duration:b.displayDuration,source_member_keys:[...rawKeys.keys()].sort()});
+          beatWitnesses.push({source_ref:sourceRef,native_index:bi,source_grace_type:kinds[bi],expected_display_start:start,actual_display_start:b.displayStart,actual_display_duration:b.displayDuration,source_member_keys:[...rawKeys.keys()].sort(),...(kinds[bi]?{source_let_ring:{present:letRingPresent,value:letRingPresent?a.letRing:null}}:{})});
         }
         let expectedTotal;try{expectedTotal=ticks(cursor);}catch(e){fail('UNSUPPORTED_EXACT_VOICE_GRID',where,e.message,null);}
         if(expectedTotal!==undefined&&nativeTotal!==expectedTotal)fail('VOICE_NOMINAL_TOTAL',where,expectedTotal,nativeTotal);
@@ -132,5 +139,5 @@ export function checkSourceGraces(score,parts,types={None:0,OnBeat:1,BeforeBeat:
     }
   }catch(error){fail('INVALID_INPUT',{},error.message,null);}
   return {schema,status:differences.length?'FAIL_INDEPENDENT_PITCHED_SOURCE_GRACES':'PASS_INDEPENDENT_PITCHED_SOURCE_GRACES',pitched_scope_status:counts.pitchedGraceVoicesChecked?'CHECKED_PITCHED_GRACE_VOICES':'NO_COVERED_PITCHED_GRACE_VOICES',counts,differences,witnesses,unchecked_percussion:uncheckedPercussion,glyph_duration_differences:glyphDurationDifferences,
-    limitations:['Source-grace voices on known pitched programs only; percussion is explicitly unchecked','Original written grace duration/type remains exact in T1; native glyph normalization is reported, not source equality','Zero nominal grace span does not specify performed duration; pinned renderer allocation is not source acoustic truth','Exact one-to-one member/beat scope; no host recovery, missing-note reconstruction, or inferred musical voice','Exact nominal clock domain uses integer ticks at960perquarter; unsupported fractional native grids fail closed']};
+    limitations:['Source-grace voices on known pitched programs only; percussion is explicitly unchecked','Absent and false source letRing both map to native false; source presence is reported separately','Let-ring notation parity does not establish an acoustic ringing end','Original written grace duration/type remains exact in T1; native glyph normalization is reported, not source equality','Zero nominal grace span does not specify performed duration; pinned renderer allocation is not source acoustic truth','Exact one-to-one member/beat scope; no host recovery, missing-note reconstruction, or inferred musical voice','Exact nominal clock domain uses integer ticks at960perquarter; unsupported fractional native grids fail closed']};
 }

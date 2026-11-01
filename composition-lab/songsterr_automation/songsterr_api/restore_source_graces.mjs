@@ -66,6 +66,12 @@ export function restoreSourceGraces(score, parts, types) {
         }
         for (let bi = 0; bi < source.length; bi++) {
           const a = source[bi], b = native[bi], mode = modes[bi], notes = (a.notes || []).filter(n => !n.rest);
+          // Songsterr declares letRing on the beat; GP stores it on each note.
+          // Absence and explicit false have the same native semantic value, but
+          // the raw source is never rewritten or given an invented declaration.
+          if (mode !== types.None && Object.hasOwn(a, 'letRing') && typeof a.letRing !== 'boolean') {
+            throw Error(`Unknown source let-ring declaration at ${where}:${bi}`);
+          }
           if (b.isEmpty || ![types.None, types.OnBeat, types.BeforeBeat].includes(b.graceType)) {
             throw Error(`Unsupported native grace/empty beat at ${where}:${bi}`);
           }
@@ -92,6 +98,7 @@ export function restoreSourceGraces(score, parts, types) {
               if (n.ghost !== undefined && typeof n.ghost !== 'boolean') throw Error(`Unknown source ghost declaration at ${where}:${bi}`);
               const target = nativeKeys.get(key), ghost = n.ghost === true;
               if (target.isGhost !== ghost) writes.push({target, key: 'isGhost', value: ghost});
+              if (target.isLetRing !== (a.letRing === true)) writes.push({target, key: 'isLetRing', value: a.letRing === true});
               graceNotes++;
             }
           }
@@ -110,7 +117,8 @@ export function restoreSourceGraces(score, parts, types) {
   return {
     schema: 'identity-checked-pitched-source-graces/1', checkedBeats, checkedNotes, graceBeats, graceNotes, uncheckedPercussionGraceBeats,
     restoredGraceTypes: writes.filter(x => x.key === 'graceType').length,
-    restoredGhostFlags: writes.filter(x => x.key === 'isGhost').length, witnesses,
-    limitations: ['Pitched tracks only; percussion grace declarations remain unchecked and unchanged', 'Exact one-to-one voice/beat/member scope only', 'Native finish normalizes grace glyph durations and chooses performed time; neither is asserted equal to source performance', 'No inferred grace execution, host-string recovery or collapsed-group reconstruction']
+    restoredGhostFlags: writes.filter(x => x.key === 'isGhost').length,
+    restoredLetRingFlags: writes.filter(x => x.key === 'isLetRing').length, witnesses,
+    limitations: ['Pitched tracks only; percussion grace declarations remain unchecked and unchanged', 'Exact one-to-one voice/beat/member scope only', 'Absent and false source letRing both mean native false; original source presence remains unchanged', 'Preserved let-ring declaration does not establish an acoustic ringing end', 'Native finish normalizes grace glyph durations and chooses performed time; neither is asserted equal to source performance', 'No inferred grace execution, host-string recovery or collapsed-group reconstruction']
   };
 }

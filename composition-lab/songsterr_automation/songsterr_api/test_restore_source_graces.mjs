@@ -6,6 +6,7 @@ import os from 'node:os';
 import {spawnSync} from 'node:child_process';
 import {pathToFileURL, fileURLToPath} from 'node:url';
 import {restoreSourceGraces} from './restore_source_graces.mjs';
+import {checkSourceGraces} from './check_source_graces.mjs';
 
 const types = {None: 0, BeforeBeat: 1, OnBeat: 2};
 const sourceNote = (string, fret, ghost = false) => ({string, fret, ghost});
@@ -16,7 +17,7 @@ function fixture() {
   ];
   const native = beats.map(b => ({graceType: 0, duration: b.duration[1], dots: 0,
     tupletNumerator: -1, tupletDenominator: -1, isEmpty: false,
-    notes: b.notes.map(n => ({string: 2 - n.string, fret: n.fret, isGhost: false, isDead: false}))}));
+    notes: b.notes.map(n => ({string: 2 - n.string, fret: n.fret, isGhost: false, isDead: false, isLetRing: false}))}));
   return {
     parts: [{partId: 0, instrumentId: 24, tuning: [64, 59], measures: [{voices: [{beats}]}]}],
     score: {tracks: [{index: 0, staves: [{tuning: [64, 59], capo: 0, isPercussion: false, bars: [{voices: [{beats: native}]}]}]}]},
@@ -40,7 +41,7 @@ test('consecutive before-beat groups keep order and separate ghost states', () =
   const f = fixture();
   f.source[0].graceNote = 'beforeBeat'; f.source[0].notes.pop(); f.native[0].notes.pop();
   f.source.splice(1, 0, {graceNote: 'beforeBeat', duration: [1, 16], notes: [sourceNote(1, 4, true)]});
-  f.native.splice(1, 0, {...structuredClone(f.native[0]), duration: 16, notes: [{string: 1, fret: 4, isGhost: false}]});
+  f.native.splice(1, 0, {...structuredClone(f.native[0]), duration: 16, notes: [{string: 1, fret: 4, isGhost: false, isLetRing: false}]});
   const r = run(f);
   assert.deepEqual(f.native.map(b => b.graceType), [1, 1, 0]);
   assert.deepEqual(f.native.slice(0, 2).map(b => b.notes[0].isGhost), [false, true]);
@@ -94,11 +95,44 @@ test('correspondence and unsupported declarations refuse without partial mutatio
 
 test('later voice failure leaves earlier verified grace and ghost unchanged', () => {
   const f = fixture();
+  f.source[0].letRing = true;
   f.parts[0].measures[0].voices.push({beats: structuredClone(f.source)});
   const other = structuredClone(f.native); other[1].notes[0].fret++;
   f.score.tracks[0].staves[0].bars[0].voices.push({beats: other});
   const before = structuredClone(f.score);
   assert.throws(() => run(f), /correspondence mismatch/); assert.deepEqual(f.score, before);
+});
+
+test('beat-level let-ring restores every matched grace member and preserves source presence and all other fields', () => {
+  for (const declaration of ['absent', false, true]) {
+    const f = fixture();
+    if (declaration !== 'absent') f.source[0].letRing = declaration;
+    f.native[0].notes.forEach(n => n.isLetRing = declaration !== true);
+    f.native[1].notes[0].isLetRing = true; // An ordinary host is outside this repair.
+    const before = structuredClone(f.score), source = structuredClone(f.parts), r = run(f);
+    const expected = before.tracks[0].staves[0].bars[0].voices[0].beats[0];
+    expected.graceType = types.OnBeat; expected.notes[1].isGhost = true;
+    expected.notes.forEach(n => n.isLetRing = declaration === true);
+    assert.deepEqual(f.score, before); assert.deepEqual(f.parts, source);
+    assert.equal(r.restoredLetRingFlags, 2); assert.equal(run(f).restoredLetRingFlags, 0);
+  }
+});
+
+test('supplied nonboolean let-ring values and later ambiguity refuse before any repair', () => {
+  for (const value of [null, 0, 1, 'true', {}, [], undefined]) {
+    const f = fixture(); f.source[0].letRing = value;
+    const before = structuredClone(f.score), source = structuredClone(f.parts);
+    assert.throws(() => run(f), /let-ring declaration/);
+    assert.deepEqual(f.score, before); assert.deepEqual(f.parts, source);
+  }
+  for (const corrupt of [
+    f => { [f.native[0].notes[0].fret, f.native[1].notes[0].fret] = [5, 2]; },
+    f => { f.native[0].notes[1].string = f.native[0].notes[0].string; }
+  ]) {
+    const f = fixture(); f.source[0].letRing = true; corrupt(f);
+    const before = structuredClone(f.score);
+    assert.throws(() => run(f)); assert.deepEqual(f.score, before);
+  }
 });
 
 test('percussion is explicitly unchecked and unchanged', () => {
@@ -117,6 +151,45 @@ test('ordinary voices are untouched and never counted as grace verification', ()
 });
 
 const nativeModule = process.env.ALPHATAB_MODULE || '.local/qa/node_modules/@coderline/alphatab/dist/alphaTab.mjs';
+test('authored GP7 roundtrip preserves true/false/absent grace let-ring and unrelated host notation', {skip: !fs.existsSync(nativeModule)}, async () => {
+  const at = await import(pathToFileURL(path.resolve(nativeModule)));
+  for (const declaration of ['absent', false, true]) {
+    const f = fixture();
+    if (declaration !== 'absent') f.source[0].letRing = declaration;
+    f.source[1].letRing = true;
+    const rawBefore = structuredClone(f.parts), settings = new at.Settings();
+    const score = new at.model.Score(); score.addMasterBar(new at.model.MasterBar());
+    const track = new at.model.Track(); score.addTrack(track);
+    const staff = new at.model.Staff(); track.addStaff(staff); staff.stringTuning.tunings = [64, 59];
+    const bar = new at.model.Bar(); staff.addBar(bar); const voice = new at.model.Voice(); bar.addVoice(voice);
+    for (const [bi, b] of f.source.entries()) {
+      const beat = new at.model.Beat(); voice.addBeat(beat); beat.duration = b.duration[1];
+      beat.graceType = bi === 0 ? at.model.GraceType.OnBeat : at.model.GraceType.None;
+      for (const n of b.notes) {
+        const note = new at.model.Note(); note.string = 2 - n.string; note.fret = n.fret;
+        note.isGhost = n.ghost === true; note.isLetRing = bi === 0 ? declaration !== true : true;
+        beat.addNote(note);
+      }
+    }
+    score.finish(settings);
+    const before = JSON.parse(at.model.JsonConverter.scoreToJson(score));
+    const result = restoreSourceGraces(score, f.parts, at.model.GraceType);
+    const expected = structuredClone(before);
+    expected.tracks[0].staves[0].bars[0].voices[0].beats[0].notes.forEach(n => n.isletring = declaration === true);
+    assert.deepEqual(JSON.parse(at.model.JsonConverter.scoreToJson(score)), expected);
+    assert.equal(result.restoredLetRingFlags, 2);
+    score.finish(settings);
+    const bytes = new at.exporter.Gp7Exporter().export(score, settings);
+    const actual = at.importer.ScoreLoader.loadScoreFromBytes(bytes, settings);
+    const notes = actual.tracks[0].staves[0].bars[0].voices[0].beats;
+    assert.deepEqual(notes[0].notes.map(n => n.isLetRing), [declaration === true, declaration === true]);
+    assert.equal(notes[1].notes[0].isLetRing, true);
+    assert.equal(checkSourceGraces(actual, f.parts).status, 'PASS_INDEPENDENT_PITCHED_SOURCE_GRACES');
+    assert.deepEqual(f.parts, rawBefore);
+    notes[0].notes[0].isLetRing = declaration !== true;
+    assert.equal(checkSourceGraces(actual, f.parts).status, 'FAIL_INDEPENDENT_PITCHED_SOURCE_GRACES');
+  }
+});
 test('exporter cannot hide an extra source track behind the native track count', {skip: !fs.existsSync(nativeModule)}, async () => {
   const at = await import(pathToFileURL(path.resolve(nativeModule)));
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'composition-grace-source-count-'));

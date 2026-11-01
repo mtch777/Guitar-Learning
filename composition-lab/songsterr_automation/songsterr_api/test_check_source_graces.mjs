@@ -10,7 +10,7 @@ function fixture(){
   const raw={partId:0,instrumentId:25,tuning:[64,59],measures:[{signature:[4,4],voices:[{beats:source}]}]};
   const native=source.map((b,i)=>({index:i,isEmpty:false,graceType:i===0?1:i===3||i===4?2:0,duration:i===0?8:i===3||i===4?16:4,dots:0,tupletNumerator:-1,tupletDenominator:-1,
     displayStart:[0,0,960,1920,1920,1920,2880][i],displayDuration:[0,960,960,0,0,960,960][i],playbackStart:0,playbackDuration:120,
-    notes:b.notes.map(n=>({string:raw.tuning.length-n.string,fret:n.fret,isGhost:n.ghost===true}))}));
+    notes:b.notes.map(n=>({string:raw.tuning.length-n.string,fret:n.fret,isGhost:n.ghost===true,isLetRing:false}))}));
   const score={tracks:[{staves:[{isPercussion:false,tuning:[64,59],capo:0,bars:[{voices:[{beats:native}]}]}]}]};
   return{score,parts:[raw],native,source};
 }
@@ -44,6 +44,38 @@ test('wrong member, missing beat, note count, tuning and capo fail',()=>{
 test('repeated identical geometry preserves source ordinal ghost identity',()=>{
   const f=fixture();good(checkSourceGraces(f.score,f.parts));
   [f.native[3].notes[0].isGhost,f.native[4].notes[0].isGhost]=[false,true];bad(checkSourceGraces(f.score,f.parts));
+});
+
+test('raw beat let-ring is checked per grace member without conflating absent and false',()=>{
+  const f=fixture(); f.source[0].letRing=true; f.source[3].letRing=false;
+  f.native[0].notes.forEach(n=>n.isLetRing=true);
+  f.native[1].notes[0].isLetRing=true; // Ordinary host is outside the grace flag assertion.
+  const before=copy(f),r=checkSourceGraces(f.score,f.parts);good(r);assert.deepEqual(f,before);
+  assert.deepEqual(r.witnesses[0].beats.filter(b=>b.source_grace_type).map(b=>b.source_let_ring),[
+    {present:true,value:true},{present:true,value:false},{present:false,value:null}
+  ]);
+  assert.equal(r.counts.checkedGraceLetRingNotes,4);
+  f.native[0].notes[1].isLetRing=false;
+  const missing=checkSourceGraces(f.score,f.parts);bad(missing);
+  assert.ok(missing.differences.some(d=>d.code==='LET_RING_FLAG'&&d.beat===0&&d.member_key==='1:3'));
+  f.native[0].notes[1].isLetRing=true;
+  for(const index of [3,4]) {
+    f.native[index].notes[0].isLetRing=true;bad(checkSourceGraces(f.score,f.parts));
+    f.native[index].notes[0].isLetRing=false;
+  }
+});
+
+test('unknown let-ring types and swapped ordinal flags cannot pass the independent oracle',()=>{
+  for(const value of [null,0,1,'true',{},[],undefined]) {
+    const f=fixture();f.source[0].letRing=value;
+    const r=checkSourceGraces(f.score,f.parts);bad(r);
+    assert.ok(r.differences.some(d=>d.code==='UNKNOWN_SOURCE_LET_RING'));
+  }
+  const f=fixture();f.source[3].letRing=true;f.source[4].letRing=false;
+  f.native[3].notes[0].isLetRing=true;good(checkSourceGraces(f.score,f.parts));
+  [f.native[3].notes[0].isLetRing,f.native[4].notes[0].isLetRing]=[false,true];
+  const r=checkSourceGraces(f.score,f.parts);bad(r);
+  assert.equal(r.differences.filter(d=>d.code==='LET_RING_FLAG').length,2);
 });
 
 test('duplicate source/native strings and unknown source declarations fail closed',()=>{
