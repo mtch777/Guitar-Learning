@@ -432,11 +432,8 @@ const directionOptions = [
 ];
 
 const cagedShapeOrder = [
-  'C',
-  'A',
-  'G',
   'E',
-  'D'
+  'A'
 ];
 
 /*
@@ -986,6 +983,10 @@ function updateDailyPracticeStatus() {
 }
 
 function initializeDailyPractice() {
+  currentTuning = [
+    ...defaultTuning
+  ];
+
   const baseMode =
     randomItem(
       npsModeOrder
@@ -2296,16 +2297,7 @@ function updateCagedShapeSummary() {
       'cagedShapeSummary'
     );
 
-  if (
-    selected.length ===
-    cagedShapeOrder.length
-  ) {
-    summary.textContent =
-      'All 5';
-  } else {
-    summary.textContent =
-      selected.join(', ');
-  }
+  summary.textContent = selected.join(', ');
 }
 
 
@@ -9342,6 +9334,10 @@ document
           'scaleDropdown',
           'scaleSelect'
         );
+      } else {
+        currentTuning = [
+          ...defaultTuning
+        ];
       }
 
       updateLessonControls();
