@@ -46,10 +46,12 @@ class StructuralTimingTests(unittest.TestCase):
         expected['track-0.json']['measures'][0]['voices'][0]['beats'][0]['notes'][0]['accentuated']=1
         self.assertEqual(project_documents(actual),expected)
         group=upper['musical_relationships']['groups'][0]
-        refused,reason=rhythm.intervene(changed,control(rhythm,'rhythm',group['id']))
-        self.assertFalse(reason['changed'])
-        self.assertEqual(reason['evidence']['status'],'UNSUPPORTED_GROUP')
-        self.assertEqual(refused,changed)
+        preserved=deepcopy(changed)
+        with self.assertRaisesRegex(ValueError,r'^UNSUPPORTED_CHAINED_EVIDENCE:'):
+            rhythm.intervene(changed,control(rhythm,'rhythm',group['id']))
+        self.assertEqual(changed,preserved)
+        self.assertEqual(changed['musical_relationships'],upper['musical_relationships'])
+        self.assertEqual(validate(changed),actual)
 
     def test_unknown_or_invalid_clock_is_never_reclassified_as_safe(self):
         self.assertEqual(timing_owner_reasons({'reasons':['ACCENT_DECLARATION','NEW_CLOCK_FAILURE']}),['NEW_CLOCK_FAILURE'])

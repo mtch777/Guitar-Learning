@@ -27,7 +27,7 @@ def effect_reasons(beat,note):
     reasons=source_refusals({'track-0.json':dict(measures=[dict(voices=[dict(beats=[dict(beat,notes=[note])])])])},{'note':fake},['note'])
     for field in ('hp','tieOrigin','tieDestination','rest','fingerVibrato'):
         if field in note and note[field] is not False and note[field] is not None:reasons.append('NOTE_DEPENDENCY:'+field)
-    for field in ('letRing','arpeggio','brushStroke','downArpeggio','slapping'):
+    for field in ('letRing','arpeggio','brushStroke','downArpeggio','upArpeggio','slapping','popping'):
         if field in beat and beat[field] is not False and beat[field] is not None and not (field=='downArpeggio' and beat[field]==0):reasons.append('BEAT_DEPENDENCY:'+field)
     return reasons
 
@@ -311,9 +311,17 @@ def apply_family_choices(upper,choices_to_apply):
     return edited
 
 
+from source_observation_evidence import guarded as _original_observations_required
+
+
+from source_observation_evidence import controlled_update as _controlled_update
+@_controlled_update
+@_original_observations_required
 def intervene(upper,controls):
     """Propose only observed owned parameters, then solve the existing relations."""
     validate_controls(controls)
+    if upper['musical_relationships'].get('schema')in('backing-relative-pitches/1','backing-relative-pitches/2','backing-relative-pitches/3') and any(controls.get(k,0) for k in ('voicing','register','physical')):
+        raise ValueError('UNSUPPORTED_BACKING_INTERVAL_COUPLING: voicing/register edits require explicit dependent-melody lock handling')
     if controls.get('context_policy')=='all_hypothesis_inner_preview':
         from unlabeled_inner_voicing import intervene as conditional_inner_intervention
         return conditional_inner_intervention(upper,controls)

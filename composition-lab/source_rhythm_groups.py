@@ -8,7 +8,7 @@ from fractions import Fraction as F
 from source_fact_tier1 import project_documents
 
 NOTE_EXPR=('hp','ghost','dead','tie','slide','bend','harmonic','harmonicFret','staccato','tremolo','vibrato','wideVibrato','leftHandVibrato','pickScrape','trill')
-BEAT_EXPR=('palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','downArpeggio','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','wahwah','golpe','sustainPedal','slapping')
+BEAT_EXPR=('palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','downArpeggio','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','wahwah','golpe','sustainPedal','slapping','popping')
 SPECIAL=('graceNote','dots','dotted','tuplet','tupletStart','tupletStop')
 SAFE_BEAT={'notes','type','duration','beamStart','beamStop','beam','beamMode','velocity','chord','rest',*BEAT_EXPR,*SPECIAL}
 SAFE_NOTE={'string','fret','rest','velocity','accentuated',*NOTE_EXPR}

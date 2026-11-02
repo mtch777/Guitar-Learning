@@ -198,8 +198,16 @@ def options(upper,target_ref,prepared=None,*,physical_policy=POLICY):
     return dict(status='SUPPORTED_INNER_CHOICES' if any(o['changed'] for o in accepted) else 'NO_ADMITTED_CHANGED_INNER_COMPONENT',target=target,options=accepted,rejected=rejected)
 
 
+from source_observation_evidence import guarded as _original_observations_required
+
+
+from source_observation_evidence import controlled_update as _controlled_update
+@_controlled_update
+@_original_observations_required
 def intervene(upper,controls):
     from connected_tier2 import realize
+    from voicing_register import validate_controls
+    validate_controls(controls)
     if controls.get('register')!=0:raise ValueError('This scope locks literal outer registers')
     policy=controls.get('context_policy',POLICY)
     if policy not in (POLICY,PREVIEW_POLICY):raise ValueError('Unknown inner-voicing policy')

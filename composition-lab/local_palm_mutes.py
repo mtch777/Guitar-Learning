@@ -47,8 +47,12 @@ def sample(evidence,controls):
 
 def apply(upper,beat_refs,new_states):
     from optional_palm_mute_slots import expand
-    if upper.get('schema')!='connected-source-musical-relations/3':raise ValueError('Optional palm-mute ownership required')
+    from connected_tier2 import realize
+    if 'optional_beat_palm_mutes'not in upper.get('owned_parameters',{}):raise ValueError('Optional palm-mute ownership required')
     if type(beat_refs)is not list or not beat_refs or any(type(r)is not str for r in beat_refs)or beat_refs!=sorted(set(beat_refs))or type(new_states)is not list or len(beat_refs)!=len(new_states):raise ValueError('Complete ordered beat/state correspondence required')
+    # Authenticate the sole owner through the shared contract rather than
+    # excluding a valid model merely because another owner is also present.
+    realize(upper)
     edited=deepcopy(upper);index={g['beat_structure']['id']:g for g in edited['owned_parameters']['optional_beat_palm_mutes']['groups']}
     for ref,state in zip(beat_refs,new_states):
         if type(state)is not dict or not(state=={'kind':'absent'}or set(state)=={'kind','value'}and state['kind']=='explicit'and type(state['value'])is bool):raise ValueError('Known exact optional Boolean required')
@@ -56,6 +60,7 @@ def apply(upper,beat_refs,new_states):
         group=index[ref];previous=group['state'];group['state']=deepcopy(state)
         if state['kind']=='explicit':group['state']['child_index']=previous['child_index']if previous['kind']=='explicit'else len(group['beat_structure']['children'])
         expand(group)
+    realize(edited)
     return edited
 
 
@@ -76,6 +81,12 @@ def verify_effect(before,after,beat_refs,new_states):
         scope='Written flags only; performed duration is evaluated separately by native playback')
 
 
+from source_observation_evidence import guarded as _original_observations_required
+
+
+from source_observation_evidence import controlled_update as _controlled_update
+@_controlled_update
+@_original_observations_required
 def intervene(upper,controls):
     validate_controls(controls)
     from connected_tier2 import realize

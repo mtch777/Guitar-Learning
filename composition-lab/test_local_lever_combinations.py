@@ -71,7 +71,7 @@ class LocalLeverCombinationTests(unittest.TestCase):
             self.assertEqual(upper, self.upper)
             self.assertEqual(realize(upper), self.before)
 
-    def test_disjoint_rhythm_and_accent_match_in_both_orders_at_zero_fifty_hundred(self):
+    def test_disjoint_requests_keep_zero_but_refuse_unretained_chained_evidence(self):
         rhythm_evidence = rhythm.options(self.before, self.rhythm_ref)
         accent_evidence = accents.options(self.before, OUTSIDE)
         rhythm_seed = changed_seed(rhythm, rhythm_evidence, 'rhythm', self.rhythm_ref)
@@ -82,20 +82,27 @@ class LocalLeverCombinationTests(unittest.TestCase):
                 r = control(rhythm, 'rhythm', self.rhythm_ref, rhythm_value, rhythm_seed)
                 a = control(accents, 'accents', OUTSIDE, accent_value, accent_seed)
                 r_first, rd = rhythm.intervene(self.upper, r)
-                ra, ad = accents.intervene(r_first, a)
                 a_first, ad2 = accents.intervene(self.upper, a)
-                ar, rd2 = rhythm.intervene(a_first, r)
-                self.assertEqual(realize(ra), realize(ar))
-                self.assertEqual(ra, ar)
-                self.assertEqual((rd['changed'], ad['changed']), (rd2['changed'], ad2['changed']))
-                if rhythm_value == accent_value == 100:
-                    self.assertTrue(rd['changed'] and ad['changed'])
+                outputs=[]
+                for first,decision,module,second in ((r_first,rd,accents,a),(a_first,ad2,rhythm,r)):
+                    preserved=deepcopy(first)
+                    active=second.get('rhythm',second.get('accents'))>0
+                    if decision['changed'] and active:
+                        with self.assertRaisesRegex(ValueError,'UNSUPPORTED_CHAINED_EVIDENCE'):
+                            module.intervene(first,second)
+                        self.assertEqual(first,preserved)
+                    else:
+                        output,_=module.intervene(first,second);outputs.append(output)
+                if len(outputs)==2:self.assertEqual(outputs[0],outputs[1])
                 # Independently compose only the two allowed source changes.
+                # This checks owner arithmetic, NOT evidence-aware policy chaining.
+                composed=deepcopy(r_first)
+                composed['owned_parameters']['optional_note_accents']=deepcopy(a_first['owned_parameters']['optional_note_accents'])
                 expected = project_documents(realize(r_first))
                 accent_only = project_documents(realize(a_first))
                 expected['track-0.json']['measures'][0]['voices'][0]['beats'][4]['notes'][0] = deepcopy(
                     accent_only['track-0.json']['measures'][0]['voices'][0]['beats'][4]['notes'][0])
-                self.assertEqual(project_documents(realize(ra)), expected)
+                self.assertEqual(project_documents(realize(composed)), expected)
 
     def test_accent_inside_owned_plain_rhythm_is_refused_without_mutating_input(self):
         rseed = changed_seed(rhythm, rhythm.options(self.before, self.rhythm_ref), 'rhythm', self.rhythm_ref)
@@ -109,7 +116,8 @@ class LocalLeverCombinationTests(unittest.TestCase):
                 # Donors support the accent; the current rhythm ownership does
                 # not permit adding it. Keep that distinction explicit.
                 self.assertTrue(evidence['witness_pair'])
-                with self.assertRaisesRegex(ValueError, 'Rhythm group not supported by reconstructed source'):
+                reason='UNSUPPORTED_CHAINED_EVIDENCE' if upper!=self.upper else 'Rhythm group not supported by reconstructed source'
+                with self.assertRaisesRegex(ValueError, reason):
                     accents.intervene(upper, control(accents, 'accents', INSIDE, seed=seed))
                 self.assertEqual(upper, preserved)
                 self.assertEqual(realize(upper), realize(preserved))

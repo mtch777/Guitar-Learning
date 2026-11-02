@@ -17,7 +17,7 @@ BEAT_EXPRESSION = ('palmMute', 'tapping', 'letRing', 'brushStroke', 'arpeggio',
     'downStroke', 'downArpeggio', 'upStroke', 'pickStroke', 'fadeIn',
     'tremoloBar', 'vibrato', 'wideVibrato', 'leftHandVibrato',
     'vibratoWithTremoloBar', 'tremolo', 'harmonic', 'gradualVelocity', 'wahwah',
-    'golpe', 'sustainPedal', 'slapping')
+    'golpe', 'sustainPedal', 'slapping', 'popping')
 SAFE_BEAT = {'notes', 'type', 'duration', 'beamStart', 'beamStop', 'beam',
     'beamMode', 'velocity', 'chord', 'rest', 'dots', 'dotted', 'tuplet',
     'tupletStart', 'tupletStop', 'graceNote', *BEAT_EXPRESSION}

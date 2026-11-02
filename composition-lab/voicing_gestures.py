@@ -146,6 +146,12 @@ def validate_actual(before,after,targets,values,cat):
     return relation
 
 
+from source_observation_evidence import guarded as _original_observations_required
+
+
+from source_observation_evidence import controlled_update as _controlled_update
+@_controlled_update
+@_original_observations_required
 def intervene(upper,controls):
     from connected_tier2 import realize
     from voicing_register import apply_family_choices,validate_controls

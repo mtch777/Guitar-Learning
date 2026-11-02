@@ -14,7 +14,7 @@ from check_local_dynamics import inventory as dynamic_inventory
 SCHEMA='source-local-accents/1'
 POLICY='source_local_note_accent'
 NOTE_EXPR=('hp','ghost','dead','tie','slide','bend','harmonic','harmonicFret','staccato','tremolo','vibrato','wideVibrato','leftHandVibrato','pickScrape','trill')
-BEAT_EXPR=('brushStroke','arpeggio','downArpeggio','letRing','tremoloBar','fadeIn','tapping','gradualVelocity','sustainPedal')
+BEAT_EXPR=('brushStroke','arpeggio','downArpeggio','upArpeggio','letRing','tremoloBar','fadeIn','tapping','gradualVelocity','sustainPedal')
 
 
 def _encoded(value):return json.dumps(value,sort_keys=True,separators=(',',':'))

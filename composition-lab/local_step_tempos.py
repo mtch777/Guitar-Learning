@@ -93,6 +93,12 @@ def verify_effect(before,after,target,bpm):
         written_interval=[target['onset_q'],target['end_q']],scope='Written dimensions locked. Native seconds, expression and audio require separate verification.')
 
 
+from source_observation_evidence import guarded as _original_observations_required
+
+
+from source_observation_evidence import controlled_update as _controlled_update
+@_controlled_update
+@_original_observations_required
 def intervene(upper,controls):
     validate_controls(controls)
     from connected_tier2 import realize

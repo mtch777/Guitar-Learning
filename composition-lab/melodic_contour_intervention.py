@@ -170,6 +170,12 @@ def options(upper,target_ref,prepared=None):
     return dict(result,status='SOURCE_SUPPORTED_MELODIC_CHOICES'if any(o['changed']for o in result['options'])else'NO_ADMITTED_CHANGED_MELODIC_NOTE')
 
 
+from source_observation_evidence import guarded as _original_observations_required
+
+
+from source_observation_evidence import controlled_update as _controlled_update
+@_controlled_update
+@_original_observations_required
 def intervene(upper,controls):
     from connected_tier2 import realize
     choices.validate_controls(controls)

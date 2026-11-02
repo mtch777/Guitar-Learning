@@ -12,7 +12,7 @@ from local_dynamics import inventory as dynamic_inventory
 
 POLICY='source_local_note_accent'
 NOTE_EXPR=('hp','ghost','dead','tie','slide','bend','harmonic','harmonicFret','staccato','tremolo','vibrato','wideVibrato','leftHandVibrato','pickScrape','trill')
-BEAT_EXPR=('brushStroke','arpeggio','downArpeggio','letRing','tremoloBar','fadeIn','tapping','gradualVelocity','sustainPedal')
+BEAT_EXPR=('brushStroke','arpeggio','downArpeggio','upArpeggio','letRing','tremoloBar','fadeIn','tapping','gradualVelocity','sustainPedal')
 
 
 def inventory(tier1):
@@ -104,14 +104,19 @@ def sample(evidence,controls):
 
 def apply(upper,note_ref,state):
     from optional_accent_slots import expand
-    if upper.get('schema')!='connected-source-musical-relations/2':raise ValueError('Optional source-accent ownership required')
+    from connected_tier2 import realize
+    if 'optional_note_accents'not in upper.get('owned_parameters',{}):raise ValueError('Optional source-accent ownership required')
     if type(state)is not dict or not(state=={'kind':'absent'}or set(state)=={'kind','value'}and state['kind']=='explicit'and type(state['value'])is int and state['value']in(0,1,2)):raise ValueError('Known optional accent state required')
+    # The connected contract authenticates the owner and its coverage, including
+    # supported combinations. A version label alone does not grant capability.
+    realize(upper)
     edited=deepcopy(upper)
     group=next((g for g in edited['owned_parameters']['optional_note_accents']['groups']if g['note_structure']['id']==note_ref),None)
     if group is None:raise ValueError('Sole optional note owner required')
     previous=group['state'];group['state']=deepcopy(state)
     if state['kind']=='explicit':group['state']['child_index']=previous['child_index']if previous['kind']=='explicit'else len(group['note_structure']['children'])
     expand(group)
+    realize(edited)
     return edited
 
 
@@ -129,6 +134,12 @@ def verify_effect(before,after,note_ref,state):
     return dict(status='EXACT_SINGLE_NOTE_ACCENT_SCOPE',note_ref=note_ref,state=deepcopy(state))
 
 
+from source_observation_evidence import guarded as _original_observations_required
+
+
+from source_observation_evidence import controlled_update as _controlled_update
+@_controlled_update
+@_original_observations_required
 def intervene(upper,controls):
     validate_controls(controls)
     from connected_tier2 import realize

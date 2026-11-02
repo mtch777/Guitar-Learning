@@ -70,13 +70,13 @@ def inventory(tier1):
     return dict(schema='source-local-dynamics/1',declarations=sorted(declarations,key=lambda r:r['fact_ref']),states=sorted(states,key=lambda r:r['occurrence_ref']))
 
 
-def options(tier1,target_ref,prepared=None):
+def options(tier1,target_ref,prepared=None,*,observations=None):
     view=inventory(tier1)if prepared is None else prepared
     target=next((r for r in view['declarations']if r['fact_ref']==target_ref),None)
     if target is None:raise ValueError('Target is not an existing dynamic declaration')
     levels={}
     if not target['reasons']:
-        for donor in view['declarations']:
+        for donor in (view if observations is None else observations)['declarations']:
             if donor['fact_ref']==target_ref or donor['reasons']:continue
             if any(donor[k]!=target[k]for k in ('part_id','voice','scope')):continue
             if set(donor['influence_refs'])&set(target['influence_refs']):continue
@@ -107,7 +107,12 @@ def apply(upper,target_ref,marking):
     """Update the sole categorical owner; the existing inverse creates facts."""
     _,MARKINGS=source_rules()
     if type(marking)is not str or marking not in MARKINGS:raise ValueError('Known written dynamic required')
-    edited=deepcopy(upper);groups=edited['owned_parameters']['technique_declarations']['groups']
+    edited=deepcopy(upper)
+    if 'observed_dynamics' in edited['owned_parameters']:
+        from observed_dynamics import choose
+        edited['owned_parameters']['observed_dynamics']=choose(edited['owned_parameters']['observed_dynamics'],target_ref,marking)
+        return edited
+    groups=edited['owned_parameters']['technique_declarations']['groups']
     group=next((g for g in groups if g['source_fact_ref']==target_ref),None)
     if group is None or group['field']!='velocity' or len(group['parameters'])!=1 or len(group['structure'])!=1 or group['structure'][0]['type']!='string':
         raise ValueError('Existing sole dynamic declaration owner required')
@@ -135,12 +140,29 @@ def verify_effect(before,after,target,marking):
     return dict(status='EXACT_DECLARED_DYNAMIC_INFLUENCE',influenced_occurrences=len(influence),outside_occurrences=len(old_states)-len(influence))
 
 
+def package_options(upper,target_ref):
+    from connected_tier2 import realize
+    from source_observation_evidence import require
+    require(upper,dict(context_policy=POLICY,dynamics=100))
+    observations=None
+    if 'observed_dynamics' in upper['owned_parameters']:
+        from observed_dynamics import source_view
+        observations=source_view(upper['owned_parameters']['observed_dynamics'])
+    return options(realize(upper),target_ref,observations=observations)
+
+
+from source_observation_evidence import guarded as _original_observations_required
+
+
+from source_observation_evidence import controlled_update as _controlled_update
+@_controlled_update
+@_original_observations_required
 def intervene(upper,controls):
     validate_controls(controls)
     from connected_tier2 import realize
     before=realize(upper)
     if controls['dynamics']==0:return deepcopy(upper),dict(status='EXACT_ZERO_LOCK',released=False,changed=False)
-    evidence=options(before,controls['target_ref']);chosen,decision=sample(evidence,controls)
+    evidence=package_options(upper,controls['target_ref']);chosen,decision=sample(evidence,controls)
     decision['evidence']=evidence
     if chosen is None:return deepcopy(upper),decision
     edited=apply(upper,controls['target_ref'],chosen['marking']);after=realize(edited)

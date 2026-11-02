@@ -74,16 +74,23 @@ def build(tier1):
         for mi,measure in enumerate(part.get('measures',[]),1):
             for vi,voice in enumerate(measure.get('voices',[])):
                 for bi,beat in enumerate(voice.get('beats',[])):
-                    for field in ('arpeggio','brushStroke','letRing','downArpeggio','slapping'):
+                    for field in ('arpeggio','brushStroke','letRing','downArpeggio','upArpeggio','slapping','popping'):
                         if field not in beat:continue
                         source=f'{name}#/measures/{mi-1}/voices/{vi}/beats/{bi}/{field}'
                         members=[ref(f'{pid}:{mi}:{vi}:{bi}:{ni}')for ni,n in enumerate(beat.get('notes',[]))if not n.get('rest')]
                         record=dict(source_fact_ref=source,member_refs=sorted(members),value=_value(beat[field]))
                         declarations.append(record)
                         if beat[field]is False or beat[field]is None or field=='downArpeggio' and beat[field]==0:continue
-                        if field=='slapping':
-                            add(field,'declaration_only_unknown_attack_execution',members,dict(source_fact_ref=source,declaration=_value(beat[field]),performed_attack=None),'attack_execution_not_reconstructed');continue
-                        if field=='downArpeggio':
+                        if field in ('slapping','popping'):
+                            semantics=dict(source_fact_ref=source,declaration=_value(beat[field]),performed_attack=None)
+                            active=[k for k in ('slapping','tapping','popping')if beat.get(k)is True]
+                            if len(active)>1:
+                                semantics['active_attack_declarations']={k:f'{name}#/measures/{mi-1}/voices/{vi}/beats/{bi}/{k}'for k in active}
+                                semantics['performed_priority']=None
+                                add(field,'ambiguous_attack_execution',members,semantics,'multiple_source_attack_declarations_no_performed_priority')
+                            else:add(field,'declaration_only_unknown_attack_execution',members,semantics,'attack_execution_not_reconstructed')
+                            continue
+                        if field in ('downArpeggio','upArpeggio'):
                             add(field,'declaration_only_unknown_roll_execution',members,dict(source_fact_ref=source,declaration=_value(beat[field]),performed_note_offsets=None),'roll_execution_not_established');continue
                         status='declaration_only_unknown_end'if field=='letRing'else'declaration_only_unknown_performed_offsets'
                         semantics=dict(source_fact_ref=source,declaration=_value(beat[field]),performed_end_q=None)if field=='letRing'else dict(source_fact_ref=source,declaration=_value(beat[field]),performed_note_offsets=None)

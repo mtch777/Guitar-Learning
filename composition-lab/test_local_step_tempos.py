@@ -1,3 +1,4 @@
+import json
 import unittest
 from copy import deepcopy
 from pathlib import Path
@@ -31,14 +32,31 @@ class LocalStepTempoTests(unittest.TestCase):
         expected=deepcopy(upper);expected['owned_parameters']['global_step_tempos']=edited['owned_parameters']['global_step_tempos']
         self.assertEqual(edited,expected)
 
-    def test_intervention_recomputes_changed_donor_relationships(self):
+    def test_changed_tempo_owners_refuse_nonzero_atomically_and_reload_zero_exactly(self):
         from connected_tier2 import analyze,strip_lower,realize
         from step_tempo_relations import set_bpm
         _,facts,_,_,controls=setup_case();upper=strip_lower(analyze(facts,step_tempos=True))
+        original_origin=deepcopy(upper['source_origin'])
         for group in upper['owned_parameters']['global_step_tempos']['groups']:
             upper['owned_parameters']['global_step_tempos']=set_bpm(upper['owned_parameters']['global_step_tempos'],group['id'],'120')
-        before=realize(upper);out,decision=tempo.intervene(upper,controls)
-        self.assertEqual(realize(out),before);self.assertFalse(decision['changed']);self.assertFalse(decision['evidence']['options'])
+        before=realize(upper);preserved=deepcopy(upper)
+        self.assertNotEqual(before,facts)
+        # Current edits are not new source observations. Until this policy owns
+        # immutable tempo evidence, refuse before querying donors or mutating.
+        for current in (upper,json.loads(json.dumps(upper,allow_nan=False))):
+            for amount in (50,100):
+                with self.subTest(release=amount),patch.object(tempo,'options',side_effect=AssertionError('Edited score used as source evidence')) as query:
+                    with self.assertRaisesRegex(ValueError,'UNSUPPORTED_CHAINED_EVIDENCE'):
+                        tempo.intervene(current,dict(controls,tempo=amount))
+                    query.assert_not_called()
+                self.assertEqual(current,preserved)
+                self.assertEqual(current['source_origin'],original_origin)
+                self.assertEqual(realize(current),before)
+            out,decision=tempo.intervene(current,dict(controls,tempo=0))
+            self.assertEqual(out,preserved);self.assertEqual(realize(out),before)
+            self.assertEqual(decision['status'],'EXACT_ZERO_LOCK')
+            self.assertFalse(decision['released']);self.assertFalse(decision['changed'])
+            self.assertEqual(current,preserved)
 
     def test_data_only_evidence_uses_unique_global_events_and_preserves_partial_scope(self):
         docs,facts,view,evidence,controls=setup_case()

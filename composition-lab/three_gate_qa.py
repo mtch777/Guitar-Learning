@@ -45,12 +45,91 @@ def result(status, scope, issues=(), **details):
     return dict(status=status, scope=scope, issues=list(issues), **details)
 
 
+def _artist_identity(value):
+    """Independent receipt checker: deliberately does not import the sampler."""
+    if type(value) is not str or not value.strip():
+        raise ValueError("Artist must be a nonempty string")
+    return " ".join(value.replace(",", " ").casefold().split())
+
+
+def _artist_freeze_valid(selection):
+    required = {"seed", "query", "requested_artist", "search_size", "returned_population",
+                "candidate_ids", "excluded_ids", "selected_song_id", "revision_id", "artist", "status", "pool_rule"}
+    if not required <= selection.keys():
+        return ["Incomplete frozen artist selection"]
+    names = {"invent animate": "Invent Animate", "currents": "Currents", "erra": "ERRA"}
+    issues = []
+    expected_rule = ("first100 public search records for the requested artist query; exact-artist "
+                     "IDs deduplicated and previously selected/captured IDs excluded; one uniform "
+                     "draw from this bounded eligible population, not uniform catalog sampling")
+    if selection["pool_rule"] != expected_rule:
+        issues.append("Artist population scope/rule differs from declared bounded protocol")
+    try:
+        key = _artist_identity(selection["requested_artist"])
+        if key not in names or selection["requested_artist"] != names[key] or selection["query"] != names[key]:
+            issues.append("Requested artist/query is not the declared canonical approved artist")
+        if _artist_identity(selection["artist"]) != key:
+            issues.append("Recorded metadata artist differs from requested artist")
+    except (KeyError, ValueError, TypeError):
+        issues.append("Invalid requested or captured artist")
+        key = None
+    if type(selection["seed"]) is not int:
+        issues.append("Seed must be an exact integer")
+    if type(selection["search_size"]) is not int or selection["search_size"] != 100:
+        issues.append("Artist search must declare size100")
+    if selection["status"] != "captured":
+        issues.append("Artist capture did not complete; failed selections cannot be replaced")
+    for field in ("selected_song_id", "revision_id"):
+        if type(selection[field]) is not int or selection[field] <= 0:
+            issues.append(field + " must be a positive exact integer")
+    for field in ("candidate_ids", "excluded_ids"):
+        values = selection[field]
+        if not isinstance(values, list) or any(type(value) is not int or value <= 0 for value in values):
+            issues.append(field + " must be a list of positive exact integers")
+        elif values != sorted(set(values)):
+            issues.append(field + " must be sorted and deduplicated")
+    rows = selection["returned_population"]
+    if not isinstance(rows, list) or len(rows) > 100:
+        issues.append("Returned population must contain at most100 ordered ID/artist records")
+    identities = {}
+    if isinstance(rows, list):
+        for row in rows:
+            if (not isinstance(row, dict) or set(row) != {"songId", "artist"}
+                    or type(row.get("songId")) is not int or row["songId"] <= 0):
+                issues.append("Invalid returned population identity")
+                continue
+            try:
+                observed = _artist_identity(row["artist"])
+                sid = row["songId"]
+                if sid in identities and identities[sid] != observed:
+                    issues.append("Conflicting artist identities in returned population")
+                identities[sid] = observed
+            except ValueError:
+                issues.append("Invalid returned population artist")
+    if issues:
+        return issues
+    expected = sorted(sid for sid, observed in identities.items()
+                      if observed == key and sid not in selection["excluded_ids"])
+    if not expected:
+        return ["Empty unseen exact-artist population"]
+    if expected != selection["candidate_ids"]:
+        issues.append("Candidate IDs differ from returned exact-artist population after exclusions")
+    # A single draw: no legacy random letter draw is consumed by this protocol.
+    if random.Random(selection["seed"]).choice(expected) != selection["selected_song_id"]:
+        issues.append("Seed/artist-population selection mismatch")
+    return issues
+
+
 def freeze_valid(selection):
-    """Reproduce the existing sampler, including its letter draw and sorted pool."""
+    """Replay the explicitly declared protocol; old unversioned receipts stay valid."""
     issues = []
     required = {"seed", "query", "candidate_ids", "excluded_ids", "selected_song_id", "revision_id"}
     if not isinstance(selection, dict):
         return ["Frozen selection must be an object"]
+    if "sampling_protocol" in selection:
+        if selection["sampling_protocol"] != "songsterr-artist-first100-v1":
+            return ["Unknown sampling protocol"]
+        return _artist_freeze_valid(selection)
     if not required <= selection.keys():
         return ["Incomplete frozen selection"]
     if type(selection["seed"]) is not int:
@@ -92,6 +171,14 @@ def portability(capture, selection_path):
     if issues:
         return result("FAIL", "Frozen selection identity/sampling", issues)
     metadata = load(capture / "metadata.json")
+    if selection.get("sampling_protocol") == "songsterr-artist-first100-v1":
+        try:
+            if _artist_identity(metadata.get("artist")) != _artist_identity(selection["requested_artist"]):
+                issues.append("Actual captured artist differs from requested artist")
+            if metadata.get("artist") != selection["artist"]:
+                issues.append("Actual captured artist differs from recorded metadata artist")
+        except ValueError:
+            issues.append("Actual captured artist is missing or invalid")
     for field in ("songId", "revisionId"):
         if type(metadata.get(field)) is not int or metadata[field] <= 0:
             issues.append("Notation " + field + " must be a positive exact integer")

@@ -77,6 +77,12 @@ def verify_effect(before,after,target,shares):
                 attack_conditioned_harmonic_context='recomputed_not_claimed_unchanged')
 
 
+from source_observation_evidence import guarded as _original_observations_required
+
+
+from source_observation_evidence import controlled_update as _controlled_update
+@_controlled_update
+@_original_observations_required
 def intervene(upper,controls):
     validate_controls(controls)
     from connected_tier2 import realize

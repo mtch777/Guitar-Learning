@@ -214,6 +214,7 @@ REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/vibratoWithTremo
 REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/downStroke')] = ('integer',)
 REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/downArpeggio')] = ('integer',)
 REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/slapping')] = ('boolean',)
+REGISTERED_SOURCE_FIELDS[('track','/measures/*/voices/*/beats/*/popping')] = ('boolean',)
 
 # Literal rolled/strummed-note declaration. Units and execution remain unknown;
 # these are not inferred per-note onset offsets or a verified performance.

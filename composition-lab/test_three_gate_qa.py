@@ -36,6 +36,70 @@ def sign(c):
 
 
 class ThreeGateQATests(unittest.TestCase):
+    def artist_selection(self):
+        # Authored independently of the sampler; this is not source-song evidence.
+        return dict(sampling_protocol="songsterr-artist-first100-v1", seed=4,
+                    query="Invent Animate", requested_artist="Invent Animate", search_size=100,
+                    returned_population=[dict(songId=1, artist="Invent Animate"),
+                                         dict(songId=2, artist=" invent, ANIMATE "),
+                                         dict(songId=1, artist="INVENT ANIMATE"),
+                                         dict(songId=3, artist="Currents"),
+                                         dict(songId=4, artist="Invent Animate")],
+                    excluded_ids=[4], candidate_ids=[1, 2], selected_song_id=random.Random(4).choice([1, 2]),
+                    revision_id=2, artist="Invent Animate", status="captured",
+                    pool_rule="first100 public search records for the requested artist query; exact-artist "
+                              "IDs deduplicated and previously selected/captured IDs excluded; one uniform "
+                              "draw from this bounded eligible population, not uniform catalog sampling")
+
+    def test_artist_freeze_independently_derives_pool_and_single_draw(self):
+        receipt = self.artist_selection()
+        self.assertEqual(freeze_valid(receipt), [])
+        rng = random.Random(receipt["seed"]); rng.choice("abcdefghijklmnopqrstuvwxyz")
+        legacy_choice = rng.choice(receipt["candidate_ids"])
+        self.assertNotEqual(legacy_choice, receipt["selected_song_id"])
+        self.assertTrue(freeze_valid(receipt | dict(selected_song_id=legacy_choice)))
+        for field, value in (("candidate_ids", [1]), ("candidate_ids", [1, 2, 3]),
+                             ("candidate_ids", [2, 1]), ("candidate_ids", [1, 1, 2]),
+                             ("excluded_ids", [1, 4]), ("excluded_ids", [4, 4]),
+                             ("search_size", 20), ("query", "invent animate"),
+                             ("requested_artist", "Gary Moore"), ("artist", "Currents"),
+                             ("status", "failed_selection_or_capture"), ("sampling_protocol", "unknown"),
+                             ("pool_rule", "uniform catalog sampling"), ("selected_song_id", True),
+                             ("revision_id", 2.0), ("seed", True), ("returned_population", [])):
+            with self.subTest(field=field, value=value):
+                self.assertTrue(freeze_valid(receipt | {field: value}))
+
+    def test_artist_population_tampering_cannot_pass(self):
+        receipt = self.artist_selection()
+        for field, value in (("songId", True), ("songId", "1"), ("artist", None),
+                             ("artist", "Invent Animate Cover Band")):
+            bad = copy.deepcopy(receipt); bad["returned_population"][0][field] = value
+            self.assertTrue(freeze_valid(bad), (field, value))
+        bad = copy.deepcopy(receipt)
+        bad["returned_population"].append(dict(songId=1, artist="ERRA"))
+        self.assertTrue(freeze_valid(bad))
+        bad = copy.deepcopy(receipt); bad["returned_population"].pop(1)
+        self.assertTrue(freeze_valid(bad))
+        bad = copy.deepcopy(receipt); bad["returned_population"][0]["chosen_because_easy"] = True
+        self.assertTrue(freeze_valid(bad))
+        bad = copy.deepcopy(receipt)
+        bad["returned_population"] = [dict(songId=i + 1, artist="Invent Animate") for i in range(101)]
+        self.assertTrue(freeze_valid(bad))
+
+    def test_artist_capture_identity_checked_before_extraction(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); capture, selection = self.source_case(root)
+            receipt = self.artist_selection(); selection.write_text(json.dumps(receipt))
+            metadata_path = capture / "metadata.json"; metadata = json.loads(metadata_path.read_text())
+            metadata["artist"] = "Invent Animate"; metadata_path.write_text(json.dumps(metadata))
+            self.assertEqual(portability(capture, selection)["status"], "PASS")
+            for wrong_artist in ("Currents", "Invent Animate Cover Band", None, {}):
+                metadata["artist"] = wrong_artist; metadata_path.write_text(json.dumps(metadata))
+                with patch("run_reversible_tier_qa.extract", side_effect=AssertionError("must not extract wrong artist")):
+                    result = portability(capture, selection)
+                self.assertEqual(result["status"], "FAIL", wrong_artist)
+                self.assertTrue(any("artist" in issue.lower() for issue in result["issues"]))
+
     def source_case(self, root):
         capture = root / "capture"; capture.mkdir()
         (capture / "metadata.json").write_text(json.dumps(dict(songId=1, revisionId=2, tracks=[{}],

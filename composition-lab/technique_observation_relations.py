@@ -10,7 +10,7 @@ import re
 from source_fact_tier1 import validate
 
 NOTE_EFFECTS=frozenset(('hp','bend','slide','harmonic','harmonicFret','ghost','staccato','accentuated','tremolo','vibrato','wideVibrato','leftHandVibrato','velocity','pickScrape','trill'))
-BEAT_EFFECTS=frozenset(('palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','downArpeggio','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity','wahwah','golpe','sustainPedal'))
+BEAT_EFFECTS=frozenset(('palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','downArpeggio','upArpeggio','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity','wahwah','golpe','sustainPedal'))
 _UNSET=object()
 
 
@@ -84,7 +84,7 @@ def supported_structure(owner,root,rows):
         return owner['scope']=='note' and root['type']=='object' and all(r['parent']==root['id'] and r['slot'] in ('auxiliaryFret','speed') and r['type']=='integer' for r in rows[1:])
     if field in ('wahwah','golpe'):return owner['scope']=='beat' and len(rows)==1 and root['type']=='string'
     if field=='pickScrape':return len(rows)==1 and root['type']=='string'
-    if field=='downArpeggio':return len(rows)==1 and root['type']=='integer'
+    if field in ('downArpeggio','upArpeggio'):return len(rows)==1 and root['type']=='integer'
     if field=='arpeggio':
         # Registered source declaration only. Duration/shift units and performed
         # note offsets are not established by these literal field names.
@@ -113,6 +113,12 @@ def supported_structure(owner,root,rows):
     return False
 
 
+def registered_literal(owner,row):
+    # Only integer1 has been observed for this separate source declaration.
+    # Do not infer zero/boolean equivalence or roll timing from its field name.
+    return owner['field']!='upArpeggio' or (row['type']=='integer' and type(row.get('value')) is int and row['value']==1)
+
+
 def lift(tier1):
     validate(tier1);index={r['id']:r for r in tier1['facts']};groups=[];unsupported=[]
     def descend(ident):
@@ -124,6 +130,8 @@ def lift(tier1):
         valid=supported_structure(owner,root,rows)
         if not valid:
             unsupported.append(dict(source_fact_ref=root['id'],field=owner['field'],reason='UNREGISTERED_TECHNIQUE_STRUCTURE'));continue
+        if not all(registered_literal(owner,row) for row in rows):
+            unsupported.append(dict(source_fact_ref=root['id'],field=owner['field'],reason='UNREGISTERED_TECHNIQUE_LITERAL'));continue
         structure=[];parameters=[]
         for row in rows:
             shape={k:deepcopy(v) for k,v in row.items() if k!='value'};structure.append(shape)
@@ -163,6 +171,7 @@ def realize(model):
                 unit={'tone':'50','position':'60','precisePosition':'100'}.get(token,'1') if curve and row['type'] in ('integer','float') else '1'
                 if p['unit']!=unit:raise ValueError('Registered source unit cannot be changed')
                 row['value']=scalar_relation(row['type'],parameter=p['parameter'],unit=p['unit'])
+                if not registered_literal(owner,row):raise ValueError('Unregistered technique literal')
             rows.append(row)
         if scalar_refs!=set(params):raise ValueError('Unowned observation parameter')
     return rows

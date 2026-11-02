@@ -73,13 +73,44 @@ class FamilyIntegrationTests(unittest.TestCase):
         self.assertEqual(note,dict(string=3,fret=14.0));self.assertIs(type(note['fret']),float)
 
     def test_unchanged_raw_technique_checker_accepts_family_representation(self):
+        from fractions import Fraction
         from check_technique_connections import check
         from test_connected_tier2 import documents as expressive
+        from voicing_families import identifier,validate as validate_family
         docs=expressive();lower=extract_documents(docs)
         original=check(docs,analyze(lower));family=analyze(lower,families=True)
+        source_before=deepcopy(docs);family_before=deepcopy(family)
         self.assertEqual(check(docs,family),original)
-        family['musical_relationships']['spacings'].append(dict(id='spacing:fake',intervals=['0','4']))
-        with self.assertRaises(ValueError):check(docs,family)
+        self.assertEqual(family,family_before)
+        unused=dict(id=identifier(['0','1']),intervals=['0','1'])
+        self.assertNotIn(unused['id'],{row['id']for row in family['musical_relationships']['spacings']})
+        for entry,reason,canonical in (
+            (dict(id='spacing:fake',intervals=['0','4']),'Duplicate/stale spacing identity',False),
+            (unused,'Unused spacing owner',True),
+        ):
+            with self.subTest(reason=reason):
+                corrupted=deepcopy(family)
+                corrupted['musical_relationships']['spacings'].append(deepcopy(entry))
+                if canonical:corrupted['musical_relationships']['spacings'].sort(key=lambda row:row['id'])
+                before=deepcopy(corrupted)
+                # Pitch-only corruption does not alter the raw technique/time
+                # audit. Its authoritative family and whole-model checks must
+                # still reject both stale IDs and valid-but-unused definitions.
+                self.assertEqual(check(docs,corrupted),original)
+                for validator in (validate,
+                    lambda upper:realize(strip_lower(upper)),
+                    lambda upper:validate_family(upper['musical_relationships'])):
+                    with self.assertRaisesRegex(ValueError,reason):validator(corrupted)
+                    self.assertEqual(corrupted,before)
+        wrong_time=deepcopy(family)
+        group=wrong_time['musical_relationships']['core']['coattacks'][0]
+        group['onset_q']=str(Fraction(group['onset_q'])+1)
+        before=deepcopy(wrong_time);checked=check(docs,wrong_time)
+        self.assertEqual(checked['status'],'FAIL')
+        self.assertTrue(any('source/time link differs'in issue for issue in checked['issues']))
+        self.assertEqual(wrong_time,before)
+        self.assertEqual(family,family_before)
+        self.assertEqual(docs,source_before)
 
     def test_changed_family_has_matching_raw_source_relationships(self):
         from check_technique_connections import check

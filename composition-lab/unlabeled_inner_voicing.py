@@ -112,8 +112,16 @@ def options(upper,target_ref,prepared=None):
                 target_ref=target_ref,target=row,all_hypothesis_refs=row['all_hypothesis_refs'],options=accepted,rejected=rejected)
 
 
+from source_observation_evidence import guarded as _original_observations_required
+
+
+from source_observation_evidence import controlled_update as _controlled_update
+@_controlled_update
+@_original_observations_required
 def intervene(upper,controls):
     from connected_tier2 import realize
+    from voicing_register import validate_controls
+    validate_controls(controls)
     if controls.get('context_policy')!=POLICY or controls.get('register')!=0:raise ValueError('This scope requires its named policy and locked outer registers')
     realize(upper)
     if controls['voicing']==0:return deepcopy(upper),dict(status='EXACT_ZERO_LOCK',released=False,changed=False)

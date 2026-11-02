@@ -8,27 +8,74 @@ import json
 from pathlib import Path
 
 
+def _event_times(shared):
+    """Read identity/time owners without solving pitch or calling an inverse.
+
+    Family, degree and backing wrappers do not own time. Rhythm groups do:
+    duration = span * share, onset = start + preceding durations.
+    """
+    core=shared;rhythm=[];wrappers=set()
+    while True:
+        if type(core)is not dict or id(core)in wrappers:raise ValueError('Invalid/cyclic musical wrapper')
+        wrappers.add(id(core));schema=core.get('schema')
+        if schema=='musical-context-relations/2':break
+        if schema in ('source-voicing-families/1','source-declared-chord-degrees/1','figure-register-ownership/1','figure-register-ownership/2','figure-register-ownership/3',
+                      'backing-relative-pitches/1','backing-relative-pitches/2','backing-relative-pitches/3','coattack-treatment-ownership/1'):
+            core=core['core']
+        elif schema in ('source-group-rhythm/1','source-group-rhythm/2'):
+            if rhythm:raise ValueError('Multiple rhythm-owner layers')
+            rhythm.append(core['groups']);core=core['pitch_relationships']
+        else:raise ValueError('Unknown musical time wrapper: '+str(schema))
+    index={};events={};coattacks=set()
+    for group in core['coattacks']:
+        if group['id']in coattacks:raise ValueError('Duplicate coattack identity')
+        coattacks.add(group['id'])
+        for member in group['members']:
+            ref=member['id']
+            if ref in index:raise ValueError('Duplicate occurrence identity')
+            index[ref]=(group,member)
+            if 'onset_q'in group and 'duration_q'in member:
+                events[ref]=dict(onset_q=group['onset_q'],duration_q=member['duration_q'])
+    def coordinate(value):
+        if type(value)is not str or str(F(value))!=value:raise ValueError('Noncanonical rhythm coordinate')
+        return F(value)
+    seen=set();group_ids=set()
+    for groups in rhythm:
+        for row in groups:
+            if row['id']in group_ids:raise ValueError('Duplicate rhythm group')
+            group_ids.add(row['id']);members=row['members'];weights=list(map(coordinate,row['shares']))
+            start=coordinate(row['start_q']);span=coordinate(row['span_q'])
+            if start<0 or span<=0 or len(weights)<2 or len(weights)!=len(members) or any(w<=0 for w in weights) or sum(weights,F(0))!=1:
+                raise ValueError('Invalid rhythm span/shares/cardinality')
+            if row['id']!='source-beam:'+members[0]['beat_ref']+'|'+members[-1]['beat_ref']:
+                raise ValueError('Rhythm bracket identity differs')
+            pos=start;previous=None
+            for link,weight in zip(members,weights):
+                ref=link['occurrence_ref'];group,member=index[ref]
+                beat_ref=f"track-{group['part_id']}.json#/measures/{member['bar']-1}/voices/{member['voice']}/beats/{member['beat']}"
+                if ref in seen or link['coattack_ref']!=group['id'] or len(group['members'])!=1 or link['beat_ref']!=beat_ref or member['note']!=0 or (group['part_id'],member['bar'],member['voice'])!=(row['part_id'],row['bar'],row['voice']):
+                    raise ValueError('Rhythm occurrence/source link differs')
+                if previous is not None and member['beat']!=previous+1:raise ValueError('Rhythm source beats not contiguous')
+                if 'onset_q'in group or 'duration_q'in member:raise ValueError('Duplicate original timing authority')
+                previous=member['beat'];seen.add(ref);duration=span*weight
+                events[ref]=dict(onset_q=str(pos),duration_q=str(duration));pos+=duration
+    if set(events)!=set(index):raise ValueError('Missing occurrence time owner')
+    return events
+
+
 def check(documents,upper):
     issues=[];counts=dict(occurrences=0,bends=0,hp_candidates=0,slides=0,known_dynamics=0,unknown_dynamics=0,pedal_cycles=0,excluded_pedal_sections=0);examples={}
     def sample(kind,value):
         if kind not in examples:examples[kind]=value
-    core=upper['musical_relationships'];events={}
-    if core.get('schema')=='source-voicing-families/1':
-        from voicing_families import realize as family_core
-        core=family_core(core)
-    if core.get('schema')=='source-declared-chord-degrees/1':
-        # This oracle needs only independently compared identity/time links.
-        # Do not call the producer's degree inverse to check technique links.
-        core=core['core']
-    for group in core['coattacks']:
-        for member in group['members']:
-            events[member['id']]=dict(onset_q=group['onset_q'],duration_q=member['duration_q'])
+    try:events=_event_times(upper['musical_relationships'])
+    except (KeyError,TypeError,ValueError,ZeroDivisionError) as error:
+        issues.append('Musical time ownership invalid: '+str(error));events={}
     tracks=upper['derived_views']['techniques']['tracks']
     expected_tracks=[d['partId'] for name,d in documents.items() if name.startswith('track-')]
     actual_tracks=[t['part_id'] for t in tracks]
     if len(actual_tracks)!=len(set(actual_tracks)) or set(actual_tracks)!=set(expected_tracks):issues.append('Technique track inventory/uniqueness differs')
     note_fields={'hp','bend','slide','harmonic','harmonicFret','ghost','staccato','accentuated','tremolo','vibrato','wideVibrato','leftHandVibrato','velocity','pickScrape','trill'}
-    beat_fields={'palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','downArpeggio','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity','wahwah','golpe','sustainPedal'}
+    beat_fields={'palmMute','tapping','letRing','brushStroke','arpeggio','downStroke','downArpeggio','upArpeggio','upStroke','pickStroke','fadeIn','tremoloBar','vibrato','wideVibrato','leftHandVibrato','vibratoWithTremoloBar','tremolo','harmonic','gradualVelocity','velocity','wahwah','golpe','sustainPedal'}
     expected_roots={}
     for name,part in documents.items():
         if not name.startswith('track-'):continue

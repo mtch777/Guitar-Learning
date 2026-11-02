@@ -98,7 +98,7 @@ def inventory(tier1):
     return dict(schema='source-local-dynamic-context/1',declarations=view['declarations'],states=view['states'],contexts=contexts)
 
 
-def options(tier1,target_ref,prepared=None):
+def options(tier1,target_ref,prepared=None,*,observations=None):
     view=inventory(tier1)if prepared is None else prepared
     target=next((r for r in view['declarations']if r['fact_ref']==target_ref),None)
     if target is None:raise ValueError('Original dynamic declaration required')
@@ -106,7 +106,7 @@ def options(tier1,target_ref,prepared=None):
     donors=[];excluded=[]
     if context['context_key']is not None:
         dependencies=set(context['dependency_refs'])
-        for row in view['contexts']:
+        for row in (view if observations is None else observations)['contexts']:
             if row['context_key']!=context['context_key']:continue
             if row['fact_ref']==target_ref:
                 excluded.append(dict(fact_ref=row['fact_ref'],reason='SELF_DECLARATION'));continue
@@ -138,11 +138,28 @@ def sample(evidence,controls):
     return dynamics.sample(evidence,dict(controls,context_policy=dynamics.POLICY))
 
 
+def package_options(upper,target_ref):
+    from connected_tier2 import realize
+    from source_observation_evidence import require
+    require(upper,dict(context_policy=POLICY,dynamics=100))
+    observations=None
+    if 'observed_dynamics' in upper['owned_parameters']:
+        from observed_dynamics import source_view
+        observations=source_view(upper['owned_parameters']['observed_dynamics'])
+    return options(realize(upper),target_ref,observations=observations)
+
+
+from source_observation_evidence import guarded as _original_observations_required
+
+
+from source_observation_evidence import controlled_update as _controlled_update
+@_controlled_update
+@_original_observations_required
 def intervene(upper,controls):
     validate_controls(controls)
     from connected_tier2 import realize
     if controls['dynamics']==0:return deepcopy(upper),dict(status='EXACT_ZERO_LOCK',released=False,changed=False)
-    before=realize(upper);evidence=options(before,controls['target_ref']);chosen,decision=sample(evidence,controls)
+    before=realize(upper);evidence=package_options(upper,controls['target_ref']);chosen,decision=sample(evidence,controls)
     decision['evidence']=evidence
     if chosen is None:return deepcopy(upper),decision
     edited=dynamics.apply(upper,controls['target_ref'],chosen['marking'])

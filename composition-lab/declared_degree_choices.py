@@ -162,8 +162,17 @@ def sample(evidence,controls):
     return chosen,dict(status='SOURCE_SUPPORTED_DEGREE_ALLOCATION' if chosen['changed'] else 'OBSERVED_COINCIDENCE',released=True,changed=chosen['changed'],chosen=chosen)
 
 
+from source_observation_evidence import guarded as _original_observations_required
+
+
+from source_observation_evidence import controlled_update as _controlled_update
+@_controlled_update
+@_original_observations_required
 def intervene(upper,controls):
     from connected_tier2 import realize
+    from voicing_register import validate_controls
+    validate_controls(controls)
+    if controls.get('context_policy') not in (POLICY, NOMINAL_POLICY):raise ValueError('Explicit declared-degree policy required')
     if controls.get('register')!=0:raise ValueError('This release locks bass register')
     realize(upper)
     if controls['voicing']==0:return deepcopy(upper),dict(status='EXACT_ZERO_LOCK',released=False,changed=False)

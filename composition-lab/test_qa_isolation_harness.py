@@ -13,6 +13,29 @@ def reconstruct(upper, controls):
 
 
 class IsolationHarnessTests(unittest.TestCase):
+    def test_muted_register_dispatch_cannot_supply_result_or_expand_placement(self):
+        # Dispatch mechanics only; production musical behavior has its own tests.
+        controls = dict(context_policy='source_muted_figure_register', register=100,
+                        physical=100, seed=7)
+        code = 'def reconstruct(upper, controls): return {"executed": True}'
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            for level in (0, 50, 100):
+                receipt = execute(code, {}, dict(controls, register=level),
+                                  {'executed': True}, root / str(level),
+                                  purpose='guitar_figure_register')
+                self.assertEqual(receipt['status'], 'PASS', receipt)
+            invalid = [dict(controls, result_pitch=73),
+                       dict(controls, source_path='original.json'),
+                       dict(controls, placement_policy='minimum_string_changes'),
+                       dict(controls, register=True), dict(controls, physical=50)]
+            for i, candidate in enumerate(invalid):
+                receipt = execute(code, {}, candidate, {'executed': True},
+                                  root / ('refuse-' + str(i)),
+                                  purpose='guitar_figure_register')
+                self.assertEqual(receipt['status'], 'FAIL', receipt)
+                self.assertFalse((root / ('refuse-' + str(i)) / 'worker/output.json').exists())
+
     def test_actual_execution_changed_input_arbitrary_ids(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
