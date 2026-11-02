@@ -9,6 +9,7 @@ import melodic_movement_ownership as movement
 import backing_pitch_ownership as backing
 from connected_tier2 import analyze, strip_lower
 from source_fact_tier1 import extract_documents, project_documents
+from source_observation_evidence import digest
 
 
 def instances():
@@ -117,13 +118,25 @@ def authored_score():
     return docs
 
 
-def build(*, admit_peers=True, docs=None):
+def build(*, admit_peers=True, docs=None, legacy=False):
     docs=authored_score() if docs is None else docs;lower=extract_documents(docs)
     links=[dict(occurrence_ref=peer,backing_ref=root)for peer,root in zip(PEERS,ROOTS)]
     links.append(dict(occurrence_ref=FOREIGN,backing_ref=FOREIGN_BACKING))
     ordinary=strip_lower(analyze(lower,backing_bindings=links))
     t2=movement.lift(ordinary,ROOTS,register_controls=True)
-    t3=cell.lift(t2,[ROOTS[:16],ROOTS[16:]],dependent_refs=PEERS if admit_peers else ())
+    if legacy:
+        # Persisted /1 format predates peer execution contracts. This authored
+        # fixture retains its original facts, not a migration through /2.
+        groups=[ROOTS[:16],ROOTS[16:]];relationship=cell.fit(instances())
+        contexts=[movement._original_register_context(lower,t2['source_origin'],PEERS)] if admit_peers else []
+        obs=dict(origin=deepcopy(t2['source_origin']),original_relation_sha256=digest(relationship),
+                 bindings_sha256=digest(groups),dependent_contexts=contexts)
+        obs['evidence_sha256']=digest(obs)
+        child=deepcopy(t2);del child['owned_parameters'][movement.SLOT]['parameters']
+        t3=dict(tier=3,schema=cell.LEGACY_TIER3_SCHEMA,lower_tier=child,relationship=relationship,
+                instance_attack_refs=groups,observations=obs)
+    else:
+        t3=cell.lift(t2,[ROOTS[:16],ROOTS[16:]],dependent_refs=PEERS if admit_peers else ())
     return docs,lower,t2,t3
 
 
@@ -231,6 +244,85 @@ class MusicalCellDevelopmentOwnershipTests(unittest.TestCase):
         _,_,_,model=build(admit_peers=False);snapshot=deepcopy(model)
         with self.assertRaises(ValueError):cell.intervene(model,controls(seed=changed_seed()))
         self.assertEqual(model,snapshot)
+
+    def test_peer_pull_off_cannot_be_broken_by_phase_placement(self):
+        docs=authored_score()
+        docs['track-1.json']['measures'][4]['voices'][0]['beats'][0]['notes'][0]['hp']=True
+        _,lower,t2,model=build(docs=docs);snapshot=deepcopy(model)
+        scope=movement.execution.build(lower,PEERS)
+        self.assertTrue(scope['obligations'])
+        self.assertEqual(cell.reconstruct(model,{'variation':0}),lower)
+        wanted=cell.expand(cell.phase_candidate(model,1,1))['owned_parameters'][movement.SLOT]['parameters']
+        with self.assertRaisesRegex(ValueError,'EXECUTION'):
+            movement._placed_candidate(t2,wanted,lower,dependent_contexts=model['observations']['dependent_contexts'])
+        with self.assertRaisesRegex(ValueError,'EXECUTION'):
+            cell.intervene(model,controls(seed=4))
+        self.assertEqual(model,snapshot)
+
+    def test_saved_peer_contact_corruption_refuses_even_when_pitch_is_exact(self):
+        docs=authored_score()
+        docs['track-1.json']['measures'][4]['voices'][0]['beats'][0]['notes'][0]['hp']=True
+        _,lower,_,model=build(docs=docs)
+        pi,ci=movement._string_paths(cell.expand(model),[PEERS[16]])[PEERS[16]]
+        model['lower_tier']['owned_parameters']['source_choices'][ci]['parameter'].update(normalized='1',negative_zero=False)
+        model=json.loads(json.dumps(model));snapshot=deepcopy(model)
+        # Existing pitch ownership accepts the same pitch on another string.
+        current=project_documents(movement._realize(cell.expand(model)))['track-1.json']
+        note=current['measures'][4]['voices'][0]['beats'][0]['notes'][0]
+        self.assertEqual(current['tuning'][note['string']]+note['fret'],52)
+        with self.assertRaisesRegex(ValueError,'EXECUTION'):cell.reconstruct(model,{'variation':0})
+        self.assertEqual(model,snapshot)
+
+    def test_untouched_peer_pull_off_survives_edit_reload_and_next_edit(self):
+        docs=authored_score()
+        docs['track-1.json']['measures'][0]['voices'][0]['beats'][0]['notes'][0]['hp']=True
+        _,lower,_,model=build(docs=docs)
+        scope=movement.execution.build(lower,PEERS)
+        edited,report=cell.intervene(model,controls(seed=changed_seed()))
+        self.assertTrue(report['changed'])
+        saved=json.loads(json.dumps(edited));after=cell.reconstruct(saved,{'variation':0})
+        movement.execution.validate(scope,after,PEERS)
+        again,_=cell.intervene(saved,controls(seed=changed_seed(),phase=0))
+        movement.execution.validate(scope,cell.reconstruct(again,{'variation':0}),PEERS)
+        self.assertEqual(again['observations'],model['observations'])
+
+    def test_new_peer_execution_contract_cannot_be_omitted(self):
+        model=deepcopy(self.t3)
+        del model['observations']['dependent_execution']
+        model['observations']['evidence_sha256']=digest({k:v for k,v in model['observations'].items()if k!='evidence_sha256'})
+        with self.assertRaisesRegex(ValueError,'provenance'):cell.reconstruct(model,{'variation':0})
+
+    def test_legacy_original_unresolved_exit_slide_remains_exact_at_zero(self):
+        docs=authored_score()
+        docs['track-1.json']['measures'][4]['voices'][0]['beats'][0]['notes'][0]['slide']='downwards'
+        _,lower,_,old=build(docs=docs,legacy=True);snapshot=deepcopy(old)
+        self.assertEqual(cell.reconstruct(old,{'variation':0}),lower)
+        zero,report=cell.intervene(old,controls(0,seed=4))
+        self.assertEqual(zero,old);self.assertFalse(report['changed'])
+        with self.assertRaisesRegex(ValueError,'EXECUTION'):
+            cell.intervene(old,controls(seed=4))
+        self.assertEqual(old,snapshot)
+
+    def test_legacy_plain_saves_work_but_techniques_require_original_contract(self):
+        def legacy(model):
+            result=deepcopy(model);result['schema']=cell.LEGACY_TIER3_SCHEMA
+            del result['observations']['dependent_execution']
+            result['observations']['evidence_sha256']=digest({k:v for k,v in result['observations'].items()if k!='evidence_sha256'})
+            return result
+        old=legacy(self.t3)
+        edited,_=cell.intervene(old,controls(seed=changed_seed()))
+        self.assertEqual(cell.reconstruct(json.loads(json.dumps(edited)),{'variation':0}),
+                         cell.reconstruct(cell.intervene(self.t3,controls(seed=changed_seed()))[0],{'variation':0}))
+        docs=authored_score()
+        docs['track-1.json']['measures'][0]['voices'][0]['beats'][0]['notes'][0]['hp']=True
+        _,lower,_,model=build(docs=docs);old=legacy(model);snapshot=deepcopy(old)
+        self.assertEqual(cell.reconstruct(old,{'variation':0}),lower)
+        with self.assertRaisesRegex(ValueError,'LEGACY_PEER_EXECUTION'):
+            cell.intervene(old,controls(seed=changed_seed()))
+        self.assertEqual(old,snapshot)
+        edited,_=cell.intervene(model,controls(seed=changed_seed()))
+        with self.assertRaisesRegex(ValueError,'LEGACY_PEER_EXECUTION'):
+            cell.reconstruct(legacy(edited),{'variation':0})
 
     def test_duplicate_old_parameters_bindings_origin_and_timing_corruption_refuse(self):
         changes=(lambda m:m['lower_tier']['owned_parameters'][movement.SLOT].update(parameters=deepcopy(self.t2['owned_parameters'][movement.SLOT]['parameters'])),

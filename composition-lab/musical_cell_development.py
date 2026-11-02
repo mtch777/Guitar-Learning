@@ -15,7 +15,8 @@ from source_observation_evidence import digest, validate_origin, assert_only_par
 
 SCHEMA = 'musical-cell-development/1'
 SLOT = 'musical_cell_development'
-TIER3_SCHEMA = 'source-musical-cell-development/1'
+LEGACY_TIER3_SCHEMA = 'source-musical-cell-development/1'
+TIER3_SCHEMA = 'source-musical-cell-development/2'
 POLICY = 'source_musical_cell_phase'
 ROLES = ('LOW', 'CENTER', 'OUTER')
 
@@ -267,7 +268,7 @@ def _timed_instances(lower, attacks, groups, pitches):
 def _shape(upper):
     from connected_tier2 import strip_lower
     fields = {'tier','schema','lower_tier','relationship','instance_attack_refs','observations'}
-    if type(upper) is not dict or set(upper) != fields or upper['tier'] != 3 or type(upper['tier']) is not int or upper['schema'] != TIER3_SCHEMA:
+    if type(upper) is not dict or set(upper) != fields or upper['tier'] != 3 or type(upper['tier']) is not int or upper['schema'] not in (TIER3_SCHEMA,LEGACY_TIER3_SCHEMA):
         raise ValueError('Explicit Tier3 cell envelope required')
     child = upper['lower_tier']
     if type(child) is not dict or type(child.get('tier')) is not int or child['tier'] != 2 or 'lower_tier_cache' in child:
@@ -284,7 +285,9 @@ def _shape(upper):
     if len(solved) != len(groups) or any(len(row['pitches']) != len(group) for row,group in zip(solved,groups)):
         raise ValueError('Cell relation and bound occurrence cardinality differ')
     obs = upper['observations']
-    if type(obs) is not dict or set(obs) != {'origin','original_relation_sha256','bindings_sha256','dependent_contexts','evidence_sha256'}:
+    observation_fields = {'origin','original_relation_sha256','bindings_sha256','dependent_contexts','evidence_sha256'}
+    if upper['schema'] == TIER3_SCHEMA: observation_fields.add('dependent_execution')
+    if type(obs) is not dict or set(obs) != observation_fields:
         raise ValueError('Immutable semantic source observation provenance required')
     validate_origin(obs['origin'])
     if obs['origin'] != child.get('source_origin') or obs['bindings_sha256'] != digest(groups):
@@ -308,6 +311,12 @@ def _shape(upper):
             if ref not in links or set(links[ref]) != backing.LINK_FIELDS or links[ref]['backing_ref'] not in refs:
                 raise ValueError('Dependent context no longer binds an existing direct pitch link')
         seen.update(members)
+    if upper['schema'] == TIER3_SCHEMA:
+        scopes = obs['dependent_execution']
+        if type(scopes) is not list or len(scopes) != len(obs['dependent_contexts']):
+            raise ValueError('Original execution obligations required for every dependent context')
+        for scope,context in zip(scopes,obs['dependent_contexts']):
+            movement.execution.shape(scope,context['excluded_member_refs'])
     params = movement.relation(pitches=[p for row in solved for p in row['pitches']])
     params = {k:params[k] for k in ('pitch_class','octave','steps')}
     # Validate the existing authority without mutating its sparse nested owner.
@@ -333,7 +342,8 @@ def lift(upper, instance_attack_refs, *, dependent_refs=()):
     contexts = _contexts(lower,child['source_origin'],dependent_refs,
                          dict(attacks=model['attacks'],shared=child['musical_relationships']))
     obs = dict(origin=deepcopy(child['source_origin']), original_relation_sha256=digest(relationship),
-               bindings_sha256=digest(instance_attack_refs),dependent_contexts=contexts)
+               bindings_sha256=digest(instance_attack_refs),dependent_contexts=contexts,
+               dependent_execution=[movement.execution.build(lower,c['excluded_member_refs']) for c in contexts])
     obs['evidence_sha256'] = digest(obs)
     del model['parameters']
     result = dict(tier=3,schema=TIER3_SCHEMA,lower_tier=child,relationship=relationship,
@@ -353,12 +363,35 @@ def expand(upper):
     return result
 
 
+def _needs_original_peer_contract(scope):
+    # Static declarations elsewhere do not gain an endpoint from string moves.
+    # Legacy endpoint-bearing scopes have no historical commitment; never
+    # manufacture one from already edited contacts.
+    return bool(scope['obligations'] or any(
+        any(row[k] is not None for k in ('origin_ref','destination_ref','candidate_destination_ref'))
+        or row['tied_member_refs'] for row in scope['unresolved_outside_neighborhood']))
+
+
+def _legacy_peer_scopes(upper, lower):
+    return [movement.execution.build(lower,c['excluded_member_refs'])
+            for c in upper['observations']['dependent_contexts']]
+
+
 def validate_execution(upper, lower):
     _,model,params = _shape(upper)
     pitches = movement.relation(**params)['pitches']
     actual = _timed_instances(lower,model['attacks'],upper['instance_attack_refs'],pitches)
     if actual != realize(upper['relationship']):
         raise ValueError('Current written timing contradicts the shared cell relationship')
+    if upper['schema'] == TIER3_SCHEMA:
+        for scope,context in zip(upper['observations']['dependent_execution'],upper['observations']['dependent_contexts']):
+            movement.execution.validate(scope,lower,context['excluded_member_refs'])
+    elif digest(lower) != upper['observations']['origin']['facts_sha256']:
+        # Exact-original legacy playback needs no invented execution contract.
+        # Source preservation is distinct from admission to creative editing.
+        scopes = _legacy_peer_scopes(upper,lower)
+        if any(_needs_original_peer_contract(s) for s in scopes):
+            raise ValueError('LEGACY_PEER_EXECUTION: re-lift from the authentic original before editing linked techniques')
     data = movement.closure._data(movement.execution.encoded(lower))
     for context in upper['observations']['dependent_contexts']:
         span = F(context['max_simultaneous_span'])
@@ -403,6 +436,9 @@ def intervene(upper, controls):
                   original_observations_unchanged=True)
     if not released:
         return deepcopy(upper),dict(report,changed=False,chosen_phase=current_phase,candidate_count=None)
+    if phase != current_phase and upper['schema'] == LEGACY_TIER3_SCHEMA and any(
+            _needs_original_peer_contract(s) for s in _legacy_peer_scopes(upper,before)):
+        raise ValueError('LEGACY_PEER_EXECUTION: re-lift from the authentic original before editing linked techniques')
     candidates = [(deepcopy(upper),current_phase,{})]
     if phase != current_phase:
         proposed = phase_candidate(upper,instance,phase)
@@ -414,9 +450,8 @@ def intervene(upper, controls):
             raise ValueError('Placement changed the proposed cell equation')
         del placed['owned_parameters'][movement.SLOT]['parameters']
         proposed['lower_tier'] = placed
-        # The shared placement path already validated the whole realized score.
-        # This boundary additionally verifies retained authority below Tier3.
-        _shape(proposed)
+        # Validate the persisted obligations too, not only the current notes.
+        _current_lower(proposed)
         allowed = [('relationship','instances',instance,'phase')]
         refs = movement._members(child['owned_parameters'][movement.SLOT]['attacks'])
         refs += [r for c in upper['observations']['dependent_contexts'] for r in c['excluded_member_refs']]

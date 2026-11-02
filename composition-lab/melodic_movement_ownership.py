@@ -570,7 +570,7 @@ def _placed_candidate(upper, parameters, before, *, dependent_contexts=()):
     links = {r['occurrence_ref']: r for r in shared.get('relationships', [])}
     target_pitches = {ref: pitch for attack, pitch in zip(model['attacks'], pitches)
                       for ref in attack['member_refs']}
-    dependent_refs = []
+    dependent_refs = []; dependent_execution = []
     for context in dependent_contexts:
         if type(context) is not dict:
             raise ValueError('Original dependent register context required')
@@ -588,6 +588,9 @@ def _placed_candidate(upper, parameters, before, *, dependent_contexts=()):
         attacks, _ = _attack_rows(before, scope['attack_root_refs'])
         if set(_members(attacks)) != set(members):
             raise ValueError('Complete dependent written tie membership required')
+        # A peer's pitch equation does not own its technique endpoints. Retain
+        # the same execution neighborhood before allowing contact relocation.
+        dependent_execution.append(execution.build(before, members))
         for attack in attacks:
             values = {music.relation(anchor=target_pitches[links[r]['backing_ref']],
                 interval=links[r]['interval_semitones'])['pitch'] for r in attack['member_refs']}
@@ -617,6 +620,8 @@ def _placed_candidate(upper, parameters, before, *, dependent_contexts=()):
             if chosen['fret'] != 0:
                 result['owned_parameters']['physical_positions'][pi]['negative_zero'] = False
     after = _realize(result)
+    for scope in dependent_execution:
+        execution.validate(scope, after, scope['owned_refs'])
     _allowed_changes(upper, result, before, after, version2=True, dependent_refs=dependent_refs)
     if 'stable_pitch_preference' in upper:
         from stable_pitch_policy import enforce_transition
