@@ -7,6 +7,7 @@ Repository: https://github.com/mtch777/Guitar-Learning. Branch of record: main.
 - Inspect current main HEAD, source, tests, and workflows. Current code supersedes older handoffs.
 - This repo also hosts a guitar-learning UI: scope edits carefully; don't regress unrelated features.
 - Do not publish copyrighted commercial GP source scores, private annotations, credentials, or licensed model weights.
+- Store bulk song downloads and analysis outputs in draft GitHub Releases, not GitHub Actions artifacts. Actions artifact storage is a small shared allocation and must not hold the corpus. Preserve existing encryption; verify replacement size and SHA-256 before removing any stored source copy. See `.github/ARTIFACT_STORAGE_MIGRATION.md` and `.github/scripts/release_storage.py`.
 
 ## Working method
 - Make an explicit, persistent checklist of subtasks with testable acceptance criteria.
@@ -22,3 +23,4 @@ Repository: https://github.com/mtch777/Guitar-Learning. Branch of record: main.
 - Run relevant Python tests and available JS tests/build; report commands and actual results.
 - Do not claim remote deployment, model inference, benchmark accuracy, or audio quality without verifying each.
 - Keep model checkpoints and corpus licensing separate from source-code licenses.
+

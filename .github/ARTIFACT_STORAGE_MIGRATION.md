@@ -9,11 +9,11 @@ Move the outputs of GitHub Actions run `41393260772` out of Actions artifact sto
 - [x] Inspect current repository instructions, workflow, and completed source run.
 - [x] Freeze scope: 309 artifacts, 8,741,137,087 bytes, run `41393260772` only.
 - [x] Test source checksum, destination verification, conflict, and partial-resume safeguards.
-- [ ] Move all 309 original ZIP archives unchanged to a draft Release.
-- [ ] Verify every destination SHA-256 and size before deleting its source artifact.
-- [ ] Confirm the source run has zero remaining Actions artifacts.
-- [x] Replace all three upload-artifact steps in the tiered analysis workflow with direct draft Release uploads (prepared and verified locally).
-- [x] Verify the storage patch does not automatically rerun the 308-song analysis (manual-only trigger verified locally).
+- [x] Move all 309 original ZIP archives unchanged to a draft Release.
+- [x] Verify every destination SHA-256 and size before deleting its source artifact.
+- [x] Confirm the source run has zero remaining Actions artifacts.
+- [x] Replace all three upload-artifact steps in the tiered analysis workflow with direct draft Release uploads.
+- [x] Verify the storage patch does not automatically rerun the 308-song analysis.
 
 ## Storage contract
 
@@ -59,3 +59,18 @@ Move the outputs of GitHub Actions run `41393260772` out of Actions artifact sto
 - Commit `6e4db2be24c471ddb8e2d5520669f8b39c1a9802` resolved Release creation. Draft Release `431609715` exists and its source inventory was uploaded and verified.
 - Run `41468929388` exposed the API distinction: Actions artifact archive endpoints reject the octet-stream Accept header with HTTP 415; Release asset downloads require it. All 309 source files were preserved.
 - Corrected endpoint-specific Accept headers and added a transport regression test; retain all checksum/deletion gates.
+
+### 2026-11-02 — completed and independently verified
+
+- Successful migration: [run 41469306782](https://github.com/mtch777/Guitar-Learning/actions/runs/41469306782), commit `c95ad1e5cba5e91522b85ce1310c1c9f200b6e59`. Finished at 15:21:27 UTC (08:21:27 MST).
+- [Draft Release](https://github.com/mtch777/Guitar-Learning/releases/tag/untagged-c2911c4c07760f2b952a), ID `431609715`, tag `tiered-analysis-run-41393260772`.
+- 309 original ZIP archives preserved: exactly **8,741,137,087 bytes**.
+- Independently fetched all four Release asset pages and compared every ZIP to the original inventory: **309/309 names, sizes, and SHA-256 digests matched; zero mismatches**.
+- Release contains 310 assets: the 309 unchanged ZIP archives plus `source-artifacts.json` (84,462 bytes; SHA-256 `449e8f9f48c444c07121c3776397dbb507fe42094308e5a1b89be4d7660ce959`).
+- Migration log reports 309 moved, zero errors, zero remaining artifacts, and zero remaining source bytes. Independent source-run API query confirms **0 artifacts**.
+- Final repository inventory: 151 artifacts from other runs, totaling 391,223,971 bytes. These are outside this task's original-run scope.
+- Final transport/safety suite: `python -m unittest discover -s .github/scripts -p 'test_release_storage.py' -v` — **21 tests passed**, including the endpoint-specific download header regression.
+- Future tiered analysis writes directly to draft Releases, preserves CMS encryption, and has no Actions artifact upload step.
+- The one-time migration workflow is now manual-only; editing it will not automatically restart migration.
+- `AGENTS.md` records the instruction to keep bulk song/analysis outputs out of Actions artifact storage.
+- Storage migration is complete. The original 12 song-analysis failures are separate and were not rerun by this storage task.

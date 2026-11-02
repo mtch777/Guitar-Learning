@@ -3,9 +3,6 @@ name: Move tiered analysis outputs out of Actions storage
 # Actions archives and Release downloads use their respective API media types.
 
 on:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/move-tiered-artifacts-to-release.yml']
   workflow_dispatch:
 
 permissions:
