@@ -1,0 +1,58 @@
+name: Diagnose six pedal expansion failures (isolated)
+
+on:
+  push:
+    branches: ['diagnostic/pedal-six-20261102']
+    paths: ['.github/workflows/diagnose-six-pedal.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: diagnostic-pedal-six-20261102
+  cancel-in-progress: false
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        song_id: [1817932, 993568, 1511882, 6028811, 4248474, 3165226]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install existing capture dependencies
+        run: |
+          python -m pip install httpx PyGuitarPro==0.11
+          git clone --depth 1 https://github.com/6801318d8d/songsterr-dl.git /tmp/songsterr-dl
+      - name: Diagnose unchanged expansion and isolated candidate
+        env:
+          SONG_ID: ${{ matrix.song_id }}
+        run: python .github/diagnostics/diagnose_six_pedal.py --song-id "$SONG_ID" --output "composition-lab/local-artifacts/pedal-six-diagnosis/$SONG_ID"
+      - name: Encrypt captured source and full diagnostics
+        if: always()
+        env:
+          SONG_ID: ${{ matrix.song_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="composition-lab/local-artifacts/pedal-six-diagnosis/$SONG_ID"
+          test -f "$OUT/diagnosis.json"
+          tar -czf - -C "$OUT" . | openssl cms -encrypt -binary -aes256 -outform DER -recip composition-lab/tiered-output-public.crt -out "diagnosis-$SONG_ID.cms"
+      - name: Save encrypted diagnosis to draft Release
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SONG_ID: ${{ matrix.song_id }}
+        run: |
+          python .github/scripts/release_storage.py upload \
+            --tag "pedal-diagnosis-run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}" \
+            --asset-name "pedal-diagnosis-${SONG_ID}.zip" \
+            --file "diagnosis-${SONG_ID}.cms" \
+            --file "composition-lab/local-artifacts/pedal-six-diagnosis/${SONG_ID}/diagnosis.json"
