@@ -2,7 +2,7 @@
 
 ## Authorized scope
 
-Resolve the six Songsterr artist-name mismatches, then rerun the prior twelve-entry selection. Keep the existing musical analysis and its validation unchanged for the subsequent discussion. Save output directly to encrypted draft Release assets.
+Resolve the six Songsterr artist-name mismatches, then rerun **only those six entries**. The user explicitly clarified that the six existing analysis failures are a separate task. Keep the existing musical analysis and its validation unchanged for the subsequent discussion. Save output directly to encrypted draft Release assets.
 
 ## Acceptance checklist
 
@@ -11,8 +11,8 @@ Resolve the six Songsterr artist-name mismatches, then rerun the prior twelve-en
 - [x] Add narrow per-song reconciliation with explicit catalog/source provenance and untouched raw metadata.
 - [x] Verify matching song IDs and track identities before admitting a known mismatch.
 - [x] Test exact known matches, unexpected identities, changed tracks, missing/duplicate search rows, and unchanged normal capture behavior.
-- [ ] Commit on current main without changing analysis code.
-- [ ] Run the same twelve-entry selection and inspect every outcome.
+- [x] Commit on current main without changing analysis code.
+- [ ] Run only the six reconciled entries and inspect every outcome.
 - [ ] Verify Release delivery, integrity metadata, and zero Actions artifacts.
 - [ ] Record actual remaining analysis failures and make the launcher manual-only.
 
@@ -27,7 +27,9 @@ Resolve the six Songsterr artist-name mismatches, then rerun the prior twelve-en
 - `cd composition-lab && python -m unittest -v test_tiered_catalog_identity`: **17/17 tests passed**, including parameterized cases for all six rules, changed identities and track evidence, normal artist behavior, unchanged source data, correct audit placement, and preservation of downstream failure status. These tests mock musical analysis only to verify runner boundaries; they do not establish musical-analysis success.
 - Independent review passed: rules match separately fetched API evidence, the exception remains song-specific, source fields and analysis inputs remain unchanged, and the audit is encrypted with the full result.
 - The launcher still contains exactly the original twelve IDs with `expected_count: 12`; only its temporary path-scoped push trigger was restored for this authorized fresh run.
-- Next: commit, run the exact twelve entries, and inspect outcomes.
+- Committed the identity-only change as `1555b64e38fa44cc30343125161330c9e92dd389`. It initially launched run `41487073742` with the prior twelve-ID selection. The user corrected this scope: only six former identity failures should run. This initial twelve-entry retry was a selection mistake, not authorization to work on the six analysis failures.
+- Corrected the launcher to exactly `4081672,6656103,3851017,2457200,3956211,4472844` with `expected_count: 6`. Temporarily enabled cancellation within the existing dedicated retry concurrency group so the corrected six-entry run supersedes the mistaken run if it is still active. Existing diagnostics are retained.
+- Next: verify the corrected six-entry run, its identities/outcomes, and seven Release assets with zero Actions artifacts.
 
 ## Verified song-level reconciliation
 
