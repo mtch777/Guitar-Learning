@@ -1,0 +1,35 @@
+name: Move tiered analysis outputs out of Actions storage
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/move-tiered-artifacts-to-release.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: migrate-tiered-artifacts-41393260772
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test copy verification and deletion safeguards
+        run: python -m unittest discover -s .github/scripts -p 'test_release_storage.py' -v
+      - name: Move verified copies to draft Release and remove Actions copies
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          python .github/scripts/release_storage.py migrate
+          --run-id 41393260772
+          --expected-count 309
+          --expected-bytes 8741137087
