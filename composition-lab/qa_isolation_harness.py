@@ -86,6 +86,11 @@ def validate_request(purpose, controls):
             raise ValueError('Bounded integer melody release and seed required')
         if set(controls)==combined and (type(controls['register'])is not int or not 0<=controls['register']<=100 or controls['register_direction'] not in ('up','down')):
             raise ValueError('Bounded integer register release and explicit direction required')
+    elif purpose=='musical_cell_phase':
+        if type(controls)is not dict or set(controls)!={'context_policy','variation','instance','phase','seed'} or controls['context_policy']!='source_musical_cell_phase':
+            raise ValueError('Exact musical-cell controls required')
+        if any(type(controls[k])is not int for k in ('variation','instance','phase','seed')) or not 0<=controls['variation']<=100 or controls['instance']<1 or not 0<=controls['phase']<3:
+            raise ValueError('Bounded release, later instance, cell phase and typed seed required')
     elif purpose=='bend_gesture':
         # Worker validates this packet before loading the frozen operator.
         if type(controls)is not dict or set(controls)!={'context_policy','bend','intent','seed'}:

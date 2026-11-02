@@ -496,8 +496,9 @@ def _string_paths(upper, refs):
     return result
 
 
-def _allowed_changes(before_upper, after_upper, before, after, *, version2):
+def _allowed_changes(before_upper, after_upper, before, after, *, version2, dependent_refs=()):
     model, refs, _ = _shape(before_upper)
+    refs = refs + list(dependent_refs)
     paths = [('owned_parameters', SLOT, 'parameters', 'steps', i) for i in range(len(model['attacks']) - 1)]
     if version2:
         paths.append(('owned_parameters', SLOT, 'parameters', 'octave'))
@@ -547,20 +548,57 @@ def _contact_span_ok(data, ref, contact, maximum, excluded=()):
     return True
 
 
-def _placed_candidate(upper, parameters, before):
+def _placed_candidate(upper, parameters, before, *, dependent_contexts=()):
     """One deterministic nominal contact proposal; no Cartesian product.
 
     All tied members use one string. Full held-note overlaps are considered,
     then the unchanged execution and tie predicates validate the whole result.
     """
     from backing_motion_relations import physical_contacts
-    model, refs, _ = _shape(upper); selected = set(refs)
+    model, refs, _ = _shape(upper)
     data = closure._data(execution.encoded(before)); result = deepcopy(upper)
     result['owned_parameters'][SLOT]['parameters'] = deepcopy(parameters)
-    pitches = _solve(result)['pitches']; paths = _string_paths(result, refs)
+    pitches = _solve(result)['pitches']
     span = F(model['observations']['register_context']['max_simultaneous_span'])
+    work = [(attack, pitch, span) for attack, pitch in zip(model['attacks'], pitches)]
+    # Higher-level operations may explicitly retain a coordinated peer line.
+    # Its existing pitch links remain authoritative; only its contact choices
+    # may follow those links. Ordinary movement controls still permit no peers.
+    if type(dependent_contexts) not in (tuple, list):
+        raise ValueError('Explicit original dependent placement contexts required')
+    shared = upper['musical_relationships']
+    links = {r['occurrence_ref']: r for r in shared.get('relationships', [])}
+    target_pitches = {ref: pitch for attack, pitch in zip(model['attacks'], pitches)
+                      for ref in attack['member_refs']}
+    dependent_refs = []
+    for context in dependent_contexts:
+        if type(context) is not dict:
+            raise ValueError('Original dependent register context required')
+        members = context.get('excluded_member_refs')
+        if type(members) is not list or not members:
+            raise ValueError('Explicit dependent occurrence identities required')
+        _validate_register_context(context, upper['source_origin'], members)
+        if set(members) & (set(refs) | set(dependent_refs)):
+            raise ValueError('Duplicate or overlapping dependent placement scope')
+        for ref in members:
+            link = links.get(ref)
+            if link is None or link['backing_ref'] not in target_pitches:
+                raise ValueError('Dependent placement must follow an existing selected backing link')
+        scope = closure.closure(before, members)
+        attacks, _ = _attack_rows(before, scope['attack_root_refs'])
+        if set(_members(attacks)) != set(members):
+            raise ValueError('Complete dependent written tie membership required')
+        for attack in attacks:
+            values = {music.relation(anchor=target_pitches[links[r]['backing_ref']],
+                interval=links[r]['interval_semitones'])['pitch'] for r in attack['member_refs']}
+            if len(values) != 1:
+                raise ValueError('Dependent tie members imply conflicting pitches')
+            work.append((attack, values.pop(), F(context['max_simultaneous_span'])))
+        dependent_refs.extend(members)
+    selected = set(refs) | set(dependent_refs)
+    paths = _string_paths(result, refs + dependent_refs)
     contacts = {}
-    for attack, pitch in zip(model['attacks'], pitches):
+    for attack, pitch, span in work:
         event = data['events'][attack['attack_ref']]
         part, _, original, _ = closure._raw(data, event)
         candidates = physical_contacts(int(F(pitch)), part['tuning'], part.get('capo', 0), max_fret=part.get('frets'))
@@ -579,7 +617,7 @@ def _placed_candidate(upper, parameters, before):
             if chosen['fret'] != 0:
                 result['owned_parameters']['physical_positions'][pi]['negative_zero'] = False
     after = _realize(result)
-    _allowed_changes(upper, result, before, after, version2=True)
+    _allowed_changes(upper, result, before, after, version2=True, dependent_refs=dependent_refs)
     if 'stable_pitch_preference' in upper:
         from stable_pitch_policy import enforce_transition
         enforce_transition(upper, before, after)
