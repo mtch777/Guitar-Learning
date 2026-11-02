@@ -1,0 +1,110 @@
+name: Tiered analysis — Invent Animate, Currents, ERRA
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/tiered-song-catalog.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install capture client
+        run: |
+          python -m pip install httpx PyGuitarPro==0.11
+          git clone --depth 1 https://github.com/6801318d8d/songsterr-dl.git /tmp/songsterr-dl
+      - name: Verify Cloud Cascade with existing tiered pipeline
+        run: python composition-lab/run_tiered_catalog.py --song-id 460099 --output composition-lab/local-artifacts/catalog-tiered/460099
+      - name: Encrypt result with public-only certificate
+        if: always()
+        run: |
+          if test -d composition-lab/local-artifacts/catalog-tiered/460099; then
+            tar -czf - -C composition-lab/local-artifacts/catalog-tiered/460099 . | openssl cms -encrypt -binary -aes256 -outform DER -recip composition-lab/tiered-output-public.crt -out tiered-460099.cms
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiered-pilot-460099
+          path: |
+            tiered-460099.cms
+            composition-lab/local-artifacts/catalog-tiered/460099/status.json
+          retention-days: 30
+
+  inventory:
+    needs: pilot
+    runs-on: ubuntu-latest
+    outputs:
+      first: ${{ steps.catalog.outputs.first }}
+      second: ${{ steps.catalog.outputs.second }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install httpx PyGuitarPro==0.11
+          git clone --depth 1 https://github.com/6801318d8d/songsterr-dl.git /tmp/songsterr-dl
+      - name: Freeze and partition full 308-song catalog
+        id: catalog
+        run: |
+          python composition-lab/run_tiered_catalog.py --catalog > catalog.json
+          python -c 'import json,os; data=json.load(open("catalog.json")); ids=[r["song_id"] for r in data]; assert len(ids)==308 and len(set(ids))==308 and 460099 in ids; ids.remove(460099); f=open(os.environ["GITHUB_OUTPUT"],"a"); f.write("first="+json.dumps(ids[:154])+"\nsecond="+json.dumps(ids[154:])+"\n")'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tiered-308-catalog-manifest
+          path: catalog.json
+          retention-days: 30
+
+  analyze-first:
+    needs: inventory
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        song_id: ${{ fromJSON(needs.inventory.outputs.first) }}
+    steps: &song_steps
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install httpx PyGuitarPro==0.11
+          git clone --depth 1 https://github.com/6801318d8d/songsterr-dl.git /tmp/songsterr-dl
+      - name: Capture, analyze and independently verify
+        run: python composition-lab/run_tiered_catalog.py --song-id ${{ matrix.song_id }} --output composition-lab/local-artifacts/catalog-tiered/${{ matrix.song_id }}
+      - name: Encrypt private notation and full tiered output
+        if: always()
+        run: |
+          if test -d composition-lab/local-artifacts/catalog-tiered/${{ matrix.song_id }}; then
+            tar -czf - -C composition-lab/local-artifacts/catalog-tiered/${{ matrix.song_id }} . | openssl cms -encrypt -binary -aes256 -outform DER -recip composition-lab/tiered-output-public.crt -out tiered-${{ matrix.song_id }}.cms
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiered-song-${{ matrix.song_id }}
+          path: |
+            tiered-${{ matrix.song_id }}.cms
+            composition-lab/local-artifacts/catalog-tiered/${{ matrix.song_id }}/status.json
+          retention-days: 30
+
+  analyze-second:
+    needs: inventory
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        song_id: ${{ fromJSON(needs.inventory.outputs.second) }}
+    steps: *song_steps
