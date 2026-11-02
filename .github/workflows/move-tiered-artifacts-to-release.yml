@@ -1,4 +1,5 @@
 name: Move tiered analysis outputs out of Actions storage
+# Release container uses this migration commit; the inventory retains the source commit.
 
 on:
   push:

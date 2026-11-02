@@ -45,3 +45,11 @@ Move the outputs of GitHub Actions run `41393260772` out of Actions artifact sto
 - Compared the updated analysis workflow to the current source: all analysis/encryption steps, jobs, matrices, dependencies, and diagnostic `always()` conditions preserved; all three Actions artifact uploads replaced.
 - Migration enumerates all source pages, validates all source identities, and verifies a durable checksum inventory before starting any deletions.
 - Next: commit the five storage files, let the bounded migration run, and independently compare all Release copies with the original inventory.
+
+### 2026-11-02 — first execution and bounded correction
+
+- Storage patch committed as `0838517ca6bb4cc095a123c32ffc13ccf2352468`.
+- Migration run `41468478310` passed all 18 tests on the hosted runner, then GitHub rejected draft Release creation with HTTP 403 before any source deletion.
+- Runner explicitly received Actions write and Contents write permissions. No Release or migrated asset was created.
+- Adjust the Release container to target the current migration commit; keep the historical source commit in the immutable source inventory. Add sanitized API error messages for precise diagnosis if GitHub still rejects creation.
+- All 309 source artifacts remain preserved while this correction is applied.

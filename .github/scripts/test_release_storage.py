@@ -4,6 +4,7 @@ import copy
 import hashlib
 import io
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -64,6 +65,7 @@ class FakeGitHub:
 
     def ensure_release(self, tag, target=None):
         assert tag == self.release["tag_name"]
+        self.release_target = target
         return copy.deepcopy(self.release)
 
     def upload(self, release, name, path):
@@ -124,6 +126,15 @@ class MigrationTests(unittest.TestCase):
         self.assertIn(10, client.sources)
         self.assertNotIn(("delete", 10), client.events)
         self.assertNotIn("tiered-song-10.zip", client.release_assets)
+
+    def test_release_targets_current_commit_but_manifest_keeps_source_commit(self):
+        client = FakeGitHub()
+        with mock.patch.dict(os.environ, {"GITHUB_SHA": "b" * 40}):
+            self.run_migration(client)
+        self.assertEqual(client.release_target, "b" * 40)
+        manifest_asset = client.release_assets["source-artifacts.json"]
+        manifest = json.loads(client.asset_data[manifest_asset["id"]])
+        self.assertEqual(manifest["head_sha"], "a" * 40)
 
     def test_source_size_failure_retains_source(self):
         client = FakeGitHub()
@@ -284,6 +295,18 @@ class TransportTests(unittest.TestCase):
             self.assertEqual(client.api("GET", "/releases"), {"ok": True})
         sleep.assert_called_once_with(60)
         self.assertEqual(opener.open.call_count, 2)
+
+    def test_forbidden_error_preserves_reason_and_redacts_credentials(self):
+        client = storage.GitHub("owner/repo", "dummy-secret-token")
+        opener = mock.Mock()
+        payload = json.dumps({"message": "Resource not accessible by integration; token dummy-secret-token; https://host.example/path?signature=private"}).encode()
+        opener.open.side_effect = urllib.error.HTTPError("https://api.github.com/repos/owner/repo/releases", 403, "Forbidden", {}, io.BytesIO(payload))
+        with mock.patch.object(storage.urllib.request, "build_opener", return_value=opener):
+            with self.assertRaises(storage.ApiError) as raised:
+                client.api("POST", "/releases", {"draft": True})
+        self.assertIn("Resource not accessible by integration", str(raised.exception))
+        self.assertNotIn("dummy-secret-token", str(raised.exception))
+        self.assertNotIn("signature=private", str(raised.exception))
 
 
 if __name__ == "__main__":

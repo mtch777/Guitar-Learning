@@ -31,9 +31,19 @@ class StorageError(RuntimeError):
 
 
 class ApiError(StorageError):
-    def __init__(self, status: int, method: str):
+    def __init__(self, status: int, method: str, message: str = ""):
         self.status = status
-        super().__init__(f"GitHub API {method} failed with HTTP {status}")
+        suffix = f": {message}" if message else ""
+        super().__init__(f"GitHub API {method} failed with HTTP {status}{suffix}")
+
+
+def sanitized_message(message: str, token: str) -> str:
+    """Keep GitHub's actionable reason without credentials or signed queries."""
+    message = str(message).replace(token, "[REDACTED]") if token else str(message)
+    message = re.sub(r"\b(?:gh[pousr]_[A-Za-z0-9_]+|github_pat_[A-Za-z0-9_]+)\b", "[REDACTED]", message)
+    message = re.sub(r"(?i)Bearer\s+[^\s,;]+", "Bearer [REDACTED]", message)
+    message = re.sub(r"https?://[^\s<>\"]+", lambda m: m.group(0).split("?", 1)[0].split("#", 1)[0], message)
+    return " ".join(message.split())[:400]
 
 
 class SafeRedirect(urllib.request.HTTPRedirectHandler):
@@ -106,17 +116,17 @@ class GitHub:
                 break
             except urllib.error.HTTPError as error:
                 secondary = False
-                if error.code == 403:
-                    try:
-                        message = json.loads(error.read(16384)).get("message", "").lower()
-                        secondary = "secondary rate limit" in message or "abuse detection" in message
-                    except (ValueError, AttributeError):
-                        pass
+                message = ""
+                try:
+                    message = sanitized_message(json.loads(error.read(16384)).get("message", ""), self.token)
+                    secondary = error.code == 403 and ("secondary rate limit" in message.lower() or "abuse detection" in message.lower())
+                except (ValueError, AttributeError):
+                    pass
                 retry = error.code in (429, 500, 502, 503, 504) or (
                     error.code == 403 and (secondary or error.headers.get("Retry-After") or error.headers.get("X-RateLimit-Remaining") == "0")
                 )
                 if not retry or attempt == 7:
-                    raise ApiError(error.code, method) from None
+                    raise ApiError(error.code, method, message) from None
                 delay = max(2 ** attempt, int(error.headers.get("Retry-After", "0")))
                 if secondary:
                     delay = max(delay, min(900, 60 * 2 ** attempt))
@@ -357,7 +367,10 @@ def migrate(client, run_id, expected_count, expected_bytes, workers=3):
     # Validate all remaining sources before any storage mutation.
     for a in current:
         artifact_record(a, run_id)
-    release = client.ensure_release(f"tiered-analysis-run-{run_id}", run["head_sha"])
+    # A workflow token is authorized for its current commit. Tag the archive at
+    # that commit (or GitHub's default branch outside Actions); the manifest below
+    # independently retains the original source run's head_sha for provenance.
+    release = client.ensure_release(f"tiered-analysis-run-{run_id}", os.environ.get("GITHUB_SHA"))
     require_draft(release, f"tiered-analysis-run-{run_id}")
     manifest = load_or_create_manifest(client, release, run, current, expected_count, expected_bytes)
     existing = asset_map(client, release)
