@@ -1,6 +1,9 @@
 name: Retry the 12 failed tiered song entries
 
 on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/retry-tiered-failed-41393260772.yml']
   workflow_dispatch:
 
 permissions:

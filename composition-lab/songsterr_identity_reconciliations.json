@@ -1,0 +1,344 @@
+{
+  "schema": "songsterr-catalog-identity-reconciliations/1",
+  "reviewed_utc": "2026-11-02",
+  "songs": {
+    "4081672": {
+      "catalog_identity": {
+        "artistId": 57932,
+        "artist": "Currents",
+        "title": "Unf (Drop C#)"
+      },
+      "metadata_identity": {
+        "artistId": 122760,
+        "artist": "Lexi",
+        "title": "Unf"
+      },
+      "reviewed_revision_id": 5346837,
+      "tracks": [
+        {
+          "hash": "guitar_ClyBldeS",
+          "name": "Lead Guitar",
+          "instrumentId": 30,
+          "tuning": [
+            63,
+            58,
+            54,
+            49,
+            44,
+            37
+          ]
+        },
+        {
+          "hash": "guitar_PH2p5G8m",
+          "name": "Rhythm Guitar",
+          "instrumentId": 30,
+          "tuning": [
+            63,
+            58,
+            54,
+            49,
+            44,
+            37
+          ]
+        },
+        {
+          "hash": "guitar_X7SZOOr8",
+          "name": "Clean Guitar",
+          "instrumentId": 27,
+          "tuning": [
+            63,
+            58,
+            54,
+            49,
+            44,
+            37
+          ]
+        },
+        {
+          "hash": "bass_CZuCx3wR",
+          "name": "",
+          "instrumentId": 34,
+          "tuning": [
+            42,
+            37,
+            32,
+            25
+          ]
+        },
+        {
+          "hash": "drums_2nsYxnWn",
+          "name": "",
+          "instrumentId": 1024,
+          "tuning": null
+        }
+      ],
+      "evidence_urls": [
+        "https://www.songsterr.com/api/meta/4081672",
+        "https://www.songsterr.com/api/songs?pattern=Currents&size=250",
+        "https://www.youtube.com/watch?v=QeVRtCXbkhs"
+      ]
+    },
+    "6656103": {
+      "catalog_identity": {
+        "artistId": 53238,
+        "artist": "Invent Animate",
+        "title": "Halcyon (drop E)"
+      },
+      "metadata_identity": {
+        "artistId": 86430,
+        "artist": "Misc Covers",
+        "title": "Halcyon (drop E) by Invent Animate"
+      },
+      "reviewed_revision_id": 8711206,
+      "tracks": [
+        {
+          "hash": "guitar_D0EcQ3Sy",
+          "name": "Rhythm ",
+          "instrumentId": 30,
+          "tuning": [
+            59,
+            54,
+            50,
+            45,
+            40,
+            33,
+            28
+          ]
+        },
+        {
+          "hash": "drums_R8PWq4aI",
+          "name": "",
+          "instrumentId": 1024,
+          "tuning": null
+        }
+      ],
+      "evidence_urls": [
+        "https://www.songsterr.com/api/meta/6656103",
+        "https://www.songsterr.com/api/songs?pattern=Invent+Animate&size=250"
+      ]
+    },
+    "3851017": {
+      "catalog_identity": {
+        "artistId": 17808,
+        "artist": "ERRA",
+        "title": "Cure (Light Bass)"
+      },
+      "metadata_identity": {
+        "artistId": 500784,
+        "artist": "misc covers",
+        "title": "Cure by Erra (Light Bass)"
+      },
+      "reviewed_revision_id": 5193740,
+      "tracks": [
+        {
+          "hash": "guitar_OLqmzJnh",
+          "name": "Rhythm Guitar",
+          "instrumentId": 30,
+          "tuning": [
+            58,
+            53,
+            49,
+            44,
+            39,
+            34,
+            27
+          ]
+        },
+        {
+          "hash": "guitar_CbxaE9i1",
+          "name": "Lead Guitar",
+          "instrumentId": 30,
+          "tuning": [
+            58,
+            53,
+            49,
+            44,
+            39,
+            34,
+            27
+          ]
+        },
+        {
+          "hash": "bass_UomwVcBo",
+          "name": "",
+          "instrumentId": 33,
+          "tuning": [
+            43,
+            38,
+            33,
+            27
+          ]
+        },
+        {
+          "hash": "drums_WHSKHgPV",
+          "name": "",
+          "instrumentId": 1024,
+          "tuning": null
+        }
+      ],
+      "evidence_urls": [
+        "https://www.songsterr.com/api/meta/3851017",
+        "https://www.songsterr.com/api/songs?pattern=ERRA&size=250"
+      ]
+    },
+    "2457200": {
+      "catalog_identity": {
+        "artistId": 17808,
+        "artist": "ERRA",
+        "title": "Echo Sonata intro Tapping"
+      },
+      "metadata_identity": {
+        "artistId": 485079,
+        "artist": "ERR",
+        "title": "Echo Sonata intro Tapping"
+      },
+      "reviewed_revision_id": 8176646,
+      "tracks": [
+        {
+          "hash": "other_oMOIREVN",
+          "name": "Lead Tapping",
+          "instrumentId": 30,
+          "tuning": [
+            63,
+            58,
+            54,
+            49,
+            44,
+            39,
+            32
+          ]
+        }
+      ],
+      "evidence_urls": [
+        "https://www.songsterr.com/api/meta/2457200",
+        "https://www.songsterr.com/api/songs?pattern=ERRA&size=250",
+        "https://www.youtube.com/watch?v=iNW1aZughso"
+      ]
+    },
+    "3956211": {
+      "catalog_identity": {
+        "artistId": 17808,
+        "artist": "ERRA",
+        "title": "further eden (Bass in Drop Eb)"
+      },
+      "metadata_identity": {
+        "artistId": 500784,
+        "artist": "misc covers",
+        "title": "further eden by Erra"
+      },
+      "reviewed_revision_id": 8755099,
+      "tracks": [
+        {
+          "hash": "guitar_1lEQycvg",
+          "name": "Lead Guitar",
+          "instrumentId": 30,
+          "tuning": [
+            58,
+            53,
+            49,
+            44,
+            39,
+            34,
+            27
+          ]
+        },
+        {
+          "hash": "guitar_KZHYvlYh",
+          "name": "Rhythm Guitar",
+          "instrumentId": 30,
+          "tuning": [
+            58,
+            53,
+            49,
+            44,
+            39,
+            34,
+            27
+          ]
+        },
+        {
+          "hash": "bass_Oiqqcqp0",
+          "name": "",
+          "instrumentId": 34,
+          "tuning": [
+            37,
+            32,
+            27,
+            22,
+            15
+          ]
+        },
+        {
+          "hash": "drums_AXJWWdTJ",
+          "name": "",
+          "instrumentId": 1024,
+          "tuning": null
+        },
+        {
+          "hash": "vocals_gyez26aj",
+          "name": "Vocals",
+          "instrumentId": 66,
+          "tuning": [
+            64,
+            59,
+            55,
+            50,
+            45,
+            40
+          ]
+        }
+      ],
+      "evidence_urls": [
+        "https://www.songsterr.com/api/meta/3956211",
+        "https://www.songsterr.com/api/songs?pattern=ERRA&size=250"
+      ]
+    },
+    "4472844": {
+      "catalog_identity": {
+        "artistId": 17808,
+        "artist": "ERRA",
+        "title": "Black Cloud (Guitar · 7-string)"
+      },
+      "metadata_identity": {
+        "artistId": 182939,
+        "artist": "yuyayu24",
+        "title": "Black Cloud - ERRA"
+      },
+      "reviewed_revision_id": 8070307,
+      "tracks": [
+        {
+          "hash": "guitar_Xy0nWRsz",
+          "name": "1",
+          "instrumentId": 30,
+          "tuning": [
+            58,
+            53,
+            49,
+            44,
+            39,
+            34,
+            27
+          ]
+        },
+        {
+          "hash": "guitar_lZiE9iiQ",
+          "name": "2",
+          "instrumentId": 30,
+          "tuning": [
+            58,
+            53,
+            49,
+            44,
+            39,
+            34,
+            27
+          ]
+        }
+      ],
+      "evidence_urls": [
+        "https://www.songsterr.com/api/meta/4472844",
+        "https://www.songsterr.com/api/songs?pattern=ERRA&size=250"
+      ]
+    }
+  }
+}
