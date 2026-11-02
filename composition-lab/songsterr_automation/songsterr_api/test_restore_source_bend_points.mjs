@@ -195,6 +195,101 @@ const python = process.env.SONGSTERR_PYTHON || (process.platform === 'win32'
   ? '.local/songsterr-venv/Scripts/python.exe' : 'python3');
 const pythonAvailable = fs.existsSync(python) || (!/[\\/]/.test(python) &&
   spawnSync(python, ['-c', 'import guitarpro'], {encoding: 'utf8'}).status === 0);
+
+const tiedOptions = {restoreSimpleTiedHolds: true};
+function tiedFixture(explicit = false) {
+  const {score, parts} = fixture([rawCurve(15), rawCurve()]);
+  const origin = noteAt(score), hold = noteAt(score, 1);
+  origin.beat.duration = at.model.Duration.Quarter; origin.beat.dots = 1;
+  parts[0].measures[0].voices[0].beats[0].duration = [3, 8];
+  hold.isTieDestination = true; hold.bendPoints = null; hold.maxBendPoint = null; hold.bendType = at.model.BendType.None;
+  const rawHold = parts[0].measures[0].voices[0].beats[1].notes[0]; rawHold.tie = true; delete rawHold.bend;
+  origin.vibrato = hold.vibrato = at.model.VibratoType.Slight;
+  if (explicit) {
+    rawHold.bend = {tone: 100, points: [0, 30, 60].map(position => ({position, tone: 100}))};
+    for (const p of rawHold.bend.points) hold.addBendPoint(new at.model.BendPoint(p.position, 4));
+  }
+  score.finish(settings());
+  return {score, parts, origin, hold};
+}
+function ownedMidi(score) {
+  const file = new at.midi.MidiFile(), generator = new at.midi.MidiFileGenerator(score, settings(), new at.midi.AlphaSynthMidiFileHandler(file, false));
+  let current = null;
+  const owners = new WeakMap(), add = file.addEvent.bind(file), generate = generator._generateNote;
+  file.addEvent = e => {owners.set(e, current ? `${current.beat.voice.index}:${current.beat.index}:${current.index}` : null); return add(e);};
+  generator._generateNote = function(n, ...args) {const prior = current; current = n; try {return generate.call(this, n, ...args);} finally {current = prior;}};
+  generator.generate();
+  return file.events.map(e => ({kind: e.constructor.name, owner: owners.get(e), event: JSON.parse(JSON.stringify(e))}));
+}
+test('opt-in checked simple tied hold restores source quarter-arrival, never a tied reattack or a manufactured curve', options, () => {
+  for (const explicit of [false, true]) {
+    const {score, parts, origin, hold} = tiedFixture(explicit), raw = JSON.stringify(parts);
+    const before = snapshot(score, new Set([origin])), oldMidi = ownedMidi(score), heldCurve = JSON.stringify(hold.bendPoints);
+    const report = restoreSourceBendPoints(score, parts, at.model, tiedOptions);
+    assert.equal(report.restoredCurves, 1); assert.equal(report.checkedCurves, 1);
+    assert.equal(report.witnesses[0].simple_tied_hold.origin_ticks, 1440);
+    assert.equal(report.witnesses[0].simple_tied_hold.continuation_ticks, 480);
+    assert.equal(JSON.stringify(parts), raw); assert.equal(JSON.stringify(hold.bendPoints), heldCurve);
+    assert.equal(snapshot(score, new Set([origin])), before);
+    const events = ownedMidi(score), outside = e => e.kind !== 'NoteBendEvent' || e.owner !== '0:0:0';
+    assert.deepEqual(events.filter(outside), oldMidi.filter(outside));
+    const attacks = events.filter(e => e.kind === 'NoteOnEvent'), releases = events.filter(e => e.kind === 'NoteOffEvent');
+    assert.equal(attacks.length, 1); assert.equal(releases.length, 1);
+    assert.equal(releases[0].event.tick - attacks[0].event.tick, 1920);
+    const bends = events.filter(e => e.kind === 'NoteBendEvent' && e.owner === '0:0:0');
+    const peak = 2147483648 + 2 * 134217728, arrival = attacks[0].event.tick + 360;
+    assert.equal(Math.min(...bends.filter(e => e.event.value === peak).map(e => e.event.tick)), arrival);
+    assert.ok(bends.filter(e => e.event.tick >= arrival).every(e => e.event.value === peak));
+    assert.ok(bends.some(e => e.event.tick === attacks[0].event.tick + 1440));
+    const result = exportWithExactBends(at, score, settings()), loaded = loadWithExactBends(at, result.bytes, result.sidecar, settings()).score;
+    assert.deepEqual(ownedMidi(loaded), events);
+    assert.equal(restoreSourceBendPoints(score, parts, at.model, tiedOptions).unchangedCurves, 1);
+  }
+});
+test('simple tied holds remain unchanged without explicit opt-in', options, () => {
+  const {score, parts} = tiedFixture(true), before = snapshot(score);
+  assert.equal(restoreSourceBendPoints(score, parts, at.model).restoredCurves, 0);
+  assert.equal(snapshot(score), before);
+});
+test('unresolved, retriggered, released, nonlocal or conflicting simple-tie candidates remain intact', options, () => {
+  const cases = [
+    ({origin}) => {origin.tieDestination = null;},
+    ({hold}) => {hold.tieOrigin = null;},
+    ({hold, origin}) => {hold.tieDestination = origin;},
+    ({hold, parts}) => {hold.fret++; parts[0].measures[0].voices[0].beats[1].notes[0].fret++;},
+    ({hold, parts}) => {hold.isTieDestination = false; parts[0].measures[0].voices[0].beats[1].notes[0].tie = false;},
+    ({parts}) => {parts[0].measures[0].voices[0].beats[1].notes[0].bend.points.at(-1).tone = 0;},
+    ({hold}) => {hold.bendPoints.at(-1).value = 0;},
+    ({hold}) => {hold.beat.playbackDuration--;},
+    ({hold}) => {hold.beat.playbackStart--;},
+    ({origin}) => {origin.bendPoints.at(-1).value = 3;},
+    ({parts}) => {parts[0].measures[0].voices[0].beats[0].notes[0].bend.points.at(-1).tone = 0;},
+    ({origin, hold}) => {const other = new at.model.Note(); other.string = hold.string; other.fret = hold.fret; other.beat = hold.beat; other.isTieDestination = true; other.tieOrigin = origin; origin.tieDestination = other;}
+  ];
+  for (const edit of cases) {
+    const data = tiedFixture(true); edit(data); const before = snapshot(data.score);
+    const report = restoreSourceBendPoints(data.score, data.parts, at.model, tiedOptions);
+    assert.equal(report.restoredCurves, 0, String(edit)); assert.ok(report.excluded.length);
+    assert.equal(snapshot(data.score), before);
+  }
+});
+test('simple-tie source mismatch refuses atomically and unrelated same-pitch voice is preserved', options, () => {
+  const data = tiedFixture(true), {score, parts, origin} = data;
+  const voice = new at.model.Voice(); origin.beat.voice.bar.addVoice(voice);
+  const beat = new at.model.Beat(); voice.addBeat(beat); beat.duration = at.model.Duration.Half;
+  const other = new at.model.Note(); other.string = origin.string; other.fret = origin.fret; beat.addNote(other);
+  parts[0].measures[0].voices.push({beats: [{duration: [1, 2], notes: [{string: 2, fret: 16}]}]});
+  score.finish(settings());
+  const before = snapshot(score, new Set([origin]));
+  const untouched = ownedMidi(score).filter(e => e.owner === '1:0:0');
+  assert.equal(restoreSourceBendPoints(score, parts, at.model, tiedOptions).restoredCurves, 1);
+  assert.equal(snapshot(score, new Set([origin])), before);
+  assert.deepEqual(ownedMidi(score).filter(e => e.owner === '1:0:0'), untouched);
+  parts[0].measures[0].voices[0].beats[1].notes[0].fret++;
+  const invalidBefore = snapshot(score);
+  assert.throws(() => restoreSourceBendPoints(score, parts, at.model, tiedOptions), /member mismatch/);
+  assert.equal(snapshot(score), invalidBefore);
+});
 test('actual authored GP5 import loses midpoint and source adapter plus paired reader restores it', {skip: !available || !pythonAvailable}, () => {
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'source-bend-gp5-'));
   try {

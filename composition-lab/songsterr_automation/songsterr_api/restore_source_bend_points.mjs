@@ -69,7 +69,62 @@ function meters(parts) {
   return result;
 }
 
-export function restoreSourceBendPoints(score, parts, model) {
+// Opt-in execution scope: one rising bend followed immediately by one tied hold
+// in the same voice/bar. Do not infer a curve for an unmarked continuation.
+function simpleTiedHold(origin, source, mapping, bi, ni, parsed, model, where) {
+  const no = reason => ({eligible: false, reason: `simple_tied_hold:${reason}`});
+  if (origin.isTieDestination || origin.tieOrigin || origin.bendOrigin || origin.isContinuedBend ||
+      !origin.tieDestination) return no('not_an_independent_origin');
+  if (origin.bendType !== model.BendType.Bend || origin.bendStyle !== model.BendStyle.Default) return no('origin_execution');
+  const raw = source[bi].notes[ni], next = source[bi + 1];
+  if (!next) return no('missing_adjacent_source_target');
+  const matches = (next.notes || []).map((n, index) => ({n, index})).filter(({n}) =>
+    !n.rest && n.string === raw.string && n.fret === raw.fret && n.tie === true && !n.dead);
+  if (matches.length !== 1) return no('missing_or_ambiguous_source_target');
+  const {n: rawHold, index} = matches[0], hold = mapping.get(`${bi + 1}:${index}`);
+  if (!hold || origin.tieDestination !== hold || hold.tieOrigin !== origin || !hold.isTieDestination ||
+      hold.tieDestination || hold.bendOrigin !== origin || hold.string !== origin.string || hold.fret !== origin.fret ||
+      hold.beat.voice !== origin.beat.voice || origin.beat.nextBeat !== hold.beat || hold.beat.previousBeat !== origin.beat) {
+    return no('unresolved_or_nonlocal_links');
+  }
+  if (hold.bendStyle !== model.BendStyle.Default) return no('continuation_execution');
+  const [start, end] = [parsed.points[0], parsed.points.at(-1)], peak = end[1];
+  if (!equal(start, [0, 0]) || end[0] !== 60 || peak <= 0 ||
+      !parsed.points.every(([x, y], i) => y >= 0 && y <= peak &&
+        (!i || x > parsed.points[i - 1][0] && y >= parsed.points[i - 1][1]))) return no('not_simple_rise_and_hold');
+  const native = origin.bendPoints?.map(p => [p.offset, p.value]);
+  if (!native?.length || !equal(native[0], start) || !equal(native.at(-1), end) ||
+      !native.every(([x, y], i) => finite(x) && finite(y) && y >= 0 && y <= peak &&
+        (!i || x > native[i - 1][0] && y >= native[i - 1][1]))) return no('origin_endpoints_or_shape');
+  const hasSourceCurve = own(rawHold, 'bend') && rawHold.bend !== null && rawHold.bend !== false;
+  if (hasSourceCurve) {
+    const declared = sourcePoints(rawHold.bend, `${where}/tie_target`);
+    if (declared.unsupported.length || declared.points[0][0] !== 0 || declared.points.at(-1)[0] !== 60 ||
+        !declared.points.every(([x, y], i) => y === peak && (!i || x > declared.points[i - 1][0]))) return no('continuation_not_constant_plateau');
+  }
+  const holdPoints = hold.bendPoints || [];
+  if (hasSourceCurve && !holdPoints.length) return no('missing_native_explicit_hold');
+  if (holdPoints.length && (hold.bendType !== model.BendType.Hold ||
+      holdPoints[0].offset !== 0 || holdPoints.at(-1).offset !== 60 ||
+      !holdPoints.every((p, i) => finite(p.offset) && p.value === peak && (!i || p.offset > holdPoints[i - 1].offset)))) {
+    return no('native_continuation_not_plateau');
+  }
+  if (!holdPoints.length && (hold.bendType !== model.BendType.None || hold.isContinuedBend)) return no('missing_native_hold_curve');
+  const ticks = b => b.duration[0] * 3840 / b.duration[1];
+  const originTicks = ticks(source[bi]), holdTicks = ticks(next);
+  if (![originTicks, holdTicks].every(Number.isSafeInteger) ||
+      origin.beat.displayDuration !== originTicks || origin.beat.playbackDuration !== originTicks ||
+      hold.beat.displayDuration !== holdTicks || hold.beat.playbackDuration !== holdTicks ||
+      !finite(origin.beat.absoluteDisplayStart) || !finite(origin.beat.absolutePlaybackStart) ||
+      hold.beat.absoluteDisplayStart !== origin.beat.absoluteDisplayStart + originTicks ||
+      hold.beat.absolutePlaybackStart !== origin.beat.absolutePlaybackStart + originTicks) return no('host_or_tie_clock');
+  return {eligible: true, continuation: hasSourceCurve ? 'explicit_constant_curve_unchanged' : 'unmarked_inherited_hold_no_curve_created',
+    source_target: [bi + 1, index], origin_ticks: originTicks, continuation_ticks: holdTicks,
+    onset_ticks: origin.beat.absolutePlaybackStart, peak_half_semitones: peak};
+}
+
+export function restoreSourceBendPoints(score, parts, model, {restoreSimpleTiedHolds = false} = {}) {
+  if (typeof restoreSimpleTiedHolds !== 'boolean') throw Error('restoreSimpleTiedHolds must be boolean');
   if (!model?.Note || !model?.BendPoint || !Number.isInteger(model.BendStyle?.Default)) {
     throw Error('Native note, bend point and style classes required');
   }
@@ -156,8 +211,14 @@ export function restoreSourceBendPoints(score, parts, model) {
           const {bi, ni, source_ref, parsed} = declaration, target = mapping.get(`${bi}:${ni}`);
           if (planned.has(target)) fail('duplicate native curve owner', source_ref);
           planned.add(target);
-          if (target.isTieDestination || target.tieOrigin || target.tieDestination || target.bendOrigin || target.isContinuedBend) {
-            excluded.push({source_ref, reason: 'tie_or_continued_bend_topology_unchecked'}); continue;
+          let tiedHold = null;
+          const sourceTieFollows = restoreSimpleTiedHolds && (source[bi + 1]?.notes || []).some(n =>
+            n.tie === true && n.string === source[bi].notes[ni].string);
+          if (target.isTieDestination || target.tieOrigin || target.tieDestination || target.bendOrigin || target.isContinuedBend || sourceTieFollows) {
+            if (restoreSimpleTiedHolds) tiedHold = simpleTiedHold(target, source, mapping, bi, ni, parsed, model, source_ref);
+            if (!tiedHold?.eligible) {
+              excluded.push({source_ref, reason: tiedHold?.reason ?? 'tie_or_continued_bend_topology_unchecked'}); continue;
+            }
           }
           if (target.bendStyle !== model.BendStyle.Default) {
             excluded.push({source_ref, reason: 'nondefault_native_bend_timing_style'}); continue;
@@ -173,7 +234,7 @@ export function restoreSourceBendPoints(score, parts, model) {
           checkedCurves++; if (!changed) unchangedCurves++;
           witnesses.push({source_ref, native_address: [ti, 0, mi, vi, target.beat.index, target.index],
             points_before: before, points_after: parsed.points, position_basis: parsed.bases,
-            type: target.bendType, style: target.bendStyle, changed});
+            type: target.bendType, style: target.bendStyle, changed, ...(tiedHold ? {simple_tied_hold: tiedHold} : {})});
           if (changed) writes.push({target, type: target.bendType, style: target.bendStyle,
             points: parsed.points.map(([offset, value]) => new model.BendPoint(offset, value))});
         }
@@ -187,12 +248,13 @@ export function restoreSourceBendPoints(score, parts, model) {
     for (const point of points) target.addBendPoint(point);
     target.bendType = type; target.bendStyle = style;
   }
-  return {schema: 'identity-checked-source-bend-points/1', sourceDeclarations, checkedCurves,
+  return {schema: 'identity-checked-source-bend-points/1', restoreSimpleTiedHolds, sourceDeclarations, checkedCurves,
     restoredCurves: writes.length, unchangedCurves, excluded, witnesses,
     limitations: ['Regular pitched notes with explicit curves and complete voice correspondence only',
       'Default native bend style only; other styles may rebuild timing',
       'No inferred bend, grace correspondence, point vibrato, or execution repair',
-      'Tie/bend-continuation incident curves are excluded; dead-note placeholders are matched by string/dead identity, not invented pitch',
+      'Tie/bend-continuation incident curves excluded by default; opt-in admits only checked independent rise origins with one immediate same-voice/bar tied hold and unchanged endpoints; continuation curves are never rewritten',
+      'Dead-note placeholders are matched by string/dead identity, not invented pitch',
       'Precise source percent has precedence over coarse sixtieths, matching source_semantics.curve',
       'Native number precision applies; standalone GP serialization may simplify restored curves; use the paired reader',
       'Must run after the final native finish; a subsequent finish may simplify points again']};

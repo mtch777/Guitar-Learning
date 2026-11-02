@@ -6,10 +6,18 @@ import {restoreSourceGraces} from './restore_source_graces.mjs';
 import {checkSourceGraces} from './check_source_graces.mjs';
 import {joinSourceGraceChords} from './join_source_grace_chords.mjs';
 import {restoreSourceBendPoints} from './restore_source_bend_points.mjs';
+import {restoreSourcePercussion} from './restore_source_percussion.mjs';
+import {checkSourcePercussion} from './check_source_percussion.mjs';
+import {collectSourceTremoloTiming} from './source_tremolo_timing.mjs';
 const [modulePath,root,...options]=process.argv.slice(2),at=await import(pathToFileURL(path.resolve(modulePath)));
 if(options.includes('--native-bends-only')&&options.includes('--exact-model-bends'))throw Error('Conflicting bend export options');
 const preserveBends=!options.includes('--native-bends-only');
 const preservePitchedGraces=options.includes('--restore-pitched-graces');
+const preservePercussion=options.includes('--restore-source-percussion');
+const preserveSimpleTiedHoldBends=options.includes('--restore-source-simple-tied-holds');
+const preserveSourceTremolo=options.includes('--restore-source-tremolo-timing');
+if(preserveSourceTremolo&&!preserveBends)throw Error('Source tremolo timing requires paired preview companion');
+if(preserveSimpleTiedHoldBends&&!preserveBends)throw Error('Simple tied hold restoration requires exact model bends');
 // Guard an upstream alphaTab GP5 importer bug when adjacent bars omit a voice.
 let voicePaddingRepairs=0,emptyVoiceRestRepairs=0;
 at.model.Voice.prototype._chain=function(beat,bag){
@@ -82,6 +90,9 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
  // Refusal must not overwrite a previous passing report in the catch below.
  if(!options.includes('--recheck')&&(fs.existsSync(target)||fs.existsSync(path.join(folder,'score.exact-model-bends.json')))){
   if(preservePitchedGraces)throw Error('Existing GP and report preserved; pitched grace repair requires a fresh copied output');
+  if(preservePercussion)throw Error('Existing GP and report preserved; percussion repair requires a fresh copied output');
+  if(preserveSimpleTiedHoldBends)throw Error('Existing GP and report preserved; simple tied hold repair requires a fresh copied output');
+  if(preserveSourceTremolo)throw Error('Existing GP and report preserved; source tremolo timing requires a fresh copied output');
   if(fs.existsSync(target)&&fs.existsSync(reportPath)){
    const old=JSON.parse(fs.readFileSync(reportPath,'utf8'));
    if(preserveBends&&old.exactModelBends&&fs.existsSync(path.join(folder,'score.exact-model-bends.json'))){loadWithExactBends(at,fs.readFileSync(target),JSON.parse(fs.readFileSync(path.join(folder,'score.exact-model-bends.json'),'utf8')),settings);results.push(old);continue;}
@@ -94,13 +105,14 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
   const map=JSON.parse(fs.readFileSync(path.join(folder,'bridge-map.json'),'utf8'));
   voicePaddingRepairs=0;emptyVoiceRestRepairs=0;let score=merge(load(path.join(folder,'bridge.gp5')),map);
   // Source inventory must be independent of how many tracks survived the bridge.
-  const needSourceParts=preservePitchedGraces||preserveBends;
+  const needSourceParts=preservePitchedGraces||preserveBends||preservePercussion;
   const sourceNames=needSourceParts?fs.readdirSync(folder).filter(n=>/^track-\d+\.json$/.test(n)).sort((a,b)=>Number(a.slice(6,-5))-Number(b.slice(6,-5))):[];
   if(needSourceParts&&sourceNames.some((n,i)=>n!==`track-${i}.json`))throw Error('Noncontiguous source track inventory');
   const sourceParts=needSourceParts?sourceNames.map(n=>JSON.parse(fs.readFileSync(path.join(folder,n),'utf8'))):null;
   const graceCandidate=preservePitchedGraces?joinSourceGraceChords(score,sourceParts,at,settings):null;
   if(graceCandidate)score=graceCandidate.score;
   const pitchedGraceRestoration=preservePitchedGraces?restoreSourceGraces(score,sourceParts,at.model.GraceType):null;
+  const percussionRestoration=preservePercussion?restoreSourcePercussion(score,sourceParts,at):null;
   const metadata=JSON.parse(fs.readFileSync(path.join(folder,'metadata.json'),'utf8'));score.title=metadata.title||score.title;score.artist=metadata.artist||score.artist;
   let rhythmRestorations=0;
   for(const [ti,track] of score.tracks.entries()){
@@ -125,7 +137,7 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
   // Initial GP5 loading and every finish can normalize away source bend points.
   // Restore verified source curves only after the final finish, then let the
   // existing hash-bound companion preserve them through the native GP boundary.
-  const sourceBendRestoration=preserveBends?restoreSourceBendPoints(score,sourceParts,at.model):null;
+  const sourceBendRestoration=preserveBends?restoreSourceBendPoints(score,sourceParts,at.model,{restoreSimpleTiedHolds:preserveSimpleTiedHoldBends}):null;
   const before=snapshot(score);
   const nativeExport=()=>{
    const saved=[];
@@ -134,15 +146,16 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
     return new at.exporter.Gp7Exporter().export(score,settings);
    }finally{for(const [note,points] of saved)note.bendPoints=points;}
   };
-  const exact=preserveBends?exportWithExactBends(at,score,settings,nativeExport):null;
+  const sourceTremoloTiming=preserveSourceTremolo?collectSourceTremoloTiming(score,sourceParts):null;
+  const exact=preserveBends?exportWithExactBends(at,score,settings,nativeExport,sourceTremoloTiming):null;
 
   if(fs.existsSync(target)&&!options.includes('--recheck'))throw Error('Unverified existing GP preserved; use --recheck');
   const sidecarPath=path.join(folder,'score.exact-model-bends.json');
   if(exact&&fs.existsSync(sidecarPath)&&!options.includes('--recheck'))throw Error('Existing exact model bend sidecar preserved; use --recheck');
   fs.writeFileSync(target,exact?exact.bytes:nativeExport());const afterScore=load(target),after=snapshot(afterScore);
   let exactModelBends=null;
-  if(exact){const restored=loadWithExactBends(at,exact.bytes,exact.sidecar,settings).restored;fs.writeFileSync(sidecarPath,JSON.stringify(exact.sidecar,null,2));exactModelBends={sidecar:path.basename(sidecarPath),restored_curves:restored,native_gp_lossless:false,scope:exact.sidecar.scope};}
-  report={...report,rhythmRestorations,voicePaddingRepairs,emptyVoiceRestRepairs,percussionGraceRepairs,deadTieRestoration,sourceBendRestoration,exactModelBends,curveComparisonGrid:61,roundtripPass:JSON.stringify(before)===JSON.stringify(after),tracks:after.tracks.length,bars:after.bars.length,
+  if(exact){const restored=loadWithExactBends(at,exact.bytes,exact.sidecar,settings);fs.writeFileSync(sidecarPath,JSON.stringify(exact.sidecar,null,2));exactModelBends={sidecar:path.basename(sidecarPath),restored_curves:restored.restored,restored_tremolo_beats:restored.restored_tremolo_beats,native_gp_lossless:false,scope:exact.sidecar.scope};}
+  report={...report,rhythmRestorations,voicePaddingRepairs,emptyVoiceRestRepairs,percussionGraceRepairs,deadTieRestoration,sourceBendRestoration,exactModelBends,sourceTremoloTiming:sourceTremoloTiming?{beats:sourceTremoloTiming.rates.length,scope:sourceTremoloTiming.scope}:null,curveComparisonGrid:61,roundtripPass:JSON.stringify(before)===JSON.stringify(after),tracks:after.tracks.length,bars:after.bars.length,
     notes:after.tracks.reduce((n,t)=>n+t.staves.reduce((n,s)=>n+s.bars.reduce((n,b)=>n+b.reduce((n,v)=>n+v.reduce((n,e)=>n+e.notes.length,0),0),0),0),0),
     directSource:rawCheck(afterScore,folder),sha256:crypto.createHash('sha256').update(fs.readFileSync(target)).digest('hex'),bytes:fs.statSync(target).size};
   if(preservePitchedGraces){
@@ -150,6 +163,11 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
    report.pitchedGraceRestoration=pitchedGraceRestoration;
    report.directPitchedGraces=checkSourceGraces(afterScore,sourceParts,at.model.GraceType);
    if(report.directPitchedGraces.status.startsWith('FAIL')){report.error='Independent pitched grace source check failed';report.roundtripPass=false;}
+  }
+  if(preservePercussion){
+   report.percussionRestoration=percussionRestoration;
+   report.directPercussion=checkSourcePercussion(afterScore,sourceParts,at.model.GraceType);
+   if(report.directPercussion.status.startsWith('FAIL')){report.error='Independent percussion source check failed';report.roundtripPass=false;}
   }
   if(!report.roundtripPass){fs.writeFileSync(path.join(folder,'roundtrip-before.json'),JSON.stringify(before));fs.writeFileSync(path.join(folder,'roundtrip-after.json'),JSON.stringify(after));}
  }catch(error){report.error=String(error);report.stack=error.stack;report.roundtripPass=false;}

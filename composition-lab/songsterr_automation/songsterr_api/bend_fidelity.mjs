@@ -8,8 +8,10 @@
  * prototypes are patched; no source data is written by this module.
  */
 import { createHash } from 'node:crypto';
+import {prepareSourceTremoloTiming} from './source_tremolo_timing.mjs';
 
 const SCHEMA = 'composition-lab.exact-model-bends.v1';
+const PREVIEW_SCHEMA = 'composition-lab.exact-model-bends.v2';
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 
 function notes(score) {
@@ -91,7 +93,8 @@ function restore(at, score, sidecar) {
     return plan.length;
 }
 
-export function exportWithExactBends(at, score, settings = new at.Settings(), nativeExport = null) {
+export function exportWithExactBends(at, score, settings = new at.Settings(), nativeExport = null, sourceTremoloTiming = null) {
+    if(sourceTremoloTiming) prepareSourceTremoloTiming(score,sourceTremoloTiming);
     const allNotes = notes(score);
     const addresses = new Map(allNotes.map(row => [row.note, row.address]));
     const curves = allNotes.filter(row => row.note.bendPoints?.length).map(({ address, note }) => {
@@ -108,17 +111,24 @@ export function exportWithExactBends(at, score, settings = new at.Settings(), na
     const bytes = nativeExport ? nativeExport() : new at.exporter.Gp7Exporter().export(score, settings);
     const sidecar = { schema: SCHEMA, gp_sha256: hash(bytes), curves, continuations,
         scope: 'Exact pre-export alphaTab model note-bend curves; standalone native GP fidelity is not guaranteed.' };
+    if(sourceTremoloTiming){sidecar.schema=PREVIEW_SCHEMA;sidecar.source_tremolo_timing=sourceTremoloTiming;
+        sidecar.scope+=' PREVIEW_ONLY explicit source tremolo timing; standalone GP playback unproved.';}
     // Reject an export that cannot support identity-safe restoration immediately.
     const reopened = at.importer.ScoreLoader.loadScoreFromBytes(bytes, settings);
+    const timing=sourceTremoloTiming?prepareSourceTremoloTiming(reopened,sourceTremoloTiming):null;
     restore(at, reopened, sidecar);
+    timing?.apply();
     return { bytes, sidecar };
 }
 
 export function loadWithExactBends(at, bytes, sidecar, settings = new at.Settings()) {
-    if (!sidecar || sidecar.schema !== SCHEMA || !Array.isArray(sidecar.curves)
+    if (!sidecar || ![SCHEMA,PREVIEW_SCHEMA].includes(sidecar.schema) || !Array.isArray(sidecar.curves)
         || !Array.isArray(sidecar.continuations)) throw Error('Invalid exact bend sidecar');
+    if(sidecar.schema===SCHEMA&&sidecar.source_tremolo_timing!==undefined)throw Error('Tremolo extension requires preview schema v2');
     if (hash(bytes) !== sidecar.gp_sha256) throw Error('Exact bend sidecar GP hash mismatch');
     const score = at.importer.ScoreLoader.loadScoreFromBytes(bytes, settings);
+    const timing=sidecar.schema===PREVIEW_SCHEMA?prepareSourceTremoloTiming(score,sidecar.source_tremolo_timing):null;
     const restored = restore(at, score, sidecar);
-    return { score, restored, native_gp_lossless: false };
+    const restored_tremolo_beats=timing?.apply()??0;
+    return { score, restored, restored_tremolo_beats, native_gp_lossless: false };
 }
