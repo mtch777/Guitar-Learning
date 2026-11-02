@@ -1,9 +1,6 @@
 name: Retry the six reconciled Songsterr entries
 
 on:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/retry-tiered-failed-41393260772.yml']
   workflow_dispatch:
 
 permissions:
@@ -11,7 +8,7 @@ permissions:
 
 concurrency:
   group: tiered-retry-41393260772
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   retry:
