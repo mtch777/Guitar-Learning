@@ -1,9 +1,6 @@
 name: Diagnose six pedal expansion failures (isolated)
 
 on:
-  push:
-    branches: ['diagnostic/pedal-six-20261102']
-    paths: ['.github/workflows/diagnose-six-pedal.yml']
   workflow_dispatch:
 
 permissions:
