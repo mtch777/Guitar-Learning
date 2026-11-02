@@ -33,6 +33,8 @@ jobs:
         run: node --test composition-lab/test_source_inspector.mjs
       - name: Test preview source addresses and shared playback onset
         run: node --test composition-lab/test_source_preview_notes.mjs
+      - name: Test arrangement comparison note matching and pitch coverage
+        run: node --test composition-lab/test_arrangement_review.mjs
       - name: Install pinned alphaTab for bend fidelity checks
         run: npm install --prefix .local/qa --no-save --ignore-scripts @coderline/alphatab@1.8.4
       - name: Test opt-in exact model bend preservation
