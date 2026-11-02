@@ -1,0 +1,21 @@
+name: Retry the 12 failed tiered song entries
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/retry-tiered-failed-41393260772.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tiered-retry-41393260772
+  cancel-in-progress: false
+
+jobs:
+  retry:
+    uses: ./.github/workflows/tiered-song-catalog.yml
+    with:
+      song_ids: '4081672,1817932,6656103,993568,1511882,6028811,3851017,2457200,3956211,4472844,4248474,3165226'
+      expected_count: 12

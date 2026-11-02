@@ -2,12 +2,36 @@ name: Tiered analysis — Invent Animate, Currents, ERRA
 
 on:
   workflow_dispatch:
+    inputs:
+      song_ids:
+        description: 'Optional comma/space-separated Songsterr IDs; blank runs the full catalog'
+        required: false
+        type: string
+        default: ''
+      expected_count:
+        description: 'Optional exact selected-ID count; 0 disables this check'
+        required: false
+        type: number
+        default: 0
+  workflow_call:
+    inputs:
+      song_ids:
+        description: 'Optional comma/space-separated Songsterr IDs; blank runs the full catalog'
+        required: false
+        type: string
+        default: ''
+      expected_count:
+        description: 'Optional exact selected-ID count; 0 disables this check'
+        required: false
+        type: number
+        default: 0
 
 permissions:
   contents: write
 
 jobs:
   pilot:
+    if: ${{ inputs.song_ids == '' && inputs.expected_count == 0 }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
@@ -40,6 +64,7 @@ jobs:
 
   inventory:
     needs: pilot
+    if: ${{ always() && !cancelled() && (needs.pilot.result == 'success' || needs.pilot.result == 'skipped') }}
     runs-on: ubuntu-latest
     outputs:
       first: ${{ steps.catalog.outputs.first }}
@@ -52,22 +77,80 @@ jobs:
       - run: |
           python -m pip install httpx PyGuitarPro==0.11
           git clone --depth 1 https://github.com/6801318d8d/songsterr-dl.git /tmp/songsterr-dl
-      - name: Freeze and partition full 308-song catalog
+      - name: Freeze catalog and validate requested song selection
         id: catalog
+        env:
+          SELECTED_SONG_IDS: ${{ inputs.song_ids }}
+          EXPECTED_SONG_COUNT: ${{ inputs.expected_count }}
         run: |
-          python composition-lab/run_tiered_catalog.py --catalog > catalog.json
-          python -c 'import json,os; data=json.load(open("catalog.json")); ids=[r["song_id"] for r in data]; assert len(ids)==308 and len(set(ids))==308 and 460099 in ids; ids.remove(460099); f=open(os.environ["GITHUB_OUTPUT"],"a"); f.write("first="+json.dumps(ids[:154])+"\nsecond="+json.dumps(ids[154:])+"\n")'
+          if test -z "$SELECTED_SONG_IDS" && test "$EXPECTED_SONG_COUNT" = "0"; then
+            python composition-lab/run_tiered_catalog.py --catalog > catalog.json
+          fi
+          python - <<'PY'
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          requested = os.environ.get('SELECTED_SONG_IDS', '')
+          expected_text = os.environ.get('EXPECTED_SONG_COUNT', '0')
+          if not re.fullmatch(r'\d+', expected_text) or not 0 <= int(expected_text) <= 308:
+              raise SystemExit('expected_count must be an integer from 0 through 308')
+          expected_count = int(expected_text)
+          if requested:
+              if not re.fullmatch(r'\s*[1-9]\d*(?:[\s,]+[1-9]\d*)*\s*', requested):
+                  raise SystemExit('song_ids must contain positive IDs separated by commas or whitespace')
+              ids = [int(value) for value in re.split(r'[\s,]+', requested.strip())]
+              if len(ids) != len(set(ids)):
+                  raise SystemExit('song_ids contains duplicate IDs')
+              if len(ids) > 308:
+                  raise SystemExit('song_ids must contain at most 308 IDs')
+              if expected_count and len(ids) != expected_count:
+                  raise SystemExit(f'Expected {expected_count} selected IDs, received {len(ids)}')
+              Path('catalog.json').write_text(json.dumps([{'song_id': song_id} for song_id in ids], indent=2) + '\n')
+              mode = 'selected'
+              pilot_id = None
+              manifest_name = 'tiered-selected-catalog-manifest.zip'
+          else:
+              if expected_count:
+                  raise SystemExit('A nonzero expected_count requires explicit song_ids')
+              catalog = json.loads(Path('catalog.json').read_text())
+              catalog_ids = [row['song_id'] for row in catalog]
+              if len(catalog_ids) != 308 or len(set(catalog_ids)) != 308 or 460099 not in catalog_ids:
+                  raise SystemExit('Expected the complete 308-entry catalog including Cloud Cascade')
+              ids = [song_id for song_id in catalog_ids if song_id != 460099]
+              mode = 'full'
+              pilot_id = 460099
+              manifest_name = 'tiered-308-catalog-manifest.zip'
+          split = (len(ids) + 1) // 2
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('first=' + json.dumps(ids[:split]) + '\n')
+              output.write('second=' + json.dumps(ids[split:]) + '\n')
+              output.write('manifest_name=' + manifest_name + '\n')
+          selection = {
+              'mode': mode,
+              'pilot_song_id': pilot_id,
+              'analysis_song_ids': ids,
+              'total_songs_to_process': len(ids) + (pilot_id is not None),
+              'expected_count': expected_count,
+          }
+          Path('selection.json').write_text(json.dumps(selection, indent=2) + '\n')
+          print(json.dumps(selection), flush=True)
+          PY
       - name: Save catalog manifest to draft Release
         env:
           GH_TOKEN: ${{ github.token }}
+          MANIFEST_ASSET: ${{ steps.catalog.outputs.manifest_name }}
         run: |
           python .github/scripts/release_storage.py upload \
             --tag "tiered-analysis-run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}" \
-            --asset-name "tiered-308-catalog-manifest.zip" \
-            --file catalog.json
+            --asset-name "$MANIFEST_ASSET" \
+            --file catalog.json \
+            --file selection.json
 
   analyze-first:
     needs: inventory
+    if: ${{ always() && !cancelled() && needs.inventory.result == 'success' && needs.inventory.outputs.first != '[]' }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
     strategy:
@@ -105,6 +188,7 @@ jobs:
 
   analyze-second:
     needs: inventory
+    if: ${{ always() && !cancelled() && needs.inventory.result == 'success' && needs.inventory.outputs.second != '[]' }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
     strategy:
