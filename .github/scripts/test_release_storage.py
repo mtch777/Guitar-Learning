@@ -253,6 +253,17 @@ class PackagingTests(unittest.TestCase):
 
 
 class TransportTests(unittest.TestCase):
+    def test_archive_and_release_downloads_use_their_required_accept_headers(self):
+        client = storage.GitHub("owner/repo", "dummy")
+        opener = mock.Mock()
+        opener.open.side_effect = [io.BytesIO(b"zip"), io.BytesIO(b"asset")]
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(storage.urllib.request, "build_opener", return_value=opener):
+            client.download("/actions/artifacts/1/zip", Path(tmp) / "archive.zip")
+            client.download("/releases/assets/2", Path(tmp) / "release.zip")
+        requests = [call.args[0] for call in opener.open.call_args_list]
+        self.assertEqual(requests[0].get_header("Accept"), "application/vnd.github+json")
+        self.assertEqual(requests[1].get_header("Accept"), "application/octet-stream")
+
     def test_cross_host_redirect_strips_authorization(self):
         req = urllib.request.Request("https://api.github.com/repos/o/r/actions/artifacts/1/zip", headers={"Authorization": "Bearer SECRET"})
         redirected = storage.SafeRedirect().redirect_request(req, None, 302, "", {}, "https://blob.example/download?sig=signed")

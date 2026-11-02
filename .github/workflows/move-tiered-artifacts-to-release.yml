@@ -1,5 +1,6 @@
 name: Move tiered analysis outputs out of Actions storage
 # Release container uses this migration commit; the inventory retains the source commit.
+# Actions archives and Release downloads use their respective API media types.
 
 on:
   push:

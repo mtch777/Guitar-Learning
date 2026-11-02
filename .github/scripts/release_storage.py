@@ -159,9 +159,12 @@ class GitHub:
         return json.loads(data) if data else None
 
     def download(self, path: str, destination: Path) -> tuple[int, str]:
+        # Actions archive endpoints negotiate a JSON redirect, while Release
+        # assets require octet-stream to request bytes instead of metadata.
+        accept = "application/vnd.github+json" if path.startswith("/actions/artifacts/") else "application/octet-stream"
         for attempt in range(6):
             try:
-                with self.request("GET", path, accept="application/octet-stream") as response:
+                with self.request("GET", path, accept=accept) as response:
                     with destination.open("wb") as output:
                         while chunk := response.read(1024 * 1024):
                             output.write(chunk)

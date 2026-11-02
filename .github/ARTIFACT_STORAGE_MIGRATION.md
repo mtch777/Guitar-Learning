@@ -53,3 +53,9 @@ Move the outputs of GitHub Actions run `41393260772` out of Actions artifact sto
 - Runner explicitly received Actions write and Contents write permissions. No Release or migrated asset was created.
 - Adjust the Release container to target the current migration commit; keep the historical source commit in the immutable source inventory. Add sanitized API error messages for precise diagnosis if GitHub still rejects creation.
 - All 309 source artifacts remain preserved while this correction is applied.
+
+### 2026-11-02 — API download correction
+
+- Commit `6e4db2be24c471ddb8e2d5520669f8b39c1a9802` resolved Release creation. Draft Release `431609715` exists and its source inventory was uploaded and verified.
+- Run `41468929388` exposed the API distinction: Actions artifact archive endpoints reject the octet-stream Accept header with HTTP 415; Release asset downloads require it. All 309 source files were preserved.
+- Corrected endpoint-specific Accept headers and added a transport regression test; retain all checksum/deletion gates.
