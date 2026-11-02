@@ -9,6 +9,17 @@ export function pitchName(n){return ['C','C♯','D','E♭','E','F','F♯','G','A
 export function partRange(versions,part){const pitches=versions.flatMap(v=>v.notes.filter(n=>n.part===part).map(n=>n.pitch));return {low:Math.min(...pitches)-1,high:Math.max(...pitches)+1};}
 export function barAt(data,time){return Math.min(data.bars[1],[...data.bar_times].reverse().find(b=>b.time<=time+1/44100)?.bar??data.bars[0]);}
 export function formatTime(seconds){return `${Math.floor(seconds/60)}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;}
+export function comparisonView(current,baseline,onlyChanged=false){
+ const base=baseline&&baseline.id!==current.id?baseline:null;
+ const result=base?difference(current.notes,base.notes):{shown:current.notes.map(n=>({...n,change:'same'})),removed:[]};
+ const changes=[...result.shown.filter(n=>n.change==='new'),...result.removed];
+ const canFilter=Boolean(base&&changes.length);
+ return {...result,base,changes,canFilter,filterActive:onlyChanged&&canFilter,changedParts:new Set(changes.map(n=>n.part))};
+}
+export function changeScrollLeft(changes,left,visibleWidth,pxPerSecond){
+ if(!changes.length||changes.some(n=>n.end*pxPerSecond>left&&n.start*pxPerSecond<left+visibleWidth))return left;
+ return Math.max(0,Math.min(...changes.map(n=>n.start))*pxPerSecond-20);
+}
 
 if(typeof document!=='undefined')boot().catch(error=>{const e=document.querySelector('#error');e.hidden=false;e.className='error';e.textContent='The comparison could not load: '+error.message;console.error(error);});
 async function boot(){
@@ -36,10 +47,13 @@ async function boot(){
  const sections=data.sections;
  for(const section of sections){const b=document.createElement('button');b.dataset.bar=section.first;b.addEventListener('click',()=>{audio.currentTime=Math.max(0,timeOf(section.first));viewport.scrollLeft=Math.max(0,audio.currentTime*pxPerSecond-30);tick();});$('#timeline').append(b);}
  function timeOf(bar){return data.bar_times.find(b=>b.bar===bar).time;}
- function render(){
-  const current=byId.get(selected),base=byId.get(compare.value);const result=base?difference(current.notes,base.notes):{shown:current.notes.map(n=>({...n,change:'same'})),removed:[]};
-  const changedParts=new Set([...result.shown.filter(n=>n.change==='new'),...result.removed].map(n=>n.part));
-  const tracks=data.tracks.filter(t=>!$('#changedOnly').checked||changedParts.has(t.id));axes.replaceChildren();roll.replaceChildren();roll.style.width=width+'px';drawn=[];
+ function render(revealChanges=false){
+  const current=byId.get(selected),result=comparisonView(current,byId.get(compare.value),$('#changedOnly').checked),base=result.base;
+  if(!base)compare.value='none';for(const option of compare.options)option.disabled=option.value===selected;
+  $('#changedOnly').disabled=!result.canFilter;$('#changedOnly').checked=result.filterActive;
+  $('#changedOnly').title=base?(result.canFilter?'Keep parts that contain changed notes':'No note differences in this comparison'):'Select a comparison first';
+  $('#rollHint').textContent=result.filterActive?`Changed notes start in bar ${barAt(data,Math.min(...result.changes.map(n=>n.start)))} · tap a note for details`:`Scroll sideways to see all ${data.bars[1]-data.bars[0]+1} bars · tap a note for details`;
+  const tracks=data.tracks.filter(t=>!result.filterActive||result.changedParts.has(t.id));axes.replaceChildren();roll.replaceChildren();roll.style.width=width+'px';drawn=[];
   const top=document.createElement('div');top.style.height='28px';top.className='axis';top.textContent='Bar';top.style.padding='4px 8px';top.style.fontSize='12px';axes.append(top);
   const ruler=element('svg',{width,height:28,role:'img','aria-label':'Bar numbers'});
   for(const b of data.bar_times.filter(b=>b.bar>=data.bars[0]&&b.bar<=data.bars[1])){const x=Math.max(0,b.time)*pxPerSecond,w=(timeOf(b.bar+1)-b.time)*pxPerSecond;ruler.append(element('rect',{x,y:0,width:w,height:28,fill:data.focus_bars&&b.bar>=data.focus_bars[0]&&b.bar<=data.focus_bars[1]?'#293c3e':'#192a32'}));ruler.append(element('text',{x:x+6,y:19,fill:'#c4d3d9','font-size':12},b.bar));}
@@ -66,15 +80,21 @@ async function boot(){
   for(const b of document.querySelectorAll('#timeline button')){const first=Number(b.dataset.bar),section=sections.find(s=>s.first===first);const strong=document.createElement('strong');strong.textContent=`${first}–${section.last}`;const small=document.createElement('small');small.textContent=Math.round(timeOf(first))+'s';b.replaceChildren(strong,document.createTextNode(current.section_labels?.[first]||section.label),small);}
   if(!tracks.length){const empty=document.createElement('p');empty.className='load';empty.textContent='No changed parts in this comparison.';roll.append(empty);}
   for(const button of document.querySelectorAll('[data-version]'))button.setAttribute('aria-pressed',String(button.dataset.version===selected));lastActive='';tick();
+  if(revealChanges&&result.filterActive){
+   viewport.scrollLeft=changeScrollLeft(result.changes,viewport.scrollLeft,viewport.clientWidth,pxPerSecond);
+   const controls=$('#changedOnly').closest('.controls');
+   controls.style.scrollMarginTop=($('.player').getBoundingClientRect().height+12)+'px';
+   controls.scrollIntoView({block:'start',inline:'nearest'});
+  }
  }
  async function choose(id){
   if(id===selected&&audio.getAttribute('src'))return;const token=++switchToken,position=audio.currentTime||0,playing=!audio.paused;audio.pause();selected=id;
-  compare.value=byId.get(id).compare_to||'none';if(id===data.original_version)$('#changedOnly').checked=false;render();
+  compare.value=byId.get(id).compare_to||'none';if(id===data.original_version)$('#changedOnly').checked=false;render($('#changedOnly').checked);
   audio.src=byId.get(id).audio;audio.load();await new Promise((resolve,reject)=>{audio.addEventListener('loadedmetadata',resolve,{once:true});audio.addEventListener('error',()=>reject(Error('Audio failed to load')),{once:true});});
   if(token!==switchToken)return;audio.currentTime=Math.min(position,audio.duration);audio.playbackRate=Number($('#speed').value);tick();if(playing)await audio.play();
  }
  for(const button of document.querySelectorAll('[data-version]'))button.addEventListener('click',()=>choose(button.dataset.version).catch(console.error));
- compare.addEventListener('change',()=>{if(compare.value==='none')$('#changedOnly').checked=false;render();});$('#changedOnly').addEventListener('change',render);$('#speed').addEventListener('change',()=>{audio.playbackRate=Number($('#speed').value);});
+ compare.addEventListener('change',()=>{if(compare.value==='none')$('#changedOnly').checked=false;render($('#changedOnly').checked);});$('#changedOnly').addEventListener('change',()=>render($('#changedOnly').checked));$('#speed').addEventListener('change',()=>{audio.playbackRate=Number($('#speed').value);});
  function tick(){const t=audio.currentTime||0,x=t*pxPerSecond;if(head)head.style.left=x+'px';const bar=barAt(data,t);$('#clock').textContent=`Bar ${bar} · ${formatTime(t)} / ${formatTime(data.seconds)}`;
   for(const b of document.querySelectorAll('#timeline button')){const section=sections.find(s=>s.first===Number(b.dataset.bar));b.setAttribute('aria-current',String(bar>=section.first&&bar<=section.last));}
   const key=Math.round(t*30)+':'+selected;if(key!==lastActive){for(const {element,n}of drawn)element.classList.toggle('active',n.change!=='old'&&n.start<=t&&n.end>t);lastActive=key;}

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {difference,partRange,barAt,formatTime} from './arrangement-review.mjs';
+import {difference,partRange,barAt,formatTime,comparisonView,changeScrollLeft} from './arrangement-review.mjs';
 const note=(part,pitch,start=0,extra={})=>({part,pitch,start,end:start+1,voice:0,velocity:80,fret:0,string:1,dead:false,ghost:false,...extra});
 test('coattacks and repeated identical notes are counted, never collapsed',()=>{
  const base=[note(0,40),note(0,47),note(0,47),note(1,40)];
@@ -21,4 +21,22 @@ test('different bar numbers and unequal bar durations use the supplied clock',()
  const data={bars:[21,23],bar_times:[{bar:21,time:0},{bar:22,time:1.5},{bar:23,time:3},{bar:24,time:5}]};
  assert.equal(barAt(data,0),21);assert.equal(barAt(data,1.5-1e-6),22);assert.equal(barAt(data,4.8),23);assert.equal(barAt(data,5),23);
  assert.equal(formatTime(65.8),'1:05');
+});
+test('filter without a distinct comparison cannot erase the original',()=>{
+ const current={id:'source',notes:[{part:1,pitch:60,start:0,end:1}]};
+ for(const base of [undefined,current,{id:'same-notes',notes:current.notes}]){
+  const view=comparisonView(current,base,true);
+  assert.equal(view.canFilter,false);assert.equal(view.filterActive,false);assert.equal(view.shown.length,1);assert.equal(view.removed.length,0);
+ }
+});
+test('changed-part filter keeps context notes and reveals offscreen changes without moving audio',()=>{
+ const common={part:1,voice:0,pitch:60,start:0,end:1};
+ const current={id:'edit',notes:[common,{...common,pitch:65,start:15,end:16},{...common,part:2}]};
+ const baseline={id:'source',notes:[common,{...common,pitch:64,start:15,end:16},{...common,part:2}]};
+ const view=comparisonView(current,baseline,true);
+ assert.equal(view.filterActive,true);assert.deepEqual([...view.changedParts],[1]);assert.equal(view.shown.filter(n=>view.changedParts.has(n.part)).length,2);
+ assert.equal(changeScrollLeft(view.changes,0,400,100),1480);
+ assert.equal(changeScrollLeft(view.changes,2200,400,100),1480);
+ assert.equal(changeScrollLeft(view.changes,1400,400,100),1400);
+ assert.equal(current.notes[1].start,15);
 });
