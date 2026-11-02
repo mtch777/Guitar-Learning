@@ -1,5 +1,7 @@
 # Retry the twelve failed entries from run 41393260772
 
+> Follow-up scope: the user asked to resolve and rerun only the six artist-identity mismatches. The launcher now selects those six; the six analysis assertions remain a separate task. See [TIERED_ARTIST_IDENTITY_RETRY.md](TIERED_ARTIST_IDENTITY_RETRY.md) for the correction and current run. This document preserves the earlier twelve-entry retry history.
+
 ## User-authorized scope
 
 Identify the original twelve failed entries and run the current workflow for only those twelve. Save results and diagnostics directly to draft GitHub Releases. Keep the existing validation checks active and preserve the successful 296 entries.

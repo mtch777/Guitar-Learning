@@ -1,4 +1,4 @@
-name: Retry the 12 failed tiered song entries
+name: Retry the six reconciled Songsterr entries
 
 on:
   workflow_dispatch:
@@ -14,5 +14,5 @@ jobs:
   retry:
     uses: ./.github/workflows/tiered-song-catalog.yml
     with:
-      song_ids: '4081672,1817932,6656103,993568,1511882,6028811,3851017,2457200,3956211,4472844,4248474,3165226'
-      expected_count: 12
+      song_ids: '4081672,6656103,3851017,2457200,3956211,4472844'
+      expected_count: 6
