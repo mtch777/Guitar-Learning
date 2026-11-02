@@ -263,8 +263,12 @@ def validate_execution(material,lower):
     This boundary protects the complete selected material using the SAME existing
     execution records/occupancy and affected-unknown admission predicates.
     """
-    refs=set(material['lower_tier']['realization_order']);pitched=defaultdict(list)
-    for position in material['lower_tier']['physical_positions']:
+    validate_fragment_execution(material['lower_tier'],material['observed_execution'],lower)
+
+
+def validate_fragment_execution(fragment,observed_execution,lower):
+    refs=set(fragment['realization_order']);pitched=defaultdict(list)
+    for position in fragment['physical_positions']:
         ref=position['occurrence_ref'];pitched[execution.address(ref)[1]].append(ref)
     for group in pitched.values():execution.build(lower,group)
     internal=[]
@@ -274,7 +278,7 @@ def validate_execution(material,lower):
         if touched&refs:
             if touched-refs:raise ValueError('Technique/tie dependency crosses material boundary')
             internal.append(record)
-    if internal!=material['observed_execution']:
+    if sorted(internal,key=lambda r:r['id'])!=sorted(observed_execution,key=lambda r:r['id']):
         raise ValueError('MATERIAL_EXECUTION_CHANGED: original internal gesture relationships differ')
 
 
@@ -291,9 +295,13 @@ def _remove(t2,scopes):
 
 def _restore(skeleton,materials):
     """Rejoin existing typed owners; no re-analysis/relearning of the score."""
+    return restore_fragments(skeleton,[expand(m)for m in materials])
+
+
+def restore_fragments(skeleton,fragments):
+    """Compose resolved material instances through the existing lower owners."""
     result=deepcopy(skeleton);arrays=_arrays(result)
-    for material in materials:
-        fragment=expand(material)
+    for fragment in fragments:
         for field in ARRAYS:arrays[field].extend(fragment[field])
     # Restore ordered source ownership using its existing container grammar.
     from technique_observation_relations import realize as effects
