@@ -30,15 +30,24 @@ preserve original evidence. See the active checklist. The earlier T5 listening
 question remains unaccepted history; it does not block this authorized experiment.
 Fresh creative portability and T5 acceptance remain open; no T6 promotion.
 
-**Delivered audit, not full all-control completion:** the frozen Cloud runs produce
-separate expression and rhythm comparisons. Expression changes1027/5350written
-notes; rhythm changes412/5350notes across16bars (17/38group placements). Both keep
-all pitches. Original/current inverse, protected relationships and native playback
-pass within those scopes. Their owner models cannot combine safely. The directT3
-route cannot enterT4;T5is not reached;T6is unavailable. The existing listening page
-shows these limits, measured denominators and retained refusals. Named-sourceQA1
-and broad creative generalization are not claimed. Full receipts/current checklist
-remain in THEMATIC_RETURN_PROGRESS.md; no new musical operator was added for this run.
+**Combined expression and rhythm verified; other controls remain limited:** one
+saved Cloud model now contains both frozen edits. It changes1264/5350written notes
+(23.6262%) across86/111bars; pitches remain unchanged. Expression accounts for1026
+dynamic changes and1accent;412notes change timing. Overlap is counted once. The
+shared repair preserves existing owners and original observations; resetting timing
+retains expression. Clean-source48tests, original/current source-denied inverse and
+complete native playback checks PASS. Source e6ee8f3 is published; CI41717792868 is
+pending. Combined audio is published on the SAME5280page with the previous versions;
+actual playback, seeking, full-song note counts and changed-part filtering PASS.
+The directT3 route still cannot enterT4;T5is not reached;T6is unavailable. This closes
+the expression/rhythm integration defect, not every all-control limitation.
+
+QA1 retains the first frozen draw from88 eligible retained Invent Animate captures:
+Hieroglyphics5121458. All64376source facts reconstruct in the denied worker; its fixed
+first guitar/bar scope consists of rests and refuses material construction. No later
+bar or replacement song was tried. Creative portability remains unproved. Full
+receipts/current checklist remain in THEMATIC_RETURN_PROGRESS.md. No new musical
+choices were selected for the combined Cloud run.
 
 The bounded original-state proof is now CLOSED: existing constructors and the
 published inverse recover all 71,747 untouched source facts with seven matching

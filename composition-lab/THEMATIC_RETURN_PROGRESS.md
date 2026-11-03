@@ -2,6 +2,81 @@
 
 ## Active request — Cloud Cascade, all current levers at 100
 
+### Current bounded repair — combine expression and rhythm, 2026-11-03
+
+User challenged the separate outputs. Musical gain: hear the already verified
+expression AND timing choices in one saved composition. Root owns integration;
+Planner challenges scope/ownership. Existing separate outputs/failures stay frozen.
+
+- [x] Reproduce conditional coverage, emitted structural ownership and rhythmic
+  notation-parent failures on existing authored fixtures before patching.
+- [x] Repair shared composition using the existing owners/inverse; no duplicated
+  beat/note ownership, source export merge, new choices or resampling.
+- [x] Preserve all original observations and unrelated relationships; save/reload,
+  subsequent expression/rhythm edit, and atomic unsupported requests pass.
+- [x] Replay the frozen Cloud expression selections and rhythm offsets in one model;
+  compare complete expected T1 and exact source/current denied reconstruction.
+- [x] Record all3QA scopes, including fresh selection separately; verify native
+  combined playback against source facts, then add it to the SAME listening page.
+
+Exit is combined verified audio and persistent relationships. No new melody,
+arrangement, technique detector or broad schema rewrite belongs in this repair.
+Ownership rule: unsupported occurrence replacement/remapping must refuse; never
+resolve it by silently dropping expression owners. Ordinary notation changes need
+the correct parent-container relationship, not a blanket refusal of expression.
+
+Verified repair,2026-11-03: source e6ee8f3 published; CI41717792868 pending. Clean
+main plus only the3production files/new regression module passes48tests in133.334s.
+The first48-test run also passed, but its receipt checker incorrectly counted its
+own runner as an imported project module. The retained second run excludes only
+that runner and verifies every imported project module is from the clean candidate.
+
+The existing expression controls can now update saved material uses without
+replacing material definitions. Beat-container context is used transiently by the
+same rhythm solver; new duration dots return to the existing beat owner. Stored
+duplicate owners, expression readdressing and incompatible edits refuse atomically.
+A batch applies already resolved use/scope/offset requests, without new sampling.
+Fixtures cover optional mutes/accents, dotted durations, later expression edits,
+save/reload, unrelated backing propagation and outgoing ties. Displacing a selected
+internal tie continuation remains explicitly unsupported; zero preserves it.
+
+Cloud's frozen38timing requests and previous expression choices compose in567.938s.
+The complete inverse equals an independently calculated expected result; that
+comparison result is never used as inverse or renderer input. Original materials,
+slots, evidence and all other owners remain exact. Saved current-zero and timing
+reset PASS; resetting timing returns the verified expression-only output.
+Two NEW denied workers recover complete original/current T1 with source and lower
+payloads unavailable. QA3 is bounded expression/group-timing composition; no new
+melodic understanding, preference ranking or tier promotion is claimed.
+
+Whole-song union:1264/5350written notes=23.6262%,86/111bars=77.4775%. Dimensions:
+1026dynamic,1accent,412timing; no pitch/add/remove/physical changes. Native output:
+5350written notes,3738beats,4984performed attacks;992velocity and412timing changes
+give1229distinct changed attacks. Source bend curves, percussion and tie endpoints
+remain correct. One combined full-band WAV,229.655510s,44100Hz mono16bit,gain0.3,
+speed1,no normalization; untouched original audio reused.
+
+QA1:88eligible retained Invent Animate captures frozen before a fixed-seed draw;
+Hieroglyphics5121458 selected. Complete64376facts reconstruct in the actual denied
+worker. The predeclared first guitar/voice0/bar1 is entirely rests; material
+construction was attempted and refused. No dynamic alternative, nonzero composition
+or creative-generalization pass. No later scope, reroll or new acquisition claimed.
+Receipts: local-artifacts/cloud-cascade-combined-v1/{run-001,qa,regressions,native,
+listening}; clean-release-result.json records the isolated48-test run.
+
+Combined version delivered on the SAME5280 root,/full/,/rhythm-shift/. Default
+24.8279s comparison keeps four context bars; largest timing view18.621s. All four
+versions use matched settings. Eighteen page/asset checks and exact PCM crop checks
+PASS. Actual browser plays all four versions, preserves position on switching,
+seeks correctly and shows the playhead. Full piano roll contains1229new/1229old/
+3755unchanged occurrences; largest-shift changed-parts filter shows3affected parts
+with143new/143old/125unchanged visible notes. No console/media errors. New phone
+viewport and human taste acceptance are not claimed. Publication/clip/http/browser
+receipts and screenshots are in the private review directory. Planner completion
+review approves bounded ownership/reversal evidence and retains the QA1 limitation.
+
+### Previous audition checklist and retained limits
+
 User requests the strongest remix current logic can produce, per-tier before/after
 change percentages, and the existing piano-roll listening UI. Use the captured
 Invent Animate Cloud Cascade (460099), not the recent As If It Never Was example.
@@ -13,14 +88,14 @@ No song-specific pitch/timing rules, hidden raw-note bypass or new generator.
 - [x] Finish the frozen configured expression/rhythm routes at release100 through
   existing owners/equations. Preserve unchanged draws and refusals; no seed rerolls.
 - [ ] One combined all-lever remix: NOT DELIVERED. Expression and material-rhythm
-  owners cannot compose safely; several controls have no applicable implementation.
+  now compose (repair above); several other controls have no applicable implementation.
   The configured-route audit does not prove every hypothetical configuration exhausted.
 - [x] Measure changed notes/bars against the WHOLE original song, and changed
   decisions against represented choices at each tier. Show coverage alongside
   percentages; absent tier representation is unavailable, not a fabricated zero.
 - [x] Verify original/current exact inverse and saved successive edits within each
-  branch, immutable evidence/dependencies and native playback. QA1 is not claimed
-  for this user-selected song; QA3 remains scoped. Combined-branch acceptance is absent.
+  branch, immutable evidence/dependencies and native playback. Cloud is user-selected;
+  the separate retained-source QA1 outcome and combined technical proof are above.
 - [x] Reuse the existing listening page: untouched original/comparisons, full-song
   access plus concise focus with four context bars, colored changed notes,
   per-tier measured differences and one to three relevant listening questions.
