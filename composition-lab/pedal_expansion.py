@@ -24,6 +24,11 @@ def _merge(regions):
     for region in sorted(regions, key=lambda r: (F(r['start_q']), F(r['end_q']))):
         if out and F(region['start_q']) < F(out[-1]['end_q']):
             target = out[-1]
+            conflicts = [ident for ident, role in region['roles'].items()
+                         if ident in target['roles'] and target['roles'][ident] != role]
+            if conflicts:
+                raise ValueError('Conflicting pedal roles in overlapping phrases: '
+                                 + ', '.join(sorted(conflicts)))
             target['end_q'] = str(max(F(target['end_q']), F(region['end_q'])))
             target['start_q'] = str(min(F(target['start_q']), F(region['start_q'])))
             target['seed_ids'] = sorted(set(target['seed_ids'] + region['seed_ids']))
@@ -177,11 +182,12 @@ def expand_phrases(rows, seeds, *, before_exchanges=2, after_exchanges=1, sustai
         region['end_q']=str(max(F(region['end_q']),max(_end(n) for n in ns)))
 
     # Forward receives the lower recurrence threshold and is evaluated first.
-    # Neighbor intervals are immutable barriers unless their boundary anchor is
-    # exactly the same; touching its first call creates overlap, then one merge.
+    # The preceding phrase is already expanded: use its current boundary so
+    # a later phrase cannot reclaim its notes with a different anchor. The next
+    # phrase is still unexpanded. Same-anchor boundaries may join, then merge.
     for i, region in enumerate(phrases):
         following=original[i+1] if i+1<len(original) else None
-        preceding=original[i-1] if i else None
+        preceding=phrases[i-1] if i else None
         def boundary_signature(r, first):
             ns=[byid[k] for k,v in r['roles'].items() if v=='call']
             t=(min if first else max)(F(n['onset_q']) for n in ns)
