@@ -1,9 +1,19 @@
 # T5: live return of an earlier arrangement
 
-## Active contract — the return follows or opposes its earlier melody
+## Current checkpoint — T5 musical usefulness
+
+The linked-earlier/return capability, saved dependencies, native playback and
+untouched-original reconstruction are technically verified within the scope below.
+The pending listening question is whether the two occurrences feel like one idea
+being developed. The two short reviews are already served; no repeat approval is
+needed for routine safe variants. Fresh creative portability and T5 acceptance
+remain open; no T6 promotion is inferred. No remaining implementation gap has been
+identified inside this bounded contract.
+
+## Delivered contract — the return follows or opposes its earlier melody
 
 Current requirements and tier acceptance are in PROJECT_COMPLETION_PLAN.md.
-This checklist is the active task. Dated delivery records below retain their
+This file holds the current checkpoint. Dated delivery records below retain their
 then-current results and next actions; they are not competing assignments.
 
 Musical decision: keep the returning approach independent, make it follow the
@@ -20,7 +30,7 @@ The existing guitar recall and rhythmic displacement must remain intact.
   direction, not equality of two original/flip strings.
 - [x] Authored integration: source flip, save, subsequent rhythm edit, reload and
   another source flip preserve the live dependency; independent return stays put.
-  Two targeted integration tests passed; final release checks still required.
+  Two targeted integration tests passed; final release results are recorded below.
 - [x] Shared fit/inverse checks: 42 tests passed in a clean candidate. Actual test 001
   then refused solely on differently located nested tremolo structure pointers.
   The narrow address-normalization fix preserves values/unknown fields and has
@@ -31,7 +41,8 @@ The existing guitar recall and rhythmic displacement must remain intact.
   owners, independent score comparison and denied composed inverse.
 - [x] Reuse verified audio when the realized notes are identical. Render only a
   newly changed state; publish it promptly through the existing listening page.
-- [ ] Planner completion challenge; scoped commit/push and verified CI.
+- [x] Planner completion challenge and scoped commit/push (76b9c78).
+- [x] Release CI 41676849958 SUCCESS, verified against 76b9c78.
 
 Counterexamples: a coincidental shape outside the linked section; ambiguous
 counterparts; mismatched rhythm/tie/technique structure; two owners for the return
@@ -78,10 +89,56 @@ notes, verified 48 new/48 replaced attacks in each changed-part filter, moving
 cursor/active notes, seeking and the return's natural end. Existing player reused;
 presentation wording changed no notes/audio. Receipts and screenshots are in
 `live-return-listening-001`. No fresh-source or human listening acceptance is inferred.
-Current closure: Planner review, scoped publication and CI; then the next bounded
-T5 requirement, rather than another demonstration of the same safe transformation.
+Publication: source commit 76b9c78 is on main; CI 41676849958 SUCCESS is verified.
+Planner's independent full-score/owner review passes. Queue entries increased from
+31 to 37 with every previous entry, feedback record and asset preserved. The old
+queue server is offline; the two browser-verified 5280 review pages are available.
 
-Documentation reconciliation e916bad published separately: 14 reviewed current
+### Closed bounded check — untouched-original T5 path
+
+Exit consolidation found that earlier T5 receipts named `original-source` compare
+against an already edited T4 baseline. They prove the supplied CURRENT state, not
+untouched-song recovery. Historical untouched-source T3 proof remains valid; it
+does not by itself prove that baseline through current T5.
+
+- [x] Locate and bind the actual untouched T1/T3 baselines and their proof hashes:
+  71,747 facts, saved original T3 /2 phases 0/0, independently equal to capture.
+- [x] Establish whether the existing T4/T5 constructors can represent that original
+  composition without changing notes or weakening their declared relationships.
+- [x] Run the composed source-unavailable original-state inverse
+  against the independent untouched T1 oracle; retain any refusal or failure.
+- [x] Record original-state versus current-state proofs separately. Do not infer
+  one from a filename or substitute hidden original notes for a missing relation.
+
+Result: `untouched-t5-proof-002/result.json` PASS. The saved live T5 /2 original
+state reconstructs all 71,747 facts exactly against independently extracted source.
+Seven use IDs/slots/scopes match the edited composition, including intro 5–8,
+earlier 37–40 and return 111–114. Original cell phases/approach modes and rhythm 0
+are retained. The original melodic link is `same`; the guitar-return intention is
+`independent`. These are original-state choices, not the edited control settings.
+Original observations and input files remain unchanged; the return mode has one
+T5 owner. This does not implement automatic undo of the edited composition.
+
+One final denied worker passed: expected source was not staged, only input JSON
+was read, and the independent full-source comparison had no excluded fields.
+The guard is the audited Python I/O allowlist, not an OS sandbox. Root independently
+compared the output to the saved untouched T1 and inspected the worker audit.
+All 103 inverse module hashes match the published candidate; 49 recorded loaded
+construction modules match 76b9c78 after BOM/CRLF normalization. The full generated
+bundle differs only by nine declared module `__file__` checkout-path values.
+
+Setup 001 was stopped before its inverse when the missing intro-owner scope was
+noticed. Its completed original-material/T4/T5 checkpoint was sealed and reused;
+001 is incomplete setup, not a six-use inverse pass or musical failure. Frozen
+002 completed in 1,077.59 seconds, including a 47.20-second final proof stage;
+the prior checkpoint took 428.66 seconds. Existing preparation also validates an
+unused changed branch. Stage times are recorded; internal costs were not profiled.
+No production code, source collection or new audio was required.
+The current-composition proofs and listening assets remain separately bound in
+`t5-current-exit-001.json`; fresh portability and human usefulness stay open.
+
+Documentation reconciliation e916bad published separately; CI 41674186463 SUCCESS:
+14 reviewed current
 documents, 85 working public links and exact fetched-text parity. Required governing
 policies and approved MVP contracts now exist on main. Five historical logs/archives
 remain private and unchanged; no private review labels were imported. Legacy

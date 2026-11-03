@@ -21,29 +21,31 @@ instruction dependencies. This plan contains the governing requirements and gate
 | T5MVP | OPEN: original material recall was listenable but insufficient; melodic, automatic-discovery, groove and combined-return capabilities have scoped technical/audio evidence, not final T5 acceptance |
 | T6MVP | NOT PROMOTED; held-out cross-song conditional preference and listening remain owed |
 
-**One current queue:** close publication/CI for the verified live same/opposite
-melodic return, then choose the next bounded T5 obligation with Planner. Actual
-source integration and native playback pass: current/changed composed inverse,
-source flip versus independent return, subsequent rhythm editing/reload, sole
-ownership and immutable evidence. Two short browser-verified reviews are available.
-Human listening and fresh creative portability remain unproved; T5 acceptance is
-not inferred. See the active checklist for results and retained failure. Do not
-restart old T2 demos, T4 planning or source collection without a new bounded contract.
+**One current checkpoint:** assess whether the linked earlier phrase and its return
+work as musical development. The two short, browser-verified reviews are ready;
+the listening question has been sent. Routine safe variants need no approval stop,
+but tests do not answer this T5 usefulness question. Fresh creative portability
+also remains unproved; T5 acceptance and T6 promotion are not inferred.
 
-**Latest delivered foundation:** the same source-marked return now contains delayed
-paired-guitar body107–110 and opposite high-line approach111–114; earlier5–8 edit,
-all prior definitions/uses/slots,32 backing links/T4 choices/T5 material recall and
-immutable observations survive. Four actual denied proofs, independent full-score
-oracle, saved zero/revert and native scope checks pass. Shared review page reused,
-short29.768s context; no new generator or learned preference. Scope filtering bug
-was fixed with scoped/unscoped refusal→later-success regression; actual first-success
-prep is honestly identified with its earlier loaded hash and zero prior binding
-refusals, not relabeled as the later code. Combined8876021 is committed/published;
-CI41669943067 PENDING. Rhythm8909f76 CI41665726613 SUCCESS verified. Local, committed,
-published and CI states are separate. Documentation reconciliation e916bad is
-published: all 14 fetched GitHub documents match the reviewed text and 85 public
-links resolve. Private historical annotations/archives remain local. Its
-CI 41674186463 is pending; documentation parity is not a musical-test claim.
+The bounded original-state proof is now CLOSED: existing constructors and the
+published inverse recover all 71,747 untouched source facts with seven matching
+use IDs/scopes, original cell/approach modes and zero rhythmic displacement.
+This is a separately constructed original-state model, not automatic undo of the
+edited model. Earlier edited CURRENT-zero/revert proofs remain separate. The
+active checkpoint records the exact scope and retained incomplete setup.
+
+**Latest delivered capability:** changing the earlier melodic direction can now
+change the return in the same or opposite direction, or leave it independent.
+Each occurrence retains its own arrival, rhythm, ties and tremolo; existing guitar
+recall, rhythmic displacement and all untouched owners survive saved edits.
+The current song, native playback and four denied inverses pass. Both 22.3-second
+reviews reuse the existing page with untouched original and colored changes.
+Source 76b9c78 is published; CI 41676849958 SUCCESS. Earlier combined/rhythm
+release details remain dated evidence in the active progress file.
+
+Documentation reconciliation e916bad is published with successful CI 41674186463:
+14 remotely verified documents and 85 resolving public links. Private histories
+remain local. Local, committed, published, CI and musical acceptance are distinct.
 
 **QA limits:** source-preservation, applicability, changed-output portability and
 musical acceptance have separate outcomes. Original/changed exact inverse and
