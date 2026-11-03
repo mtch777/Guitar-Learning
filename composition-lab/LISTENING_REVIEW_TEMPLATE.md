@@ -8,6 +8,13 @@ Required, visible in this order:
 3. Synchronized piano roll: new/changed, removed/replaced, unchanged. Explicit comparison baseline; all pitches and playing parts included.
 4. One to three specific listening questions. Say what judgment is needed.
 
+Default to an actual short audio excerpt: changed bars plus four bars before and
+after. The audio player's duration and scrubber must match that excerpt; a jump
+button inside a five-minute file is not an equivalent listening experience.
+Keep complete-song playback available separately when development across the
+song matters. Crop verified audio with identical boundaries/settings instead of
+rerendering. Preserve the original full files and record any matched edge fades.
+
 Reuse four bars before/after by default, matched full-band audio, speed control,
 position-preserving version switching, note clicking, phone layout and Wi-Fi link.
 Do not rerender verified audio when only wording, display data or questions change.
