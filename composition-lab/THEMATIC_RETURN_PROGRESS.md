@@ -1,5 +1,57 @@
 # T5: live return of an earlier arrangement
 
+## Active integration — develop the same return in rhythm and melody
+
+Planner's next challenge exposed disconnected demonstrations: the current saved
+model changes the opening melody at5–8 and the return rhythm at107–110. It does
+not yet develop the return's own melodic ending. The source explicitly marks
+Chorus107–122 on all13 tracks; this supplies the selection scope, not a guessed
+phrase boundary. Existing discovery previously admits111–114 and refuses121–122.
+Recheck both against the current composition; do not reuse historical admission.
+
+- [x] Cheap model/source-marker comparison retained in combined-return-preflight-001.
+- [x] Planner challenges scope: combine existing capabilities, no new pitch rule,
+  ranking, source collection or claim that recall owns the high-line direction.
+- [x] Shared discovery can select within a declared whole-bar scope while keeping
+  every run/refusal. It never falls back outside or shortens a crossing run.
+- [x] Composed wrapper derives the section, binds one new disjoint approach, and
+  preserves prior materials, uses, slots, observations and all T4/T5 obligations.
+- [x] Current zero/save/reload and independent fret oracle; four denied inverses.
+- [x] Native clocks, PM and later handoff retained; matched short combined audio.
+
+Delivered: the return now combines the earlier guitar displacement with a high
+line descending into its original arrival. Existing discovery chooses111–114
+inside the complete marked return;121–122 remains refused. Four written frets /
+48 tremolo attacks change pitch beyond the verified rhythm version. Every5117
+beat clock,6299 other note identities/pitches and6844 other callbacks are exact.
+The actual browser plays all three29.768s versions; the changed filter shows48
+new/48 replaced attacks, seek and paused version-switch position agree, and the
+player stops naturally. Same5280 page, four context bars each side, queue31.
+
+Release checks:34 clean-candidate tests passed. Planner then found a search-scope
+shadowing bug after a failed binding. Two files changed; a targeted clean test
+now proves scoped AND unscoped first-refusal/later-success without input mutation.
+The actual preparation had no earlier binding failure and selected its first
+in-scope candidate. Its originally loaded hash is retained explicitly; do not
+relabel that run as using the later control hash. Inverse operators did not change.
+Existing T5 material recall remains live; high-line direction is independent.
+This establishes composition of existing musical controls, not artist preference,
+fresh portability or T5 completion. Routine listening approval does not block work.
+
+Falsifier: losing the earlier approach, rhythm offset or a live dependency while
+the notes happen to match; or choosing a convenient run outside the marked return.
+Missing/conflicting source markers refuse as an implementation boundary, not a
+claim that the music has no section. T5 completion/fresh generality remain open.
+
+Next bounded preflight with Planner: can the returning approach be same/opposite
+RELATIVE to its live earlier counterpart, using observed occurrence correspondence
+and the existing signed degree relation? Counterfactual: changing the earlier
+direction should update only a linked return; an independent return must stay put.
+First establish unique musical/contextual correspondence. No new source, desired
+pitches, ranking or broad architecture. Current rhythm and source observations
+must survive. Evidence: combined-return-001, combined-return-release-001,
+combined-return-listening-001, then live-return-approach-preflight-001.
+
 ## Current decision — rhythm changes now reach the listening page
 
 2026-11-03: the user accepted the safe in-key approach and instructed us not to

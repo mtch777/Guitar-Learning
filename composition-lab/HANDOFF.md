@@ -1,3 +1,26 @@
+## Active update — 2026-11-03: one return combines rhythm and melody
+
+The same saved return now has the later paired-guitar groove followed by an
+opposite melodic approach to the same arrival. The source-marked return section
+selects the search scope; current discovery supplies the musical relation. No new
+pitch rule, manually supplied target notes or copied source stream. Earlier edits,
+original observations, all existing owners and T5 material recall survive exactly.
+Four actual denied-source/lower inverse proofs, independent complete-score oracle,
+saved revert and native timing pass. Same5280 page: original / rhythm / rhythm plus
+melody,29.768s with four context bars each side. Actual browser and queue verified.
+See THEMATIC_RETURN_PROGRESS.md for the34-test clean result, later targeted search
+scope repair and honest preparation-hash distinction. Rhythm release8909f76 has
+successful CI41665726613. Current combined release CI is recorded separately.
+
+T2/T3/T4 bounded MVPs stay accepted; full requirements and T5 stay OPEN. QA1 fresh
+creative portability remains unproved. Six retained first100 searches exhaust only
+that bounded window, not the artist catalog; the cover/artist mismatch is retained.
+Do not reroll or relabel it. New musical work is a bounded preflight of LIVE
+same/opposite melodic contrast between earlier and returning approaches. Establish
+occurrence correspondence before implementation. Keep the accepted safe-variation
+autonomy: self-QA routine variants, deliver audio, and continue. No approval stop
+for every example. This block supersedes earlier next-action paragraphs.
+
 ## Active update — 2026-11-03: shared rhythmic displacement delivered
 
 The user accepted the earlier in-key approach and said safe, unchanged-rhythm

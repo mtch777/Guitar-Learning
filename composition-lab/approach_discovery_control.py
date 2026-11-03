@@ -52,14 +52,26 @@ def _plan(upper, t2, lower, row):
     return scope, use_id, evidence
 
 
-def prepare_first(upper):
+def prepare_first(upper, *, scope=None):
     """Return original/changed material-use models and the full selection record.
 
     Input is either a complete stripped T2 or the current supported material-use
-    T3. No caller-provided song, part, bar, note, pitch, or preferred direction.
+    T3. Optional scope constrains the whole current passage; it supplies no note,
+    pitch, interpretation or preferred result. Cross-boundary runs are retained
+    and excluded whole, never shortened to make them fit.
     The explicit experiment intention is the existing opposite-approach choice.
     """
     from melodic_approach_discovery import discover, backing_context
+    if scope is not None and (type(scope) is not dict
+            or set(scope) != {'first_bar', 'last_bar'}
+            or any(type(scope[k]) is not int for k in scope)
+            or not 1 <= scope['first_bar'] <= scope['last_bar']):
+        raise ValueError('Closed positive whole-bar scope required')
+    selection = 'first_applicable_chronological_not_preferred'
+    scope_record = {}
+    if scope is not None:
+        selection += '_within_declared_scope'
+        scope_record['scope'] = deepcopy(scope)
     before = deepcopy(upper); seal = digest(upper)
     if upper.get('tier') == 2:
         if connected.strip_lower(upper) != upper:
@@ -75,15 +87,20 @@ def prepare_first(upper):
     lower = connected.realize(t2)
     attempts = []
     for row in report['runs']:
+        if scope is not None and not (scope['first_bar'] <= row['bars'][0]
+                                      <= row['bars'][1] <= scope['last_bar']):
+            attempts.append(dict(id=row['id'], status='OUTSIDE_DECLARED_SCOPE',
+                                 bars=deepcopy(row['bars'])))
+            continue
         if row['status'] != 'RELATION_AND_FLIP_ADMITTED':
             continue
         try:
-            scope, use_id, evidence = _plan(upper, t2, lower, row)
+            material_scope, use_id, evidence = _plan(upper, t2, lower, row)
             if upper['tier'] == 2:
-                prepared = uses.from_tier2(upper, [scope])
+                prepared = uses.from_tier2(upper, [material_scope])
                 use_id = prepared['uses'][-1]['id']
             elif use_id is None:
-                prepared = uses.extend_materials(upper, [scope])
+                prepared = uses.extend_materials(upper, [material_scope])
                 use_id = prepared['uses'][-1]['id']
             else:
                 prepared = deepcopy(upper)
@@ -99,8 +116,8 @@ def prepare_first(upper):
         attempts.append(dict(id=row['id'], status='PREPARED'))
         return dict(status='PREPARED', original=prepared, changed=changed,
                     discovery=report, attempts=attempts, selected=row, use_id=use_id,
-                    context=backing_context(t2, row), selection='first_applicable_chronological_not_preferred')
+                    context=backing_context(t2, row), selection=selection, **scope_record)
     if upper != before:
         raise AssertionError('An unsupported request mutated its input')
     return dict(status='NO_APPLICABLE_APPROACH', discovery=report, attempts=attempts,
-                selection='first_applicable_chronological_not_preferred')
+                selection=selection, **scope_record)
