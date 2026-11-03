@@ -1,0 +1,34 @@
+name: Finish six remaining tiered analyses
+
+on:
+  push:
+    branches: ['recovery/finish-six-20261102']
+    paths: ['.github/workflows/finish-six-recovery-20261102.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: finish-six-pedal-20261102
+  cancel-in-progress: false
+
+jobs:
+  regression:
+    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'Run only six unfinished tiered analyses'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Real repository expansion and identity regressions
+        working-directory: composition-lab
+        run: python -B -X utf8 -m unittest -v test_pedal_expansion test_pedal_expansion_collision test_tiered_catalog_identity
+  finish-six:
+    needs: regression
+    uses: ./.github/workflows/tiered-song-catalog.yml
+    with:
+      song_ids: '1817932,993568,1511882,6028811,4248474,3165226'
+      expected_count: 6
