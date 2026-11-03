@@ -105,6 +105,53 @@ def candidate(upper, use_id, offset_q):
     return out
 
 
+def candidate_many(upper, requests):
+    """Apply already resolved offsets atomically, without choosing new offsets.
+
+    Each stable use identity is bound to its declared scope. This is a batch of
+    the existing timing-owner equation, not a sampler or an assumption that
+    arbitrary context-dependent choices commute. Absent timing owners are
+    initialized together and checked against the complete preceding model.
+    """
+    uses._shape(upper)
+    if type(requests) is not list or not requests:
+        raise ValueError('Explicit nonempty rhythmic requests required')
+    seen = set()
+    for request in requests:
+        if type(request) is not dict or set(request) != {'use_id', 'scope', 'offset_q'}:
+            raise ValueError('Exact rhythmic use/scope/offset request required')
+        identity = request['use_id']
+        if type(identity) is not str or identity in seen:
+            raise ValueError('Unique stable rhythmic use identities required')
+        seen.add(identity)
+        selected = _use(upper, identity)
+        scope = request['scope']
+        if type(scope) is not dict or set(scope) != {'parts', 'first_bar', 'last_bar'}:
+            raise ValueError('Exact rhythmic destination scope required')
+        uses.material._scope(scope['parts'], scope['first_bar'], scope['last_bar'])
+        if scope != upper['slots'][selected['slot_ref']]['scope']:
+            raise ValueError('Rhythmic request scope differs from its saved use')
+        value = request['offset_q']
+        if type(value) is not str or str(F(value)) != value:
+            raise ValueError('Canonical rational displacement required')
+    before = uses.expand(upper)
+    initialized = deepcopy(upper)
+    missing = [r['use_id'] for r in requests
+               if 'rhythm_offset_q' not in _use(initialized, r['use_id'])]
+    if missing:
+        if initialized['schema'] != uses.DIRECT_SCHEMA:
+            initialized['schema'] = uses.RHYTHM_SCHEMA
+        for identity in missing:
+            _use(initialized, identity)['rhythm_offset_q'] = '0'
+        if uses.expand(initialized) != before:
+            raise ValueError('Zero timing ownership changed the preceding model')
+    out = deepcopy(initialized)
+    for request in requests:
+        _use(out, request['use_id'])['rhythm_offset_q'] = request['offset_q']
+    uses.reconstruct(out, {'variation': 0})
+    return out
+
+
 def options(upper, use_id):
     """Freeze all observed backing spacings before testing any candidate.
 
@@ -144,6 +191,7 @@ def options(upper, use_id):
     definition = upper['materials'][selected['material_ref']]
     if definition['schema'] == SCHEMA:
         definition = expand(definition, selected['approach_mode'])
+    definition = uses.material.rhythm_context(definition, upper['lower_tier'])
     attempts = []
     for value in values:
         try:

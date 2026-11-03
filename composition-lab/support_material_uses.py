@@ -120,12 +120,20 @@ def _dynamic(fragment,part,level):
     fragment['coverage'].append(dict(fact_ref=ref,owner='technique_declaration'))
 
 
-def place(definition,slot,use):
+def place(definition,slot,use,*,parent=None):
     """Resolve one distinct use. The immutable definition is never rewritten."""
+    if parent is not None:
+        foreign=material.expression_rows(parent);foreign_ids={r['id']for r in foreign}
+        if any(row['id']in foreign_ids for row in definition['lower_tier']['source_structure']):
+            raise ValueError('Stored material duplicates an existing expression owner')
+        if definition['scope']!=slot['scope'] and any(material._owns(row['id'],scope)for row in foreign
+               for scope in (definition['scope'],slot['scope'])):
+            raise ValueError('Material relocation would readdress existing expression owners')
     from material_approaches import SCHEMA as approach_schema, expand as expand_approach
     solved=expand_approach(definition,use['approach_mode'])if definition['schema']==approach_schema else definition
     if 'rhythm_offset_q' in use:
         from material_rhythm_displacement import solve
+        if parent is not None:solved=material.rhythm_context(solved,parent)
         solved,_=solve(solved,use['rhythm_offset_q'])
     source=material.expand(solved);fact,event,delta=_maps(definition,slot)
     out={k:deepcopy(v)for k,v in source.items()};shift=F(slot['start_q'])-F(definition['source_start_q'])
@@ -196,7 +204,8 @@ def realize_pair(upper):
     """Return the restored parent (T2 or legacy cell T3), T1 and identities."""
     _shape(upper);pieces=[];contracts=[];ledger=[]
     for use in upper['uses']:
-        piece,records,identities=place(upper['materials'][use['material_ref']],upper['slots'][use['slot_ref']],use)
+        piece,records,identities=place(upper['materials'][use['material_ref']],upper['slots'][use['slot_ref']],use,
+                                     parent=upper['lower_tier'])
         pieces.append(piece);contracts.append(records);ledger.extend(identities)
     if len({r['current_address']for r in ledger})!=len(ledger):raise ValueError('Overlapping active material uses')
     restored=material.restore_fragments(upper['lower_tier'],pieces)
@@ -225,6 +234,39 @@ def expand(upper):
 def reconstruct(upper,controls):
     if controls!={'variation':0}:raise ValueError('Arrangement choices are owned by T4, not this material-use inverse')
     return realize_pair(upper)[1]
+
+
+def pack_expression(upper,changed_t2):
+    """Pack existing current expression choices without replacing material owners.
+
+    The caller uses the existing T2 policy on expand(upper). Only live choice
+    leaves return to the saved parent; derived notation membership does not.
+    """
+    if upper.get('schema')!=DIRECT_SCHEMA:raise ValueError('Direct material-use T3 required for expression packing')
+    from connected_tier2 import realize
+    current=expand(upper);realize(changed_t2)
+    expected=deepcopy(current);out=deepcopy(upper)
+    old=current['owned_parameters'];new=changed_t2['owned_parameters']
+    target=out['lower_tier']['owned_parameters']
+    for key in ('optional_note_accents','optional_beat_palm_mutes'):
+        if key not in old:continue
+        before={g['id']:g for g in old[key]['groups']};after={g['id']:g for g in new.get(key,{}).get('groups',[])}
+        saved={g['id']:g for g in target[key]['groups']}
+        if set(before)!=set(after) or set(before)!=set(saved):raise ValueError('Expression packing cannot readdress owners')
+        for group in expected['owned_parameters'][key]['groups']:
+            state=deepcopy(after[group['id']]['state'])
+            group['state']=state;saved[group['id']]['state']=deepcopy(state)
+    key='observed_dynamics'
+    if key in old:
+        before={r['fact_ref']:r for r in old[key]['current']};after={r['fact_ref']:r for r in new.get(key,{}).get('current',[])}
+        saved={r['fact_ref']:r for r in target[key]['current']}
+        if set(before)!=set(after) or set(before)!=set(saved):raise ValueError('Expression packing cannot readdress dynamics')
+        for row in expected['owned_parameters'][key]['current']:
+            value=after[row['fact_ref']]['definition_ref']
+            row['definition_ref']=value;saved[row['fact_ref']]['definition_ref']=value
+    if expected!=changed_t2:raise ValueError('Expression packing changed a protected relationship or owner')
+    if expand(out)!=changed_t2:raise ValueError('Saved expression choices conflict with material notation or owners')
+    return out
 
 
 def extend_materials(upper,specifications):

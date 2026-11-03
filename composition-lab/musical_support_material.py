@@ -27,10 +27,94 @@ ARRAYS = ('source_structure', 'source_choices', 'physical_positions',
 
 def _arrays(t2):
     p=t2['owned_parameters'];body=movement._body(t2['musical_relationships'])
+    coverage=t2['coverage']
+    if type(coverage)is dict:
+        if (set(coverage)!={'schema','fixed','rules'} or coverage['schema']!='conditional-source-ownership/1'
+                or type(coverage['fixed'])is not list or type(coverage['rules'])is not list):
+            raise ValueError('Exact conditional source ownership required')
+        coverage=coverage['fixed']
     return dict(source_structure=t2['source_structure']['facts'],
         source_choices=p['source_choices'],physical_positions=p['physical_positions'],
-        technique_declarations=p['technique_declarations']['groups'],coverage=t2['coverage'],
+        technique_declarations=p['technique_declarations']['groups'],coverage=coverage,
         coattacks=body['coattacks'],realization_order=body['realization_order'])
+
+
+def expression_rows(t2):
+    """Transient grammar from existing owners; never an additional authority."""
+    parameters=t2['owned_parameters'];rows=[]
+    if 'optional_note_accents'in parameters:
+        from optional_accent_slots import realize
+        rows.extend(realize(parameters['optional_note_accents']))
+    if 'optional_beat_palm_mutes'in parameters:
+        from optional_palm_mute_slots import realize
+        rows.extend(realize(parameters['optional_beat_palm_mutes']))
+    if 'observed_dynamics'in parameters:
+        from observed_dynamics import realize
+        rows.extend(realize(parameters['observed_dynamics'],t2.get('source_origin')))
+    if len({r['id']for r in rows})!=len(rows):raise ValueError('Overlapping expression owners')
+    return rows
+
+
+def rhythm_context(definition,parent):
+    """Supply existing beat membership to a temporary clock solve only.
+
+    Optional mute owners remain in the parent. Their resolved containers are
+    transient solve inputs; only the resulting notation child can return to
+    that same owner in restore_fragments. No expression state is copied into
+    stored material definitions.
+    """
+    model=parent['owned_parameters'].get('optional_beat_palm_mutes')
+    if model is None:return definition
+    from optional_palm_mute_slots import realize
+    beats={r['id']:r for r in realize(model)if r['type']=='object'}
+    result=deepcopy(definition);rows=result['lower_tier']['source_structure']
+    existing={r['id']for r in rows}
+    for slot in definition['slots']:
+        ref=slot['beat_ref']
+        if ref not in beats:continue
+        if ref in existing:raise ValueError('Material duplicates an optional beat owner')
+        rows.append(deepcopy(beats[ref]));existing.add(ref)
+    return result
+
+
+def _return_beat_membership(parent,fragment):
+    """Return only derived dots membership to the existing optional beat owner."""
+    model=parent['owned_parameters'].get('optional_beat_palm_mutes')
+    if model is None:return fragment
+    from optional_palm_mute_slots import expand
+    from technique_observation_relations import scalar_relation
+    groups={g['beat_structure']['id']:g for g in model['groups']}
+    piece=deepcopy(fragment);rows=piece['source_structure']
+    structure={r['id']:r for r in rows}
+    choices={r['fact_ref']:r for r in piece['source_choices']}
+    coverage={r['fact_ref']:r for r in piece['coverage']}
+    if (len(structure)!=len(rows) or len(choices)!=len(piece['source_choices'])
+            or len(coverage)!=len(piece['coverage'])):
+        raise ValueError('Duplicate material notation authority')
+    retained=[]
+    for row in rows:
+        ref=row['id']
+        if ref not in groups:
+            retained.append(row);continue
+        group=groups[ref];prior=expand(group)[0]
+        if {k:v for k,v in row.items()if k!='children'}!={k:v for k,v in prior.items()if k!='children'}:
+            raise ValueError('Transient rhythm changed an existing beat owner')
+        if row['children']==prior['children']:continue
+        dot=ref+'/dots'
+        if dot in prior['children'] or row['children']!=prior['children']+[dot]:
+            raise ValueError('Rhythm may only append its declared dots child')
+        leaf=structure.get(dot);choice=choices.get(dot);owner=coverage.get(dot)
+        expected=dict(id=dot,document=row['document'],pointer=row['pointer']+'/dots',
+                      parent=ref,slot='dots',type='integer')
+        if (leaf!=expected or choice is None or set(choice)!={'fact_ref','owner','parameter'}
+                or choice['owner']!='source_notation_choice'
+                or owner!=dict(fact_ref=dot,owner='source_notation_choice')
+                or scalar_relation('integer',parameter=choice['parameter'])not in (1,2)):
+            raise ValueError('New beat membership lacks its exact dots owner')
+        group['beat_structure']['children'].append(dot)
+        if expand(group)[0]!=row:raise ValueError('Notation changed optional beat expression')
+    piece['source_structure']=retained
+    return piece
 
 
 def _scope(parts, first, last):
@@ -317,6 +401,7 @@ def restore_fragments(skeleton,fragments):
     """Compose resolved material instances through the existing lower owners."""
     result=deepcopy(skeleton);arrays=_arrays(result)
     for fragment in fragments:
+        fragment=_return_beat_membership(result,fragment)
         for field in ARRAYS:arrays[field].extend(fragment[field])
     # Restore ordered source ownership using its existing container grammar.
     from technique_observation_relations import realize as effects
@@ -325,6 +410,9 @@ def restore_fragments(skeleton,fragments):
     all_rows=dict(rows)
     for row in effects(result['owned_parameters']['technique_declarations']):
         if row['id']in all_rows:raise ValueError('Duplicate technique ownership')
+        all_rows[row['id']]=row
+    for row in expression_rows(result):
+        if row['id']in all_rows:raise ValueError('Duplicate expression ownership')
         all_rows[row['id']]=row
     order=[];seen=set()
     def visit(ref):
