@@ -1,4 +1,4 @@
-// Render bounded real-score passages with the ordinary alphaTab reader.
+// Render bounded passages or an explicitly requested complete native traversal.
 import fs from 'node:fs';import path from 'node:path';import crypto from 'node:crypto';import {pathToFileURL} from 'node:url';
 import {loadPlaybackScore} from './songsterr_automation/songsterr_api/playback_score.mjs';
 import {sourcePassageClock} from './source_passage_clock.mjs';
@@ -16,7 +16,7 @@ for(const job of jobs){
   settings.player.vibrato[key]=value;
  }
  const midi=new at.midi.MidiFile(),generator=new at.midi.MidiFileGenerator(score,settings,new at.midi.AlphaSynthMidiFileHandler(midi,false));generator.generate();
- const clock=sourcePassageClock({masterBars:generator.tickLookup.masterBars,midiTickShift:midi.tickShift,
+ const clock=sourcePassageClock({masterBars:generator.tickLookup.masterBars,sourceBarCount:score.masterBars.length,midiTickShift:midi.tickShift,
   tempoChanges:midi.events.filter(e=>e instanceof at.midi.TempoChangeEvent).map(e=>({tick:e.tick,tempo:e.beatsPerMinute})),initialTempo:score.tempo,job});
  const options=new at.synth.AudioExportOptions();Object.assign(options,{soundFonts:[font],sampleRate:44100,masterVolume:.3,metronomeVolume:0,useSyncPoints:false,playbackRange:clock.playbackRange});
  if(job.mode==='focused'){
@@ -28,9 +28,12 @@ for(const job of jobs){
   }
  }
  const output={sampleRate:44100,ready:{on(){}},sampleRequest:{on(){}},samplesPlayed:{on(){}},open(){},destroy(){},pause(){},play(){},resetSamples(){},activate(){},addSamples(){}};
+ // One-second chunks, one rounding allowance and one final null/ended probe.
+ const renderPassLimit=Math.ceil(clock.requestedSeconds)+2;
+ if(!Number.isFinite(clock.requestedSeconds)||clock.requestedSeconds<=0||!Number.isSafeInteger(renderPassLimit))throw Error('Finite positive playback duration required');
  const synth=new at.synth.AlphaSynth(output,100),exporter=synth.exportAudio(options,midi,[],new Map()),chunks=[];
  let frames=0,peak=0,squares=0,ended=false;
- for(let i=0;i<40;i++){
+ for(let i=0;i<renderPassLimit;i++){
   const chunk=exporter.render(1000);if(!chunk){ended=true;break;}
   const mono=new Float32Array(chunk.samples.length/2);
   for(let j=0;j<mono.length;j++){const v=(chunk.samples[j*2]+chunk.samples[j*2+1])/2;if(!Number.isFinite(v)||Math.abs(v)>=1)throw Error('Invalid/clipped audio');mono[j]=v;peak=Math.max(peak,Math.abs(v));squares+=v*v;}
@@ -41,6 +44,6 @@ for(const job of jobs){
  let offset=44;for(const chunk of chunks)for(const value of chunk){wav.writeInt16LE(Math.round(value*32767),offset);offset+=2;}
  fs.writeFileSync(job.out,wav);
  const result={...job,playback_profile:playbackProfile,gp_sha256:hash(data),midi_event_sha256:hash(JSON.stringify(midi.events)),audio_sha256:hash(wav),seconds:frames/44100,rms:Math.sqrt(squares/frames),peak,
-  target_seconds:clock.targetSeconds,target_tick:clock.targetTick,requested_seconds:clock.requestedSeconds,midi_tick_shift:clock.midiTickShift,source_traversal:clock.traversal,reader:restored?'alphaTab with exact-model-bend companion':'unmodified alphaTab 1.8.4',bend_companion_selection:companion_selection,exact_model_bend_restore:restored?{curves:restored.restored,sidecar_sha256:hash(sidecarData),native_gp_lossless:false}:null,renderer:'alphaTab internal MIDI / Sonivox GM SF2, fixed .3 gain',font_sha256:hash(font),tracks:score.tracks.length,bars:score.masterBars.length,playback_range:options.playbackRange,listening_judgment:null};
+  target_seconds:clock.targetSeconds,target_tick:clock.targetTick,requested_seconds:clock.requestedSeconds,render_pass_limit:renderPassLimit,midi_tick_shift:clock.midiTickShift,source_traversal:clock.traversal,reader:restored?'alphaTab with exact-model-bend companion':'unmodified alphaTab 1.8.4',bend_companion_selection:companion_selection,exact_model_bend_restore:restored?{curves:restored.restored,sidecar_sha256:hash(sidecarData),native_gp_lossless:false}:null,renderer:'alphaTab internal MIDI / Sonivox GM SF2, fixed .3 gain',font_sha256:hash(font),tracks:score.tracks.length,bars:score.masterBars.length,playback_range:options.playbackRange,listening_judgment:null};
  results.push(result);fs.writeFileSync(jobsPath.replace(/\.json$/,'.results.json'),JSON.stringify(results,null,2));console.log(JSON.stringify({case_id:job.case_id,method:job.method,mode:job.mode,seconds:result.seconds,peak}));
 }

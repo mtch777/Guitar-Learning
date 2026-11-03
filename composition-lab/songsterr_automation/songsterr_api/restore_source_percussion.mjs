@@ -58,7 +58,16 @@ export function restoreSourcePercussion(score, parts, at) {
       for (let bi = 0; bi < source.length; bi++) {
         const a = source[bi], b = native[bi], mode = modes[bi], loc = `${where}:${bi}`;
         if (b.isEmpty || ![types.None, types.OnBeat, types.BeforeBeat].includes(b.graceType)) throw Error(`Unsupported percussion native beat at ${loc}`);
-        if (mode === types.None && (b.graceType !== types.None || !regularDurationEqual(a, b))) throw Error(`Ordinary percussion duration/identity mismatch at ${loc}`);
+        // GP5 has one dotted flag: an explicit double dot becomes one dot in
+        // the bridge. Recover only that known loss, before duration identity is
+        // checked. The source fraction must independently confirm the notation;
+        // an arbitrary timing mismatch or an already-native table cannot enter
+        // this repair. Queue it with all other writes so later refusal is atomic.
+        const doubleDotCandidate = {...b, dots: 2};
+        const restoreDoubleDot = mode === types.None && b.graceType === types.None && generated &&
+          a.type === b.duration && a.dots === 2 && b.dots === 1 && regularDurationEqual(a, doubleDotCandidate);
+        if (mode === types.None && (b.graceType !== types.None || !regularDurationEqual(a, restoreDoubleDot ? doubleDotCandidate : b))) throw Error(`Ordinary percussion duration/identity mismatch at ${loc}`);
+        if (restoreDoubleDot) writes.push({target: b, key: 'dots', value: 2});
         if (mode !== types.None) {
           let host = bi + 1;
           while (host < source.length && modes[host] !== types.None) {
@@ -117,7 +126,7 @@ export function restoreSourcePercussion(score, parts, at) {
           mapping.push({source_percussion_id: key, native_note: n.index, articulation_index: index, articulation_id: table[index].id, output_midi: table[index].outputMidiNumber});
           notesChecked++; mappedCount++;
         }
-        witnesses.push({track: ti, bar_zero_based: mi, voice: vi, source_beat: bi, source_grace: mode, mappings: mapping}); beatsChecked++;
+        witnesses.push({track: ti, bar_zero_based: mi, voice: vi, source_beat: bi, source_grace: mode, restored_double_dot: restoreDoubleDot, mappings: mapping}); beatsChecked++;
       }
     }
     if (mappedCount !== nativeCount) throw Error('Unmapped native percussion occurrences');
@@ -125,6 +134,7 @@ export function restoreSourcePercussion(score, parts, at) {
   for (const w of writes) w.target[w.key] = w.value;
   return {schema: 'identity-checked-source-percussion/1', notesChecked, beatsChecked, graceBeats, tables, witnesses,
     restoredGraceTypes: writes.filter(w => w.key === 'graceType').length,
+    restoredDoubleDots: writes.filter(w => w.key === 'dots').length,
     remappedArticulations: writes.filter(w => w.key === 'percussionArticulation').length,
     restoredAttachedGraceKeys: writes.filter(w => w.key === 'fret').length,
     limits: ['Complete one-to-one source/native beat groups only; split or missing groups refuse', 'Repeated keys retain complete multiplicity and native occurrence order; differing duplicate fields or ambiguous new notation choices refuse', 'No clock writes; native finish determines performed grace allocation', 'Source nominal duration is not acoustic performance']};

@@ -1,11 +1,25 @@
 // Bind the selected native traversal to actual generated MIDI time.
 // alphaTab's grace preroll shifts note ticks, not tickLookup bar coordinates.
-export function sourcePassageClock({masterBars, midiTickShift, tempoChanges, initialTempo, job}) {
+export function sourcePassageClock({masterBars, sourceBarCount, midiTickShift, tempoChanges, initialTempo, job}) {
  if(typeof midiTickShift!=='number'||!Number.isFinite(midiTickShift)||midiTickShift<0)throw Error('Known native MIDI tick shift required');
  if(typeof initialTempo!=='number'||!Number.isFinite(initialTempo)||initialTempo<=0)throw Error('Known native initial tempo required');
- const start=masterBars.findIndex(b=>b.masterBar.index===job.start_bar-1);
- const end=masterBars.findIndex((b,i)=>i>=start&&b.masterBar.index===job.end_bar-1);
- if(start<0||end<start||end-start>16)throw Error('Unresolved passage playback range');
+ if(job.complete_score!==undefined&&typeof job.complete_score!=='boolean')throw Error('Explicit boolean complete-score request required');
+ if(!Array.isArray(masterBars)||!masterBars.length)throw Error('Known native traversal required');
+ const complete=job.complete_score===true;
+ let start,end;
+ if(complete){
+  if(!Number.isSafeInteger(sourceBarCount)||sourceBarCount<1||job.start_bar!==1||job.end_bar!==sourceBarCount
+    ||masterBars[0].masterBar.index!==0||masterBars.at(-1).masterBar.index!==sourceBarCount-1)
+   throw Error('Complete score requires the full native traversal and declared source endpoints');
+  if(masterBars.some((b,i)=>!Number.isSafeInteger(b.masterBar.index)||b.masterBar.index<0||b.masterBar.index>=sourceBarCount
+    ||(i===0?b.start!==0:b.start!==masterBars[i-1].end)))
+   throw Error('Complete score requires a continuous native traversal');
+  start=0;end=masterBars.length-1;
+ }else{
+  start=masterBars.findIndex(b=>b.masterBar.index===job.start_bar-1);
+  end=masterBars.findIndex((b,i)=>i>=start&&b.masterBar.index===job.end_bar-1);
+  if(start<0||end<start||end-start>16)throw Error('Unresolved passage playback range');
+ }
  const traversal=masterBars.slice(start,end+1).map((b,i)=>{
   if(!Number.isFinite(b.start)||!Number.isFinite(b.end)||b.end<=b.start)throw Error('Known native bar clock required');
   return {traversal_index:start+i,source_bar:b.masterBar.index+1,startTick:b.start+midiTickShift,endTick:b.end+midiTickShift};

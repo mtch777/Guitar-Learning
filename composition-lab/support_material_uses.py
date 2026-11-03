@@ -167,3 +167,31 @@ def expand(upper):
 def reconstruct(upper,controls):
     if controls!={'variation':0}:raise ValueError('Arrangement choices are owned by T4, not this material-use inverse')
     return realize_pair(upper)[1]
+
+
+def extend_materials(upper,specifications):
+    """Add disjoint owners without refitting or replacing any existing material.
+
+    This update preserves the old vocabulary, uses, observations and cell owner.
+    New definitions consume only the current preceding T2 relationships.
+    """
+    current,lower,_=realize_pair(upper)
+    complete=cell.expand(current)
+    out=deepcopy(upper);scopes=[]
+    occupied=[s['scope'] for s in upper['slots']]
+    for spec in specifications:
+        scope=material._scope(**dict(parts=spec['parts'],first=spec['first_bar'],last=spec['last_bar']))
+        if any(set(scope['parts'])&set(s['parts']) and
+               max(scope['first_bar'],s['first_bar'])<=min(scope['last_bar'],s['last_bar'])
+               for s in occupied+scopes):
+            raise ValueError('New material overlaps an existing owner')
+        definition=material.fit(complete,lower=lower,**spec)
+        mi=len(out['materials']);si=len(out['slots'])
+        out['materials'].append(definition)
+        out['slots'].append(dict(scope=scope,start_q=definition['source_start_q'],bar_spans_q=deepcopy(definition['bar_spans_q'])))
+        out['uses'].append(dict(id=f'material-use:{si}',slot_ref=si,material_ref=mi,expression=[]))
+        scopes.append(scope)
+    out['lower_tier']=material._remove(upper['lower_tier'],scopes)
+    restored,after,_=realize_pair(out)
+    if restored!=current or after!=lower:raise ValueError('Additional ownership changed existing musical relationships')
+    return out

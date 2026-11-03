@@ -24,6 +24,53 @@ function midi(score,settings){
   const add=handler.addNote.bind(handler);handler.addNote=(track,start,length,key,velocity,channel)=>{calls.push({track,start,length,key,velocity,channel});return add(track,start,length,key,velocity,channel);};
   new at.midi.MidiFileGenerator(score,settings,handler).generate();return{events:JSON.parse(JSON.stringify(file.events)),calls};
 }
+function doubleDotFixture() {
+  const f=fixture(null);
+  const rows=[
+    [{type:4,dots:1,duration:[3,8],notes:[{fret:38,string:1.5}]},{type:8,duration:[1,8],notes:[{fret:44,string:4.5}]},{type:16,duration:[1,16],notes:[{fret:38,string:1.5}]},{type:4,dots:2,duration:[7,16],notes:[{fret:36,string:5.5}]}],
+    [{type:2,duration:[1,2],notes:[{fret:36,string:5.5}]},{type:4,dots:1,duration:[3,8],notes:[{fret:38,string:1.5}]},{type:16,duration:[1,16],notes:[{fret:44,string:4.5}]},{type:32,dots:2,duration:[7,128],notes:[{rest:true}]},{type:128,duration:[1,128],notes:[{fret:36,string:5.5}]}]
+  ];
+  f.score.addMasterBar(new at.model.MasterBar());
+  const bar=new at.model.Bar(),voice=new at.model.Voice();f.staff.addBar(bar);bar.addVoice(voice);
+  for(const[mi,source]of rows.entries()){
+    const v=f.staff.bars[mi].voices[0];v.beats=[];
+    for(const row of source){const b=new at.model.Beat();v.addBeat(b);b.duration=row.type;b.dots=row.dots?1:0;
+      for(const raw of row.notes){if(raw.rest)continue;const n=new at.model.Note();n.percussionArticulation=raw.fret;b.addNote(n);}}
+  }
+  f.parts[0].measures=rows.map(beats=>({voices:[{beats}]}));f.doubleDotRows=rows;f.score.finish(f.settings);return f;
+}
+
+test('GP5 double-dot loss restores source drum hits and rests with exact native notation and MIDI starts',{skip:!at},()=>{
+  const f=doubleDotFixture(),source=structuredClone(f.parts),beats=f.staff.bars.flatMap(b=>b.voices[0].beats);
+  const occurrences=beats.map(b=>b.notes.map(n=>n.id)),clocks=beats.map(b=>[b.displayStart,b.displayDuration,b.playbackStart,b.playbackDuration]);
+  assert.equal(checkSourcePercussion(f.score,f.parts).status,'FAIL_INDEPENDENT_SOURCE_PERCUSSION');
+  const report=restoreSourcePercussion(f.score,f.parts,at);assert.equal(report.restoredDoubleDots,2);assert.equal(report.witnesses.filter(w=>w.restored_double_dot).length,2);
+  assert.deepEqual(f.parts,source);assert.deepEqual(beats.map(b=>b.notes.map(n=>n.id)),occurrences);
+  assert.deepEqual(beats.map(b=>[b.displayStart,b.displayDuration,b.playbackStart,b.playbackDuration]),clocks,'restoration queues notation only; finish owns clock consequences');
+  f.score.finish(f.settings);const actual=roundtrip(f);assert.equal(checkSourcePercussion(actual,f.parts).status,'PASS_INDEPENDENT_SOURCE_PERCUSSION');
+  const bars=actual.tracks[0].staves[0].bars;
+  assert.deepEqual([bars[0].voices[0].beats[3].duration,bars[0].voices[0].beats[3].dots,bars[0].voices[0].beats[3].displayDuration],[4,2,1680]);
+  assert.deepEqual([bars[1].voices[0].beats[3].duration,bars[1].voices[0].beats[3].dots,bars[1].voices[0].beats[3].displayDuration],[32,2,210]);
+  assert.deepEqual(midi(actual,f.settings).calls.map(c=>[c.key,c.start]),[[38,0],[44,1440],[38,1920],[36,2160],[36,3840],[38,5760],[44,7200],[36,7650]]);
+  const saved=json(actual);assert.equal(restoreSourcePercussion(actual,f.parts,at).restoredDoubleDots,0);assert.equal(json(actual),saved);
+});
+
+test('double-dot recovery refuses false signatures and later bad members without partial notation writes',{skip:!at},()=>{
+  for(const mutate of [
+    f=>f.doubleDotRows[0][3].duration=[1,2],
+    f=>f.doubleDotRows[0][3].type=8,
+    f=>delete f.doubleDotRows[0][3].dots,
+    f=>f.staff.bars[0].voices[0].beats[3].dots=0,
+    f=>f.staff.bars[1].voices[0].beats[4].notes[0].percussionArticulation=37
+  ]){
+    const f=doubleDotFixture();mutate(f);const before=json(f.score),source=structuredClone(f.parts);
+    assert.throws(()=>restoreSourcePercussion(f.score,f.parts,at));assert.equal(json(f.score),before);assert.deepEqual(f.parts,source);
+  }
+  const f=doubleDotFixture();restoreSourcePercussion(f.score,f.parts,at);f.score.finish(f.settings);
+  const actual=roundtrip(f);actual.tracks[0].staves[0].bars[0].voices[0].beats[3].dots=1;const before=json(actual);
+  assert.throws(()=>restoreSourcePercussion(actual,f.parts,at),/duration\/identity mismatch/);assert.equal(json(actual),before,'native corruption must not be mistaken for the GP5 bridge signature');
+});
+
 test('legacy two-member fallback loses grace time and ordinary GM keys on actual GP7 roundtrip',{skip:!at},()=>{
   const f=fixture(),actual=roundtrip(f),check=checkSourcePercussion(actual,f.parts),keys=midi(actual,f.settings).calls.map(c=>c.key);
   assert.equal(check.status,'FAIL_INDEPENDENT_SOURCE_PERCUSSION');assert(check.differences.some(x=>x.code==='GRACE_MODE'));assert(check.differences.some(x=>x.code==='GM_KEY_MEMBERSHIP'));assert(keys.includes(61));assert(keys.includes(64));assert(keys.includes(60));

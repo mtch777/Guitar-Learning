@@ -7,6 +7,11 @@ export function difference(current,baseline){
 }
 export function pitchName(n){return ['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'][((n%12)+12)%12]+'_'+(Math.floor(n/12)-1);}
 export function partRange(versions,part){const pitches=versions.flatMap(v=>v.notes.filter(n=>n.part===part).map(n=>n.pitch));return {low:Math.min(...pitches)-1,high:Math.max(...pitches)+1};}
+export function pitchedLaneGeometry(range){
+ const rowCount=range.high-range.low+1,rowSize=Math.min(9,(280-34)/rowCount);
+ return {rowCount,rowSize,height:Math.max(90,34+rowCount*rowSize),noteHeight:7*rowSize/9,outlineWidth:1.7*rowSize/9,
+  mapY:p=>34+(range.high-p)*rowSize+rowSize/2};
+}
 export function barAt(data,time){return Math.min(data.bars[1],[...data.bar_times].reverse().find(b=>b.time<=time+1/44100)?.bar??data.bars[0]);}
 export function formatTime(seconds){return `${Math.floor(seconds/60)}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;}
 export function comparisonView(current,baseline,onlyChanged=false){
@@ -20,12 +25,25 @@ export function changeScrollLeft(changes,left,visibleWidth,pxPerSecond){
  if(!changes.length||changes.some(n=>n.end*pxPerSecond>left&&n.start*pxPerSecond<left+visibleWidth))return left;
  return Math.max(0,Math.min(...changes.map(n=>n.start))*pxPerSecond-20);
 }
+export function playbackSwitchState(){
+ let serial=0,pending=null;
+ return {
+  begin(position,playing){pending={...(pending||{position,playing}),token:++serial};return serial;},
+  seek(position){if(!pending)return false;pending.position=position;return true;},
+  position(actual){return pending?.position??actual;},
+  isCurrent(token){return token===serial;},
+  complete(token,duration){
+   if(!pending||token!==serial||!Number.isFinite(duration)||duration<0)return null;
+   const target={position:Math.min(pending.position,duration),playing:pending.playing};pending=null;return target;
+  }
+ };
+}
 
 if(typeof document!=='undefined')boot().catch(error=>{const e=document.querySelector('#error');e.hidden=false;e.className='error';e.textContent='The comparison could not load: '+error.message;console.error(error);});
 async function boot(){
  const response=await fetch('comparison.json');if(!response.ok)throw Error('Missing comparison data');const data=await response.json();
  const $=s=>document.querySelector(s),audio=$('#audio'),viewport=$('#viewport'),roll=$('#roll'),axes=$('#axes'),compare=$('#compare');
- const byId=new Map(data.versions.map(v=>[v.id,v]));let selected=data.default_version||data.original_version,drawn=[],head,lastActive='',switchToken=0;
+ const byId=new Map(data.versions.map(v=>[v.id,v])),switchState=playbackSwitchState();let selected=data.default_version||data.original_version,drawn=[],head,lastActive='';
  if(!byId.has(data.original_version)||!byId.has(selected)||!data.questions?.length)throw Error('Original audio and listening questions are required.');
  const width=Math.max(620,(data.bars[1]-data.bars[0]+1)*155),pxPerSecond=width/data.seconds,svgNS='http://www.w3.org/2000/svg';
  const percussionNames={35:'Bass drum',36:'Kick',37:'Side stick',38:'Snare',40:'Snare',42:'Closed hat',44:'Pedal hat',46:'Open hat',41:'Low tom',43:'Low tom',45:'Mid tom',47:'Mid tom',48:'High tom',49:'Crash',51:'Ride',52:'China',55:'Splash',57:'Crash',59:'Ride'};
@@ -45,8 +63,9 @@ async function boot(){
  const none=document.createElement('option');none.value='none';none.textContent='No overlay';compare.append(none);
  for(const question of data.questions){const li=document.createElement('li');li.textContent=question;$('#questions').append(li);}
  const sections=data.sections;
- for(const section of sections){const b=document.createElement('button');b.dataset.bar=section.first;b.addEventListener('click',()=>{audio.currentTime=Math.max(0,timeOf(section.first));viewport.scrollLeft=Math.max(0,audio.currentTime*pxPerSecond-30);tick();});$('#timeline').append(b);}
+ for(const section of sections){const b=document.createElement('button');b.dataset.bar=section.first;b.addEventListener('click',()=>{const position=seekTo(timeOf(section.first));viewport.scrollLeft=Math.max(0,position*pxPerSecond-30);tick();});$('#timeline').append(b);}
  function timeOf(bar){return data.bar_times.find(b=>b.bar===bar).time;}
+ function seekTo(position){const target=Math.min(data.seconds,Math.max(0,position));if(!switchState.seek(target))audio.currentTime=target;return target;}
  function render(revealChanges=false){
   const current=byId.get(selected),result=comparisonView(current,byId.get(compare.value),$('#changedOnly').checked),base=result.base;
   if(!base)compare.value='none';for(const option of compare.options)option.disabled=option.value===selected;
@@ -60,8 +79,9 @@ async function boot(){
   roll.append(ruler);
   for(const track of tracks){
    const range=partRange(data.versions,track.id),pitchValues=track.percussion?[...new Set(data.versions.flatMap(v=>v.notes.filter(n=>n.part===track.id).map(n=>n.pitch)))].sort((a,b)=>b-a):null;
-   const rowSize=track.percussion?19:9,rowCount=track.percussion?pitchValues.length:range.high-range.low+1;
-   const height=Math.max(90,34+rowCount*rowSize),mapY=p=>34+(track.percussion?pitchValues.indexOf(p):range.high-p)*rowSize+rowSize/2;
+   const pitched=track.percussion?null:pitchedLaneGeometry(range);
+   const rowSize=track.percussion?19:pitched.rowSize,rowCount=track.percussion?pitchValues.length:pitched.rowCount;
+   const height=track.percussion?Math.max(90,34+rowCount*rowSize):pitched.height,mapY=track.percussion?p=>34+pitchValues.indexOf(p)*rowSize+rowSize/2:pitched.mapY;
    const axis=document.createElement('div');axis.className='axis';axis.style.height=height+'px';const title=document.createElement('div');title.className='axis-title';title.textContent=track.name;axis.append(title);
    const labels=track.percussion?pitchValues:Array.from({length:rowCount},(_,i)=>range.high-i).filter(p=>p%12===0||p===range.high-1||p===range.low+1);
    // End labels stay far enough apart to remain readable when a part has one pitch.
@@ -70,10 +90,10 @@ async function boot(){
    for(let row=0;row<rowCount;row++){const p=track.percussion?pitchValues[row]:range.high-row,y=mapY(p)-rowSize/2;svg.append(element('rect',{x:0,y,width,height:rowSize,fill:!track.percussion&&[1,3,6,8,10].includes(p%12)?'#13212a':'#192c36'}));}
    for(const b of data.bar_times.filter(b=>b.bar>=data.bars[0]&&b.bar<=data.bars[1])){const x=Math.max(0,b.time)*pxPerSecond;svg.append(element('line',{x1:x,x2:x,y1:28,y2:height,stroke:sections.some(s=>s.first===b.bar)?'#809174':'#3b535e','stroke-width':1}));for(const beatTime of b.beat_times||[])svg.append(element('line',{x1:beatTime*pxPerSecond,x2:beatTime*pxPerSecond,y1:28,y2:height,stroke:'#253d48','stroke-width':0.6}));}
    const notes=[...result.removed,...result.shown].filter(n=>n.part===track.id);
-   for(const n of notes){const x=n.start*pxPerSecond,w=Math.max(2,(n.end-n.start)*pxPerSecond-0.7),h=track.percussion?12:7;
-    const rect=element('rect',{x,y:mapY(n.pitch)-h/2,width:w,height:h,rx:1,fill:n.change==='new'?'#5ce4ba':n.change==='old'?'none':'#748c99',stroke:n.change==='old'?'#ff9bb2':'none','stroke-width':n.change==='old'?1.7:0,'stroke-dasharray':n.change==='old'?'4 2':'none',class:'note','data-change':n.change,'data-start':n.start,'data-end':n.end});
+   for(const n of notes){const x=n.start*pxPerSecond,w=Math.max(2,(n.end-n.start)*pxPerSecond-0.7),h=track.percussion?12:pitched.noteHeight,outline=track.percussion?1.7:pitched.outlineWidth;
+    const rect=element('rect',{x,y:mapY(n.pitch)-h/2,width:w,height:h,rx:1,fill:n.change==='new'?'#5ce4ba':n.change==='old'?'none':'#748c99',stroke:n.change==='old'?'#ff9bb2':'none','stroke-width':n.change==='old'?outline:0,'stroke-dasharray':n.change==='old'?'4 2':'none',class:'note','data-change':n.change,'data-start':n.start,'data-end':n.end});
     const name=track.percussion?(percussionNames[n.pitch]||'Drum '+n.pitch):pitchName(n.pitch);const wording=`${track.name} · bar ${n.bar} · ${name} · ${n.change==='old'?'removed / replaced':n.change==='new'?'new / changed':'unchanged'}`;rect.append(element('title',{},wording));rect.addEventListener('click',()=>{$('#details').textContent=wording;});svg.append(rect);drawn.push({element:rect,n});}
-   svg.addEventListener('click',event=>{if(event.target.classList.contains('note'))return;const box=svg.getBoundingClientRect();audio.currentTime=Math.min(data.seconds,Math.max(0,(event.clientX-box.left)/pxPerSecond));tick();});roll.append(svg);
+   svg.addEventListener('click',event=>{if(event.target.classList.contains('note'))return;const box=svg.getBoundingClientRect();seekTo((event.clientX-box.left)/pxPerSecond);tick();});roll.append(svg);
   }
   head=document.createElement('div');head.className='playhead';head.setAttribute('aria-hidden','true');roll.append(head);
   $('#description').textContent=current.description;$('#coverage').textContent=`${tracks.length} of ${data.tracks.length} playing parts shown. ${data.silent_tracks.length} other parts are silent here. ${base?`Colors compare with “${base.label}”.`:'No comparison overlay.'} Drums appear on named rows.`;
@@ -88,14 +108,22 @@ async function boot(){
   }
  }
  async function choose(id){
-  if(id===selected&&audio.getAttribute('src'))return;const token=++switchToken,position=audio.currentTime||0,playing=!audio.paused;audio.pause();selected=id;
+  if(id===selected&&audio.getAttribute('src'))return;const token=switchState.begin(audio.currentTime||0,!audio.paused);audio.pause();selected=id;
   compare.value=byId.get(id).compare_to||'none';if(id===data.original_version)$('#changedOnly').checked=false;render($('#changedOnly').checked);
-  audio.src=byId.get(id).audio;audio.load();await new Promise((resolve,reject)=>{audio.addEventListener('loadedmetadata',resolve,{once:true});audio.addEventListener('error',()=>reject(Error('Audio failed to load')),{once:true});});
-  if(token!==switchToken)return;audio.currentTime=Math.min(position,audio.duration);audio.playbackRate=Number($('#speed').value);tick();if(playing)await audio.play();
+  audio.src=byId.get(id).audio;audio.load();
+  try{await new Promise((resolve,reject)=>{
+   const cleanup=()=>{audio.removeEventListener('loadedmetadata',loaded);audio.removeEventListener('error',failed);};
+   const loaded=()=>{if(audio.readyState<1||!Number.isFinite(audio.duration))return;cleanup();resolve();};
+   const failed=()=>{cleanup();reject(Error('Audio failed to load'));};
+   audio.addEventListener('loadedmetadata',loaded);audio.addEventListener('error',failed);
+  });}catch(error){if(!switchState.isCurrent(token))return;throw error;}
+  const target=switchState.complete(token,audio.duration);if(!target)return;
+  audio.currentTime=target.position;audio.playbackRate=Number($('#speed').value);tick();
+  if(target.playing)try{await audio.play();}catch(error){if(switchState.isCurrent(token))throw error;}
  }
  for(const button of document.querySelectorAll('[data-version]'))button.addEventListener('click',()=>choose(button.dataset.version).catch(console.error));
  compare.addEventListener('change',()=>{if(compare.value==='none')$('#changedOnly').checked=false;render($('#changedOnly').checked);});$('#changedOnly').addEventListener('change',()=>render($('#changedOnly').checked));$('#speed').addEventListener('change',()=>{audio.playbackRate=Number($('#speed').value);});
- function tick(){const t=audio.currentTime||0,x=t*pxPerSecond;if(head)head.style.left=x+'px';const bar=barAt(data,t);$('#clock').textContent=`Bar ${bar} · ${formatTime(t)} / ${formatTime(data.seconds)}`;
+ function tick(){const t=switchState.position(audio.currentTime||0),x=t*pxPerSecond;if(head)head.style.left=x+'px';const bar=barAt(data,t);$('#clock').textContent=`Bar ${bar} · ${formatTime(t)} / ${formatTime(data.seconds)}`;
   for(const b of document.querySelectorAll('#timeline button')){const section=sections.find(s=>s.first===Number(b.dataset.bar));b.setAttribute('aria-current',String(bar>=section.first&&bar<=section.last));}
   const key=Math.round(t*30)+':'+selected;if(key!==lastActive){for(const {element,n}of drawn)element.classList.toggle('active',n.change!=='old'&&n.start<=t&&n.end>t);lastActive=key;}
   if(!audio.paused&&$('#follow').checked&&(x<viewport.scrollLeft||x>viewport.scrollLeft+viewport.clientWidth*.8))viewport.scrollLeft=Math.max(0,x-viewport.clientWidth*.2);

@@ -1,3 +1,15 @@
+## Current verified milestone - T5 listening checkpoint (2026-11-02)
+
+T2, T3 and T4 bounded MVPs are accepted. Full-tier requirements remain open.
+Current T5 adds live recall of an earlier guitar material choice, or an independent
+later return, within the existing complete song. Seven canonical denied-input
+reconstruction proofs, saved edits and 0/50/100 checks pass. Four matched whole-song
+versions are on the existing private listening page. See THEMATIC_RETURN_PROGRESS.md.
+New-source attempt: Labyrinthe reached exact source preservation, but the current
+T3 grammar had no fit; T4/T5 were not reached. Creative portability is unproved.
+Human T5 listening approval is pending. No T6 before that bounded exit. This block
+supersedes older active-step instructions below, without erasing their evidence.
+
 # Composition Lab — tier and creative-lever acceptance plan
 
 Living plan with ProjectPlanner3000. Requirements began2026-10-23; current
