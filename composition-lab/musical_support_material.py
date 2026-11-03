@@ -178,6 +178,9 @@ def fit(t2, *, parts, first_bar, last_bar, lower=None):
 
 def expand(material):
     """Solve the SAME pulse, pitch and voicing relationships into their T2 owners."""
+    from material_approaches import SCHEMA as approach_schema, expand as expand_approach
+    if material.get('schema') == approach_schema:
+        return expand(expand_approach(material))
     fields={'schema','scope','source_start_q','span_q','bar_spans_q','pulse_shares','slots','pitch_paths','voicings',
             'bindings','lower_tier','observed_execution','provenance'}
     if type(material)is not dict or set(material)!=fields or material['schema']!=MATERIAL:

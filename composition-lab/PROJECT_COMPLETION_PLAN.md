@@ -1,14 +1,21 @@
-## Current verified milestone - T5 listening checkpoint (2026-11-02)
+## Current verified milestone - melodic approach listening checkpoint (2026-11-02)
 
-T2, T3 and T4 bounded MVPs are accepted. Full-tier requirements remain open.
-Current T5 adds live recall of an earlier guitar material choice, or an independent
-later return, within the existing complete song. Seven canonical denied-input
-reconstruction proofs, saved edits and 0/50/100 checks pass. Four matched whole-song
-versions are on the existing private listening page. See THEMATIC_RETURN_PROGRESS.md.
-New-source attempt: Labyrinthe reached exact source preservation, but the current
-T3 grammar had no fit; T4/T5 were not reached. Creative portability is unproved.
-Human T5 listening approval is pending. No T6 before that bounded exit. This block
-supersedes older active-step instructions below, without erasing their evidence.
+T2, T3 and T4 bounded MVPs remain accepted; full requirements remain open.
+The last T5 version was only listenable, not accepted as musical development.
+The next comparison develops its high melody: descending third/ninth/root into
+its existing arrival instead of ascending sixth/major-seventh/root. Opening,
+rhythm, ties, tremolo, arrival, following handoff and other parts stay fixed.
+This is a reusable T3 material-use relationship carried through existing T4/T5,
+not a new generator or arbitrary pitch override. All retained tonal interpretations
+must agree; key identity remains conditional. See THEMATIC_RETURN_PROGRESS.md.
+Clean42 tests, actual-source0/50/100, save/reload/revert, source-denied composed
+and adjacent-boundary inverses, independent raw oracle and native playback PASS.
+The existing5280 page has three matched22.326-second versions, bars107-118,
+with four bars before/after and a verified changed-note piano roll.
+Musical usefulness awaits listening; rhythm has not been developed here.
+Labyrinthe's earlier T3 NO_FIT remains retained; fresh creative portability is
+unproved. T5 stays OPEN, no T6 promotion. This block supersedes older active
+instructions below without erasing their evidence.
 
 # Composition Lab — tier and creative-lever acceptance plan
 

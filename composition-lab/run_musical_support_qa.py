@@ -7,6 +7,10 @@ def bundle(root, *, boundary='source'):
     if boundary not in ('source','tier3'):
         raise ValueError('Explicit source or preceding T3-profile boundary required')
     code,hashes=cell_bundle(root)
+    for dependency in ('melodic_arrival_relation','material_approaches'):
+        source=(root/(dependency+'.py')).read_text(encoding='utf-8-sig')
+        hashes[dependency]=hashlib.sha256(source.encode()).hexdigest()
+        code+=f"_m=types.ModuleType({dependency!r});sys.modules[{dependency!r}]=_m\nexec(compile({source!r},{dependency!r},'exec'),_m.__dict__)\n"
     name='musical_support_material'
     source=(root/(name+'.py')).read_text(encoding='utf-8-sig')
     hashes[name]=hashlib.sha256(source.encode()).hexdigest()

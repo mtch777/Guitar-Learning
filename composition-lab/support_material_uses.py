@@ -15,18 +15,21 @@ from technique_observation_relations import scalar_relation,identify
 from source_observation_evidence import digest
 
 SCHEMA='source-musical-material-uses/1'
+APPROACH_SCHEMA='source-musical-material-uses/2'
 
 
 def _shape(upper):
     if (type(upper)is not dict or set(upper)!={'tier','schema','lower_tier','relationship',
             'instance_attack_refs','observations','materials','slots','uses'}
-            or upper['tier']!=3 or upper['schema']!=SCHEMA):raise ValueError('Exact material-use T3 required')
+            or upper['tier']!=3 or upper['schema']not in (SCHEMA,APPROACH_SCHEMA)):raise ValueError('Exact material-use T3 required')
     if any(type(upper[k])is not list for k in ('materials','slots','uses')):raise ValueError('Explicit material/slot/use lists required')
     # Inactive vocabulary remains a real definition, not an unchecked storage slot.
     for definition in upper['materials']:material.expand(definition)
     used=set();identities=set()
     for use in upper['uses']:
-        if (type(use)is not dict or set(use)!={'id','slot_ref','material_ref','expression'}
+        fields={'id','slot_ref','material_ref','expression'}
+        if upper['schema']==APPROACH_SCHEMA and 'approach_mode'in use:fields.add('approach_mode')
+        if (type(use)is not dict or set(use)!=fields
                 or type(use['id'])is not str or not re.fullmatch(r'[A-Za-z0-9:_-]+',use['id'])
                 or use['id']in identities or type(use['slot_ref'])is not int
                 or not 0<=use['slot_ref']<len(upper['slots'])or use['slot_ref']in used
@@ -41,6 +44,11 @@ def _shape(upper):
         if type(slot['start_q'])is not str or str(F(slot['start_q']))!=slot['start_q']or F(slot['start_q'])<0:
             raise ValueError('Canonical destination clock required')
         definition=upper['materials'][use['material_ref']]
+        from material_approaches import SCHEMA as approach_schema
+        if definition['schema']==approach_schema:
+            if upper['schema']!=APPROACH_SCHEMA or use.get('approach_mode')not in ('original','flip'):
+                raise ValueError('Each approach use needs its own explicit direction choice')
+        elif 'approach_mode'in use:raise ValueError('An ordinary material has no approach choice')
         if (scope['parts']!=definition['scope']['parts']or slot['bar_spans_q']!=definition['bar_spans_q']
                 or scope['last_bar']-scope['first_bar']!=definition['scope']['last_bar']-definition['scope']['first_bar']):
             raise ValueError('MVP placement preserves instrument bindings and complete bar geometry')
@@ -99,7 +107,9 @@ def _dynamic(fragment,part,level):
 
 def place(definition,slot,use):
     """Resolve one distinct use. The immutable definition is never rewritten."""
-    source=material.expand(definition);fact,event,delta=_maps(definition,slot)
+    from material_approaches import SCHEMA as approach_schema, expand as expand_approach
+    solved=expand_approach(definition,use['approach_mode'])if definition['schema']==approach_schema else definition
+    source=material.expand(solved);fact,event,delta=_maps(definition,slot)
     out={k:deepcopy(v)for k,v in source.items()};shift=F(slot['start_q'])-F(definition['source_start_q'])
     out['source_structure']=[_row(r,fact)for r in source['source_structure']]
     for field in ('source_choices','coverage'):
@@ -157,6 +167,12 @@ def realize_pair(upper):
     result['lower_tier']=material.restore_fragments(upper['lower_tier'],pieces)
     lower=cell.reconstruct(result,{'variation':0})
     for piece,records in zip(pieces,contracts):material.validate_fragment_execution(piece,records,lower)
+    from material_approaches import SCHEMA as approach_schema, validate_membership
+    for use in upper['uses']:
+        definition=upper['materials'][use['material_ref']]
+        if definition['schema']==approach_schema:
+            _,event,_=_maps(definition,upper['slots'][use['slot_ref']])
+            validate_membership(definition,lower,event_map=event)
     return result,lower,ledger
 
 
@@ -195,3 +211,48 @@ def extend_materials(upper,specifications):
     restored,after,_=realize_pair(out)
     if restored!=current or after!=lower:raise ValueError('Additional ownership changed existing musical relationships')
     return out
+
+
+def lift_approach(upper,use_id,attack_refs,interpretations,evidence_ref):
+    """Refine one disjoint material without replacing another musical owner."""
+    from material_approaches import fit
+    before,lower,_=realize_pair(upper)
+    matches=[u for u in upper['uses']if u['id']==use_id]
+    if len(matches)!=1:raise ValueError('One existing material use required')
+    ref=matches[0]['material_ref']
+    if sum(u['material_ref']==ref for u in upper['uses'])!=1:
+        raise ValueError('Refining a shared definition requires explicit shared ownership')
+    out=deepcopy(upper);out['schema']=APPROACH_SCHEMA
+    out['materials'][ref]=fit(upper['materials'][ref],lower,attack_refs,interpretations,evidence_ref)
+    next(u for u in out['uses']if u['id']==use_id)['approach_mode']='original'
+    after,realized,_=realize_pair(out)
+    if after!=before or realized!=lower:raise ValueError('Approach ownership changed preceding relationships')
+    return out
+
+
+def approach_candidate(upper,use_id,mode):
+    if mode not in ('original','flip'):raise ValueError('Explicit approach direction required')
+    _shape(upper)
+    out=deepcopy(upper);matches=[u for u in out['uses']if u['id']==use_id]
+    if len(matches)!=1 or 'approach_mode'not in matches[0]:raise ValueError('Use has no approach owner')
+    matches[0]['approach_mode']=mode
+    reconstruct(out,{'variation':0})
+    return out
+
+
+def intervene_approach(upper,use_id,controls):
+    import random
+    if (type(controls)is not dict or set(controls)!={'release','mode','seed'}
+            or type(controls['release'])is not int or not 0<=controls['release']<=100
+            or controls['mode']not in ('original','flip')or type(controls['seed'])is not int):
+        raise ValueError('Explicit approach release, direction and seed required')
+    _shape(upper);selected=next((u for u in upper['uses']if u['id']==use_id),None)
+    if selected is None or 'approach_mode'not in selected:raise ValueError('Use has no approach owner')
+    current=selected['approach_mode'];requested=controls['mode']
+    proposal=approach_candidate(upper,use_id,requested)if controls['release']else None
+    released=random.Random(f'approach:release:{controls["seed"]}').random()<controls['release']/100
+    options=[current]if current==requested else[current,requested]
+    chosen=random.Random(f'approach:selection:{controls["seed"]}').choice(options)if released else current
+    out=proposal if proposal is not None and chosen==requested else approach_candidate(upper,use_id,current)
+    return out,dict(released=released,release_percent=controls['release'],mode=chosen,
+                    changed=out!=upper,seed=controls['seed'])
