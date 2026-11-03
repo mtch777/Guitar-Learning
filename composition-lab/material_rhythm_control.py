@@ -52,6 +52,8 @@ def embed_uses(upper, changed, use_id):
         raise ValueError('Rhythmic update changed an unrelated relationship or observation')
     if upper['tier'] == 3:
         return changed
+    if upper['tier'] == 5:
+        return theme.pack_uses(upper, changed)
     out = deepcopy(upper)
     section = out['lower_tier'] if out['tier'] == 5 else out
     child = deepcopy(changed)

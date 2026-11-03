@@ -21,14 +21,14 @@ instruction dependencies. This plan contains the governing requirements and gate
 | T5MVP | OPEN: original material recall was listenable but insufficient; melodic, automatic-discovery, groove and combined-return capabilities have scoped technical/audio evidence, not final T5 acceptance |
 | T6MVP | NOT PROMOTED; held-out cross-song conditional preference and listening remain owed |
 
-**One current queue:** live same/opposite approach orientation between the actual
-earlier and returning occurrences. Correspondence preflight and implementation/
-integration are active under Root; do not restart old T2 demos, T4 planning,
-combined-audio preparation or source collection. Relate effective signed direction,
-remove the higher-owned return mode from lower T3, preserve independent arrivals/
-timing and old material recall. Saved source-flip versus independent return,
-followed by rhythm editing/reload, must retain sole ownership and all prior edits.
-See the active checklist for actual implementation/results; no completion inferred.
+**One current queue:** close publication/CI for the verified live same/opposite
+melodic return, then choose the next bounded T5 obligation with Planner. Actual
+source integration and native playback pass: current/changed composed inverse,
+source flip versus independent return, subsequent rhythm editing/reload, sole
+ownership and immutable evidence. Two short browser-verified reviews are available.
+Human listening and fresh creative portability remain unproved; T5 acceptance is
+not inferred. See the active checklist for results and retained failure. Do not
+restart old T2 demos, T4 planning or source collection without a new bounded contract.
 
 **Latest delivered foundation:** the same source-marked return now contains delayed
 paired-guitar body107–110 and opposite high-line approach111–114; earlier5–8 edit,
@@ -40,8 +40,10 @@ was fixed with scoped/unscoped refusal→later-success regression; actual first-
 prep is honestly identified with its earlier loaded hash and zero prior binding
 refusals, not relabeled as the later code. Combined8876021 is committed/published;
 CI41669943067 PENDING. Rhythm8909f76 CI41665726613 SUCCESS verified. Local, committed,
-published and CI states are separate; this documentation reconciliation is LOCAL
-until Root reviews/commits/publishes it.
+published and CI states are separate. Documentation reconciliation e916bad is
+published: all 14 fetched GitHub documents match the reviewed text and 85 public
+links resolve. Private historical annotations/archives remain local. Its
+CI 41674186463 is pending; documentation parity is not a musical-test claim.
 
 **QA limits:** source-preservation, applicability, changed-output portability and
 musical acceptance have separate outcomes. Original/changed exact inverse and

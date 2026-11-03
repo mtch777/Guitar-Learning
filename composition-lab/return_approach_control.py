@@ -95,16 +95,7 @@ def _check_extension(before, after, selected, use_id):
 
 def _embed(upper, t3):
     """Reinstall existing higher owners without replacing their choices."""
-    out = deepcopy(upper); child = deepcopy(t3)
-    for owner in out['lower_tier']['choices']:
-        matches = [u for u in child['uses'] if u['id'] == owner['allocation']['use_id']]
-        if len(matches) != 1:
-            raise ValueError('Existing allocation lost its stable material-use identity')
-        matches[0].pop('material_ref'); matches[0].pop('expression')
-    out['lower_tier']['lower_tier'] = child
-    if sections.expand(theme.expand(out)) != t3:
-        raise ValueError('Embedding changed an existing section or thematic obligation')
-    return out
+    return theme.pack_uses(upper, t3)
 
 
 def prepare(upper):

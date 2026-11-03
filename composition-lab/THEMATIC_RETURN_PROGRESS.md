@@ -13,20 +13,23 @@ keeps its own arrival, rhythm, tie chain, technique and tonal interpretations.
 The existing guitar recall and rhythmic displacement must remain intact.
 
 - [x] Read-only preflight retained all eight comparisons; unique corresponding
-  approach37–40/111–114 within the already linked source-marked choruses. The
-  intro does not substitute for a counterpart; refused47–48/121–122 remain.
+  approach at 37–40/111–114 within the already linked source-marked choruses. The
+  intro does not substitute for a counterpart; refused 47–48/121–122 remain.
 - [x] Planner challenged the effective signed-direction equation and the
   single-owner boundary before implementation. Same/opposite refers to actual
   direction, not equality of two original/flip strings.
 - [x] Authored integration: source flip, save, subsequent rhythm edit, reload and
   another source flip preserve the live dependency; independent return stays put.
   Two targeted integration tests passed; final release checks still required.
-- [ ] Finish shared fit/inverse validation and clean-candidate regression checks.
-- [ ] Lift the actual earlier approach with existing discovery and prove unchanged
+- [x] Shared fit/inverse checks: 42 tests passed in a clean candidate. Actual test 001
+  then refused solely on differently located nested tremolo structure pointers.
+  The narrow address-normalization fix preserves values/unknown fields and has
+  two passing targeted clean checks; the 42-test receipt retains its prior hash.
+- [x] Lift the actual earlier approach with existing discovery and prove unchanged
   current reconstruction before adding the live relationship.
-- [ ] Actual linked/independent successive edits, immutable evidence and preserved
+- [x] Actual linked/independent successive edits, immutable evidence and preserved
   owners, independent score comparison and denied composed inverse.
-- [ ] Reuse verified audio when the realized notes are identical. Render only a
+- [x] Reuse verified audio when the realized notes are identical. Render only a
   newly changed state; publish it promptly through the existing listening page.
 - [ ] Planner completion challenge; scoped commit/push and verified CI.
 
@@ -36,6 +39,54 @@ mode; a rhythm edit that deletes the melodic link while preserving today's notes
 Unsupported requests must refuse without changing the input. This establishes an
 intentional relationship, not composer intent or an artist's preferred direction.
 Fresh-source creative portability and T5 acceptance remain open.
+
+Actual result `live-return-evaluation-002/result.json`: PASS in 455.19 seconds.
+Existing discovery lifts the unique 37–40 approach within the earlier marked
+chorus. A T5 same/opposite/independent direction owner connects it to 111–114;
+the child's direct return mode is removed. Installing the relationship preserves
+the full current score. Flipping the earlier source with opposite intention
+changes four written frets there and four at the return, through each occurrence's
+existing collection-relative approach and fixed arrival. Independent intention
+changes only the earlier four. Complete T1 equality against an independently
+enumerated collection oracle passes; no other score fields are excluded.
+
+All prior definitions, observations, 32 backing links, T4 allocations, T5 guitar
+recall and rhythmic displacement survive. Saved source flip, subsequent rhythm
+reset/restoration and another source flip preserve the live relationship. Four
+denied-worker checks pass: current/changed T5 to T4 and full current/changed T5 to
+source. These use the existing audited Python I/O guard, not an OS-sandbox claim.
+First actual failure 001 remains saved: nested tremolo JSON pointers had different
+bar addresses despite identical technique data. The repair normalizes only owned
+addresses; mismatched technique values and unknown payloads still refuse.
+
+Commands: `.venv/Scripts/python.exe -B -E -s` with the private
+`prepare_live_return.py`, `evaluate_live_return.py` and clean-release runners.
+Receipts: `live-return-preparation-001`, `live-return-evaluation-001/002`,
+`live-return-release-001/002` under the existing private Invent Animate artifact
+directory. The first clean candidate passed 42 tests; two normalization regressions
+passed against the final two-file delta. No claim that all 42 reran after that delta.
+Native checks PASS: eight written pitches and 96 tremolo callback pitches change;
+all 5,117 beat clocks, 6,295 other notes and 6,796 other callbacks remain exact.
+One new full WAV was rendered. Original/current audio was reused. The independent
+later comparison reuses the verified current crop because the earlier source edit
+lies outside it; no independent full-score render is claimed.
+
+Both short reviews are published on the same server: earlier 33–44 at `/earlier/`,
+return 107–118 at `/`, each about 22.3 seconds with four context bars each side.
+Actual browser checks played all three versions per view, showed complete source
+notes, verified 48 new/48 replaced attacks in each changed-part filter, moving
+cursor/active notes, seeking and the return's natural end. Existing player reused;
+presentation wording changed no notes/audio. Receipts and screenshots are in
+`live-return-listening-001`. No fresh-source or human listening acceptance is inferred.
+Current closure: Planner review, scoped publication and CI; then the next bounded
+T5 requirement, rather than another demonstration of the same safe transformation.
+
+Documentation reconciliation e916bad published separately: 14 reviewed current
+documents, 85 working public links and exact fetched-text parity. Required governing
+policies and approved MVP contracts now exist on main. Five historical logs/archives
+remain private and unchanged; no private review labels were imported. Legacy
+storage-workflow compliance and universal future reference-access policy remain
+explicitly unresolved. This did not change musical scope or tier acceptance.
 
 ## Delivered checkpoint — combined return rhythm and melody, 2026-11-03
 
