@@ -9,7 +9,7 @@ export function summaryRows(summary){
 }
 export function showSummary(document,summary){
  const rows=summaryRows(summary);if(!rows.length)return;
- const nav=document.createElement('p');nav.className='downloads';
+ const nav=document.createElement('p');nav.className='review-navigation';nav.style.cssText='display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-size:13px';
  const totals=document.createElement('a');totals.href='#change-summary';totals.textContent='See change percentages';nav.append(totals);
  for(const item of summary.links||[]){if(!/^\/[a-zA-Z0-9_/-]*$/.test(item.href))throw Error('Review links must stay on this listening server.');const a=document.createElement('a');a.href=item.href;a.textContent=item.label;nav.append(a);}
  document.querySelector('#scope').after(nav);
