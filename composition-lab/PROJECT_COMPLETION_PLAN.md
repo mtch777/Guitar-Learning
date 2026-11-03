@@ -21,11 +21,14 @@ instruction dependencies. This plan contains the governing requirements and gate
 | T5MVP | OPEN: original material recall was listenable but insufficient; melodic, automatic-discovery, groove and combined-return capabilities have scoped technical/audio evidence, not final T5 acceptance |
 | T6MVP | NOT PROMOTED; held-out cross-song conditional preference and listening remain owed |
 
-**One current checkpoint:** assess whether the linked earlier phrase and its return
-work as musical development. The two short, browser-verified reviews are ready;
-the listening question has been sent. Routine safe variants need no approval stop,
-but tests do not answer this T5 usefulness question. Fresh creative portability
-also remains unproved; T5 acceptance and T6 promotion are not inferred.
+**One current request:** Cloud Cascade (460099), all compatible implemented levers
+at 100, whole-song/per-tier measured changes and the existing piano-roll listening
+UI. Freeze source, discovery, control order and seed before outcomes. Show both
+coverage and actual change; identify missing/incompatible controls rather than
+pretending all registered capabilities exist. Use existing relationships and
+preserve original evidence. See the active checklist. The earlier T5 listening
+question remains unaccepted history; it does not block this authorized experiment.
+Fresh creative portability and T5 acceptance remain open; no T6 promotion.
 
 The bounded original-state proof is now CLOSED: existing constructors and the
 published inverse recover all 71,747 untouched source facts with seven matching
@@ -79,6 +82,18 @@ tradeoff or tier exit still needs its declared judgment. Optional listening is n
 acceptance; technical checks do not establish taste. No T5/T6 promotion inferred.
 
 ## Requirements and recorded acceptance evidence
+
+### Semitone preference — user clarification, 2026-11-03
+
+One-semitone relationships are allowed, both as melodic steps and simultaneous
+intervals. If present in the declared source/target/reference context, they receive
+no extra penalty. If absent, only lightly discourage introducing them; never ban
+them. Keep this separate from the existing in-key default for newly held notes and
+bend arrivals. Do not invent a numerical penalty or redefine the context to make
+a candidate pass. At 100, this musical preference does not restore direct preference
+for the original value or reduce release probability. This soft preference is
+recorded but not implemented by a generic choice-ranking control. The frozen Cloud
+Cascade audition is not rerolled or silently rescored.
 
 ## Binding artist scope — 2026-11-01
 

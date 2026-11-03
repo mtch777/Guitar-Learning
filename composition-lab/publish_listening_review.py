@@ -55,6 +55,11 @@ def validate(data,assets):
             require(all(k in n for k in('voice','velocity','fret','string','dead','ghost')),'Incomplete note comparison fields')
             observed_parts.add(n['part'])
         audio.append((v,source,digest))
+    if any('comparison_identity'in n for v in versions for n in v['notes']):
+        for v in versions:
+            identities=[n.get('comparison_identity')for n in v['notes']]
+            require(all(isinstance(x,str)and x for x in identities),'Comparison identities must be complete')
+            require(len(identities)==len(set(identities)),'Comparison identities must be unique within each version')
     require(len(set(formats))==1,'This review requires matched playback clocks/formats; do not silently rescale audio')
     require(observed_parts=={t['id']for t in tracks},'Playing/silent part inventory differs from notes')
     return audio
@@ -81,7 +86,7 @@ def publish(manifest,assets,out):
     for source,target in copies:
         if not target.exists():atomic_bytes(target,source.read_bytes())
     refreshed=0
-    for source,name in((LAB/'arrangement-review.html','index.html'),(LAB/'arrangement-review.mjs','arrangement-review.mjs')):
+    for source,name in((LAB/'arrangement-review.html','index.html'),(LAB/'arrangement-review.mjs','arrangement-review.mjs'),(LAB/'listening-change-summary.mjs','listening-change-summary.mjs')):
         refreshed+=atomic_bytes(out/name,source.read_bytes())
     atomic_bytes(out/'comparison.json',json.dumps(current,ensure_ascii=False,indent=2,allow_nan=False).encode('utf8'))
     require([v['notes']for v in current['versions']]==[v['notes']for v in data['versions']],'Note payload changed during publication')

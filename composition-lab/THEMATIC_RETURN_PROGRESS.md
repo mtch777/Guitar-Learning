@@ -1,6 +1,94 @@
 # T5: live return of an earlier arrangement
 
-## Current checkpoint — T5 musical usefulness
+## Active request — Cloud Cascade, all current levers at 100
+
+User requests the strongest remix current logic can produce, per-tier before/after
+change percentages, and the existing piano-roll listening UI. Use the captured
+Invent Animate Cloud Cascade (460099), not the recent As If It Never Was example.
+No song-specific pitch/timing rules, hidden raw-note bypass or new generator.
+
+- [x] Freeze actual capture/code, whole-song discovery, operation order and seed.
+- [x] Inventory every registered control: available, inapplicable, incompatible,
+  or unimplemented. Preserve all initial refusals and original evidence.
+- [ ] Apply every compatible current control at release 100 through its existing
+  owner/equation. Preserve normal sampling semantics; no seed rerolls to force change.
+- [ ] Measure changed notes/bars against the WHOLE original song, and changed
+  decisions against represented choices at each tier. Show coverage alongside
+  percentages; absent tier representation is unavailable, not a fabricated zero.
+- [ ] Verify original/current exact inverse, saved combined edits, immutable
+  evidence/dependencies, native playback and all three QA statuses.
+- [ ] Reuse the existing listening page: untouched original/remix, full-song
+  access plus concise focus with four context bars, colored changed notes,
+  per-tier measured differences and one to three relevant listening questions.
+- [ ] Planner start/mid/end review and actual desktop/mobile UI QA before delivery.
+
+100 means release without direct preference for the original value, not forced
+100% change. Named-song development is not a new random-source QA1 pass. Any
+unsupported combination remains explicit; it must not be silently flattened or
+used to manufacture source observations. Existing MVP/full-tier statuses remain.
+
+## Cloud Cascade first verified output — 2026-11-03
+
+Frozen captured460099/revision9588298: six parts,111bars,5350nonrest note
+occurrences,46893 typed source facts. Existing automatic approach discovery retained
+four tonal-agreement refusals. The unchanged shared-cell selector retained all416
+window refusals. These do not establish that melody or rhythm cannot be varied.
+
+Current local-control branch uses unchanged public operators and deterministic
+per-target seeds. Four joint register/fingering attempts refused dependency
+preservation;16later targets were not redundantly retried. One accent changes;
+the next accent edit refuses nonmigrated original-evidence access, leaving374
+later targets blocked. Seven of13 eligible dynamic declarations change; six
+sample their current value. No seed reroll or manually supplied pitch/timing.
+
+Measured result:1027/5350 written occurrences (19.1963%) change expression across
+85/111bars.1026 effective dynamic values and one accent change; pitch/timing0%.
+The exported playback has992/4984 changed velocity callbacks, a different
+denominator. Seven dynamic markings plus one removed accent produce nine raw
+fact differences (including an object-child change), not nine changed notes.
+
+Planner checked exactly ten changed scalar/optional-state leaves; all other model
+owners and original observations remain exact. Original/current source-denied
+workers PASS on recorded Python3.10.9. First mistaken3.13 worker failure retained
+separately. Native expression/percussion/bend checks PASS. Original/remix are both
+229.655510s, same soundfont/gain/speed, no normalization. No fresh random QA1 pass.
+
+The existing5280page now serves a24.8s comparison (bars5–16), full-song playback
+at /full/, measured percentages and colored changed notes.17 JS and5 publisher
+tests pass. Actual browser playback/version switch and changed-part filter checked.
+Python pytest was unavailable; unittest was used. Atomic tempfile replacements
+required the normal unsandboxed test/publish execution; no permission rules changed.
+
+Separate existing material-rhythm control:66 guitar-bars have arithmetic candidates,
+38 coordinated/disjoint uses are frozen. First material solve passes; complete
+100% operations are still running. Its result is not included in the expression
+metrics or its QA receipts. Whole-line movement trials preserve all refusals:
+lead letRing support boundary and ambiguous rhythm-guitar highest members.
+
+Private root: local-artifacts/cloud-cascade-max-remix-v1. Completed expression
+receipts are run/, qa/recorded-runtime-002/, listening/ and review/. Next: finish
+the existing rhythmic operations, independently verify and render them, then update
+the same page. Do not call this all-levers completion or all-tier creative coverage.
+
+### First rhythm checkpoint and display correction
+
+The first fixed rhythm draw moves both rhythm guitars together. Complete-score
+comparison, saved current-zero, two denied-source inverses and independent native
+timing checks PASS. Original evidence/materials/other owners remain exact. The
+rhythm version and expression version are separate: their current owner models
+cannot compose safely. No raw-output merge, seed reroll or pitch substitution.
+Remaining fixed operations continue; this checkpoint does not certify the final run.
+
+Browser QA exposed a display bug: value-only comparison showed14changed attacks
+although38source occurrences moved.24repeated notes matched a different note's old
+position. The shared page now optionally compares verified source-occurrence plus
+local performed-attack identities. It rejects partial/duplicate IDs; historical
+payloads retain their measured multiset behavior. Independent native mapping
+confirms all5350source occurrences,375rests and4984played attacks retain identity.
+20JS checks PASS, including repeated-note displacement and incomplete-ID refusals.
+Audio was not rerendered. The short/full pages show all38changed rhythm attacks.
+
+## Previous checkpoint — T5 musical usefulness
 
 The linked-earlier/return capability, saved dependencies, native playback and
 untouched-original reconstruction are technically verified within the scope below.

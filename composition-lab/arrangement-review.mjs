@@ -1,6 +1,12 @@
 // Read-only playback comparison. The payload contains measured native MIDI attacks.
-export function noteKey(n){return JSON.stringify([n.part,n.voice,Math.round(n.start*44100),Math.round(n.end*44100),n.pitch,n.velocity,n.fret,n.string,n.dead,n.ghost]);}
+export function noteKey(n){return JSON.stringify([n.comparison_identity??null,n.part,n.voice,Math.round(n.start*44100),Math.round(n.end*44100),n.pitch,n.velocity,n.fret,n.string,n.dead,n.ghost]);}
 export function difference(current,baseline){
+ // Only use occurrence correspondence explicitly supplied by a verified exporter.
+ // Native list positions/ref strings alone are not stable across every edit.
+ if([...current,...baseline].some(n=>n.comparison_identity!==undefined)){
+  for(const notes of [current,baseline]){const ids=notes.map(n=>n.comparison_identity);
+   if(ids.some(id=>typeof id!=='string'||!id)||new Set(ids).size!==ids.length)throw Error('Comparison identities must be complete and unique within each version.');}
+ }
  const available=new Map();for(const n of baseline){const k=noteKey(n);if(!available.has(k))available.set(k,[]);available.get(k).push(n);}
  const shown=current.map(n=>{const matches=available.get(noteKey(n));return {...n,change:matches?.length?(matches.pop(),'same'):'new'};});
  const removed=[...available.values()].flat().map(n=>({...n,change:'old'}));return {shown,removed};

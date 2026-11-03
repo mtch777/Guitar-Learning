@@ -19,7 +19,7 @@ class PublishReviewTests(unittest.TestCase):
     def snapshot(self):return {p.name:p.read_bytes()for p in self.out.iterdir()}
     def test_repopulation_reuses_page_and_audio_and_retains_notes(self):
         first=publish(self.manifest,self.root,self.out);before=self.snapshot();second=publish(self.manifest,self.root,self.out)
-        self.assertEqual(first['ui_files_refreshed'],2);self.assertEqual(second['ui_files_refreshed'],0);self.assertEqual(second['audio_rendered'],0);self.assertEqual(before,self.snapshot())
+        self.assertEqual(first['ui_files_refreshed'],3);self.assertEqual(second['ui_files_refreshed'],0);self.assertEqual(second['audio_rendered'],0);self.assertEqual(before,self.snapshot())
         actual=json.loads((self.out/'comparison.json').read_bytes());self.assertEqual([v['notes']for v in actual['versions']],[v['notes']for v in self.data['versions']])
         self.data['questions']=['Which ending do you prefer?'];self.write();third=publish(self.manifest,self.root,self.out)
         self.assertEqual(third['ui_files_refreshed'],0);self.assertEqual(json.loads((self.out/'comparison.json').read_bytes())['questions'],self.data['questions'])
@@ -39,5 +39,18 @@ class PublishReviewTests(unittest.TestCase):
         self.data['versions'][1]['notes'][0]['part']=9;self.write()
         with self.assertRaises(ValueError):publish(self.manifest,self.root,self.out)
         self.assertFalse(self.out.exists())
+    def test_comparison_identity_is_preserved_and_bad_identity_does_not_replace_page(self):
+        for v in self.data['versions']:v['notes'][0]['comparison_identity']='source:note:attack:0'
+        self.write();publish(self.manifest,self.root,self.out);before=self.snapshot();valid=copy.deepcopy(self.data)
+        stored=json.loads((self.out/'comparison.json').read_bytes())
+        self.assertEqual(stored['versions'][0]['notes'],self.data['versions'][0]['notes'])
+        for change in('missing','duplicate','empty'):
+            self.data=copy.deepcopy(valid);notes=self.data['versions'][1]['notes']
+            if change=='missing':notes[0].pop('comparison_identity')
+            elif change=='duplicate':notes.append(copy.deepcopy(notes[0]))
+            else:notes[0]['comparison_identity']=''
+            self.write()
+            with self.assertRaisesRegex(ValueError,'Comparison identities'):publish(self.manifest,self.root,self.out)
+            self.assertEqual(before,self.snapshot())
 
 if __name__=='__main__':unittest.main()
