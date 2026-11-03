@@ -1,9 +1,6 @@
 name: Close temporary encrypted transfer handoff
 
 on:
-  push:
-    branches: ['recovery/finish-six-20261102']
-    paths: ['.github/workflows/private-corpus-transfer-20261102.yml']
   workflow_dispatch:
 
 permissions:
