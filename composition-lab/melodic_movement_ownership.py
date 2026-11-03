@@ -687,7 +687,12 @@ def options(upper, intent, register_direction):
 
 
 def _intervene_v2(upper, controls, before):
+    import halfstep_preference as halfsteps
     result = deepcopy(upper); decisions = {}
+    model, _, _ = _shape(upper)
+    context = (halfsteps.freeze(before, model['attacks'], reference_attacks=model['reference_attacks'],
+        original_reference_steps=model['observations']['reference_steps'], source_origin=upper['source_origin'])
+        if controls['melody'] or controls['register'] else None)
     for axis in ('melody', 'register'):
         released = random.Random(f'melodic-movement-v2:{axis}:release:{controls["seed"]}').random() < controls[axis] / 100
         decision = dict(released=released, selected_kind='current', alternatives_evaluated=False)
@@ -697,10 +702,12 @@ def _intervene_v2(upper, controls, before):
                 else _register_candidates(result, current, controls['register_direction']))
             if len(candidates) == 1 and refused:
                 raise ValueError(f'Requested {axis} alternative unsupported: {refused}')
-            index = random.Random(f'melodic-movement-v2:{axis}:selection:{controls["seed"]}').randrange(len(candidates))
+            preference = [halfsteps.evaluate(_realize(candidate), context) for candidate, _ in candidates]
+            index = halfsteps.choose(preference, random.Random(f'melodic-movement-v2:{axis}:selection:{controls["seed"]}'))
             result = candidates[index][0]
             decision.update(alternatives_evaluated=True, candidates=[r for _, r in candidates], refused=refused,
-                selected_index=index, selected_kind=candidates[index][1]['kind'], has_alternative=len(candidates) > 1)
+                selected_index=index, selected_kind=candidates[index][1]['kind'], has_alternative=len(candidates) > 1,
+                halfstep_candidates=preference)
         decisions[axis] = decision
     after = _realize(result); changed = _allowed_changes(upper, result, before, after, version2=True)
     model, refs, _ = _shape(upper)
@@ -709,4 +716,6 @@ def _intervene_v2(upper, controls, before):
         changed=bool(changed), changed_fact_refs=changed, relationships_changed=digest(result) != digest(upper),
         attack_refs=[r['attack_ref'] for r in model['attacks']], member_refs=refs,
         original_observations_unchanged=True,
+        halfstep_preference=(dict(context=context, final_output=halfsteps.evaluate(after, context),
+            selection_scope='Complete candidate per sequential axis; not a joint movement/register optimizer') if context else None),
         scope='Independent signed movement and common octave; explicit direction and nominal contacts, not artist preference. Source span is a conservative experiment policy, not a universal musical law.')

@@ -31,7 +31,12 @@ history/regression evidence only. This does not reduce the registered capabiliti
 - Keep feasibility, support, intention and preference separate. Offer explicit
   alternatives under stated uncertainty; random selection is not musical judgment.
 - Enforce original-evidence integrity, untouched relationships, atomic refusal,
-  exact0,50releaseprobability,100unlocked, and SAME relationships both directions.
+  exact0 and SAME relationships both directions. Latest user correction:50 targets
+  half the declared observable units changed;100 requires all, measured in FINAL
+  output. Challenge unit choice, complete preselected denominator, count vs magnitude,
+  rounding, coherent-group constraints and effects canceled by later controls.
+  Blocked units remain visible; metadata-only differences are not output changes.
+  Old release-probability code/receipts are historical, not migrated acceptance.
 - Root is integration owner and decides. Agree ownership/interfaces before agents
   edit. Serialize shared-authority changes; require integration evidence.
 - Roughly every10substantive steps ask what the musician newly gains, which open
@@ -45,8 +50,9 @@ governing requirements are complete in the public canonical plan.
 Consult at start, midpoint/about ten substantive steps and completion. Challenge
 concrete musical purpose/constraints, actual outputs and scope—not test counts
 alone. Do not create a competing roadmap, revive QABot3000 or reopen acceptance.
-Use the plan's baseline/release/intention/QA and route distinctions. Future universal
-reference-access policy remains unresolved; do not invent it from no-preference.
+Use the plan's baseline/output-quota/intention/QA and route distinctions. Existing
+release/sampling evidence remains historical; do not claim the new percentages
+are implemented without final-output measurements for each migrated control.
 Governing instructions must be publishable with their required links, as specified
 in the operating rules. Root remains decision/integration owner.
 

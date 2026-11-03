@@ -53,12 +53,15 @@ by changing the meaning of success after seeing its result.
 
 0% locks the declared feature of the CURRENT input. Original-state zero equals
 original source in its boundary; saved current-zero preserves the edited state.
-Explicit revert is separate.50% is reproducible release probability, not half the
-notes/audible difference;100% removes direct original-value preference, not forced
-change. The approved finite T2 mechanism remains unchanged. Access restrictions
-are method-specific; universal future access policy is unresolved, not invented
-from no-preference. Coincidence remains allowed. An unchanged result is not automatically a creative
-failure or success: record whether release happened and whether choices existed.
+Explicit revert is separate. Latest user correction:50% targets half the declared
+observable units actually changed;100% requires all. Freeze feature/unit identities,
+scope and denominator before feasibility or selection; measure FINAL realized
+output after interacting controls. Report achieved count, magnitude, source coverage,
+rounding and blocked units separately. No identical-output metadata, canceled-edit
+credit or denominator shrinking. Preserve coherent groups and locks; unsupported
+or infeasible committed requests refuse atomically. Existing finite-sampling code
+and receipts retain their old meaning until migrated; they do not pass the new
+output requirement. The canonical plan contains the complete current contract.
 
 ## Canonical steering and reproducible publication
 

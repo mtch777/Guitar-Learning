@@ -13,6 +13,101 @@ instruction dependencies. This plan contains the governing requirements and gate
 
 ## Canonical current status and queue — 2026-11-03
 
+### Latest user correction: percentages measure actual output changes
+
+This supersedes release-probability/no-original-preference semantics for NEW
+requests. Existing accepted artifacts retain their historical settings; do not
+relabel them as passes under the new contract. Current control implementations
+still use the previous sampling semantics until individually migrated and verified.
+
+- 0% preserves the selected feature of the CURRENT input exactly.
+- 50% targets actual change in half the declared observable units.
+- 100% requires actual change in every declared observable unit of that lever.
+- Freeze the input baseline, feature definition, stable identities, requested
+  scope and complete denominator BEFORE candidate admission/selection. Expose
+  feature-change counts, magnitude and source coverage separately. No metadata-only
+  edit, silent dependency-mode change or intermediate edit later canceled counts.
+- Compare the FINAL realized score/performance after all requested controls, not
+  sampler decisions. Register is octave placement; movement is signed pitch steps;
+  dynamics is effective loudness. Changes in one cannot credit another.
+- Musical units are not arbitrary JSON fields: pitch/accent use actual attack
+  identities (ties form one attack; explicit rests have no pitch/accent unit).
+  Freeze this structural definition before musical feasibility. Unknown/blocked
+  actual attacks remain reported. Melody pitch class and signed-step contour use
+  different measurements; contour has consecutive-attack pairs, not written heads.
+  Base dynamic level and accent state also have separate measurements; verify the
+  resulting performed velocity, and disclose cancellations in their audible effect.
+- Keep required tie/coattack/group relationships coherent. A whole-line register
+  shift has indivisible consequences; do not silently replace a note denominator
+  with a group denominator to claim half the line changed. Name any intended group
+  measurement and also report affected notes. Round discrete targets to nearest
+  integer, half up, and show the achieved fraction (e.g.2/3, not exactly50%).
+- Requested units lacking an alternative, implementation or compatible locks stay
+  visible in coverage and the requested denominator. Empty scope is NOT_APPLICABLE.
+  An unsatisfied target is not a pass; report the achievable count and blockers.
+  Unsupported/conflicting committed operations remain atomic. Do not force invalid
+  music, drop relationships, weaken locks or manufacture source evidence to meet a quota.
+- All3QA gates, SAME inverse, immutable original evidence, independent feature
+  locks and matched source-faithful playback remain mandatory. The audit below and
+  the active checklist separate requirements from actual code migration.
+
+### Current controllable choices: proposed final-output verification
+
+Source audit accounts for all20 explicit connected-T2 policies and15 voicing
+aliases. The30 rows below include shared controls, intentions and permissions;
+they are not30 independent composable sliders. Every implementation is bounded.
+These are NEW output acceptance definitions, not claims the migration is complete.
+Frozen note/attack scope is independent of candidate availability. Group coherence
+may make a quota impossible; report that instead of redefining the measurement.
+
+| # | Existing choice | Output measurement required for100 |
+|---|---|---|
+| 1 | Chord spacing/voicing | Every selected non-bass member interval to its declared bass differs; a common octave shift alone earns no voicing credit. |
+| 2 | Coordinated voicing run | Every selected chord's named voicing features differ; also count individual changed intervals/notes, not merely one changed run. |
+| 3 | Chord-degree placement | Every selected voice has a different realized pitch placement; degree relabeling without changed notes earns no credit. |
+| 4 | Inner chord voices | Every selected inner attack changes its pitch placement; outer-voice locks remain exact. |
+| 5 | Chord anchor/register | Every selected chord has a different bass anchor and corresponding realized register; disclose whether the policy is octave-only or also changes pitch class. |
+| 6 | String/fret placement permission | Every requested note contact changes string/fret as declared; unchanged sound does not count as melody change. Current permission alone cannot guarantee this. |
+| 7 | Local middle-note choice | Every explicitly selected middle note changes melodic pitch; its two locked neighbors remain visible outside this narrow target. |
+| 8 | Three-note figure | Every selected attack's melodic pitch changes; one changed note cannot count as all three. Octave-only shifts are register credit. |
+| 9 | Melody relative to backing | Every selected destination attack changes melodic pitch while satisfying the requested live reference-to-backing relationship. |
+| 10 | Repeat reference/follow chord interval | Every selected destination attack changes realized pitch; switching an equivalent treatment label does not count. |
+| 11 | Upper chord-member line | Every selected upper attack changes melodic pitch; fixed lower members remain exact. |
+| 12 | Repeat first note/follow signed movement | Every selected consecutive-attack signed step differs. An unchanged first anchor is not a changed pitch; report attack-pitch reach separately. |
+| 13 | Melody octave | Every selected attack moves by a nonzero whole octave, preserving separately locked movement. A common-line constraint may prevent50% of its attacks changing. |
+| 14 | Guitar figure octave, including admitted expressive/muted figures | Every selected attack changes octave; verify final combined output after other edits, ties and technique constraints. |
+| 15 | Keyboard-note octave | Every selected attack changes octave; no canceled intermediate register edit receives credit. |
+| 16 | Bend excursion | Every selected bend has a different realized pitch excursion; source markings and performed trajectory must agree. |
+| 17 | Keep bend start/keep arrival intention | The permitted endpoint/trajectory actually changes and the locked endpoint stays fixed; a new frame label alone earns no credit. |
+| 18 | Existing note/rest boundary | Every selected adjacent pair has a changed note duration, rest duration and boundary, with total span fixed. |
+| 19 | Group rhythm proportions | Every selected attack gap/duration feature differs in realized time; equivalent notation earns no credit. |
+| 20 | Earlier/later group placement | Every selected attack onset moves relative to unchanged backing; retained boundary attacks count unchanged, not silently excluded. |
+| 21 | Step tempo | Every selected tempo region has different effective BPM and synchronized playback time; duplicate declaration aliases are not extra units. |
+| 22 | Base loudness | Every selected attack has a different effective base dynamic level; accent-only velocity changes cannot credit this. Verify performed consequences. |
+| 23 | Neighboring dynamic transition | Every selected adjacent-region dynamic difference changes; equal common-level shifts alone do not change that relationship. |
+| 24 | Accents | Every selected attack has different effective emphasis; absent-to-false/normal declaration rewrites are unchanged. |
+| 25 | Palm mute/open | Every selected complete attack changes effective mute mode. Storage/playback coverage and realistic timbre remain separate claims. |
+| 26 | Repeated-cell order | Every selected cell position changes its realized ordered melodic value; a phase number or symmetric rotation alone earns no credit. |
+| 27 | Approach arrival from above/below | Every selected approach step changes realized direction; the intentionally held arrival is not a changed note. |
+| 28 | Coordinated supporting material | Every selected part/use changes its actual note/rest pattern; report separate pitch, rhythm and activity reach. A different material ID is insufficient. |
+| 29 | Earlier-material recall/independence | Every selected return changes its actual musical material now; a currently silent dependency link does not meet an output quota. |
+| 30 | Same/opposite return approach | Every selected returning approach changes its actual direction/pitches; retain each locked arrival and report unchanged notes. |
+
+Rows1–25areT2 musical decisions (shared displacement is stored in materialT3);
+26–27areT3,28isT4,29–30areT5. Contact permission and bend-frame intention are
+embedded in another operation, not independent percentage sliders. T0/T1 preserve
+source/score facts and have no creative percentage. T6 has no current accepted
+artist-choice controller. Half of each declared denominator is the50 target;
+integer rounding and impossible group/lock combinations stay explicit.
+
+Still-required controls are not disguised as existing ones: general key/center/mode,
+chord root/quality/progression, independent harmonic-change timing; tempo ramps,
+pulse/meter; new rest/hold insertion; general articulation; bend timing/hold/release,
+string vibrato, slides, open-string hammer-ons/pull-offs, tapping, harmonics and
+dead/ghost-note editing; tuning/capo; broad phrase development, arrangement/form
+and cross-song artist preferences. Their output units must be registered before
+implementation; absent controls cannot pass an all-levers100 run.
+
 | Scope | Acceptance / remaining obligation |
 |---|---|
 | T2MVP | ACCEPTED within frozen movement/register contract; full13 areas/nine individual techniques OPEN |
@@ -21,7 +116,7 @@ instruction dependencies. This plan contains the governing requirements and gate
 | T5MVP | OPEN: original material recall was listenable but insufficient; melodic, automatic-discovery, groove and combined-return capabilities have scoped technical/audio evidence, not final T5 acceptance |
 | T6MVP | NOT PROMOTED; held-out cross-song conditional preference and listening remain owed |
 
-**One current request:** Cloud Cascade (460099), all compatible implemented levers
+**Previous request; preserved evidence:** Cloud Cascade (460099), all compatible implemented levers
 at 100, whole-song/per-tier measured changes and the existing piano-roll listening
 UI. Freeze source, discovery, control order and seed before outcomes. Show both
 coverage and actual change; identify missing/incompatible controls rather than
@@ -84,14 +179,10 @@ Direct T2→material-use T3 has exact T3→T2/source evidence; subsequent T4 com
 is not claimed. Tier acceptance does not imply every representation/operation is
 interoperable. Existing historical generators/profile prototypes are not promoted.
 
-**Execution semantics:** zero locks the declared feature of the supplied CURRENT
-composition. Original-state zero must equal original source within its boundary;
-after an edit it preserves the edited state. Revert is separate and explicit.
-Original observations never change.50 is reproducible release probability, not
-half the notes/audible difference; record release versus actual change.100 removes
-direct original-value preference, not necessarily access or forced difference.
-The frozen T2 finite-candidate rule remains unchanged. Unsupported requests refuse
-atomically and are not counted as released trials or creative success.
+**Execution semantics:** the latest output-change contract above governs new
+requests. Zero preserves the CURRENT composition; original-state zero equals source.
+Revert is separate. Existing code/receipts still use seeded release and finite
+sampling until migrated. Those mechanisms cannot establish a new50/100 output pass.
 
 **Listening:** user accepted routine safe variants may be self-QA'd and continued
 without approval stops. Present first verified meaningful new audio promptly with
@@ -105,14 +196,26 @@ acceptance; technical checks do not establish taste. No T5/T6 promotion inferred
 ### Semitone preference — user clarification, 2026-11-03
 
 One-semitone relationships are allowed, both as melodic steps and simultaneous
-intervals. If present in the declared source/target/reference context, they receive
-no extra penalty. If absent, only lightly discourage introducing them; never ban
-them. Keep this separate from the existing in-key default for newly held notes and
-bend arrivals. Do not invent a numerical penalty or redefine the context to make
-a candidate pass. At 100, this musical preference does not restore direct preference
-for the original value or reduce release probability. This soft preference is
-recorded but not implemented by a generic choice-ranking control. The frozen Cloud
-Cascade audition is not rerolled or silently rescored.
+intervals. Existing declared source/target/reference precedent receives no extra
+penalty; absent precedent is only lightly discouraged, never banned. Keep this
+separate from the in-key default for new held notes/bend arrivals. Freeze context
+before alternatives; never let a candidate manufacture its own precedent.
+
+Bounded implementation now exists in movement/registerV2. Shared
+halfstep_preference uses an explicit engineering default: candidate weight19/20
+when introducing a literal half step without known precedent, otherwise1. This
+is a5% RELATIVE weight discount, not a5-percentage-point probability change or a
+learned/user-calibrated quality estimate. Apply at most once per complete candidate
+within each sequential movement/register draw, not one joint-transaction optimizer;
+do not multiply penalties across notes. Melodic and simultaneous precedent stay
+separate. Unknown pitch evidence cannot prove absence. Existing equal-weight draws
+retain seed behavior. Other pitch selectors are NOT yet wired to this preference.
+
+Current scope is actual absolute pitch distance1 (successive declared attacks or
+overlapping written-pitch events), not every octave-equivalent/compound interval
+or inferred sounding bend. This small preference cannot justify underfilling a
+new output-change quota. It does not migrate old percentage semantics. The frozen
+Cloud Cascade audition is not rerolled, rescored or rerendered.
 
 ## Binding artist scope — 2026-11-01
 
@@ -133,7 +236,7 @@ remain owed. It is not an80% metric or permission to change the gateway.
   every pitch class and internal signed step. Absolute intervals against unchanged
   accompaniment change. Reuse the movement owner's octave coordinate and existing
   register evidence/feasibility; never add a second authoritative pitch stream.
-- **0** locks the CURRENT dimension. **50** is a reproducible seeded Bernoulli
+- **Historical accepted mechanism, superseded for new requests:** **0** locks the CURRENT dimension. **50** is a reproducible seeded Bernoulli
   release. **100** removes preference for the original value; it does not force a
   different output. Record release and actual change separately for each control.
 - **Finite candidate semantics:** after movement release, sample uniformly between
@@ -457,10 +560,10 @@ For EACH lever, record and verify:
   examples, unknowns and relevant independent interpretation checks.
 - [ ] Supported nonzero proposals realized through those same relations, with
   other locks unchanged and incompatible requests explicitly refused.
-- [ ] Current reference-release semantics: 0/50/100% controls, reproducible seeds, release opportunities and realized
-  changes measured separately. 0 is exact; 50 is release probability, not an
-  audible distance; 100 removes direct original target-value preference and
-  allows coincidence. Validate the release mechanism across seeds/opportunities.
+- [ ] Actual-output semantics:0 locks,50 targets half and100 all declared feature
+  units changed in FINAL realization. Freeze requested units/denominators before
+  selection; report rounding, achieved count, magnitude and blocked units. Old
+  release/sampling tests remain regressions, not proof of the new requirement.
 - [ ] Relevant downstream tiers/coordinates re-evaluated; no stale labels,
   impossible fingerings or contradictory timing introduced silently.
 - [ ] GP conversion/import checks and actual rendered audible consequences where
@@ -527,7 +630,7 @@ scope and portability gap is still open. Historical prototypes do not close rows
 | T2-05 Melody function / contour | Change signed movement/ending across singleton/coattack lines; separate role, written movement, register and performed trajectory | Signed-step/prefix ownership, backing links, upper-member coupling and bend arrival equation | Step 3 general applicability, independent timed roles/collections, useful range and joint controls; S/A/G/N/L | PARTIAL: bounded movement MVP and source-linked approach/combined-return controls have scoped evidence; broad role/contour/useful reach remains open. Earlier artist examples are historical/regression only. |
 | T2-06 Register | Move a note/group's register while retaining named pitch-class/movement/role relationships; physical and boundary consequences explicit | Shared octave parameter, immutable original register observations, saved sequences and placement | Chord/polyphonic/expressive coverage, independent locks and combined melody/harmony cases; S/A/G/N/L | PARTIAL. Plain/expressive/muted isolated/native scopes pass; neither source counts nor individual donor bins prove whole-figure preference |
 | T2-07 Local rhythm | Change attack spacing/group duration/shares while preserving selected identity, rests, execution and meter relations | Span/share/prefix-onset owner, explicit beams and structural time admission | Broader useful alternatives, saved evidence and combined pitch/expression behavior; S/A/G/N/L | PARTIAL: shared per-use group displacement has exact/native scoped evidence; broad rhythmic development and fresh applicability remain open. |
-| T2-08 Pauses / holds | Intentionally add/release silence or holds with explicit surrounding onset/attack/tie consequences | Source rest ledger, nominal durations, verified ties and trajectory plateaus | Actual alternatives and sounding/notated distinction, full-span membership, affected entry/exit/expression; S/A/G/N/L | OPEN. Preserving rest-containing Tool groups does not implement pause/hold choice |
+| T2-08 Pauses / holds | Intentionally add/release silence or holds with explicit surrounding onset/attack/tie consequences | Source rest ledger, nominal durations, verified ties; connected note/rest-boundary transfer within an existing adjacent pair | Broader insertion/deletion/holds, sounding/notated distinction, full-span membership and joint execution; S/A/G/N/L | PARTIAL: existing adjacent note/rest share can change at fixed total span. General pause/hold choice remains open; unchanged Tool rest preservation is separate. |
 | T2-09 Local tempo / pulse / meter | Change step/ramp speed, grouping or meter explicitly; preserve written times unless separately released; all parts synchronized | Global event aliases, reciprocal seconds, source clock/native schedule | Separate step/ramp/grouping/re-meter controls, immutable evidence, expressive-duration consequences and joint cases; S/A/G/N/L | PARTIAL step-tempo. Source ramp fidelity research is not complete creative tempo/pulse/meter acceptance |
 | T2-10 Dynamics / accents | Choose local levels/transitions/emphasis in metric and neighboring context, retaining other execution | Optional declaration owners, immutable dynamics evidence and bounded sequences | Broader context changes, supported interacting nonzero orders, native audibility/listening; S/A/G/N/L | PARTIAL. Two-policy engineering exit retained; phrase shaping T3/artist preference T6 remain separate |
 | T2-11 Articulation | Choose connected/detached/ringing attacks and ends, with affected sustains and neighboring execution explicit | Preserved markings, tie/dependency graph and current execution checks | Separate per-articulation admission/alternatives, unknowns, sounding timing and native/audio checks; S/A/G/N/L | OPEN. Preserved flags/codec repairs are not articulation creativity |
@@ -732,7 +835,7 @@ voice; source fidelity is a test of understanding, not permanent impersonation.
 | 9b. Explain and audition | Clearly label source/faithful-zero/changed; song/track/bars, unlocked/locked dimensions and useful listening question; show actual differences and uncertainty | Meaningful whole-passage playback, correct part mix, native import and measured execution. Human fit and physical-playability judgments are separate from rendering. |
 | 9c. Show the data meaningfully | Time-aligned tier traversal both directions; complete note range, synchronized playhead, click-to-select, ties versus attacks; inspect all owned data without overwhelming summaries | Actual populated browser inspection; select/seek/play/pause/case switch; speed 0..1 where zero pauses; usable phone/LAN playback where authorized. No invisible tracks, clipped lows or empty controls. |
 | 9d. Capture feedback | Exact source/variant/version, note/time selections, understood musical choices, uncertainty and comments | Save/reload/export feedback without silently overwriting earlier answers; no fabricated human responses. |
-| 9e. Complete combinations | All registered controls, related combinations/sequences and representative full-composition all-zero/all-50/all-100 | Exact locked fields, correct release probability, no direct target-value preference at100, no fabricated source votes, coherent timing/harmony/physical relationships. No-choice and conflicts disclosed. |
+| 9e. Complete combinations | All registered controls, related combinations/sequences and representative full-composition all-zero/all-50/all-100 | Exact locked fields and final-output change quotas per declared feature; no canceled-change credit, fabricated source votes or lost relationships. No-choice, discrete rounding and conflicting locks disclosed. |
 | 9f. Finish native output | GP conversion/re-import, source versus output notes/timing/ties/techniques/fingering, MIDI/audio and unsupported execution disclosure | All promised fields preserved at zero; changed fields implement the chosen relationships. Byte identity only where explicitly promised, otherwise no substituting ZIP metadata for the musical/structural comparison. |
 | 9g. Release safely | Canonical documentation, supported-field/control matrix, tests/build/CI, actual UI checks; preserve old baselines and archive retired generation entrypoints safely | Verified code committed/pushed with exact-commit CI. Private scores/audio/annotations/weights stay private; website deployment checked only when website files change. |
 
@@ -748,7 +851,7 @@ artist-reference lists are context, not extra downloaded/training data.
 | QA1: new random source | Freeze a meaningful candidate before a genuinely new random Songsterr input; repeat before scope/lever/tier promotion | Reproducible selection, unchanged logic, full output coverage and the first result retained. Debugging that song afterwards is development, followed by a new freeze/new input | Rerolling, handpicking, dropping failures, or calling a repaired known song fresh |
 | QA2: exact reversal | At each ownership/relationship change and tier boundary; repeat for zero, edited states and relevant sequences | Delete declared lower/source/cache payloads; isolated SAME inverse; independently compare every field in the declared boundary; prove locked fields exact and changed fields intentional | Access to original files, raw-note backup, guessed notes, subset comparison presented as full, or claiming Python audit hooks are an OS sandbox |
 | QA3: meaningful musical abstraction | Before implementation, during counterexample review, and before promotion | Higher musical relationships supported by actual notes/time; ambiguity, simpler baselines, independent contradictions, useful interpretation/prediction/control and actual listening where subjective | New labels, compression, model agreement, more matches, test counts or reversibility alone |
-| Lever behavior | Per lever and relevant combination, after dependency changes | 0 locks literally;50 gives half probability of release, not half changed notes;100 removes direct original target preference, coincidence allowed. Measure release and actual change separately | A knob name, forced differences, permanent convenience locks or only all-zero testing |
+| Lever behavior | Per lever and relevant combination, after dependency changes | 0 locks;50 targets half and100 all declared observable units actually changed in final output. Report exact units, count/magnitude, rounding and blockers; retain old receipts as history | Counting draws, same-output metadata or canceled edits; shrinking denominators; forcing invalid music; only all-zero testing |
 | Native and human result | As soon as a real musical change exists | GP/import/clock/notes/effects and audible consequence; separate scoped human feel, musical quality and physical playability | Parser success, nonzero audio or Planner approval presented as listening acceptance |
 
 Each delivered milestone reports: examined cases; eligible cases; cases with

@@ -1,6 +1,56 @@
 # T5: live return of an earlier arrangement
 
-## Active request — Cloud Cascade, all current levers at 100
+## Active request — output-based percentages and complete lever audit
+
+Latest user correction replaces release probability with actual output change:
+50 targets half the declared feature units;100 all. Preserve all3QA, source evidence,
+locks and the shared inverse. Historical Cloud renders/choices stay unchanged.
+
+- [x] Audit every callable connected control and distinguish registered missing ones.
+- [x] Define the output feature/unit for each;100 must be visible in final output,
+  with fixed denominator, magnitude and blocked scope reported separately.
+- [x] Audit literal half-step admission/preference; fix the missing bounded soft
+  preference through real selection, with observed/absent/zero regressions.
+- [x] Reconcile canonical plan, working method and Planner instructions with the
+  latest semantics; retain previous releases as history, not new-contract passes.
+- [x] Planner challenges scope/denominators and final inventory; root reports
+  what changed in code versus what is required but still unimplemented.
+
+This request calls for the full output-measurement inventory and the quick semitone
+repair. It does not authorize silently claiming every controller has already been
+migrated or rebuilding all musical analysis before returning that inventory.
+
+Observed result: all20 explicit connected-T2 policies and15 voicing aliases map
+to30 grouped control/intent rows; required13T2areas/nine techniques also mapped.
+The source audit is private output-change-contract-v1/lever-inventory.{json,md};
+the proposed final-output measurement table is in the canonical plan. No claim
+that30independent knobs exist or that all apply to Cloud. Corrected stale pause/
+hold status: an existing adjacent note/rest boundary transfer is already callable.
+
+Half-step audit found no blanket ban in active pitch controls. The absent-context
+soft preference was missing. Shared halfstep_preference is now wired to complete
+movement/registerV2 candidates with context frozen before alternatives. Literal
+melodic and simultaneous abs1 evidence are separate; candidate output never adds
+original votes. Weight1 with precedent,19/20 without, at most one discount per
+candidate; unknown absence is not penalized. Equal-weight seeded draws preserved.
+Other pitch selectors remain explicitly unwired; no generic/compound-interval or
+artist-preference claim. Existing held-note/bend-arrival tonal guards unchanged.
+
+Validation:9 focused tests plus32 existing movement/placement tests PASS. Clean
+HEAD archive plus only4changed/new source/test files:41tests PASS in21.178s.
+Includes ACTUAL original/nonzero/saved-current-zero denied workers with the shared
+module added to the explicit bundle. Original evidence, zero and prior guards
+survive; no fresh-song or new listening claim. Cloud assets/choices unchanged.
+Private audit retains the corrected authored seed expectation (a draw intended
+to witness reachability selected current); no song or outcome was rerolled.
+
+Migration still owed: existing controllers use the OLD release/sampling mechanism.
+The new0/50/100 output percentages and proposed metrics are requirements, not yet
+an implemented all-controller quota solver. No former100%run is reclassified.
+Planner END review approves the bounded patch and canonical30-row definitions;
+its final scope/rounding definitions supersede earlier private audit proposals.
+
+## Completed prior request — Cloud Cascade combined listening delivery
 
 ### Current bounded repair — combine expression and rhythm, 2026-11-03
 
