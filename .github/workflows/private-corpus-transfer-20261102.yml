@@ -1,0 +1,46 @@
+name: Private encrypted corpus transfer pilot
+
+on:
+  push:
+    branches: ['recovery/finish-six-20261102']
+    paths: ['.github/workflows/private-corpus-transfer-20261102.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  transfer:
+    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'Prepare private encrypted asset transfer pilot'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const selected = [702506811];
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const rows = [];
+            for (const id of selected) {
+              const metadata = await github.rest.repos.getReleaseAsset({owner, repo, asset_id: id});
+              const r = await fetch(metadata.data.url, {
+                headers: {Authorization: 'Bearer ' + process.env.GITHUB_TOKEN, Accept: 'application/octet-stream', 'X-GitHub-Api-Version': '2022-11-28'},
+                redirect: 'manual'
+              });
+              const location = r.headers.get('location');
+              if (r.body) await r.body.cancel();
+              if (r.status !== 302 || !location) throw new Error('Asset ' + id + ': expected redirect; got ' + r.status);
+              core.setSecret(location);
+              const u = new URL(location);
+              if (u.protocol !== 'https:' || !['release-assets.githubusercontent.com', 'objects.githubusercontent.com'].includes(u.hostname)) throw new Error('Unexpected download host for asset ' + id);
+              rows.push({id, name: metadata.data.name, size: metadata.data.size, digest: metadata.data.digest, url: location});
+            }
+            const body = JSON.stringify({schema: 'private-encrypted-transfer/1', created: new Date().toISOString(), assets: rows});
+            if (body.length > 16000) throw new Error('Transfer body exceeds pilot bound');
+            const r = await github.rest.repos.createRelease({owner, repo, tag_name: 'private-corpus-transfer-' + context.runId, target_commitish: context.sha, name: 'Temporary private encrypted transfer ' + context.runId, body, draft: true, prerelease: false});
+            const check = await github.rest.repos.getRelease({owner, repo, release_id: r.data.id});
+            if (!check.data.draft || check.data.body !== body) throw new Error('Private transfer readback mismatch');
+            core.info('Private transfer ready: draft release ' + r.data.id + ', assets ' + rows.length);
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
