@@ -1,8 +1,28 @@
 # Composition Lab — isolated Guitar Pro composition research
 
-Current engineering prototype and its explicit limits: [relational pipeline](RELATIONAL_PIPELINE.md). Roadmap acceptance and execution evidence: [progress ledger](PROGRESS.md).
+Composition Lab analyzes source-linked musical relationships and uses those SAME
+relationships for exact reconstruction and supported intentional variation.
+Musical quality and artist understanding require separate evidence.
 
-**Scope:** Guitar Pro (.gp) input → music analysis → guitarist-style composition → new Guitar Pro (.gp) output.
+Start with [HANDOFF.md](HANDOFF.md), then [CODEX_CONTEXT.md](CODEX_CONTEXT.md).
+[PROJECT_COMPLETION_PLAN.md](PROJECT_COMPLETION_PLAN.md) defines current
+requirements, acceptance and execution order;
+[DEVELOPMENT_OPERATING_RULES.md](DEVELOPMENT_OPERATING_RULES.md) governs working
+method. [THEMATIC_RETURN_PROGRESS.md](THEMATIC_RETURN_PROGRESS.md) contains the
+active implementation contract and next action. New analysis follows the approved
+artist order: **Invent Animate → Currents → ERRA**.
+
+Current listening uses [LISTENING_REVIEW_TEMPLATE.md](LISTENING_REVIEW_TEMPLATE.md)
+and the existing page/URL. Do not rebuild a player from the historical examples.
+
+## Historical prototypes and initial scope
+
+The phase descriptions, commands, implementation limits and “Next” statements
+below are historical records, including the separate generator experiments.
+[RELATIONAL_PIPELINE.md](RELATIONAL_PIPELINE.md) and [PROGRESS.md](PROGRESS.md)
+preserve earlier engineering evidence; they do not define the current roadmap.
+
+**Initial scope:** Guitar Pro (.gp) input → music analysis → guitarist-style composition → new Guitar Pro (.gp) output.
 
 This is an **independent Python project** inside Guitar-Learning. It does not import from or modify `src/`, `training/`, the guitar trainer, the audio ML pipeline, or the web app. Python standard library only for the current compatibility tests.
 
@@ -25,7 +45,7 @@ python -m unittest discover -s . -p 'test_*.py' -v
 
 **Important distinction:** This verifies archive reconstruction, NOT authoring new musical notes. Exact score-data preservation is a prerequisite only. The output may not be byte-for-byte the same ZIP because compression metadata can differ. A separate GP7 score-writing implementation and an alphaTab/Guitar Pro open-and-render test are required before claiming editable new composition support.
 
-## Development plan
+## Historical initial development plan
 
 1. **GP file compatibility**: archive inspection and lossless repackaging (first milestone); then validate with Guitar Pro and alphaTab.
 2. **Semantic GPIF reading/writing**: extract and reconstruct linked tracks, measures, voices, beats, rhythms, notes, tunings and techniques. Verify score round-trip after reserialization; reject unsupported features rather than drop them silently.
@@ -169,7 +189,7 @@ The first three-song audit dataset contains 79 rows: 30 motifs, 26 boundary cand
 **Before any accuracy or learning claim:** Check that test fixtures and Github Actions pass, audit the parser's rhythm and track interpretation, and reserve at least one song for evaluation separate from parameter selection. Source annotations should not be treated as independent human-verified ground truth.
 
 
-## Interactive listening review (independent browser page)
+## Historical interactive listening review (independent browser page)
 
 Open `https://mtch777.github.io/Guitar-Learning/composition-review/` after GitHub Pages deploys. This is **not** a new lesson or an extension of the existing guitar trainer: its UI, JavaScript, and candidate data reside exclusively in `public/composition-review/`. No imports from `src/`, `training/`, or the existing audio/classifier stack. The existing Vite build only copies the standalone public assets to the Pages output.
 

@@ -1,9 +1,11 @@
 # Three required QA gates
 
 Active user requirements. These gates apply together; passing one never substitutes
-for another. This document governs future tier work. It does not authorize an engine
-or revive the retired architecture. Existing research can continue within its approved
-scope, with unimplemented or irrelevant gates explicitly marked NOT RUN.
+for another. [PROJECT_COMPLETION_PLAN.md](PROJECT_COMPLETION_PLAN.md) governs
+current requirements, accepted scope and execution order;
+[THEMATIC_RETURN_PROGRESS.md](THEMATIC_RETURN_PROGRESS.md) holds the active contract.
+This policy does not revive the retired architecture or expand authorized work.
+Unimplemented or inapplicable checks remain explicitly NOT RUN with their scope.
 
 ## The user's musical-abstraction requirement
 
@@ -54,8 +56,18 @@ representation using the SAME relationships?
   tracks/voices, rests/ties, curves/techniques, structure and metadata in the
   declared scope. Preserve missing/null/false distinctions. Unsupported fields
   remain OPEN; a partial pass must name its field/tier limits.
-- At 0% variation, locked dimensions must equal the source. Nonzero variation
-  does not waive the zero-control exactness check.
+- At 0% variation, locked dimensions must equal the declared supplied-state
+  baseline. Nonzero variation does not waive the zero-control exactness check.
+- Compare untouched authoritative relationships, owners and obligations as well
+  as reconstructed notes. Verify save/reload and a subsequent dependent edit;
+  unchanged sounding notes cannot prove that a relationship survived.
+
+**Zero and its baseline:** Zero locks the declared feature of the composition
+supplied to the operation. On an original-state input, zero reconstruction must
+equal the original source within the declared boundary. After an edit, CURRENT
+zero preserves the edited state; it is not an implicit revert. Returning to
+earlier or original choices is a separate explicit supported operation and proof.
+Original observations remain immutable regardless of the current realization.
 
 **Required evidence:** stripped input, actual I/O-denial tests and read audit,
 shared-relation version/hash, reconstruction output and independent field diff.
@@ -92,6 +104,13 @@ Review actual data, not just the contract:
   Preserve competing interpretations rather than force a convenient label.
 - Check interpretations against actual source evidence. Two models agreeing,
   a successful inverse or syntactically valid JSON does not validate meaning.
+- Distinguish support for a musical relationship, for a particular realization,
+  and for preferring that realization in context. An intentional transformation
+  allowed by the operation's contract may realize new notes while preserving
+  supported relationships and locks. This does not establish artist preference;
+  mechanical feasibility does not establish musical usefulness. Admitted musical
+  intentions are permitted; hardcoded output or outcome-selected evidence that
+  bypasses the shared relationships is not.
 - Inspect reconstruction parameters for disguised lower-tier copies. Inspect
   abstractions for discarded details or unsupported labels. Both are failures.
 - Separate musical function from claims about emotion or artistic intent.
@@ -124,7 +143,20 @@ regression; use a fresh, preselected case at meaningful end-to-end checkpoints.
 
 ## What failure stops
 
-- FAIL or NOT RUN blocks claiming completion of the affected tier/scope and
+Completion of an evaluation is separate from the capability it establishes.
+A correct refusal can verify safety or eligibility without demonstrating creative
+applicability. An artist-identity refusal before capture establishes no musical
+result. Report source preservation, applicability, changed-output portability and
+musical acceptance separately, using the existing S/A/G/N/L register in
+[PROJECT_COMPLETION_PLAN.md](PROJECT_COMPLETION_PLAN.md).
+
+Preserve the approved bounded T2–T4 MVP decisions and their recorded limitations.
+They do not convert refusals or no-fit cases into positive creative generalization.
+For remaining exits, apply the explicitly declared acceptance scope and all three
+QA requirements. A completed evaluation does not replace a required PASS. Preserve
+the first frozen outcome; a repaired replay remains development evidence.
+
+- FAIL or NOT RUN on a required acceptance claim blocks completing that scope or
   promoting it as a verified foundation. Passing old codec tests cannot bypass
   the musical-abstraction gate.
 - Diagnose and repair the failing assumption; preserve counterexamples and
@@ -140,7 +172,14 @@ For each gate record: status (PASS / FAIL / NOT RUN / INCONCLUSIVE), exact tier,
 fields and song scope, commands, evidence paths, counterexamples, unresolved
 questions, Planner verdict and next action. No combined green percentage.
 
-## Current truth
+## Historical implementation snapshot — October 2026
+
+The statements below describe implementation availability and execution status
+at that checkpoint. They are not current instructions to pause work, restart a
+schedule or rebuild an inverse. Current capability and acceptance are recorded
+in [PROJECT_COMPLETION_PLAN.md](PROJECT_COMPLETION_PLAN.md); subsequent execution
+evidence is in [THEMATIC_RETURN_PROGRESS.md](THEMATIC_RETURN_PROGRESS.md).
+The gate definitions above remain binding within their declared scope.
 
 2026-10-22 QA implementation authorization supersedes the earlier documentation-only
 scope for QA machinery. See QA_IMPLEMENTATION_PROGRESS.md. Executable source checks
@@ -156,7 +195,7 @@ No new complete tier chain or full inverse is claimed to pass these three gates.
 This policy is enforced through work instructions and review; it is not a claim
 that all automated gate runners already exist.
 
-## Policy installation checklist
+## Historical policy installation checklist
 
 - [x] Define all three gates, evidence, cadence and failure consequences.
 - [x] Link active handoff/context/reset and historical QA entry point to this policy.

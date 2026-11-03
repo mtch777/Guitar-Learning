@@ -1,4 +1,37 @@
-## Active update — 2026-11-03: one return combines rhythm and melody
+# Composition Lab — context entry point
+
+Use [PROJECT_COMPLETION_PLAN.md](PROJECT_COMPLETION_PLAN.md) for current
+requirements/acceptance, [DEVELOPMENT_OPERATING_RULES.md](DEVELOPMENT_OPERATING_RULES.md)
+for working method, and [THEMATIC_RETURN_PROGRESS.md](THEMATIC_RETURN_PROGRESS.md)
+for the active contract/next action. [HANDOFF.md](HANDOFF.md) preserves execution
+context/history. Historical records are evidence, not additional task queues.
+
+Root owns integration; confirm each task's files/interfaces before editing.
+The canonical plan, not copied delivery narratives, determines current status.
+
+Artist scope: **Invent Animate → Currents → ERRA**, in that priority order.
+Other artists remain history/regression only. Preserve all first frozen outcomes;
+no easier-source replacement. Tool is accepted/closed except demonstrated regressions.
+
+Reuse the existing listening page and URL under
+[LISTENING_REVIEW_TEMPLATE.md](LISTENING_REVIEW_TEMPLATE.md): untouched original,
+named comparison baseline, actual changes, colored notes, specific questions and
+four context bars by default. Self-QA routine accepted variants and continue;
+new musical judgments/tier exits retain their declared acceptance requirements.
+
+Preserve original source/evidence, stable occurrences, timing, ties/techniques,
+sole ownership and atomic refusal. Do not publish commercial scores, private
+annotations, credentials or weights. Bulk source/analysis storage follows
+[ARTIFACT_STORAGE_MIGRATION.md](../.github/ARTIFACT_STORAGE_MIGRATION.md): draft
+Releases, existing encryption, verified replacement size/SHA-256 before removal.
+
+## Historical steering records retained — reconciled2026-11-03
+
+Historical records below preserve their original results, failures and then-current
+instructions. Their next/pending/active/CI statements describe recorded checkpoints;
+they do not override the canonical plan, operating rules or active checklist above.
+
+## Historical checkpoint — Active update — 2026-11-03: one return combines rhythm and melody
 
 The same saved return now has the later paired-guitar groove followed by an
 opposite melodic approach to the same arrival. The source-marked return section
@@ -21,7 +54,7 @@ occurrence correspondence before implementation. Keep the accepted safe-variatio
 autonomy: self-QA routine variants, deliver audio, and continue. No approval stop
 for every example. This block supersedes earlier next-action paragraphs.
 
-## Active update — 2026-11-03: shared rhythmic displacement delivered
+## Historical checkpoint — Active update — 2026-11-03: shared rhythmic displacement delivered
 
 The user accepted the earlier in-key approach and said safe, unchanged-rhythm
 variations do not require an approval stop. Self-QA these, preserve the feedback,
@@ -50,7 +83,7 @@ now supports a coherent rhythmic intention; it does not establish learned taste,
 automatic buildup or T5 completion. Keep listening optional while finishing
 independent work. See THEMATIC_RETURN_PROGRESS.md for evidence and next action.
 
-## Current milestone - automatically find and prepare melodic approaches (2026-11-03)
+## Historical checkpoint — Current milestone - automatically find and prepare melodic approaches (2026-11-03)
 
 The user accepts this direction as a starting point, not as completed T5 or
 learned artistic choice. The caller now supplies only the current composition.
@@ -76,290 +109,144 @@ retain the declared singleton/tie, gap, voice and ownership limits. Do not add
 ranking or a collection campaign to disguise an unsupported result.
 See THEMATIC_RETURN_PROGRESS.md. This block supersedes older active instructions.
 
-## Active Tier2 implementation authorization (2026-10-22, latest human request)
+# Composition Lab — current execution
 
-User explicitly authorized resolving and implementing the Tier2 interface with
-ProjectPlanner3000, SAME forward/backward relationships, and all three QA gates.
-This supersedes the older design-only/no-active-inverse pause for the bounded
-musical interface. See TIER2_INTERFACE.md and TIER2_IMPLEMENTATION_PROGRESS.md.
-Written-start compatibility/voicing and nominal written-duration overlaps now have
-an actual shared inverse; this is NOT full key/mode/note-function/GP completion.
-Accepted detectors/conversion and unrelated WIP are preserved. No QABot revival.
-Automation was deleted previously; do not claim scheduled work remains active.
+## Historical checkpoint — Current decision - T2-T4 MVPs accepted; T5 listening checkpoint
 
-## Reversible execution checkpoint (2026-10-21 17:59 UTC)
+T4 approval: "That's great. Continue." Its bounded exit remains closed, including
+the accepted moving drums and guitar contrast. Full T2-T4 requirements stay OPEN.
 
-Read REVERSIBLE_STATUS.md and REVERSIBLE_TIER_QA.md for current requirements/evidence.
-Delivered control90d2a9e: owned version2 composes music, temporal and repeat constraints.
-Frozen98:420119notes/397regions/355ending declarations; all music/source/baseline/code
-checks unchanged. CI39641368035SUCCESS. Numeric projection76a7660 CI39637836751SUCCESS.
-Written clock now passes ALL98 pure AND guarded inverses, all10rawgates:59021origins,
-11137frames/687addresses. Delivered5e9f0a8,CI39647158711SUCCESS. Original source warnings stay;
-no invented timing repairs. Higher rhythm removes ALL beat-onset parameters and
-recovers exact clock parents across98captures. Same worker now supports--rhythm;
-freshv15passes5117notes/all10rawgates/parentidentities; full734run733pass1skip.
-Final98guarded replayPASS:420119notes, entire sealed sourcecheckedfacts equal;
-source/models/baselinefacts/25executionfiles unchanged. Deliveredf60e953,
-CI39648497937SUCCESS. Next: remaining sourcefields andhighermusicalrelationships.
-No final Planner integration assessment: collaborator hit usage error. Saved prior
-owned audit did finish10/10PASS; do not confuse that with new-feature approval.
-Full source/GP inverse, technique execution, harmony/phrases/artist abstraction and
-style levers remain OPEN. No musical-quality/listening claim. Preserve private
-captures/GPs/models/audio/baselines, accepted detectors and unrelated unfinished work.
+T5 now connects the first chorus's guitar material choice to a later return, or
+keeps that return independent. Same first-chorus development in both versions;
+only paired guitars in bars107-110 differ. Fixed complete155-bar form, other parts,
+accepted49-56 and ending retained. This is live material-choice recall, not
+arbitrary melodic development or automatic best-arrangement selection.
+See THEMATIC_RETURN_PROGRESS.md and private melodic-movement-invent-animate-v1.
 
-## Active correction: executable reversible tiers + recurring QA (2026-10-20)
+Seven canonical source/lower-denied boundary/composed proofs PASS after removing
+the newly redundant return definition. Actual0/50/100 and saved successive edits
+PASS. The EXISTING5280 listening page defaults to 22.326-second clips; full-song audio is retained.
+QA3 dependency verified; user finds musical development insufficient. Do not promote T5
+or begin T6 before its listening/exit decision.
 
-Read REVERSIBLE_TIER_QA.md FIRST. User stopped report-routing and separate inverse
-recreation attempts. v16 is a verified mapping, NOT the required tiered engine.
-Two permanent gates: a frozen random new Songsterr capture through unchanged
-logic, and stripped-lower-tier reversal using the SAME mathematical relations.
-Keep failure histories; no source replay, hidden caches or guessed notes.
-First bounded shared pitch/time operator passes actual Black Dog direct-source
-checks; full GP/notation inverse stays RED. Next: beat/voice/rest/grace topology,
-then physical settings/fingering/percussion. Collaborate only with Planner.
-Active continuation automation:composition-lab-reversible-tier-qa,15minutes
-through October21 noon Denver. Preserve all source/baselines/unrelated WIP.
+Fresh unchanged test: Invent Animate Labyrinthe846816. Complete source preservation
+and denied reconstruction PASS; current T3 grammar found no fit across496 windows.
+T4/T5 NOT_REACHED; new-song creative portability NOT_ESTABLISHED. Initial restricted
+runner DNS failure retained; same seed/code recovered outside runner, one selection.
+No reroll, musical patch or new-source campaign. This supersedes older current-work
+instructions below; failed/rejected artifacts remain preserved.
 
-## Captured-source tiered representation — current user decision (2026-10-20)
 
-Tier0 is now the exact captured Songsterr JSON (metadata + every track), NOT GP.
-GP is a separate export/playback comparison artifact. User authorized the whole
-Cloud Cascade460099 revision9588298 mapping pilot using ALL applicable existing
-analysis, physically nested tiers5→0, timed and connected evidence, with
-ProjectPlanner3000 critique and final artifact approval before presentation.
-Read TIERED_SONG_STRUCTURE.md and TIERED_SONG_PROGRESS.md. Preserve source payloads
-privately. No invented modes/roles/phrases; computed hypotheses are explicit.
-Single-song artist-labelled statistics are not artist-wide generalization.
-Earlier GP-source architecture below is historical where it conflicts with this
-new decision. Pedal detection remains approved/unchanged; no new generation work.
+**Listening page reuse:** user requires the same page for future feedback: untouched original, what changed, colored note differences, specific listening questions. Repopulate using [LISTENING_REVIEW_TEMPLATE.md](LISTENING_REVIEW_TEMPLATE.md); do not rebuild the UI or rerender verified audio for presentation changes. Planner instructions carry the same rule.
 
-## Active architecture direction (2026-10-20)
+**Current artist scope:** ONLY Invent Animate (first priority), Currents (second), ERRA (third). Next new musical demonstration: Invent Animate. Other artists' existing artifacts are retained regression/history only. This supersedes the Gary-specific next-example wording below; generic capability work continues.
 
-Read ANALYSIS_INVERSE_PLAN.md. User wants one robust musical-analysis
-representation whose blind inverse exactly reconstructs GP musical/performance
-content; later variation uses the same relationships and rules. Freeze new
-separate post-analysis recreation experiments. Next gates: dependency/field
-inventory, explicit contract, safe archive boundary, blind pilot, corpus coverage,
-relationship construction, measured controls. No physical archive yet; shared
-checkpoint extractor and read/export/render/verification helpers must survive.
-Pedal identification remains closed; schedules paused. Historical next actions
-below do not override this direction. Planning only; inverse not yet demonstrated.
+**Authoritative requirements, capability status and exits:**
+[PROJECT_COMPLETION_PLAN.md](PROJECT_COMPLETION_PLAN.md).
+Maintain that register; demonstrations supply evidence, not competing work plans.
 
-## Current requirements register — 2026-10-19
+## Historical checkpoint — Latest listening comparison — 2026-11-02
 
-Read REQUIREMENTS_STATUS.md and requirements_status.json before reporting
-Composition Lab completion. They map all original16workstreams to roadmap2–8,
-retain failed/open targets and distinguish bounded implementation from acceptance.
-Melody-function+relative-octave remains outstanding beyond literalMIDI controls.
-Pedal IDENTIFICATION/approved continuation are closed; analysis/recreation/creative
-use remain open alongside other techniques, with no special pedal priority.
-Scheduled automation remains paused. Follow the active user-authorized gate;
-do not infer a new implementation scope from historical next-action paragraphs.
+**Latest feedback supersedes pending wording below:** return feels harder but
+lead-in feels dead. T4 needs anticipation/musical contrast, not silence versus
+noise. Root/Planner approved first bounded revision: keep original drum development
+and52 pickup, allocate sparse guitar pair only; accepted clean and53 return fixed.
+Use existing operators/page; no new timing engine, raw-note patch or broader roadmap.
+Retain rejected audio and fresh refusal. T4 acceptance remains OPEN.
 
-## Bend workflow integration (2026-10-18)
+**Revision delivered for listening:** fourth version, `Revised lead-in`, now on the
+same LAN page. Only drums differ from the rejected attempt: original development
+and pickup restored; sparse guitars, accepted melody and heavy return preserved.
+Five denied inverse checks and saved subsequent return PASS; native21,733 checks
+and matched full-band audio PASS. Browser/phone inspected; changed-part filter
+shows59 added/46 removed drum events. No UI rebuild or operator changes.
+Final receipt: `local-artifacts/melodic-movement-invent-animate-v1/t4-anticipation-001/delivery-result.json`.
+QA1 earlier identity refusal remains; QA2 passed; QA3 musical fit awaits listening.
 
-Read BEND_WORKFLOW_INTEGRATION.md for default paired export/catalog/automatic
-render loading. No per-job bend path is needed for adjacent companions. Existing
-legacy exports are preserved; new paired corpus is local-artifacts/bend-routine-corpus-v1.
-Further standalone native GP bend repair stays parked. No new bend research gate.
+User requested four bars before/after, untouched source audio and a piano roll.
+Initial delivery was bars45–60 in THREE versions: untouched captured score, accepted guitar
+changes, new backing changes. Private: local-artifacts/melodic-movement-invent-animate-v1/t4-expanded-001/.
+Live Wi-Fi viewer: http://192.168.0.12:5280/ (server must remain running).
+Source/native/three matched renders/Planner/browser/390px layout checks pass;
+all10 active parts and sounding attacks represented, including drums.
+UI source commit a0093b603318516a054b214a92d45592a3a320c4 published; CI41518845808 pending.
+Prior T4 operator CI41503479983 succeeded. Musical listening and T4MVP remain pending.
+No engine, source or gateway changes. Current evidence: result.json,
+planner-independent-review.json, ui-verification.json, EXPANDED_LISTENING_PROGRESS.md.
 
-## Remaining analysis repairs, pass 2 (2026-10-18)
+## Historical checkpoint — Active: accepted bounded T2/T3; T4 audio ready; listening pending; fresh identity refusal — 2026-11-02
 
-Read ANALYSIS_REPAIR_PASS2.md and songsterr_automation/BEND_FIDELITY.md.
-Typed slide analysis verifies2,553clear targets against independent native links.
-Separate unpitched notation records18dead/dead links;3mixed ties stay unknown.
-Safe local regions recover610/626bars from4excluded guitar tracks, in separate
-relationship_details output; global detectors/profiles are not silently enabled.
-Opt-in GP+exact-model-bend sidecar preserves supplied model curves through
-alphaTab playback. Native GP alone remains lossy; raw API precision is not
-recovered. Exporter and renderer support explicit sidecar use. Pedals unchanged.
+Canonical scope/status: [PROJECT_COMPLETION_PLAN.md](PROJECT_COMPLETION_PLAN.md).
+T2MVP and bounded T3MVP remain ACCEPTED; full T2/T3 and T4MVP remain OPEN.
+The heard T3 comparison is accepted only for that variation. Captive's75,307-fact
+preservation/generic zero and618-window no-fit stay unchanged: no fresh T3 operator
+or creative portability established, no reroll or broader call/response claim.
 
-## Analysis blocker probes and repairs (2026-10-18)
+Peer-execution regression repaired/reviewed and published0b0e3e9b3f34e69db6a4f8cb06ea90a3f6a5e608.
+Original peer scopes now constrain placement and saved inverse; safe legacy zero/
+plain reloads are preserved, unsafe uncontracted technique edits refuse.65 committed-
+dependency tests pass; actual IA boundary/composed/nonzero/save plus final legacy/v2
+source-denied checks pass. All14 capture files equal approved audio inputs. The
+oracle document-order mistake remains recorded; strict original-T1-order comparison
+used no exclusions or source edits. **Repair CI41483239633 SUCCESS (verified).** This is
+bounded safety closure, not new artistic capability or generalization.
 
-See ANALYSIS_UNBLOCK_RESULTS.md for measured outcomes. Explicit whole-measure
-rest semantics fixed: overflow55→14 overall,39→12guitar;16guitar tracks recovered.
-Ghost dynamics are inherited written markings, not897missing source values.
-Identity-checked GP7 export restores18dead/tied flags on private rebuilt copies.
-Remaining pitched overflows, unpitched sustain meaning and bend curve losses
-remain open. Source-free bend probe demonstrates both curve/model and MIDI loss.
-Pedal detector unchanged and approval closed. Preserve all original artifacts.
+T4 initial audible capability READY FOR LISTENING, NOT accepted or complete.
+The SAME live accepted49–56 foreground remains; coordinated sparse57–60 material
+now supports49–52 before the unchanged dense53–56 return. Source definitions and
+stable use/placement identities remain distinct; target guitar dynamics are locked.
+Latest t4-final-001/result.json passes FIVE source-denied individual/composed checks:
+original/changed source, original/changed T4→T3 and changed T3→T2. Original sources
+and caches were unavailable; latest candidate exactly matches rendered capture.
+t4-listening-001/result.json verifies matched13-part,129BPM,gain0.3 audio,14.884s;
+original PCM equals accepted T3. Native checks18,262 original/15,976 changed pass.
+preservation.json proves foreground, dense return and outside notes/beats/callbacks
+plus10,656 normalized MIDI events exact. The seam has3q guitar silence; drums end
+at208, the dense return. Initial ordinal/rest-oracle failure is retained; corrected
+comparison uses bound callback identities and only actual selected rest clocks.
+QA1 T4 ATTEMPTED_SOURCE_IDENTITY_REFUSAL: frozen seed8238739780142114253,
+200 exclusions/two eligible IDs selected6656103. Search artist Invent Animate;
+metadata artist Misc Covers. Exact-artist rule refused BEFORE tracks/analysis:
+two requests,zero track requests/zero rerolls. Independent replay and all1,103
+code/archive identities pass (fresh-t4-001/completion-review.json). Pre-request
+wording/raw-oracle correction retained original seed and prior freeze bytes.
+Creative portability NOT ESTABLISHED; no cover exception or new draw. Captive
+no-fit remains unchanged. QA2 actual denied inverse PASS. QA3 coordinated material allocation is
+technically demonstrated; human meaningfulness/listening PENDING. No T5 advance.
+Next exact action: user listening on whether the sparse opening makes the dense
+return feel purposeful; retain fresh identity refusal without another draw.
+Initial material defects/fixes and grace-order failure001 remain recorded in
+T4_PROGRESS.md. Material47051c8 via72041f4 has CI41496280386 SUCCESS (verified).
+Allocation source a0747b536df186f8cad8e2d7c1fa286daa99338b is published on main
+(five files only);41 committed-dependency tests pass with latest operator hashes.
+t4-controls-001 passes0/50/100:50 locked and released/changing;100 changed and
+unchanged. Saved CURRENT zero and subsequent dense return preserve exact original
+source. CI41503479983 IN PROGRESS, not claimed passed.
+Only Invent Animate→Currents→ERRA; other artists stay history/regression.
 
-## Autonomous artist-pipeline work (2026-10-18)
+Tool's accepted controls are CLOSED and reusable. Reopen only for a demonstrated
+regression. Gary's bend landing E is accepted for that example; landing D♯ rejected.
+User default: new bend landings/held notes should be in key; chromatic approaches
+remain possible. Key collection, tonal center and chord membership are distinct.
+No source rewriting at0%; no fabricated certainty from a chord or profile rank.
 
-Read AUTONOMOUS_COMPLETION.md for the current persistent checklist and evidence.
-Latest integration:compose_controlled.py and CONTROLLED_PIPELINE.md connect eleven
-bounded controls on plain generated cores.17private cases pass native/lock/curve
-checks; all0byte identity and one full100reference-perturbation replay verified.
-Form/tuning/track count/topology controls remain unsupported, musical acceptance
-remains open. Do not treat this as completion of the broad engine roadmap.
-Pedals remain approved/closed. Artist profiles, literal-lock controls, role-pitch,
-performance and full-song form prototypes have verified private GP batches;
-technical validity is not musical acceptance. Commits8319749 and0141e82 passed
-GitHub CI. Four full-song previews last122–299seconds; no listening verdict.
-Current investigation: source/generated context distributions and an opt-in
-same-source-bar cross-role pattern experiment. Preserve independent-role defaults,
-old outputs and all private source/model/audio exclusions. Do not infer completion
-of steps2–8 from these bounded checkpoints or reopen approved pedal detection.
+## Execution and evidence
 
-## Pedals approved — complete (2026-10-18)
+Use DEVELOPMENT_OPERATING_RULES.md and THREE_QA_GATES.md. First test useful freedom,
+check unchanged playback early, implement the smallest reusable relationship,
+verify source-denied zero/nonzero/save-reload/dependencies, then present first
+verified full-band audio. Fresh evaluation at meaningful milestones, frozen before
+selection; retained-source repair is development evidence. Listening stays separate.
+Root integrates shared structures serially; agents own disjoint files/interfaces.
+Planner challenges start/middle/end. Every~10steps ask which musical decision is
+newly usable and which remaining requirement is closer to completion.
 
-User approved the additive continuation review and explicitly said “done with
-pedals.” Pedal identification, call/response boundaries and additive phrase
-expansion are accepted for the current milestone. Do not reopen generic pedal
-identification/listening work. Preserve the accepted detector and expansion pass
-as a regression baseline. Next work belongs to broader artist profiles, technique
-methods/transfer, levers and composition; approval is not validation of those.
+Current implementation log and checklist: MELODY_FIGURE_PROGRESS.md.
+Private source/audio/feedback stay private. Commit verified source increments and
+check release CI. Do not re-run broad suites or collect songs without a new reason.
 
-## Additive pedal continuation (2026-10-18)
-
-Latest user direction: keep detection unchanged; expand established phrases only.
-Read songsterr_automation/PEDAL_EXPANSION.md and PEDAL_EXPANSION_PROGRESS.md.
-Separate pass: pedal_expansion.py; exact anchor, later answers/returns, stronger
-earlier-evidence requirement, disjoint merges. All 2,239 support chains retained;
-178 expanded/combined outputs in four private review queues on loopback5196.
-No seed deletion/shortening or original-role changes. Detector hash unchanged.
-Prior port5195 review remains intact. Listening acceptance of expansion is pending.
-
-## Pedal evidence correction (2026-10-18)
-
-Read songsterr_automation/PEDAL_EVIDENCE_CORRECTION.md and
-PEDAL_CORRECTION_PROGRESS.md. `pedal_evidence.py` adds strict later-answer timing,
-local anchor proof, written-chord/tie handling and final role validation. Baseline
-`pedal_register.py` and old artifacts remain unchanged. New runner option:
-`rebuild_pedal_review.py --evidence`; do not silently promote the experiment.
-Sealed evaluation: 28/28 bounded decisions and 176/176 marked notes; 1,854 scopes
-fully audited. Two short excerpts differ from their complete support context;
-three complete patterns expose the evidence rather than cropping it. Human
-musical acceptance remains pending. Private review is loopback-only; sources,
-feedback and commercial-source playback must not be published.
-
-## Pedal acceptance reopened (2026-10-18)
-
-Latest requirements/code mismatch: songsterr_automation/PEDAL_CRITERIA_AUDIT.md.
-Current register hypotheses do not establish local anchor identity or independent
-response timing. Acceptance remains open; UI improvements are separate.
-
-Read songsterr_automation/PEDAL_BOUNDARY_INVESTIGATION.md before the historical
-acceptance below. Pedal-register correction and source-identical review replace
-the old labels for review, pending human judgment. Current implementation:
-pedal_register.py and songsterr_api/rebuild_pedal_review.py. Preserve old methods
-and artifacts as baselines; do not confuse corpus integrity with musical accuracy.
-
-## Current pedal milestone (historical)
-
-User accepted pedal identification after the fresh-song review. Do not reopen that
-review. New goal is exact call/response relationships; see songsterr_automation/
-PEDAL_DIALOGUE.md. Corpus analysis measured16814operational exchanges across1563
-regions with exact occurrence audit, pitch/rhythm/texture/technique/gap/overlap and
-same-call answer-family evidence. Source examples remain private. No generation or
-musical-intent claim. Current work shifts toward using these observed relationships.
-
-## Latest step2 continuation (2026-10-17)
-
-Read songsterr_automation/PATTERN_ROBUSTNESS.md. Added pedal overlap collapse,
-exact normalized nonoverlapping recurrence, rhythmic sensitivity and sustained-note
-construction sweep. Private pedal-identification-v2 at port5185 is six unchanged
-source passages with highlighted proposed anchors and full/focused audio, not a
-technique-edit comparison. Previous brush/transfer review was premature and is not
-an analysis acceptance gate. No human judgments entered. 211 Python tests (one
-optional skip),18JS/build pass. Semantic anchor function remains for independent
-judgment; source-only rule metrics are not musical accuracy.
-
-## 2026-10-17 musical-field validation update
-
-Read songsterr_automation/MUSICAL_FIELDS_RESULTS.md and TECHNIQUE_ANALYSIS_CONTRACT.md. Latest local implementation supersedes the earlier 65-path coverage snapshot: 114 analyzed / 77 retained / 11 unsupported / 16 outside scope, 218 total, zero unmapped. All 98 entries / 495 tracks rerun. Independent raw-readback checks 420119 written/grace occurrences; independent notation oracle checks 190890 eligible attack groups including negatives; zero failed checks. This is rule/preservation agreement, not human musical precision/recall. Raw v1 bend semitone labels were doubled; v2 corrects tone/50; prior GP audio was unaffected. Private source-technique-passages-v5 has 4 contextual comparisons / 8 modified GPs / 16 previews on loopback5183. Pedal/phrase/function and feel remain unvalidated; 24 GP conversion-fidelity flags remain. Persistent checklist and remote delivery evidence: MUSICAL_FIELDS_PROGRESS.md.
-
-**Latest API coverage audit (2026-10-17):** Read songsterr_automation/API_FIELD_COVERAGE.md and API_COVERAGE_PROGRESS.md. Every nested observed path across98metadata/495tracks is explicitly mapped:218paths,65analyzed at varying depths,83retained_only,54unsupported,16not_applicable;0unmapped. This is an audit of current analysis, not implementation of the missing fields. Parent marker presence/raw capture/hash-only use is not complete child-value interpretation. Strict CLI flags future unknown fields. Private per-source coverage remains ignored. Analyzer/source scores/baselines unchanged; precise bend positions, per-point vibrato, brush/whammy/tempo/repeat/rest/role semantics and raw section-marker layout leakage are documented gaps.
-
-**Latest corpus analysis (2026-10-17):** Read songsterr_automation/ANALYSIS_RESULTS.md and ANALYSIS_PROGRESS.md. Source-grounded relational analysis now runs on all98 entries/495tracks, preserving exact source occurrence context and reporting conditional technique distributions, provenance cohorts and candidate work families.88 source-located evidence cases/2904context-control occurrences verified by raw readback.55 overflowing voice/bar observations across25tracks are retained in notation counts and excluded from temporal candidates. No inferred musical-function accuracy, feel preservation or new generation acceptance is claimed. The older first-inventory counts below predate cross-voice coattack/attack-only and timing-quality gates. Private ANALYSIS.md and analysis-evidence.json are in local-artifacts/invent-animate-corpus-v1.
-**Current source-grounded corpus direction (2026-10-17):** Read songsterr_automation/CORPUS_RESULTS.md and CORPUS_PROGRESS.md. User rejected authored pattern exercises; song evidence must determine technique relationships/repetition lengths. CSV acquisition complete:98 private reconstructed GPs/495tracks, all reopen in vanilla alphaTab;74 pass tested detailed roundtrip fields,24 flagged. Raw source inventory complete, not musical-function validation. Private folder local-artifacts/invent-animate-corpus-v1; catalog.csv and gp-files/. Next: source-located identification/counterexamples, conditional analysis, exact real-passage recreation, constrained context transfer, then novelty/feel review. Do not revive generic authored A/B studies or interpret conversion/annotation absence as artist style.
-
-**Latest user correction:** Authored blind study retired as unhelpful/source-unrelated. Fretted HOPO listening excluded; retain open-string cases. Vibrato preferred Slight speed, half depth via explicit playback profile (360 ticks / 0.25 semitones). Close texture now EXACTLY one semitone. Corrected labeled diagnostics: technique-corrections-v1, port 5180. No further ratings requested. Older v6/35-pair delivery below is historical.
-
-# Composition Lab — Codex context and autonomous execution plan
-
-**Latest technique execution:** Read TECHNIQUE_RESULTS.md and newest TECHNIQUE_ROADMAP.md entry. Intermediate controls, five construction families, 30 guitar cases, 80 authored GP/audio probes, 35-pair local review implemented. Private technique-review-v6 at port 5180; 5179 is old bends. Human acceptance/authentic HOPO pending. No artist-learning claim.
-
-**Current goal, 2026-10-16:** extend scripted analysis and exact-lock experiments to fretted/open-string HOPO, finger vibrato, pedal patterns, close dyads, power/extended power chords and double stops. Execution checklist and precise definitions: `TECHNIQUE_ROADMAP.md`. Bends remain preserved baseline. User confirmed higher-position fretted pull-offs and clarified that “tremolo” meant bending-based vibrato, not rapid picking. Double stops use the plain definition of two notes together; no further category-choice question needed. Raw beat-level arm-vibrato property exists in Time despite earlier absence of note-level vibrato tags.
-
-**2026-10-16 control contract correction:** latest user instruction supersedes older difference-target language: 0% is a literal selected-feature lock; 100% removes direct reference constraints, without forcing difference. Performance and arrangement are separate. First working bend-only lever, verified endpoints and private audio comparison: `LEVER_IMPLEMENTATION.md`. Other levers are not claimed implemented under this revised contract.
-
-Updated 2026-10-15. Read `composition-lab/HANDOFF.md` for full historical detail (it is long). Verify against current main.
-
-**External comparison 2026-10-16:** read `EXTERNAL_COMPARISON.md` and the source-free external comparison/copying JSON reports. Actual upstream Yin-Yang generator/refiner/selector and AMT accompaniment ran on source-conditioned inputs. Nineteen GPs independently verified; six phrase and four arrangement cases loaded privately in separate review tabs. Earlier identical four-second openings confirmed. One upstream negative duration rejected with paired retry; two no-future AMT controls hit explicit resource caps. Sweet motif returns include 16-event source matches. No artist fitting, learned global-form success, originality certification or new human listening verdict is claimed. Previous baselines/ratings preserved.
-
-**Latest autonomous continuation:** read `EXECUTION_16.md` and `AUTONOMOUS_RESULTS.md` before the historical missing-input notes below. Inputs and pretrained inference were recovered in earlier commits. The current run generated 100 full-length experimental GP compositions and 15 control outputs, with a private 22-case consolidated review. Structural/form and guitar-transfer acceptance gates remain failed/partial; no new human musical judgments exist. Private artifacts and weights remain outside Git. Current code and recorded measured evidence supersede earlier blockers.
-
-## Objective
-Analyze symbolic music in Guitar Pro (.gp) files, learn relationships among harmony, melody, rhythm, phrasing, structure, instrument roles and guitar techniques, and generate genuinely original, coherent, playable multi-track Guitar Pro compositions. Genre agnostic, not hard-coded to one song, key, tuning or instrument count.
-
-## User's key feedback and lessons
-- Original Cloud Cascade V2 baseline sounded musically better than source-conditioned Sweet Child experiment, even though the baseline was hard-coded and inflexible.
-- Cloud and Sweet baseline outputs were effectively the same D Aeolian eight-string riff generator, independent of input source. This is not acceptable source-conditioned generation.
-- Sweet Child source-conditioned output was discordant and mostly chords with no melodic phrases. It sampled Izzy Stradlin's rhythm guitar independently for pitches/rhythm, ignoring lead melody, chord progression, bass, drums, voice leading, phrases, form and roles. Both Sweet outputs were wrongly 8-string because the writer used Cloud Cascade as a shell.
-- A score round-trip or GP parser passing is not evidence of musical quality. Require real generated GP artifacts, playback, metrics and listening comparisons.
-- Avoid endless isolated diagnostic scripts; connect relational analysis (P3) to actual composition generation (P4).
-
-## Research-backed architecture
-Immutable occurrence-level GP events with rational onset/duration and all original track/voice/note/string/fret/tie/technique metadata
-  -> temporal, harmonic, voice, phrase and section relational graph
-  -> multi-task predictions (root, quality, inversion, bass, non-chord tones, phrases, cadences, roles)
-  -> independently conditioned role/phrase/harmony/rhythm generation and edit operations
-  -> exact occurrence-aware GP export and verifiable listening tests.
-
-Relevant research and code:
-- AnalysisGNN: https://github.com/manoskary/analysisgnn (multitask graph analysis, pretrained inference; upstream under construction; classical-to-rock domain shift must be measured)
-- BeatEdit: https://github.com/Haoyu-Gu/BeatEdit-code (KEEP/DELETE/REPLACE/INSERT sparse editing)
-- DadaGP: https://github.com/dada-bots/dadaGP (guitar-specific tokens and techniques)
-- REMI-z: https://github.com/Sonata165/REMI-z (track/bar/note hierarchy)
-- Partitura https://github.com/CPJKU/partitura; GraphMuse; FIGARO https://github.com/dvruette/figaro; mir_eval; JAMS.
-- Check checkpoint licensing, training data and redistribution separately.
-
-## Five development steps, in order, but advance independent work if blocked
-1. **Source fidelity + AnalysisGNN benchmark.** Verify existing exact GP extraction and occurrence-aware writer. Round-trip through canonical representation, DadaGP-inspired tokens and REMI-z-style hierarchy; report attacks, pitch, durations, sustains, voices, string/fret, ties/effects, track and bar positions lost. Convert original GP to MusicXML without losing note identity where possible. Run actual pretrained AnalysisGNN on Cloud Cascade and Sweet Child; collect task outputs and compare to existing inference and human evidence. Do not claim completion if dependencies/checkpoints unavailable. Existing benchmark preflight: composition-lab/benchmarks/analysisgnn_preflight.py. Earlier local XML conversion reported Cloud 6 tracks/111 bars/5314 notes, Sweet 9 tracks/185 bars/10138 notes and 18 Sweet voice-duration discrepancies; those claims need independently reproducible validation.
-2. **Relational P3 graph.** Build on exact events with NEXT_IN_VOICE, SIMULTANEOUS, OVERLAPS, SUSTAINS_INTO, SAME_TRACK, SAME_BEAT, SAME_MEASURE, REPEATS/MOTIF_OF, phrase/section membership. Instrument identity != musical role. Preserve separate chord root/quality/inversion/bass/non-chord-tone hypotheses with confidence. Tests must include held notes, cross-bar ties, polyphony and changing meter.
-3. **Controlled ablation.** Generate same-seed examples with harmony only; harmony+rhythm; +melody; +roles/phrases. Export real GP, validate reparsing, compare melodic notes, sustain ratio, lead continuity, phrase lengths, chord-tone fit, bass movement, onset patterns, copying and track roles. Blind listening comparison with Cloud V2 baseline; don't fabricate human judgments.
-4. **Phrase-aware multi-role generation.** Generate multi-track role-specific melody, harmony, bass, percussion as supported by source. Honor source tuning/instrumentation or explicitly chosen target. Add exact 0% locked dimensions and measurable independent 0-100% harmony/melody/rhythm/structure controls; implement coherent progression, voice leading, motif variation, playable guitar constraints, and form.
-5. **Held-out validation.** Freeze baselines, cross-song splits, no train/test leakage, originality/copying audit, regression suite, reproducible generation seeds, GP artifacts, and listening review protocol. Report limits and actual measured results.
-
-## Existing code pointers
-- composition-lab/checkpoints/2026-10-14/extract.py
-- composition-lab/checkpoints/2026-10-14/music_events.py
-- composition-lab/checkpoints/2026-10-14/gp_occurrence_writer.py
-- composition-lab/checkpoints/2026-10-14/gp_similarity_export.py
-- composition-lab/checkpoints/2026-10-14/sequence_generator_balanced.py
-- composition-lab/checkpoints/2026-10-14/joint_interpretation_v20.py
-- composition-lab/checkpoints/2026-10-14/phrase_discovery_v19.py
-- composition-lab/review_structure_probe.py
-- composition-lab/HANDOFF.md (full project history)
-- Two separate review UIs exist; do not confuse chord/phrase judgment UI with riff-pair listening UI.
-
-## Execution protocol
-Maintain a checked-in progress ledger with acceptance evidence, actual commands, artifacts and next action. Continue automatically after each successful test, within agent/runtime limits. Retry sensible failures, but never fake completion. If a prerequisite is blocked, record the blocker and work on other independent steps. Commit verified code, not private source scores. Avoid changing unrelated guitar-trainer UI. Summarize only when work is done or human input is truly required.
-
-## CRITICAL 2026-10-15 handoff correction: missing local inputs FOUND
-
-Previous assistant claimed the files were unavailable. They have now been recovered from this ChatGPT conversation's mounted artifacts, and a **private local input ZIP** was created for the user to download and extract into the local clone. Do not assume Codex has access to ChatGPT uploads. Do not commit the private ZIP or any original commercial score to the public repository.
-
-ZIP: `Composition_Lab_Codex_Private_Inputs.zip` (supplied to user as a ChatGPT attachment, NOT hosted on public GitHub). Extract into `G:\\Guitar-Learning\\composition-lab\\`. Archive paths start with `private-sources/`. The directory is now in the repository's `.gitignore`.
-
-Recovered contents:
-- `private-sources/Cloud Cascade (Tuned Down).gp` — original 6-track, 111-bar source, SHA256 `63cfae7762a5ac56b2f0521d8c01cbf6025fac74ea525c7a6b7d260703492f66`.
-- `private-sources/Sweet Child O' Mine.gp` — original 9-track, 185-bar source, SHA256 `17c5ecc0606a6334bf2818ba3f2d1f4a8574f0777cf6750565f644a0ee0b9e7f`.
-- `private-sources/experiments/cloud_experiment/` — `Cloud_Cascade_V2_Baseline.gp`, `Cloud_Cascade_Source_Conditioned.gp`, `source_conditioned.py`, `EXPERIMENT_REPORT.md`.
-- `private-sources/experiments/sweet_child_experiment/` — `Sweet_Child_V2_Baseline.gp`, `Sweet_Child_Source_Conditioned.gp`, `source_conditioned.py`, `EXPERIMENT_REPORT.md`.
-- `private-sources/analysisgnn/` — `gp7_to_musicxml.py`, `conversion_report.json`, `preflight/manifest.json`, and two converted MusicXML scores in `musicxml/`. These are experimental outputs and must be independently verified.
-- `private-sources/LOCAL_INPUTS_MANIFEST.json` — hashes of original and experiment GP files.
-
-The converted MusicXML export reported 5314/5314 notes and 0 invalid bars for Cloud, and 10138/10138 notes and 18 invalid bars for Sweet. These are **duration discrepancies**, not necessarily 18 missing notes. Investigate against source rational-time events and GP tuplets/voices. The previous preflight did not run pretrained AnalysisGNN inference because torch_geometric, partitura, graphmuse, and analysisgnn were unavailable. The ZIP contains the converter and exports; `composition-lab/benchmarks/analysisgnn_preflight.py` is already committed.
-
-**Critical remaining limitations/gaps**:
-1. Codex needs the user to extract the ZIP locally. A GitHub commit cannot transfer private copyrighted sources into a Windows local clone safely.
-2. Neither a runnable pretrained checkpoint nor trained inference predictions have been provided. Codex must install dependencies, obtain checkpoint under license, and run inference.
-3. The baseline experiment reports contain structural checks, not verified human blind listening; do not invent evaluations.
-4. Source-conditioned scripts may embed old machine-specific paths. Fix paths locally and preserve their prototype nature.
-5. GP/MusicXML fidelity (ties, techniques, fret/string, track role, tuplets) requires systematic validation; note counts alone are insufficient.
-6. The detailed handoff predates these experiments; this document is the latest correction.
-7. A persistent agent loop is subject to runtime limits; use checked-in progress and acceptance evidence, not false claims of indefinite execution.
-
-**Next action for Codex**: after `git pull` and local ZIP extraction, verify SHA256, inspect reports and converter, rerun the 18 discrepancy analysis, then run AnalysisGNN benchmark while progressing independent graph and generator work. Never publish the private sources.
+Historical context remains local at
+`history/steering-before-capability-register-2026-11-01/CODEX_CONTEXT.md`.
+This private archive is not a public instruction dependency; use the canonical
+plan and operating rules for the complete governing requirements.
+It preserves decisions, failures and baselines; its old active directions are superseded.

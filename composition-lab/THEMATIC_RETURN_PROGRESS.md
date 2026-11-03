@@ -1,6 +1,43 @@
 # T5: live return of an earlier arrangement
 
-## Active integration — develop the same return in rhythm and melody
+## Active contract — the return follows or opposes its earlier melody
+
+Current requirements and tier acceptance are in PROJECT_COMPLETION_PLAN.md.
+This checklist is the active task. Dated delivery records below retain their
+then-current results and next actions; they are not competing assignments.
+
+Musical decision: keep the returning approach independent, make it follow the
+earlier approach's direction, or make it move in the opposite direction. Changing
+that earlier choice after saving must update a linked return. Each occurrence
+keeps its own arrival, rhythm, tie chain, technique and tonal interpretations.
+The existing guitar recall and rhythmic displacement must remain intact.
+
+- [x] Read-only preflight retained all eight comparisons; unique corresponding
+  approach37–40/111–114 within the already linked source-marked choruses. The
+  intro does not substitute for a counterpart; refused47–48/121–122 remain.
+- [x] Planner challenged the effective signed-direction equation and the
+  single-owner boundary before implementation. Same/opposite refers to actual
+  direction, not equality of two original/flip strings.
+- [x] Authored integration: source flip, save, subsequent rhythm edit, reload and
+  another source flip preserve the live dependency; independent return stays put.
+  Two targeted integration tests passed; final release checks still required.
+- [ ] Finish shared fit/inverse validation and clean-candidate regression checks.
+- [ ] Lift the actual earlier approach with existing discovery and prove unchanged
+  current reconstruction before adding the live relationship.
+- [ ] Actual linked/independent successive edits, immutable evidence and preserved
+  owners, independent score comparison and denied composed inverse.
+- [ ] Reuse verified audio when the realized notes are identical. Render only a
+  newly changed state; publish it promptly through the existing listening page.
+- [ ] Planner completion challenge; scoped commit/push and verified CI.
+
+Counterexamples: a coincidental shape outside the linked section; ambiguous
+counterparts; mismatched rhythm/tie/technique structure; two owners for the return
+mode; a rhythm edit that deletes the melodic link while preserving today's notes.
+Unsupported requests must refuse without changing the input. This establishes an
+intentional relationship, not composer intent or an artist's preferred direction.
+Fresh-source creative portability and T5 acceptance remain open.
+
+## Delivered checkpoint — combined return rhythm and melody, 2026-11-03
 
 Planner's next challenge exposed disconnected demonstrations: the current saved
 model changes the opening melody at5–8 and the return rhythm at107–110. It does
@@ -52,7 +89,7 @@ pitches, ranking or broad architecture. Current rhythm and source observations
 must survive. Evidence: combined-return-001, combined-return-release-001,
 combined-return-listening-001, then live-return-approach-preflight-001.
 
-## Current decision — rhythm changes now reach the listening page
+## Delivered checkpoint — rhythmic displacement, 2026-11-03
 
 2026-11-03: the user accepted the safe in-key approach and instructed us not to
 stop for approval on routine safe variations. It stays accepted and protected.

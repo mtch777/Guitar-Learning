@@ -1,8 +1,37 @@
-# Reference-freedom levers
+# Reference-freedom levers — historical bend experiments
 
-Current user contract supersedes older difference-target proposals: 0 means literal lock; 100 means no direct reference values for the unlocked feature, not maximum difference. Intermediate values control reference preference, not a promised perceptual distance. Performance and arrangement are separate.
+This document preserves the contracts and results of earlier bend experiments.
+Its equality-weight interpolation and method-specific reference restrictions
+describe those experiments. Current operations follow their explicitly approved
+contracts in [PROJECT_COMPLETION_PLAN.md](PROJECT_COMPLETION_PLAN.md), with
+[THREE_QA_GATES.md](THREE_QA_GATES.md). Historical “Next” paragraphs are not a new
+task queue or permission to reopen accepted work.
 
-Acceptance checklist:
+## Current contract distinction
+
+- **0** locks the declared feature of the supplied composition. Original-state
+  zero reconstructs the original; saved CURRENT zero preserves the edited state.
+  An explicit revert is a separate operation and proof.
+- **50** is the declared reproducible probability of release, not a promise to
+  change half the notes or produce half the audible difference. Measure release
+  and realized change separately.
+- **100** removes direct preference for the original target-feature value and
+  does not force difference. The frozen T2 MVP retains its explicitly approved
+  finite current/requested candidate mechanism.
+- Removing preference and prohibiting reference access are different constraints.
+  The older redaction/perturbation tests below remain evidence for those methods;
+  they do not impose a new universal input policy or prove broader operations
+  satisfy those restrictions. Consult the relevant approved operation contract.
+
+## Historical bend-only contract — 2026-10-16
+
+At this checkpoint, the contract superseded older difference-target proposals:
+0 meant literal lock; 100 meant no direct reference values for the unlocked
+feature, not maximum difference. Intermediate values controlled reference
+preference, not a promised perceptual distance. Performance and arrangement were
+separate. The saved implementation and results below retain that meaning.
+
+Historical acceptance checklist:
 - [x] Shared, fail-closed GP property edit boundary; archive/locked data verified.
 - [x] Bend lever: 0 produces byte-identical GP; 100 proposals invariant to hidden reference bends.
 - [x] Deterministic method/strength comparisons on actual Time score; all other score data locked.

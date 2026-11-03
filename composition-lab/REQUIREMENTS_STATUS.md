@@ -1,5 +1,36 @@
 # Requirements verification register — 2026-10-19
 
+**Historical register.** Current requirements, acceptance and execution order are
+in [PROJECT_COMPLETION_PLAN.md](PROJECT_COMPLETION_PLAN.md), with
+[THREE_QA_GATES.md](THREE_QA_GATES.md) and
+[DEVELOPMENT_OPERATING_RULES.md](DEVELOPMENT_OPERATING_RULES.md). The active task
+is in [THEMATIC_RETURN_PROGRESS.md](THEMATIC_RETURN_PROGRESS.md). This file and
+[requirements_status.json](requirements_status.json) preserve the earlier roadmap
+and dated evidence. Their “current,” “next,” “pending,” WIP and schedule statements
+describe their checkpoints, not present instructions. Current qualifications below
+do not erase historical failures or reopen approved bounded MVPs.
+
+## Historical bounded evidence correction — 2026-10-31
+
+The active T2 implementation now includes persisted backing-relative melody,
+shared figure register and saved/reloaded register edits with immutable original
+observations. Same-source Santana sequence and Fall Out Boy548 muted-register
+original/saved0/50/100 workers and native/audio checks pass within their named
+scopes. Queen is not the only scoped listening acceptance: selected Santana
+organ-guided and earlier queue examples have user feedback. The latest548 muted
+comparison remains `awaiting_feedback`; later register/Cream/Judas entries retain
+their own queue statuses. Do not generalize earlier approval to those clips.
+
+The newest fresh Korn16220 first failed on popping ownership. A repaired
+same-source replay preserves all67,136 facts, while the selected12-member chord
+group still refuses the singleton owner. The bass-only contextual test was
+negative/ambiguous; the backing-scaffold diagnostic remains under evaluation.
+These are not fresh changed-output success, full T2 acceptance or higher-tier
+completion. PROJECT_COMPLETION_PLAN.md remains the current requirement/order
+authority; the dated tables below remain historical.
+
+## Historical G0 review — 2026-10-19
+
 G0: reconcile requirements before changing the shared engine. Baseline main:
 `fd78baf81b021488a975e36e9da6d89d9e92c58b`. This is a source/evidence review,
 not a new inference, playback, accuracy or listening run.
@@ -10,13 +41,13 @@ verbatim, with current evidence paths, remaining gates and roadmap mappings.
 Original targets remain targets unless a later user instruction supersedes them.
 Old numerical results are dated evidence, not current tests or final acceptance.
 
-## Stable roadmap
+## Earlier roadmap numbering
 
 2 Analysis;3 Artist profiles;4 Generation methods;5 Controlled experiments;
 6 Levers;7 Composition engine;8 Validation/delivery. The16 original workstreams
 are mapped into this scaffold; neither numbering system replaces the other.
 
-## Original16 → current requirements
+## Original16 → earlier requirements register
 
 **Bounded** means a stated engineering/artifact gate has evidence, not that the
 whole musical goal is complete. **Failed/open** preserves an unsuccessful target.
@@ -56,7 +87,11 @@ or reopening failed research merely to make the register green.
 | Phrase-aware multi-role engine and controls | [Current bounded pipeline](CONTROLLED_PIPELINE.md), [execution evidence](AUTONOMOUS_COMPLETION.md) | Functional melody semantics, broad arrangement freedom, learned development and musical identity |
 | Held-out/originality/regression/playback validation | [Original16 evidence](EXECUTION_16.md), subsequent scoped reports and independent QA | Human musical acceptance, pristine final tests and general originality/style claims |
 
-## Binding semantics and explicit boundaries
+## Requirement interpretations and explicit boundaries
+
+The current canonical plan determines which interpretation applies to each
+operation. Broad relational-melody and technique obligations remain separate from
+the accepted finite MVP; historical demonstrations do not silently narrow them.
 
 ### Melody: exactness applies to the specified feature
 
@@ -78,18 +113,49 @@ does not redefine that feature as absoluteMIDI.
 - Incompatible literal-pitch, changed-harmony and fixed-function requests must
   be reported, not silently weakened. No universal precedence choice is invented.
 
-Current literal-pitch/fingering controls are a useful **bounded implementation**,
-not fulfillment of the complete relational melody contract.
+The literal-pitch/fingering controls described at this checkpoint are a useful
+**bounded implementation**, not fulfillment of the complete relational melody
+contract. Current implementation and acceptance are recorded in the canonical plan.
 
 ### Lever endpoints and intermediate behavior
 
-- **0%** means exact identity of the explicitly specified feature.
-- **100%** means no direct original target-feature values in its proposal; coincidence
-  is allowed. Older forced-difference/maximum-distance wording is superseded.
-- Intermediate controls need a named measurable mechanism. Fixed-stage nested
-  release behavior is engineering behavior, not calibrated audible distance.
+- **0%** locks the explicitly specified feature of the composition supplied to
+  the operation. Original-state zero must recover the original source within the
+  declared boundary; saved CURRENT zero preserves the edited state. Explicit
+  return to earlier/original choices requires a separate supported operation and
+  proof. Original observations remain immutable in all cases.
+- **50%** means the declared reproducible probability of release, not half the
+  notes changed or half the audible difference. Record release and realized change
+  separately.
+- **100%** removes direct preference for the original target-feature value;
+  coincidence remains allowed. The approved T2 MVP retains its finite
+  current/requested candidate mechanism. No maximum-distance claim follows.
 - Broader permissions cannot be inferred from a technique-only edit. Fixed
   dimensions/topology are not freedom controls; unsupported combinations fail.
+
+**Earlier proposal-access requirement, preserved:** “100% means no direct original
+target-feature values in its proposal; coincidence is allowed.” Removing access
+and removing preference are different restrictions. The approved T2 MVP does not
+automatically cancel reference-access restrictions belonging to other methods.
+Before applying the older redaction or perturbation-invariance requirement to
+another operation, identify its governing contract and permitted inputs. Do not
+silently change the approved MVP or claim broader access restrictions have passed.
+This reconciliation does not infer a universal future reference-access policy.
+
+**Support is not preference.** Separate an observed musical relationship, an
+admitted realization and evidence for preferring that realization in context.
+An intentional transformation allowed by its contract may produce notes or
+physical contacts absent from the source while preserving supported relationships
+and locks. This is not learned artist preference; feasibility alone is not musical
+usefulness. Expressing an admitted musical intention is allowed; bypassing the
+shared relationships with hardcoded notes, source-specific patches or
+outcome-selected evidence is not.
+
+**Evaluation is not creative acceptance.** A correct refusal can establish safety
+without establishing changed-output applicability. Pre-capture artist-identity
+failure establishes no musical result. Use the canonical plan's existing S/A/G/N/L
+register and [QA failure/promotion rule](THREE_QA_GATES.md#what-failure-stops);
+preserve approved bounded acceptance and its unproved broader claims separately.
 
 ### Pedal closure is identification-only
 
@@ -101,7 +167,7 @@ have bounded evidence; they do not close all analysis/recreation requirements.
 The next shared-engine experiments consume accepted observations, not a reopened
 pedal detector. This is the user's latest explicit scope clarification.
 
-## Current local WIP: separate from shipped main
+## Historical local WIP snapshot — 2026-10-19
 
 Eight untracked modules/tests exist: note summaries, aggregate profile summaries,
 sequence palm method and tuning-relative proposal. Source-level existence and a
@@ -119,7 +185,7 @@ whole-suite result do not make them accepted or delivered.
 This gate changes documentation/traceability only. It does not promote a method,
 certify musical quality or start additional experiments.
 
-## Evidence and gate completion
+## Historical G0 evidence and gate completion
 
 Evidence levels are separate: original requirement; dated recorded execution;
 current source inspection; current test/reproduction; independent QA; genuine
@@ -139,7 +205,7 @@ requirements above. The next shared-contract gate is separately scoped and
 reviewed; scheduled automation stays paused.
 
 
-## Latest bounded engine evidence — 2026-10-19
+## Historical bounded engine evidence — 2026-10-19
 
 Original requirements/statuses above remain unchanged. Source transition
 conditionals passed their own prediction gate, but two harmony interventions

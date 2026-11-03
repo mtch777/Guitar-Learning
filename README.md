@@ -26,12 +26,31 @@ microphone → pitch → candidate strings → audio features → ringing-only c
 
 Muted recordings are excluded from the current MVP.
 
-## Composition Lab — current handoff (2026-10-14)
+## Composition Lab
 
-- [Handoff: architecture, latest V24 results, limitations, next steps](composition-lab/checkpoints/2026-10-14/HANDOFF_2026-10-14.md)
+Start with [HANDOFF.md](composition-lab/HANDOFF.md), then
+[CODEX_CONTEXT.md](composition-lab/CODEX_CONTEXT.md),
+[PROJECT_COMPLETION_PLAN.md](composition-lab/PROJECT_COMPLETION_PLAN.md) and
+[DEVELOPMENT_OPERATING_RULES.md](composition-lab/DEVELOPMENT_OPERATING_RULES.md).
+The plan governs current requirements, acceptance and execution order;
+[THEMATIC_RETURN_PROGRESS.md](composition-lab/THEMATIC_RETURN_PROGRESS.md) records
+the active implementation contract and next action. The guitar trainer and
+Composition Lab are separate features.
+
+Current listening reviews follow
+[LISTENING_REVIEW_TEMPLATE.md](composition-lab/LISTENING_REVIEW_TEMPLATE.md): reuse
+the existing page and serving URL, preserve the untouched original, show changed
+notes and keep four context bars on either side by default.
+
+### Historical checkpoint — 2026-10-14
+
+This checkpoint preserves V13–V24 experiments, tests and review artifacts. Its
+milestone labels and next actions do not override the current documents above.
+
+- [Historical handoff: architecture, V24 results and recorded limitations](composition-lab/checkpoints/2026-10-14/HANDOFF_2026-10-14.md)
 - [Research checkpoint, source and tests](composition-lab/checkpoints/2026-10-14/)
-- [Listening review (GitHub Pages)](https://mtch777.github.io/Guitar-Learning/composition-review.html) ([HTML source](composition-review.html))
+- [Historical listening review (GitHub Pages)](https://mtch777.github.io/Guitar-Learning/composition-review.html) ([HTML source](composition-review.html))
 - [V23 offline review app generator and tests](composition-lab/checkpoints/2026-10-14/v23-review/)
 - [V24 source-annotation results and review CSV](composition-lab/checkpoints/2026-10-14/V24_README.md)
 
-**Research caveat:** Source chord labels and chord-template matches are not verified ground truth; 60 review examples are unlabelled by humans. Similarity controls above zero are not yet calibrated musical-distance percentages. The trainer and research composition engine are separate features.
+**Checkpoint caveat:** Source chord labels and chord-template matches were not verified ground truth; 60 review examples were unlabelled by humans. These historical controls did not establish calibrated musical-distance percentages.

@@ -4,7 +4,42 @@ Repository: https://github.com/mtch777/Guitar-Learning
 Branch: `main`  
 Directory: `composition-lab/songsterr_automation/`
 
-## Status (2026-10-16)
+## Current scope and storage policy
+
+Start with [HANDOFF.md](../HANDOFF.md), then [CODEX_CONTEXT.md](../CODEX_CONTEXT.md),
+[PROJECT_COMPLETION_PLAN.md](../PROJECT_COMPLETION_PLAN.md) and
+[DEVELOPMENT_OPERATING_RULES.md](../DEVELOPMENT_OPERATING_RULES.md). Current work
+follows [THEMATIC_RETURN_PROGRESS.md](../THEMATIC_RETURN_PROGRESS.md).
+
+The instructions below document the historical downloader and conversion tests.
+Its legacy `save_to_repo` and Actions artifact paths are **not** the current bulk
+storage procedure. Do not use them to publish commercial source scores or store
+the project corpus.
+
+Bulk song downloads and analysis outputs must use **draft GitHub Releases**.
+Preserve encryption and independently verify replacement size and SHA-256 before
+removing any stored source copy. Follow
+[ARTIFACT_STORAGE_MIGRATION.md](../../.github/ARTIFACT_STORAGE_MIGRATION.md) and the
+[existing Release storage helper](../../.github/scripts/release_storage.py).
+Keep private source material, annotations, secrets and licensed weights out of
+public commits. Local private working artifacts remain separate from durable
+bulk storage.
+
+New analysis and musical demonstrations use **Invent Animate → Currents → ERRA**
+in that priority. Other artist examples below are historical/regression evidence,
+not an instruction to expand their analysis or fetch them again.
+
+**Legacy workflow compliance gap — observed 2026-11-03:**
+[songsterr-download.yml](../../.github/workflows/songsterr-download.yml) still
+exposes `save_to_repo`, commits generated scores when requested, and uploads
+`songsterr-downloaded-scores` through `actions/upload-artifact`. The historical
+[songsterr-e2e.yml](../../.github/workflows/songsterr-e2e.yml) also retains an
+artifact upload. The completed tiered-analysis storage migration does not establish
+that these separate workflows comply. This documentation correction does not
+modify or authorize their legacy publication/storage behavior; workflow repair is
+an explicitly outstanding task, not a claim made by this guide.
+
+## Historical status — 2026-10-16
 
 **Working and tested:** Search and Songsterr metadata, revision discovery, notation fetching, Songsterr-to-GP5 reconstruction, GP5-to-GP7 conversion/reimport, source-to-GP5 fidelity comparison, and expanded multi-song corpus testing.
 
@@ -12,7 +47,7 @@ Directory: `composition-lab/songsterr_automation/`
 
 **Not yet established:** direct original-JSON-to-GP7 fidelity across the corpus; end-user browser integration; full validation of all configurable downloader input combinations; permanence of generated GP files in Git history; absence of all possible unsupported notation fields.
 
-## Configurable downloader — verified smoke test (2026-10-16)
+## Historical configurable downloader — verified smoke test (2026-10-16)
 
 Workflow: https://github.com/mtch777/Guitar-Learning/actions/workflows/songsterr-download.yml
 
@@ -21,7 +56,10 @@ Workflow: https://github.com/mtch777/Guitar-Learning/actions/workflows/songsterr
 - Selection report: https://github.com/mtch777/Guitar-Learning/blob/main/composition-lab/songsterr_automation/results/configurable_download_selection.json
 - Export report: https://github.com/mtch777/Guitar-Learning/blob/main/composition-lab/songsterr_automation/results/configurable_download_exports.json
 
-### How to use
+### Historical configurable-workflow inputs
+
+These describe the saved workflow interface and past commands, not the current
+bulk-storage procedure. Apply the storage/artist rules above before any new use.
 
 Open the configurable workflow and choose **Run workflow** on `main`. Supply either an exact `song_id` (number or Songsterr URL) **or** artist and optional song title. Leave `song_id` empty when using artist/title search. Use `song=ALL` to retrieve search matches for an artist (bounded by `max_songs`). The inputs are:
 
@@ -34,11 +72,11 @@ Open the configurable workflow and choose **Run workflow** on `main`. Supply eit
 | `output` | Repository-relative folder under `composition-lab/songsterr_automation/downloads` |
 | `existing` | `skip` or `overwrite` |
 | `max_songs` | 1–100 results for search |
-| `save_to_repo` | Commit generated files to `main` when true; use only with appropriate rights |
+| `save_to_repo` | Legacy capability; prohibited for commercial source scores and the project corpus |
 
-Example: `song_id=153`, `tracks=2`, `existing=overwrite`, `save_to_repo=false`. Output: `downloads/153/Pink Floyd - Wish You Were Here.gp5` and `.gp`, accessible from the run's `songsterr-downloaded-scores` Actions artifact, retained for 30 days.
+Historical example: `song_id=153`, `tracks=2`, `existing=overwrite`, `save_to_repo=false`. Output: `downloads/153/Pink Floyd - Wish You Were Here.gp5` and `.gp`, accessible from the run's `songsterr-downloaded-scores` Actions artifact, retained for 30 days. That artifact route is superseded for bulk storage; `save_to_repo=false` alone does not make it compliant.
 
-For artist selection, set `artist=Pink Floyd`, `song=Comfortably Numb`, `song_id=` (empty), `tracks=guitar`, `max_songs=10`. This configuration is supported by the code but **not yet individually verified in CI**.
+Historical artist-selection example: `artist=Pink Floyd`, `song=Comfortably Numb`, `song_id=` (empty), `tracks=guitar`, `max_songs=10`. This configuration was documented as supported by the code but **not individually verified in CI**. It is not a current artist-scope recommendation.
 
 The workflow's push trigger is primarily for smoke testing and uses fixed `153` / track `2` defaults. A manual `workflow_dispatch` uses supplied inputs. The current script uses third-party `songsterr-dl`, installed from its upstream default branch at execution time, and `@coderline/alphatab@1.8.1` for GP7 export. `download_configurable.py` handles selection and GP5 generation; `export_gp7_batch.mjs` converts each resulting GP5 and checks that note and measure counts survive reimport.
 
@@ -49,14 +87,14 @@ The workflow's push trigger is primarily for smoke testing and uses fixed `153` 
 - The current batch export validates GP5-vs-GP7 **counts**, not full effect-by-effect fidelity for arbitrary songs. Use the existing dedicated source corpus validator where needed.
 - `skip` currently skips an entire song folder if it contains any GP5, not an individual track-specific revision.
 - All selected tracks are combined into one score per song by the underlying converter; categorical selection is based on track name/instrument text.
-- Generated files live in temporary run artifacts by default. `save_to_repo=true` attempts to commit them into the output folder on `main`.
+- Legacy behavior: generated files go to temporary run artifacts by default; `save_to_repo=true` attempts to commit them on `main`. These paths do not satisfy the current project corpus-storage policy.
 - Workflow credentials need `contents: write` for optional commits and diagnostic results. Respect transcription copyrights and Songsterr terms.
 
 ## Quick links
 
 - Workflow: https://github.com/mtch777/Guitar-Learning/actions/workflows/songsterr-e2e.yml
 - API smoke workflow: https://github.com/mtch777/Guitar-Learning/actions/workflows/songsterr-api-smoke.yml
-- Latest source corpus report: https://github.com/mtch777/Guitar-Learning/blob/main/composition-lab/songsterr_automation/results/source_corpus_report.json
+- Historical source corpus report: https://github.com/mtch777/Guitar-Learning/blob/main/composition-lab/songsterr_automation/results/source_corpus_report.json
 - GP7 round-trip report: https://github.com/mtch777/Guitar-Learning/blob/main/composition-lab/songsterr_automation/results/gp7_roundtrip_report.json
 - Single-track source fidelity report: https://github.com/mtch777/Guitar-Learning/blob/main/composition-lab/songsterr_automation/results/source_fidelity_report.json
 
@@ -80,14 +118,17 @@ Provide the repository URL, branch and this file path. Ask the chat to **read th
 
 Suggested new-chat message:
 
-> Work on `mtch777/Guitar-Learning`, branch `main`. Read `composition-lab/songsterr_automation/USAGE_GUIDE.md`, the current scripts, `.github/workflows/songsterr-e2e.yml`, and the committed reports. Use the existing working Songsterr pipeline rather than starting over. For new work, implement, commit, trigger through a workflow-file push if needed, fetch run logs/artifacts where possible, and distinguish actual test success from successful commits.
+> Work on `mtch777/Guitar-Learning`, branch `main`. Read `composition-lab/HANDOFF.md`, `CODEX_CONTEXT.md`, `PROJECT_COMPLETION_PLAN.md` and `DEVELOPMENT_OPERATING_RULES.md`, then this guide and the relevant current source/tests. Reuse the existing Songsterr pipeline within the active contract. Preserve artist restrictions, encrypted draft-Release storage and source privacy. The historical commands below do not authorize a corpus rerun, workflow change or legacy score publication. Report local, committed, published and verified CI states separately.
 
-## How to run the existing tests on GitHub
+## Historical GitHub test procedure
+
+Preserved for reproducibility of the recorded runs. Check current scope and
+storage compliance before reuse; do not edit a workflow merely to force a rerun.
 
 1. Open https://github.com/mtch777/Guitar-Learning/actions/workflows/songsterr-e2e.yml
 2. Run the workflow on `main`, or commit an actual edit to `.github/workflows/songsterr-e2e.yml`. Its `push` trigger responds **only to changes to that workflow file**, not to every script change.
 3. The workflow checks out the repo, installs Python 3.13, `pyguitarpro` and upstream `songsterr-dl`, downloads a test track, validates GP5, converts to GP7 via `@coderline/alphatab`, checks GP7 round-trip, checks original notation, and runs the expanded corpus.
-4. Consult run logs and the `songsterr-e2e-conversion` artifact. Generated GP files are inside workflow artifacts, which expire; the JSON summaries are pushed into `results/`.
+4. Historical outputs: run logs and `songsterr-e2e-conversion` artifact. Generated GP files were inside expiring workflow artifacts; JSON summaries were pushed into `results/`. This is not the current bulk-storage procedure.
 5. Check **each named step** and the JSON reports. A workflow commit/push does not itself prove the test passed.
 
 The workflow has fixed cases:
@@ -96,7 +137,7 @@ The workflow has fixed cases:
 
 For different songs or tracks, update the scripts or implement workflow inputs; current `workflow_dispatch` has no song/track parameters.
 
-## Using Songsterr APIs
+## Historical API examples
 
 Previously validated Songsterr endpoints:
 
@@ -118,7 +159,7 @@ Indices are zero-based. Do not confuse a Songsterr song ID with an artist ID (fo
 
 Avoid treating failures of older `/a/wa/` and `/a/ra/` routes as proof of failed connectivity: the confirmed modern search and metadata routes returned HTTP 200 on GitHub Actions.
 
-## Downloading a GP5 locally
+## Historical local GP5 commands
 
 Requires Python >=3.13 and installation of upstream https://github.com/6801318d8d/songsterr-dl (a third-party dependency, not vendored here). An example in a shell with `songsterr-dl` installed:
 
@@ -131,7 +172,7 @@ songsterr-dl 271 -f gp5 -o tabs --overwrite
 
 The last command selects all tracks. Formats provided by that converter are `tg`, `gp5`, `gp4`, `gp3`; it does not directly emit GP7. Review its emitted `*_report.txt` for documented losses.
 
-## GP7 export
+## Historical GP7 export commands
 
 The working GitHub pipeline uses `@coderline/alphatab@1.8.1` and `songsterr_api/gp7_roundtrip.mjs` to export the newly created GP5 to Guitar Pro 7 format (`.gp`) and reimport it. It currently finds the first `*.gp5` inside its input directory.
 
@@ -152,10 +193,14 @@ Its report is written at `results/gp7_roundtrip_report.json`. This is a GP5-vs-G
 - GP5 writer and alphaTab exporter may have different fidelity and format constraints. GP7 should be source-compared independently if strict losslessness is needed.
 - This work generates reconstructed scores, **not original uploader GP files**. Use only with content you have permission to use, in accordance with Songsterr terms and applicable copyright.
 - Upstream `songsterr-dl` is cloned from its floating default branch in CI; pin a commit for reproducible validation.
-- Results JSON are committed; generated GP5/GP7 score files are uploaded as **temporary Actions artifacts**, not automatically persisted into the GitHub repository.
+- Legacy workflow behavior: report JSON is committed and generated GP5/GP7 files are uploaded as temporary Actions artifacts. This remains a recorded compliance gap; it is not permission to use those paths for the corpus.
 - The workflow uses `contents: write` because it commits result summaries. Another chat should avoid unnecessary workflow edits, secrets, and unreviewed remote code changes.
 
-## Further improvements
+## Historical proposed improvements
+
+This list preserves the earlier backlog, not the current task queue. In particular,
+item 2's storage question is now governed by the draft-Release policy above; this
+does not claim the legacy downloader itself was migrated.
 
 1. Test artist/song discovery and all track-selector categories, and add clearer GP7 fidelity validation to the configurable workflow.
 2. Persist an optional user-selected generated score to a GitHub-managed destination instead of only an expiring artifact (subject to rights and repository size policies).
@@ -164,6 +209,6 @@ Its report is written at `results/gp7_roundtrip_report.json`. This is a GP5-vs-G
 5. Pin external converter/tool versions and integrate a configurable frontend or Composition Lab import path only after fidelity requirements are met.
 
 
-## CSV corpus acquisition (2026-10-17)
+## Historical CSV corpus acquisition — 2026-10-17
 
 Read CORPUS_RESULTS.md and CORPUS_PROGRESS.md for the new private CSV batch adapter and its actual98-entry results. It reuses the existing converter but adds a reversible8-string bridge, exact source-rhythm restoration, native GP7 export, serialized-source and detailed roundtrip checks, and an independent raw-notation technique inventory. The legacy GP5 downloader fails on8-string notes and its count-only GP7 smoke report is insufficient for technique fidelity. Generated scores/raw JSON/CSV stay under ignored local-artifacts; never use save_to_repo for this corpus.74/98 detailed roundtrip passes are not a claim of lossless conversion; all98 regular-note source checks and vanilla GP7 imports pass in their narrower scopes. No new source-derived musical-feel result is claimed.
