@@ -16,19 +16,24 @@ from source_observation_evidence import digest
 
 SCHEMA='source-musical-material-uses/1'
 APPROACH_SCHEMA='source-musical-material-uses/2'
+DIRECT_SCHEMA='source-musical-material-uses-direct/1'
 
 
 def _shape(upper):
-    if (type(upper)is not dict or set(upper)!={'tier','schema','lower_tier','relationship',
-            'instance_attack_refs','observations','materials','slots','uses'}
-            or upper['tier']!=3 or upper['schema']not in (SCHEMA,APPROACH_SCHEMA)):raise ValueError('Exact material-use T3 required')
+    if type(upper)is not dict:raise ValueError('Exact material-use T3 required')
+    fields={'tier','schema','lower_tier','materials','slots','uses'}
+    if upper.get('schema')!=DIRECT_SCHEMA:fields|={'relationship','instance_attack_refs','observations'}
+    if (set(upper)!=fields or upper['tier']!=3
+            or upper['schema']not in (SCHEMA,APPROACH_SCHEMA,DIRECT_SCHEMA)):raise ValueError('Exact material-use T3 required')
+    if upper['schema']==DIRECT_SCHEMA and (type(upper['lower_tier'])is not dict
+            or upper['lower_tier'].get('tier')!=2):raise ValueError('Direct material uses require a T2 parent')
     if any(type(upper[k])is not list for k in ('materials','slots','uses')):raise ValueError('Explicit material/slot/use lists required')
     # Inactive vocabulary remains a real definition, not an unchecked storage slot.
     for definition in upper['materials']:material.expand(definition)
     used=set();identities=set()
     for use in upper['uses']:
         fields={'id','slot_ref','material_ref','expression'}
-        if upper['schema']==APPROACH_SCHEMA and 'approach_mode'in use:fields.add('approach_mode')
+        if upper['schema']in (APPROACH_SCHEMA,DIRECT_SCHEMA) and type(use)is dict and 'approach_mode'in use:fields.add('approach_mode')
         if (type(use)is not dict or set(use)!=fields
                 or type(use['id'])is not str or not re.fullmatch(r'[A-Za-z0-9:_-]+',use['id'])
                 or use['id']in identities or type(use['slot_ref'])is not int
@@ -46,7 +51,7 @@ def _shape(upper):
         definition=upper['materials'][use['material_ref']]
         from material_approaches import SCHEMA as approach_schema
         if definition['schema']==approach_schema:
-            if upper['schema']!=APPROACH_SCHEMA or use.get('approach_mode')not in ('original','flip'):
+            if upper['schema']not in (APPROACH_SCHEMA,DIRECT_SCHEMA) or use.get('approach_mode')not in ('original','flip'):
                 raise ValueError('Each approach use needs its own explicit direction choice')
         elif 'approach_mode'in use:raise ValueError('An ordinary material has no approach choice')
         if (scope['parts']!=definition['scope']['parts']or slot['bar_spans_q']!=definition['bar_spans_q']
@@ -157,15 +162,38 @@ def lift(upper):
     return out
 
 
+def from_tier2(t2,specifications):
+    """Own material directly above T2, without requiring an unrelated cell.
+
+    Original observations and foreign owners remain in the preceding T2. Only
+    the declared material fragments move to their explicit T3 relationships.
+    """
+    from connected_tier2 import realize
+    if type(t2)is not dict:raise ValueError('A complete connected T2 model is required')
+    if type(specifications)is not list or not specifications:
+        raise ValueError('At least one explicit material scope required')
+    realize(t2)  # Reject lower payloads and malformed owners before construction.
+    out=dict(tier=3,schema=DIRECT_SCHEMA,lower_tier=deepcopy(t2),materials=[],slots=[],uses=[])
+    out=extend_materials(out,specifications)
+    if expand(out)!=t2:raise ValueError('Direct material ownership changed preceding T2 relationships')
+    return out
+
+
 def realize_pair(upper):
+    """Return the restored parent (T2 or legacy cell T3), T1 and identities."""
     _shape(upper);pieces=[];contracts=[];ledger=[]
     for use in upper['uses']:
         piece,records,identities=place(upper['materials'][use['material_ref']],upper['slots'][use['slot_ref']],use)
         pieces.append(piece);contracts.append(records);ledger.extend(identities)
     if len({r['current_address']for r in ledger})!=len(ledger):raise ValueError('Overlapping active material uses')
-    result={k:deepcopy(v)for k,v in upper.items()if k not in ('materials','slots','uses')};result['schema']=cell.TIER3_SCHEMA
-    result['lower_tier']=material.restore_fragments(upper['lower_tier'],pieces)
-    lower=cell.reconstruct(result,{'variation':0})
+    restored=material.restore_fragments(upper['lower_tier'],pieces)
+    if upper['schema']==DIRECT_SCHEMA:
+        from connected_tier2 import realize
+        result=restored;lower=realize(result)
+    else:
+        result={k:deepcopy(v)for k,v in upper.items()if k not in ('materials','slots','uses')};result['schema']=cell.TIER3_SCHEMA
+        result['lower_tier']=restored
+        lower=cell.reconstruct(result,{'variation':0})
     for piece,records in zip(pieces,contracts):material.validate_fragment_execution(piece,records,lower)
     from material_approaches import SCHEMA as approach_schema, validate_membership
     for use in upper['uses']:
@@ -177,7 +205,8 @@ def realize_pair(upper):
 
 
 def expand(upper):
-    return cell.expand(realize_pair(upper)[0])
+    parent=realize_pair(upper)[0]
+    return parent if upper['schema']==DIRECT_SCHEMA else cell.expand(parent)
 
 
 def reconstruct(upper,controls):
@@ -192,7 +221,7 @@ def extend_materials(upper,specifications):
     New definitions consume only the current preceding T2 relationships.
     """
     current,lower,_=realize_pair(upper)
-    complete=cell.expand(current)
+    complete=current if upper['schema']==DIRECT_SCHEMA else cell.expand(current)
     out=deepcopy(upper);scopes=[]
     occupied=[s['scope'] for s in upper['slots']]
     for spec in specifications:
@@ -222,7 +251,8 @@ def lift_approach(upper,use_id,attack_refs,interpretations,evidence_ref):
     ref=matches[0]['material_ref']
     if sum(u['material_ref']==ref for u in upper['uses'])!=1:
         raise ValueError('Refining a shared definition requires explicit shared ownership')
-    out=deepcopy(upper);out['schema']=APPROACH_SCHEMA
+    out=deepcopy(upper)
+    if out['schema']!=DIRECT_SCHEMA:out['schema']=APPROACH_SCHEMA
     out['materials'][ref]=fit(upper['materials'][ref],lower,attack_refs,interpretations,evidence_ref)
     next(u for u in out['uses']if u['id']==use_id)['approach_mode']='original'
     after,realized,_=realize_pair(out)

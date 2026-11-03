@@ -1,6 +1,44 @@
 # T5: live return of an earlier arrangement
 
-## Latest: develop the melody into the same arrival
+## Latest: automatic discovery becomes an editable choice
+
+The analysis now scans the supplied composition without caller-selected bars,
+parts, note IDs or desired pitches. It preserves maximal runs and every refusal,
+then prepares the first applicable opposite approach through the SAME existing
+relationship. Chronological selection is reproducible, not a preference model.
+Three admitted occurrences in the development song are one repeated pattern,
+not three independent ideas; five other maximal runs fail local tonal checks.
+
+- [x] Shared discovery, execution and direct T2-to-T3 entry; no unrelated cell
+  prerequisite or dummy relationship. Explicit limits and no shortened fallback.
+- [x] 59 Python tests from HEAD plus only eight release files; all70 project
+  modules loaded inside the clean candidate.12 listening-view JS tests pass.
+- [x] Complete source and T3-to-T2 original/changed reconstruction in the existing
+  audited denied-source worker. Four additional authored direct-entry checks
+  pass. Independent source-fret oracle and saved revert agree.
+- [x] Independent actual-model audit: prior definitions, uses, slots,32 backing
+  relationships, observations, ties, execution constraints and T4/T5 obligations
+  survive exactly. Only the selected new scope changes ownership. Subsequent
+  foreign dependency propagation and0/50/100 remain covered by authored tests.
+- [x] Ordinary derived views are recomputed from restored current relationships;
+  they cannot act as cached source pitches. Conflicting views refuse atomically.
+- [x] First automatic passage rendered with matched full band and four context
+  bars on each side. Four written frets /48 played attacks change; all5117 beats,
+  6299 other notes and6844 other callbacks remain exact. Original audio reused.
+- [x] Actual browser: both22-second versions play; switching keeps position,
+  cursor/active notes move, changed filter shows48 new/48 replaced attacks.
+  Original shows1057 notes; natural end and no-error state verified.
+- [ ] Listening usefulness of the automatically found passage.
+- [ ] New-source creative portability. The first frozen Invent Animate draw had
+  conflicting search/metadata artist names AND IDs. The guard stopped before
+  tracks or musical analysis; no replacement. This is not a musical pass/fail.
+
+Private evidence: auto-approach-001, auto-direct-denied-001,
+auto-approach-release-001, auto-approach-listening-001 and fresh-approach-001
+under local-artifacts/melodic-movement-invent-animate-v1. Direct T3's later T4
+compatibility is outside this scope. T5 stays open; no learned taste claim.
+
+## Previous: develop the melody into the same arrival
 
 The prior listening result was only "listenable": the user found insufficient
 rhythmic, melodic, interval or tension development. It did not close T5.

@@ -1,21 +1,28 @@
-## Current verified milestone - melodic approach listening checkpoint (2026-11-02)
+## Current milestone - automatically find and prepare melodic approaches (2026-11-03)
 
-T2, T3 and T4 bounded MVPs remain accepted; full requirements remain open.
-The last T5 version was only listenable, not accepted as musical development.
-The next comparison develops its high melody: descending third/ninth/root into
-its existing arrival instead of ascending sixth/major-seventh/root. Opening,
-rhythm, ties, tremolo, arrival, following handoff and other parts stay fixed.
-This is a reusable T3 material-use relationship carried through existing T4/T5,
-not a new generator or arbitrary pitch override. All retained tonal interpretations
-must agree; key identity remains conditional. See THEMATIC_RETURN_PROGRESS.md.
-Clean42 tests, actual-source0/50/100, save/reload/revert, source-denied composed
-and adjacent-boundary inverses, independent raw oracle and native playback PASS.
-The existing5280 page has three matched22.326-second versions, bars107-118,
-with four bars before/after and a verified changed-note piano roll.
-Musical usefulness awaits listening; rhythm has not been developed here.
-Labyrinthe's earlier T3 NO_FIT remains retained; fresh creative portability is
-unproved. T5 stays OPEN, no T6 promotion. This block supersedes older active
-instructions below without erasing their evidence.
+The user accepts this direction as a starting point, not as completed T5 or
+learned artistic choice. The caller now supplies only the current composition.
+Shared analysis finds maximal consecutive-degree approaches, retains tonal and
+ownership refusals, and binds the first applicable one through the existing
+material/approach inverse. No caller-selected song, part, bars or desired pitches.
+Three occurrences of ONE pattern fit the current development song; five do not.
+Direct T2 -> material-use T3 is supported without an unrelated repeating cell.
+Its zero expansion restores the complete preceding T2; ordinary derived views
+are recomputed, not kept as stale note caches. Direct T3 -> later arrangement
+support is not claimed by this release.
+Clean release: 59 Python tests and 12 listening-view JS checks PASS. Actual
+original/changed source and T3 -> T2 denied-worker checks PASS; independent fret
+oracle, saved revert, immutable definitions and native playback checks PASS.
+The existing5280 page has Original/Changed, 22.325 seconds, bars1-12 with the
+change at5-8 and four bars of context on each side. Listening is pending.
+New frozen random Invent Animate selection stopped at a genuine artist-ID/name
+conflict before track capture. No redraw or musical analysis. QA1 creative
+portability remains unproved; Labyrinthe's earlier refusals remain retained.
+T2/T3/T4 bounded MVPs stay accepted, full requirements OPEN. T5 remains OPEN;
+T6 is not promoted. Next: judge this automatically found approach in context;
+retain the declared singleton/tie, gap, voice and ownership limits. Do not add
+ranking or a collection campaign to disguise an unsupported result.
+See THEMATIC_RETURN_PROGRESS.md. This block supersedes older active instructions.
 
 # Composition Lab — tier and creative-lever acceptance plan
 

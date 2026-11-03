@@ -15,6 +15,7 @@ import melodic_movement_ownership as movement
 import musical_cell_development as cell
 import backing_execution_constraints as execution
 from group_rhythm_relations import relation as clock_relation
+from group_rhythm_relations import VIEWS, refresh as refresh_views
 from source_fact_tier1 import project_documents
 from source_observation_evidence import digest, validate_origin
 
@@ -140,7 +141,11 @@ def fit(t2, *, parts, first_bar, last_bar, lower=None):
     paths=[];voicings=[];bindings=[];lanes=defaultdict(list)
     for g in fragment['coattacks']:
         if g['timing_uncertain']:raise ValueError('Uncertain clock cannot establish material allocation')
-        if 'interpretation'in g:raise ValueError('Derived view must not be a material authority')
+        if 'interpretation'in g:
+            if not music.same(g['interpretation'],music.interpreted(g)):
+                raise ValueError('Derived interpretation conflicts with its pitch/time relationships')
+            # Preserve its interface presence, never a stale pitch-derived view.
+            g['interpretation']=None
         if g['bass_register_anchor']is not None:lanes[g['part_id']].append(g)
     path_binding={}
     for part,groups in lanes.items():
@@ -245,6 +250,8 @@ def expand(material):
     for g in result['coattacks']:
         binding=bindings[g['id']];onset,duration=slots[binding['beat_ref']]
         if 'onset_q'in g or 'bass_register_anchor'in g:raise ValueError('Duplicate lower clock/pitch authority')
+        if 'interpretation'in g and g['interpretation']is not None:
+            raise ValueError('Derived interpretation must be a presence marker, not a cached payload')
         g['onset_q']=str(F(material['source_start_q'])+onset)
         path=binding['pitch_path_ref'];ordinal=binding['attack']
         g['bass_register_anchor']=None if path is None else paths[path][ordinal]
@@ -255,6 +262,7 @@ def expand(material):
             m['duration_q']=str(duration);m['voicing_interval']=interval
             expected=f"track-{g['part_id']}.json#/measures/{m['bar']-1}/voices/{m['voice']}/beats/{m['beat']}"
             if expected!=binding['beat_ref']:raise ValueError('Coattack retargeted onto another valid beat')
+        if 'interpretation'in g:g['interpretation']=music.interpreted(g)
     return result
 
 
@@ -293,6 +301,10 @@ def _remove(t2,scopes):
             # Identity is the complete owned row, not a position in a new array.
             removed={digest(r)for r in cut[field]}
             arrays[field][:]=[r for r in arrays[field]if digest(r)not in removed]
+    if scopes:
+        core=movement._body(result['musical_relationships'])
+        for name in VIEWS:
+            if name in core:core[name]=None
     return result
 
 
@@ -341,6 +353,15 @@ def restore_fragments(skeleton,fragments):
     arrays['realization_order'].sort(key=event_order)
     core=movement._body(result['musical_relationships'])
     core['source_quality']['expected']=core['source_quality']['actual']=len(arrays['realization_order'])
+    present=[name for name in VIEWS if name in core]
+    if present:
+        if fragments and any(core[name]is not None for name in present):
+            raise ValueError('Owned material requires derived-view presence markers, not cached source views')
+        current=refresh_views(deepcopy(core))
+        for name in present:
+            if core[name]is not None and not music.same(core[name],current[name]):
+                raise ValueError('Derived view conflicts with current pitch/time relationships')
+            core[name]=current[name]
     return result
 
 
