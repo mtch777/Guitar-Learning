@@ -41,7 +41,7 @@ def _shape(upper):
         execution.address(row['occurrence_ref']);seen.add(row['occurrence_ref'])
     if type(a['material_ref'])is not int or a['material_ref']not in c['eligible_materials']:raise ValueError('Material outside declared vocabulary')
     matches=[r for r in upper['lower_tier']['uses']if r['id']==a['use_id']]
-    if len(matches)!=1 or set(matches[0])!={'id','slot_ref'}:raise ValueError('Sole T4 owner required for selected use')
+    if len(matches)!=1 or set(matches[0])!=uses.unallocated_fields(matches[0]):raise ValueError('Sole T4 owner required for selected use')
 
 
 def expand(upper):

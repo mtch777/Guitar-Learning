@@ -17,6 +17,12 @@ from source_observation_evidence import digest
 SCHEMA='source-musical-material-uses/1'
 APPROACH_SCHEMA='source-musical-material-uses/2'
 DIRECT_SCHEMA='source-musical-material-uses-direct/1'
+RHYTHM_SCHEMA='source-musical-material-uses/3'
+
+
+def unallocated_fields(use):
+    """A section owns allocation, while local use timing remains independent."""
+    return {'id','slot_ref'} | ({'rhythm_offset_q'} if 'rhythm_offset_q' in use else set())
 
 
 def _shape(upper):
@@ -24,7 +30,7 @@ def _shape(upper):
     fields={'tier','schema','lower_tier','materials','slots','uses'}
     if upper.get('schema')!=DIRECT_SCHEMA:fields|={'relationship','instance_attack_refs','observations'}
     if (set(upper)!=fields or upper['tier']!=3
-            or upper['schema']not in (SCHEMA,APPROACH_SCHEMA,DIRECT_SCHEMA)):raise ValueError('Exact material-use T3 required')
+            or upper['schema']not in (SCHEMA,APPROACH_SCHEMA,DIRECT_SCHEMA,RHYTHM_SCHEMA)):raise ValueError('Exact material-use T3 required')
     if upper['schema']==DIRECT_SCHEMA and (type(upper['lower_tier'])is not dict
             or upper['lower_tier'].get('tier')!=2):raise ValueError('Direct material uses require a T2 parent')
     if any(type(upper[k])is not list for k in ('materials','slots','uses')):raise ValueError('Explicit material/slot/use lists required')
@@ -33,7 +39,11 @@ def _shape(upper):
     used=set();identities=set()
     for use in upper['uses']:
         fields={'id','slot_ref','material_ref','expression'}
-        if upper['schema']in (APPROACH_SCHEMA,DIRECT_SCHEMA) and type(use)is dict and 'approach_mode'in use:fields.add('approach_mode')
+        if upper['schema']in (APPROACH_SCHEMA,DIRECT_SCHEMA,RHYTHM_SCHEMA) and type(use)is dict and 'approach_mode'in use:fields.add('approach_mode')
+        if upper['schema']in (RHYTHM_SCHEMA,DIRECT_SCHEMA) and type(use)is dict and 'rhythm_offset_q'in use:
+            fields.add('rhythm_offset_q')
+            value=use['rhythm_offset_q']
+            if type(value)is not str or str(F(value))!=value:raise ValueError('Canonical common rhythmic displacement required')
         if (type(use)is not dict or set(use)!=fields
                 or type(use['id'])is not str or not re.fullmatch(r'[A-Za-z0-9:_-]+',use['id'])
                 or use['id']in identities or type(use['slot_ref'])is not int
@@ -51,7 +61,7 @@ def _shape(upper):
         definition=upper['materials'][use['material_ref']]
         from material_approaches import SCHEMA as approach_schema
         if definition['schema']==approach_schema:
-            if upper['schema']not in (APPROACH_SCHEMA,DIRECT_SCHEMA) or use.get('approach_mode')not in ('original','flip'):
+            if upper['schema']not in (APPROACH_SCHEMA,DIRECT_SCHEMA,RHYTHM_SCHEMA) or use.get('approach_mode')not in ('original','flip'):
                 raise ValueError('Each approach use needs its own explicit direction choice')
         elif 'approach_mode'in use:raise ValueError('An ordinary material has no approach choice')
         if (scope['parts']!=definition['scope']['parts']or slot['bar_spans_q']!=definition['bar_spans_q']
@@ -114,6 +124,9 @@ def place(definition,slot,use):
     """Resolve one distinct use. The immutable definition is never rewritten."""
     from material_approaches import SCHEMA as approach_schema, expand as expand_approach
     solved=expand_approach(definition,use['approach_mode'])if definition['schema']==approach_schema else definition
+    if 'rhythm_offset_q' in use:
+        from material_rhythm_displacement import solve
+        solved,_=solve(solved,use['rhythm_offset_q'])
     source=material.expand(solved);fact,event,delta=_maps(definition,slot)
     out={k:deepcopy(v)for k,v in source.items()};shift=F(slot['start_q'])-F(definition['source_start_q'])
     out['source_structure']=[_row(r,fact)for r in source['source_structure']]
@@ -252,7 +265,7 @@ def lift_approach(upper,use_id,attack_refs,interpretations,evidence_ref):
     if sum(u['material_ref']==ref for u in upper['uses'])!=1:
         raise ValueError('Refining a shared definition requires explicit shared ownership')
     out=deepcopy(upper)
-    if out['schema']!=DIRECT_SCHEMA:out['schema']=APPROACH_SCHEMA
+    if out['schema']not in (DIRECT_SCHEMA,RHYTHM_SCHEMA):out['schema']=APPROACH_SCHEMA
     out['materials'][ref]=fit(upper['materials'][ref],lower,attack_refs,interpretations,evidence_ref)
     next(u for u in out['uses']if u['id']==use_id)['approach_mode']='original'
     after,realized,_=realize_pair(out)

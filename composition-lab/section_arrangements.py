@@ -38,7 +38,7 @@ def expand(upper):
         if uid in seen:raise ValueError('Two owners claim the same use')
         seen.add(uid)
         matches=[r for r in t3['uses'] if r['id']==uid]
-        if len(matches)!=1 or set(matches[0])!={'id','slot_ref'}:raise ValueError('Sole section authority required')
+        if len(matches)!=1 or set(matches[0])!=uses.unallocated_fields(matches[0]):raise ValueError('Sole section authority required')
         matches[0].update(material_ref=a.get('material_ref'),expression=deepcopy(a.get('expression')))
     uses._shape(t3)
     for owner in upper['choices']:single._shape(_view(t3,owner))

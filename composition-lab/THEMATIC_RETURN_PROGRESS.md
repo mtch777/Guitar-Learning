@@ -1,5 +1,62 @@
 # T5: live return of an earlier arrangement
 
+## Current decision — rhythm changes now reach the listening page
+
+2026-11-03: the user accepted the safe in-key approach and instructed us not to
+stop for approval on routine safe variations. It stays accepted and protected.
+The new capability changes when a coordinated guitar idea lands against its
+backing, through the SAME material clock. It does not merely change pitch.
+
+Actual return:18 grouped attacks /36 played notes across the paired guitars
+move half a beat later in the first three bars. Notes, coattack membership/order,
+bar boundaries, other instruments and the fourth bar stay fixed. Palm muting
+stays present; some performed releases move with their attacks. No buildup,
+new subdivisions or automatic best-groove claim. T5 remains OPEN.
+
+- [x] Planner challenge and independent source premise. Every observed backing
+  attack spacing retained before feasibility tests; only zero/+1/2 fit this use.
+- [x] One shared offset per material use, using the existing span/share/prefix
+  clock; explicit derived notation, atomic execution/geometry refusals.
+- [x] Clean HEAD plus eight release files:62 relevant Python checks passed.
+  Added no-movable-attack guard then passed its targeted clean-candidate check;
+  do not claim the entire suite was rerun after that two-file delta.
+- [x] Independent complete T1 equality; unchanged observations, definitions,
+  relationships and other owners. Saved current-zero and revert are exact.
+- [x] Four actual denied-worker proofs:original/changed T5->source and T3->T2.
+  Existing audited Python guard; no stronger OS-sandbox claim.
+- [x] Current control options exactly reproduce the frozen witnesses/candidates.
+  Retained first oracle failure was a new-field insertion-order assumption;
+  recovery fixed the oracle, preserved old child order and compared full T1.
+- [x] Actual native6303 note identities/pitches retained;28 beat clocks and36
+  played onsets change as independently calculated. Existing GP double-dot
+  substitutions are six before/four after, with exact rational/performed time;
+  changed notation is exact. No broad notation exclusions or rerendered baseline.
+- [x] Three matched full-band22.326s choices on existing5280, bars103-114,
+  change107-110, four bars each side. Original and previous WAVs reused.
+- [x] Actual browser:playback, natural end, exact paused-switch position,
+  moving playhead/active notes,36 new/36 replaced notes, nonblank2-part filter.
+- [ ] Fresh creative portability:still not established. Retained random artist
+  identity conflict is an input refusal, not a new-source musical result.
+- [ ] Musical preference/whole-song development:T5 stays open. Listening is
+  available; routine acceptance is not a new blocker to independent work.
+
+Control semantics:0 locks current timing;50 is seeded release probability;
+100 removes preference for the original. Released selection may coincide with
+current timing. Unsupported later-again requests report no release attempted.
+Timing belongs to the use independently of T5's material recall. Authored tests
+verify actual later material changes propagate with that independent offset.
+
+Evidence under local-artifacts/melodic-movement-invent-animate-v1:
+rhythmic-development-001/evaluation-002, rhythmic-development-release-001,
+rhythmic-development-listening-001. Commands:check_rhythmic_development_release.py;
+evaluation script prepare/prove; native/crop checker; unchanged review publisher;
+actual CUA browser. Existing evaluation-001 failure is retained.
+
+Next: complete scoped commit/CI, then use Planner's strongest counterexample to
+choose the smallest remaining musical relationship. Do not expand this into an
+automatic groove-preference engine or a collection campaign. Keep the difference
+between rhythmic displacement and preparation/contrast/return development clear.
+
 ## Latest: automatic discovery becomes an editable choice
 
 The analysis now scans the supplied composition without caller-selected bars,
@@ -28,7 +85,8 @@ not three independent ideas; five other maximal runs fail local tonal checks.
 - [x] Actual browser: both22-second versions play; switching keeps position,
   cursor/active notes move, changed filter shows48 new/48 replaced attacks.
   Original shows1057 notes; natural end and no-error state verified.
-- [ ] Listening usefulness of the automatically found passage.
+- [x] User accepts the automatically found passage as a safe variation; no broad
+  musical-development, preference or T5 completion claim.
 - [ ] New-source creative portability. The first frozen Invent Animate draw had
   conflicting search/metadata artist names AND IDs. The guard stopped before
   tracks or musical analysis; no replacement. This is not a musical pass/fail.

@@ -1,3 +1,32 @@
+## Active update — 2026-11-03: shared rhythmic displacement delivered
+
+The user accepted the earlier in-key approach and said safe, unchanged-rhythm
+variations do not require an approval stop. Self-QA these, preserve the feedback,
+and continue. T2/T3/T4 bounded MVPs remain accepted; full requirements and T5 remain
+open. T6 is not promoted. This block supersedes older next-action paragraphs.
+
+The new control moves a coordinated guitar rhythm against unchanged backing,
+through the existing shared material clock and T3/T4/T5 inverse. Notes, chord
+members, original observations and other owners remain unchanged. In the actual
+return, nine of eleven coattacks per guitar move half a beat later; the final bar
+stays fixed. This is groove displacement, not increasing density or a buildup.
+T5 recalls material choice; each use's timing remains independently controlled.
+
+Independent complete-source equality, saved zero/revert, owner preservation and
+four source/lower-denied inverse proofs PASS. Clean release: 62 relevant tests,
+then one targeted recheck for the added no-movable-attack refusal. Native playback
+preserves every pitch/identity and the independent expected clock. Four existing
+equivalent-notation substitutions remain; exact GP notation is not claimed.
+The same5280 page has untouched original / previous / later-guitar audio, 22.326s,
+four context bars each side. Actual browser checks the moving roll,36 changed
+notes, nonblank two-part filter, playback, seek, version switch and natural end.
+
+QA1 creative portability remains unproved: the frozen fresh artist-ID conflict
+and earlier no-fit results are retained. QA2 passes in the declared scope. QA3
+now supports a coherent rhythmic intention; it does not establish learned taste,
+automatic buildup or T5 completion. Keep listening optional while finishing
+independent work. See THEMATIC_RETURN_PROGRESS.md for evidence and next action.
+
 ## Current milestone - automatically find and prepare melodic approaches (2026-11-03)
 
 The user accepts this direction as a starting point, not as completed T5 or
