@@ -10,22 +10,92 @@ No song-specific pitch/timing rules, hidden raw-note bypass or new generator.
 - [x] Freeze actual capture/code, whole-song discovery, operation order and seed.
 - [x] Inventory every registered control: available, inapplicable, incompatible,
   or unimplemented. Preserve all initial refusals and original evidence.
-- [ ] Apply every compatible current control at release 100 through its existing
-  owner/equation. Preserve normal sampling semantics; no seed rerolls to force change.
-- [ ] Measure changed notes/bars against the WHOLE original song, and changed
+- [x] Finish the frozen configured expression/rhythm routes at release100 through
+  existing owners/equations. Preserve unchanged draws and refusals; no seed rerolls.
+- [ ] One combined all-lever remix: NOT DELIVERED. Expression and material-rhythm
+  owners cannot compose safely; several controls have no applicable implementation.
+  The configured-route audit does not prove every hypothetical configuration exhausted.
+- [x] Measure changed notes/bars against the WHOLE original song, and changed
   decisions against represented choices at each tier. Show coverage alongside
   percentages; absent tier representation is unavailable, not a fabricated zero.
-- [ ] Verify original/current exact inverse, saved combined edits, immutable
-  evidence/dependencies, native playback and all three QA statuses.
-- [ ] Reuse the existing listening page: untouched original/remix, full-song
+- [x] Verify original/current exact inverse and saved successive edits within each
+  branch, immutable evidence/dependencies and native playback. QA1 is not claimed
+  for this user-selected song; QA3 remains scoped. Combined-branch acceptance is absent.
+- [x] Reuse the existing listening page: untouched original/comparisons, full-song
   access plus concise focus with four context bars, colored changed notes,
   per-tier measured differences and one to three relevant listening questions.
-- [ ] Planner start/mid/end review and actual desktop/mobile UI QA before delivery.
+- [x] Planner start/mid/end review; actual browser playback, seeking, version
+  switching, complete change counts and changed-parts filtering checked.
+- [ ] New phone-layout verification: not performed in this run. Existing responsive
+  template retained; same LAN URL verified in the desktop browser.
 
 100 means release without direct preference for the original value, not forced
 100% change. Named-song development is not a new random-source QA1 pass. Any
 unsupported combination remains explicit; it must not be silently flattened or
 used to manufacture source observations. Existing MVP/full-tier statuses remain.
+
+## Final Cloud Cascade audit and listening delivery — 2026-11-03
+
+Frozen38 rhythm calls finished:17changed,20released unchanged draws,1pre-release
+refusal at paired rhythm guitars/bar103. Backing spacings there exceed the declared
+timing boundaries. No retry, invented displacement or outcome-selected replacement.
+Independent complete-source accounting:412/5350notes (7.7009%) change timing across
+16/111bars (14.4144%). Pitches, physical placement and expression remain unchanged.
+T3stored group placement:17/38=44.7368%; this is not percentage completion ofT3.
+Expression remains a SEPARATE result:1027/5350notes (19.1963%);7/16dynamic owners,
+1/5725accent slots. These incompatible branches have no combined change percentage.
+
+Current final inverse PASS with source/lower files unavailable in the audited
+worker. Exact original upper/controls/operator/runtime/output identity permits
+reuse of the prior original proof; only the final-current worker is newly run.
+Complete model comparison permits only use timing-offset leaves: all38material
+definitions, original evidence, slots, lower owners and other use fields are exact.
+QA1: no new random-source claim. QA3: existing shared displacement and expression
+relationships only; no artist preference, fresh creative portability or new riff
+development established. Musical usefulness remains a listening question.
+
+Native checks:224beat clocks and412performed callbacks change; all5350written
+note records and nonclock fields remain exact. Five affected outgoing ties retain
+their source-declared destinations/endpoints. Baseline oracle initially assumed
+callback duration equalled one written beat; all14discrepancies proved explicit
+source ties. The private oracle now walks the complete source chain; original
+failure retained. No converter, musical operator or source changes were made.
+Final audio229.655510s, identical soundfont/gain/rate and no normalization.
+
+Existing5280UI: main bars5–16, /full/ all111bars, /rhythm-shift/ bars57–65.
+The last view is the earliest largest absolute realized timing shift, a declared
+presentation rule rather than a new test-song selection. LeadsII bar61 moves one
+beat earlier; bar65 one beat later. Four context bars surround bar61. Actual browser
+playback and seeking, original/expression/rhythm switching, stable seek position,
+all6parts and changed-parts filtering PASS. Full overlay has412new/412old note
+occurrences; value-only matching would hide206. Short view shows4new/4old notes.
+No new phone-viewport or listening-quality claim. Publisher reused verified audio.
+
+Planner audited415expression/joint seeds and38rhythm seeds/intentions. Musical
+engine files match the freeze; only publisher/test files changed. Manual decisions
+remain explicit: intentions, operator order, whole-bar scopes, paired guitar parts
+and conditional tonal-context policy. Failed movement trials used F-natural-minor
+under tied profile candidates, not a uniquely inferred key. No handpicked output
+notes, seed hunt or learned best-remix ranking. No blanket semitone exclusion found;
+the new soft preference for absent semitone relationships is recorded, NOT IMPLEMENTED.
+
+Control limits retained: movement/physical execution refusals; technique-editor
+admission limits; source-evidence guard stops later accent edits; direct materialT3
+does not satisfy arrangement constructor's observations contract (actualKeyError).
+T4construction attempted/refused;T5not reached;T6unavailable. Other accepted routes
+remain intact. These facts do not establish that the song is musically uneditable.
+
+Reproduction/private receipts: rhythm/final-verified/, rhythm/final-publication-input.json,
+qa/rhythm-final-001/, qa/rhythm-final-scope-review.json, qa/coverage-reproducibility.json,
+native-rhythm/final-delivery.json, review/publication.json and review/ui-qa.json.
+Root command: measure_change.py --current rhythm/final-verified/changed-t1.json
+--out rhythm/final-verified/metrics-independent.json --rhythm. Publisher:
+prepare_review.py --rhythm final. UI code81e0ec3CI41700523585PASS; navigation fix
+c6847d9CI41703715428PASS. Frozen musical controls
+were not changed by either commit. Full-tier completion and all-control integration
+remain open; this delivery exposes the current limits rather than closing them.
+
+The earlier checkpoints below are historical and retain their then-pending actions.
 
 ## Cloud Cascade first verified output — 2026-11-03
 
