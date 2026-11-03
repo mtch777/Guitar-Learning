@@ -1,9 +1,6 @@
 name: Finish six remaining tiered analyses
 
 on:
-  push:
-    branches: ['recovery/finish-six-20261102']
-    paths: ['.github/workflows/finish-six-recovery-20261102.yml']
   workflow_dispatch:
 
 permissions:
