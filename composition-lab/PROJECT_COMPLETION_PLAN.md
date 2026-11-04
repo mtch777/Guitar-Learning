@@ -49,6 +49,15 @@ parts. This is access for whole-song editing, not changed-output or ALL100
 completion. Next: compatible pitch/interval, voicing, register and contact choices
 over that complete scope; remaining expression/time/return controls remain owed.
 
+Independent degree-member choices now integrate through that whole Cloud model:
+75 additional definitions and their guards/ties pass exact preceding-tier and
+source-denied reconstruction. This supplies separate movement/register/spacing
+coordinates; whole-song nonzero selection is still pending. The active checklist
+records the3632 independent domains,273 currently protected units,35 explicit dead
+notes misclassified in the pitched metric, and the actual shared-string collision
+that the next joint sustain/chord decision must solve. No ALL100 or fresh creative
+QA pass is implied by this integration.
+
 ### Latest user correction: percentages measure actual output changes
 
 This supersedes release-probability/no-original-preference semantics for NEW

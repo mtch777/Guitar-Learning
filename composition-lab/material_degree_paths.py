@@ -1,8 +1,9 @@
 """Collection-degree paths and complete coattack shapes inside existing material.
 
 An explicit tonal interpretation supplies the same pitch/degree equation in both
-directions. Scale-step displacement preserves member degree spacing, not fixed
-semitone width. This owner does not infer a key or choose a preferred variation.
+directions. Scale-step displacement preserves member degree spacing unless an
+explicit member displacement changes it. This owner does not infer a key or
+choose a preferred variation.
 """
 from collections import defaultdict
 from copy import deepcopy
@@ -72,8 +73,9 @@ def fit(definition, *, path_refs, interpretations, evidence_ref):
         raise ValueError('Frozen interpretation evidence reference required')
     groups = {group['id']: group for group in definition['lower_tier']['coattacks']}
     selected = [b for b in definition['bindings'] if b['pitch_path_ref'] in path_refs]
-    external = {r['occurrence_ref'] for r in definition.get('external_pitch_refs', [])}
-    if any(m['id'] in external for b in selected for m in groups[b['coattack_ref']]['members']):
+    external = {r['occurrence_ref']: r['kind'] for r in definition.get('external_pitch_refs', [])}
+    if any(m['id'] in external and external[m['id']] != 'tied_member'
+           for b in selected for m in groups[b['coattack_ref']]['members']):
         raise ValueError('Selected coattack conflicts with an existing external pitch owner')
     paths = []
     for ref in path_refs:
@@ -133,7 +135,7 @@ def fit(definition, *, path_refs, interpretations, evidence_ref):
 def _validated(definition):
     if type(definition) is not dict:
         raise ValueError('Closed degree-path material dictionary required')
-    fields = _FIELDS | ({'external_pitch_refs'} if 'external_pitch_refs' in definition else set())
+    fields = _FIELDS | ({'external_pitch_refs', 'unresolved_execution_locks'} & set(definition))
     if type(definition) is not dict or set(definition) != fields or definition['schema'] != SCHEMA:
         raise ValueError('Closed degree-path material required; extra payload forbidden')
     spec = definition['degree_paths']
@@ -168,9 +170,9 @@ def _validated(definition):
         paths[ref] = path
     for shape in spec['shapes']:
         if (type(shape) is not list or not shape
-                or any(v is not None and (type(v) is not int or v < 0) for v in shape)
+                or any(v is not None and type(v) is not int for v in shape)
                 or 0 not in shape):
-            raise ValueError('Complete member-degree shape with retained lowest role required')
+            raise ValueError('Complete signed member-degree shape with retained free basis required')
     if len({tuple(s) for s in spec['shapes']}) != len(spec['shapes']):
         raise ValueError('Duplicate degree shape definitions forbidden')
     groups = {g['id']: g for g in definition['lower_tier']['coattacks']}
@@ -212,9 +214,21 @@ def _validated(definition):
             or spec['owned_voicing_refs'] != expected_owned
             or any(definition['voicings'][ref] is not None for ref in expected_owned)):
         raise ValueError('Exact removed lower voicing authority required')
-    external = {r['occurrence_ref'] for r in definition.get('external_pitch_refs', [])}
-    if any(external.intersection(row['member_refs']) for row in selected.values()):
-        raise ValueError('Selected material conflicts with an external pitch owner')
+    external = {r['occurrence_ref']: r['kind'] for r in definition.get('external_pitch_refs', [])}
+    members = set()
+    for row in selected.values():
+        shapes = [spec['shapes'][ref] for ref in row['shape_refs']]
+        if (len({shape.index(0) for shape in shapes}) != 1
+                or any([v is None for v in shape] != [v is None for v in shapes[0]]
+                       for shape in shapes[1:])):
+            raise ValueError('Hypotheses must retain the same stable free basis and member ownership')
+        for index, ref in enumerate(row['member_refs']):
+            if ref in members:
+                raise ValueError('A member occurrence cannot have duplicate degree ownership')
+            members.add(ref)
+            if ref in external and (external[ref] != 'tied_member'
+                    or any(shape[index] is not None for shape in shapes)):
+                raise ValueError('Selected material conflicts with an external pitch owner')
     return spec, paths, selected, groups, ordinary
 
 
@@ -224,8 +238,13 @@ def selected_refs(definition):
     return [b['coattack_ref'] for b in ordinary if b['coattack_ref'] in selected]
 
 
-def expand(definition, displacements=None, octaves=None):
-    """Solve each retained hypothesis; refuse if their changed pitches disagree."""
+def expand(definition, displacements=None, octaves=None, member_steps=None):
+    """Solve each retained hypothesis; refuse if their changed pitches disagree.
+
+    Member steps add signed collection degrees to the saved member shape. The
+    first original zero-offset member remains the free basis, owned by the common
+    path. Tied and unknown members never become independent pitch choices.
+    """
     spec, paths, selected, groups, ordinary = _validated(definition)
     controls = []
     for values in (displacements, octaves):
@@ -235,6 +254,20 @@ def expand(definition, displacements=None, octaves=None):
             raise ValueError('Exact integer controls keyed by selected coattack identity required')
         controls.append(values)
     displacements, octaves = controls
+    member_steps = {} if member_steps is None else member_steps
+    allowed = set()
+    bases = set()
+    for row in selected.values():
+        shape = spec['shapes'][row['shape_refs'][0]]
+        bases.add(row['member_refs'][shape.index(0)])
+        allowed.update(ref for ref, offset in zip(row['member_refs'], shape) if offset is not None)
+    if (type(member_steps) is not dict or set(member_steps) - allowed
+            or any(type(value) is not int for value in member_steps.values())):
+        raise ValueError('Exact integer member steps require selected independent known member identities')
+    if any(member_steps.get(ref, 0) != 0 for ref in bases):
+        raise ValueError('The stable free basis is owned by the common degree path')
+    tied = {r['occurrence_ref'] for r in definition.get('external_pitch_refs', [])
+            if r['kind'] == 'tied_member'}
     out = deepcopy(definition)
     out.pop('degree_paths'); out['schema'] = material.MATERIAL
     out['bindings'] = ordinary
@@ -252,8 +285,14 @@ def expand(definition, displacements=None, octaves=None):
                 raise ValueError('Attack ordinal outside its complete pitch path')
             coordinate = coordinates[ordinal] + displacements.get(ref, 0) + 7 * octaves.get(ref, 0)
             bass = _pitch(coordinate, h)
-            pitches = [None if offset is None else _pitch(coordinate + offset, h)
-                       for offset in spec['shapes'][shape_ref]]
+            pitches = [None if offset is None else
+                       _pitch(coordinate + offset + member_steps.get(member, 0), h)
+                       for member, offset in zip(row['member_refs'], spec['shapes'][shape_ref])]
+            # Ordinary core groups use the lowest pitch as their serialization
+            # basis. A tie-stripped group instead keeps its stable free basis;
+            # its tie owner restores the canonical complete coattack later.
+            if not tied.intersection(row['member_refs']):
+                bass = min(pitch for pitch in pitches if pitch is not None)
             candidates.append((bass, pitches))
         if any(candidate != candidates[0] for candidate in candidates[1:]):
             raise ValueError(f'Tonal interpretations disagree on exact realization: {ref}')

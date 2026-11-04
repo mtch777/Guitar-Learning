@@ -67,7 +67,8 @@ the old38 definitions, so their content/evidence need not be rewritten.
   to them, then add the39 missing scopes without replacing accepted material.
 - [x] Complete final independent source/lower-denied proof for the saved whole
   composition. Whole-ownership002 passes; expected answer was not staged.
-- [ ] Commit/push this increment and verify its CI.
+- [x] Commit/push this increment and verify its CI:08e767f published;
+  CI41802847299 succeeded on that exact commit.
 - [ ] Use that whole-song path to build/select compatible musical alternatives
   and measure each lever's complete final-output denominator. Ownership alone
   closes none of the100% requests.
@@ -106,6 +107,49 @@ features and retain every blocked unit in the whole-song denominator.
 Keep the original whole-request baseline fixed across increments. Generated
 reattack children are additional outcomes, not new original contour obligations;
 only a new request against the edited composition establishes a new baseline.
+
+### Independent voice choices across the whole Cloud model — 2026-11-04
+
+The SAME degree relation now exposes separate common movement, octave and
+per-member spacing choices. A stable original free member remains the coordinate
+basis even if another member crosses below it. Tied members keep their shared
+pitch owner; unknown members do not gain invented pitches. Existing unresolved
+execution locks remain byte-identical and enforced. The old closed-schema and
+mixed-tie refusals are removed through explicit ownership support, not ignored.
+
+Authored tests demonstrate a held lower note plus two initially unison uppers:
+spread an upper, save, then move both uppers while the hold remains unchanged.
+Conflicting tonal interpretations, a requested independent tie edit and invalid
+physical contacts refuse atomically. Saved changed reconstruction passes in the
+actual source/lower-denied worker. Clean HEAD08e767f plus four owned files:
+51 tests passed in23.260s, with unchanged source hashes.
+
+Whole-degree001 uses the two already retained song-pool F-minor hypotheses; it
+does not claim a unique key or invent a new interpretation. All75 ordinary
+definitions with free paths now transfer exactly; the existing degree definition
+and its choices remain intact, and one definition has no free pitch path. Full
+preceding-T2 and current-T1 equality plus independent source/lower-denied
+reconstruction PASS. This finishes this relationship's whole-model integration,
+not selection or ALL100 musical output. No audio played or rerendered.
+
+Next decisive preflight is retained as joint-pitch-domains003: of the original
+3940 listed guitar/bass units,3632 have independent alternatives changing pitch
+class, final octave and even string;273 remain protected by current execution
+contexts;35 are explicit source dead notes incorrectly included in the pitched
+metric. No missing coordinate owner/context or empty physical domain was found
+among the unprotected pitched units. These are independent domains, NOT joint
+feasibility or changed-output counts. The actual contact metric is(string,fret);
+requiring a different string is a stronger diagnostic, not an extra user lock.
+The original manifest remains unchanged and the35-unit classification error is
+reported explicitly rather than silently pruned.
+
+The concrete next shared choice is one pitch/string per sustain chain, solved
+with every simultaneous chord member and original movement/voicing target.
+Actual counterexample: a sustained and a fresh note each have a valid alternative
+on the same string, but cannot use it together. Independent per-note refingering
+therefore cannot establish a whole-song solution. Current execution hashes are
+temporary capability boundaries, not proof that those273 notes are musically
+unchangeable. Original denominators, missing controls and ALL100 remain open.
 
 ### Current intermediate implementation — recurring texture and subdivision
 

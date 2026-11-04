@@ -22,7 +22,7 @@ RHYTHM_SCHEMA='source-musical-material-uses/3'
 
 def unallocated_fields(use):
     """A section owns allocation, while local use timing remains independent."""
-    return {'id','slot_ref'} | ({'rhythm_offset_q', 'degree_steps', 'degree_octaves', 'degree_strings', 'subdivision_factors'} & set(use))
+    return {'id','slot_ref'} | ({'rhythm_offset_q', 'degree_steps', 'degree_octaves', 'degree_strings', 'degree_member_steps', 'subdivision_factors'} & set(use))
 
 
 def _shape(upper):
@@ -46,6 +46,7 @@ def _shape(upper):
             if type(value)is not str or str(F(value))!=value:raise ValueError('Canonical common rhythmic displacement required')
         if type(use)is dict and any(k in use for k in ('degree_steps', 'degree_octaves', 'degree_strings')):
             fields.update(('degree_steps', 'degree_octaves', 'degree_strings'))
+        if type(use)is dict and 'degree_member_steps'in use:fields.add('degree_member_steps')
         if type(use)is dict and 'subdivision_factors'in use:
             fields.add('subdivision_factors')
             factors=use['subdivision_factors']
@@ -77,10 +78,10 @@ def _shape(upper):
         if definition['schema'] == degree_schema:
             if any(k not in use for k in ('degree_steps', 'degree_octaves', 'degree_strings')):
                 raise ValueError('Each degree-path use needs explicit movement and octave choices')
-            expand_degrees(definition, use['degree_steps'], use['degree_octaves'])
+            expand_degrees(definition, use['degree_steps'], use['degree_octaves'],use.get('degree_member_steps'))
             if type(use['degree_strings']) is not dict:
                 raise ValueError('Explicit per-occurrence string choices required')
-        elif any(k in use for k in ('degree_steps', 'degree_octaves', 'degree_strings')):
+        elif any(k in use for k in ('degree_steps', 'degree_octaves', 'degree_strings','degree_member_steps')):
             raise ValueError('An ordinary material has no degree-path choice')
         if (scope['parts']!=definition['scope']['parts']or slot['bar_spans_q']!=definition['bar_spans_q']
                 or scope['last_bar']-scope['first_bar']!=definition['scope']['last_bar']-definition['scope']['first_bar']):
@@ -155,7 +156,7 @@ def place(definition,slot,use,*,parent=None):
     solved=expand_approach(definition,use['approach_mode'])if definition['schema']==approach_schema else definition
     from material_degree_paths import SCHEMA as degree_schema, expand as expand_degrees
     if definition['schema'] == degree_schema:
-        solved = expand_degrees(definition, use['degree_steps'], use['degree_octaves'])
+        solved = expand_degrees(definition, use['degree_steps'], use['degree_octaves'],use.get('degree_member_steps'))
     if 'rhythm_offset_q' in use:
         from material_rhythm_displacement import solve
         if parent is not None:solved=material.rhythm_context(solved,parent)
@@ -597,19 +598,26 @@ def lift_approach(upper,use_id,attack_refs,interpretations,evidence_ref):
 
 def lift_degree_paths(upper, use_id, *, path_refs, interpretations, evidence_ref):
     """Transfer complete material pitch paths to collection-degree relationships."""
+    return lift_degree_paths_many(upper,{use_id:dict(path_refs=path_refs,
+        interpretations=interpretations,evidence_ref=evidence_ref)})
+
+
+def lift_degree_paths_many(upper,requests):
+    """Compose disjoint degree ownership once, then verify the complete inverse."""
     from material_degree_paths import fit
+    if type(requests)is not dict or not requests:raise ValueError('Explicit nonempty degree ownership requests required')
     before, lower, _ = realize_pair(upper)
-    matches = [u for u in upper['uses'] if u['id'] == use_id]
-    if len(matches) != 1:
-        raise ValueError('One existing material use required')
-    ref = matches[0]['material_ref']
-    if sum(u['material_ref'] == ref for u in upper['uses']) != 1:
-        raise ValueError('Refining a shared definition needs an explicit shared decision')
     out = deepcopy(upper)
-    out['materials'][ref] = fit(upper['materials'][ref], path_refs=path_refs,
-        interpretations=interpretations, evidence_ref=evidence_ref)
-    chosen = next(u for u in out['uses'] if u['id'] == use_id)
-    chosen.update(degree_steps={}, degree_octaves={}, degree_strings={})
+    for use_id,request in requests.items():
+        if type(request)is not dict or set(request)!={'path_refs','interpretations','evidence_ref'}:
+            raise ValueError('Closed path, interpretation and evidence request required')
+        matches=[u for u in out['uses'] if u['id']==use_id]
+        if len(matches)!=1:raise ValueError('One existing material use required')
+        chosen=matches[0];ref=chosen['material_ref']
+        if sum(u['material_ref']==ref for u in upper['uses'])!=1:
+            raise ValueError('Refining a shared definition needs an explicit shared decision')
+        out['materials'][ref]=fit(upper['materials'][ref],**request)
+        chosen.update(degree_steps={},degree_octaves={},degree_strings={})
     after, realized, _ = realize_pair(out)
     if after != before or realized != lower:
         raise ValueError('Degree-path ownership changed preceding musical relationships')
@@ -648,14 +656,14 @@ def _degree_refinger(upper, use):
     for current_use in base['uses']:current_use.pop('subdivision_factors',None)
     docs = project_documents(reconstruct(base, {'variation': 0}))
     definition = upper['materials'][use['material_ref']]
-    solved = material.expand(expand_degrees(definition, use['degree_steps'], use['degree_octaves']))
+    solved = material.expand(expand_degrees(definition, use['degree_steps'], use['degree_octaves'],use.get('degree_member_steps')))
     selected = set(selected_refs(definition)); result = {}
     _, event, _ = _maps(definition, upper['slots'][use['slot_ref']])
     for group in solved['coattacks']:
         if group['id'] not in selected:
             continue
         track = docs[f"track-{group['part_id']}.json"]
-        members = [m for m in group['members'] if m['voicing_interval'] is not None]
+        members = [m for m in group['members'] if m.get('voicing_interval') is not None]
         pitches = [F(group['bass_register_anchor']) + F(m['voicing_interval']) for m in members]
         if any(p.denominator != 1 for p in pitches):
             raise ValueError('Whole-semitone physical realization required')
@@ -665,7 +673,7 @@ def _degree_refinger(upper, use):
             raw = track['measures'][bar-1]['voices'][voice]['beats'][beat]['notes'][note]
             if type(raw.get('string')) is not int:
                 raise ValueError('Unpitched member string occupancy is unresolved; cannot relocate contacts')
-            if member['voicing_interval'] is None:
+            if member.get('voicing_interval') is None:
                 reserved.add(raw['string'])
             else:
                 original.append(raw['string'])
@@ -710,7 +718,7 @@ def _validate_degree_contacts(upper, use_id, lower):
             raise ValueError('Coattack members cannot occupy the same string')
 
 
-def degree_path_candidate(upper, use_id, *, displacements, octaves, refinger=False):
+def degree_path_candidate(upper, use_id, *, displacements, octaves, member_steps=None, refinger=False):
     """Change existing degree/whole-octave choices; all other owners stay intact."""
     if type(refinger) is not bool:
         raise ValueError('Explicit permission to change strings required')
@@ -720,6 +728,7 @@ def degree_path_candidate(upper, use_id, *, displacements, octaves, refinger=Fal
     if len(matches) != 1 or 'degree_steps' not in matches[0]:
         raise ValueError('Use has no degree-path owner')
     matches[0].update(degree_steps=deepcopy(displacements), degree_octaves=deepcopy(octaves))
+    if member_steps is not None:matches[0]['degree_member_steps']=deepcopy(member_steps)
     if refinger:
         matches[0]['degree_strings'] = _degree_refinger(upper, matches[0])
     after_t2, after, _ = realize_pair(out)
