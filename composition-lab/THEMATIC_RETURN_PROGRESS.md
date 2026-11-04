@@ -21,10 +21,11 @@ below preserve their original results/settings; none supplies another active que
 - [ ] **Root — pitch choices/integration:** address the retained Cloud held-note,
   unison-line and repeat/reference vocabulary limits through reusable relationships.
   Preserve the completed dependency-order and shared pitch/clock repairs.
-- [ ] **control_restriction_audit — assigned timing preflight; root integrates:**
-  determine which missing rhythmic relationship accounts for the 445 fixed/no-choice
-  attacks. Retain the complete frozen scope; do not declare current clock options
-  to be the limits of possible music. A useful premise precedes implementation.
+- [ ] **control_restriction_audit — written-successor pitch freedom; root integrates:**
+  release the demonstrated unnecessary numeric freeze on let-ring/exit-slide
+  contexts through a validated, versioned relationship. Preserve identities,
+  string, clock, next contact and uncertainty. The remaining timing/no-choice
+  work stays assigned to root; it is not canceled by this shared pitch fix.
 - [ ] **Root — first integrated musical checkpoint:** render verified Cloud
   movement + register + groove on overlapping material, using the existing page,
   untouched original and changed-note roll. Verify final counts, saved successive
@@ -150,6 +151,68 @@ on the same string, but cannot use it together. Independent per-note refingering
 therefore cannot establish a whole-song solution. Current execution hashes are
 temporary capability boundaries, not proof that those273 notes are musically
 unchangeable. Original denominators, missing controls and ALL100 remain open.
+
+### Whole-song joint pitch result — 2026-11-04
+
+The saved whole-Cloud candidate now changes3632 original pitched attacks in
+pitch class and actual octave, and1728/1955 frozen melodic steps. Its current
+realization changes4779/6414 written pitches and4688/6048 native note-on keys;
+generated subdivisions are NOT added to the original request denominator.
+Pitch, member spacing, register and physical contacts are selected jointly.
+Sustain chains share one contact; all70 resolved HP/slide obligations and all405
+canonical execution records remain intact. Original definitions, parent, slots,
+source observations, expression and existing subdivision choices remain exact.
+
+Selection005 passes complete realization and an independent source/lower-denied
+inverse against a separately constructed complete expected score (121.266s;
+expected answer not staged). Silent GP/native checks pass: all other notation,
+note-on timing/velocity/membership, percussion and source expression remain exact.
+GP SHA256:93f9aa1b09156762b67cb84df078c48e9a4caf3b29dc698f3e74ba610825a8be.
+No audio rendered or played; no new listening or fresh-source success claimed.
+
+Metric correction is explicit and versioned: the original manifest incorrectly
+counted35 source-marked dead notes as fundamental pitches. The new inventory has
+3905 pitched units and still3940 contact units, with every removed pitch unit
+mapped to its original boolean dead-note fact. Old manifest bytes are retained;
+all other unit sets/values and unknown non-dead policy are unchanged. Thus3632 of
+3905 pitched units change;273 and227 melodic steps remain unchanged. ALL100 and
+the remaining time/expression/structural controls remain OPEN.
+
+Retained decisions/failures: mandatory opposite direction was an unnecessary
+construction restriction, disproved at a protected lowest-string note. Changed
+signed intervals need not reverse direction, so contrary contour became a ranking
+preference. Selection004 then failed the real inverse because candidate contacts
+separated existing HP/slide endpoints. Selection005 compiles their SAME string,
+direction, open/fretted and successor obligations before choosing; accepted
+gesture predicates also run on a transient checker proposal before the expensive
+complete inverse. A native check initially treated GP's reordered chord-note
+list indices as stable identities; corrected binding uses source occurrence plus
+physical string, preserves the failed receipt and reuses the verified export.
+
+Explicit remix intention: contrary source contour, wider member spacing and
+neighbor development of repeated tones. This is a construction intention, not
+learned artist preference or guaranteed contrary movement. Independent review
+finds504/955 originally nonzero steps reverse direction; all1728 available step
+targets actually differ. No semitone relationship is categorically banned.
+
+Next shared relationship, challenged by Planner:261 remaining let-ring roots and
+12 exit-slide roots are frozen by numeric hashes although their declaration and
+written-successor predicates do not require original pitch/fret. Preserve the
+old fingerprint as provenance; migrate only a validated old guard to a written
+successor constraint permitting pitch/fret choices. Keep identities, strings,
+clock, contact order and unknown performed ends. Known HP/slide, physical and
+tonal constraints still apply. This does NOT finish technique-use editing.
+
+Private repeatable evidence:cloud-all-output-2026-11-03/joint-pitch-select-005,
+dead-pitch-reconciliation-001 and cloud-joint-contact-release-001. Public source
+contains the generic selector/updater and authored regressions; private scores
+and annotations remain local. Final clean verification/publication recorded below.
+
+Clean verification: HEAD536634b plus exactly six owned source/test overlays.
+The original49 integration tests passed in26.045s; only the changed joint solver
+and metric tests were subsequently run (33 tests in0.218s), giving82 unique tests.
+Old14-test solver evidence is superseded by17, not added to the total. Unrelated
+WIP and the next guard migration are excluded. Both snapshots remained hash-exact.
 
 ### Current intermediate implementation — recurring texture and subdivision
 

@@ -3,6 +3,8 @@
 These are score measurements, not musical choices or playback certification.
 Known tied continuations belong to one attack. Unknown ties stay explicit.
 Percussion participates in timing/expression, never melodic pitch percentages.
+Explicit dead notes also have no fundamental pitch unit. An unknown normal or
+harmonic pitch remains an unknown unit; lack of an editable choice never removes it.
 """
 from collections import defaultdict
 from fractions import Fraction as F
@@ -11,6 +13,9 @@ from source_fact_tier1 import project_documents
 from source_tie_tier1 import extract_documents
 from local_dynamics import inventory as dynamic_inventory
 from source_observation_evidence import digest
+
+SCHEMA='actual-output-unit-inventory/2'
+PITCH_FEATURES=('pitched_attack_pitch','pitched_attack_pitch_class','pitched_attack_octave')
 
 
 def accent_value(note):
@@ -46,7 +51,7 @@ def inventory(tier1):
         domain=('pitched' if type(instrument)is int and 0<=instrument<128 else
                 'percussion' if instrument==1024 else 'unknown')
         explicit_rest=any(row.get('rest')is True for row in (measure,voice,beat,note))
-        pitch=event['pitch'] if domain=='pitched' else None
+        pitch=event['pitch'] if domain=='pitched' and note.get('dead')is not True else None
         if pitch is not None and F(pitch).denominator!=1:pitch=None
         nodes[ref]=dict(occurrence_ref=ref,attack_ref=root,part_id=event['part_id'],
             voice=event['voice'],bar=event['bar'],beat=event['beat'],note=event['note'],
@@ -62,6 +67,7 @@ def inventory(tier1):
         'pitched_attack_pitch','pitched_attack_pitch_class','pitched_attack_octave',
         'attack_onset_q','attack_written_span_q','attack_base_dynamic','attack_accent',
         'guitar_bass_contact','guitar_bass_coattack_mute')}
+    pitch_units={}
     for root,members in groups.items():
         members.sort(key=lambda ref:(F(nodes[ref]['onset_q']),ref))
         row=nodes[root]
@@ -74,7 +80,15 @@ def inventory(tier1):
         features['attack_written_span_q'][root]=None if unknown else str(span)
         features['attack_base_dynamic'][root]=(dynamic['marking'] if not unknown and dynamic and dynamic['known'] else None)
         features['attack_accent'][root]=None if unknown else row['accent']
-        if row['instrument_domain']!='percussion':
+        included=row['instrument_domain']!='percussion' and not row['dead']
+        reason=('percussion_has_no_fundamental_pitch_unit'if row['instrument_domain']=='percussion'else
+                'explicit_dead_note_has_no_fundamental_pitch_unit'if row['dead']else
+                'unknown_fundamental_pitch_remains_a_unit'if pitch is None else'known_written_fundamental_pitch')
+        dead_facts=[f"track-{nodes[ref]['part_id']}.json#/measures/{nodes[ref]['bar']-1}/voices/{nodes[ref]['voice']}/beats/{nodes[ref]['beat']}/notes/{nodes[ref]['note']}/dead"
+                    for ref in members if nodes[ref]['dead']]
+        pitch_units[root]=dict(attack_ref=root,member_refs=list(members),included=included,reason=reason,
+            metric_names=list(PITCH_FEATURES),explicit_dead_fact_refs=dead_facts)
+        if included:
             features['pitched_attack_pitch'][root]=pitch
             features['pitched_attack_pitch_class'][root]=None if pitch is None else str(F(pitch)%12)
             features['pitched_attack_octave'][root]=None if pitch is None else int(F(pitch)//12)-1
@@ -96,13 +110,17 @@ def inventory(tier1):
             features['guitar_bass_coattack_mute'][identity]=(None if None in values or any(
                 not attacks[root]['attack_identity_known'] for root in roots)
                 else 'on' if all(values) else 'off' if not any(values) else 'mixed')
-    return dict(schema='actual-output-unit-inventory/1',baseline_sha256=digest(tier1),
+    return dict(schema=SCHEMA,baseline_sha256=digest(tier1),
         features=features,notes=nodes,attacks=attacks,coattacks=coattacks,
+        pitch_unit_classification=pitch_units,
         tie_links=ties['links'],unresolved_ties=ties['unresolved'],
         scope='Complete current score facts before admission; no source-observation votes or playback judgment',
         counts=dict(written_occurrences=len(nodes),attack_units=len(attacks),
             tied_continuations=len(predecessor),unresolved_ties=len(unresolved),
             percussion_attacks=sum(row['instrument_domain']=='percussion' for row in attacks.values()),
             pitched_metric_units=len(features['pitched_attack_pitch']),
+            explicit_dead_pitch_exclusions=sum(row['reason']=='explicit_dead_note_has_no_fundamental_pitch_unit'for row in pitch_units.values()),
+            contact_metric_units=len(features['guitar_bass_contact']),
+            unknown_pitched_metric_units=sum(v is None for v in features['pitched_attack_pitch'].values()),
             known_pitched_attacks=sum(v is not None for v in features['pitched_attack_pitch'].values()),
             unknown_accent_units=sum(v is None for v in features['attack_accent'].values())))

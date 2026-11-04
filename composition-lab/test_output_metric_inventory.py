@@ -2,7 +2,7 @@
 from copy import deepcopy
 import unittest
 
-from output_metric_inventory import inventory,accent_value
+from output_metric_inventory import inventory,accent_value,PITCH_FEATURES,SCHEMA
 from output_change_targets import freeze_targets,evaluate_targets
 from source_fact_tier1 import extract_documents
 from test_execution_dependencies import documents,n
@@ -55,6 +55,73 @@ class OutputMetricInventoryTests(unittest.TestCase):
         self.assertEqual(result['counts']['attack_units'],4)
         self.assertIsNone(result['features']['pitched_attack_pitch'][root])
         self.assertIsNone(result['features']['attack_onset_q'][root])
+
+    def test_explicit_dead_member_excludes_only_fundamental_pitch_metrics(self):
+        docs=documents([n(0),n(2),n(4),n(5)],{0:dict(velocity='f',palmMute=True)})
+        docs['track-0.json']['measures'][0]['voices'][0]['beats'][0]['notes'].append(
+            dict(string=4,fret=3,dead=True,accentuated=1))
+        lower=extract_documents(docs);before=deepcopy(lower);result=inventory(lower)
+        dead='event:86:0:1:0:0:1'
+        self.assertEqual(result['schema'],SCHEMA)
+        self.assertNotEqual(result['schema'],'actual-output-unit-inventory/1')
+        self.assertIsNone(result['notes'][dead]['pitch'])
+        for feature in PITCH_FEATURES:
+            self.assertEqual(len(result['features'][feature]),4)
+            self.assertNotIn(dead,result['features'][feature])
+        for feature in ('attack_onset_q','attack_written_span_q','attack_base_dynamic',
+                        'attack_accent','guitar_bass_contact'):
+            self.assertIn(dead,result['features'][feature])
+            self.assertEqual(len(result['features'][feature]),5)
+        self.assertEqual(result['features']['guitar_bass_contact'][dead],[[4,3]])
+        self.assertEqual(result['features']['attack_accent'][dead],1)
+        self.assertTrue(result['notes'][dead]['dead'])
+        group=next(row for row in result['coattacks'].values()if row['onset_q']=='0')
+        self.assertIn(dead,group['attack_refs'])
+        self.assertEqual(result['counts']['explicit_dead_pitch_exclusions'],1)
+        self.assertEqual(result['counts']['contact_metric_units'],5)
+        classification=result['pitch_unit_classification'][dead]
+        self.assertFalse(classification['included'])
+        self.assertEqual(classification['reason'],'explicit_dead_note_has_no_fundamental_pitch_unit')
+        self.assertEqual(classification['explicit_dead_fact_refs'],[
+            'track-0.json#/measures/0/voices/0/beats/0/notes/1/dead'])
+        self.assertEqual(lower,before)
+
+    def test_unknown_normal_and_harmonic_pitches_remain_counted(self):
+        for additional in ({},{'harmonic':dict(type='natural')},{'dead':False}):
+            with self.subTest(additional=additional):
+                docs=documents([dict(string=5,**additional),n(2),n(4),n(5)])
+                result=inventory(extract_documents(docs));root='event:86:0:1:0:0:0'
+                for feature in PITCH_FEATURES:
+                    self.assertIn(root,result['features'][feature])
+                    self.assertIsNone(result['features'][feature][root])
+                    self.assertEqual(len(result['features'][feature]),4)
+                self.assertTrue(result['pitch_unit_classification'][root]['included'])
+                self.assertEqual(result['pitch_unit_classification'][root]['reason'],
+                                 'unknown_fundamental_pitch_remains_a_unit')
+                self.assertEqual(result['counts']['unknown_pitched_metric_units'],1)
+                self.assertEqual(result['counts']['explicit_dead_pitch_exclusions'],0)
+
+    def test_malformed_dead_declaration_is_not_coerced_to_a_pitch_exclusion(self):
+        lower=extract_documents(documents([n(0,dead='true'),n(2),n(4),n(5)]))
+        with self.assertRaisesRegex(ValueError,'Unsupported dead declaration'):inventory(lower)
+
+    def test_unresolved_dead_tie_stays_an_unknown_timing_and_contact_unit(self):
+        result=inventory(extract_documents(documents([n(0,dead=True,tie=True),n(2),n(4),n(5)])))
+        root='event:86:0:1:0:0:0'
+        for feature in PITCH_FEATURES:self.assertNotIn(root,result['features'][feature])
+        self.assertIn(root,result['features']['attack_onset_q'])
+        self.assertIsNone(result['features']['attack_onset_q'][root])
+        self.assertIn(root,result['features']['guitar_bass_contact'])
+        self.assertIsNone(result['features']['guitar_bass_contact'][root])
+        self.assertEqual(result['counts']['attack_units'],4)
+
+    def test_dead_without_fret_retains_an_unknown_contact_instead_of_disappearing(self):
+        result=inventory(extract_documents(documents([dict(string=5,dead=True),n(2),n(4),n(5)])))
+        root='event:86:0:1:0:0:0'
+        self.assertNotIn(root,result['features']['pitched_attack_pitch'])
+        self.assertIn(root,result['features']['guitar_bass_contact'])
+        self.assertIsNone(result['features']['guitar_bass_contact'][root])
+        self.assertEqual(result['counts']['contact_metric_units'],4)
 
 
 if __name__=='__main__':unittest.main()

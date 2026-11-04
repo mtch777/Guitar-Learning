@@ -22,7 +22,7 @@ RHYTHM_SCHEMA='source-musical-material-uses/3'
 
 def unallocated_fields(use):
     """A section owns allocation, while local use timing remains independent."""
-    return {'id','slot_ref'} | ({'rhythm_offset_q', 'degree_steps', 'degree_octaves', 'degree_strings', 'degree_member_steps', 'subdivision_factors'} & set(use))
+    return {'id','slot_ref'} | ({'rhythm_offset_q', 'degree_steps', 'degree_octaves', 'degree_strings', 'degree_member_steps', 'contact_strings', 'subdivision_factors'} & set(use))
 
 
 def _shape(upper):
@@ -47,6 +47,12 @@ def _shape(upper):
         if type(use)is dict and any(k in use for k in ('degree_steps', 'degree_octaves', 'degree_strings')):
             fields.update(('degree_steps', 'degree_octaves', 'degree_strings'))
         if type(use)is dict and 'degree_member_steps'in use:fields.add('degree_member_steps')
+        if type(use)is dict and 'contact_strings'in use:
+            fields.add('contact_strings')
+            if type(use['contact_strings'])is not dict:
+                raise ValueError('Explicit existing physical contact choices required')
+            if use['contact_strings'] and use.get('degree_strings'):
+                raise ValueError('Two active physical contact authorities are forbidden')
         if type(use)is dict and 'subdivision_factors'in use:
             fields.add('subdivision_factors')
             factors=use['subdivision_factors']
@@ -164,6 +170,9 @@ def place(definition,slot,use,*,parent=None):
     source=material.expand(solved);fact,event,delta=_maps(definition,slot)
     if definition['schema'] == degree_schema:
         _degree_strings(source, definition, use['degree_strings'])
+    if 'contact_strings'in use:
+        _write_strings(source,use['contact_strings'],
+            {p['occurrence_ref']for p in source['physical_positions']})
     out={k:deepcopy(v)for k,v in source.items()};shift=F(slot['start_q'])-F(definition['source_start_q'])
     out['source_structure']=[_row(r,fact)for r in source['source_structure']]
     for field in ('source_choices','coverage'):
@@ -266,6 +275,11 @@ def realize_pair(upper):
     for use in upper['uses']:
         if upper['materials'][use['material_ref']]['schema'] == degree_schema:
             _validate_degree_contacts(upper, use['id'], lower)
+        if use.get('contact_strings'):
+            definition=upper['materials'][use['material_ref']]
+            selected={g['id']for g in definition['lower_tier']['coattacks']
+                if any(m['id']in use['contact_strings']for m in g['members'])}
+            _validate_material_contacts(upper,use['id'],lower,selected)
     from material_approaches import SCHEMA as approach_schema, validate_membership
     for use in upper['uses']:
         definition=upper['materials'][use['material_ref']]
@@ -631,9 +645,14 @@ def _degree_strings(fragment, definition, strings):
     physical = {p['occurrence_ref'] for p in fragment['physical_positions']}
     allowed = {m['id'] for g in definition['lower_tier']['coattacks']
                if g['id'] in selected for m in g['members'] if m['id'] in physical}
+    _write_strings(fragment,strings,allowed)
+
+
+def _write_strings(fragment,strings,allowed):
+    """Update the existing string fact and its tuning reference, never a pitch."""
     if (type(strings) is not dict or set(strings) - allowed
             or any(type(v) is not int or v < 0 for v in strings.values())):
-        raise ValueError('String choices must name selected stable member identities')
+        raise ValueError('String choices must name permitted stable physical member identities')
     choices = {r['fact_ref']: r for r in fragment['source_choices']}
     positions = {r['occurrence_ref']: r for r in fragment['physical_positions']}
     for ref, string in strings.items():
@@ -691,11 +710,17 @@ def _degree_refinger(upper, use):
 
 
 def _validate_degree_contacts(upper, use_id, lower):
-    from source_fact_tier1 import project_documents
     from material_degree_paths import selected_refs
     use = next(u for u in upper['uses'] if u['id'] == use_id)
     definition = upper['materials'][use['material_ref']]
     selected = set(selected_refs(definition))
+    _validate_material_contacts(upper,use_id,lower,selected)
+
+
+def _validate_material_contacts(upper,use_id,lower,selected):
+    from source_fact_tier1 import project_documents
+    use=next(u for u in upper['uses']if u['id']==use_id)
+    definition=upper['materials'][use['material_ref']]
     physical = {p['occurrence_ref'] for p in definition['lower_tier']['physical_positions']}
     _, event, _ = _maps(definition, upper['slots'][use['slot_ref']])
     docs = project_documents(lower)
@@ -723,18 +748,91 @@ def degree_path_candidate(upper, use_id, *, displacements, octaves, member_steps
     if type(refinger) is not bool:
         raise ValueError('Explicit permission to change strings required')
     _shape(upper)
-    out = deepcopy(upper)
-    matches = [u for u in out['uses'] if u['id'] == use_id]
+    matches = [deepcopy(u) for u in upper['uses'] if u['id'] == use_id]
     if len(matches) != 1 or 'degree_steps' not in matches[0]:
         raise ValueError('Use has no degree-path owner')
     matches[0].update(degree_steps=deepcopy(displacements), degree_octaves=deepcopy(octaves))
     if member_steps is not None:matches[0]['degree_member_steps']=deepcopy(member_steps)
+    strings=None
     if refinger:
-        matches[0]['degree_strings'] = _degree_refinger(upper, matches[0])
+        strings={use_id:_degree_refinger(upper,matches[0])}
+    request=dict(displacements=displacements,octaves=octaves)
+    if member_steps is not None:request['member_steps']=member_steps
+    return degree_choices_candidate(upper,{use_id:request},contact_strings=strings)
+
+
+def degree_choices_candidate(upper,requests,*,contact_strings=None):
+    """One atomic pitch/contact transaction through retained material and tie owners.
+
+    Explicit head strings close over the existing sustain equality. A tail is
+    never independently re-fingered, and ordinary all-tail materials need no
+    invented degree path. Saved definitions and original evidence stay intact.
+    """
+    _shape(upper)
+    if type(requests)is not dict:raise ValueError('Explicit degree requests keyed by use identity required')
+    contacts={}if contact_strings is None else contact_strings
+    if type(contacts)is not dict:raise ValueError('Explicit physical requests keyed by use identity required')
+    indexed={u['id']:u for u in upper['uses']}
+    if (set(requests)|set(contacts))-set(indexed):raise ValueError('Unknown requested material use')
+    before,_,_=realize_pair(upper)
+    out=deepcopy(upper);updated={u['id']:u for u in out['uses']}
+    for use_id,request in requests.items():
+        if (type(request)is not dict or set(request)not in
+                ({'displacements','octaves'},{'displacements','octaves','member_steps'})):
+            raise ValueError('Closed common degree, octave and optional member choices required')
+        use=updated[use_id]
+        if 'degree_steps'not in use:raise ValueError('Use has no degree-path owner')
+        use.update(degree_steps=deepcopy(request['displacements']),degree_octaves=deepcopy(request['octaves']))
+        if 'member_steps'in request:use['degree_member_steps']=deepcopy(request['member_steps'])
+    # Relationships use the pre-subdivision written identities. Placement maps
+    # those into each use; existing subdivisions inherit the same parent contact.
+    owners={}; current={}; explicit={}
+    for use in upper['uses']:
+        definition=upper['materials'][use['material_ref']]
+        _,event,_=_maps(definition,upper['slots'][use['slot_ref']])
+        for position in definition['lower_tier']['physical_positions']:
+            ref=position['occurrence_ref'];key=(use['id'],ref);address=event(ref)
+            if address in owners:raise ValueError('Overlapping physical material owners')
+            owners[address]=key;current[key]=address
+    for use_id,values in contacts.items():
+        if type(values)is not dict:raise ValueError('Explicit per-occurrence contact map required')
+        for ref,string in values.items():
+            key=(use_id,ref)
+            if key not in current or type(string)is not int or string<0:
+                raise ValueError('Contact requires one existing physical occurrence and a nonnegative string')
+            explicit[current[key]]=string
+    shared=upper['lower_tier']['musical_relationships']
+    from written_tie_pitch_ownership import SCHEMA as tie_schema
+    rows=shared['relationships']if shared.get('schema')==tie_schema else[]
+    targets={r['destination_ref']:r['origin_ref']for r in rows}
+    children={}
+    for destination,origin in targets.items():children.setdefault(origin,[]).append(destination)
+    planned=dict(explicit)
+    for address,string in explicit.items():
+        head=address
+        while head in targets:head=targets[head]
+        if head!=address:
+            if explicit.get(head)!=string:
+                raise ValueError('Dependent contact must be requested through its written attack head')
+            continue
+        pending=[head]
+        while pending:
+            member=pending.pop()
+            if member not in owners:raise ValueError('Written tie contact lacks an existing material physical owner')
+            if member in planned and planned[member]!=string:
+                raise ValueError('Conflicting contacts within one written sustain')
+            planned[member]=string;pending.extend(children.get(member,[]))
+    for address,string in planned.items():
+        use_id,ref=owners[address];use=updated[use_id]
+        # Move the old compatibility overlay instead of keeping two authorities.
+        inherited=use.pop('contact_strings',{})
+        if use.get('degree_strings'):
+            inherited=deepcopy(use['degree_strings']);use['degree_strings']={}
+        use['contact_strings']=dict(inherited,**{ref:string})
     after_t2, after, _ = realize_pair(out)
     if 'stable_pitch_preference' in after_t2:
         from material_rhythm_control import _check_stable_timing
-        _check_stable_timing(expand(upper), after_t2)
+        _check_stable_timing(before, after_t2)
     return out
 
 

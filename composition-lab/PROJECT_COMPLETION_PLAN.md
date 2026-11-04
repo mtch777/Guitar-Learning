@@ -49,14 +49,21 @@ parts. This is access for whole-song editing, not changed-output or ALL100
 completion. Next: compatible pitch/interval, voicing, register and contact choices
 over that complete scope; remaining expression/time/return controls remain owed.
 
-Independent degree-member choices now integrate through that whole Cloud model:
-75 additional definitions and their guards/ties pass exact preceding-tier and
-source-denied reconstruction. This supplies separate movement/register/spacing
-coordinates; whole-song nonzero selection is still pending. The active checklist
-records the3632 independent domains,273 currently protected units,35 explicit dead
-notes misclassified in the pitched metric, and the actual shared-string collision
-that the next joint sustain/chord decision must solve. No ALL100 or fresh creative
-QA pass is implied by this integration.
+Whole-song nonzero pitch selection now passes complete realization, independent
+source/lower-denied reconstruction and silent native GP checks. It changes3632
+of3905 pitched attacks in pitch class and actual octave,1728/1955 frozen melodic
+steps, and4688 native note-on keys while retaining source evidence, execution
+relationships, timing and expression. The35 explicit dead notes were removed only
+from fundamental-pitch metrics through a versioned, source-fact-mapped correction;
+contact units remain3940 and the old manifest is preserved. This is substantial
+partial pitch output, not ALL100 or a fresh creative/listening pass.
+
+The next shared unlock addresses273 pitch-frozen let-ring/exit-slide contexts:
+their current hash includes numeric values their actual written-successor
+relationship does not require fixed. A validated versioned migration must retain
+original evidence, identities, strings, clocks, contact order and unknown performed
+ends while admitting degree-driven pitch/fret changes. Full time/expression/
+structural-control obligations remain active; no isolated example replaces them.
 
 ### Latest user correction: percentages measure actual output changes
 
