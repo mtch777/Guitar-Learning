@@ -46,6 +46,146 @@ def build(*,different_dynamic=False,nonempty=False):
     return documents,lower,t2,current,selected
 
 class DirectCurrentArrangementTests(unittest.TestCase):
+    def test_one_subdivided_live_child_cannot_steal_shared_accent_authority(self):
+        import local_accents
+        _,_,_,current,_=build(different_dynamic=True)
+        linked=arrangement.candidate_use(
+            arrangement.lift_use(current,DESTINATION,[SOURCE]),SOURCE)
+        direct=arrangement.expand(saved(linked))
+        first=direct['materials'][0]['lower_tier']['coattacks'][0]['id']
+        split,report=uses.subdivision_candidate(direct,{SOURCE:[first]})
+        self.assertEqual(report['current_attacks'],1)
+        self.assertEqual(report['changed_current_attacks'],1)
+        self.assertEqual(report['added_attacks'],1)
+        consequences={row['use_id']:row for row in report['affected_instances']}
+        self.assertEqual(set(consequences),{SOURCE,DESTINATION})
+        for row in consequences.values():
+            self.assertEqual(row['owner_use_id'],SOURCE)
+            self.assertEqual(row['changed_current_attacks'],1)
+            self.assertEqual(row['added_attacks'],1)
+        locked,zero=uses.subdivision_candidate(saved(split),{SOURCE:[first]},percent=0)
+        self.assertEqual(locked,split)
+        self.assertEqual(zero['current_attacks'],2)
+        self.assertTrue(all(row['changed_current_attacks']==0 for row in zero['affected_instances']))
+        frozen=deepcopy(split)
+        with self.assertRaisesRegex(ValueError,'follows its donor subdivision'):
+            uses.subdivision_candidate(split,{DESTINATION:[first]})
+        self.assertEqual(split,frozen)
+        saved_upper=arrangement.pack_uses(linked,split)
+        before=deepcopy(saved_upper)
+        parent=uses.expand(saved(split))
+        # The second new attack in the live destination still shares one
+        # original accent choice with its donor and three other descendants.
+        target='track-2.json#/measures/3/voices/0/beats/1/notes/0'
+        changed=local_accents.apply(parent,target,dict(kind='explicit',value=2))
+        frozen_proposal=deepcopy(changed)
+        with self.assertRaisesRegex(ValueError,'INDEPENDENT_CHILD_EXPRESSION_OWNER_REQUIRED'):
+            uses.pack_expression(split,changed)
+        self.assertEqual(saved_upper,before)
+        self.assertEqual(changed,frozen_proposal)
+        self.assertEqual(uses.expand(saved(split)),parent)
+
+    def test_accent_and_live_allocation_commute_across_saved_states(self):
+        """The same requested expression must not depend on operation order."""
+        import local_accents
+        _,_,_,current,_=build(different_dynamic=True)
+        frozen=deepcopy(current)
+        source='track-2.json#/measures/0/voices/0/beats/0/notes/0'
+        destination='track-2.json#/measures/3/voices/0/beats/0/notes/0'
+        state=dict(kind='explicit',value=2)
+
+        # A then B: change the actual owner, save, then create its live use.
+        accented=uses.pack_expression(current,local_accents.apply(
+            uses.expand(current),source,state))
+        first=arrangement.candidate_use(
+            arrangement.lift_use(saved(accented),DESTINATION,[SOURCE]),SOURCE)
+
+        # B then A: the saved live use has both current occurrences of that owner.
+        linked=arrangement.candidate_use(
+            arrangement.lift_use(saved(current),DESTINATION,[SOURCE]),SOURCE)
+        direct=arrangement.expand(saved(linked))
+        edited=local_accents.apply_many(uses.expand(direct),
+            {source:state,destination:state})
+        second=arrangement.pack_uses(linked,uses.pack_expression(direct,edited))
+        self.assertEqual(saved(first),saved(second))
+        self.assertEqual(arrangement.reconstruct(saved(first),{'variation':0}),
+                         connected.realize(edited))
+        self.assertEqual(current,frozen)
+
+    def test_live_allocation_clock_and_accent_keep_later_dependency(self):
+        """Exercise the shared identities through three edits, not just pairs."""
+        import local_accents
+        from material_slot_clock_control import apply_entry_choices
+        _,_,_,current,refs=build(different_dynamic=True)
+        linked=arrangement.candidate_use(
+            arrangement.lift_use(current,DESTINATION,[SOURCE]),SOURCE)
+        lanes={f'track-2.json#/measures/{bar}/voices/0/beats':
+            {f'track-2.json#/measures/{bar}/voices/0/beats/0':'1'}for bar in(0,1,2)}
+        timed,_=apply_entry_choices(arrangement.expand(saved(linked)),[dict(
+            use_id=SOURCE,scope=current['slots'][0]['scope'],lane_shares=lanes,
+            entry_shares={lane:'1/4'for lane in lanes})])
+        timed_t4=arrangement.pack_uses(linked,timed)
+        before=uses.expand(saved(timed))
+        edits={f'track-2.json#/measures/{bar}/voices/0/beats/1/notes/0':
+            dict(kind='explicit',value=2)for bar in(0,3)}
+        after=local_accents.apply_many(before,edits)
+        expression=uses.pack_expression(saved(timed),after)
+        result=arrangement.pack_uses(saved(timed_t4),expression)
+        actual=arrangement.reconstruct(saved(result),{'variation':0})
+        expected=deepcopy(connected.realize(before))
+        # Independent exact fact oracle: only these two accent values change.
+        for row in expected['facts']:
+            if row['id']in{ref+'/accentuated'for ref in edits}:row['value']=2
+        self.assertEqual(actual,expected)
+        self.assertEqual(result['allocation'],linked['allocation'])
+        self.assertEqual(result['lower_tier']['materials'],current['materials'])
+        for key in('observed_expression','observed_dynamics'):
+            self.assertEqual(result['lower_tier']['lower_tier']['owned_parameters'][key],
+                             current['lower_tier']['owned_parameters'][key])
+
+        # A subsequent owner edit still reaches the linked passage after reload.
+        following=uses.degree_path_candidate(arrangement.expand(saved(result)),SOURCE,
+            displacements={ref:2 for ref in refs},octaves={})
+        final=arrangement.pack_uses(saved(result),following)
+        docs=project_documents(arrangement.reconstruct(saved(final),{'variation':0}))
+        self.assertNotEqual(project_documents(actual),docs)
+        for source,target in zip((1,2,3),(4,5,6)):
+            left=docs['track-2.json']['measures'][source-1]['voices'][0]['beats']
+            right=docs['track-2.json']['measures'][target-1]['voices'][0]['beats']
+            self.assertEqual(left[1]['notes'],right[1]['notes'])
+            self.assertEqual(left[1]['duration'],[3,4])
+            self.assertEqual(right[1]['duration'],[3,4])
+        self.assertEqual(docs['track-2.json']['measures'][0]['voices'][0]['beats'][1]['notes'][0]['accentuated'],2)
+
+    def test_saved_accent_edit_follows_live_instance_without_duplicating_ownership(self):
+        import local_accents
+        _,_,_,current,_=build(different_dynamic=True)
+        t4=arrangement.candidate_use(arrangement.lift_use(current,DESTINATION,[SOURCE]),SOURCE)
+        t3=arrangement.expand(t4)
+        before=deepcopy(t3)
+        parent,_,_=uses.realize_pair(saved(t3))
+        edits={f'track-2.json#/measures/{bar-1}/voices/0/beats/0/notes/0':
+               dict(kind='explicit',value=2)for bar in(1,4)}
+        changed=local_accents.apply_many(parent,edits)
+        result=uses.pack_expression(saved(t3),changed)
+        self.assertEqual(uses.expand(saved(result)),changed)
+        packed=arrangement.pack_uses(saved(t4),result)
+        self.assertEqual(packed['allocation'],t4['allocation'])
+        self.assertEqual(arrangement.reconstruct(saved(packed),{'variation':0}),connected.realize(changed))
+        conflict=deepcopy(result)
+        next(row for row in conflict['uses']if row['id']==DESTINATION)['source_use_ref']=DESTINATION
+        with self.assertRaisesRegex(ValueError,'arrangement-owned'):
+            arrangement.pack_uses(t4,conflict)
+        self.assertEqual(t3,before)
+        self.assertEqual(result['materials'],t3['materials'])
+        self.assertEqual(result['uses'],t3['uses'])
+        self.assertEqual(result['lower_tier']['owned_parameters']['observed_expression'],
+                         t3['lower_tier']['owned_parameters']['observed_expression'])
+        bad=local_accents.apply_many(parent,{next(iter(edits)):dict(kind='explicit',value=2)})
+        with self.assertRaisesRegex(ValueError,'INDEPENDENT_CHILD_EXPRESSION_OWNER_REQUIRED'):
+            uses.pack_expression(t3,bad)
+        self.assertEqual(t3,before)
+
     def test_current_zero_without_cell_keeps_envelope_and_all_rest_use(self):
         _,_,_,current,_=build(different_dynamic=True)
         before=deepcopy(current)

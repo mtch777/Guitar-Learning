@@ -41,6 +41,59 @@ by changing the meaning of success after seeing its result.
 
 ## Operating rules
 
+### Integrate during each change, not after a control family — 2026-11-04
+
+The assignment remains the complete Cloud Cascade request. A small experiment
+reduces the cost of learning; it does not reduce the promised scope. Use the
+existing work record and tests, not another framework or competing roadmap.
+
+1. **Trace consequences before coding.** Name the useful musical change and the
+   exact current owners it reads/changes. Follow live copies, derived children,
+   retired assignments, original evidence and export/playback consequences too.
+   Identify interacting controls from those relationships, not file boundaries.
+2. **Try to disprove the proposal first.** Use the retained Cloud case plus the
+   smallest relevant authored counterexample. Establish useful freedom, justified
+   locks, required correspondence and playback support before scaling the search.
+   For each new representation/owner projection, update a SAVED current-version
+   combination fixture. Tests of an older representation do not cover the new one.
+3. **Test interactions as the first implementation grows.** Exercise nonzero A→B
+   and B→A where independence is claimed. Where order changes musical context,
+   state and test the expected difference instead of demanding commutation. Include
+   save/reload, a later dependency edit and atomic refusal. When occurrence identity,
+   timing and expression meet, exercise that three-way sequence together.
+4. **Compare meaning and final output.** Check original evidence, protected owners,
+   links and identities alongside complete score facts and the frozen request
+   metrics. Count requested units separately from consequences in live copies or
+   generated notes. A changed internal choice or correct immediate score is not
+   sufficient evidence that the operation worked.
+5. **Integrate the first passing slice immediately.** Apply it to the CURRENT saved
+   whole-song candidate before expanding breadth or starting another independent
+   representation. Recheck the affected request metrics and prior achieved targets;
+   preserve every remaining control in the full register. Run native checks for the
+   actual new notation/gesture early (for example, short notes or carried pull-offs).
+   Render silently when audible output changes; do not rerender unchanged music for
+   a repair or presentation update. Reuse audio and the listening page. Do not play audio.
+6. **Make failure change the next action.** Retain the first result and record:
+   failing stage; smallest occurrence/owner witness; expected versus actual effect;
+   origin of the blocking restriction; and continue, revise or reject with the next
+   decisive test. Distinguish a contradictory request, missing musical relationship,
+   implementation defect, unsupported playback and harness/runtime failure. A failed
+   search alone proves none of the other categories. Repeating the same failed
+   premise requires new evidence or a changed hypothesis.
+
+Use the existing harness runtime/import/request/freeze checks before expensive
+work. During iteration run the affected tests and relevant interacting neighbors;
+run required release checks once the increment is stable. Do not use exhaustive
+all-pairs testing, another broad audit, or blanket refusals to postpone music.
+Fresh-source QA keeps its frozen population/first result and runs at the meaningful
+milestone, not after every patch. All three QA gates and final-output0/50/100 stay.
+
+In the existing progress record distinguish capability work, research, repair and
+verification. Retain measured command durations where available; do not convert
+test time or incomplete logs into a claimed percentage of development time.
+Planner challenges the proposed interaction FIRST and actual counterexample at
+midpoint; root owns the decision and must continue the complete assignment.
+
 | Rule | What changes in our work | What prevents the old failure |
 |---|---|---|
 | Start with a musical capability | Describe the musical relationship and the intended useful change before choosing files, schemas or helpers. Include why existing relationships cannot already provide it. | No feature justified only by another field, control, report or test count. Infrastructure work names the capability or correctness failure it unlocks. |

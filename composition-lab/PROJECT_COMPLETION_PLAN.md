@@ -21,6 +21,12 @@ checklist names the remaining control groups and accountable owners. Distinguish
 true contradictory requests from missing musical choices or implementation; neither
 an overlap inventory nor a correct refusal closes an unfinished capability.
 
+Execution correction,2026-11-04: follow the short "Integrate during each change"
+loop in DEVELOPMENT_OPERATING_RULES.md. Test the current saved representation and
+its interacting controls before scaling, then integrate each passing increment
+into this whole-song request. This changes execution order within work, not scope,
+QA strength or acceptance. Repairs and test counts are not musical completion.
+
 **Latest delivered state (2026-11-04):** whole-song pitch/expression/tempo is now
 joined by written rhythm through the shared inverse. Rhythm code `61e9276` and
 playback corrections `2b0825b` are published; their CI is tracked separately.

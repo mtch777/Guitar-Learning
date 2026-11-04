@@ -2,6 +2,51 @@
 
 ## ONE current assignment — full request remains open
 
+### Active execution correction — 2026-11-04
+
+User requested early research/disproof and continuous combination testing rather
+than late integration. The full Cloud all-control request below remains unchanged.
+Root and ProjectPlanner3000 reviewed the actual saved-state failure and existing
+tests; the operating rules now define the short integration loop. No new framework.
+
+- [x] **Repair evidence:** the new saved allocation→accent regression reproduces
+  the published b842d08 failure: reused rest addresses misroute expression ownership.
+  Private `local-artifacts/agile-integration-2026-11-04/previous-failure.json` records
+  the exact module hashes and failure. This substitutes two published modules into
+  current dependencies; it is not a clean-release or fresh-song claim.
+- [x] **Repair:** expression packing follows preserved owner lineage, including
+  live descendants/retired assignments. Packing back into T4 preserves its existing
+  allocation. Earlier36 affected tests passed70.220s. Two new order/three-way checks
+  passed8.863s locally; Planner independently reran both,2 passed8.633s.
+- [x] **Earlier failure from Planner's challenge:** subdivide a live donor, then
+  change only one copied child's accent. In2.300s this first exposed an accounting
+  crash: measurement assumed every use owned a material_ref. Realization had worked.
+  Resolve measurement through the same live-use relation; retain requested donor
+  units once and report affected instances separately. The copied-child accent
+  request now reaches the required atomic refusal, without broadcasting its value
+  or changing original evidence. Preserve this first failure and regression.
+- [x] **Final affected checks:**39 tests passed80.783s locally. Published b842d08
+  source plus this exact three-Python-file repair also passes39 tests in a separate
+  clean tree; process elapsed83.390s. No unrelated WIP was imported. Private receipt:
+  `local-artifacts/agile-integration-2026-11-04/clean-result.json`. Coverage includes
+  saved zero, subdivision, both operation orders, allocation+timing+expression+later
+  donor edit, protected evidence and refusal. Planner independently ran the added
+  single-child/denominator regression too:1 passed4.041s; no blocking correction.
+- [ ] **Publication:** commit/push and actual CI pending; no website or audio change.
+- [ ] **Next musical increment:** finish the eight sustained-note emphasis units
+  on the CURRENT Cloud arrangement. The existing per-sustain silent PCM feasibility
+  passed zero equality and all eight windows with no outside changes; persistent
+  owner/save/reload and whole-candidate verification remain required. This does not
+  reopen the delivered use49→use76 arrangement or close expression by declaration.
+- [ ] **Following dependencies remain owned by root:** current degree-path support
+  for idea/return controls and explicit interpart-placement relationships. Continue
+  the whole request; do not stop at repair tests or shrink its denominator.
+
+Planner reviewed code/steering, corrected an initially stale recommendation to
+repeat the already delivered arrangement, and proposed the counterexample that
+found the subdivision accounting defect before a whole-source run. Root retains
+decision responsibility. No audio was played; all30 controls and QA1 remain OPEN.
+
 Deliver the requested whole-song Cloud Cascade result and resolve crossover across
 ALL registered controls. 0 locks the supplied current feature; 50 targets half its
 predeclared observable units actually changed; 100 requires every unit changed in

@@ -20,6 +20,15 @@ with clickable links and optional short numbered choices. Structured question
 cards do not render in the user's mobile app; do not use them unless requested.
 
 - Challenge whether work expands a reusable musical decision; examples are evidence.
+- Before expansion, inspect the CURRENT saved representation and its transitive
+  live copies, derived children, retired assignments, evidence owners and playback.
+  An older pairwise fixture does not establish a new owner's compatibility. Name
+  the smallest combination that could invalidate the proposal; inspect complete
+  relationships and final metrics, not just notes. Use the integration loop in
+  DEVELOPMENT_OPERATING_RULES.md without creating a second plan or broad framework.
+- Check the latest delivered artifact before recommending the next increment.
+  Do not repeat completed musical work or turn a newly found repair into the whole
+  assignment. Distinguish independently inspected/rerun evidence from root reports.
 - Preserve full13T2areas/9techniques separately from the approved ordered MVP gates.
   T3MVP begins only after the fixed T2MVP exit passes; no full-tier promotion or
   open-ended next-feature exception. Use the canonical plan, not a new checklist.

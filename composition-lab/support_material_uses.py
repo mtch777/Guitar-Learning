@@ -499,7 +499,10 @@ def subdivision_candidate(upper,requests,*,percent=100):
     for use_id,refs in requests.items():
         if use_id not in lookup or type(refs)is not list or len(refs)!=len(set(refs)) or not refs:
             raise ValueError('Unique selected coattacks in existing uses required')
-        use=lookup[use_id];allowed={g['id'] for g in out['materials'][use['material_ref']]['lower_tier']['coattacks']}
+        use=lookup[use_id]
+        if 'source_use_ref'in use:
+            raise ValueError('A live allocated use follows its donor subdivision; edit that owner or explicitly detach it')
+        allowed={g['id'] for g in out['materials'][use['material_ref']]['lower_tier']['coattacks']}
         if set(refs)-allowed:raise ValueError('Unknown subdivision coattack')
         for ref in refs:units.append((use,ref,use.get('subdivision_factors',{}).get(ref,1)))
     denominator=sum(factor for _,_,factor in units)
@@ -526,15 +529,23 @@ def subdivision_candidate(upper,requests,*,percent=100):
 
 def _measure_subdivision(upper,requests,before,before_ledger,after,after_ledger):
     """Read actual reconstructed durations against stable CURRENT identities."""
-    roots=[];note_roots=[]
-    for use in upper['uses']:
-        selected=set(requests.get(use['id'],[]))
-        definition=upper['materials'][use['material_ref']]
-        for group in definition['lower_tier']['coattacks']:
-            if group['id']in selected:
-                roots.append(use['id']+'/'+group['members'][0]['id'])
-                note_roots.extend(use['id']+'/'+m['id'] for m in group['members'])
-    roots=set(roots);note_roots=set(note_roots)
+    from current_use_allocation import resolve
+    resolved,_=resolve(upper)
+    original={use['id']:use for use in upper['uses']}
+    roots=set();note_roots=set();affected=[]
+    for use in resolved['uses']:
+        owner=use['id']
+        while 'source_use_ref'in original[owner]:owner=original[owner]['source_use_ref']
+        selected=set(requests.get(owner,[]))
+        if not selected:continue
+        groups=[group for group in upper['materials'][use['material_ref']]['lower_tier']['coattacks']
+                if group['id']in selected]
+        current_roots={use['id']+'/'+group['members'][0]['id']for group in groups}
+        current_notes={use['id']+'/'+member['id']for group in groups for member in group['members']}
+        affected.append((use['id'],owner,current_roots,current_notes))
+        # Linked occurrences are consequences, not extra requested donor units.
+        if use['id']in requests:
+            roots.update(current_roots);note_roots.update(current_notes)
     def state(t1,ledger):
         from run_reversible_tier_qa import extract_documents
         from source_fact_tier1 import project_documents
@@ -542,19 +553,24 @@ def _measure_subdivision(upper,requests,before,before_ledger,after,after_ledger)
         return {row['identity']:events[row['current_address']] for row in ledger}
     before_state=state(before,before_ledger);after_state=state(after,after_ledger)
     def belongs(identity,selection):return identity in selection or identity.split('@subdivision:',1)[0]in selection
-    old={k:v for k,v in before_state.items() if belongs(k,roots)}
-    new={k:v for k,v in after_state.items() if belongs(k,roots)}
-    if not set(old)<=set(new):raise ValueError('Subdivision lost an existing logical child')
-    changed=sum(F(old[k]['duration_q'])!=F(new[k]['duration_q']) for k in old)
-    moved=sum(F(old[k]['onset_q'])!=F(new[k]['onset_q']) for k in old)
-    old_notes={k:v for k,v in before_state.items() if belongs(k,note_roots)}
-    new_notes={k:v for k,v in after_state.items() if belongs(k,note_roots)}
-    if not set(old_notes)<=set(new_notes):raise ValueError('Subdivision lost an existing member identity')
-    return dict(current_attacks=len(old),changed_current_attacks=changed,
-                added_attacks=len(new)-len(old),original_onsets_moved=moved,
-                current_note_attacks=len(old_notes),
-                changed_note_durations=sum(F(old_notes[k]['duration_q'])!=F(new_notes[k]['duration_q']) for k in old_notes),
-                added_note_attacks=len(new_notes)-len(old_notes))
+    def measure(groups,notes):
+        old={k:v for k,v in before_state.items()if belongs(k,groups)}
+        new={k:v for k,v in after_state.items()if belongs(k,groups)}
+        if not set(old)<=set(new):raise ValueError('Subdivision lost an existing logical child')
+        old_notes={k:v for k,v in before_state.items()if belongs(k,notes)}
+        new_notes={k:v for k,v in after_state.items()if belongs(k,notes)}
+        if not set(old_notes)<=set(new_notes):raise ValueError('Subdivision lost an existing member identity')
+        return dict(current_attacks=len(old),
+            changed_current_attacks=sum(F(old[k]['duration_q'])!=F(new[k]['duration_q'])for k in old),
+            added_attacks=len(new)-len(old),
+            original_onsets_moved=sum(F(old[k]['onset_q'])!=F(new[k]['onset_q'])for k in old),
+            current_note_attacks=len(old_notes),
+            changed_note_durations=sum(F(old_notes[k]['duration_q'])!=F(new_notes[k]['duration_q'])for k in old_notes),
+            added_note_attacks=len(new_notes)-len(old_notes))
+    result=measure(roots,note_roots)
+    result['affected_instances']=[dict(use_id=identity,owner_use_id=owner,**measure(groups,notes))
+                                  for identity,owner,groups,notes in affected]
+    return result
 
 
 def expand(upper):
@@ -582,7 +598,22 @@ def pack_expression(upper,changed_t2):
     placements=deepcopy(out.get('expression_insertions',{}))
     beats=projection['beats']
     from material_subdivision_projection import BEAT
+    from observed_expression import _lineage as expression_lineage
+    lineage={}
+    if 'observed_expression'in old:
+        original=expression_lineage(old['observed_expression'])
+        lineage.update(original['fact_map'])
+        def note_fact(event):
+            _,_,part,bar,voice,beat,note=event.split(':')
+            return f'track-{part}.json#/measures/{int(bar)-1}/voices/{voice}/beats/{beat}/notes/{note}'
+        lineage.update({note_fact(ref):[note_fact(child)for child in children]
+                        for ref,children in original['event_map'].items()})
     def descendants(ref):
+        # Current instance allocation can retire an old rest at a reused
+        # address and create descendants of a DIFFERENT original owner there.
+        # Follow the preserved lineage, not address coincidence. This also
+        # includes later subdivision/entry projections and live donor copies.
+        if ref in lineage:return lineage[ref]
         match=BEAT.fullmatch(ref);base=match[1]+match[2] if match else None
         return [child+ref[len(base):] for child in beats[base]] if base in beats else [ref]
     for key in ('optional_note_accents','optional_beat_palm_mutes'):
@@ -594,6 +625,10 @@ def pack_expression(upper,changed_t2):
         mapped=set()
         for group in saved.values():
             children=[prefix+ref for ref in descendants(group[field]['id'])]
+            if not children:
+                # A witnessed retired current owner has no audible edit here;
+                # retain its original stored choice and provenance exactly.
+                continue
             if not set(children)<=set(after) or mapped&set(children):raise ValueError('Expression packing lost child ownership')
             states=[after[ref]['state'] for ref in children]
             values=[{k:v for k,v in state.items() if k!='child_index'} for state in states]

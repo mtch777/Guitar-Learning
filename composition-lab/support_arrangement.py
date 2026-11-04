@@ -94,6 +94,24 @@ def candidate_use(upper,source_use_id):
     return result
 
 
+def pack_uses(upper, resolved_t3):
+    """Retain this arrangement's choices around an updated lower composition."""
+    if upper.get('schema')!=CURRENT_SCHEMA:
+        raise ValueError('Direct current-use arrangement required')
+    preceding=expand(upper);child=deepcopy(resolved_t3)
+    identity=upper['allocation']['use_id']
+    old=next(row for row in preceding['uses']if row['id']==identity)
+    selected=[row for row in child['uses']if row['id']==identity]
+    if len(selected)!=1 or selected[0]!=old:
+        raise ValueError('Lower update changed an arrangement-owned instance')
+    for key in list(selected[0]):
+        if key not in ('id','slot_ref'):del selected[0][key]
+    result=deepcopy(upper);result['lower_tier']=child
+    if expand(result)!=resolved_t3:
+        raise ValueError('Packing changed an existing arrangement obligation')
+    return result
+
+
 def _shape(upper):
     if type(upper)is dict and upper.get('schema')==CURRENT_SCHEMA:
         return _current_shape(upper)
