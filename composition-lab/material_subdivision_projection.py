@@ -71,7 +71,7 @@ def project(t2, plans):
     # These owners carry their own source-coordinate evidence/constraints. A
     # mapped occurrence needs an explicit owner adapter, not a recursive rewrite.
     known={'source_choices','physical_positions','technique_declarations',
-           'optional_note_accents','optional_beat_palm_mutes','observed_dynamics','global_step_tempos'}
+           'optional_note_accents','optional_beat_palm_mutes','observed_dynamics','observed_expression','global_step_tempos'}
     for key,value in source['owned_parameters'].items():
         if key not in known and any(ref in repr(value) for ref in changed_refs):
             raise ValueError('SUBDIVISION_OWNER_PROJECTION_REQUIRED: '+key)
@@ -167,6 +167,10 @@ def project(t2, plans):
         fact_map={r['fact_ref']:[fact(r['fact_ref'],i) for i in range(len(beats.get(beat_of(r['fact_ref']),[None])))]
                   for r in dynamic['current'] if beat_of(r['fact_ref']) in beats}
         out['owned_parameters']['observed_dynamics']=project_dynamics(dynamic,fact_map,events)
+    expression=source['owned_parameters'].get('observed_expression')
+    if expression is not None:
+        from observed_expression import project as project_expression
+        out['owned_parameters']['observed_expression']=project_expression(expression,beats,events)
     if isinstance(out['coverage'],dict):
         out['coverage']['rules']=[dict(relation=g['id']) for name in ('optional_note_accents','optional_beat_palm_mutes')
                                 for g in out['owned_parameters'].get(name,{}).get('groups',[])]

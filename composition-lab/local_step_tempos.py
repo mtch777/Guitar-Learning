@@ -29,8 +29,9 @@ def inventory(tier1):
         native_reasons=native_reasons,scope='Opt-in partial component-conditioned whole-band written interval speed. No full-band or full-lifetime artistic acceptance.')
 
 
-def options(tier1,target_ref,component_ref,prepared=None):
+def options(tier1,target_ref,component_ref,prepared=None,observations=None):
     view=inventory(tier1)if prepared is None else prepared
+    if observations is not None:return _retained_options(view,target_ref,component_ref,observations)
     event=next((r for r in view['clock']['global_events']if r['id']==target_ref),None)
     temporal=next((r for r in view['components']['events']if r['event_id']==target_ref),None)
     if event is None or temporal is None:raise ValueError('Original global tempo event required')
@@ -48,6 +49,64 @@ def options(tier1,target_ref,component_ref,prepared=None):
     index={e['event_id']:e for e in view['components']['events']};grouped=defaultdict(list)
     for ref in selected['donor_event_ids']:grouped[index[ref]['bpm']].append(ref)
     observed=[dict(quarter_bpm=bpm,donor_refs=sorted(refs),changed=bpm!=event['quarter_bpm'])for bpm,refs in sorted(grouped.items(),key=lambda item:F(item[0]))]
+    eligible=bool(selected['independent_contrast'])and not view['native_reasons']
+    return dict(target_ref=target_ref,component_ref=component_ref,target=target,observed_options=observed,
+        options=deepcopy(observed)if eligible else[],witness_pair=deepcopy(selected['independent_contrast']),
+        native_reasons=deepcopy(view['native_reasons']),evidence_label='PARTIAL',
+        status='REFUSED_NATIVE_TEMPO_MAP'if view['native_reasons']else'PARTIAL_SOURCE_COMPONENT_SPEED_CHOICES'if eligible else selected['status'],
+        donor_closures=[{k:deepcopy(index[ref][k])for k in('event_id','onset_q','end_q','incoming_bpm','outgoing_bpm','closure_start_q','closure_end_q','closure_refs')}for ref in selected['donor_event_ids']])
+
+
+def _retained_options(view,target_ref,component_ref,observations):
+    """Reconsider current rhythm against immutable original component evidence."""
+    from observed_expression import observations as original_rows, original_refs, context_id
+    from tempo_source_census import independent
+    pool=original_rows(observations,POLICY)
+    event=next((r for r in view['clock']['global_events']if r['id']==target_ref),None)
+    temporal=next((r for r in view['components']['events']if r['event_id']==target_ref),None)
+    if event is None or temporal is None:raise ValueError('Current global tempo event required')
+    component=next((r for r in temporal['components']if component_id(r['part_id'],r['voice'])==component_ref),None)
+    if component is None:raise ValueError('Current part and voice component required')
+    aliases=original_refs(observations,event['alias_refs'],require_all=True)
+    origins=[row for row in pool if aliases.intersection(row['alias_refs'])]
+    if not origins:raise ValueError('Current global tempo has no original source identity')
+    excluded=original_refs(observations,temporal['closure_refs'])
+    independent_pool=[row for row in pool if not row['global_reasons']
+        and not excluded.intersection(row['closure_refs'])and all(independent(origin,row)for origin in origins)]
+
+    def support(donors):
+        witness=next(([a['event_id'],b['event_id']]for i,a in enumerate(donors)
+            for b in donors[i+1:]if a['bpm']!=b['bpm']and independent(a,b)),None)
+        bpms=sorted({row['bpm']for row in donors},key=F)
+        return dict(donor_event_ids=[row['event_id']for row in donors],observed_bpms=bpms,
+            independent_contrast=witness,supported_bpms=deepcopy(bpms)if witness else[])
+
+    rows=[]
+    for current in temporal['components']:
+        key=context_id(current['context_key'])
+        donors=[]if key is None or temporal['global_reasons']else[row for row in independent_pool
+            if any((other['part_id'],other['voice'])==(current['part_id'],current['voice'])
+                and other['context_sha256']==key for other in row['components'])]
+        ev=support(donors)
+        status=('UNKNOWN_OR_PARTIAL'if current['reasons']else'NO_RHYTHMIC_ATTACK_EVIDENCE'if not current['attacks']
+            else'GLOBAL_TEMPO_UNQUALIFIED'if temporal['global_reasons']else'SUPPORTED_SOURCE_CONTRAST'
+            if ev['independent_contrast']else'NO_INDEPENDENT_BPM_CONTRAST')
+        rows.append(dict(event_id=target_ref,part_id=current['part_id'],voice=current['voice'],
+            status=status,activity=current['activity'],**ev))
+    selected=next(row for row in rows if component_id(row['part_id'],row['voice'])==component_ref)
+    ensemble=context_id(temporal['ensemble_key'])
+    full=dict(event_id=target_ref,complete_ensemble_available=ensemble is not None,
+        **support([]if ensemble is None or temporal['global_reasons']else[row for row in independent_pool if row['ensemble_sha256']==ensemble]))
+    target=dict(event_id=event['id'],alias_refs=deepcopy(event['alias_refs']),bpm_refs=[r+'/bpm'for r in event['alias_refs']],
+        **{k:deepcopy(event[k])for k in('quarter_bpm','onset_q','end_q','bar','position_q','incoming_bpm','outgoing_bpm','source_lifetime_q')},
+        component_ref=component_ref,evidence_label='PARTIAL',component_evidence=deepcopy(selected),
+        component_context=deepcopy(component),all_component_evidence=deepcopy(rows),full_ensemble_evidence=full,
+        closure={k:deepcopy(temporal[k])for k in('closure_start_q','closure_end_q','closure_refs')},
+        full_influence_musical_suitability=temporal['full_influence_musical_suitability'])
+    index={row['event_id']:row for row in pool};grouped=defaultdict(list)
+    for ref in selected['donor_event_ids']:grouped[index[ref]['bpm']].append(ref)
+    observed=[dict(quarter_bpm=bpm,donor_refs=sorted(refs),changed=bpm!=event['quarter_bpm'])
+        for bpm,refs in sorted(grouped.items(),key=lambda item:F(item[0]))]
     eligible=bool(selected['independent_contrast'])and not view['native_reasons']
     return dict(target_ref=target_ref,component_ref=component_ref,target=target,observed_options=observed,
         options=deepcopy(observed)if eligible else[],witness_pair=deepcopy(selected['independent_contrast']),
@@ -105,7 +164,8 @@ def intervene(upper,controls):
     from step_tempo_relations import set_bpm
     before=realize(upper)
     if controls['tempo']==0:return deepcopy(upper),dict(status='EXACT_ZERO_LOCK',released=False,changed=False,evidence_label='PARTIAL')
-    evidence=options(before,controls['target_ref'],controls['component_ref']);chosen,decision=sample(evidence,controls);decision['evidence']=evidence
+    from observed_expression import source_view
+    evidence=options(before,controls['target_ref'],controls['component_ref'],observations=source_view(upper,POLICY));chosen,decision=sample(evidence,controls);decision['evidence']=evidence
     if chosen is None:return deepcopy(upper),decision
     edited=deepcopy(upper)
     model=edited['owned_parameters']['global_step_tempos']

@@ -91,6 +91,9 @@ def require(upper, controls):
     if provenance is None:
         raise ValueError('MISSING_ORIGINAL_OBSERVATIONS: reanalyze the captured input; legacy zero remains supported')
     validate_origin(provenance)
+    from observed_expression import POLICIES as EXPRESSION_POLICIES, source_view
+    if controls.get('context_policy') in EXPRESSION_POLICIES and source_view(upper,controls['context_policy']) is not None:
+        return
     if controls.get('context_policy') in DYNAMIC_POLICIES and 'observed_dynamics' in upper['owned_parameters']:
         from observed_dynamics import validate
         validate(upper['owned_parameters']['observed_dynamics'], provenance)

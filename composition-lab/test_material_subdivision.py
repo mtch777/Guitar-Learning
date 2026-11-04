@@ -132,6 +132,33 @@ class SubdivisionTests(unittest.TestCase):
         self.assertEqual(digest(self.fragment),original)
         self.assertEqual(subdivision.plan(self.fragment,{self.ref:1},observed_execution=records)['changed_beat_units'],0)
 
+    def test_null_fact_reference_keeps_hopo_and_slide_endpoint_obligations(self):
+        groups=self.fragment['coattacks']
+        origin,destination=groups[-2],groups[-1]
+        for kind,status in (('hopo','source_transition_candidate'),('slide','resolved_written_target'),
+                            ('slide','exit_target_unspecified')):
+            with self.subTest(kind=kind,status=status):
+                record=dict(kind=kind,status=status,source_fact_ref=None,
+                    origin_ref=origin['members'][0]['id'],destination_ref=destination['members'][0]['id'],
+                    member_refs=[origin['members'][0]['id'],destination['members'][0]['id']])
+                frozen=deepcopy(record);before=deepcopy(self.fragment)
+                # Unrelated first attack remains eligible; optional null is not
+                # a missing musical dependency and must not crash the inventory.
+                plan=subdivision.plan(self.fragment,{self.ref:2},observed_execution=[record])
+                self.assertEqual(plan['changed_beat_units'],1)
+                for group in (origin,destination):
+                    with self.assertRaisesRegex(ValueError,'EXISTING_EXECUTION_DEPENDENCY'):
+                        subdivision.plan(self.fragment,{group['id']:2},observed_execution=[record])
+                self.assertEqual(record,frozen)
+                self.assertEqual(self.fragment,before)
+
+    def test_unknown_nonnull_execution_fact_reference_refuses_atomically(self):
+        before=deepcopy(self.fragment)
+        for source_ref in (1,False,[],{}):
+            with self.subTest(source_ref=source_ref),self.assertRaisesRegex(ValueError,'string or null'):
+                subdivision.plan(self.fragment,{self.ref:2},observed_execution=[dict(source_fact_ref=source_ref)])
+            self.assertEqual(self.fragment,before)
+
     def test_active_tie_slide_and_grace_fields_refuse_without_mutation(self):
         # Inject typed declarations into the already valid fragment: the helper
         # must inspect execution independently of the caller's detector receipt.

@@ -31,6 +31,15 @@ accounting remains open in the active checklist. No
 all-control completion or fresh-song creative pass is implied. Agent QA is silent;
 the user starts listening playback.
 
+Latest integration (2026-11-04): original expression evidence survives subdivision
+and saved edits;178/6056 current Cloud accents reach changed native velocities
+without altering prior notes/timing. This is2.94% partial coverage, not100% delivery.
+Fresh-source creative QA failed on whole-part rest/execution admission; retained
+exact reconstruction passed. The shared rest repair improves full-part ownership,
+but does not close fresh creative applicability. The active checklist records the
+evidence and next shared whole-line ownership/pitch/clock work; remaining control
+requirements and complete denominators are unchanged.
+
 ### Latest user correction: percentages measure actual output changes
 
 This supersedes release-probability/no-original-preference semantics for NEW

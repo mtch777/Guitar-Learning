@@ -66,11 +66,19 @@ def inventory(tier1):
     return dict(schema='source-local-accents/1',occurrences=sorted(rows,key=lambda r:(r['part_id'],r['bar'],r['voice'],r['beat'],r['note'])))
 
 
-def options(tier1,target_ref,prepared=None):
+def options(tier1,target_ref,prepared=None,observations=None):
     view=inventory(tier1)if prepared is None else prepared
     target=next((r for r in view['occurrences']if r['occurrence_ref']==target_ref),None)
     if target is None:raise ValueError('Original note occurrence required')
-    donors=[r for r in view['occurrences']if target['context_key']is not None and r['context_key']==target['context_key']and r['beat_ref']!=target['beat_ref']]
+    if observations is None:
+        donors=[r for r in view['occurrences']if target['context_key']is not None and r['context_key']==target['context_key']and r['beat_ref']!=target['beat_ref']]
+    else:
+        from observed_expression import observations as original_rows, original_refs, context_id
+        pool=original_rows(observations,POLICY)
+        excluded=original_refs(observations,[target['occurrence_ref'],target['beat_ref']],require_all=True)
+        context=context_id(target['context_key'])
+        donors=[r for r in pool if context is not None and r['context_sha256']==context
+                and r['beat_ref']not in excluded and r['occurrence_ref']not in excluded]
     witness=None
     for i,a in enumerate(donors):
         for b in donors[i+1:]:
@@ -103,19 +111,28 @@ def sample(evidence,controls):
 
 
 def apply(upper,note_ref,state):
+    return apply_many(upper,{note_ref:state})
+
+
+def apply_many(upper,changes):
+    """Atomically update named accent slots through the same owner equation."""
     from optional_accent_slots import expand
     from connected_tier2 import realize
     if 'optional_note_accents'not in upper.get('owned_parameters',{}):raise ValueError('Optional source-accent ownership required')
-    if type(state)is not dict or not(state=={'kind':'absent'}or set(state)=={'kind','value'}and state['kind']=='explicit'and type(state['value'])is int and state['value']in(0,1,2)):raise ValueError('Known optional accent state required')
+    if type(changes)is not dict or any(type(ref)is not str for ref in changes):raise ValueError('Explicit note-to-accent-state mapping required')
+    for state in changes.values():
+        if type(state)is not dict or not(state=={'kind':'absent'}or set(state)=={'kind','value'}and state['kind']=='explicit'and type(state['value'])is int and state['value']in(0,1,2)):raise ValueError('Known optional accent state required')
     # The connected contract authenticates the owner and its coverage, including
     # supported combinations. A version label alone does not grant capability.
     realize(upper)
     edited=deepcopy(upper)
-    group=next((g for g in edited['owned_parameters']['optional_note_accents']['groups']if g['note_structure']['id']==note_ref),None)
-    if group is None:raise ValueError('Sole optional note owner required')
-    previous=group['state'];group['state']=deepcopy(state)
-    if state['kind']=='explicit':group['state']['child_index']=previous['child_index']if previous['kind']=='explicit'else len(group['note_structure']['children'])
-    expand(group)
+    index={group['note_structure']['id']:group for group in edited['owned_parameters']['optional_note_accents']['groups']}
+    if set(changes)-set(index):raise ValueError('Sole optional note owner required')
+    for note_ref,state in changes.items():
+        group=index[note_ref]
+        previous=group['state'];group['state']=deepcopy(state)
+        if state['kind']=='explicit':group['state']['child_index']=previous['child_index']if previous['kind']=='explicit'else len(group['note_structure']['children'])
+        expand(group)
     realize(edited)
     return edited
 
@@ -145,7 +162,8 @@ def intervene(upper,controls):
     from connected_tier2 import realize
     before=realize(upper)
     if controls['accents']==0:return deepcopy(upper),dict(status='EXACT_ZERO_LOCK',released=False,changed=False)
-    evidence=options(before,controls['target_ref']);chosen,decision=sample(evidence,controls);decision['evidence']=evidence
+    from observed_expression import source_view
+    evidence=options(before,controls['target_ref'],observations=source_view(upper,POLICY));chosen,decision=sample(evidence,controls);decision['evidence']=evidence
     if chosen is None:return deepcopy(upper),decision
     edited=apply(upper,evidence['target']['note_ref'],chosen['state'])
     decision['influence_check']=verify_effect(before,realize(edited),evidence['target']['note_ref'],chosen['state'])

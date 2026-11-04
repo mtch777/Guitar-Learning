@@ -11,11 +11,22 @@ POLICY='source_local_palm_mute'
 def states(row):return[deepcopy(d['state'])for d in row['declarations']]
 
 
-def options(tier1,target_ref,prepared=None):
+def options(tier1,target_ref,prepared=None,observations=None):
     view=inventory(tier1)if prepared is None else prepared
     target=next((r for r in view['coattacks']if r['coattack_ref']==target_ref),None)
     if target is None:raise ValueError('Original complete coattack required')
-    donors=[r for r in view['coattacks']if target['context_key']is not None and r['context_key']==target['context_key']and independent(target,r)]
+    if observations is None:
+        donors=[r for r in view['coattacks']if target['context_key']is not None and r['context_key']==target['context_key']and independent(target,r)]
+    else:
+        from observed_expression import observations as original_rows, original_refs, context_id
+        pool=original_rows(observations,POLICY)
+        parents=original_refs(observations,target['member_refs'],require_all=True)
+        excluded=original_refs(observations,target['closure_refs'])
+        origins=[r for r in pool if parents.intersection(r['member_refs'])]
+        if not origins:raise ValueError('Current complete coattack has no original source identity')
+        context=context_id(target['context_key'])
+        donors=[r for r in pool if context is not None and r['context_sha256']==context
+                and not excluded.intersection(r['closure_refs'])and all(independent(origin,r)for origin in origins)]
     witness=next(([a['coattack_ref'],b['coattack_ref']]for a in donors if a['mute_mode']=='on'for b in donors if b['mute_mode']=='off'and independent(a,b)),None)
     grouped=defaultdict(list)
     for row in donors:grouped[encoded(states(row))].append(row)
@@ -92,7 +103,8 @@ def intervene(upper,controls):
     from connected_tier2 import realize
     before=realize(upper)
     if controls['palm_mute']==0:return deepcopy(upper),dict(status='EXACT_ZERO_LOCK',released=False,changed=False,mute_changed=False)
-    evidence=options(before,controls['target_ref']);chosen,decision=sample(evidence,controls);decision['evidence']=evidence
+    from observed_expression import source_view
+    evidence=options(before,controls['target_ref'],observations=source_view(upper,POLICY));chosen,decision=sample(evidence,controls);decision['evidence']=evidence
     if chosen is None:return deepcopy(upper),decision
     edited=apply(upper,evidence['target']['beat_refs'],chosen['states'])
     decision['influence_check']=verify_effect(before,realize(edited),evidence['target']['beat_refs'],chosen['states'])

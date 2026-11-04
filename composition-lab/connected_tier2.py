@@ -51,7 +51,7 @@ def event_pointer(event):
     return f"track-{event['part_id']}.json#/measures/{event['bar']-1}/voices/{event['voice']}/beats/{event['beat']}/notes/{event['note']}"
 
 
-def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=None,note_accent_slots=False,rhythm_groups=False,rhythm_group_profile='plain_repeat',palm_mute_slots=False,step_tempos=False,dynamic_evidence=False,backing_bindings=None,figure_register_refs=None,expressive_figure_seed_refs=None,figure_register_evidence=False,muted_figure_register_refs=None,figure_register_observation_profile=None,coattack_treatment_bindings=None):
+def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=None,note_accent_slots=False,rhythm_groups=False,rhythm_group_profile='plain_repeat',palm_mute_slots=False,step_tempos=False,dynamic_evidence=False,expression_evidence=False,backing_bindings=None,figure_register_refs=None,expressive_figure_seed_refs=None,figure_register_evidence=False,muted_figure_register_refs=None,figure_register_observation_profile=None,coattack_treatment_bindings=None):
     if type(figure_register_evidence)is not bool or (figure_register_evidence and ((figure_register_refs is None and muted_figure_register_refs is None) or backing_bindings is None or expressive_figure_seed_refs is not None)):
         raise ValueError('Original register observations require one explicit plain pre-owned figure')
     if muted_figure_register_refs is not None and (figure_register_refs is not None or expressive_figure_seed_refs is not None or backing_bindings is None):
@@ -65,6 +65,7 @@ def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=
     if expressive_figure_seed_refs is not None and (figure_register_refs is not None or backing_bindings is None):
         raise ValueError('One explicit expressive figure with complete backing bindings required')
     if type(dynamic_evidence)is not bool:raise ValueError('Explicit original dynamic observation ownership required')
+    if type(expression_evidence)is not bool:raise ValueError('Explicit original expression observation ownership required')
     if type(step_tempos)is not bool:raise ValueError('Explicit global step-tempo ownership mode required')
     if type(rhythm_groups)is not bool:raise ValueError('Explicit rhythm ownership mode required')
     if rhythm_group_profile not in ('plain_repeat','written_time')or (not rhythm_groups and rhythm_group_profile!='plain_repeat'):raise ValueError('Explicit supported rhythm-owner profile required')
@@ -172,6 +173,9 @@ def analyze(tier1,*,families=False,declared_chords=False,declared_chord_profile=
     if dynamic_evidence:
         output['schema']='connected-source-musical-relations/5'
         output['owned_parameters']['observed_dynamics']=dynamic_model
+    if expression_evidence:
+        from observed_expression import capture
+        output['owned_parameters']['observed_expression']=capture(tier1)
     if backing_bindings is not None:
         from backing_pitch_ownership import lift as own_intervals
         output['musical_relationships']=own_intervals(output['musical_relationships'],backing_bindings,tier1=tier1,preserve_execution=figure_register_refs is not None or muted_figure_register_refs is not None)
@@ -233,6 +237,11 @@ def realize(upper):
     mute_optional=upper['schema']=='connected-source-musical-relations/3'or((tempo_optional or dynamic_optional) and 'optional_beat_palm_mutes'in parameters)
     optional=upper['schema']=='connected-source-musical-relations/2' or((mute_optional or tempo_optional or dynamic_optional)and 'optional_note_accents'in parameters)
     expected_parameters={'source_choices','physical_positions','technique_declarations'}|({'optional_note_accents'}if optional else set())|({'optional_beat_palm_mutes'}if mute_optional else set())|({'global_step_tempos'}if tempo_optional else set())|({'observed_dynamics'}if dynamic_optional else set())
+    if 'observed_expression' in parameters:
+        from observed_expression import validate as validate_expression
+        if 'source_origin' not in upper:raise ValueError('Original expression origin missing')
+        validate_expression(parameters['observed_expression'],upper['source_origin'])
+        expected_parameters.add('observed_expression')
     if 'figure_register_observations' in parameters:
         from figure_register_observations import SLOT,validate as validate_register_observations
         validate_register_observations(parameters[SLOT],upper.get('source_origin'))

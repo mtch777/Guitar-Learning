@@ -287,10 +287,8 @@ def _subdivision_fragment(piece,parent,scope):
     return fragment
 
 
-def _subdivide_result(upper,parent,lower,pieces,contracts,ledger):
-    from material_subdivision import plan,plan_maps
-    from material_subdivision_projection import project
-    from connected_tier2 import realize
+def _subdivision_plans(upper,parent,pieces,contracts):
+    from material_subdivision import plan
     plans=[]
     for use,piece,records in zip(upper['uses'],pieces,contracts):
         counts=use.get('subdivision_factors',{})
@@ -298,6 +296,14 @@ def _subdivide_result(upper,parent,lower,pieces,contracts,ledger):
         slot=upper['slots'][use['slot_ref']]
         fragment=_subdivision_fragment(piece,parent,slot['scope'])
         plans.append(plan(fragment,{use['id']+':'+ref:value for ref,value in counts.items()},observed_execution=records))
+    return plans
+
+
+def _subdivide_result(upper,parent,lower,pieces,contracts,ledger):
+    from material_subdivision import plan_maps
+    from material_subdivision_projection import project
+    from connected_tier2 import realize
+    plans=_subdivision_plans(upper,parent,pieces,contracts)
     maps=plan_maps(plans)
     # A fresh attack may retain an outgoing hold: the LAST child carries that
     # written tie. Splitting an incoming continuation would break its sustained
@@ -447,14 +453,39 @@ def pack_expression(upper,changed_t2):
     expected=deepcopy(current);out=deepcopy(upper)
     old=current['owned_parameters'];new=changed_t2['owned_parameters']
     target=out['lower_tier']['owned_parameters']
+    beats={}
+    if any(any(v>1 for v in u.get('subdivision_factors',{}).values()) for u in upper['uses']):
+        from material_subdivision import plan_maps
+        unsplit=deepcopy(upper)
+        for use in unsplit['uses']:use.pop('subdivision_factors',None)
+        parent=expand(unsplit);pieces=[];contracts=[]
+        for use in upper['uses']:
+            piece,records,_=place(upper['materials'][use['material_ref']],upper['slots'][use['slot_ref']],use,
+                                 parent=upper['lower_tier'])
+            pieces.append(piece);contracts.append(records)
+        beats=plan_maps(_subdivision_plans(upper,parent,pieces,contracts))['beats']
+    from material_subdivision_projection import BEAT
+    def descendants(ref):
+        match=BEAT.fullmatch(ref);base=match[1]+match[2] if match else None
+        return [child+ref[len(base):] for child in beats[base]] if base in beats else [ref]
     for key in ('optional_note_accents','optional_beat_palm_mutes'):
         if key not in old:continue
         before={g['id']:g for g in old[key]['groups']};after={g['id']:g for g in new.get(key,{}).get('groups',[])}
         saved={g['id']:g for g in target[key]['groups']}
-        if set(before)!=set(after) or set(before)!=set(saved):raise ValueError('Expression packing cannot readdress owners')
+        if set(before)!=set(after):raise ValueError('Expression packing cannot readdress owners')
+        prefix,field=('accent-slot:','note_structure') if key=='optional_note_accents' else ('palm-mute-slot:','beat_structure')
+        mapped=set()
+        for group in saved.values():
+            children=[prefix+ref for ref in descendants(group[field]['id'])]
+            if not set(children)<=set(after) or mapped&set(children):raise ValueError('Expression packing lost child ownership')
+            states=[after[ref]['state'] for ref in children]
+            if any(state!=states[0] for state in states):
+                raise ValueError('INDEPENDENT_CHILD_EXPRESSION_OWNER_REQUIRED')
+            group['state']=deepcopy(states[0]);mapped.update(children)
+        if mapped!=set(after):raise ValueError('Expression packing lost child ownership')
         for group in expected['owned_parameters'][key]['groups']:
             state=deepcopy(after[group['id']]['state'])
-            group['state']=state;saved[group['id']]['state']=deepcopy(state)
+            group['state']=state
     key='observed_dynamics'
     if key in old:
         before={r['fact_ref']:r for r in old[key]['current']};after={r['fact_ref']:r for r in new.get(key,{}).get('current',[])}

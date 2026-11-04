@@ -127,6 +127,68 @@ queries;original-onset/boundary freedom;remaining voicing/expression/phrase/retu
 measurements. Source-only donor policies and legacy release sampling are NOT
 actual-output100 controls. New owner integration must not claim otherwise.
 
+### Current unblock decision — 2026-11-04
+
+- Release4635211 is pushed: the23-file degree/subdivision increment passed98
+  tests again from a clean HEAD archive plus only the owned files (74.975s).
+  CI41790622770 subsequently completed SUCCESS on exact4635211 HEAD.
+- Retained original expression evidence now supplies accents, palm mute and
+  tempo without treating edited music or new subdivision children as donors.
+  The exact-context policies still constrain choices: before subdivision,
+  different accents are available on244/4992 current attacks; palm mute has0
+  alternatives over2464 groups; the single tempo region has0 alternatives.
+  Even untouched Cloud has muted/open examples but no admitted independent
+  exact-context contrast. That is a vocabulary restriction, not proof that the
+  music cannot be varied. Tempo currently examines only each region's entry bar,
+  missing the active pulse across the rest of Cloud's sole tempo region.
+- The new owner initially exposed20 shifted REST observation identities missing
+  from the pitched-only event projection. Complete beat-to-event lineage repairs
+  this while retaining every original observation and rejecting collisions.
+  The first failure and exact collision evidence remain in the private run.
+- Fresh QA selected False Meridian1161165 from84 frozen eligible Invent Animate
+  captures. All63607 source facts reconstruct in the actual denied-source worker.
+  Creative full-song subdivision FAILED:6/6 full-part constructors refuse ordinary
+  flagged rest bars. The371 affected bars contain valid explicit rest beats.
+  Legitimate nullable HOPO/slide source references also break inventory; compound
+  grace/percussion incidence remains separately unsupported. The first result is
+  retained; repairing this song is development evidence, never an unseen pass.
+- Root and Planner choose this order: finish the bounded expression-composition
+  proof already in flight; repair full-part silent-slot ownership and the optional
+  reference handling; then carry existing pitch/clock relationships across complete
+  Cloud parts. Do not expand accent examples or literal-BPM retrieval first. A
+  narrow source/duration guard may not masquerade as a musical law. Keep all
+  existing full-control requirements and complete output denominators open.
+
+Acceptance for the shared silent-slot repair: preserve exact rest flags, written
+placeholders, spans and identities; permit supported attacks on either side to
+change; saved successive edits and denied inverse pass; contradictory pitched/rest
+content refuses atomically. No invented notes, grace flattening or source reroll.
+
+Current results: the saved complete Cloud composition retains every previous
+pitch/rhythm/subdivision choice and changes178/6056 current attack accents (2.94%).
+Independent complete-source expectation, saved-model equality and actual denied
+inverse PASS. Silent native export verifies all178 changed velocities, no clipped
+targets, unchanged6414 written notes/6048 note-ons, and all previous1064 added
+attacks. This is a verified PARTIAL proposal; the100% request remains unsatisfied.
+The existing listening page was not replaced and no audio rendered or played.
+
+The silent-slot repair passes21 focused tests. The SAME fresh source now owns2/6
+whole parts (252 coattacks/300 members), with63607-fact saved and denied inverse
+PASS. All4504 coattacks remain in its full request; no creative100 pass is claimed.
+Local inspection now reaches3240 pitched coattacks,1372 locally admissible. The
+remaining whole-part failures are unresolved exit-slide/let-ring neighborhoods
+and grace clocks. Planner identified the next shared error: unchanged ownership
+currently invokes edit admission on every pitched reference. Separate those
+responsibilities while retaining unresolved obligations and locked neighborhoods;
+an inserted same-string note must not silently change a possible slide endpoint.
+
+Release verification of the expression/silent-slot increment:89 relevant tests
+PASS in73.143s from a clean4635211 archive plus only the19 owned release files.
+This includes saved combined edits, source-evidence guards, atomic refusals,
+subdivision, current-unit accounting and actual source-denied workers. The actual
+song repair receipt precedes the final malformed-reference strictness guard; that
+guard was verified with targeted positive/null/invalid-reference regressions.
+
 Private current evidence: `local-artifacts/cloud-degree-path-v1/`. The first run
 was interrupted during repeated whole-model verification, before musical output;
 the same source/selection is retained. This is an execution issue, not a failed

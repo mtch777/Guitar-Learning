@@ -17,6 +17,8 @@ def bundle(root):
     names=('source_observation_evidence','source_fact_tier1','source_field_registry','technique_observation_relations','observed_dynamics','optional_accent_slots','musical_tier2','voicing_families','chord_degree_definitions','chord_degree_relations','chord_symbol_lexicon','declared_chord_ownership','contextual_note_roles','contextual_chord_motion','contextual_passage_roles','execution_dependencies','family_policy','nominal_event_incidence','voicing_context_relations','voicing_gestures','declared_degree_choices','fretting_contacts','inner_voicing','voicing_register','connected_tier2','voicing_frames','probe_voicing_frames','harmonic_evidence','harmonic_pattern_ledger','nominal_harmony','local_dynamics','dynamic_context','local_accents','context_membership','unlabeled_inner_voicing')
     code='import sys,types\n'
     hashes={}
+    at=names.index('observed_dynamics')
+    names=names[:at]+('observed_expression',)+names[at:]
     at=names.index('context_membership')
     names=names[:at]+('verified_written_tie_support',)+names[at:]+('source_rhythm_groups','group_rhythm_relations','local_group_rhythm','melodic_contour_choices','melodic_contour_intervention','melodic_figure_intervention','backing_motion_relations','backing_motion_intervention')
     names=names+('backing_written_tie_constraints','backing_execution_constraints','backing_pitch_ownership','explicit_backing_stream','canonical_backing_bindings')

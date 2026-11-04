@@ -233,7 +233,10 @@ def inventory(fragment, observed_execution=()):
                 for record in observed_execution:
                     linked = set(record.get('member_refs', [])) | set(record.get('tied_member_refs', []))
                     linked.update(record[k] for k in ('origin_ref', 'destination_ref', 'candidate_destination_ref') if record.get(k) is not None)
-                    if ids & linked or record.get('source_fact_ref', '').startswith(ref+'/'):
+                    source_ref=record.get('source_fact_ref')
+                    if source_ref is not None and type(source_ref)is not str:
+                        raise ValueError('Execution source fact reference must be a string or null')
+                    if ids & linked or (type(source_ref)is str and source_ref.startswith(ref+'/')):
                         reasons.append('EXISTING_EXECUTION_DEPENDENCY')
             try:
                 notation = _notation(span/2)

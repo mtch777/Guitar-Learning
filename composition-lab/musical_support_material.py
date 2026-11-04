@@ -204,8 +204,19 @@ def fit(t2, *, parts, first_bar, last_bar, lower=None):
         score=docs[f'track-{part}.json']
         for bar in range(first_bar,last_bar+1):
             measure=score['measures'][bar-1];voices=measure.get('voices',[])
-            if measure.get('rest') or len(voices)!=1 or voices[0].get('rest'):
+            if len(voices)!=1:
                 raise ValueError('Complete explicit single-voice material required')
+            if measure.get('rest') or voices[0].get('rest'):
+                # A declared silent bar still owns a real clock slot. Keep its
+                # flags and written rest placeholders in their existing owners;
+                # do not manufacture notes or reinterpret contradictory flags.
+                beats=voices[0].get('beats',[])
+                notes=beats[0].get('notes',[]) if len(beats)==1 else []
+                if (any('rest'in row and type(row['rest'])is not bool for row in (measure,voices[0]))
+                        or len(beats)!=1 or not notes
+                        or any(n.get('rest')is not True or {'string','fret','pitch','midi'}&set(n)
+                               or n.get('dead')is True for n in notes)):
+                    raise ValueError('Declared silent measure requires one explicit rest beat with no attacks')
             pos=F(frames[bar-1]['start_q'])-start;end=pos+F(frames[bar-1]['duration_q'])
             for bi,beat in enumerate(voices[0].get('beats',[])):
                 d=beat.get('duration')
