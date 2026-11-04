@@ -21,11 +21,15 @@ below preserve their original results/settings; none supplies another active que
 - [ ] **Root — pitch choices/integration:** address the retained Cloud held-note,
   unison-line and repeat/reference vocabulary limits through reusable relationships.
   Preserve the completed dependency-order and shared pitch/clock repairs.
-- [ ] **control_restriction_audit — written-successor pitch freedom; root integrates:**
+- [x] **control_restriction_audit — written-successor pitch freedom; root integrates:**
   release the demonstrated unnecessary numeric freeze on let-ring/exit-slide
   contexts through a validated, versioned relationship. Preserve identities,
   string, clock, next contact and uncertainty. The remaining timing/no-choice
   work stays assigned to root; it is not canceled by this shared pitch fix.
+- [ ] **Root — joint final expression choices:** base loudness, neighboring
+  dynamic differences, accents and complete-attack mute state must satisfy their
+  actual-output targets together on candidate007. Keep its pitch result and the
+  original whole-request denominator; avoid serial sampling or new source votes.
 - [ ] **Root — first integrated musical checkpoint:** render verified Cloud
   movement + register + groove on overlapping material, using the existing page,
   untouched original and changed-note roll. Verify final counts, saved successive
@@ -46,7 +50,49 @@ below preserve their original results/settings; none supplies another active que
 | Required controls not yet implemented | Root | Remain explicitly owed under the canonical full register. Their absence cannot be hidden by restricting an all-controls completion claim to callable operations. |
 | Whole-song integration and listening | Root, with Planner's evidence challenge | One complete declared request, fixed denominators, per-feature/per-tier actual change, all three QA statuses, verified matched full-band playback and the existing inspection page. Missing claims remain open. |
 
-### Whole-song admission finding — 2026-11-04
+### Latest verified increment: whole-song pitch targets — 2026-11-04
+
+Candidate007 reaches3905/3905 original pitched attacks changed in pitch class
+AND octave,1955/1955 frozen signed steps changed, and1674/1674 declared
+bass-relative voicing intervals changed. These feature sets are distinct; this
+does not mark all pitch-related intentions or ALL30 controls complete.35 explicit
+dead-note contacts remain unchanged and all four bend excursions remain unchanged.
+
+- [x] Same degree/member/contact relationships; all70 resolved gesture obligations
+  and405 complete execution records survive. All four bend arrival/hold targets
+  satisfy every retained tonal interpretation.005/006 failures stay retained.
+- [x] Saved complete realization (172.281s); independent expected full score and
+  source/lower-denied reconstruction (99.344s). No source payload or expected
+  answer staged into the worker. Definitions, parent, slots and unrelated use
+  fields remain unchanged against the validated migrated input.
+- [x] Silent native export (3.406s):6414 written notes,6048 note-on callbacks;
+  5327 written pitches and4961 note-on keys change. All other notation and
+  callback fields, independent source export and full source expression PASS.
+  No rendering or playback; listening remains pending.
+- [x] Clean code verification: HEAD0478bcd plus exactly five source/test files,
+  84 unique tests passed (52 integration,9 execution,23 bend). Frozen file hashes
+  agree; unrelated working-tree edits were excluded. This does not replace the
+  retained fresh-song creative failure or establish learned musical preference.
+- [x] Planner end review accepts the whole-song unlock and rejects ALL30 closure;
+  joint expression is next on the same composition, with no baseline reset.
+- [ ] Publish this increment and verify its exact-commit CI.
+
+Private evidence:cloud-all-output-2026-11-03/joint-pitch-select-007/result.json,
+verification/result.json and native/result.json; clean verification receipt:
+cloud-successor-release-001/bend-final-result.json. Candidate SHA256:
+a225a83c622b804a9ceb7c974b59130019e0c58d6ce1d406774b5660d0749153.
+GP SHA256:71d03ff81bb1102e05fa2710c54f2e3b05638d0384d49393d290a367f8b16987.
+Repeatable private commands:verify_joint_pitch.py --run .../joint-pitch-select-007
+--before-model .../successor-migration-001/candidate-t3.json
+--domains .../joint-pitch-domains-004.json; verify_joint_native.py --run
+.../joint-pitch-select-007. Both use the repository .venv Python.
+
+The prior joint-selector increment0478bcd is published; CI41813727787 was still
+running at this check. The next code change is joint final expression selection,
+not another pitch demonstration. A uniform level shift retaining every adjacent
+difference, or a level/accent cancellation, must fail its respective target.
+
+### Prior whole-song admission finding — 2026-11-04
 
 The current combined editing path owns66 of Cloud's666 instrument-bars
 (111 bars ×6 parts). Its38 existing definitions remain intact;39 deterministic
@@ -170,6 +216,14 @@ note-on timing/velocity/membership, percussion and source expression remain exac
 GP SHA256:93f9aa1b09156762b67cb84df078c48e9a4caf3b29dc698f3e74ba610825a8be.
 No audio rendered or played; no new listening or fresh-source success claimed.
 
+Later musical audit:005 FAILS the standing in-key bend-arrival requirement at
+two of four bends;006 independently proposed pitches fail all four. Exact inverse
+and native fidelity remain valid within their claims, but these proposals are not
+musically accepted output. Both artifacts are retained and must not enter listening
+as compliant results. The next candidate must apply the existing bend equation to
+arrival/held targets under every retained tonal hypothesis, including simple rises
+without a plateau. Intermediate continuous bend pitches are not scale-note locks.
+
 Metric correction is explicit and versioned: the original manifest incorrectly
 counted35 source-marked dead notes as fundamental pitches. The new inventory has
 3905 pitched units and still3940 contact units, with every removed pitch unit
@@ -202,6 +256,13 @@ old fingerprint as provenance; migrate only a validated old guard to a written
 successor constraint permitting pitch/fret choices. Keep identities, strings,
 clock, contact order and unknown performed ends. Known HP/slide, physical and
 tonal constraints still apply. This does NOT finish technique-use editing.
+
+The guard migration now independently reconstructs the entire unchanged005 state
+with lower/source inputs unavailable (196.750s). All15 guards/335 lock records
+retain their original commitments. Its numerical flexibility exposes3905/3905
+independent pitch domains with strings/clock/successors retained. Proposal006 can
+jointly change all3905 pitch classes/octaves,1955 melodic steps and1674 declared
+voicing intervals, but fails the bend-target check above; it is not completion.
 
 Private repeatable evidence:cloud-all-output-2026-11-03/joint-pitch-select-005,
 dead-pitch-reconciliation-001 and cloud-joint-contact-release-001. Public source

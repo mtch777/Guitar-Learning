@@ -271,15 +271,20 @@ def realize_pair(upper):
         material.validate_fragment_execution(piece,records,lower,
             execution_locks=definition.get('unresolved_execution_locks'),
             origin_q=definition['source_start_q'])
-    from material_degree_paths import SCHEMA as degree_schema
+    from material_degree_paths import SCHEMA as degree_schema, selected_refs
+    contact_documents=None
     for use in upper['uses']:
-        if upper['materials'][use['material_ref']]['schema'] == degree_schema:
-            _validate_degree_contacts(upper, use['id'], lower)
+        definition=upper['materials'][use['material_ref']]
+        degree_owned=definition['schema']==degree_schema
+        if contact_documents is None and (degree_owned or use.get('contact_strings')):
+            from source_fact_tier1 import project_documents
+            contact_documents=project_documents(lower)
+        if degree_owned:
+            _validate_material_contacts_in_documents(upper,use['id'],contact_documents,set(selected_refs(definition)))
         if use.get('contact_strings'):
-            definition=upper['materials'][use['material_ref']]
             selected={g['id']for g in definition['lower_tier']['coattacks']
                 if any(m['id']in use['contact_strings']for m in g['members'])}
-            _validate_material_contacts(upper,use['id'],lower,selected)
+            _validate_material_contacts_in_documents(upper,use['id'],contact_documents,selected)
     from material_approaches import SCHEMA as approach_schema, validate_membership
     for use in upper['uses']:
         definition=upper['materials'][use['material_ref']]
@@ -719,11 +724,15 @@ def _validate_degree_contacts(upper, use_id, lower):
 
 def _validate_material_contacts(upper,use_id,lower,selected):
     from source_fact_tier1 import project_documents
+    _validate_material_contacts_in_documents(upper,use_id,project_documents(lower),selected)
+
+
+def _validate_material_contacts_in_documents(upper,use_id,docs,selected):
+    """Reuse only the current call's validated T1 view; every contact check remains."""
     use=next(u for u in upper['uses']if u['id']==use_id)
     definition=upper['materials'][use['material_ref']]
     physical = {p['occurrence_ref'] for p in definition['lower_tier']['physical_positions']}
     _, event, _ = _maps(definition, upper['slots'][use['slot_ref']])
-    docs = project_documents(lower)
     for group in definition['lower_tier']['coattacks']:
         if group['id'] not in selected:
             continue

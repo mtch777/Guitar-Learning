@@ -58,12 +58,29 @@ from fundamental-pitch metrics through a versioned, source-fact-mapped correctio
 contact units remain3940 and the old manifest is preserved. This is substantial
 partial pitch output, not ALL100 or a fresh creative/listening pass.
 
-The next shared unlock addresses273 pitch-frozen let-ring/exit-slide contexts:
-their current hash includes numeric values their actual written-successor
-relationship does not require fixed. A validated versioned migration must retain
-original evidence, identities, strings, clocks, contact order and unknown performed
-ends while admitting degree-driven pitch/fret changes. Full time/expression/
-structural-control obligations remain active; no isolated example replaces them.
+Subsequent musical audit marks005 unaccepted: two bend arrivals leave the retained
+key after its pitch changes. Its exact/native claims stand; the next joint choice
+must also constrain bend arrivals/holds using the existing bend relationship.
+Preserve the failed proposals and do not present them as musical QA passes.
+
+That shared unlock is now verified: the versioned let-ring/exit-slide migration
+retains original commitments, identities, strings, clocks, successor contacts and
+unknown performed ends while permitting the pitch/fret changes those relationships
+allow. Candidate007 changes3905/3905 original pitched attacks in pitch class and
+octave,1955/1955 measured melodic steps and1674/1674 declared voicing intervals.
+All four bend landing/hold targets satisfy both retained tonal interpretations;
+all405 execution records survive. Full source/lower-denied reconstruction and
+silent native GP verification PASS, including5327 changed written pitches and
+4961 changed native note-on keys. This is verified construction through musical
+relationships, not a listening or learned-artist-preference claim.
+
+Next, jointly choose base loudness, neighboring dynamic differences, accents and
+complete-attack mute state over this SAME saved composition and original request
+baseline. A uniform level shift cannot count as changed dynamic differences;
+base/accent changes must not silently cancel performed consequences. Reuse the
+existing expression owners and inverse. Timing, bend-amount,35 dead-note contact
+targets, higher material/return controls and fresh creative QA remain open;
+neither this pitch result nor the next expression group closes ALL100.
 
 ### Latest user correction: percentages measure actual output changes
 

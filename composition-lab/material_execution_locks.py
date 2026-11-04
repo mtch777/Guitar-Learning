@@ -4,6 +4,7 @@ These locks describe an edit boundary, not a performed gesture or its endpoint.
 Every check is rebuilt from the current authoritative owners. Saved fingerprints
 are never updated to make an edited result pass.
 """
+from copy import deepcopy
 from fractions import Fraction as F
 import hashlib
 import json
@@ -11,6 +12,7 @@ import json
 import backing_execution_constraints as execution
 
 SCHEMA='material-unresolved-execution-locks/1'
+SUCCESSOR_SCHEMA='material-unresolved-execution-locks/2'
 _REF_FIELDS=('origin_ref','destination_ref','candidate_destination_ref')
 _LIST_FIELDS=('member_refs','tied_member_refs')
 
@@ -102,6 +104,17 @@ def _policy(row):
     raise ValueError('Unsupported unresolved execution lock: '+str(row['kind'])+'/'+str(row['status']))
 
 
+def _numeric_successor_choices(row):
+    """These accepted declarations do not inspect numeric pitch/fret values.
+
+    Their unknown performed end/target stays unknown. This permission does not
+    apply to HP or shift/legato successor predicates, which inspect pitch/fret.
+    """
+    return ((row['kind']=='letRing'and row['status']=='declaration_only_unknown_end')or
+            (row['kind']=='slide'and row['status']=='exit_target_unspecified'
+             and row['slide_type']in('downwards','upwards')))
+
+
 def _part_end(tier1,part):
     from source_fact_tier1 import project_documents
     from source_key_tier1 import extract_documents
@@ -113,10 +126,17 @@ def _part_end(tier1,part):
     return F(frame['start_q'])+F(frame['span_q'])
 
 
-def _node(node,identity,origin):
-    return dict(identity=identity,part=node['part'],voice=node['voice'],string=node['string'],
+def _node(node,identity,origin,*,release_numeric=False):
+    result=dict(identity=identity,part=node['part'],voice=node['voice'],string=node['string'],
         string_valid=node['string_valid'],onset_q=str(node['onset']-origin),duration_q=str(node['duration']),
         grace=node['grace'],tie_destination=node['tie_destination'],pitch=node['pitch'],fret=node['fret'])
+    if release_numeric:
+        # Release numeric values, not the distinction between a pitched contact
+        # and dead/unknown notation. The values remain owned by the existing
+        # degree/physical equations, never duplicated in this relationship.
+        result['pitch_known']=result.pop('pitch')is not None
+        result['fret_known']=result.pop('fret')is not None
+    return result
 
 
 def _fences(row,nodes,identities):
@@ -134,7 +154,9 @@ def _fences(row,nodes,identities):
     return sorted(result,key=lambda r:r['anchor'])
 
 
-def _projection(tier1,row,policy,fences,data,identities,inverse,origin):
+def _projection(tier1,row,policy,fences,data,identities,inverse,origin,*,release_numeric=False):
+    if release_numeric and not _numeric_successor_choices(row):
+        raise ValueError('Numeric choices are not supported by this accepted execution predicate')
     nodes=data['nodes'];refs=execution._neighborhood(row,nodes);boundaries=[]
     if policy=='next_written_contact_context':
         for fence in fences:
@@ -168,7 +190,7 @@ def _projection(tier1,row,policy,fences,data,identities,inverse,origin):
     if not refs:raise ValueError('Unresolved execution has no protected occurrence')
     if {nodes[r]['part']for r in refs}&set(data['uncertain_parts']):
         raise ValueError('Unverified execution clock cannot establish a context lock')
-    rows=sorted((_node(nodes[r],identities[r],origin)for r in refs),key=lambda r:r['identity'])
+    rows=sorted((_node(nodes[r],identities[r],origin,release_numeric=release_numeric)for r in refs),key=lambda r:r['identity'])
     return _hash(dict(nodes=rows,boundaries=boundaries)),refs
 
 
@@ -183,18 +205,71 @@ def capture(tier1,observed_execution,owned_refs,*,identity_map=None,fact_identit
     return dict(schema=SCHEMA,locks=locks)
 
 
-def validate(guard,tier1,observed_execution,owned_refs,*,identity_map=None,fact_identity_map=None,origin_q='0'):
-    if type(guard)is not dict or set(guard)!={'schema','locks'}or guard['schema']!=SCHEMA or type(guard['locks'])is not list:
+def _legacy_guard(guard):
+    return dict(schema=SCHEMA,locks=[{k:v for k,v in row.items()if k!='successor_fingerprint'}
+                                   for row in guard['locks']])
+
+
+def upgrade_successor_choices(legacy_guard,tier1,observed_execution,owned_refs,*,
+                              identity_map=None,fact_identity_map=None,origin_q='0'):
+    """Explicitly migrate a VALID v1 guard; never rebaseline an edited v2 guard.
+
+    Original lock fields/fingerprints stay byte-for-byte values, committed by
+    legacy_guard_sha256. New fingerprints describe the same written contact
+    context with only numeric pitch/fret values delegated to existing owners.
+    This constructor adds no observation or performed duration/slide endpoint.
+    """
+    if type(legacy_guard)is not dict or legacy_guard.get('schema')!=SCHEMA:
+        raise ValueError('Successor-choice upgrade requires an original v1 guard')
+    validate(legacy_guard,tier1,observed_execution,owned_refs,identity_map=identity_map,
+             fact_identity_map=fact_identity_map,origin_q=origin_q)
+    data,records,identities,inverse,origin=_context(
+        tier1,observed_execution,owned_refs,identity_map,fact_identity_map,origin_q)
+    out=deepcopy(legacy_guard);out['schema']=SUCCESSOR_SCHEMA
+    out['legacy_guard_sha256']=_hash(legacy_guard)
+    upgraded=0
+    for lock in out['locks']:
+        row=records[lock['record_identity']]
+        if not _numeric_successor_choices(row):continue
+        lock['successor_fingerprint'],_=_projection(tier1,row,lock['policy'],
+            lock['context_boundaries'],data,identities,inverse,origin,release_numeric=True)
+        upgraded+=1
+    if not upgraded:raise ValueError('No eligible declaration-only written successor context')
+    validate(out,tier1,observed_execution,owned_refs,identity_map=identity_map,
+             fact_identity_map=fact_identity_map,origin_q=origin_q)
+    return out
+
+
+def choice_scope(guard,tier1,observed_execution,owned_refs,*,identity_map=None,fact_identity_map=None,origin_q='0'):
+    """Validate and distinguish numeric choice permission from protected context.
+
+    String, clock and successor membership stay protected even for numerically
+    flexible refs. When combining guards, union strict_refs across ALL guards
+    before subtracting them from the union of pitch_flexible_refs.
+    """
+    if type(guard)is not dict:raise ValueError('Closed unresolved execution locks required')
+    upgraded=guard.get('schema')==SUCCESSOR_SCHEMA
+    fields={'schema','locks','legacy_guard_sha256'}if upgraded else{'schema','locks'}
+    if set(guard)!=fields or guard['schema']not in(SCHEMA,SUCCESSOR_SCHEMA)or type(guard['locks'])is not list:
         raise ValueError('Closed unresolved execution locks required')
+    if upgraded and (any(type(row)is not dict for row in guard['locks'])or
+                     not _digest(guard['legacy_guard_sha256'])or
+                     _hash(_legacy_guard(guard))!=guard['legacy_guard_sha256']):
+        raise ValueError('Immutable legacy execution commitment changed')
     data,records,identities,inverse,origin=_context(tier1,observed_execution,owned_refs,identity_map,fact_identity_map,origin_q)
-    locked=set();seen=set()
+    locked=set();strict=set();flexible=set();seen=set();released=0
     for lock in guard['locks']:
-        if type(lock)is not dict or set(lock)!={'record_identity','policy','context_boundaries','fingerprint'}:
+        if type(lock)is not dict or 'record_identity'not in lock:
             raise ValueError('Closed execution lock without note payload required')
         key=lock['record_identity']
+        if not _digest(key)or key not in records or key in seen:raise ValueError('Unknown or duplicate unresolved record lock')
+        row=records[key];release_numeric=upgraded and _numeric_successor_choices(row)
+        expected={'record_identity','policy','context_boundaries','fingerprint'}
+        if release_numeric:expected.add('successor_fingerprint');released+=1
+        if set(lock)!=expected:raise ValueError('Closed execution lock without note payload required')
         if not _digest(key) or not _digest(lock['fingerprint']):raise ValueError('Exact execution commitment digests required')
-        if key not in records or key in seen:raise ValueError('Unknown or duplicate unresolved record lock')
-        seen.add(key);row=records[key]
+        if release_numeric and not _digest(lock['successor_fingerprint']):raise ValueError('Exact successor commitment required')
+        seen.add(key)
         if lock['policy']!=_policy(row):raise ValueError('Execution lock policy changed')
         if type(lock['context_boundaries'])is not list:raise ValueError('Explicit execution context boundaries required')
         if lock['policy']=='next_written_contact_context':
@@ -203,8 +278,24 @@ def validate(guard,tier1,observed_execution,owned_refs,*,identity_map=None,fact_
             anchors=sorted(identities[r]for r in _touched(row))
             if sorted(f.get('anchor')for f in lock['context_boundaries'])!=anchors:
                 raise ValueError('Incomplete protected contact boundaries')
-        fingerprint,refs=_projection(tier1,row,lock['policy'],lock['context_boundaries'],data,identities,inverse,origin)
-        if fingerprint!=lock['fingerprint']:raise ValueError('Protected unresolved execution context changed')
+        fingerprint,refs=_projection(tier1,row,lock['policy'],lock['context_boundaries'],data,identities,inverse,origin,
+                                    release_numeric=release_numeric)
+        expected_fingerprint=lock['successor_fingerprint']if release_numeric else lock['fingerprint']
+        if fingerprint!=expected_fingerprint:raise ValueError('Protected unresolved execution context changed')
         locked.update(refs)
+        (flexible if release_numeric else strict).update(refs)
     if seen!=set(records):raise ValueError('Missing unresolved execution lock')
-    return execution.ordered(locked)
+    if upgraded and not released:raise ValueError('No eligible declaration-only written successor context')
+    return dict(covered_refs=execution.ordered(locked),strict_refs=execution.ordered(strict),
+                pitch_flexible_refs=execution.ordered(flexible-strict))
+
+
+def validate(guard,tier1,observed_execution,owned_refs,*,identity_map=None,fact_identity_map=None,origin_q='0'):
+    """Keep the existing return contract: all protected-context occurrences."""
+    return choice_scope(guard,tier1,observed_execution,owned_refs,identity_map=identity_map,
+        fact_identity_map=fact_identity_map,origin_q=origin_q)['covered_refs']
+
+
+def pitch_flexible_refs(guard,tier1,observed_execution,owned_refs,*,identity_map=None,fact_identity_map=None,origin_q='0'):
+    return choice_scope(guard,tier1,observed_execution,owned_refs,identity_map=identity_map,
+        fact_identity_map=fact_identity_map,origin_q=origin_q)['pitch_flexible_refs']
