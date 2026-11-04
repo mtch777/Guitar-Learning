@@ -27,6 +27,15 @@ its interacting controls before scaling, then integrate each passing increment
 into this whole-song request. This changes execution order within work, not scope,
 QA strength or acceptance. Repairs and test counts are not musical completion.
 
+**Measurement provenance correction,2026-11-04:** `current-units-v2.json` freezes
+the already edited `cloud-degree-path-v1/run-003/combined-t1.json`, not the untouched
+Songsterr capture. Existing100% counts against those units mean change from that
+frozen request input. Preserve that target; do not relabel it as raw-song difference
+or reset it. Report untouched captured-score comparisons separately, with both
+hashes, populations and new-event counts. An edit can differ from the request input
+while restoring an untouched-source value. Historical "original" wording for these
+units means the original REQUEST units, not proof of untouched-source comparison.
+
 **Latest delivered state (2026-11-04):** whole-song pitch/expression/tempo is now
 joined by written rhythm through the shared inverse. Rhythm code `61e9276` and
 playback corrections `2b0825b` are published; their CI is tracked separately.

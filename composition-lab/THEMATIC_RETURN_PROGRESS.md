@@ -2,6 +2,34 @@
 
 ## ONE current assignment — full request remains open
 
+Latest user-requested measurement audit: freeze current code and measure ALL
+registered output features on final Cloud. The dispatcher still lacks an all30
+transaction, so replaying saved combined choices is labeled as such. Compare both
+the frozen request input (already edited run003) and untouched captured Songsterr;
+never call the former untouched source. Keep unavailable/unmeasured rows visible.
+Do not change musical choices to improve this audit's result. Root owns the replay;
+final_output_metrics owns read-only measurement; Planner audits the claim mapping.
+
+Audit completed without changing music. `final-output-audit-001/result.json` retains
+both comparisons and every unit; result SHA
+`d253e47a1e0ca26dc1e92fa9e8ed9d0dddbe529a38ecbd6b907c9a4040023e1b`.
+Against untouched Songsterr:3893/3905 pitch classes,3873/3905 octaves,1947/1955
+signed steps,1672/1674 voicing intervals,4988/4992 onsets,4990/4992 complete holds,
+3195/3205 gaps,4983/4992 base dynamics and4991/4992 written accents differ. Contacts
+3940/3940, mute2464/2464, dynamic differences10/10, bends4/4, tempo1/1 and part/use
+patterns134/134 differ. Their frozen edited-input comparisons remain100%; separate
+pattern pitch/activity reach remains133/134 and132/134. New176 allocation attacks
+stay outside original request denominators. These are measured features, not proof
+that all named strategies, their locks or all30 controls ran together.
+
+Current792b3c5 code also replays the entire frozen T4 through the source/lower-denied
+inverse:PASS298.125s,69473 facts, expected score not staged. Evidence:
+`final-output-replay-001/result.json`. No native/audio rerender was needed for this
+unchanged result. Note/rest-pair boundaries, relative backing placement, higher
+idea/return relationships and performed-emphasis completion remain unmeasured/open.
+Cloud has no keyboard units. Planner reviewed the actual result and these limits.
+The separate in-flight sustained-emphasis candidate is excluded from this audit.
+
 ### Active execution correction — 2026-11-04
 
 User requested early research/disproof and continuous combination testing rather
@@ -32,7 +60,9 @@ tests; the operating rules now define the short integration loop. No new framewo
   saved zero, subdivision, both operation orders, allocation+timing+expression+later
   donor edit, protected evidence and refusal. Planner independently ran the added
   single-child/denominator regression too:1 passed4.041s; no blocking correction.
-- [ ] **Publication:** commit/push and actual CI pending; no website or audio change.
+- [x] **Publication:** repair/instructions792b3c5 pushed; CI41916000930 SUCCESS.
+  No website or audio change. Later measurement-caption correction is documentation,
+  not a new production implementation or replacement all-control assignment.
 - [ ] **Next musical increment:** finish the eight sustained-note emphasis units
   on the CURRENT Cloud arrangement. The existing per-sustain silent PCM feasibility
   passed zero equality and all eight windows with no outside changes; persistent
