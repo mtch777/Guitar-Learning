@@ -14,9 +14,89 @@ from source_observation_evidence import digest
 
 SCHEMA='coordinated-support-arrangement/1'
 POLICY='coordinated_support_allocation'
+CURRENT_SCHEMA='coordinated-current-use-arrangement/1'
+
+
+def _origin(t3):
+    """Commit existing immutable provenance without inventing cell observations."""
+    if t3.get('schema')==uses.DIRECT_SCHEMA:
+        from source_observation_evidence import validate_origin
+        origin=t3['lower_tier'].get('source_origin');validate_origin(origin)
+        return digest(dict(schema=uses.DIRECT_SCHEMA,source_origin=origin))
+    return digest(t3['observations'])
+
+
+def _current_shape(upper):
+    if set(upper)!={'tier','schema','lower_tier','allocation','constraints'}or upper['tier']!=4:
+        raise ValueError('Closed current-use allocation required')
+    t3=upper['lower_tier'];a=upper['allocation'];c=upper['constraints']
+    if t3.get('schema')!=uses.DIRECT_SCHEMA:raise ValueError('Direct current material uses required')
+    if type(a)is not dict or set(a)!={'use_id','instance','expression'}:
+        raise ValueError('One complete current-instance owner required')
+    if type(c)is not dict or set(c)!={'eligible_uses','destination_material_ref','lower_origin','material_commitments'}:
+        raise ValueError('Closed current allocation contract required')
+    if c['lower_origin']!=_origin(t3):raise ValueError('Original source provenance differs')
+    if c['material_commitments']!=[digest(definition)for definition in t3['materials']]:
+        raise ValueError('Immutable material definition or identity changed')
+    ids=[row['id']for row in t3['uses']]
+    if type(c['eligible_uses'])is not list or any(type(ref)is not str for ref in c['eligible_uses'])or len(set(c['eligible_uses']))!=len(c['eligible_uses'])or any(ref not in ids or ref==a['use_id']for ref in c['eligible_uses']):
+        raise ValueError('Explicit distinct live donor identities required')
+    selected=[row for row in t3['uses']if row['id']==a['use_id']]
+    if len(selected)!=1 or set(selected[0])!={'id','slot_ref'}:
+        raise ValueError('The selected instance must have one T4 authority')
+    ref=c['destination_material_ref']
+    if type(ref)is not int or not 0<=ref<len(t3['materials']):raise ValueError('Existing destination definition required')
+    instance=a['instance']
+    if type(instance)is not dict:raise ValueError('Explicit local or live instance required')
+    if instance.get('kind')=='local':
+        if set(instance)!={'kind','parameters'}or type(instance['parameters'])is not dict or any(k in instance['parameters']for k in ('id','slot_ref','expression','source_use_ref')):
+            raise ValueError('Local instance parameters have competing identity authority')
+    elif instance.get('kind')=='live':
+        if set(instance)!={'kind','source_use_id'}or instance['source_use_id']not in c['eligible_uses']:
+            raise ValueError('Unsupported live source instance')
+    else:raise ValueError('Unknown current instance relation')
+
+
+def lift_use(t3,use_id,eligible_uses):
+    """Lift the current instance unchanged; source availability is not admission."""
+    uses._shape(t3)
+    child=deepcopy(t3);selected=next((row for row in child['uses']if row['id']==use_id),None)
+    if selected is None:raise ValueError('Unknown destination use')
+    params={k:deepcopy(v)for k,v in selected.items()if k not in ('id','slot_ref','expression')}
+    result=dict(tier=4,schema=CURRENT_SCHEMA,lower_tier=child,
+        allocation=dict(use_id=use_id,instance=dict(kind='local',parameters=params),expression=deepcopy(selected['expression'])),
+        constraints=dict(eligible_uses=deepcopy(eligible_uses),destination_material_ref=selected['material_ref'],
+            lower_origin=_origin(t3),material_commitments=[digest(definition)for definition in t3['materials']]))
+    for key in list(selected):
+        if key not in ('id','slot_ref'):del selected[key]
+    if expand(result)!=t3:raise ValueError('Current-use zero changed its preceding representation')
+    return result
+
+
+def candidate_use(upper,source_use_id):
+    """Select a live donor instance; all owner checks precede any returned edit."""
+    _current_shape(upper)
+    if source_use_id not in upper['constraints']['eligible_uses']:raise ValueError('Unsupported live source instance')
+    before=reconstruct(upper,{'variation':0})
+    result=deepcopy(upper)
+    result['allocation']['instance']=dict(kind='live',source_use_id=source_use_id)
+    after=reconstruct(result,{'variation':0})
+    # Other source facts, original observations and choices remain protected.
+    left=deepcopy(upper);right=deepcopy(result)
+    left['allocation']=right['allocation']=None
+    if left!=right:raise ValueError('Allocation changed unrelated ownership')
+    t3=expand(upper);selected=next(u for u in t3['uses']if u['id']==upper['allocation']['use_id'])
+    scope=t3['slots'][selected['slot_ref']]['scope']
+    from current_use_allocation import activity_refs
+    activity=activity_refs(scope)
+    outside=lambda lower:[row for row in lower['facts']if not material._owns(row['id'],scope)and row['id']not in activity]
+    if outside(before)!=outside(after):raise ValueError('Allocation changed facts outside destination')
+    return result
 
 
 def _shape(upper):
+    if type(upper)is dict and upper.get('schema')==CURRENT_SCHEMA:
+        return _current_shape(upper)
     if (type(upper)is not dict or set(upper)!={'tier','schema','lower_tier','allocation','constraints'}
             or upper['tier']!=4 or upper['schema']!=SCHEMA):raise ValueError('Closed T4 support allocation required')
     a=upper['allocation'];c=upper['constraints']
@@ -47,6 +127,13 @@ def _shape(upper):
 def expand(upper):
     _shape(upper);out=deepcopy(upper['lower_tier']);a=upper['allocation']
     use=next(r for r in out['uses']if r['id']==a['use_id'])
+    if upper['schema']==CURRENT_SCHEMA:
+        instance=a['instance']
+        if instance['kind']=='local':use.update(deepcopy(instance['parameters']))
+        else:use.update(source_use_ref=instance['source_use_id'],destination_material_ref=upper['constraints']['destination_material_ref'])
+        use['expression']=deepcopy(a['expression'])
+        uses._shape(out)
+        return out
     use.update(material_ref=a['material_ref'],expression=deepcopy(a['expression']))
     uses._shape(out)
     return out
@@ -55,7 +142,7 @@ def expand(upper):
 def reconstruct(upper,controls):
     if controls!={'variation':0}:raise ValueError('Use explicit T4 intervention; inverse has no second musical selector')
     t3=expand(upper);lower=uses.reconstruct(t3,controls)
-    _check_expression(upper,t3,lower)
+    if upper['schema']!=CURRENT_SCHEMA:_check_expression(upper,t3,lower)
     return lower
 
 

@@ -144,6 +144,11 @@ def project(model, fact_map, event_map):
             [new for current in targets for new in updates.get(current,[current])],key=address)
             for original,targets in prior[name].items()}
     result = deepcopy(model)
+    if 'current_influence'in result:
+        result['current_influence']['assignments']={ref:sorted(new for old in targets for new in event_map.get(old,[old]))
+            for ref,targets in result['current_influence']['assignments'].items()}
+        for allocation in result['current_influence']['allocations']:
+            allocation['assigned_refs']=sorted(new for old in allocation['assigned_refs']for new in event_map.get(old,[old]))
     identity = all(targets == [ref] for values in projection.values() for ref,targets in values.items())
     result['schema'] = (RELATIVE_SCHEMA if model['schema'] == RELATIVE_SCHEMA
                         else SCHEMA if identity else PROJECTED_SCHEMA)
@@ -198,6 +203,7 @@ def validate(model, source_origin=None):
     if type(model) is dict and (model.get('schema') == PROJECTED_SCHEMA or
             model.get('schema') == RELATIVE_SCHEMA and 'projection' in model):
         expected.add('projection')
+    if type(model)is dict and 'current_influence'in model:expected.add('current_influence')
     if type(model) is not dict or set(model) != expected or model['schema'] not in (SCHEMA,PROJECTED_SCHEMA,RELATIVE_SCHEMA):
         raise ValueError('Exact observed-dynamics ownership required')
     validate_origin(model['origin'])
@@ -309,6 +315,35 @@ def validate(model, source_origin=None):
         raise ValueError('Missing current dynamic selection')
     if model['schema'] in (PROJECTED_SCHEMA, RELATIVE_SCHEMA):
         _projection(model)
+    if 'current_influence'in model:
+        owned=model['current_influence']
+        if (type(owned)is not dict or set(owned)!={'schema','assignments','allocations'}
+                or owned['schema']!='allocated-dynamic-influence/1'or type(owned['allocations'])is not list or not owned['allocations']):
+            raise ValueError('Typed current dynamic influence assignment required')
+        assignments=owned['assignments']
+        if type(assignments)is not dict or set(assignments)!=seen:raise ValueError('Complete original-declaration current assignment required')
+        assigned=set()
+        for declaration,refs in assignments.items():
+            if type(refs)is not list or refs!=sorted(set(refs)):raise ValueError('Unique current dynamic influence required')
+            declaration_address=_dynamic_address(declaration)
+            for ref in refs:
+                address=_occurrence_identity(ref)
+                if (address[1],address[3])!=(declaration_address[0],declaration_address[2]):
+                    raise ValueError('Current dynamic influence escaped its declared part/voice')
+                if ref in assigned:raise ValueError('A note has competing dynamic influences')
+                assigned.add(ref)
+        for record in owned['allocations']:
+            if type(record)is not dict or set(record)!={'instance_id','scope','assigned_refs','retired_refs'}or type(record['instance_id'])is not str:
+                raise ValueError('Closed dynamic allocation witness required')
+            from musical_support_material import _event,_scope
+            scope=record['scope'];_scope(scope['parts'],scope['first_bar'],scope['last_bar'])
+            for field in ('assigned_refs','retired_refs'):
+                refs=record[field]
+                if type(refs)is not list or refs!=sorted(set(refs)):
+                    raise ValueError('Canonical current allocation references required')
+            if not set(record['assigned_refs'])<=assigned:
+                raise ValueError('Dynamic allocation witness names a missing current note')
+            if any(not _event(ref,scope)for ref in record['assigned_refs']+record['retired_refs']):raise ValueError('Dynamic assignment escaped allocation scope')
 
 
 def validate_source(model, tier1):
@@ -329,13 +364,34 @@ def validate_source(model, tier1):
         rows = [declarations.get(target) for target in projection['fact_map'][ref]]
         if any(row is None or not row['known'] for row in rows):
             raise ValueError('Original dynamic declaration absent from current source structure')
-        influence = sorted(target for occurrence in original['declaration']['influence_refs']
-                           for target in projection['event_map'][occurrence])
+        influence = (model['current_influence']['assignments'][ref] if 'current_influence'in model else
+            sorted(target for occurrence in original['declaration']['influence_refs']for target in projection['event_map'][occurrence]))
         if any(occurrence not in occurrences for occurrence in influence):
             raise ValueError('Original dynamic influence references nonexistent note occurrence')
         actual = [occurrence for row in rows for occurrence in row['influence_refs']]
         if len(actual) != len(set(actual)) or influence != sorted(actual):
             raise ValueError('Original dynamic influence differs from current declaration topology')
+
+
+def allocate_influence(model, *, instance_id, scope, assignment, retired=()):
+    """Assign derived notes to existing destination declarations, retaining evidence."""
+    validate(model);out=deepcopy(model);projection=_projection(model)
+    from musical_support_material import _event
+    if type(assignment)is not dict or any(not _event(ref,scope)for ref in list(assignment)+list(retired)):
+        raise ValueError('Explicit allocation-owned dynamic assignments required')
+    reverse={current:original for original,refs in projection['fact_map'].items()for current in refs}
+    previous=(deepcopy(model['current_influence']['assignments'])if 'current_influence'in model else
+        {row['fact_ref']:sorted(target for ref in row['declaration']['influence_refs']for target in projection['event_map'][ref])for row in model['observations']})
+    removed=set(retired)|set(assignment)
+    current={ref:[event for event in events if event not in removed]for ref,events in previous.items()}
+    for ref,declaration in assignment.items():
+        if declaration not in reverse:raise ValueError('Current destination dynamic declaration is unknown')
+        current[reverse[declaration]].append(ref)
+    out['current_influence']=dict(schema='allocated-dynamic-influence/1',assignments={ref:sorted(values)for ref,values in current.items()},
+        allocations=deepcopy(model.get('current_influence',{}).get('allocations',[]))+[dict(instance_id=instance_id,scope=deepcopy(scope),assigned_refs=sorted(assignment),retired_refs=sorted(retired))])
+    validate(out)
+    if evidence(out)!=evidence(model):raise ValueError('Allocation changed original dynamic observations')
+    return out
 
 
 def realize(model, source_origin=None):

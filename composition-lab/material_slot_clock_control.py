@@ -29,6 +29,8 @@ def apply_shares(upper, requests):
         if type(identity)is not str or identity not in byid or identity in seen:
             raise ValueError('Unique existing use identity required')
         seen.add(identity)
+        if 'source_use_ref'in byid[identity]:
+            raise ValueError('A live allocated use follows its donor clock; edit that owner or explicitly detach it')
         if request['scope']!=upper['slots'][byid[identity]['slot_ref']]['scope']:
             raise ValueError('Lane-clock request differs from saved destination scope')
         if type(request['lane_shares'])is not dict or not request['lane_shares']:
@@ -86,6 +88,8 @@ def apply_entry_choices(upper, requests):
         if type(identity)is not str or identity not in byid or identity in seen:
             raise ValueError('Unique existing use identity required')
         seen.add(identity)
+        if 'source_use_ref'in byid[identity]:
+            raise ValueError('A live allocated use follows its donor clock; edit that owner or explicitly detach it')
         if request['scope']!=upper['slots'][byid[identity]['slot_ref']]['scope']:
             raise ValueError('Joint clock differs from saved destination scope')
         if (type(request['lane_shares'])is not dict or not request['lane_shares']

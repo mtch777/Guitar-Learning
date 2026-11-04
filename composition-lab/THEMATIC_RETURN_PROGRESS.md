@@ -52,6 +52,15 @@ below preserve their original results/settings; none supplies another active que
 
 ### Latest delivered result and next dependency — 2026-11-04
 
+LATEST: live current-use arrangement now reconstructs through the same complete
+inverse with source/lower payloads unavailable. Verified output adds the two
+rhythm guitars to bars109–111 from their current bars31–33;176 attacks and2 HP
+connections are added, all6048 earlier callbacks remain exact. The first frozen
+compatible donor was retained. The existing5280 page now serves untouched source,
+before-allocation and after-allocation recordings; matched rewrites are9.656599s
+with four context bars. All QA remains silent. Details and remaining blockers
+are below. This does not close all30 controls or the separate fresh-song gate.
+
 CURRENT: rhythm and its playback repairs are published in61e9276/2b0825b.
 Final whole003 production/inverse/native/335-context checks PASS (details below).
 The existing5280 page now compares Previous rewrite174 with New rhythm174, while
@@ -63,6 +72,57 @@ Joint bend/degree and dead contacts now pass in that SAME state. See the next
 record. Next owned implementation: current-model arrangement integration and
 remaining relative-placement/emphasis relationships.
 The earlier delivery records in this section are historical comparisons.
+
+### Live material, preserved ownership and listening — 2026-11-04
+
+- [x] Direct T4 instance binding owns a LIVE existing use, never a copied realized
+  note stream. The selected part/region remains one owner. Original rest evidence
+  is retained with explicit retired-current-lineage witnesses; new occurrences
+  inherit the original evidence identities rather than becoming new source votes.
+  Destination timed dynamics remain authoritative; donor accents/muting follow
+  the new instance. Existing whole-bar rest declarations follow current activity.
+- [x] Planner's positive/negative counterexamples are implemented: three current
+  attacks into a silent region under a different dynamic, then saved donor pitch,
+  contact and entry-clock edits propagate. Existing unrelated backing dependencies
+  survive. Nonempty three-to-two replacement with retained accents refuses
+  atomically until explicit semantic correspondence exists. Cycles, duplicate
+  authority and missing/out-of-scope allocation witnesses refuse.
+- [x] `python -m unittest test_direct_support_arrangement test_observed_expression
+  test_observed_dynamics_projection -q`:35 tests pass in28.059s, recorded in
+  private `current-use-allocation-002/focused-tests.txt`. The preceding affected
+ 47-test check also passed; counts overlap and are not added together.
+- [x] Complete frozen Cloud inverse passes in280.219s. Latest source freeze:
+ 150 files,116 inverse modules. T1 SHA
+ `cd272dff22d80bfee1072a0e74f6c8350f847e5874154f6121a211e3bb9c2705`;
+  candidate T4 SHA
+ `f05ee2502d72c3c853988c530c2c412a7e1e50551d8a40d699be6aa6fc84811a`.
+  Exact output matches the first native-verified candidate; no unnecessary export
+  rerun. Worker Python audit denies source/lower reads; it is not an OS sandbox.
+- [x] Native comparison:6454+176=6630 written notes,6048+176=6224 callbacks,
+ 398 ties,8 legato destinations,62+2=64 HP connections,4 bends. All prior callbacks
+  remain exact. The added notes' pitch, relative clock and expression are checked
+  independently against the donor and destination declarations. The initial
+  expectation of62 HP links failed because2 legitimate links were added; retain
+  that failure. Do not weaken endpoint checks or claim standalone GP certification.
+- [x] Whole-pattern accounting uses the same77 uses/134 part-use units and5350
+  original written notes. All134 patterns differ; separately133 pitch sequences,
+ 134 rhythms,132 occupied-time patterns differ. New attacks are reported separately,
+  not added to original denominators. This is row28 output evidence, not a claim
+  that every control or meaningful arrangement decision is finished.
+- [x] New full audio SHA
+ `5eae641a28242a461c48b1781287cb649b04bc8d22becda9cb283b540edb886b`;
+  same Sonivox44100Hz/gain0.3,153.103673s,peak0.472265. Existing verified audio is
+  reused. Short changed SHA
+ `155e4d6423c18266d6fe5a0d812591ae8a619ce377127020eed1cc71084a6ddc`.
+  Same5280 page, no rebuilt UI. Actual silent UI QA: changed-only retains the two
+  rhythm-guitar rolls, green added notes visible at bar109, audio paused at5.517641s,
+  no console errors/warnings. Full-song comparison remains available.
+- [ ] Listening, QA1 and all30 completion remain OPEN. Planner's start/midpoint
+  challenge is implemented; completion review is PENDING because parallel agents
+  hit an actual usage limit. Root continued integration; no invented approval.
+- [ ] Next owned dependencies: complete relative-placement meaning and ownership,
+  the8 sustained-note emphasis consequences, and composed idea/return controls.
+  No new source collection, easier song or denominator reduction is authorized.
 
 ### Joint bends and physical contacts — 2026-11-04
 

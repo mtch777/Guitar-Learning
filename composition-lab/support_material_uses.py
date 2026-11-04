@@ -27,6 +27,10 @@ def unallocated_fields(use):
 
 def _shape(upper):
     if type(upper)is not dict:raise ValueError('Exact material-use T3 required')
+    if any(type(row)is dict and 'source_use_ref'in row for row in upper.get('uses',[])):
+        from current_use_allocation import resolve
+        resolved,_=resolve(upper)
+        return _shape(resolved)
     fields={'tier','schema','lower_tier','materials','slots','uses'}
     if upper.get('schema')==DIRECT_SCHEMA and 'expression_insertions'in upper:
         fields.add('expression_insertions')
@@ -197,7 +201,7 @@ def resolved_definition(definition,use,*,parent=None,slot=None):
     return solved
 
 
-def place(definition,slot,use,*,parent=None):
+def place(definition,slot,use,*,parent=None,allocation_context=None):
     """Resolve one distinct use. The immutable definition is never rewritten."""
     if definition.get('external_pitch_refs') and definition['scope']!=slot['scope']:
         raise ValueError('Material relocation needs explicit external movement correspondence')
@@ -207,7 +211,10 @@ def place(definition,slot,use,*,parent=None):
         foreign=material.expression_rows(parent);foreign_ids={r['id']for r in foreign}
         if any(row['id']in foreign_ids for row in definition['lower_tier']['source_structure']):
             raise ValueError('Stored material duplicates an existing expression owner')
-        if definition['scope']!=slot['scope'] and any(material._owns(row['id'],scope)for row in foreign
+        if allocation_context is not None:
+            from current_use_allocation import validate_placement
+            validate_placement(allocation_context,definition,slot,parent)
+        if allocation_context is None and definition['scope']!=slot['scope'] and any(material._owns(row['id'],scope)for row in foreign
                for scope in (definition['scope'],slot['scope'])):
             raise ValueError('Material relocation would readdress existing expression owners')
     from material_degree_paths import SCHEMA as degree_schema
@@ -222,6 +229,9 @@ def place(definition,slot,use,*,parent=None):
     out['source_structure']=[_row(r,fact)for r in source['source_structure']]
     for field in ('source_choices','coverage'):
         for row in out[field]:row['fact_ref']=fact(row['fact_ref'])
+    if allocation_context is not None:
+        out['coverage']=[row for row in out['coverage']if row.get('owner')!='observed_dynamic_selection']
+        out['coverage'].extend(dict(fact_ref=ref,owner='observed_dynamic_selection')for ref in allocation_context.dynamic_refs)
     for row in out['physical_positions']:
         row['occurrence_ref']=event(row['occurrence_ref'])
         for key in ('fact_ref','string_ref','capo_ref','tuning_ref','tuning_array_ref'):
@@ -284,12 +294,17 @@ def from_tier2(t2,specifications):
 
 def realize_pair(upper, *, with_projection=False):
     """Return the restored parent (T2 or legacy cell T3), T1 and identities."""
+    allocation_contexts={}
+    if any(type(row)is dict and 'source_use_ref'in row for row in upper.get('uses',[])):
+        from current_use_allocation import resolve,prepare
+        upper,allocation_bindings=resolve(upper)
+        upper,allocation_contexts=prepare(upper,allocation_bindings)
     _shape(upper);pieces=[];contracts=[];ledger=[]
     joint_entry=any('entry_shares'in use for use in upper['uses'])
     projection=dict(beats={},events={},spans={})
     for use in upper['uses']:
         piece,records,identities=place(upper['materials'][use['material_ref']],upper['slots'][use['slot_ref']],use,
-                                     parent=upper['lower_tier'])
+                                     parent=upper['lower_tier'],allocation_context=allocation_contexts.get(use['id']))
         pieces.append(piece);contracts.append(records);ledger.extend(identities)
     if len({r['current_address']for r in ledger})!=len(ledger):raise ValueError('Overlapping active material uses')
     restored=material.restore_fragments(upper['lower_tier'],pieces)
@@ -904,6 +919,8 @@ def degree_choices_candidate(upper,requests,*,contact_strings=None,bend_excursio
     if type(curves)is not dict:raise ValueError('Explicit bend requests keyed by use identity required')
     indexed={u['id']:u for u in upper['uses']}
     if (set(requests)|set(contacts)|set(curves))-set(indexed):raise ValueError('Unknown requested material use')
+    if any('source_use_ref'in indexed[ref]for ref in set(requests)|set(contacts)|set(curves)):
+        raise ValueError('A live allocated use follows its donor; edit that owner or explicitly detach it')
     before,before_score,_=realize_pair(upper)
     out=deepcopy(upper);updated={u['id']:u for u in out['uses']}
     for use_id,request in requests.items():
@@ -923,9 +940,11 @@ def degree_choices_candidate(upper,requests,*,contact_strings=None,bend_excursio
     # Relationships use the pre-subdivision written identities. Placement maps
     # those into each use; existing subdivisions inherit the same parent contact.
     owners={}; current={}; explicit={}
-    for use in upper['uses']:
-        definition=upper['materials'][use['material_ref']]
-        _,event,_=_maps(definition,upper['slots'][use['slot_ref']])
+    from current_use_allocation import resolve as resolve_instances
+    instance_view,_=resolve_instances(upper)
+    for use in instance_view['uses']:
+        definition=instance_view['materials'][use['material_ref']]
+        _,event,_=_maps(definition,instance_view['slots'][use['slot_ref']])
         for ref in _contact_owners(definition['lower_tier']):
             key=(use['id'],ref);address=event(ref)
             if address in owners:raise ValueError('Overlapping physical material owners')

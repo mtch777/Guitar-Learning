@@ -35,10 +35,21 @@ native verification in this SAME state: all4 bend excursions and all35 dead
 contacts change, bringing physical contacts to3940/3940. Previous3905 pitch classes
 and octaves,1955 signed steps,1674 voicings,4992 onsets/complete holds and3205 gaps
 remain changed.398 ties,8 legato links and62 HP targets survive. No dead-note
-fundamental pitch is invented. These latest edits await offline audio publication;
-standalone GP fidelity and listening remain separate. Next: live arrangement
-allocation through current evidence/ownership, relative placement and sustained
-emphasis.8 within-slide emphasis
+fundamental pitch is invented. Bend/contact release `abcfd30` passed CI41899755165.
+Those edits are rendered silently and retained. The next live arrangement edit
+now also passes the complete source-denied inverse and independent playback
+checks: the two rhythm guitars from bars31–33 re-enter in bars109–111, adding176
+attacks and2 HP connections. All6048 preceding playback events stay exact.
+Saved donor pitch/contact/timing edits propagate; original observations remain
+immutable.35 targeted tests pass. The existing5280 page serves a9.657s matched
+comparison with four context bars and an untouched original; silent changed-only
+UI QA passes. All134 original part/use patterns differ in the whole result,
+but separate pitch/rhythm/activity coverage is133/134,134/134,132/134.
+This is not all-control completion. Standalone GP fidelity and listening remain
+separate. Next: relative placement, sustained emphasis and the remaining idea/
+return control coordination. Planner's completion review is pending after an
+actual agent usage limit; its earlier challenge is implemented, not final approval.
+8 within-slide emphasis
 units, QA1, listening and ALL-control completion remain open. Earlier dated partial
 counts below are retained evidence, not replacement assignments.
 

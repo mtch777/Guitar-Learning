@@ -99,13 +99,13 @@ def _scope(ref, events):
     return match[1], voice[1] if voice else None
 
 
-def _validate_map(mapping, events):
+def _validate_map(mapping, events, *, retired=()):
     if type(mapping) is not dict:
         raise ValueError('Explicit expression lineage map required')
     targets_seen = set()
     for original, targets in mapping.items():
         scope = _scope(original, events)
-        if type(targets) is not list or not targets or len(targets) != len(set(targets)):
+        if type(targets) is not list or (not targets and original not in retired) or len(targets) != len(set(targets)):
             raise ValueError('Nonempty distinct expression lineage targets required')
         for target in targets:
             if _scope(target, events) != scope:
@@ -122,16 +122,43 @@ def _lineage(model):
     lineage = model['lineage']
     if type(lineage) is not dict or set(lineage) != {'event_map', 'fact_map'}:
         raise ValueError('Closed expression lineage required')
+    witnesses=model.get('allocation_witnesses',[])
+    if type(witnesses)is not list:raise ValueError('Typed allocation witnesses required')
+    retired={key:set()for key in domains};seen=set()
+    for witness in witnesses:
+        if (type(witness)is not dict or set(witness)!={'schema','instance_id','scope','retired_original','derived'}
+                or witness['schema']!='current-expression-allocation/1' or type(witness['instance_id'])is not str
+                or not witness['instance_id'] or witness['instance_id']in seen):raise ValueError('Closed unique allocation witness required')
+        seen.add(witness['instance_id'])
+        scope=witness['scope']
+        if type(scope)is not dict or set(scope)!={'parts','first_bar','last_bar'}:raise ValueError('Complete allocation region required')
+        from musical_support_material import _scope as check_scope
+        check_scope(scope['parts'],scope['first_bar'],scope['last_bar'])
+        for field in ('retired_original','derived'):
+            if type(witness[field])is not dict or set(witness[field])!=set(domains):raise ValueError('Complete allocation lineage domains required')
+        for key in domains:
+            refs=witness['retired_original'][key]
+            if type(refs)is not list or len(refs)!=len(set(refs))or not set(refs)<=domains[key]:raise ValueError('Known retired original identities required')
+            retired[key].update(refs)
+            derived=witness['derived'][key]
+            if type(derived)is not dict:raise ValueError('Explicit derived instance identities required')
+            from musical_support_material import _owns,_event
+            inside=_event if key=='event_map'else _owns
+            for current,original in derived.items():
+                _scope(current,key=='event_map')
+                if not inside(current,scope):raise ValueError('Derived expression instance escaped allocation scope')
+                if original not in domains[key]or current not in lineage[key][original]:raise ValueError('Derived instance lost original lineage')
     for key, refs in domains.items():
-        _validate_map(lineage[key], key == 'event_map')
+        _validate_map(lineage[key], key == 'event_map',retired=retired[key])
         if set(lineage[key]) != refs:
             raise ValueError('Complete original expression lineage domain required')
+        if {ref for ref,targets in lineage[key].items()if not targets}!=retired[key]:raise ValueError('Every retirement needs its explicit allocation witness')
     return lineage
 
 
 def validate(model, origin=None):
     required = {'schema', 'origin', 'observations', 'evidence_sha256'}
-    if type(model) is not dict or set(model) not in (required, required|{'lineage'}) or model.get('schema') != SCHEMA:
+    if type(model) is not dict or set(model) not in (required, required|{'lineage'},required|{'lineage','allocation_witnesses'}) or model.get('schema') != SCHEMA:
         raise ValueError('Closed original-expression observation model required')
     validate_origin(model['origin'])
     if origin is not None and model['origin'] != origin:
@@ -210,6 +237,10 @@ def project(model, fact_map, event_map):
                   for new in maps[key].get(current, [current]))
                   for original, targets in prior[key].items()} for key in prior}
     result = deepcopy(model)
+    for witness in result.get('allocation_witnesses',[]):
+        for key in maps:
+            witness['derived'][key]={target:original for current,original in witness['derived'][key].items()
+                for target in maps[key].get(current,[current])}
     if all(targets == [ref] for mapping in lineage.values() for ref, targets in mapping.items()):
         result.pop('lineage', None)
     else:
@@ -218,6 +249,42 @@ def project(model, fact_map, event_map):
     if evidence(result) != evidence(model):
         raise ValueError('Projection changed original expression evidence')
     return result
+
+
+def allocate_current(model, *, instance_id, scope, copies, retired):
+    """Retire owned rest descendants and derive a live instance without new votes.
+
+    The allocation owner verifies the complete empty destination and dependency
+    closure. Generic project() still cannot delete any observation lineage.
+    """
+    validate(model);prior=_lineage(model);out=deepcopy(model)
+    if set(copies)!={'fact_map','event_map'}or set(retired)!=set(copies):raise ValueError('Complete allocation projection required')
+    witness=dict(schema='current-expression-allocation/1',instance_id=instance_id,scope=deepcopy(scope),
+        retired_original={key:[]for key in copies},derived={key:{}for key in copies})
+    from musical_support_material import _owns,_event
+    lineage={}
+    for key in copies:
+        check=_event if key=='event_map'else _owns
+        if any(not check(ref,scope)for ref in retired[key]):raise ValueError('Retirement escaped owned allocation region')
+        reverse={current:original for original,targets in prior[key].items()for current in targets}
+        if type(copies[key])is not dict:raise ValueError('Typed live correspondence required')
+        for source,targets in copies[key].items():
+            if source not in reverse:continue
+            if type(targets)is not list or not targets or any(not check(target,scope)for target in targets):raise ValueError('Derived instance escaped allocation region')
+            for target in targets:
+                if target in witness['derived'][key]:raise ValueError('Conflicting instance lineage')
+                witness['derived'][key][target]=reverse[source]
+        removed=set(retired[key]);lineage[key]={}
+        for original,targets in prior[key].items():
+            values=[ref for ref in targets if ref not in removed]
+            values.extend(target for ref in targets for target in copies[key].get(ref,[]))
+            lineage[key][original]=sorted(values)
+            if not values:witness['retired_original'][key].append(original)
+    out['lineage']=lineage
+    out.setdefault('allocation_witnesses',[]).append(witness)
+    validate(out)
+    if evidence(out)!=evidence(model):raise ValueError('Allocation changed original expression evidence')
+    return out
 
 
 class _Prepared:
