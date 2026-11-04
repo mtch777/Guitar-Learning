@@ -28,6 +28,12 @@ def unallocated_fields(use):
 def _shape(upper):
     if type(upper)is not dict:raise ValueError('Exact material-use T3 required')
     fields={'tier','schema','lower_tier','materials','slots','uses'}
+    if upper.get('schema')==DIRECT_SCHEMA and 'expression_insertions'in upper:
+        fields.add('expression_insertions')
+        placements=upper['expression_insertions']
+        if type(placements)is not dict or any(type(ref)is not str or mode!='append'
+                for ref,mode in placements.items()):
+            raise ValueError('Explicit stable expression append placements required')
     if upper.get('schema')!=DIRECT_SCHEMA:fields|={'relationship','instance_attack_refs','observations'}
     if (set(upper)!=fields or upper['tier']!=3
             or upper['schema']not in (SCHEMA,APPROACH_SCHEMA,DIRECT_SCHEMA,RHYTHM_SCHEMA)):raise ValueError('Exact material-use T3 required')
@@ -246,6 +252,7 @@ def realize_pair(upper):
         pieces.append(piece);contracts.append(records);ledger.extend(identities)
     if len({r['current_address']for r in ledger})!=len(ledger):raise ValueError('Overlapping active material uses')
     restored=material.restore_fragments(upper['lower_tier'],pieces)
+    _resolve_expression_insertions(upper,restored)
     if upper['schema']==DIRECT_SCHEMA:
         from connected_tier2 import realize
         from melodic_movement_ownership import SLOT,_shape as movement_shape,retime_from_parent
@@ -296,6 +303,25 @@ def realize_pair(upper):
             raise ValueError('Subdivision needs explicit projection of the legacy cell owner')
         result,lower,ledger=_subdivide_result(upper,result,lower,pieces,contracts,ledger)
     return result,lower,ledger
+
+
+def _resolve_expression_insertions(upper,parent):
+    """Resolve a saved insertion AFTER current material membership exists.
+
+    The optional owner remains the only value authority. An append relationship
+    owns its position relative to current siblings, including derived dots;
+    neither their values nor an expanded container is stored in the T3.
+    """
+    placements=upper.get('expression_insertions',{})
+    if not placements:return
+    groups={g['id']:(g,field) for key,field in (
+        ('optional_note_accents','note_structure'),('optional_beat_palm_mutes','beat_structure'))
+        for g in parent['owned_parameters'].get(key,{}).get('groups',[])}
+    for ref in placements:
+        if ref not in groups or groups[ref][0]['state']['kind']!='explicit':
+            raise ValueError('Expression insertion requires an existing explicit optional owner')
+        group,field=groups[ref]
+        group['state']['child_index']=len(group[field]['children'])
 
 
 def _subdivision_fragment(piece,parent,scope):
@@ -491,6 +517,7 @@ def pack_expression(upper,changed_t2):
     expected=deepcopy(current);out=deepcopy(upper)
     old=current['owned_parameters'];new=changed_t2['owned_parameters']
     target=out['lower_tier']['owned_parameters']
+    placements=deepcopy(out.get('expression_insertions',{}))
     beats={}
     if any(any(v>1 for v in u.get('subdivision_factors',{}).values()) for u in upper['uses']):
         from material_subdivision import plan_maps
@@ -517,22 +544,49 @@ def pack_expression(upper,changed_t2):
             children=[prefix+ref for ref in descendants(group[field]['id'])]
             if not set(children)<=set(after) or mapped&set(children):raise ValueError('Expression packing lost child ownership')
             states=[after[ref]['state'] for ref in children]
-            if any(state!=states[0] for state in states):
+            values=[{k:v for k,v in state.items() if k!='child_index'} for state in states]
+            if any(value!=values[0] for value in values):
                 raise ValueError('INDEPENDENT_CHILD_EXPRESSION_OWNER_REQUIRED')
-            group['state']=deepcopy(states[0]);mapped.update(children)
+            state=deepcopy(values[0])
+            if state['kind']=='absent':
+                placements.pop(group['id'],None)
+            elif group['state']['kind']=='explicit' and all(
+                    before[ref]['state']['kind']=='explicit'
+                    and after[ref]['state']['child_index']==before[ref]['state']['child_index']
+                    for ref in children):
+                # A value edit retains its existing original/relative position.
+                state['child_index']=group['state']['child_index']
+            elif all(after[ref]['state']['child_index']==len(after[ref][field]['children'])
+                     for ref in children):
+                # The current index is NOT an index into the sparse parent.
+                # Keep that parent valid, then resolve this same append intention
+                # after each material realization; later children may omit text.
+                state['child_index']=len(group[field]['children'])
+                placements[group['id']]='append'
+            else:
+                raise ValueError('Unsupported expression insertion position; no sibling-order guess')
+            group['state']=state;mapped.update(children)
         if mapped!=set(after):raise ValueError('Expression packing lost child ownership')
         for group in expected['owned_parameters'][key]['groups']:
             state=deepcopy(after[group['id']]['state'])
             group['state']=state
     key='observed_dynamics'
     if key in old:
+        from observed_dynamics import choose,choose_relative,current_marking,RELATIVE_SCHEMA
         before={r['fact_ref']:r for r in old[key]['current']};after={r['fact_ref']:r for r in new.get(key,{}).get('current',[])}
         saved={r['fact_ref']:r for r in target[key]['current']}
         if set(before)!=set(after) or set(before)!=set(saved):raise ValueError('Expression packing cannot readdress dynamics')
-        for row in expected['owned_parameters'][key]['current']:
-            value=after[row['fact_ref']]['definition_ref']
-            row['definition_ref']=value;saved[row['fact_ref']]['definition_ref']=value
+        choices={ref:current_marking(new[key],ref) for ref in after}
+        if new[key]['schema']==RELATIVE_SCHEMA:
+            expected['owned_parameters'][key]=choose_relative(old[key],choices)
+            target[key]=choose_relative(target[key],choices)
+        else:
+            for ref,value in choices.items():
+                expected['owned_parameters'][key]=choose(expected['owned_parameters'][key],ref,value)
+                target[key]=choose(target[key],ref,value)
     if expected!=changed_t2:raise ValueError('Expression packing changed a protected relationship or owner')
+    if placements:out['expression_insertions']=placements
+    else:out.pop('expression_insertions',None)
     if expand(out)!=changed_t2:raise ValueError('Saved expression choices conflict with material notation or owners')
     return out
 

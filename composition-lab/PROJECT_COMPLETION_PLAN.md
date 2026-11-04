@@ -74,13 +74,19 @@ silent native GP verification PASS, including5327 changed written pitches and
 4961 changed native note-on keys. This is verified construction through musical
 relationships, not a listening or learned-artist-preference claim.
 
-Next, jointly choose base loudness, neighboring dynamic differences, accents and
-complete-attack mute state over this SAME saved composition and original request
-baseline. A uniform level shift cannot count as changed dynamic differences;
-base/accent changes must not silently cancel performed consequences. Reuse the
-existing expression owners and inverse. Timing, bend-amount,35 dead-note contact
-targets, higher material/return controls and fresh creative QA remain open;
-neither this pitch result nor the next expression group closes ALL100.
+Joint expression and relative tempo now run over this SAME saved composition and
+original request baseline. Final output changes4992/4992 base levels,4992/4992
+written accents,10/10 neighboring dynamic differences and2464/2464 mute groups.
+All6048 native note-on velocities change;8 legato destinations still lack verified
+independent emphasis, leaving4984/4992 original performed units verified. No
+denominator reduction.116→174BPM changes the sole global region, with444 written
+quarters unchanged and elapsed time229.655→153.103s. Complete denied reconstruction
+passes. Explicit paired-preview playback preserves all358 ties/8 legato links and
+recomputes3221 tempo-dependent release caps; standalone GP fidelity and realistic
+muted timbre are not certified. Original observations and dependencies survive.
+Next: queue verified offline audio, resolve sustained expression and continue
+timing, bend-amount,35 dead-note contacts and higher material/return controls.
+Fresh creative QA remains open. Neither this increment nor its tests close ALL100.
 
 ### Latest user correction: percentages measure actual output changes
 

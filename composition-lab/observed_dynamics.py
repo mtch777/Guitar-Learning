@@ -11,6 +11,9 @@ from technique_observation_relations import identify, scalar_relation
 
 SCHEMA = 'observed-dynamic-relations/1'
 PROJECTED_SCHEMA = 'observed-dynamic-relations/2'
+RELATIVE_SCHEMA = 'observed-dynamic-relations/3'
+# Ordered notation values, not a palette of additional original observations.
+LEVELS = ('ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff')
 META = {'id', 'document', 'pointer', 'parent', 'slot', 'type'}
 DECLARATION = {'part_id', 'voice', 'scope', 'bar', 'beat', 'note', 'influence_refs', 'reasons'}
 TRANSITION = {'incoming_fact_ref', 'following_boundary_fact_ref', 'source_meter',
@@ -40,12 +43,32 @@ def definition(marking):
     return 'dynamic-level:' + marking
 
 
+def relative_level(source_marking, *, offset=None, marking=None):
+    """The SAME equation: current rank = original rank + integer offset.
+
+    This defines realization coordinates, not a source preference or an acoustic
+    loudness scale. Caller intent/evidence chooses the permitted displacement.
+    """
+    if type(source_marking) is not str or source_marking not in LEVELS:
+        raise ValueError('Known original dynamic marking required')
+    if (offset is None) == (marking is None):
+        raise ValueError('Exactly one side of the relative dynamic equation required')
+    source = LEVELS.index(source_marking)
+    if marking is not None:
+        if type(marking) is not str or marking not in LEVELS:
+            raise ValueError('Known current dynamic marking required')
+        offset = LEVELS.index(marking) - source
+    if type(offset) is not int or not 0 <= source + offset < len(LEVELS):
+        raise ValueError('Integer dynamic offset within notation bounds required')
+    return dict(offset=offset, marking=LEVELS[source + offset])
+
+
 def evidence(model):
     """No current realization selection contributes to original-observation votes."""
     result = {k: deepcopy(model[k]) for k in ('schema', 'origin', 'definitions', 'observations', 'transition_error')}
     # Version 2 only projects current realization addresses. The evidence still
     # has exactly its original version-1 identity and checksum.
-    if model.get('schema') == PROJECTED_SCHEMA:
+    if model.get('schema') in (PROJECTED_SCHEMA, RELATIVE_SCHEMA):
         result['schema'] = SCHEMA
     return result
 
@@ -86,7 +109,7 @@ def _mapping(mapping, *, events):
 def _projection(model):
     facts = {row['fact_ref'] for row in model['observations']}
     events = {ref for row in model['observations'] for ref in row['declaration']['influence_refs']}
-    if model['schema'] == SCHEMA:
+    if model['schema'] == SCHEMA or model['schema'] == RELATIVE_SCHEMA and 'projection' not in model:
         return dict(fact_map={ref:[ref] for ref in sorted(facts)},
                     event_map={ref:[ref] for ref in sorted(events)})
     projection = model['projection']
@@ -122,7 +145,8 @@ def project(model, fact_map, event_map):
             for original,targets in prior[name].items()}
     result = deepcopy(model)
     identity = all(targets == [ref] for values in projection.values() for ref,targets in values.items())
-    result['schema'] = SCHEMA if identity else PROJECTED_SCHEMA
+    result['schema'] = (RELATIVE_SCHEMA if model['schema'] == RELATIVE_SCHEMA
+                        else SCHEMA if identity else PROJECTED_SCHEMA)
     if identity:
         result.pop('projection',None)
     else:
@@ -171,9 +195,10 @@ def lift(tier1, source_origin):
 
 def validate(model, source_origin=None):
     expected = {'schema', 'origin', 'definitions', 'observations', 'current', 'transition_error', 'evidence_sha256'}
-    if type(model) is dict and model.get('schema') == PROJECTED_SCHEMA:
+    if type(model) is dict and (model.get('schema') == PROJECTED_SCHEMA or
+            model.get('schema') == RELATIVE_SCHEMA and 'projection' in model):
         expected.add('projection')
-    if type(model) is not dict or set(model) != expected or model['schema'] not in (SCHEMA,PROJECTED_SCHEMA):
+    if type(model) is not dict or set(model) != expected or model['schema'] not in (SCHEMA,PROJECTED_SCHEMA,RELATIVE_SCHEMA):
         raise ValueError('Exact observed-dynamics ownership required')
     validate_origin(model['origin'])
     if source_origin is not None and model['origin'] != source_origin:
@@ -261,11 +286,18 @@ def validate(model, source_origin=None):
         if transition is not None and not transition['reasons'] and transition['incoming_fact_ref'] not in seen:
             raise ValueError('Known incoming dynamic observation missing')
     current_seen = set()
+    original_definitions = {r['fact_ref']: r['definition_ref'] for r in model['observations']}
     for row in model['current']:
-        if type(row) is not dict or set(row) != {'fact_ref', 'structure', 'definition_ref'}:
+        choice_field = 'offset' if model['schema'] == RELATIVE_SCHEMA else 'definition_ref'
+        if type(row) is not dict or set(row) != {'fact_ref', 'structure', choice_field}:
             raise ValueError('Exact current dynamic binding required')
         ref, shape = row['fact_ref'], row['structure']
-        if ref not in seen or ref in current_seen or row['definition_ref'] not in model['definitions']:
+        if ref not in seen or ref in current_seen:
+            raise ValueError('Missing or duplicate current dynamic owner')
+        if model['schema'] == RELATIVE_SCHEMA:
+            source = model['definitions'][original_definitions[ref]]['symbol']
+            relative_level(source, offset=row['offset'])
+        elif row['definition_ref'] not in model['definitions']:
             raise ValueError('Missing or duplicate current dynamic owner')
         current_seen.add(ref)
         if type(shape) is not dict or set(shape) != META or shape['id'] != ref or shape['type'] != 'string':
@@ -275,7 +307,7 @@ def validate(model, source_origin=None):
             raise ValueError('Dynamic scalar escaped its source occurrence')
     if current_seen != seen:
         raise ValueError('Missing current dynamic selection')
-    if model['schema'] == PROJECTED_SCHEMA:
+    if model['schema'] in (PROJECTED_SCHEMA, RELATIVE_SCHEMA):
         _projection(model)
 
 
@@ -311,12 +343,69 @@ def realize(model, source_origin=None):
     mapping = _projection(model)['fact_map']
     result = []
     for row in model['current']:
+        marking = _current_marking(model, row)
         for target in mapping[row['fact_ref']]:
             shape = deepcopy(row['structure'])
             document,pointer = target.split('#',1)
             shape.update(id=target,document=document,pointer=pointer,
                          parent=document+'#'+pointer.rsplit('/',1)[0])
-            result.append(dict(shape,value=scalar_relation('string', parameter=model['definitions'][row['definition_ref']])))
+            result.append(dict(shape,value=marking))
+    return result
+
+
+def _current_marking(model, row):
+    if model['schema'] != RELATIVE_SCHEMA:
+        return scalar_relation('string', parameter=model['definitions'][row['definition_ref']])
+    original = next(r for r in model['observations'] if r['fact_ref'] == row['fact_ref'])
+    source = scalar_relation('string', parameter=model['definitions'][original['definition_ref']])
+    return relative_level(source, offset=row['offset'])['marking']
+
+
+def current_marking(model, row_or_ref):
+    """Read the single current choice across legacy and relative interfaces."""
+    validate(model)
+    ref = row_or_ref.get('fact_ref') if type(row_or_ref) is dict else row_or_ref
+    row = next((r for r in model['current'] if r['fact_ref'] == ref), None)
+    if row is None or type(row_or_ref) is dict and row_or_ref != row:
+        raise ValueError('Exact owned current dynamic occurrence required')
+    return _current_marking(model, row)
+
+
+def choose_relative(model, changes):
+    """Atomically choose current levels; never add definitions or observations.
+
+    All keys are ORIGINAL stable declaration identities, including after source
+    subdivision. A child's independent expression needs a separate owner.
+    """
+    validate(model)
+    if type(changes) is not dict or any(type(ref) is not str for ref in changes):
+        raise ValueError('Explicit original-declaration to dynamic-marking mapping required')
+    current = {r['fact_ref']: r for r in model['current']}
+    originals = {r['fact_ref']: r for r in model['observations']}
+    offsets = {}
+    changed = False
+    for ref, marking in changes.items():
+        if ref not in current:
+            raise ValueError('Original dynamic occurrence not owned')
+        source = model['definitions'][originals[ref]['definition_ref']]['symbol']
+        offsets[ref] = relative_level(source, marking=marking)['offset']
+        changed = changed or marking != _current_marking(model, current[ref])
+    result = deepcopy(model)
+    if not changed:
+        return result
+    if model['schema'] != RELATIVE_SCHEMA:
+        result['schema'] = RELATIVE_SCHEMA
+        for row in result['current']:
+            ref = row['fact_ref']
+            source = model['definitions'][originals[ref]['definition_ref']]['symbol']
+            row['offset'] = relative_level(source, marking=_current_marking(model, current[ref]))['offset']
+            del row['definition_ref']
+    for row in result['current']:
+        if row['fact_ref'] in offsets:
+            row['offset'] = offsets[row['fact_ref']]
+    validate(result)
+    if evidence(result) != evidence(model) or result['evidence_sha256'] != model['evidence_sha256']:
+        raise ValueError('Relative dynamic choice changed original evidence')
     return result
 
 
@@ -325,6 +414,8 @@ def choose(model, fact_ref, marking):
     ref = definition(marking)
     if ref not in model['definitions']:
         raise ValueError('No original observation for requested dynamic level')
+    if model['schema'] == RELATIVE_SCHEMA:
+        return choose_relative(model, {fact_ref: marking})
     result = deepcopy(model)
     row = next((r for r in result['current'] if r['fact_ref'] == fact_ref), None)
     if row is None:

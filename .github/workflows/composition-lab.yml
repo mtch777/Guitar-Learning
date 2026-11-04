@@ -37,6 +37,8 @@ jobs:
         run: node --test composition-lab/test_arrangement_review.mjs composition-lab/test_listening_occurrence_identity.mjs
       - name: Install pinned alphaTab for bend fidelity checks
         run: npm install --prefix .local/qa --no-save --ignore-scripts @coderline/alphatab@1.8.4
+      - name: Test hash-bound continuous mute playback policy
+        run: node --test composition-lab/songsterr_automation/songsterr_api/test_continuous_mute_playback.mjs composition-lab/songsterr_automation/songsterr_api/test_playback_execution_policy.mjs
       - name: Test opt-in exact model bend preservation
         run: node --test composition-lab/songsterr_automation/songsterr_api/test_bend_fidelity.mjs
       - name: Test source tremolo rate through paired GP reload

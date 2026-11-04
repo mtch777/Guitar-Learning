@@ -52,6 +52,88 @@ below preserve their original results/settings; none supplies another active que
 
 ### Latest verified increment: whole-song pitch targets — 2026-11-04
 
+### Current expression integration — whole Cloud request remains active
+
+- [x] Cheap joint-choice counterexample: swapping source mf/f changes all base
+  levels but only4/10 neighboring differences. Four regions mix normal/accented
+  attacks; a one-step level change plus accent reversal cancels some velocities.
+- [x] Add current relative levels through original rank + offset, keeping all
+  original definitions/observations/evidence unchanged.82 owner/regression tests
+  pass;20 material-packing/integration tests pass separately (overlap is not summed).
+- [x] Probe the pinned native expression equation silently: all6048 current
+  note-on velocities agree before testing alternatives. Candidate tables include
+  retained ghost/HP adjustments and velocity clipping.
+- [x] Joint selection of base level, adjacent differences, accent state and mute
+  state on007; no source-specific target levels or reset of4992/2464 denominators.
+  Strict performance target retains8 unknown legato destinations; the diagnostic
+  candidate reaches4992 base levels,4992 written accents,10 adjacent differences
+  and2464 mute groups. It is not yet a performed100 pass.
+- [x] Saved complete candidate, independent expected score and denied inverse;
+  native/source checks must preserve existing pitch choices and gesture topology.
+  Apply002 reconstructs exactly (477.625s). The paired-preview verification
+  preserves all358 ties and8 legato connections, including112 unchanged slide
+  pitch-transition events. All6048 actual note-on velocities change. The frozen
+  original performed count remains4984/4992, with8 unknown destinations.
+- [ ] Publish verified expression increment, queue audio without playing it,
+  then continue timing/bends/material/return obligations.
+
+Eight of4992 frozen written units are source-declared legato-slide destinations
+with no independent note-on in unchanged or changed native playback. Their accent
+declarations cannot receive independent performed-emphasis credit. Keep all eight
+in the request and the first strict unknown result. An explicit measure-only
+performed diagnostic may supply a three-feature candidate, but it cannot certify
+combined100 or replace the missing within-sustain expression relationship. No
+invented reattacks, metric shrinkage or renderer detour. Mute may legitimately
+shorten performed sustain; it must preserve required tie/HP/slide continuity,
+written clocks and unrelated dependencies. Planner challenged both boundaries.
+
+The first full expression save (apply001) failed on an insertion-position defect:
+the current beat included material-derived dots, while the stored parent did not.
+Copying the current mute-field index into that smaller parent was invalid. The
+shared repair stores an append-position relationship, resolves it after material
+membership returns, and translates positions when subdivision removes text/chord
+fields. It copies no source values.39 targeted tests pass, including exact field
+order, saved subsequent edits and refusal without mutation. Apply002 repeats the
+SAME complete candidate;001 remains retained.
+
+A separate source-derived preflight predicted that native early mute shortening
+would cut176 sounding roots before358 tied destinations and8 legato targets.
+Actual exported playback confirmed that failure; its receipt and snapshot remain
+retained. The integrated, hash-bound preview policy now preserves continuous
+gesture timing and applies shortening at the final release; isolated mute stays
+native. Corrected complete native verification passes. Mixed/ambiguous gestures,
+runtime swing and unresolved bend/release interactions refuse explicitly. Ordinary
+loading without a policy receipt is unchanged. This proves paired-preview timing,
+not realistic muted timbre or standalone GP playback fidelity.
+
+Tempo is the next independent control group: one116-BPM global region has6 aliases.
+The existing speed equation admits intentional relative pace choices without
+new source votes or rewritten note durations. Ratios3/2 and3/4 occur in source
+rhythm, but174/87BPM are derived intentions, not observed/preferred performances.
+The generic final-output quota adapter and existing clock tests pass14 checks.
+Whole saved expression+tempo integration and denied inverse now PASS (111.312s).
+Actual174BPM playback passes an independent source-duration oracle and complete
+MIDI comparison against changing only tempo (8.25s):444 written quarters remain,
+elapsed time changes6660/29 to4440/29 seconds,3221 release caps recompute correctly,
+and all358 ties/8 legato connections survive. With one region,50 rounds up to one
+changed region; it does not mean half speed. ALL30, the eight expression unknowns
+and fresh creative QA stay open. Offline audio is being queued, never played.
+
+Release evidence: clean HEAD58a3bab plus10 public Python overlays,114 tests PASS
+(104.211s), unchanged frozen hashes;45 unique native policy/loader/bend tests PASS.
+Private receipts:cloud-joint-expression-release-002/result.json;
+cloud-all-output-2026-11-03/joint-expression-apply-002/verification/result.json;
+native-002/result-source-beat-scope.json (retained continuity failure) and
+native-002/result-continuous-policy.json (corrected preview);
+joint-tempo-apply-001/verification/result.json and native/result.json.
+CandidateSHA:ed3ec6c4282d0d205aba029993b58017914fe1eefb5ddc67aebb15bf1dbb6ae9.
+TempoGP SHA:713fd8c5be425b74415d73936545b358233f5a26f8ac02c70c429c6e8eb9efb9.
+Three earlier verification-interface failures remain recorded: missing compile
+metadata, an inherited beat dynamic comparison, and silent-rest native defaults.
+These are verifier repairs, not musical findings. No failure was overwritten.
+
+### Completed pitch increment details
+
 Candidate007 reaches3905/3905 original pitched attacks changed in pitch class
 AND octave,1955/1955 frozen signed steps changed, and1674/1674 declared
 bass-relative voicing intervals changed. These feature sets are distinct; this
@@ -75,7 +157,7 @@ dead-note contacts remain unchanged and all four bend excursions remain unchange
   retained fresh-song creative failure or establish learned musical preference.
 - [x] Planner end review accepts the whole-song unlock and rejects ALL30 closure;
   joint expression is next on the same composition, with no baseline reset.
-- [ ] Publish this increment and verify its exact-commit CI.
+- [x] Published58a3bab; exact-commit CI41816582336SUCCESS.
 
 Private evidence:cloud-all-output-2026-11-03/joint-pitch-select-007/result.json,
 verification/result.json and native/result.json; clean verification receipt:
@@ -87,8 +169,8 @@ Repeatable private commands:verify_joint_pitch.py --run .../joint-pitch-select-0
 --domains .../joint-pitch-domains-004.json; verify_joint_native.py --run
 .../joint-pitch-select-007. Both use the repository .venv Python.
 
-The prior joint-selector increment0478bcd is published; CI41813727787 was still
-running at this check. The next code change is joint final expression selection,
+The prior joint-selector increment0478bcd is published; CI41813727787SUCCESS.
+The current code change is joint final expression selection,
 not another pitch demonstration. A uniform level shift retaining every adjacent
 difference, or a level/accent cancellation, must fail its respective target.
 

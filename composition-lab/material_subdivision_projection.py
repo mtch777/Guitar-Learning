@@ -181,7 +181,14 @@ def project(t2, plans):
                 value=deepcopy(group)
                 if base in beats:value[field]=_shape_row(shape,target)
                 if field=='beat_structure' and base in beats and target!=beats[base][0]:
-                    value[field]['children']=[c for c in value[field]['children'] if c[len(target):].split('/')[1] not in ('text','chord')]
+                    siblings=value[field]['children']
+                    retained=[c for c in siblings if c[len(target):].split('/')[1] not in ('text','chord')]
+                    if value['state']['kind']=='explicit':
+                        index=value['state']['child_index']
+                        if type(index)is not int or not 0<=index<=len(siblings):
+                            raise ValueError('Invalid original optional insertion position')
+                        value['state']['child_index']=sum(c in retained for c in siblings[:index])
+                    value[field]['children']=retained
                 value['id']=prefix+value[field]['id'];groups.append(value)
         model['groups']=sorted(groups,key=lambda g:g['id'])
     dynamic=source['owned_parameters'].get('observed_dynamics')
