@@ -4,6 +4,7 @@ from itertools import product
 import json
 import random
 import unittest
+from importlib.util import find_spec
 
 from joint_pitch_choices import solve
 
@@ -17,6 +18,48 @@ def step(left, right, baseline, change=True, **fields):
 
 
 class JointPitchChoiceTests(unittest.TestCase):
+    @unittest.skipUnless(find_spec('scipy'), 'Optional exact-output quota backend requires SciPy')
+    def test_output_quota_coordinates_independent_components_and_retains_input(self):
+        options={f'n{i}':[c(60+i,i),c(73+i,i,13)] for i in range(4)}
+        before=deepcopy(options)
+        targets={
+            'pc':dict(kind='pitch_class',percent=50,units={f'n{i}':i for i in range(4)}),
+            'register':dict(kind='octave',percent=50,units={f'n{i}':4 for i in range(4)}),
+            'position':dict(kind='contact',percent=50,units={f'n{i}':[i,0] for i in range(4)})}
+        result=solve(options,output_targets=targets)
+        self.assertEqual(result['status'],'FEASIBLE')
+        self.assertEqual(options,before)
+        self.assertTrue(all(r['changed_count']==2 for r in result['output_features'].values()))
+
+    @unittest.skipUnless(find_spec('scipy'), 'Optional exact-output quota backend requires SciPy')
+    def test_output_quota_recounts_edges_and_preserves_physical_gesture_constraints(self):
+        options={'a':[c(60,0,0),c(72,1,2)],'b':[c(62,0,2),c(74,1,4)],
+                 'c':[c(64,2,4),c(77,2,17)]}
+        targets={'movement':dict(kind='step',percent=50,units={
+            'ab':dict(from_ref='a',to_ref='b',baseline_step=2),
+            'bc':dict(from_ref='b',to_ref='c',baseline_step=2)}),
+            'register':dict(kind='octave',percent=50,units={'a':4,'b':4,'c':4})}
+        result=solve(options,output_targets=targets,same_string_groups=[['a','b']],
+                     simultaneous_groups=[['b','c']],
+                     fret_directions=[dict(from_ref='a',to_ref='b',direction='ascending')])
+        self.assertEqual(result['status'],'FEASIBLE')
+        self.assertEqual(result['assignment']['a']['string'],result['assignment']['b']['string'])
+        self.assertEqual(result['output_features']['movement']['changed_count'],1)
+        self.assertEqual(result['output_features']['register']['changed_count'],2)
+
+    @unittest.skipUnless(find_spec('scipy'), 'Optional exact-output quota backend requires SciPy')
+    def test_impossible_global_output_quota_is_atomic(self):
+        options={'a':[c(60),c(72)],'b':[c(62),c(74)]}
+        before=deepcopy(options)
+        # A fixed interval requires both octave changes together. One out of
+        # two changed octaves is impossible even though each domain permits it.
+        result=solve(options,step_constraints=[step('a','b',2,False)],
+                     output_targets={'register':dict(kind='octave',percent=50,units={'a':4,'b':4})})
+        self.assertEqual(result['status'],'INFEASIBLE')
+        self.assertIsNone(result['assignment'])
+        self.assertTrue(result['exhaustive_contradiction'])
+        self.assertEqual(options,before)
+
     def test_individually_valid_contacts_can_be_jointly_impossible(self):
         options = {'held': [c(36, 5, 2)], 'fresh': [c(34, 5, 0)]}
         result = solve(options, simultaneous_groups=[['held', 'fresh']])

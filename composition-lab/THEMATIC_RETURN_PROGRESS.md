@@ -2,6 +2,31 @@
 
 ## ONE current assignment — full request remains open
 
+### Current listening revision — 2026-11-04
+
+User rejected the measured whole-Cloud rewrite: "wow, that sounds awful" and
+requested **50% for everything**. Preserve the rejected version and its receipts.
+This new request starts from untouched Songsterr, not the previously edited
+request baseline. Root owns integration; Planner challenges count versus magnitude,
+dependencies and remaining unsupported controls. QA remains silent.
+
+- [ ] Prepare the same complete ownership scope from untouched source; exact zero
+  must recover every source fact. No masking half the final raw notes.
+- [ ] Run existing relationships with actual-output50 targets (half-up integer
+  rounding), coordinating shared pitch/interval/voicing, timing and expression
+  choices. Freeze denominators first; report incompatible/missing targets rather
+  than claiming all controls succeeded. Root integrates pitch and time/expression.
+- [ ] Verify saved composed reversal, original evidence and retained dependencies;
+  measure final changes against untouched source. Retained fresh-source failures
+  remain open. Do not repeat a corpus campaign for this listening revision.
+- [ ] Render only the new verified candidate, with unchanged source soundfont/gain;
+  reuse untouched audio and existing5280 page. Show original,50-request result and
+  retained100-request result, exact descriptions and changed-note colors.
+- [ ] Present audio promptly and retain the user's musical judgment separately
+  from structural/technical checks. The complete all-control obligation remains open.
+
+Private evidence: `local-artifacts/cloud-half-output-2026-11-04/`.
+
 Latest user-requested measurement audit: freeze current code and measure ALL
 registered output features on final Cloud. The dispatcher still lacks an all30
 transaction, so replaying saved combined choices is labeled as such. Compare both

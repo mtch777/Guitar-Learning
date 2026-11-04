@@ -15,6 +15,11 @@ instruction dependencies. This plan contains the governing requirements and gate
 
 **Active obligation:** finish the Cloud Cascade whole-song request and resolve
 overlap across ALL registered controls, with actual-output 0/50/100 behavior.
+Latest listening request,2026-11-04: the user rejected the measured100-request
+audio and asked for **50% for everything**. Prepare that revision from untouched
+Cloud, preserve the rejected audio, and measure final output rather than reducing
+playback speed or masking raw notes. The all-control requirements remain owed;
+partial50 feature success must not be labeled all-control completion.
 The movement/register/rhythm increment is a prerequisite and an early listening
 checkpoint, not a replacement objective or completion of this request. The active
 checklist names the remaining control groups and accountable owners. Distinguish

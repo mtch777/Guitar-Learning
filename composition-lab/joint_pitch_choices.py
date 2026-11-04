@@ -178,7 +178,8 @@ def _search(component, choices, domains, pairs, neighbors, order, budget):
 
 
 def solve(options, *, simultaneous_groups=(), same_string_groups=(), fret_directions=(),
-          step_constraints=(), fixed=None, max_nodes=100000):
+          step_constraints=(), fixed=None, max_nodes=100000, output_targets=None,
+          max_seconds=60):
     """Return FEASIBLE, INFEASIBLE, or SEARCH_BUDGET_EXHAUSTED atomically.
 
     ``options`` maps stable chain IDs to ordered {pitch, string, fret} lists.
@@ -199,6 +200,9 @@ def solve(options, *, simultaneous_groups=(), same_string_groups=(), fret_direct
     """
     choices, domains, pairs, neighbors = _input(
         options, simultaneous_groups, same_string_groups, fret_directions, step_constraints, fixed, max_nodes)
+    if output_targets is not None:
+        return _solve_output_targets(options, choices, domains, pairs, output_targets,
+                                     max_nodes=max_nodes, max_seconds=max_seconds)
     order = {ref: i for i, ref in enumerate(choices)}
     components = _components(neighbors, order)
     assignment = {}; counts = []; examined = 0; status = 'FEASIBLE'
@@ -218,3 +222,169 @@ def solve(options, *, simultaneous_groups=(), same_string_groups=(), fret_direct
         decision_complete=status != 'SEARCH_BUDGET_EXHAUSTED',
         exhaustive_contradiction=status == 'INFEASIBLE',
         selection='First feasible caller-ordered choices with fewest-remaining-options search; not musical preference or rank optimum')
+
+
+def _solve_output_targets(options, choices, domains, pairs, targets, *, max_nodes, max_seconds):
+    """Coordinate final-output counts across components without defining music.
+
+    Each target has ``kind``, ``percent`` and ``units``. Unary kinds are
+    pitch_class, octave and contact; units map existing variables to original
+    values (contact is [string, fret]). Step units map stable metric IDs to
+    {from_ref, to_ref, baseline_step}. Separate named step targets can measure
+    melodic movement and chord spacing without conflating their denominators.
+
+    Candidate admission and ordering remain the caller's responsibility. This
+    optional finite constraint backend never creates a pitch or musical rule.
+    It returns no partial assignment on missing dependency, budget or failure.
+    """
+    from output_change_targets import target_count
+    if (type(targets) is not dict or not targets or type(max_seconds) not in (int, float)
+            or isinstance(max_seconds, bool) or max_seconds <= 0):
+        raise ValueError('Explicit final-output targets and positive time budget required')
+    prepared = {}
+    for name, target in targets.items():
+        if (type(name) is not str or not name or type(target) is not dict
+                or set(target) != {'kind', 'percent', 'units'}
+                or target['kind'] not in ('pitch_class', 'octave', 'contact', 'step')
+                or type(target['units']) is not dict or not target['units']):
+            raise ValueError('Closed named final-output feature and nonempty frozen units required')
+        count = target_count(len(target['units']), target['percent'])
+        for ref, baseline in target['units'].items():
+            if type(ref) is not str or not ref:
+                raise ValueError('Stable output unit identity required')
+            if target['kind'] == 'step':
+                if (type(baseline) is not dict or set(baseline) != {'from_ref', 'to_ref', 'baseline_step'}
+                        or type(baseline['baseline_step']) is not int
+                        or any(baseline[k] not in choices for k in ('from_ref', 'to_ref'))
+                        or any(c[0] is None for k in ('from_ref', 'to_ref') for c in choices[baseline[k]])):
+                    raise ValueError('Known original signed step between existing pitched variables required')
+            elif ref not in choices:
+                raise ValueError('Output quota references an absent variable')
+            elif target['kind'] == 'contact':
+                if (type(baseline) not in (list, tuple) or len(baseline) != 2
+                        or type(baseline[0]) is not int
+                        or baseline[1] is not None and type(baseline[1]) is not int):
+                    raise ValueError('Original physical contact required')
+            elif (type(baseline) is not int or any(c[0] is None for c in choices[ref])
+                    or target['kind'] == 'pitch_class' and not 0 <= baseline < 12):
+                raise ValueError('Known original pitch-class/octave required')
+        prepared[name] = dict(target, target_count=count)
+    common = dict(assignment=None, max_nodes=max_nodes, output_features={},
+                  selection='Finite caller-admitted choices coordinated by final-output quotas; no musical preference claim')
+    if any(not domain for domain in domains.values()):
+        return dict(common, status='INFEASIBLE', exhaustive_contradiction=True, decision_complete=True)
+    try:
+        import numpy as np
+        from scipy.optimize import milp, Bounds, LinearConstraint
+        from scipy.sparse import coo_matrix
+    except ImportError as error:
+        return dict(common, status='DEPENDENCY_UNAVAILABLE', exhaustive_contradiction=False,
+                    decision_complete=False, error=str(error))
+    costs = []; lower = []; upper = []; rows = []; lo = []; hi = []
+    def variable(cost=0, low=0, high=1):
+        index=len(costs); costs.append(cost); lower.append(low); upper.append(high); return index
+    def constraint(values, low=-np.inf, high=np.inf):
+        rows.append({i:v for i,v in values.items() if v}); lo.append(low); hi.append(high)
+    def plus(*items):
+        result=defaultdict(float)
+        for values, scale in items:
+            for i,value in values.items(): result[i] += scale*value
+        return dict(result)
+    selected={}; values={}
+    for ref, domain in domains.items():
+        selected[ref]={index:variable(index/max(1,len(choices[ref]))) for index in domain}
+        constraint({index:1 for index in selected[ref].values()},1,1)
+        values[ref]=[{selected[ref][index]:choices[ref][index][column] for index in domain
+                      if choices[ref][index][column] is not None} for column in range(3)]
+    step_flags={}
+    def changed_step(left,right,baseline):
+        key=(left,right,baseline)
+        if key in step_flags:return step_flags[key]
+        # q+ / q- distinguish positive / negative deviations; both zero means
+        # exact equality. Their sum is the observable changed-step indicator.
+        pos=variable(); neg=variable(); flags={pos:1,neg:1}
+        constraint(flags,high=1)
+        delta=plus((values[right][0],1),(values[left][0],-1))
+        left_p=[choices[left][i][0] for i in domains[left]]
+        right_p=[choices[right][i][0] for i in domains[right]]
+        bound=max(abs(min(right_p)-max(left_p)-baseline),
+                  abs(max(right_p)-min(left_p)-baseline),1)
+        constraint(plus((delta,1),({pos:-1,neg:bound},1)),low=baseline)
+        constraint(plus((delta,1),({pos:-bound,neg:1},1)),high=baseline)
+        step_flags[key]=flags;return flags
+    for (left,right), clauses in pairs.items():
+        for clause in clauses:
+            if clause[0] in ('same_string','distinct_string'):
+                delta=plus((values[right][1],1),(values[left][1],-1))
+                if clause[0]=='same_string':constraint(delta,0,0)
+                else:
+                    order=variable()
+                    bound=max(c[1] for c in choices[left]+choices[right])+1
+                    constraint(plus((delta,1),({order:-bound},1)),1-bound,-1)
+            elif clause[0]=='fret_direction':
+                _, source,destination,direction=clause
+                delta=plus((values[destination][2],1),(values[source][2],-1))
+                constraint(delta,low=1) if direction=='ascending' else constraint(delta,high=-1)
+            else:
+                _, source,destination,baseline,change,intention=clause
+                flags=changed_step(source,destination,baseline)
+                constraint(flags,int(change),int(change))
+                if intention=='opposite_direction':
+                    delta=plus((values[destination][0],1),(values[source][0],-1))
+                    constraint(delta,high=-1) if baseline>0 else constraint(delta,low=1)
+    for name,target in prepared.items():
+        count_terms={}
+        for ref,baseline in target['units'].items():
+            if target['kind']=='step':
+                terms=changed_step(baseline['from_ref'],baseline['to_ref'],baseline['baseline_step'])
+            else:
+                terms={}
+                for index,var in selected[ref].items():
+                    c=choices[ref][index]
+                    value=(c[0]%12 if target['kind']=='pitch_class' else
+                           c[0]//12-1 if target['kind']=='octave' else list(c[1:]))
+                    if value != (list(baseline) if target['kind']=='contact' else baseline):terms[var]=1
+            count_terms=plus((count_terms,1),(terms,1))
+        constraint(count_terms,target['target_count'],target['target_count'])
+    rr=[];cc=[];dd=[]
+    for r,row in enumerate(rows):
+        for c,value in row.items():rr.append(r);cc.append(c);dd.append(value)
+    matrix=coo_matrix((dd,(rr,cc)),shape=(len(rows),len(costs))).tocsc()
+    result=milp(np.array(costs),integrality=np.ones(len(costs)),bounds=Bounds(lower,upper),
+                constraints=LinearConstraint(matrix,lo,hi),
+                options={'node_limit':max_nodes,'time_limit':float(max_seconds),'mip_rel_gap':1.0})
+    common.update(examined_choices=int(getattr(result,'mip_node_count',0) or 0),
+                  solver_status=int(result.status),solver_message=str(result.message))
+    if result.x is None:
+        status=('INFEASIBLE' if result.status==2 else
+                'SEARCH_BUDGET_EXHAUSTED' if result.status==1 else 'SOLVER_FAILURE')
+        return dict(common,status=status,exhaustive_contradiction=status=='INFEASIBLE',
+                    decision_complete=status=='INFEASIBLE')
+    assignment={}
+    for ref, indices in selected.items():
+        chosen=[i for i,var in indices.items() if result.x[var]>.5]
+        if len(chosen)!=1:raise ValueError('Quota backend returned a nonintegral choice')
+        assignment[ref]=deepcopy(options[ref][chosen[0]])
+    # Independently reuse the original exact predicates and count realized
+    # values. Solver tolerances cannot silently weaken the musical contract.
+    for (left,right),clauses in pairs.items():
+        if not _compatible(left,_candidate(assignment[left]),right,_candidate(assignment[right]),clauses):
+            raise ValueError('Quota assignment violates an original relationship constraint')
+    actual={}
+    for name,target in prepared.items():
+        changed=[]
+        for ref,baseline in target['units'].items():
+            if target['kind']=='step':
+                value=assignment[baseline['to_ref']]['pitch']-assignment[baseline['from_ref']]['pitch']
+                original=baseline['baseline_step']
+            else:
+                c=assignment[ref]
+                value=(c['pitch']%12 if target['kind']=='pitch_class' else
+                       c['pitch']//12-1 if target['kind']=='octave' else [c['string'],c['fret']])
+                original=list(baseline) if target['kind']=='contact' else baseline
+            if value!=original:changed.append(ref)
+        if len(changed)!=target['target_count']:raise ValueError('Final quota assignment failed exact output count')
+        actual[name]=dict(changed_count=len(changed),total_count=len(target['units']),
+                          target_count=target['target_count'],changed_ids=changed)
+    return dict(common,status='FEASIBLE',assignment=assignment,output_features=actual,
+                exhaustive_contradiction=False,decision_complete=True)
