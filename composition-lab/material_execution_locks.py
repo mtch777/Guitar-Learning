@@ -73,8 +73,19 @@ def _touched(row):
     return refs
 
 
-def _context(tier1,observed,owned_refs,identity_map,fact_identity_map,origin_q):
-    data=execution._snapshot(execution.encoded(tier1));nodes=data['nodes']
+def _context(tier1,observed,owned_refs,identity_map,fact_identity_map,origin_q,derived_sustains=None):
+    if derived_sustains is None:data=execution._snapshot(execution.encoded(tier1))
+    else:
+        from derived_sustain_projection import validate_projection
+        data=validate_projection(tier1,derived_sustains)
+    nodes=data['nodes'];reduced=set(data.get('derived_sustain_refs',[]))
+    if reduced:
+        if type(owned_refs)is not list or len(set(owned_refs))!=len(owned_refs):
+            raise ValueError('Unique current owned execution occurrences required')
+        owned_refs=[ref for ref in owned_refs if ref not in reduced]
+        if identity_map is not None:
+            if type(identity_map)is not dict:raise ValueError('Explicit current-to-stable identity maps required')
+            identity_map={ref:stable for ref,stable in identity_map.items()if ref not in reduced}
     if type(owned_refs)is not list or len(set(owned_refs))!=len(owned_refs)or set(owned_refs)-set(nodes):
         raise ValueError('Unique current owned execution occurrences required')
     if type(observed)is not list:raise ValueError('Explicit observed execution records required')
@@ -332,7 +343,7 @@ def upgrade_clock_choices(successor_guard,tier1,observed_execution,owned_refs,*,
     return out
 
 
-def choice_scope(guard,tier1,observed_execution,owned_refs,*,identity_map=None,fact_identity_map=None,origin_q='0'):
+def choice_scope(guard,tier1,observed_execution,owned_refs,*,identity_map=None,fact_identity_map=None,origin_q='0',derived_sustains=None):
     """Validate and distinguish numeric choice permission from protected context.
 
     String and successor membership stay protected even for numerically
@@ -354,7 +365,7 @@ def choice_scope(guard,tier1,observed_execution,owned_refs,*,identity_map=None,f
     if clock_upgraded and (not _digest(guard['successor_guard_sha256'])or
                            _hash(_successor_guard(guard))!=guard['successor_guard_sha256']):
         raise ValueError('Immutable successor execution commitment changed')
-    data,records,identities,inverse,origin=_context(tier1,observed_execution,owned_refs,identity_map,fact_identity_map,origin_q)
+    data,records,identities,inverse,origin=_context(tier1,observed_execution,owned_refs,identity_map,fact_identity_map,origin_q,derived_sustains)
     locked=set();strict=set();flexible=set();seen=set();released=0
     for lock in guard['locks']:
         if type(lock)is not dict or 'record_identity'not in lock:
@@ -394,12 +405,12 @@ def choice_scope(guard,tier1,observed_execution,owned_refs,*,identity_map=None,f
     return result
 
 
-def validate(guard,tier1,observed_execution,owned_refs,*,identity_map=None,fact_identity_map=None,origin_q='0'):
+def validate(guard,tier1,observed_execution,owned_refs,*,identity_map=None,fact_identity_map=None,origin_q='0',derived_sustains=None):
     """Keep the existing return contract: all protected-context occurrences."""
     return choice_scope(guard,tier1,observed_execution,owned_refs,identity_map=identity_map,
-        fact_identity_map=fact_identity_map,origin_q=origin_q)['covered_refs']
+        fact_identity_map=fact_identity_map,origin_q=origin_q,derived_sustains=derived_sustains)['covered_refs']
 
 
-def pitch_flexible_refs(guard,tier1,observed_execution,owned_refs,*,identity_map=None,fact_identity_map=None,origin_q='0'):
+def pitch_flexible_refs(guard,tier1,observed_execution,owned_refs,*,identity_map=None,fact_identity_map=None,origin_q='0',derived_sustains=None):
     return choice_scope(guard,tier1,observed_execution,owned_refs,identity_map=identity_map,
-        fact_identity_map=fact_identity_map,origin_q=origin_q)['pitch_flexible_refs']
+        fact_identity_map=fact_identity_map,origin_q=origin_q,derived_sustains=derived_sustains)['pitch_flexible_refs']

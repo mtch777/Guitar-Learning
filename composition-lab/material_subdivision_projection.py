@@ -50,10 +50,20 @@ def project(t2, plans):
     References to UNSPLIT occurrences move with their identity.
     """
     from material_subdivision import plan_maps
-    import written_tie_pitch_ownership as tie_owner
     maps = plan_maps(plans)
+    if not any(len(v)>1 for v in maps['beats'].values()):return deepcopy(t2)
+    return material.restore_fragments(_project_owners(t2, maps), [])
+
+
+def _project_owners(t2, maps, *, update_clock=False):
+    """Internal typed projection shared by reattacks and entry-rest insertion.
+
+    Callers validate their own closed relationship/maps and complete generated
+    membership before restoring the grammar. This transient result is not an
+    independently valid score or a new stored lower-tier payload.
+    """
+    import written_tie_pitch_ownership as tie_owner
     beats, events, spans = maps['beats'], maps['events'], maps['spans']
-    if not any(len(v)>1 for v in beats.values()):return deepcopy(t2)
     source = deepcopy(t2); out = deepcopy(t2)
     def beat_of(ref):
         match = BEAT.fullmatch(ref)
@@ -193,9 +203,10 @@ def project(t2, plans):
         model['groups']=sorted(groups,key=lambda g:g['id'])
     dynamic=source['owned_parameters'].get('observed_dynamics')
     if dynamic is not None:
-        from observed_dynamics import project as project_dynamics
-        fact_map={r['fact_ref']:[fact(r['fact_ref'],i) for i in range(len(beats.get(beat_of(r['fact_ref']),[None])))]
-                  for r in dynamic['current'] if beat_of(r['fact_ref']) in beats}
+        from observed_dynamics import project as project_dynamics, _projection as dynamic_projection
+        current_refs={ref for targets in dynamic_projection(dynamic)['fact_map'].values() for ref in targets}
+        fact_map={ref:[fact(ref,i) for i in range(len(beats.get(beat_of(ref),[None])))]
+                  for ref in current_refs if beat_of(ref) in beats}
         out['owned_parameters']['observed_dynamics']=project_dynamics(dynamic,fact_map,events)
     expression=source['owned_parameters'].get('observed_expression')
     if expression is not None:
@@ -213,9 +224,9 @@ def project(t2, plans):
             for member in value['members']:
                 old=member['id']; member['id']=event(old,child)
                 _,_,_,_,member['beat'],_=map(int,member['id'].split(':')[1:])
-                if count>1:
+                if count>1 or update_clock and old in spans:
                     member['duration_q']=spans[old][child]['duration_q']
-            if count>1:value['onset_q']=spans[first][child]['onset_q']
+            if count>1 or update_clock and first in spans:value['onset_q']=spans[first][child]['onset_q']
             value['id']=group['id']+':subdivision:'+str(child);new_groups.append(value)
     new_groups.sort(key=lambda g:(F(g['onset_q']),g['bar'],g['part_id']))
     for i,g in enumerate(new_groups):g['id']='coattack:'+str(i)
@@ -231,4 +242,4 @@ def project(t2, plans):
             if k in body:body[k]=refreshed[k]
     # Grammar-derived order is required; preserve graces after regular events.
     # No re-analysis, source reads or evidence repair occurs here.
-    return material.restore_fragments(out,[])
+    return out

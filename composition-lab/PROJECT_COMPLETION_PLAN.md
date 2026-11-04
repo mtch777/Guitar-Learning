@@ -39,10 +39,17 @@ the original guard commitments and unknown acoustic endpoints. A clean published
 HEAD snapshot plus this change passed35 guard/integration tests. The working
 shared-clock implementation now passes a complete denied-source inverse for four
 previously blocked held/fresh boundaries, with all unrequested score fields exact.
-Whole-song rhythm is NOT accepted: its first candidate breaks12 pull-off links and
-16 let-ring written-continuity links. One derived sustain-prefix relationship is
-being integrated to address both; no guard is weakened to admit those gaps. All
-controls, complete denominators and the retained fresh-source failure remain open.
+Whole-song rhythm is NOT yet accepted. Its first candidate broke12 pull-off links
+and16 let-ring written-continuity links. The shared continuation now preserves all
+335 guards and passes complete source-denied reconstruction, with40 derived ties
+and zero added attacks. The first independent comparison failed on generated
+container ordering; the versioned correction passes against the same audited
+output, with the failure retained. Actual measurement then caught five unchanged
+complete holds. Whole003 resolves those five through all40 final endpoint
+constraints; final production/native verification is running. The native export
+also exposed a128th-note import defect; its narrowly scoped repair preserves the
+duration guard. All controls, complete denominators and retained QA1 failure stay
+open. These are separate reconstruction, output-change and playback obligations.
 
 Current implementation evidence: the new degree-path relation achieves20/20
 signed steps and38/38 final octaves in the first frozen Cloud scope; same-span

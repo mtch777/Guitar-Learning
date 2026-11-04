@@ -117,6 +117,44 @@ fresh-source creative QA remain open; this delivery does not replace that reques
 The guard change is an independently releasable prerequisite. The working joint
 clock/carry code is not represented as published or complete by that release.
 
+Subsequent actual integration evidence (same day, still OPEN): the guard increment
+is published as `51e209b`; CI is tracked separately. The full77-use/666-lane
+operation applies, retaining530 subdivisions. It creates40 dependent written
+continuations and zero attacks. Independent validation of its actual worker output
+passes all335 execution guards across15 materials. The first complete comparison
+fails on generated container order and34 derived-dot containers; the original
+failure is retained. A versioned independent oracle correction derives generated
+container ordering from the declared grammar and original ownership, without
+using the reconstructed values. It now matches the SAME audited worker output
+exactly (semantic digest e9859576b165c324270705d883904f081c97af5002ab09a01d99ac0ce347c296).
+`whole-clock-apply-001/verification/result-reconciled.json` records this QA2 pass;
+the original failed receipt is unchanged. Successful execution alone was not
+accepted as reconstruction evidence.
+
+Final output measurement also catches a genuine combined-control cancellation:
+4992/4992 onsets and3205/3205 gaps change, but complete held durations change only
+4987/4992 after the new continuations. Five holds return to their original lengths.
+The next selection accounts for EVERY continuation's final endpoint before
+choosing clocks, rather than patching those five notes or counting changed first
+fragments. Whole003 retains the same population, request and original denominator.
+Its independent arithmetic check reaches4992/4992 onsets AND complete holds,
+3205/3205 gaps,358 original ties and40 continuation obligations. Four lane choices
+change. This is a finite witness; the complete production/inverse retry is pending.
+The first silent native attempt separately refuses a percussion duration mismatch
+during conversion; no audio is approved from that attempt. The diagnosed boundary
+is alphaTab's GP5 import of128th notes as quarters, despite the source and bridge
+model agreeing. Twelve authored GP7 cases preserve128ths exactly. The bounded
+repair authenticates the known import loss before percussion validation; it does
+not relax duration equality, round timing or exclude affected notes.
+
+Parallel bend preflight finds usable1→2-semitone excursions for all four untied
+gestures, jointly with degree choices and retained in-key landings. All existing
+pitch/octave/step/voicing targets survive that finite test. An intermediate arrival
+is not a user lock. The reusable normalized-curve owner is implemented with45
+affected tests passing; integration and native/audible checks are still pending.
+Physical bend force remains unknown. This does not reopen the closed tied-bend
+example or replace the whole request with a bend demonstration.
+
 ### Verified whole-song pitch targets — 2026-11-04
 
 ### Current expression integration — whole Cloud request remains active

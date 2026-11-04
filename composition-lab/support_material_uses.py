@@ -22,7 +22,7 @@ RHYTHM_SCHEMA='source-musical-material-uses/3'
 
 def unallocated_fields(use):
     """A section owns allocation, while local use timing remains independent."""
-    return {'id','slot_ref'} | ({'rhythm_offset_q', 'degree_steps', 'degree_octaves', 'degree_strings', 'degree_member_steps', 'contact_strings', 'subdivision_factors'} & set(use))
+    return {'id','slot_ref'} | ({'rhythm_offset_q', 'rhythm_lane_shares', 'entry_shares', 'degree_steps', 'degree_octaves', 'degree_strings', 'degree_member_steps', 'contact_strings', 'subdivision_factors'} & set(use))
 
 
 def _shape(upper):
@@ -50,6 +50,18 @@ def _shape(upper):
             fields.add('rhythm_offset_q')
             value=use['rhythm_offset_q']
             if type(value)is not str or str(F(value))!=value:raise ValueError('Canonical common rhythmic displacement required')
+        if type(use)is dict and 'rhythm_lane_shares'in use:
+            fields.add('rhythm_lane_shares')
+            if type(use['rhythm_lane_shares'])is not dict:
+                raise ValueError('Explicit lane proportions required')
+            if 'rhythm_offset_q'in use:
+                raise ValueError('Two active material clock authorities are forbidden')
+        if type(use)is dict and 'entry_shares'in use:
+            fields.add('entry_shares')
+            if (upper['schema']!=DIRECT_SCHEMA or type(use['entry_shares'])is not dict
+                    or 'rhythm_lane_shares'not in use
+                    or set(use['entry_shares'])!=set(use['rhythm_lane_shares'])):
+                raise ValueError('Joint entry/content clock requires complete matching lane owners')
         if type(use)is dict and any(k in use for k in ('degree_steps', 'degree_octaves', 'degree_strings')):
             fields.update(('degree_steps', 'degree_octaves', 'degree_strings'))
         if type(use)is dict and 'degree_member_steps'in use:fields.add('degree_member_steps')
@@ -151,6 +163,30 @@ def _dynamic(fragment,part,level):
     fragment['coverage'].append(dict(fact_ref=ref,owner='technique_declaration'))
 
 
+def resolved_definition(definition,use,*,parent=None):
+    """Resolve current choices through one clock owner before placement."""
+    from material_approaches import SCHEMA as approach_schema, expand as expand_approach
+    solved=expand_approach(definition,use['approach_mode'])if definition['schema']==approach_schema else definition
+    from material_degree_paths import SCHEMA as degree_schema, expand as expand_degrees
+    if definition['schema']==degree_schema:
+        solved=expand_degrees(definition,use['degree_steps'],use['degree_octaves'],use.get('degree_member_steps'))
+    if 'rhythm_offset_q'in use and 'rhythm_lane_shares'in use:
+        raise ValueError('Two active material clock authorities are forbidden')
+    if 'entry_shares'in use:
+        # Entry and content proportions must solve notation together. Their
+        # normalized full-bar intermediate need not itself be notatable.
+        return solved
+    if 'rhythm_offset_q'in use or 'rhythm_lane_shares'in use:
+        if parent is not None:solved=material.rhythm_context(solved,parent)
+        if 'rhythm_lane_shares'in use:
+            from material_slot_clock import solve
+            solved,_=solve(solved,use['rhythm_lane_shares'])
+        else:
+            from material_rhythm_displacement import solve
+            solved,_=solve(solved,use['rhythm_offset_q'])
+    return solved
+
+
 def place(definition,slot,use,*,parent=None):
     """Resolve one distinct use. The immutable definition is never rewritten."""
     if definition.get('external_pitch_refs') and definition['scope']!=slot['scope']:
@@ -164,15 +200,8 @@ def place(definition,slot,use,*,parent=None):
         if definition['scope']!=slot['scope'] and any(material._owns(row['id'],scope)for row in foreign
                for scope in (definition['scope'],slot['scope'])):
             raise ValueError('Material relocation would readdress existing expression owners')
-    from material_approaches import SCHEMA as approach_schema, expand as expand_approach
-    solved=expand_approach(definition,use['approach_mode'])if definition['schema']==approach_schema else definition
-    from material_degree_paths import SCHEMA as degree_schema, expand as expand_degrees
-    if definition['schema'] == degree_schema:
-        solved = expand_degrees(definition, use['degree_steps'], use['degree_octaves'],use.get('degree_member_steps'))
-    if 'rhythm_offset_q' in use:
-        from material_rhythm_displacement import solve
-        if parent is not None:solved=material.rhythm_context(solved,parent)
-        solved,_=solve(solved,use['rhythm_offset_q'])
+    from material_degree_paths import SCHEMA as degree_schema
+    solved=resolved_definition(definition,use,parent=parent)
     source=material.expand(solved);fact,event,delta=_maps(definition,slot)
     if definition['schema'] == degree_schema:
         _degree_strings(source, definition, use['degree_strings'])
@@ -243,9 +272,11 @@ def from_tier2(t2,specifications):
     return out
 
 
-def realize_pair(upper):
+def realize_pair(upper, *, with_projection=False):
     """Return the restored parent (T2 or legacy cell T3), T1 and identities."""
     _shape(upper);pieces=[];contracts=[];ledger=[]
+    joint_entry=any('entry_shares'in use for use in upper['uses'])
+    projection=dict(beats={},events={},spans={})
     for use in upper['uses']:
         piece,records,identities=place(upper['materials'][use['material_ref']],upper['slots'][use['slot_ref']],use,
                                      parent=upper['lower_tier'])
@@ -258,12 +289,12 @@ def realize_pair(upper):
         from melodic_movement_ownership import SLOT,_shape as movement_shape,retime_from_parent
         if SLOT in restored['owned_parameters']:
             _,refs,references=movement_shape(restored)
-            moved=[u for u in upper['uses'] if F(u.get('rhythm_offset_q','0'))!=0]
+            moved=[u for u in upper['uses'] if F(u.get('rhythm_offset_q','0'))!=0 or u.get('rhythm_lane_shares')]
             permitted=[r for r in refs+references if any(material._event(r,upper['slots'][u['slot_ref']]['scope']) for u in moved)]
             if permitted:
                 original_pieces=[]
                 for use in upper['uses']:
-                    base=deepcopy(use);base.pop('rhythm_offset_q',None)
+                    base=deepcopy(use);base.pop('rhythm_offset_q',None);base.pop('rhythm_lane_shares',None)
                     piece,_,_=place(upper['materials'][use['material_ref']],upper['slots'][use['slot_ref']],base,parent=upper['lower_tier'])
                     original_pieces.append(piece)
                 original_clock=material.restore_fragments(upper['lower_tier'],original_pieces)
@@ -273,7 +304,7 @@ def realize_pair(upper):
         result={k:deepcopy(v)for k,v in upper.items()if k not in ('materials','slots','uses')};result['schema']=cell.TIER3_SCHEMA
         result['lower_tier']=restored
         lower=cell.reconstruct(result,{'variation':0})
-    for use,piece,records in zip(upper['uses'],pieces,contracts):
+    for use,piece,records in ([] if joint_entry else zip(upper['uses'],pieces,contracts)):
         definition=upper['materials'][use['material_ref']]
         material.validate_fragment_execution(piece,records,lower,
             execution_locks=definition.get('unresolved_execution_locks'),
@@ -301,8 +332,14 @@ def realize_pair(upper):
     if any(any(v>1 for v in u.get('subdivision_factors',{}).values()) for u in upper['uses']):
         if upper['schema']!=DIRECT_SCHEMA:
             raise ValueError('Subdivision needs explicit projection of the legacy cell owner')
-        result,lower,ledger=_subdivide_result(upper,result,lower,pieces,contracts,ledger)
-    return result,lower,ledger
+        from material_subdivision import plan_maps
+        projection=plan_maps(_subdivision_plans(upper,result,pieces,contracts))
+        result,lower,ledger=_subdivide_result(upper,result,lower,pieces,contracts,ledger,
+                                             validate_execution=not joint_entry)
+    if joint_entry:
+        from material_use_entry_clock import realize as entry_realize
+        result,lower,ledger,projection=entry_realize(upper,result,lower,pieces,contracts,ledger,projection)
+    return (result,lower,ledger,projection) if with_projection else (result,lower,ledger)
 
 
 def _resolve_expression_insertions(upper,parent):
@@ -351,7 +388,7 @@ def _subdivision_plans(upper,parent,pieces,contracts):
     return plans
 
 
-def _subdivide_result(upper,parent,lower,pieces,contracts,ledger):
+def _subdivide_result(upper,parent,lower,pieces,contracts,ledger,*,validate_execution=True):
     from material_subdivision import plan_maps
     from material_subdivision_projection import project
     from connected_tier2 import realize
@@ -389,7 +426,7 @@ def _subdivide_result(upper,parent,lower,pieces,contracts,ledger):
     expected_ties.sort(key=lambda r:(ties.address(r['destination_ref']),ties.address(r['origin_ref'])))
     if actual_ties['relations']!=expected_ties:
         raise ValueError('SUBDIVISION_CHANGED_WRITTEN_TIE: final child must retain the original outgoing hold')
-    for use,piece,records in zip(upper['uses'],pieces,contracts):
+    for use,piece,records in ([] if not validate_execution else zip(upper['uses'],pieces,contracts)):
         definition=upper['materials'][use['material_ref']]
         guard=definition.get('unresolved_execution_locks')
         if not set(piece['realization_order'])&set(maps['events']) and guard is None:continue
@@ -513,22 +550,12 @@ def pack_expression(upper,changed_t2):
     """
     if upper.get('schema')!=DIRECT_SCHEMA:raise ValueError('Direct material-use T3 required for expression packing')
     from connected_tier2 import realize
-    current=expand(upper);realize(changed_t2)
+    current,_,_,projection=realize_pair(upper,with_projection=True);realize(changed_t2)
     expected=deepcopy(current);out=deepcopy(upper)
     old=current['owned_parameters'];new=changed_t2['owned_parameters']
     target=out['lower_tier']['owned_parameters']
     placements=deepcopy(out.get('expression_insertions',{}))
-    beats={}
-    if any(any(v>1 for v in u.get('subdivision_factors',{}).values()) for u in upper['uses']):
-        from material_subdivision import plan_maps
-        unsplit=deepcopy(upper)
-        for use in unsplit['uses']:use.pop('subdivision_factors',None)
-        parent=expand(unsplit);pieces=[];contracts=[]
-        for use in upper['uses']:
-            piece,records,_=place(upper['materials'][use['material_ref']],upper['slots'][use['slot_ref']],use,
-                                 parent=upper['lower_tier'])
-            pieces.append(piece);contracts.append(records)
-        beats=plan_maps(_subdivision_plans(upper,parent,pieces,contracts))['beats']
+    beats=projection['beats']
     from material_subdivision_projection import BEAT
     def descendants(ref):
         match=BEAT.fullmatch(ref);base=match[1]+match[2] if match else None

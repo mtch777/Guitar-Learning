@@ -431,13 +431,14 @@ def validate_execution(material,lower,*,execution_locks=None,identity_map=None,f
 
 
 def validate_fragment_execution(fragment,observed_execution,lower,*,execution_locks=None,
-                                identity_map=None,fact_identity_map=None,origin_q='0'):
+                                identity_map=None,fact_identity_map=None,origin_q='0',derived_sustains=None):
     refs=set(fragment['realization_order']);pitched=defaultdict(list)
     protected=set()
     if execution_locks is not None:
         from material_execution_locks import validate
         protected=set(validate(execution_locks,lower,observed_execution,execution.ordered(refs),
-            identity_map=identity_map,fact_identity_map=fact_identity_map,origin_q=origin_q))
+            identity_map=identity_map,fact_identity_map=fact_identity_map,origin_q=origin_q,
+            derived_sustains=derived_sustains))
     for position in fragment['physical_positions']:
         ref=position['occurrence_ref']
         if ref not in protected:pitched[execution.address(ref)[1]].append(ref)
