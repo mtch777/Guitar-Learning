@@ -21,6 +21,17 @@ checklist names the remaining control groups and accountable owners. Distinguish
 true contradictory requests from missing musical choices or implementation; neither
 an overlap inventory nor a correct refusal closes an unfinished capability.
 
+**Latest delivered state (2026-11-04):** combined whole-song pitch, expression and
+174BPM tempo code is published in `5ab849b`; exact-commit CI is pending. The existing
+listening page serves untouched original and both116/174BPM rewrites, with short
+context and full-song views. Actual silent browser QA passes, including position
+mapping between tempos and changed-note visibility. Exact saved/source-denied and
+native checks pass for these outputs;8 within-slide emphasis units, fresh-source
+creative QA, listening and ALL-control completion remain open. Next: shared written
+duration/entry relationships across the whole song, preserving ties, triplets and
+the existing pitch/expression result. The dated evidence below retains earlier
+partial counts; it is not a replacement current assignment.
+
 Current implementation evidence: the new degree-path relation achieves20/20
 signed steps and38/38 final octaves in the first frozen Cloud scope; same-span
 subdivision now passes authored saved/combined/denied-inverse checks. The full

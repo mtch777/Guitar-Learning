@@ -50,7 +50,34 @@ below preserve their original results/settings; none supplies another active que
 | Required controls not yet implemented | Root | Remain explicitly owed under the canonical full register. Their absence cannot be hidden by restricting an all-controls completion claim to callable operations. |
 | Whole-song integration and listening | Root, with Planner's evidence challenge | One complete declared request, fixed denominators, per-feature/per-tier actual change, all three QA statuses, verified matched full-band playback and the existing inspection page. Missing claims remain open. |
 
-### Latest verified increment: whole-song pitch targets — 2026-11-04
+### Latest delivered result and next dependency — 2026-11-04
+
+The combined pitch/expression/tempo implementation is published in `5ab849b`.
+Its exact-commit CI is still running at this checkpoint (run41846684467).
+The existing listening page on port5280 now serves untouched original, combined
+rewrite at116BPM, and that same written rewrite at174BPM. Default bars7–15 keep
+four context bars each side; `/full/` provides all111 bars. Existing verified PCM
+was reused/cropped, never rerendered for presentation or played aloud by QA.
+The actual browser check passed: changed-only roll remains visible, switching
+116→174 keeps bar11 while8.276462s becomes5.517641s, and the tempo-only comparison
+has no false written-note changes. Mobile390px layout and paused audio were checked;
+full durations are229.655510/153.103673s. Listening remains pending.
+
+**Next owned dependency: shared written rhythm.** The cheap whole-song timing
+experiment covers all666 instrument-bars, including177 existing triplet slots.
+Its first finite family offers geometry witnesses for4683/4992 original attacks;
+95 lanes fail and remain retained. This is feasibility, not a realized or QA pass.
+The smallest failed case (held quarter followed by dotted half) admits two half
+notes while retaining its incoming tie and bar span. Independent multiplier/dot
+locks prevented that shared-boundary choice. Implement existing-slot proportions
+through the same pulse equation, then explicit entry-rest ownership; verify whole
+chains, held tonal context and unchanged backing references before output credit.
+Planner challenged using quotas as musical intention: apply an explicit rhythmic
+intention (anticipation/delay against the backing pulse), with quotas as acceptance.
+All30 controls, the8 within-slide emphasis measurements, remaining failures and
+fresh-source creative QA remain open; this delivery does not replace that request.
+
+### Verified whole-song pitch targets — 2026-11-04
 
 ### Current expression integration — whole Cloud request remains active
 
@@ -74,8 +101,9 @@ below preserve their original results/settings; none supplies another active que
   preserves all358 ties and8 legato connections, including112 unchanged slide
   pitch-transition events. All6048 actual note-on velocities change. The frozen
   original performed count remains4984/4992, with8 unknown destinations.
-- [ ] Publish verified expression increment, queue audio without playing it,
-  then continue timing/bends/material/return obligations.
+- [x] Publish verified expression increment (`5ab849b`), render/reuse audio
+  without playing it, and serve original/116/174 comparisons on the existing page.
+  Timing/bends/material/return obligations remain active.
 
 Eight of4992 frozen written units are source-declared legato-slide destinations
 with no independent note-on in unchanged or changed native playback. Their accent

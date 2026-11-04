@@ -52,5 +52,50 @@ class PublishReviewTests(unittest.TestCase):
             self.write()
             with self.assertRaisesRegex(ValueError,'Comparison identities'):publish(self.manifest,self.root,self.out)
             self.assertEqual(before,self.snapshot())
+    def different_clocks(self):
+        for b in self.data['bar_times'][:-1]:b['beat_times']=[b['time']+.05]
+        for i,v in enumerate(self.data['versions']):
+            factor=1 if i==0 else .5;v['seconds']=self.data['seconds']*factor
+            v['bar_times']=[dict(bar=b['bar'],time=b['time']*factor,**({'beat_times':[t*factor for t in b['beat_times']]}if 'beat_times'in b else{}))for b in self.data['bar_times']]
+            for n in v['notes']:
+                n.update(start=n['start']*factor,end=n['end']*factor,comparison_identity='source:attack:0',score_start_tick=0,score_end_tick=960)
+            if i:
+                with wave.open(str(self.root/v['audio']),'wb')as w:w.setnchannels(1);w.setsampwidth(2);w.setframerate(44100);w.writeframes((200).to_bytes(2,'little',signed=True)*4410)
+                v['audio_sha256']=hashlib.sha256((self.root/v['audio']).read_bytes()).hexdigest()
+        self.write()
+    def test_per_version_clocks_reuse_distinct_verified_audio_without_rescaling(self):
+        self.different_clocks();result=publish(self.manifest,self.root,self.out)
+        actual=json.loads((self.out/'comparison.json').read_bytes())
+        self.assertEqual(result['audio_rendered'],0)
+        self.assertEqual([v['seconds']for v in actual['versions']],[.2,.1])
+        self.assertEqual(actual['bar_times'],self.data['bar_times'])
+        for a,b in zip(actual['versions'],self.data['versions']):
+            self.assertEqual(a['notes'],b['notes']);self.assertEqual(a['bar_times'],b['bar_times'])
+            self.assertEqual((self.out/a['audio']).read_bytes(),(self.root/b['audio']).read_bytes())
+    def test_invalid_version_clock_or_written_identity_preserves_existing_review(self):
+        self.different_clocks();publish(self.manifest,self.root,self.out);before=self.snapshot();original=copy.deepcopy(self.data)
+        for change in('missing_clock','wrong_duration','missing_beat','reordered_beat','wrong_original','missing_tick','boolean_tick','missing_identity'):
+            self.data=copy.deepcopy(original);v=self.data['versions'][1]
+            if change=='missing_clock':v.pop('seconds')
+            elif change=='wrong_duration':v['seconds']=.12
+            elif change=='missing_beat':v['bar_times'][0].pop('beat_times')
+            elif change=='reordered_beat':v['bar_times'][0]['beat_times']=[.03,.02]
+            elif change=='wrong_original':self.data['versions'][0]['bar_times'][0]['beat_times']=[.04]
+            elif change=='missing_tick':v['notes'][0].pop('score_end_tick')
+            elif change=='boolean_tick':v['notes'][0]['score_end_tick']=True
+            else:v['notes'][0].pop('comparison_identity')
+            self.write()
+            with self.assertRaises(ValueError,msg=change):publish(self.manifest,self.root,self.out)
+            self.assertEqual(before,self.snapshot(),change)
+    def test_distinct_duration_without_explicit_clock_refuses(self):
+        self.different_clocks()
+        for v in self.data['versions']:v.pop('seconds');v.pop('bar_times')
+        self.write()
+        with self.assertRaisesRegex(ValueError,'Audio duration'):publish(self.manifest,self.root,self.out)
+    def test_version_clock_still_requires_matched_sample_format(self):
+        self.different_clocks();v=self.data['versions'][1]
+        with wave.open(str(self.root/v['audio']),'wb')as w:w.setnchannels(1);w.setsampwidth(2);w.setframerate(22050);w.writeframes((200).to_bytes(2,'little',signed=True)*2205)
+        v['audio_sha256']=hashlib.sha256((self.root/v['audio']).read_bytes()).hexdigest();self.write()
+        with self.assertRaisesRegex(ValueError,'matched audio formats'):publish(self.manifest,self.root,self.out)
 
 if __name__=='__main__':unittest.main()

@@ -55,9 +55,15 @@ optional `beat_times` are actual times, not assumed 4/4. Optional `focus_bars`,
 Each note retains part/voice, source bar, pitch, start/end seconds, velocity,
 string/fret and dead/ghost fields. Times come from the same measured playback.
 
-Currently supports a shared playback clock. Different-duration/tempo comparisons
-must explicitly supply a supported alignment in a future extension; never stretch
-audio or fabricate timing to squeeze them into this template.
+A shared playback clock remains the default. For different tempos, supply `seconds`
+and `bar_times` on **every version**, with the top-level clock identical to the
+untouched original. Corresponding bar/beat boundaries must identify the same
+musical positions. Each WAV retains its measured duration and common sample format;
+switching versions preserves the bar/beat fraction, never stretching audio. Every
+note then needs stable `comparison_identity` and integer `score_start_tick` /
+`score_end_tick` from its **written** onset/end. Actual `start`/`end` seconds still
+control playback and the roll; tempo-dependent performed releases do not invent
+written-rhythm changes. Removed-note outlines align to the selected version's clock.
 
 ## Fast verification
 

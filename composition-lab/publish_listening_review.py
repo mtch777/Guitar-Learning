@@ -15,20 +15,26 @@ def asset(root,name):
     path=(root/name).resolve();require(path.parent==root.resolve()and path.is_file(),'Missing or escaped audio asset')
     return path
 
+def validate_clock(duration,ledger,bars):
+    require(number(duration)and duration>0,'Invalid duration')
+    require(isinstance(ledger,list)and all(isinstance(b,dict)and type(b.get('bar'))is int and number(b.get('time'))for b in ledger),'Invalid bar clock')
+    require(len({b['bar']for b in ledger})==len(ledger),'Duplicate bar clock')
+    require(all(a['bar']<b['bar']and a['time']<b['time']for a,b in zip(ledger,ledger[1:])),'Bar clocks must increase')
+    times={b['bar']:b['time']for b in ledger};require(all(b in times for b in range(bars[0],bars[1]+2)),'Every bar boundary including end is required')
+    require(abs(times[bars[0]])<=64/44100 and abs(times[bars[1]+1]-duration)<=64/44100,'Bar clocks do not span the audio')
+    for b in ledger:
+        beats=b.get('beat_times',[])
+        require(isinstance(beats,list)and all(number(t)and b['time']<t<times.get(b['bar']+1,float('inf'))for t in beats),'Beat clock outside its bar')
+        require(all(a<b for a,b in zip(beats,beats[1:])),'Beat clocks must increase')
+    return [(b['bar'],len(b.get('beat_times',[])))for b in ledger]
+
 def validate(data,assets):
     require(data.get('schema')=='listening-review/1','Expected listening-review/1')
     for key in('title','artist','playback_note'):
         require(isinstance(data.get(key),str)and data[key].strip(),f'Missing {key}')
     questions=data.get('questions');require(isinstance(questions,list)and 1<=len(questions)<=3 and all(isinstance(q,str)and q.strip()for q in questions),'Provide 1–3 specific listening questions')
     bars=data.get('bars');require(isinstance(bars,list)and len(bars)==2 and all(type(b)is int for b in bars)and 1<=bars[0]<=bars[1],'Invalid bar range')
-    duration=data.get('seconds');require(number(duration)and duration>0,'Invalid duration')
-    ledger=data.get('bar_times');require(isinstance(ledger,list)and all(type(b.get('bar'))is int and number(b.get('time'))for b in ledger),'Invalid bar clock')
-    require(len({b['bar']for b in ledger})==len(ledger),'Duplicate bar clock')
-    require(all(a['bar']<b['bar']and a['time']<b['time']for a,b in zip(ledger,ledger[1:])),'Bar clocks must increase')
-    times={b['bar']:b['time']for b in ledger};require(all(b in times for b in range(bars[0],bars[1]+2)),'Every bar boundary including end is required')
-    require(abs(times[bars[0]])<=64/44100 and abs(times[bars[1]+1]-duration)<=64/44100,'Bar clocks do not span the audio')
-    for b in ledger:
-        for t in b.get('beat_times',[]):require(number(t)and b['time']<t<times.get(b['bar']+1,float('inf')),'Beat clock outside its bar')
+    duration=data.get('seconds');ledger=data.get('bar_times');clock_shape=validate_clock(duration,ledger,bars)
     sections=data.get('sections');require(isinstance(sections,list)and sections,'Missing listening sections')
     for s in sections:require(type(s.get('first'))is int and type(s.get('last'))is int and bars[0]<=s['first']<=s['last']<=bars[1]and isinstance(s.get('label'),str),'Invalid listening section')
     require(len({s['first']for s in sections})==len(sections),'Duplicate section start')
@@ -39,20 +45,31 @@ def validate(data,assets):
     names=[v.get('id')for v in versions];require(all(isinstance(n,str)and n!='none'and re.fullmatch('[A-Za-z0-9_-]+',n)for n in names)and len(set(names))==len(names),'Invalid version identities')
     require(data.get('original_version')==names[0]and versions[0].get('compare_to')is None,'First version must be untouched original, with no comparison')
     require(data.get('default_version',names[0])in names,'Unknown default version')
+    separate_clocks=any('seconds'in v or 'bar_times'in v for v in versions)
+    if separate_clocks:
+        require(all('seconds'in v and 'bar_times'in v for v in versions),'Every version needs seconds and bar_times when clocks differ')
+        require(versions[0]['seconds']==duration and versions[0]['bar_times']==ledger,'Top-level clock must remain the untouched original clock')
+        for v in versions:require(validate_clock(v['seconds'],v['bar_times'],bars)==clock_shape,'Version clocks need corresponding bar and beat boundaries')
+    written_coordinates=any('score_start_tick'in n or 'score_end_tick'in n for v in versions for n in v.get('notes',[]))
+    require(not separate_clocks or written_coordinates,'Per-version clocks require written score coordinates')
     audio=[];formats=[];observed_parts=set()
     for index,v in enumerate(versions):
         for key in('label','description'):require(isinstance(v.get(key),str)and v[key].strip(),f'Missing version {key}')
         if index:require(v.get('compare_to')in names and v['compare_to']!=v['id'],'Changed version needs an explicit comparison baseline')
+        version_duration=v['seconds']if separate_clocks else duration
         source=asset(assets,v.get('audio'));digest=sha(source);require(digest==v.get('audio_sha256'),'Audio hash differs from verified input')
         with wave.open(str(source),'rb')as w:
-            require(w.getcomptype()=='NONE','Expected PCM WAV');require(abs(w.getnframes()/w.getframerate()-duration)<=1/w.getframerate(),'Audio duration differs from shared clock')
-            formats.append((w.getnchannels(),w.getsampwidth(),w.getframerate(),w.getnframes()))
+            require(w.getcomptype()=='NONE','Expected PCM WAV');require(abs(w.getnframes()/w.getframerate()-version_duration)<=1/w.getframerate(),'Audio duration differs from its declared clock')
+            formats.append((w.getnchannels(),w.getsampwidth(),w.getframerate())+(()if separate_clocks else(w.getnframes(),)))
         require(isinstance(v.get('notes'),list),'Missing measured notes')
         for n in v['notes']:
-            require(n.get('part')in ids and number(n.get('start'))and number(n.get('end'))and 0<=n['start']<n['end']<=duration+1/44100,'Note outside declared part/time')
+            require(n.get('part')in ids and number(n.get('start'))and number(n.get('end'))and 0<=n['start']<n['end']<=version_duration+1/44100,'Note outside declared part/time')
             require(type(n.get('pitch'))is int and 0<=n['pitch']<=127,'Invalid played pitch')
             require(type(n.get('bar'))is int and n['bar']<=bars[1],'Missing source bar')
             require(all(k in n for k in('voice','velocity','fret','string','dead','ghost')),'Incomplete note comparison fields')
+            if written_coordinates:
+                require(type(n.get('score_start_tick'))is int and type(n.get('score_end_tick'))is int and n['score_start_tick']<n['score_end_tick'],'Complete written score coordinates are required')
+                require(isinstance(n.get('comparison_identity'),str)and n['comparison_identity'],'Written score comparison requires stable identities')
             observed_parts.add(n['part'])
         audio.append((v,source,digest))
     if any('comparison_identity'in n for v in versions for n in v['notes']):
@@ -60,7 +77,7 @@ def validate(data,assets):
             identities=[n.get('comparison_identity')for n in v['notes']]
             require(all(isinstance(x,str)and x for x in identities),'Comparison identities must be complete')
             require(len(identities)==len(set(identities)),'Comparison identities must be unique within each version')
-    require(len(set(formats))==1,'This review requires matched playback clocks/formats; do not silently rescale audio')
+    require(len(set(formats))==1,'This review requires matched audio formats; undeclared clock changes cannot rescale audio')
     require(observed_parts=={t['id']for t in tracks},'Playing/silent part inventory differs from notes')
     return audio
 
