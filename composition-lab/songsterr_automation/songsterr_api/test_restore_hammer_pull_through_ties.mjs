@@ -46,6 +46,7 @@ test('wrong, mixed, missing, forked or noncontiguous chain refuses before earlie
   for(const change of [
     p=>p.tail.fret++,p=>p.tail.string--,p=>p.tail.isDead=true,p=>p.tail.isHammerPullOrigin=true,
     p=>p.tail.tieOrigin=null,p=>p.tail.beat.playbackStart++,p=>p.target.beat.displayStart++,
+    p=>p.origin.tieDestination=null,
     p=>p.origin.hammerPullDestination=null,p=>p.target.hammerPullOrigin=p.tail,p=>p.tail.hammerPullOrigin=null,
     p=>p.tail.tieDestination=p.origin,p=>p.target.isTieDestination=true,p=>p.target.beat.graceType=1,
   ]) {

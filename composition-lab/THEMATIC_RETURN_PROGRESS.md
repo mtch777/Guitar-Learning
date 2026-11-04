@@ -52,6 +52,68 @@ below preserve their original results/settings; none supplies another active que
 
 ### Latest delivered result and next dependency — 2026-11-04
 
+CURRENT: rhythm and its playback repairs are published in61e9276/2b0825b.
+Final whole003 production/inverse/native/335-context checks PASS (details below).
+The existing5280 page now compares Previous rewrite174 with New rhythm174, while
+retaining untouched original116. New full PCM SHAe67d331001afdef6db620b15a293ffc6cd23f8e3c50242bd63200519f9dd164f;
+153.103673s, peak0.472265, no clipping, same Sonivox44100Hz/gain0.3. Old audio
+is reused exactly. Actual silent browser QA passes; all six changed parts are
+visible and paused bar11 remains aligned across versions. Listening remains open.
+Joint bend/degree and dead contacts now pass in that SAME state. See the next
+record. Next owned implementation: current-model arrangement integration and
+remaining relative-placement/emphasis relationships.
+The earlier delivery records in this section are historical comparisons.
+
+### Joint bends and physical contacts — 2026-11-04
+
+- [x] Shared bend excursion uses the existing curve coefficients and degree-owned
+  starting pitch. All4 Cloud curves change from1 to2 semitones; the new starts
+  and stable targets satisfy both retained tonal interpretations. No desired note
+  is hardcoded, and source observations do not gain votes. Physical force remains
+  unknown. Keep-start/keep-arrival are alternative intentions, not independent
+  percentage sliders that can both own the same endpoint.
+- [x] Existing string ownership now covers explicit dead notes. All35 contacts
+  change string;8 absent fret fields and27 explicit fret-zero values stay exact.
+  Total changed physical contacts:3940/3940. No fundamental pitch is invented.
+  Mixed-coattack collisions and unresolved tie ownership refuse atomically.
+- [x] Complete source/lower-denied inverse passes for the joint bend candidate
+  and then the saved dead-contact update. Final candidate file SHA
+  `8c988788b1481544aaf0b96ac2c975b64afe43560fffa4e310a8651589436cb9`;
+  T1 SHA`4d3af095cffe9bd5cb3b1de601ac92764867786c565fcda8dd44289fda1d6112`.
+  Earlier3905 pitch classes/octaves,1955 steps,1674 voicings,4992 onsets/complete
+  holds and3205 gaps remain changed.398 ties and all405 execution records survive.
+- [x] Independent native comparison passes:35 changed noise keys follow the
+  changed dead strings; all4961 pitched callbacks and unrelated fields are exact.
+  Total6048 callbacks,398 ties,8 legato links,62 HP targets and4 bend curves pass.
+  GP SHA`036db993ae93ab0eb7ca79ed5c7d10a219ee72a7329223b1532d2a435fb6a75f`.
+  The first comparison's derived accidental mismatch remains retained; all35
+  values were then independently predicted from string/tuning, with GP5 Default
+  spelling verified before/after. No broad comparison exclusion was introduced.
+- [x] Targeted checks:37 bend/degree/entry tests;30 dead/degree/tie/bend tests;
+  after same-call score reuse,25 affected tests plus7 final dead-contact tests.
+  These overlap and are NOT summed. Runtime: repository `.venv/Scripts/python.exe`,
+  `-m unittest` named affected modules.15 native HP/policy tests also pass; the
+  defensive missing-continuation refusal leaves verified raw MIDI byte-identical.
+- [ ] Fresh-source gate remains OPEN; prior False Meridian failure is retained.
+  Native checks certify the paired preview, not standalone GP or listening.
+  No audio was played. ALL30 completion remains OPEN.
+
+Planner's current challenge: arrangement must allocate the LIVE current use, not
+an old material ID or copied realized notes. Filling an empty passage must retain
+its original rest observation with explicit retired CURRENT lineage, while new
+instances inherit donor choices without creating source votes. Destination timed
+dynamics retain authority. Positive: three current attacks into rest under a
+different dynamic declaration, then saved donor edits propagate. Negative:
+three-to-two allocation with an existing accent/foreign dependency refuses unless
+an explicit valid correspondence exists. Same-ID-only zero is insufficient.
+
+Timing audit correction:1698/3214 was a private same-onset census against a fixed
+bass/drum choice, not persisted backing-role ownership.1778 misses do not establish
+absent musical support. Keep the original4992 scope; investigate actual placement
+semantics before promoting that census to a control denominator. Likewise the8
+legato destinations inherit changed originating gain, but that alone does not
+prove an independent accent at their destinations. Both claims remain separate.
+
 The combined pitch/expression/tempo implementation is published in `5ab849b`.
 Its exact-commit CI passed (run41846684467). The subsequent listening-clock
 correction `9cf3a80` also passed exact-commit CI (run41851363102).
@@ -64,7 +126,7 @@ The actual browser check passed: changed-only roll remains visible, switching
 has no false written-note changes. Mobile390px layout and paused audio were checked;
 full durations are229.655510/153.103673s. Listening remains pending.
 
-**Next owned dependency: shared written rhythm.** The cheap whole-song timing
+**Earlier shared-rhythm preflight, now superseded by the verified result below.** The cheap whole-song timing
 experiment covers all666 instrument-bars, including177 existing triplet slots.
 Its first finite family offers geometry witnesses for4683/4992 original attacks;
 95 lanes fail and remain retained. This is feasibility, not a realized or QA pass.

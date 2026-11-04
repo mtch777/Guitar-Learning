@@ -22,7 +22,7 @@ RHYTHM_SCHEMA='source-musical-material-uses/3'
 
 def unallocated_fields(use):
     """A section owns allocation, while local use timing remains independent."""
-    return {'id','slot_ref'} | ({'rhythm_offset_q', 'rhythm_lane_shares', 'entry_shares', 'degree_steps', 'degree_octaves', 'degree_strings', 'degree_member_steps', 'contact_strings', 'subdivision_factors'} & set(use))
+    return {'id','slot_ref'} | ({'rhythm_offset_q', 'rhythm_lane_shares', 'entry_shares', 'degree_steps', 'degree_octaves', 'degree_strings', 'degree_member_steps', 'contact_strings', 'subdivision_factors', 'bend_excursions'} & set(use))
 
 
 def _shape(upper):
@@ -65,6 +65,10 @@ def _shape(upper):
         if type(use)is dict and any(k in use for k in ('degree_steps', 'degree_octaves', 'degree_strings')):
             fields.update(('degree_steps', 'degree_octaves', 'degree_strings'))
         if type(use)is dict and 'degree_member_steps'in use:fields.add('degree_member_steps')
+        if type(use)is dict and 'bend_excursions'in use:
+            fields.add('bend_excursions')
+            if type(use['bend_excursions'])is not dict:
+                raise ValueError('Explicit stable bend excursion choices required')
         if type(use)is dict and 'contact_strings'in use:
             fields.add('contact_strings')
             if type(use['contact_strings'])is not dict:
@@ -163,13 +167,19 @@ def _dynamic(fragment,part,level):
     fragment['coverage'].append(dict(fact_ref=ref,owner='technique_declaration'))
 
 
-def resolved_definition(definition,use,*,parent=None):
+def resolved_definition(definition,use,*,parent=None,slot=None):
     """Resolve current choices through one clock owner before placement."""
     from material_approaches import SCHEMA as approach_schema, expand as expand_approach
     solved=expand_approach(definition,use['approach_mode'])if definition['schema']==approach_schema else definition
     from material_degree_paths import SCHEMA as degree_schema, expand as expand_degrees
     if definition['schema']==degree_schema:
         solved=expand_degrees(definition,use['degree_steps'],use['degree_octaves'],use.get('degree_member_steps'))
+    if use.get('bend_excursions'):
+        from material_bend_excursions import resolve, parent_ties, check_targets
+        if slot is None:raise ValueError('Bend choices require explicit current placement')
+        _,event,_=_maps(definition,slot)
+        solved=resolve(solved,use['bend_excursions'],tied_refs=parent_ties(definition,parent,event))
+        check_targets(definition,solved,use['bend_excursions'])
     if 'rhythm_offset_q'in use and 'rhythm_lane_shares'in use:
         raise ValueError('Two active material clock authorities are forbidden')
     if 'entry_shares'in use:
@@ -201,13 +211,13 @@ def place(definition,slot,use,*,parent=None):
                for scope in (definition['scope'],slot['scope'])):
             raise ValueError('Material relocation would readdress existing expression owners')
     from material_degree_paths import SCHEMA as degree_schema
-    solved=resolved_definition(definition,use,parent=parent)
+    solved=resolved_definition(definition,use,parent=parent,slot=slot)
     source=material.expand(solved);fact,event,delta=_maps(definition,slot)
     if definition['schema'] == degree_schema:
         _degree_strings(source, definition, use['degree_strings'])
     if 'contact_strings'in use:
         _write_strings(source,use['contact_strings'],
-            {p['occurrence_ref']for p in source['physical_positions']})
+            set(_contact_owners(source)))
     out={k:deepcopy(v)for k,v in source.items()};shift=F(slot['start_q'])-F(definition['source_start_q'])
     out['source_structure']=[_row(r,fact)for r in source['source_structure']]
     for field in ('source_choices','coverage'):
@@ -734,20 +744,46 @@ def _degree_strings(fragment, definition, strings):
     _write_strings(fragment,strings,allowed)
 
 
+def _contact_owners(fragment):
+    """Existing pitched positions and explicitly dead string contacts.
+
+    A dead contact owns its string without requiring a fundamental pitch or a
+    fret equation. Its absent or explicit fret field stays with its current owner.
+    Unknown unpitched members never become dead notes by assumption.
+    """
+    from material_subdivision import _field_values
+    from bend_gesture_ownership import pointer
+    result={p['occurrence_ref']:p['string_ref']for p in fragment['physical_positions']}
+    unknown=[m['id']for g in fragment['coattacks']for m in g['members']
+             if m.get('voicing_interval')is None and m['id']not in result]
+    if not unknown:return result
+    fields,value=_field_values(fragment)
+    choices={r['fact_ref']for r in fragment['source_choices']}
+    for ref in unknown:
+        base=pointer(ref);dead=base+'/dead';string=base+'/string'
+        if dead not in fields or value(dead)is not True:continue
+        if (string not in fields or string not in choices
+                or fields[string]['type']!='integer' or type(value(string))is not int
+                or value(string)<0):continue
+        result[ref]=string
+    return result
+
+
 def _write_strings(fragment,strings,allowed):
-    """Update the existing string fact and its tuning reference, never a pitch."""
+    """Update the existing string fact and pitched tuning link, never a pitch."""
     if (type(strings) is not dict or set(strings) - allowed
             or any(type(v) is not int or v < 0 for v in strings.values())):
         raise ValueError('String choices must name permitted stable physical member identities')
     choices = {r['fact_ref']: r for r in fragment['source_choices']}
     positions = {r['occurrence_ref']: r for r in fragment['physical_positions']}
+    contacts = _contact_owners(fragment)
     for ref, string in strings.items():
-        position = positions[ref]
-        choice = choices.get(position['string_ref'])
+        position = positions.get(ref)
+        choice = choices.get(contacts.get(ref))
         if choice is None:
             raise ValueError('Existing string authority belongs to another relationship')
         choice['parameter'].update(normalized=str(string), negative_zero=False)
-        if 'tuning_ref' in position:
+        if position is not None and 'tuning_ref' in position:
             position['tuning_ref'] = position['tuning_ref'].rsplit('/', 1)[0] + '/' + str(string)
 
 
@@ -823,6 +859,8 @@ def _validate_material_contacts_in_documents(upper,use_id,docs,selected):
             track = docs[f'track-{part}.json']
             raw = track['measures'][bar-1]['voices'][voice]['beats'][beat]['notes'][note]
             if type(raw.get('string')) is int:
+                if not 0<=raw['string']<len(track['tuning']):
+                    raise ValueError('Contact string exceeds the declared instrument tuning')
                 strings.append(raw['string'])
             if member['id'] not in physical:
                 continue
@@ -851,7 +889,7 @@ def degree_path_candidate(upper, use_id, *, displacements, octaves, member_steps
     return degree_choices_candidate(upper,{use_id:request},contact_strings=strings)
 
 
-def degree_choices_candidate(upper,requests,*,contact_strings=None):
+def degree_choices_candidate(upper,requests,*,contact_strings=None,bend_excursions=None):
     """One atomic pitch/contact transaction through retained material and tie owners.
 
     Explicit head strings close over the existing sustain equality. A tail is
@@ -861,10 +899,12 @@ def degree_choices_candidate(upper,requests,*,contact_strings=None):
     _shape(upper)
     if type(requests)is not dict:raise ValueError('Explicit degree requests keyed by use identity required')
     contacts={}if contact_strings is None else contact_strings
+    curves={}if bend_excursions is None else bend_excursions
     if type(contacts)is not dict:raise ValueError('Explicit physical requests keyed by use identity required')
+    if type(curves)is not dict:raise ValueError('Explicit bend requests keyed by use identity required')
     indexed={u['id']:u for u in upper['uses']}
-    if (set(requests)|set(contacts))-set(indexed):raise ValueError('Unknown requested material use')
-    before,_,_=realize_pair(upper)
+    if (set(requests)|set(contacts)|set(curves))-set(indexed):raise ValueError('Unknown requested material use')
+    before,before_score,_=realize_pair(upper)
     out=deepcopy(upper);updated={u['id']:u for u in out['uses']}
     for use_id,request in requests.items():
         if (type(request)is not dict or set(request)not in
@@ -874,14 +914,20 @@ def degree_choices_candidate(upper,requests,*,contact_strings=None):
         if 'degree_steps'not in use:raise ValueError('Use has no degree-path owner')
         use.update(degree_steps=deepcopy(request['displacements']),degree_octaves=deepcopy(request['octaves']))
         if 'member_steps'in request:use['degree_member_steps']=deepcopy(request['member_steps'])
+    # Pitch start and curve extent resolve together. Neither intermediate is
+    # required to be a valid held target; only the complete operation commits.
+    for use_id,values in curves.items():
+        if type(values)is not dict:raise ValueError('Explicit stable bend occurrence mapping required')
+        selected=updated[use_id]
+        selected['bend_excursions']=dict(selected.get('bend_excursions',{}),**deepcopy(values))
     # Relationships use the pre-subdivision written identities. Placement maps
     # those into each use; existing subdivisions inherit the same parent contact.
     owners={}; current={}; explicit={}
     for use in upper['uses']:
         definition=upper['materials'][use['material_ref']]
         _,event,_=_maps(definition,upper['slots'][use['slot_ref']])
-        for position in definition['lower_tier']['physical_positions']:
-            ref=position['occurrence_ref'];key=(use['id'],ref);address=event(ref)
+        for ref in _contact_owners(definition['lower_tier']):
+            key=(use['id'],ref);address=event(ref)
             if address in owners:raise ValueError('Overlapping physical material owners')
             owners[address]=key;current[key]=address
     for use_id,values in contacts.items():
@@ -889,7 +935,7 @@ def degree_choices_candidate(upper,requests,*,contact_strings=None):
         for ref,string in values.items():
             key=(use_id,ref)
             if key not in current or type(string)is not int or string<0:
-                raise ValueError('Contact requires one existing physical occurrence and a nonnegative string')
+                raise ValueError('Contact requires one existing pitched/dead string owner and a nonnegative string')
             explicit[current[key]]=string
     shared=upper['lower_tier']['musical_relationships']
     from written_tie_pitch_ownership import SCHEMA as tie_schema
@@ -920,9 +966,14 @@ def degree_choices_candidate(upper,requests,*,contact_strings=None):
             inherited=deepcopy(use['degree_strings']);use['degree_strings']={}
         use['contact_strings']=dict(inherited,**{ref:string})
     after_t2, after, _ = realize_pair(out)
-    if 'stable_pitch_preference' in after_t2:
-        from material_rhythm_control import _check_stable_timing
-        _check_stable_timing(before, after_t2)
+    if 'stable_pitch_preference' in before or 'stable_pitch_preference' in after_t2:
+        if before.get('stable_pitch_preference')!=after_t2.get('stable_pitch_preference'):
+            raise ValueError('Pitch/contact edits cannot replace the saved tonal preference')
+        from stable_pitch_policy import enforce_transition
+        # Both exact scores were produced by this transaction's complete
+        # realize_pair calls. Reuse those results, not a cache or stale source;
+        # the identical policy need not reconstruct each whole score twice.
+        enforce_transition(before,before_score,after)
     return out
 
 

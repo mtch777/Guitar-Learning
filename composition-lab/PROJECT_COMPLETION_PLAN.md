@@ -21,17 +21,26 @@ checklist names the remaining control groups and accountable owners. Distinguish
 true contradictory requests from missing musical choices or implementation; neither
 an overlap inventory nor a correct refusal closes an unfinished capability.
 
-**Latest delivered state (2026-11-04):** combined whole-song pitch, expression and
-174BPM tempo code is published in `5ab849b`; exact-commit CI passed (41846684467).
-The listening-clock correction in `9cf3a80` also passed CI (41851363102). The existing
-listening page serves untouched original and both116/174BPM rewrites, with short
-context and full-song views. Actual silent browser QA passes, including position
-mapping between tempos and changed-note visibility. Exact saved/source-denied and
-native checks pass for these outputs;8 within-slide emphasis units, fresh-source
-creative QA, listening and ALL-control completion remain open. Next: shared written
-duration/entry relationships across the whole song, preserving ties, triplets and
-the existing pitch/expression result. The dated evidence below retains earlier
-partial counts; it is not a replacement current assignment.
+**Latest delivered state (2026-11-04):** whole-song pitch/expression/tempo is now
+joined by written rhythm through the shared inverse. Rhythm code `61e9276` and
+playback corrections `2b0825b` are published; their CI is tracked separately.
+The earlier guard release `51e209b` passed CI41859223004. The existing5280 page
+serves untouched original116BPM, previous rewrite174BPM and new rhythm174BPM;
+the two174 versions isolate timing, with four bars of context and a full-song view.
+Actual silent browser QA passes: changed-only notes remain visible in all six
+parts, switching versions preserves bar11, and audio stays paused. Complete
+source-denied reconstruction and independent native checks pass. Joint bend/degree
+and dead-contact edits now also pass complete source-denied reconstruction and
+native verification in this SAME state: all4 bend excursions and all35 dead
+contacts change, bringing physical contacts to3940/3940. Previous3905 pitch classes
+and octaves,1955 signed steps,1674 voicings,4992 onsets/complete holds and3205 gaps
+remain changed.398 ties,8 legato links and62 HP targets survive. No dead-note
+fundamental pitch is invented. These latest edits await offline audio publication;
+standalone GP fidelity and listening remain separate. Next: live arrangement
+allocation through current evidence/ownership, relative placement and sustained
+emphasis.8 within-slide emphasis
+units, QA1, listening and ALL-control completion remain open. Earlier dated partial
+counts below are retained evidence, not replacement assignments.
 
 The next execution-guard increment preserves written contact ordering, overlaps,
 continuity and stable identities while allowing numeric timing choices. It keeps
@@ -39,7 +48,7 @@ the original guard commitments and unknown acoustic endpoints. A clean published
 HEAD snapshot plus this change passed35 guard/integration tests. The working
 shared-clock implementation now passes a complete denied-source inverse for four
 previously blocked held/fresh boundaries, with all unrequested score fields exact.
-Whole-song rhythm is NOT yet accepted. Its first candidate broke12 pull-off links
+The initial whole-song rhythm candidate was NOT accepted: it broke12 pull-off links
 and16 let-ring written-continuity links. The shared continuation now preserves all
 335 guards and passes complete source-denied reconstruction, with40 derived ties
 and zero added attacks. The first independent comparison failed on generated

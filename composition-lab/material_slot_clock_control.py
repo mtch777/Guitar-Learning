@@ -40,7 +40,7 @@ def apply_shares(upper, requests):
     for request in requests:
         selected=next(u for u in out['uses']if u['id']==request['use_id'])
         definition=out['materials'][selected['material_ref']]
-        resolved=uses.resolved_definition(definition,selected,parent=out['lower_tier'])
+        resolved=uses.resolved_definition(definition,selected,parent=out['lower_tier'],slot=out['slots'][selected['slot_ref']])
         if not any(field in selected for field in ('rhythm_offset_q','rhythm_lane_shares')):
             resolved=uses.material.rhythm_context(resolved,out['lower_tier'])
         current=current_lane_shares(resolved)
@@ -99,7 +99,7 @@ def apply_entry_choices(upper, requests):
             current=deepcopy(selected['rhythm_lane_shares']);entries=deepcopy(selected['entry_shares'])
         else:
             definition=out['materials'][selected['material_ref']]
-            resolved=uses.resolved_definition(definition,selected,parent=out['lower_tier'])
+            resolved=uses.resolved_definition(definition,selected,parent=out['lower_tier'],slot=out['slots'][selected['slot_ref']])
             if not any(field in selected for field in ('rhythm_offset_q','rhythm_lane_shares')):
                 resolved=uses.material.rhythm_context(resolved,out['lower_tier'])
             current=current_lane_shares(resolved);entries={ref:'0'for ref in current}

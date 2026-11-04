@@ -17,7 +17,11 @@ function plan(score) {
   const {rows,byNote}=inventory(score), plans=[],claimed=new Set();
   for(const row of rows) {
     const origin=row.n;
-    if(!origin.isHammerPullOrigin||!origin.tieDestination)continue;
+    if(!origin.isHammerPullOrigin)continue;
+    if(!origin.tieDestination) {
+      need(!origin.hammerPullDestination?.isTieDestination,'HP targets a tied tail without its origin continuation link');
+      continue;
+    }
     const members=[origin], first=origin.tieDestination;
     let current=origin;
     while(current.tieDestination) {
