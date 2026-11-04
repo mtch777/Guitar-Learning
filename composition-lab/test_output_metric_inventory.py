@@ -115,13 +115,21 @@ class OutputMetricInventoryTests(unittest.TestCase):
         self.assertIsNone(result['features']['guitar_bass_contact'][root])
         self.assertEqual(result['counts']['attack_units'],4)
 
-    def test_dead_without_fret_retains_an_unknown_contact_instead_of_disappearing(self):
+    def test_dead_without_fret_preserves_known_string_changes_and_unknown_fret(self):
         result=inventory(extract_documents(documents([dict(string=5,dead=True),n(2),n(4),n(5)])))
         root='event:86:0:1:0:0:0'
         self.assertNotIn(root,result['features']['pitched_attack_pitch'])
         self.assertIn(root,result['features']['guitar_bass_contact'])
-        self.assertIsNone(result['features']['guitar_bass_contact'][root])
+        self.assertEqual(result['features']['guitar_bass_contact'][root],[[5,None]])
         self.assertEqual(result['counts']['contact_metric_units'],4)
+        changed=inventory(extract_documents(documents([dict(string=4,dead=True),n(2),n(4),n(5)])))
+        self.assertEqual(changed['features']['guitar_bass_contact'][root],[[4,None]])
+        self.assertEqual(result['features']['guitar_bass_contact'].keys(),changed['features']['guitar_bass_contact'].keys())
+        self.assertNotEqual(result['features']['guitar_bass_contact'][root],changed['features']['guitar_bass_contact'][root])
+
+    def test_unknown_pitched_fret_does_not_gain_dead_note_contact_semantics(self):
+        result=inventory(extract_documents(documents([dict(string=5),n(2),n(4),n(5)])))
+        self.assertIsNone(result['features']['guitar_bass_contact']['event:86:0:1:0:0:0'])
 
 
 if __name__=='__main__':unittest.main()

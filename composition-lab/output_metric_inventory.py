@@ -14,7 +14,7 @@ from source_tie_tier1 import extract_documents
 from local_dynamics import inventory as dynamic_inventory
 from source_observation_evidence import digest
 
-SCHEMA='actual-output-unit-inventory/2'
+SCHEMA='actual-output-unit-inventory/3'
 PITCH_FEATURES=('pitched_attack_pitch','pitched_attack_pitch_class','pitched_attack_octave')
 
 
@@ -94,8 +94,12 @@ def inventory(tier1):
             features['pitched_attack_octave'][root]=None if pitch is None else int(F(pitch)//12)-1
         if type(row['instrument_id'])is int and 24<=row['instrument_id']<=39:
             contacts=[[nodes[ref]['string'],nodes[ref]['fret']]for ref in members]
+            # Explicit dead notes can name a string without a fret. Keep that
+            # observed string: replacing the whole pair by None hides its edits.
+            # None remains an unknown fret, never a fabricated physical position.
             features['guitar_bass_contact'][root]=(contacts if not unknown and all(
-                type(string)is int and type(fret)is int for string,fret in contacts) else None)
+                type(nodes[ref]['string'])is int and (type(nodes[ref]['fret'])is int or
+                (nodes[ref]['dead'] and nodes[ref]['fret']is None)) for ref in members) else None)
     simultaneous=defaultdict(list)
     for root,row in attacks.items():simultaneous[row['part_id'],F(row['onset_q'])].append(root)
     coattacks={}
