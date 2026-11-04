@@ -3,6 +3,7 @@
 Repository: https://github.com/mtch777/Guitar-Learning. Branch of record: main.
 
 ## Listening feedback — permanent user instruction, 2026-11-02
+- Silent QA by default (user instruction, 2026-11-03): do not start audible playback on the user's computer. Inspect audio files, timing, note changes and player state silently; leave playback for the user to start. Musical listening acceptance remains separate from technical verification.
 - Reuse the existing listening page. Repopulate it; do not rebuild a player or rerender verified audio for presentation changes.
 - Always show untouched original, what changed, color-coded changed notes in the piano roll, and specific feedback questions. Keep four bars before/after by default.
 - Follow `composition-lab/LISTENING_REVIEW_TEMPLATE.md` and its publisher. Keep the same serving URL when available.

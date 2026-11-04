@@ -14,8 +14,12 @@ This file records responsibility only; it is not another task order.
 
 No historical agent name grants continuing edit permission. No unapproved
 cross-chat messaging, new source campaign, schema expansion or revived QABot.
-The active live-orientation integration continues; this reconciliation does not
-reset it to earlier T4 planning, listening or acquisition tasks.
+The active objective is the Cloud whole-song/all-control request, including
+overlap resolution and actual-output percentages. Root owns pitch choices and
+integration; control_restriction_audit owns the assigned timing preflight;
+ProjectPlanner3000 challenges the actual counterexamples and decisions. Those
+assignments do not grant broader file ownership. The three-control listening
+increment is evidence toward the whole request, not a substitute for it.
 
 ## Historical assignments and steering — November2–3 checkpoints
 

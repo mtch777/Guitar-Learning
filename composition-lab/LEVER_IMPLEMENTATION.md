@@ -7,7 +7,14 @@ contracts in [PROJECT_COMPLETION_PLAN.md](PROJECT_COMPLETION_PLAN.md), with
 [THREE_QA_GATES.md](THREE_QA_GATES.md). Historical “Next” paragraphs are not a new
 task queue or permission to reopen accepted work.
 
-## Current contract distinction
+## Current contract pointer
+
+New requests follow the canonical plan: 0 locks the supplied current feature;
+50 targets half its declared observable units actually changed; 100 requires all,
+measured in final output after interacting controls. The release/sampling rules
+below describe historical artifacts only and cannot establish a new-contract pass.
+
+## Historical release/sampling contract — superseded for new requests
 
 - **0** locks the declared feature of the supplied composition. Original-state
   zero reconstructs the original; saved CURRENT zero preserves the edited state.

@@ -10,6 +10,7 @@ from source_observation_evidence import digest, validate_origin
 from technique_observation_relations import identify, scalar_relation
 
 SCHEMA = 'observed-dynamic-relations/1'
+PROJECTED_SCHEMA = 'observed-dynamic-relations/2'
 META = {'id', 'document', 'pointer', 'parent', 'slot', 'type'}
 DECLARATION = {'part_id', 'voice', 'scope', 'bar', 'beat', 'note', 'influence_refs', 'reasons'}
 TRANSITION = {'incoming_fact_ref', 'following_boundary_fact_ref', 'source_meter',
@@ -41,7 +42,95 @@ def definition(marking):
 
 def evidence(model):
     """No current realization selection contributes to original-observation votes."""
-    return {k: deepcopy(model[k]) for k in ('schema', 'origin', 'definitions', 'observations', 'transition_error')}
+    result = {k: deepcopy(model[k]) for k in ('schema', 'origin', 'definitions', 'observations', 'transition_error')}
+    # Version 2 only projects current realization addresses. The evidence still
+    # has exactly its original version-1 identity and checksum.
+    if model.get('schema') == PROJECTED_SCHEMA:
+        result['schema'] = SCHEMA
+    return result
+
+
+def _dynamic_address(ref):
+    if type(ref) is not str:
+        raise ValueError('Typed dynamic declaration address required')
+    match = re.fullmatch(r'track-(0|[1-9]\d*)\.json#/measures/(0|[1-9]\d*)/voices/(0|[1-9]\d*)/beats/(0|[1-9]\d*)(?:/notes/(0|[1-9]\d*))?/velocity', ref)
+    if match is None:
+        raise ValueError('Typed dynamic declaration address required')
+    return tuple(int(value) if value is not None else -1 for value in match.groups())
+
+
+def _mapping(mapping, *, events):
+    if type(mapping) is not dict:
+        raise ValueError('Explicit current-address projection map required')
+    address = _occurrence_identity if events else _dynamic_address
+    seen = set()
+    for original, targets in mapping.items():
+        if type(original) is not str:
+            raise ValueError('Typed projection reference required')
+        source = address(original)
+        if (type(targets) is not list or not targets
+                or any(type(ref) is not str for ref in targets)
+                or len(targets) != len(set(targets))):
+            raise ValueError('Every projected occurrence needs distinct nonempty materialized targets')
+        for ref in targets:
+            target = address(ref)
+            same_lane = source[:2] == target[:2] and source[3] == target[3] if events else (
+                source[0] == target[0] and source[2] == target[2] and (source[4] < 0) == (target[4] < 0))
+            if not same_lane:
+                raise ValueError('Dynamic projection escaped its song/part/voice/declaration scope')
+            if ref in seen:
+                raise ValueError('Projected targets have conflicting original owners')
+            seen.add(ref)
+
+
+def _projection(model):
+    facts = {row['fact_ref'] for row in model['observations']}
+    events = {ref for row in model['observations'] for ref in row['declaration']['influence_refs']}
+    if model['schema'] == SCHEMA:
+        return dict(fact_map={ref:[ref] for ref in sorted(facts)},
+                    event_map={ref:[ref] for ref in sorted(events)})
+    projection = model['projection']
+    if type(projection) is not dict or set(projection) != {'fact_map','event_map'}:
+        raise ValueError('Closed dynamic occurrence projection required')
+    for name, domain in (('fact_map',facts),('event_map',events)):
+        values = projection[name]
+        _mapping(values, events=name=='event_map')
+        if set(values) != domain:
+            raise ValueError('Complete original dynamic projection domain required')
+        address = _occurrence_identity if name=='event_map' else _dynamic_address
+        if any(targets != sorted(targets,key=address) for targets in values.values()):
+            raise ValueError('Canonical materialized occurrence order required')
+    return projection
+
+
+def project(model, fact_map, event_map):
+    """Project CURRENT addresses, retaining immutable original evidence/choices.
+
+    Full affected-score maps may include unrelated references; only this owner's
+    domain is retained. Missing keys mean identity. Version-2 calls compose with
+    existing current addresses, so an omitted map never resets a prior edit.
+    Original IDs are current IDs for an unprojected version-1 model.
+    """
+    validate(model)
+    _mapping(fact_map,events=False); _mapping(event_map,events=True)
+    prior = _projection(model)
+    projection = {}
+    for name, updates in (('fact_map',fact_map),('event_map',event_map)):
+        address = _occurrence_identity if name=='event_map' else _dynamic_address
+        projection[name] = {original:sorted(
+            [new for current in targets for new in updates.get(current,[current])],key=address)
+            for original,targets in prior[name].items()}
+    result = deepcopy(model)
+    identity = all(targets == [ref] for values in projection.values() for ref,targets in values.items())
+    result['schema'] = SCHEMA if identity else PROJECTED_SCHEMA
+    if identity:
+        result.pop('projection',None)
+    else:
+        result['projection'] = projection
+    validate(result)
+    if evidence(result) != evidence(model) or result['evidence_sha256'] != model['evidence_sha256']:
+        raise ValueError('Projection changed original dynamic evidence')
+    return result
 
 
 def lift(tier1, source_origin):
@@ -82,7 +171,9 @@ def lift(tier1, source_origin):
 
 def validate(model, source_origin=None):
     expected = {'schema', 'origin', 'definitions', 'observations', 'current', 'transition_error', 'evidence_sha256'}
-    if type(model) is not dict or set(model) != expected or model['schema'] != SCHEMA:
+    if type(model) is dict and model.get('schema') == PROJECTED_SCHEMA:
+        expected.add('projection')
+    if type(model) is not dict or set(model) != expected or model['schema'] not in (SCHEMA,PROJECTED_SCHEMA):
         raise ValueError('Exact observed-dynamics ownership required')
     validate_origin(model['origin'])
     if source_origin is not None and model['origin'] != source_origin:
@@ -184,6 +275,8 @@ def validate(model, source_origin=None):
             raise ValueError('Dynamic scalar escaped its source occurrence')
     if current_seen != seen:
         raise ValueError('Missing current dynamic selection')
+    if model['schema'] == PROJECTED_SCHEMA:
+        _projection(model)
 
 
 def validate_source(model, tier1):
@@ -198,22 +291,33 @@ def validate_source(model, tier1):
     current = inventory(tier1)
     declarations = {r['fact_ref']: r for r in current['declarations']}
     occurrences = {r['occurrence_ref'] for r in current['states']}
+    projection = _projection(model)
     for original in model['observations']:
         ref = original['fact_ref']
-        row = declarations.get(ref)
-        if row is None or not row['known']:
+        rows = [declarations.get(target) for target in projection['fact_map'][ref]]
+        if any(row is None or not row['known'] for row in rows):
             raise ValueError('Original dynamic declaration absent from current source structure')
-        influence = original['declaration']['influence_refs']
+        influence = sorted(target for occurrence in original['declaration']['influence_refs']
+                           for target in projection['event_map'][occurrence])
         if any(occurrence not in occurrences for occurrence in influence):
             raise ValueError('Original dynamic influence references nonexistent note occurrence')
-        if influence != row['influence_refs']:
+        actual = [occurrence for row in rows for occurrence in row['influence_refs']]
+        if len(actual) != len(set(actual)) or influence != sorted(actual):
             raise ValueError('Original dynamic influence differs from current declaration topology')
 
 
 def realize(model, source_origin=None):
     validate(model, source_origin)
-    return [dict(deepcopy(row['structure']), value=scalar_relation('string', parameter=model['definitions'][row['definition_ref']]))
-            for row in model['current']]
+    mapping = _projection(model)['fact_map']
+    result = []
+    for row in model['current']:
+        for target in mapping[row['fact_ref']]:
+            shape = deepcopy(row['structure'])
+            document,pointer = target.split('#',1)
+            shape.update(id=target,document=document,pointer=pointer,
+                         parent=document+'#'+pointer.rsplit('/',1)[0])
+            result.append(dict(shape,value=scalar_relation('string', parameter=model['definitions'][row['definition_ref']])))
+    return result
 
 
 def choose(model, fact_ref, marking):

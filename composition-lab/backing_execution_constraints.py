@@ -4,6 +4,7 @@ This is a validator, not a detector or note selector. Numeric distances may
 change. No original pitch/fret payload or performed ringing duration is stored.
 """
 from copy import deepcopy
+from bisect import bisect_left
 from fractions import Fraction as F
 from functools import lru_cache
 import hashlib
@@ -105,12 +106,42 @@ def _neighborhood(row,nodes):
     return result
 
 
+def _occupancy_index(nodes):
+    """Ephemeral bounds over the current written contacts, never saved state.
+
+    Grace contacts are points, including a point exactly at an owned onset.
+    Positive written intervals ending exactly there may remain candidates;
+    the unchanged half-open predicate below rejects those boundary contacts.
+    """
+    parts={}
+    for ordinal,(ref,node) in enumerate(nodes.items()):
+        if not node['grace'] and node['duration']<=0:continue
+        parts.setdefault(node['part'],[]).append((ordinal,ref,node))
+    index={}
+    for part,rows in parts.items():
+        rows.sort(key=lambda row:row[2]['onset'])
+        onsets=[];ends=[];maximum=None
+        for _,_,node in rows:
+            onset=node['onset'];end=onset if node['grace'] else onset+node['duration']
+            maximum=end if maximum is None else max(maximum,end)
+            onsets.append(onset);ends.append(maximum)
+        index[part]=(rows,onsets,ends)
+    return index
+
+
 def _occupancy(nodes,refs):
+    index=None
     for ref in refs:
         a=nodes[ref]
         if a['grace']or a['duration']<=0 or not a['string_valid']:
             raise ValueError('UNVERIFIED_OWNED_WRITTEN_CONTACT')
-        for other,b in nodes.items():
+        if index is None:index=_occupancy_index(nodes)
+        rows,onsets,ends=index[a['part']]
+        first=bisect_left(ends,a['onset'])
+        stop=bisect_left(onsets,a['onset']+a['duration'])
+        # Bounds only prune impossible contacts. Preserve source insertion
+        # order and every original predicate, including the first refusal.
+        for _,other,b in sorted(rows[first:stop],key=lambda row:row[0]):
             if ref==other or a['part']!=b['part']:continue
             if b['grace']:
                 if a['onset']<=b['onset']<a['onset']+a['duration']:

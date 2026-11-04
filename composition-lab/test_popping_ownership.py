@@ -1,7 +1,11 @@
 """Popping is preserved notation, not a reconstructed attack or a new lever."""
 from copy import deepcopy
 import itertools
+import json
+import os
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -112,6 +116,55 @@ class PoppingOwnershipTests(unittest.TestCase):
                     corrupted = deepcopy(graph)
                     next(e for e in corrupted['edges'] if e['status'] == 'ambiguous_attack_execution')['semantics']['performed_priority'] = 'slapping'
                     self.assertEqual(check(lower, corrupted)['status'], 'FAIL_INDEPENDENT_EXECUTION_DEPENDENCIES')
+
+    def test_declaration_record_order_is_canonical_but_every_field_and_duplicate_matters(self):
+        from check_execution_dependencies import _canonical_declarations
+        docs = fixture(slapping=True, tapping=True, popping=True)
+        docs['track-0.json']['measures'][0]['voices'][0]['beats'][0]['notes'].append(dict(string=4,fret=2))
+        lower = extract_documents(docs)
+        graph = build(lower)
+        self.assertEqual(graph,expected(lower))
+        rows = graph['signature']['declarations']
+        saved = deepcopy(rows)
+        self.assertEqual(_canonical_declarations(list(reversed(rows))),rows)
+        duplicated = rows+[deepcopy(rows[0])]
+        self.assertEqual(len(_canonical_declarations(duplicated)),len(rows)+1)
+        self.assertEqual(_canonical_declarations(duplicated).count(rows[0]),2)
+        self.assertEqual(rows,saved)
+        for damage in ('value','reference','members','duplicate'):
+            bad = deepcopy(graph)
+            declarations = bad['signature']['declarations']
+            if damage=='value':declarations[0]['value']=False
+            elif damage=='reference':declarations[0]['source_fact_ref']=declarations[1]['source_fact_ref']
+            elif damage=='members':declarations[0]['member_refs'].reverse()
+            else:declarations.append(deepcopy(declarations[0]))
+            with self.subTest(damage=damage):
+                self.assertEqual(check(lower,bad)['status'],'FAIL_INDEPENDENT_EXECUTION_DEPENDENCIES')
+
+    def test_all_eight_flag_combinations_match_in_fresh_hash_seed_processes(self):
+        script = '''import itertools,json
+from test_popping_ownership import fixture
+from source_fact_tier1 import extract_documents
+from execution_dependencies import build
+from check_execution_dependencies import expected
+graphs=[]
+for values in itertools.product((False,True),repeat=3):
+    lower=extract_documents(fixture(**dict(zip(('slapping','tapping','popping'),values))))
+    graph=build(lower)
+    assert graph==expected(lower),values
+    graphs.append(graph)
+print(json.dumps(graphs,sort_keys=True))
+'''
+        outputs = []
+        for seed in ('0','1','17'):
+            result = subprocess.run([sys.executable,'-c',script],
+                cwd=Path(__file__).parent,env=dict(os.environ,PYTHONHASHSEED=seed),
+                text=True,capture_output=True,timeout=30)
+            self.assertEqual(result.returncode,0,result.stderr)
+            outputs.append(json.loads(result.stdout))
+        self.assertEqual(len(outputs[0]),8)
+        self.assertEqual(outputs[0],outputs[1])
+        self.assertEqual(outputs[0],outputs[2])
 
     def test_full_beat_scope_refuses_owned_notes_but_not_whole_part(self):
         from backing_execution_constraints import build as execution_scope

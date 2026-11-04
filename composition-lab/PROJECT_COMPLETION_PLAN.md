@@ -13,6 +13,24 @@ instruction dependencies. This plan contains the governing requirements and gate
 
 ## Canonical current status and queue — 2026-11-03
 
+**Active obligation:** finish the Cloud Cascade whole-song request and resolve
+overlap across ALL registered controls, with actual-output 0/50/100 behavior.
+The movement/register/rhythm increment is a prerequisite and an early listening
+checkpoint, not a replacement objective or completion of this request. The active
+checklist names the remaining control groups and accountable owners. Distinguish
+true contradictory requests from missing musical choices or implementation; neither
+an overlap inventory nor a correct refusal closes an unfinished capability.
+
+Current implementation evidence: the new degree-path relation achieves20/20
+signed steps and38/38 final octaves in the first frozen Cloud scope; same-span
+subdivision now passes authored saved/combined/denied-inverse checks. The full
+existing38-use subdivision selection covers530 coattacks/1064 note attacks,
+21.31% of the source's4992 attacks. Frozen-current-code whole-selection verification
+now passes, including exact inverse and silent native checks. Per-control whole-song
+accounting remains open in the active checklist. No
+all-control completion or fresh-song creative pass is implied. Agent QA is silent;
+the user starts listening playback.
+
 ### Latest user correction: percentages measure actual output changes
 
 This supersedes release-probability/no-original-preference semantics for NEW
@@ -170,13 +188,15 @@ control and preserved relationships, not new melodic vocabulary or completed T5.
 | T5MVP | OPEN: original material recall was listenable but insufficient; melodic, automatic-discovery, groove and combined-return capabilities have scoped technical/audio evidence, not final T5 acceptance |
 | T6MVP | NOT PROMOTED; held-out cross-song conditional preference and listening remain owed |
 
-**Previous request; preserved evidence:** Cloud Cascade (460099), all compatible implemented levers
-at 100, whole-song/per-tier measured changes and the existing piano-roll listening
-UI. Freeze source, discovery, control order and seed before outcomes. Show both
-coverage and actual change; identify missing/incompatible controls rather than
-pretending all registered capabilities exist. Use existing relationships and
-preserve original evidence. See the active checklist. The earlier T5 listening
-question remains unaccepted history; it does not block this authorized experiment.
+**Active whole-song obligation; earlier evidence retained:** Cloud Cascade (460099),
+all registered lever overlaps resolved and actual changes measured across the
+complete declared scope, with the existing piano-roll listening UI. Freeze source,
+discovery, control order and seed before outcomes. Show coverage and actual change;
+missing controls remain work to finish, not a reason to reduce the objective to
+currently implemented operations. Resolve compatible requests through shared
+relationships; expose genuinely contradictory requests without silently dropping
+one. Preserve original evidence. See the active checklist. The earlier T5 listening
+question remains unaccepted history; it does not block this authorized work.
 Fresh creative portability and T5 acceptance remain open; no T6 promotion.
 
 **Combined expression and rhythm verified; other controls remain limited:** one
@@ -737,7 +757,7 @@ alternative is retained and reported, not replaced by an easier example.
 |---|---|---|
 | 1a. Original observations | Give each original musical observation an immutable identity and one owner. Separate observed definitions from the choices in the edited composition. Migrate policies by musical relationship, not by adding a hidden copy of the source score. | Reproduce both dynamics and melody contamination; editing a value never creates another original vote, changes its source identity or inflates support. Count observation identities as well as values. |
 | 1b. Validation holes | Repair invalid time fractions, forged/nonexistent occurrence references, malformed controls and integrity checks; complete all public entrypoints. | Each independent failing counterexample fails safely before option lookup or mutation. Valid zero and nonzero requests still work. |
-| 1c. Coverage | For the immediate exit, support the TWO named dynamics policies and contain other unsafe chains. Migrate another policy only when the accepted musical experiment actually needs it. | No silent re-analysis of edited output into a new source baseline. Guarded refusals stay labelled unsupported; migrating every policy is NOT a precondition for a read-only musical preflight. |
+| 1c. Coverage — historical bounded repair | The TWO-policy dynamics repair was the earlier immediate exit. Its restriction to policies needed by that experiment is superseded by the current all-control assignment. Preserve that repair while migrating the remaining required controls. | No silent re-analysis of edited output into a new source baseline. Guarded refusals stay labelled unsupported and do not close missing control coverage. |
 | 2a. Current context | Recompute the target's harmony, neighboring notes, held notes, rhythm, incoming expression and physical constraints after a change. Filter original observations for that CURRENT context. | A context-changing edit alters eligible choices where justified, while original counts/definitions/provenance remain unchanged. No freezing all future choices as a substitute for immutability. |
 | 2b. Sequences | Exercise repeated edits to one control and edits across controls sharing timing, pitch, expression or physical dependencies. Define transaction boundaries. | Supported nonzero sequences complete; unsupported/conflicting requests leave the complete input unchanged. All-zero is not a substitute. Test both orders where order should commute; document legitimate order dependence. |
 | 2c. Real-source integration | Run isolated reconstruction after the first edit and after subsequent 0/50/100 requests, then independent comparison. Freeze the integrated candidate before a genuinely new random source. | Exact preserved fields, original-evidence invariance and declared changes. Keep existing-source Queen chain evidence separate from a new random-song result and from native/audio results. |

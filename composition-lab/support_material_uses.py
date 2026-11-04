@@ -22,7 +22,7 @@ RHYTHM_SCHEMA='source-musical-material-uses/3'
 
 def unallocated_fields(use):
     """A section owns allocation, while local use timing remains independent."""
-    return {'id','slot_ref'} | ({'rhythm_offset_q'} if 'rhythm_offset_q' in use else set())
+    return {'id','slot_ref'} | ({'rhythm_offset_q', 'degree_steps', 'degree_octaves', 'degree_strings', 'subdivision_factors'} & set(use))
 
 
 def _shape(upper):
@@ -44,6 +44,13 @@ def _shape(upper):
             fields.add('rhythm_offset_q')
             value=use['rhythm_offset_q']
             if type(value)is not str or str(F(value))!=value:raise ValueError('Canonical common rhythmic displacement required')
+        if type(use)is dict and any(k in use for k in ('degree_steps', 'degree_octaves', 'degree_strings')):
+            fields.update(('degree_steps', 'degree_octaves', 'degree_strings'))
+        if type(use)is dict and 'subdivision_factors'in use:
+            fields.add('subdivision_factors')
+            factors=use['subdivision_factors']
+            if type(factors)is not dict or any(type(k)is not str or type(v)is not int or v<1 or v&(v-1) for k,v in factors.items()):
+                raise ValueError('Explicit power-of-two reattack factors required')
         if (type(use)is not dict or set(use)!=fields
                 or type(use['id'])is not str or not re.fullmatch(r'[A-Za-z0-9:_-]+',use['id'])
                 or use['id']in identities or type(use['slot_ref'])is not int
@@ -59,11 +66,22 @@ def _shape(upper):
         if type(slot['start_q'])is not str or str(F(slot['start_q']))!=slot['start_q']or F(slot['start_q'])<0:
             raise ValueError('Canonical destination clock required')
         definition=upper['materials'][use['material_ref']]
+        if set(use.get('subdivision_factors',{}))-{g['id'] for g in definition['lower_tier']['coattacks']}:
+            raise ValueError('Subdivision must name stable complete material coattacks')
         from material_approaches import SCHEMA as approach_schema
         if definition['schema']==approach_schema:
             if upper['schema']not in (APPROACH_SCHEMA,DIRECT_SCHEMA,RHYTHM_SCHEMA) or use.get('approach_mode')not in ('original','flip'):
                 raise ValueError('Each approach use needs its own explicit direction choice')
         elif 'approach_mode'in use:raise ValueError('An ordinary material has no approach choice')
+        from material_degree_paths import SCHEMA as degree_schema, expand as expand_degrees
+        if definition['schema'] == degree_schema:
+            if any(k not in use for k in ('degree_steps', 'degree_octaves', 'degree_strings')):
+                raise ValueError('Each degree-path use needs explicit movement and octave choices')
+            expand_degrees(definition, use['degree_steps'], use['degree_octaves'])
+            if type(use['degree_strings']) is not dict:
+                raise ValueError('Explicit per-occurrence string choices required')
+        elif any(k in use for k in ('degree_steps', 'degree_octaves', 'degree_strings')):
+            raise ValueError('An ordinary material has no degree-path choice')
         if (scope['parts']!=definition['scope']['parts']or slot['bar_spans_q']!=definition['bar_spans_q']
                 or scope['last_bar']-scope['first_bar']!=definition['scope']['last_bar']-definition['scope']['first_bar']):
             raise ValueError('MVP placement preserves instrument bindings and complete bar geometry')
@@ -133,11 +151,16 @@ def place(definition,slot,use,*,parent=None):
             raise ValueError('Material relocation would readdress existing expression owners')
     from material_approaches import SCHEMA as approach_schema, expand as expand_approach
     solved=expand_approach(definition,use['approach_mode'])if definition['schema']==approach_schema else definition
+    from material_degree_paths import SCHEMA as degree_schema, expand as expand_degrees
+    if definition['schema'] == degree_schema:
+        solved = expand_degrees(definition, use['degree_steps'], use['degree_octaves'])
     if 'rhythm_offset_q' in use:
         from material_rhythm_displacement import solve
         if parent is not None:solved=material.rhythm_context(solved,parent)
         solved,_=solve(solved,use['rhythm_offset_q'])
     source=material.expand(solved);fact,event,delta=_maps(definition,slot)
+    if definition['schema'] == degree_schema:
+        _degree_strings(source, definition, use['degree_strings'])
     out={k:deepcopy(v)for k,v in source.items()};shift=F(slot['start_q'])-F(definition['source_start_q'])
     out['source_structure']=[_row(r,fact)for r in source['source_structure']]
     for field in ('source_choices','coverage'):
@@ -232,13 +255,174 @@ def realize_pair(upper):
         result['lower_tier']=restored
         lower=cell.reconstruct(result,{'variation':0})
     for piece,records in zip(pieces,contracts):material.validate_fragment_execution(piece,records,lower)
+    from material_degree_paths import SCHEMA as degree_schema
+    for use in upper['uses']:
+        if upper['materials'][use['material_ref']]['schema'] == degree_schema:
+            _validate_degree_contacts(upper, use['id'], lower)
     from material_approaches import SCHEMA as approach_schema, validate_membership
     for use in upper['uses']:
         definition=upper['materials'][use['material_ref']]
         if definition['schema']==approach_schema:
             _,event,_=_maps(definition,upper['slots'][use['slot_ref']])
             validate_membership(definition,lower,event_map=event)
+    if any(any(v>1 for v in u.get('subdivision_factors',{}).values()) for u in upper['uses']):
+        if upper['schema']!=DIRECT_SCHEMA:
+            raise ValueError('Subdivision needs explicit projection of the legacy cell owner')
+        result,lower,ledger=_subdivide_result(upper,result,lower,pieces,contracts,ledger)
     return result,lower,ledger
+
+
+def _subdivision_fragment(piece,parent,scope):
+    """Give the planner transient current optional membership, not stored notes."""
+    fragment=deepcopy(piece)
+    present={r['id'] for r in fragment['source_structure']}
+    present.update(r['id'] for g in fragment['technique_declarations'] for r in g['structure'])
+    for row in material.expression_rows(parent):
+        if not material._owns(row['id'],scope) or row['id'] in present:continue
+        fragment['source_structure'].append({k:deepcopy(v) for k,v in row.items() if k!='value'})
+        if 'value'in row:
+            fragment['source_choices'].append(dict(fact_ref=row['id'],owner='transient_expression',
+                parameter=scalar_relation(row['type'],source=row['value'])))
+        present.add(row['id'])
+    return fragment
+
+
+def _subdivide_result(upper,parent,lower,pieces,contracts,ledger):
+    from material_subdivision import plan,plan_maps
+    from material_subdivision_projection import project
+    from connected_tier2 import realize
+    plans=[]
+    for use,piece,records in zip(upper['uses'],pieces,contracts):
+        counts=use.get('subdivision_factors',{})
+        if not any(v>1 for v in counts.values()):continue
+        slot=upper['slots'][use['slot_ref']]
+        fragment=_subdivision_fragment(piece,parent,slot['scope'])
+        plans.append(plan(fragment,{use['id']+':'+ref:value for ref,value in counts.items()},observed_execution=records))
+    maps=plan_maps(plans)
+    # A fresh attack may retain an outgoing hold: the LAST child carries that
+    # written tie. Splitting an incoming continuation would break its sustained
+    # identity and is separately refused. Use the existing written-tie relation.
+    import backing_written_tie_constraints as ties
+    import backing_pitch_ownership as backing
+    def plain(model):
+        core=model['musical_relationships']
+        return backing.expand(core) if core.get('schema')in backing.SCHEMAS else core
+    selected=[r for r,children in maps['events'].items() if len(children)>1]
+    before_ties=ties.from_tier1(plain(parent),lower,selected)
+    if any(edge['destination_ref']in selected for edge in before_ties['relations']):
+        raise ValueError('SUBDIVISION_BLOCKED: incoming written tie needs a different reattack intention')
+    result=project(parent,plans)
+    changed=realize(result)
+    # Existing execution contracts use current coordinates. Project UNSPLIT
+    # endpoints and verify against the new score; split endpoints were refused
+    # by the planner rather than guessed to mean an attack or final release.
+    from material_subdivision_projection import _rewrite,BEAT
+    def mapped_fact(ref):
+        match=BEAT.fullmatch(ref)
+        base=match[1]+match[2] if match else None
+        return maps['beats'][base][0]+ref[len(base):] if base in maps['beats'] else ref
+    def mapped_event(ref):return maps['events'].get(ref,[ref])[0]
+    projected_selected=[child for ref in selected for child in maps['events'][ref]]
+    actual_ties=ties.from_tier1(plain(result),changed,projected_selected)
+    expected_ties=[ties.relation(dict(origin=maps['events'].get(edge['origin_ref'],[edge['origin_ref']])[-1],
+        destination=mapped_event(edge['destination_ref']),kind=edge['kind'])) for edge in before_ties['relations']]
+    expected_ties.sort(key=lambda r:(ties.address(r['destination_ref']),ties.address(r['origin_ref'])))
+    if actual_ties['relations']!=expected_ties:
+        raise ValueError('SUBDIVISION_CHANGED_WRITTEN_TIE: final child must retain the original outgoing hold')
+    for piece,records in zip(pieces,contracts):
+        if not set(piece['realization_order'])&set(maps['events']):continue
+        projected=dict(realization_order=[r for old in piece['realization_order'] for r in maps['events'].get(old,[old])],
+            physical_positions=[dict(occurrence_ref=r) for p in piece['physical_positions']
+                                for r in maps['events'].get(p['occurrence_ref'],[p['occurrence_ref']])])
+        expected=[]
+        for record in records:
+            current=_rewrite(record,mapped_fact,mapped_event)
+            current['id']=execution.identity(current);expected.append(current)
+        material.validate_fragment_execution(projected,expected,changed)
+    identities={row['current_address']:row for row in ledger}; additions={}
+    for planned in plans:
+        for child in planned['event_map']:
+            original=identities[child['parent_occurrence']]
+            row=deepcopy(original);fraction=child['relative_parent_offset']
+            if fraction!='0':row['identity']+='@subdivision:'+fraction
+            row['current_address']=child['current_address']
+            additions.setdefault(child['parent_occurrence'],[]).append(row)
+    mapped=[child for row in ledger for child in additions.get(row['current_address'],[row])]
+    if len({r['identity'] for r in mapped})!=len(mapped) or len({r['current_address'] for r in mapped})!=len(mapped):
+        raise ValueError('Subdivision lost stable identity or aliased current addresses')
+    return result,changed,mapped
+
+
+def subdivision_candidate(upper,requests,*,percent=100):
+    """Halve and reattack the CURRENT children of every named parent.
+
+    requests maps use IDs to explicitly selected stable coattack IDs. Percentage
+    targets are checked over the complete selected CURRENT attack denominator.
+    No partial output is committed if the requested count cannot be realized.
+    """
+    if type(percent)is not int or percent not in (0,50,100) or type(requests)is not dict:
+        raise ValueError('Explicit subdivision request and 0/50/100 target required')
+    _shape(upper);out=deepcopy(upper);units=[]
+    lookup={u['id']:u for u in out['uses']}
+    for use_id,refs in requests.items():
+        if use_id not in lookup or type(refs)is not list or len(refs)!=len(set(refs)) or not refs:
+            raise ValueError('Unique selected coattacks in existing uses required')
+        use=lookup[use_id];allowed={g['id'] for g in out['materials'][use['material_ref']]['lower_tier']['coattacks']}
+        if set(refs)-allowed:raise ValueError('Unknown subdivision coattack')
+        for ref in refs:units.append((use,ref,use.get('subdivision_factors',{}).get(ref,1)))
+    denominator=sum(factor for _,_,factor in units)
+    if not denominator:raise ValueError('Empty subdivision scope is not applicable')
+    target=(denominator*percent+50)//100
+    # Exact subset sum, preserving the frozen request order. Whole-parent
+    # consequences remain indivisible; no rounding away blocked children.
+    reachable={0:[]}
+    for i,(_,_,factor) in enumerate(units):
+        for count,selected in list(reachable.items()):
+            if count+factor<=target and count+factor not in reachable:reachable[count+factor]=selected+[i]
+    if target not in reachable:raise ValueError('Subdivision target conflicts with indivisible current children')
+    for i in reachable[target]:
+        use,ref,factor=units[i];use.setdefault('subdivision_factors',{})[ref]=factor*2
+    _,after,after_ledger=realize_pair(out)
+    _,before,before_ledger=realize_pair(upper) if out!=upper else (None,after,after_ledger)
+    measured=_measure_subdivision(upper,requests,before,before_ledger,after,after_ledger)
+    if measured['current_attacks']!=denominator or measured['changed_current_attacks']!=target:
+        raise ValueError('Final subdivision output misses the frozen change target')
+    if measured['original_onsets_moved'] or measured['added_attacks']!=target:
+        raise ValueError('Subdivision changed parent placement or lost child attacks')
+    return out,dict(requested_percent=percent,unit='complete_coattack',**measured,changed=out!=upper)
+
+
+def _measure_subdivision(upper,requests,before,before_ledger,after,after_ledger):
+    """Read actual reconstructed durations against stable CURRENT identities."""
+    roots=[];note_roots=[]
+    for use in upper['uses']:
+        selected=set(requests.get(use['id'],[]))
+        definition=upper['materials'][use['material_ref']]
+        for group in definition['lower_tier']['coattacks']:
+            if group['id']in selected:
+                roots.append(use['id']+'/'+group['members'][0]['id'])
+                note_roots.extend(use['id']+'/'+m['id'] for m in group['members'])
+    roots=set(roots);note_roots=set(note_roots)
+    def state(t1,ledger):
+        from run_reversible_tier_qa import extract_documents
+        from source_fact_tier1 import project_documents
+        events={e['id']:e for e in extract_documents(project_documents(t1))['events']}
+        return {row['identity']:events[row['current_address']] for row in ledger}
+    before_state=state(before,before_ledger);after_state=state(after,after_ledger)
+    def belongs(identity,selection):return identity in selection or identity.split('@subdivision:',1)[0]in selection
+    old={k:v for k,v in before_state.items() if belongs(k,roots)}
+    new={k:v for k,v in after_state.items() if belongs(k,roots)}
+    if not set(old)<=set(new):raise ValueError('Subdivision lost an existing logical child')
+    changed=sum(F(old[k]['duration_q'])!=F(new[k]['duration_q']) for k in old)
+    moved=sum(F(old[k]['onset_q'])!=F(new[k]['onset_q']) for k in old)
+    old_notes={k:v for k,v in before_state.items() if belongs(k,note_roots)}
+    new_notes={k:v for k,v in after_state.items() if belongs(k,note_roots)}
+    if not set(old_notes)<=set(new_notes):raise ValueError('Subdivision lost an existing member identity')
+    return dict(current_attacks=len(old),changed_current_attacks=changed,
+                added_attacks=len(new)-len(old),original_onsets_moved=moved,
+                current_note_attacks=len(old_notes),
+                changed_note_durations=sum(F(old_notes[k]['duration_q'])!=F(new_notes[k]['duration_q']) for k in old_notes),
+                added_note_attacks=len(new_notes)-len(old_notes))
 
 
 def expand(upper):
@@ -327,6 +511,140 @@ def lift_approach(upper,use_id,attack_refs,interpretations,evidence_ref):
     next(u for u in out['uses']if u['id']==use_id)['approach_mode']='original'
     after,realized,_=realize_pair(out)
     if after!=before or realized!=lower:raise ValueError('Approach ownership changed preceding relationships')
+    return out
+
+
+def lift_degree_paths(upper, use_id, *, path_refs, interpretations, evidence_ref):
+    """Transfer complete material pitch paths to collection-degree relationships."""
+    from material_degree_paths import fit
+    before, lower, _ = realize_pair(upper)
+    matches = [u for u in upper['uses'] if u['id'] == use_id]
+    if len(matches) != 1:
+        raise ValueError('One existing material use required')
+    ref = matches[0]['material_ref']
+    if sum(u['material_ref'] == ref for u in upper['uses']) != 1:
+        raise ValueError('Refining a shared definition needs an explicit shared decision')
+    out = deepcopy(upper)
+    out['materials'][ref] = fit(upper['materials'][ref], path_refs=path_refs,
+        interpretations=interpretations, evidence_ref=evidence_ref)
+    chosen = next(u for u in out['uses'] if u['id'] == use_id)
+    chosen.update(degree_steps={}, degree_octaves={}, degree_strings={})
+    after, realized, _ = realize_pair(out)
+    if after != before or realized != lower:
+        raise ValueError('Degree-path ownership changed preceding musical relationships')
+    return out
+
+
+def _degree_strings(fragment, definition, strings):
+    """A declared contact choice changes the existing physical owner only."""
+    from material_degree_paths import selected_refs
+    selected = set(selected_refs(definition))
+    physical = {p['occurrence_ref'] for p in fragment['physical_positions']}
+    allowed = {m['id'] for g in definition['lower_tier']['coattacks']
+               if g['id'] in selected for m in g['members'] if m['id'] in physical}
+    if (type(strings) is not dict or set(strings) - allowed
+            or any(type(v) is not int or v < 0 for v in strings.values())):
+        raise ValueError('String choices must name selected stable member identities')
+    choices = {r['fact_ref']: r for r in fragment['source_choices']}
+    positions = {r['occurrence_ref']: r for r in fragment['physical_positions']}
+    for ref, string in strings.items():
+        position = positions[ref]
+        choice = choices.get(position['string_ref'])
+        if choice is None:
+            raise ValueError('Existing string authority belongs to another relationship')
+        choice['parameter'].update(normalized=str(string), negative_zero=False)
+        if 'tuning_ref' in position:
+            position['tuning_ref'] = position['tuning_ref'].rsplit('/', 1)[0] + '/' + str(string)
+
+
+def _degree_refinger(upper, use):
+    """Solve instrument contacts; this does not choose the musical pitches."""
+    from itertools import product
+    from material_degree_paths import expand as expand_degrees, selected_refs
+    from backing_motion_relations import physical_contacts
+    from source_fact_tier1 import project_documents
+    base=deepcopy(upper)
+    for current_use in base['uses']:current_use.pop('subdivision_factors',None)
+    docs = project_documents(reconstruct(base, {'variation': 0}))
+    definition = upper['materials'][use['material_ref']]
+    solved = material.expand(expand_degrees(definition, use['degree_steps'], use['degree_octaves']))
+    selected = set(selected_refs(definition)); result = {}
+    _, event, _ = _maps(definition, upper['slots'][use['slot_ref']])
+    for group in solved['coattacks']:
+        if group['id'] not in selected:
+            continue
+        track = docs[f"track-{group['part_id']}.json"]
+        members = [m for m in group['members'] if m['voicing_interval'] is not None]
+        pitches = [F(group['bass_register_anchor']) + F(m['voicing_interval']) for m in members]
+        if any(p.denominator != 1 for p in pitches):
+            raise ValueError('Whole-semitone physical realization required')
+        original = []; reserved = set()
+        for member in group['members']:
+            _, _, bar, voice, beat, note = execution.address(event(member['id']))
+            raw = track['measures'][bar-1]['voices'][voice]['beats'][beat]['notes'][note]
+            if type(raw.get('string')) is not int:
+                raise ValueError('Unpitched member string occupancy is unresolved; cannot relocate contacts')
+            if member['voicing_interval'] is None:
+                reserved.add(raw['string'])
+            else:
+                original.append(raw['string'])
+        contacts = [physical_contacts(int(p), track['tuning'], track.get('capo') or 0,
+                    max_fret=track.get('frets')) for p in pitches]
+        possible = [c for c in product(*contacts) if len({r['string'] for r in c}) == len(c)
+                    and not ({r['string'] for r in c} & reserved)]
+        if not possible:
+            raise ValueError('No distinct-string coattack within declared instrument bounds')
+        chosen = min(possible, key=lambda c: (sum(r['string'] != s for r, s in zip(c, original)),
+                     sum(abs(r['string']-s) for r, s in zip(c, original)),
+                     tuple(r['string'] for r in c)))
+        result.update((m['id'], c['string']) for m, c in zip(members, chosen))
+    return result
+
+
+def _validate_degree_contacts(upper, use_id, lower):
+    from source_fact_tier1 import project_documents
+    from material_degree_paths import selected_refs
+    use = next(u for u in upper['uses'] if u['id'] == use_id)
+    definition = upper['materials'][use['material_ref']]
+    selected = set(selected_refs(definition))
+    physical = {p['occurrence_ref'] for p in definition['lower_tier']['physical_positions']}
+    _, event, _ = _maps(definition, upper['slots'][use['slot_ref']])
+    docs = project_documents(lower)
+    for group in definition['lower_tier']['coattacks']:
+        if group['id'] not in selected:
+            continue
+        strings = []
+        for member in group['members']:
+            _, part, bar, voice, beat, note = execution.address(event(member['id']))
+            track = docs[f'track-{part}.json']
+            raw = track['measures'][bar-1]['voices'][voice]['beats'][beat]['notes'][note]
+            if type(raw.get('string')) is int:
+                strings.append(raw['string'])
+            if member['id'] not in physical:
+                continue
+            fret = F(str(raw['fret']))
+            if fret.denominator != 1 or fret < 0 or ('frets' in track and fret > track['frets']):
+                raise ValueError('Degree-path contact exceeds declared instrument bounds')
+        if len(set(strings)) != len(strings):
+            raise ValueError('Coattack members cannot occupy the same string')
+
+
+def degree_path_candidate(upper, use_id, *, displacements, octaves, refinger=False):
+    """Change existing degree/whole-octave choices; all other owners stay intact."""
+    if type(refinger) is not bool:
+        raise ValueError('Explicit permission to change strings required')
+    _shape(upper)
+    out = deepcopy(upper)
+    matches = [u for u in out['uses'] if u['id'] == use_id]
+    if len(matches) != 1 or 'degree_steps' not in matches[0]:
+        raise ValueError('Use has no degree-path owner')
+    matches[0].update(degree_steps=deepcopy(displacements), degree_octaves=deepcopy(octaves))
+    if refinger:
+        matches[0]['degree_strings'] = _degree_refinger(upper, matches[0])
+    after_t2, after, _ = realize_pair(out)
+    if 'stable_pitch_preference' in after_t2:
+        from material_rhythm_control import _check_stable_timing
+        _check_stable_timing(expand(upper), after_t2)
     return out
 
 

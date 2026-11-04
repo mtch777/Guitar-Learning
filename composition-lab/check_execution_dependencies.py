@@ -7,6 +7,12 @@ import json
 import re
 
 
+def _canonical_declarations(records):
+    # Independent implementation of the signature's unordered outer-record
+    # contract. Keep every record, duplicate, value, reference and member order.
+    return sorted(records,key=lambda row:json.dumps(row,sort_keys=True,separators=(',',':'),allow_nan=False))
+
+
 def expected(tier1):
     from source_fact_tier1 import project_documents
     from source_tie_tier1 import extract_documents
@@ -80,7 +86,7 @@ def expected(tier1):
                 edge(field,'declaration_only_unknown_end',members,dict(source_fact_ref=source,declaration=literal(value),performed_end_q=None),'sounding_end_unspecified')
             else:
                 edge(field,'declaration_only_unknown_performed_offsets',members,dict(source_fact_ref=source,declaration=literal(value),performed_note_offsets=None),'performed_roll_offsets_unspecified')
-    graph=dict(edges=all_edges,pinned_members=sorted({r for e in all_edges for r in e['member_refs']}),signature=dict(parts=part_signatures,declarations=declarations),uncertainty=unknown)
+    graph=dict(edges=all_edges,pinned_members=sorted({r for e in all_edges for r in e['member_refs']}),signature=dict(parts=part_signatures,declarations=_canonical_declarations(declarations)),uncertainty=unknown)
     return json.loads(json.dumps(graph,allow_nan=False))
 
 

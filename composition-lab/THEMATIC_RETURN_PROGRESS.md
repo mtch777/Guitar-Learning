@@ -1,6 +1,139 @@
-# T5: live return of an earlier arrangement
+# Cloud Cascade: complete interacting controls and actual output changes
 
-## Current implementation — overlapping pitch/timing controls
+## ONE current assignment — full request remains open
+
+Deliver the requested whole-song Cloud Cascade result and resolve crossover across
+ALL registered controls. 0 locks the supplied current feature; 50 targets half its
+predeclared observable units actually changed; 100 requires every unit changed in
+the FINAL output. A three-control phrase comparison is the next audible checkpoint,
+not permission to shrink the full-song scope, denominator or remaining control list.
+
+Keep original evidence, identities, untouched dependencies and the SAME inverse;
+retain first failures and all three QA gates. Accepted MVPs and past listening
+decisions remain accepted only within their recorded scope. Historical receipts
+below preserve their original results/settings; none supplies another active queue.
+
+- [ ] **Root — complete crossover decisions:** account for every row in the
+  canonical control register, separating observable choices, intentions,
+  permissions and dependent results. Resolve shared ownership and compatible
+  decisions; demonstrate true contradictions instead of calling absent choices
+  incompatible. Inventory alone does not close implementation.
+- [ ] **Root — pitch choices/integration:** address the retained Cloud held-note,
+  unison-line and repeat/reference vocabulary limits through reusable relationships.
+  Preserve the completed dependency-order and shared pitch/clock repairs.
+- [ ] **control_restriction_audit — assigned timing preflight; root integrates:**
+  determine which missing rhythmic relationship accounts for the 445 fixed/no-choice
+  attacks. Retain the complete frozen scope; do not declare current clock options
+  to be the limits of possible music. A useful premise precedes implementation.
+- [ ] **Root — first integrated musical checkpoint:** render verified Cloud
+  movement + register + groove on overlapping material, using the existing page,
+  untouched original and changed-note roll. Verify final counts, saved successive
+  edits and exact reconstruction. Continue the remaining groups after this delivery.
+- [ ] **ProjectPlanner3000 — challenge actual results:** review the chosen musical
+  relationship and strongest counterexample at start/middle/end. Root records the
+  decision; queued messages or unavailable review are not approval.
+- [ ] **Root — finish the remaining register:** use the closure table below;
+  publish verified increments and check their actual CI. No group closes merely
+  because it has a metric, a safe refusal or one isolated example.
+
+| Unfinished control group | Accountable owner | Evidence required to close the requested scope |
+|---|---|---|
+| Pitch, voicing, contacts and bend choices (current rows 1–17) | Root | Useful permitted alternatives; complete final feature counts; shared-note interactions and execution/dependency preservation through the existing inverse. |
+| Note/rest timing, rhythm placement/proportions and tempo (18–21) | Root; assigned timing preflight by control_restriction_audit | Changed requested timing units and correct consequences across affected parts; boundary/no-choice limits resolved or specifically exposed; combined pitch/expression playback verified. |
+| Loudness, dynamic transitions, accents and mute state (22–25) | Root | Actual final expression changes after combination; no canceled-effect credit, contaminated source votes or lost gesture obligations. |
+| Cell/approach, supporting material and return relationships (26–30) | Root | Final musical material and relationships satisfy their compatible targets together; dependent or contradictory targets are explicit; same saved composed path survives subsequent edits. |
+| Required controls not yet implemented | Root | Remain explicitly owed under the canonical full register. Their absence cannot be hidden by restricting an all-controls completion claim to callable operations. |
+| Whole-song integration and listening | Root, with Planner's evidence challenge | One complete declared request, fixed denominators, per-feature/per-tier actual change, all three QA statuses, verified matched full-band playback and the existing inspection page. Missing claims remain open. |
+
+### Current intermediate implementation — recurring texture and subdivision
+
+- [x] Planner rejected treating Cloud bar 11 as one undifferentiated melody:
+  its three low single attacks alternate with eight complete upper dyads per
+  guitar. Replacing everything with the first pitch destroys that relationship.
+- [x] Implement collection-degree paths and complete degree shapes through the
+  existing material inverse. Source pitch paths/voicing authority are removed
+  from the owned lower representation; original zero reconstructs them exactly.
+  Degree spacing and literal semitone spacing are different promises.
+- [x] Root: verify the first frozen Cloud scope with a rising-then-turning
+  recurrence, independent octave placement and existing groove; count all eleven
+  selected line roots/ten steps, plus every member of each full coattack.
+- [x] Root: publish the first verified audio on the existing listening page;
+  then continue the full register above. No fresh-source or all-control pass is
+  supplied by this known-song intermediate test.
+- [x] Root: add the user's same-span subdivision backup. Count one repeats the
+  current parent attack; count two realizes two half-duration reattacks sharing
+  that parent's CURRENT pitch/voicing. Preserve stable parent/child lineage,
+  outside dependencies and original evidence. Do not advance the melodic path
+  twice or copy technique flags as if a new attack were a continuation.
+  Frozen bar 11 arithmetic permits 22→44 paired coattacks and 38→76 written
+  note attacks, with unchanged four-quarter span. Whole existing38-use verification
+  now passes:530→1060coattacks and1064additional native note-ons. This closes
+  this reattack operation, not coverage of the full song or other timing controls.
+  It changes subdivision, duration and attack count, NOT the original first
+  onsets; it cannot silently replace the unresolved onset-placement target.
+
+### Verified pitch delivery and subdivision implementation
+
+All agent QA is now silent: no Play, no audible preview. User controls listening.
+Saved in AGENTS.md and LISTENING_REVIEW_TEMPLATE.md. Technical playback inspection
+does not supply human listening acceptance.
+
+- `cloud-degree-path-v1/run-003`:20/20 signed line intervals and38/38 final octaves
+  change in the first frozen paired-guitar scope;32/38 pitch classes change.
+  Original material definitions, evidence and lower owners remain exact. Actual
+  source/lower-denied inverse PASS. The prior18/20 attempt remains retained.
+- Same5280 page: untouched source / previous expression-rhythm edits / new climbing
+  and turning riff. Bars7-15,18.620952s,4context bars each side.38 changed played
+  pitches;5,350 note identities and3,738 beat records verified. Source-pointer
+  correspondence verifies native note-slot reorderings and pitch-derived accidentals.
+  Actual UI/filter/seek checks passed; audible checks subsequently disabled by user.
+- The subdivision relation now stores only per-use power-of-two factors. Each
+  child inherits the CURRENT parent pitch, complete chord/contact and expression;
+  subsequent pitch and rhythm edits propagate through the same inverse. A second
+  subdivision halves current children again (2->4);zero retains current children.
+  Original observations never become generated-child votes.
+- Typed projection preserves shifted unsplit references and optional expression
+  owners. Original dynamics and current declaration topology have an explicit
+  separate lineage. Outgoing ties attach to the last child with independently
+  checked written-tie edges; incoming continuations/unsupported execution refuse.
+- `test_material_subdivision_uses`:12 integration tests pass, including actual
+  denied-source worker, saved edits, foreign dependency propagation, shifted
+  unsplit reference, independent pitch/rhythm order, outgoing tie and atomic refusal.
+- Targeted combined check:98 tests PASS in74.576s across subdivision, dynamics
+  projection, degree paths/uses, expression composition, dependency oracle and
+  occupancy indexing. Prior fixture/runtime and concurrent-code failures retained.
+- `cloud-subdivision-v1/run-001`:the SAME frozen38 existing material uses contain
+  550 beats (20 rests),530 coattacks and1,064 pitched members. Every requested
+  coattack splits; independent complete T1 equality, saved inverse and actual
+  denied worker PASS. Final freeze check FAILED because files changed during run;
+  no frozen-current-code acceptance claimed for run001. SAME population run002
+  PASS in186.172s:530/530 current coattacks and1064/1064 member durations change,
+  530/1064 coattacks/notes added;original onsets moved0. Complete oracle equality,
+  saved inverse, actual denied worker and unchanged source hashes PASS.
+- Silent native inspection:5350->6414 written notes;4984->6048 performed callbacks.
+ 1,064 parent notes each produce two actual note-ons. Fourteen outgoing ties retain
+  their exact original final sounding endpoint via the last child. No audio played.
+  `run-002/native-reuse-receipt.json` verifies byte-identical native input, binding
+  the existing GP/played-note verification without another render or playback.
+
+Coverage is explicit:530/3211 source coattacks and1064/4992 source note attacks
+(21.31% note-attack coverage), not the entire song. Subdivision changes durations
+and reattack count; it supplies ZERO original-onset movement credit. Percentages
+name complete coattacks and also report affected note attacks separately.
+
+Next shared blockers, still attached to the full assignment: whole-song pitch
+choices and final coordination;original-evidence retention for accent/mute/tempo
+queries;original-onset/boundary freedom;remaining voicing/expression/phrase/return
+measurements. Source-only donor policies and legacy release sampling are NOT
+actual-output100 controls. New owner integration must not claim otherwise.
+
+Private current evidence: `local-artifacts/cloud-degree-path-v1/`. The first run
+was interrupted during repeated whole-model verification, before musical output;
+the same source/selection is retained. This is an execution issue, not a failed
+musical hypothesis. Planner's saved-inverse fret-bound and mixed-dead-member
+counterexamples have been fixed and added to permanent integration tests.
+
+## Recorded repair checkpoint — overlapping pitch/timing controls
 
 The user's full selected-song/all-lever output request is NOT complete. This
 increment fixes an actual false refusal and lets the same written occurrences
@@ -74,7 +207,7 @@ selection, repeat/reference motion's narrow choices, and445 attacks with no chan
 onset in the current clock vocabulary. Fix the missing relationships; do not rename
 these implementation limits as musical impossibility or count an octave as new melody.
 
-## Active implementation — connected output targets, 2026-11-03
+## Recorded implementation checkpoint — connected output targets, 2026-11-03
 
 User explicitly instructed execution after the overlap review. Root owns integration;
 Planner challenged the start. Implement a bounded joint movement/register and
@@ -159,7 +292,7 @@ New controls do not close every lever or all100. The next musical constraint to
 resolve remains Cloud's explicit held-note/line identity support, independently
 of quota arithmetic. Do not turn the held-note guard into a soft preference.
 
-## Active request — output-based percentages and complete lever audit
+## Completed inventory checkpoint — output-based percentages and lever audit
 
 Latest user correction replaces release probability with actual output change:
 50 targets half the declared feature units;100 all. Preserve all3QA, source evidence,
@@ -211,7 +344,7 @@ its final scope/rounding definitions supersede earlier private audit proposals.
 
 ## Completed prior request — Cloud Cascade combined listening delivery
 
-### Current bounded repair — combine expression and rhythm, 2026-11-03
+### Recorded bounded repair — combine expression and rhythm, 2026-11-03
 
 User challenged the separate outputs. Musical gain: hear the already verified
 expression AND timing choices in one saved composition. Root owns integration;
@@ -696,7 +829,7 @@ choose the smallest remaining musical relationship. Do not expand this into an
 automatic groove-preference engine or a collection campaign. Keep the difference
 between rhythmic displacement and preparation/contrast/return development clear.
 
-## Latest: automatic discovery becomes an editable choice
+## Recorded checkpoint — automatic discovery becomes an editable choice
 
 The analysis now scans the supplied composition without caller-selected bars,
 parts, note IDs or desired pitches. It preserves maximal runs and every refusal,

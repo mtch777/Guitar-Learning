@@ -285,6 +285,9 @@ def expand(material):
     from material_approaches import SCHEMA as approach_schema, expand as expand_approach
     if material.get('schema') == approach_schema:
         return expand(expand_approach(material))
+    from material_degree_paths import SCHEMA as degree_schema, expand as expand_degrees
+    if material.get('schema') == degree_schema:
+        return expand(expand_degrees(material))
     fields={'schema','scope','source_start_q','span_q','bar_spans_q','pulse_shares','slots','pitch_paths','voicings',
             'bindings','lower_tier','observed_execution','provenance'}
     if type(material)is dict and 'external_pitch_refs' in material:fields.add('external_pitch_refs')
@@ -435,7 +438,7 @@ def restore_fragments(skeleton,fragments):
     """Compose resolved material instances through the existing lower owners."""
     result=deepcopy(skeleton);arrays=_arrays(result)
     for fragment in fragments:
-        fragment=_return_beat_membership(result,fragment)
+        fragment=_return_beat_membership(result,deepcopy(fragment))
         for field in ARRAYS:arrays[field].extend(fragment[field])
     # Restore ordered source ownership using its existing container grammar.
     from technique_observation_relations import realize as effects
