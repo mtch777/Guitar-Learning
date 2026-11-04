@@ -29,6 +29,11 @@ Exact denied-source reconstruction and source-evidence/dependency checks pass
 for all three. Higher-level controls are not independently coordinated. Full
 all-control completion and fresh-song creative acceptance remain open; listening
 on this revision is pending. The rejected timing versions remain private evidence.
+Distribution review now rejects the50 result's intended breadth: pooled quotas
+hide LeadI5%/Bass16% pitch coverage and unchanged drums; the preview changes pitch
+only in its final four bars. Current work is per-instrument/time-scope coordination
+and explicit current dynamic-region ownership, with timing still locked. Mechanical
+reconstruction passes remain valid; they do not establish this musical acceptance.
 See the active checklist for exact receipts and remaining scope.
 The movement/register/rhythm increment is a prerequisite and an early listening
 checkpoint, not a replacement objective or completion of this request. The active

@@ -2,6 +2,40 @@
 
 ## ONE current assignment — full request remains open
 
+### Active correction — pooled totals concealed uneven changes, 2026-11-04
+
+User rejected the fixed-timing50 presentation as one small instrument/section
+change. Investigation confirms the preview's first8 bars have ZERO pitch changes;
+all137 preview pitch changes are the two rhythm guitars in bars9–12. Correct
+audio/manifest files were served. Whole-song pitch rates are LeadI4.95%, LeadII38.39%,
+RhythmI57.50%, RhythmII59.14%, Bass16.09%; drums' expression is unchanged. The pooled
+50% was technically measured but insufficient for the intended breadth. Colored
+notes also count expression/contact edits; they must not be described as pitch edits.
+
+- [x] Audit source→native→published notes/audio; expose per-instrument and opening
+  counts on the same page without changing music. Evidence: fixed-timing folder's
+  `distribution-audit-001/`.
+- [x] Test per-instrument pitch quotas with existing relationships: feasible43.36s,
+  all global quotas/locks preserved. Selection only, not a new rendered result.
+  This alone still leaves opening bass unchanged until25 and both rhythm guitars
+  unchanged41–56; do not count it as the complete distribution correction.
+- [x] Identify expression ownership limit: whole original dynamic regions cannot
+  hit half the attacks in any of these six parts. LeadI, bass and drums have only
+  one original dynamic region each; current choices are0-or100%. Accents already
+  have individual owners but were unnecessarily coupled to dynamic selection.
+- [ ] Coordinate per-instrument coverage with existing musical time scopes while
+  retaining global targets, rounding, source relationships and exact timing locks.
+  Do not invent phrases or require arbitrary audible changes in every single bar.
+- [ ] Add the smallest current dynamic-region refinement through existing relative
+  level realization, preserving original observations and frozen transition units;
+  select accents independently. Existing material-use local dynamic insertion is
+  reusable but does not yet cover percussion/full current-region ownership.
+- [ ] Verify the corrected complete output and deliver matched audio on the same
+  page. These audit/preflight results are NOT a new musical delivery or acceptance.
+
+Planner challenged the pooled claim and the missing current-region interface.
+No raw notes, source evidence or verified audio changed during this diagnosis.
+
 ### Active listening correction — unchanged timing, 2026-11-04
 
 User rejected the rhythm changes as jarring and requested **50%, 75%, and 100%
