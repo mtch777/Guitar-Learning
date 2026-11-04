@@ -2,6 +2,64 @@
 
 ## ONE current assignment — full request remains open
 
+### Active listening correction — unchanged timing, 2026-11-04
+
+User rejected the rhythm changes as jarring and requested **50%, 75%, and 100%
+for everything that does not touch note timing**. Each starts from untouched
+Cloud Cascade. Source tempo116, all starts, lengths, gaps/rests, ties, note counts,
+meter and native performed start/end times are locked. Exclude mute/articulation
+changes that alter releases; do not equate written duration with performed timing.
+Root integrates; Planner reviewed these locks; pitch and expression preparation
+are parallel private work. Preserve all earlier outputs as rejected evidence.
+
+- [x] Reuse verified source ownership and50 pitch choices; jointly solve75/100
+  non-timing pitch/contact/interval/bend targets with complete frozen denominators.
+- [x] Apply dynamics/accents and neighboring dynamic differences through existing
+  owners. Muting stays unchanged. Retain unavailable/unknown measurements.
+- [x] Verify all final counts, exact denied reconstruction, immutable evidence,
+  relationships, saved models and exact source-bound native start/end times.
+- [x] Render silently and repopulate SAME5280 page: untouched original +50/+75/+100,
+  matched full-band playback, changed-note colors, short and whole-song versions.
+- [x] Inspect actual UI silently; deliver audio promptly. Higher all-control gaps
+  remain open and are not relabeled as successful percentages.
+
+Private evidence: `local-artifacts/cloud-fixed-timing-2026-11-04/`.
+
+Delivered: unchanged timing50/75/100 and untouched original on5280; root opens
+24.826s/12bars, `/full/` offers all111bars/229.655510s. Every version uses116BPM,
+same soundfont/gain, no normalization. Actual silent UI checks all four short
+versions and three full versions load paused, no media/console errors; six parts
+and colored changes remain visible with changed-only enabled. No Play was pressed.
+
+Final50/75/100 counts: pitch class and octave1953/2929/3905 of3905; contacts
+1970/2955/3940 of3940; signed melodic intervals978/1466/1955 of1955; voicing
+intervals837/1256/1674 of1674; dynamics and accents2496/3744/4992 of4992;
+dynamic differences5/8/10 of10 (75 rounds to80% actual); bends2/3/4 of4.
+Written starts/holds/mutes change0. All3 source/lower-denied inverses pass
+(75.453/68.140/68.734s), with16 original-evidence/dependency checks each.
+Native source comparison verifies5350 identities,4984 identical start/release
+pairs,4 bend position curves and8 legato onset/ramp/arrival clocks. Changed pitch
+spans legitimately alter interpolation sample counts; every sample follows the
+linear relationship within the pinned renderer's truncation/rounding bounds.
+
+Retained failures:100's nearest-one/nearest-two pitch candidate families could
+not change all pull-off/hammer-on intervals. Full already-admitted degree/contact
+choices solve it without relaxing locks. A checker incorrectly erased known
+dead-note strings when frets were absent; schema3 retains `[string,null]` while
+keeping ordinary unknowns and all3940 units. Six/eight real changes now count;
+no music changed for this correction.11 targeted tests PASS; code`d68405f` published.
+The first±1 expression palette unnecessarily drove many notes to velocity127;
+75/100 use existing±2 offsets ranked by smaller performed velocity movement.
+These are independent change-rate variants, not nested edits or a loudness ramp.
+
+Receipts: `verification-50/`, `verification-75-final/`, `verification-100-final/`,
+`native-{50,75,100}/fixed-timing-result.json`, `pitch/post-metric-recheck.json`,
+`audio/publication.json`. Planner independently reviewed metric/slide corrections
+and technical scope. Eight legato emphasis outcomes remain independently unknown;
+fresh-song first failures and broader higher-control completion remain OPEN.
+Next: user listening with timing restored; continue full control coordination
+without reopening these verified outputs or treating them as all30 completion.
+
 ### Current listening revision — 2026-11-04
 
 User rejected the measured whole-Cloud rewrite: "wow, that sounds awful" and

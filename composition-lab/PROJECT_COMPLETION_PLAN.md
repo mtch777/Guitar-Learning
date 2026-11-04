@@ -15,16 +15,20 @@ instruction dependencies. This plan contains the governing requirements and gate
 
 **Active obligation:** finish the Cloud Cascade whole-song request and resolve
 overlap across ALL registered controls, with actual-output 0/50/100 behavior.
-Latest listening request,2026-11-04: the user rejected the measured100-request
-audio and asked for **50% for everything**. Prepare that revision from untouched
-Cloud, preserve the rejected audio, and measure final output rather than reducing
-playback speed or masking raw notes. The all-control requirements remain owed;
-partial50 feature success must not be labeled all-control completion.
-The revision is now rendered on the existing listening page: main pitch, interval,
-timing and written-expression features meet final half-up 50% counts, with exact
-denied-source reconstruction and independent native playback checks. Higher-level
-coverage does not: pitch changes reach 131/134 part/passage patterns. Full all-control
-coordination and fresh-song creative acceptance remain open; listening is pending.
+Latest listening request,2026-11-04: the user rejected the rhythm edits and asked
+for **50%,75%,100% of non-timing changes**. Each starts from untouched Cloud;
+lock original116BPM, note starts/lengths, rests, ties, meter, note count and actual
+native start/release times. Muting and articulation that alter release are excluded
+from this comparison. Preserve rejected audio. Measure final output; do not mask
+raw notes or relabel partial feature success as all-control completion. This
+listening correction does not retire the broader rhythm/control requirements.
+The new50/75/100 non-timing versions are rendered on the same listening page.
+Declared pitch, interval, contact, bend and written-expression feature targets
+pass half-up counts; every written/native note clock matches untouched source.
+Exact denied-source reconstruction and source-evidence/dependency checks pass
+for all three. Higher-level controls are not independently coordinated. Full
+all-control completion and fresh-song creative acceptance remain open; listening
+on this revision is pending. The rejected timing versions remain private evidence.
 See the active checklist for exact receipts and remaining scope.
 The movement/register/rhythm increment is a prerequisite and an early listening
 checkpoint, not a replacement objective or completion of this request. The active
