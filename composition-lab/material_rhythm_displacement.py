@@ -98,7 +98,11 @@ def _layout(definition, expanded, ticks):
         binding=bindings.get(ref)
         if binding is not None:
             shape=definition['voicings'][binding['voicing_ref']]
-            kind='pitched' if binding['pitch_path_ref'] is not None and all(v is not None for v in shape) else 'unpitched_or_unknown'
+            group=next(g for g in expanded['coattacks'] if g['id']==binding['coattack_ref'])
+            external={r['occurrence_ref']:r['kind'] for r in definition.get('external_pitch_refs',[])}
+            has_anchor=binding['pitch_path_ref'] is not None or any(external.get(m['id'])=='singleton' for m in group['members'])
+            known=all(v is not None or external.get(m['id'])=='upper_member' for v,m in zip(shape,group['members']))
+            kind='pitched' if has_anchor and known else 'unpitched_or_unknown'
         else:
             notes=structure.get(ref+'/notes')
             if notes is None or notes['type'] != 'array':
@@ -210,5 +214,7 @@ def solve(definition, offset_q):
     for key in ('pitch_paths','voicings','bindings','slots','observed_execution','provenance'):
         if result[key]!=definition[key]:
             raise ValueError('Displacement changed a locked musical owner')
+    if result.get('external_pitch_refs')!=definition.get('external_pitch_refs'):
+        raise ValueError('Displacement changed external pitch ownership')
     report['changed']=result!=definition
     return result,report

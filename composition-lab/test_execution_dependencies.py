@@ -3,6 +3,7 @@ from copy import deepcopy
 import unittest
 from source_fact_tier1 import extract_documents
 from execution_dependencies import build
+from unittest.mock import patch
 
 
 def documents(notes,extras=None):
@@ -19,6 +20,39 @@ def n(fret,**fields):return dict(string=5,fret=fret,**fields)
 
 
 class ExecutionDependencyTests(unittest.TestCase):
+    def test_hopo_enumeration_order_is_not_a_dependency_change(self):
+        lower=extract_documents(documents([n(0,hp=True),n(2),n(4,hp=True),n(5)]))
+        before=build(lower)
+        from analyze_relationships import hopo
+        def reverse_enumeration(rows,grace):
+            pairs,unresolved=hopo(rows,grace)
+            return list(reversed(pairs)),list(reversed(unresolved))
+        with patch('analyze_relationships.hopo',side_effect=reverse_enumeration):
+            after=build(lower)
+        self.assertEqual(before['signature'],after['signature'])
+        self.assertEqual(before['pinned_members'],after['pinned_members'])
+
+    def test_signature_canonicalization_preserves_multiplicity_fields_and_endpoint_order(self):
+        from execution_dependencies import canonical_signature
+        graph=build(extract_documents(documents([n(0,hp=True),n(2),n(4,hp=True),n(5)])))
+        signature=graph['signature'];canonical=canonical_signature(signature)
+        for field in ('origin','destination','fret_distance','direction','context'):
+            changed=deepcopy(signature)
+            pair=changed['parts'][0]['hopo_pairs'][0]
+            pair[field]=999 if field=='fret_distance' else 'different'
+            self.assertNotEqual(canonical,canonical_signature(changed),field)
+        duplicate=deepcopy(signature)
+        duplicate['parts'][0]['hopo_pairs'].append(deepcopy(duplicate['parts'][0]['hopo_pairs'][0]))
+        self.assertNotEqual(canonical,canonical_signature(duplicate))
+        swapped=deepcopy(signature);pair=swapped['parts'][0]['hopo_pairs'][0]
+        pair['origin'],pair['destination']=pair['destination'],pair['origin']
+        self.assertNotEqual(canonical,canonical_signature(swapped))
+        ordered=deepcopy(signature)
+        ordered['parts'][0]['slides']=[dict(origin='a',destination='d',tied_members=['b','c'])]
+        reordered=deepcopy(ordered);reordered['parts'][0]['slides'][0]['tied_members'].reverse()
+        self.assertNotEqual(canonical_signature(ordered),canonical_signature(reordered))
+        self.assertEqual(signature,graph['signature'])
+
     def test_hopo_origin_and_destination_beyond_halfopen_boundary_pinned(self):
         graph=build(extract_documents(documents([n(0,hp=True),n(2),n(4),n(5)])))
         edge=next(e for e in graph['edges']if e['kind']=='hopo')

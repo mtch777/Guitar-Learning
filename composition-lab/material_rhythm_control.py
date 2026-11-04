@@ -92,6 +92,16 @@ def lift(upper, use_id):
     return out
 
 
+def _check_stable_timing(before, after):
+    """Moving a hold changes which saved tonal context it occupies."""
+    if 'stable_pitch_preference' in before or 'stable_pitch_preference' in after:
+        if before.get('stable_pitch_preference') != after.get('stable_pitch_preference'):
+            raise ValueError('Timing cannot replace the saved tonal preference')
+        from connected_tier2 import realize
+        from stable_pitch_policy import enforce_transition
+        enforce_transition(before, realize(before), realize(after))
+
+
 def candidate(upper, use_id, offset_q):
     """An explicit displacement, checked without changing any other choice."""
     uses._shape(upper)
@@ -101,7 +111,9 @@ def candidate(upper, use_id, offset_q):
         raise ValueError('Use has no rhythmic displacement owner')
     out = deepcopy(upper)
     _use(out, use_id)['rhythm_offset_q'] = offset_q
-    uses.reconstruct(out, {'variation': 0})
+    after = uses.expand(out)
+    if 'stable_pitch_preference' in after:
+        _check_stable_timing(uses.expand(upper), after)
     return out
 
 
@@ -148,7 +160,8 @@ def candidate_many(upper, requests):
     out = deepcopy(initialized)
     for request in requests:
         _use(out, request['use_id'])['rhythm_offset_q'] = request['offset_q']
-    uses.reconstruct(out, {'variation': 0})
+    after = uses.expand(out)
+    _check_stable_timing(before, after)
     return out
 
 

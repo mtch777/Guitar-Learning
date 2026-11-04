@@ -199,7 +199,7 @@ def _pitch(shared, ref, seen=None):
                           interval=str(_integer(member['voicing_interval'])))['pitch']
 
 
-def _protected(lower, refs, *, flexible_strings=()):
+def _protected_rows(lower, refs, *, flexible_strings=()):
     """Invariant selected notation/clock/contact context, without old pitches."""
     data = closure._data(execution.encoded(lower)); rows = []
     for ref in refs:
@@ -209,7 +209,50 @@ def _protected(lower, refs, *, flexible_strings=()):
             instrument={k: part[k] for k in ('instrumentId', 'tuning', 'capo', 'frets') if k in part},
             note={k: v for k, v in note.items() if k != 'fret' and not(k == 'string' and ref in flexible_strings)},
             beat={k: v for k, v in beat.items() if k != 'notes'}))
-    return digest(rows)
+    return rows
+
+
+def _protected(lower, refs, *, flexible_strings=()):
+    return digest(_protected_rows(lower,refs,flexible_strings=flexible_strings))
+
+
+def retime_from_parent(original_clock, current_clock, permitted_refs):
+    """Reconcile an explicit higher-tier clock with the retained pitch owner.
+
+    Both inputs are solved from the SAME saved material definitions and pitch
+    parameters. Only the parent's declared clock differs. Validate its original
+    notation commitment first; never use new timing to excuse other mutations.
+    The returned hash describes the current clock, not new original evidence.
+    """
+    from connected_tier2 import realize
+    model,refs,reference_refs=_shape(original_clock)
+    current,after_refs,after_reference=_shape(current_clock)
+    if model!=current or refs!=after_refs or reference_refs!=after_reference:
+        raise ValueError('Parent timing cannot change movement choices or observations')
+    permitted=set(permitted_refs)
+    if not permitted<=set(refs+reference_refs):
+        raise ValueError('Explicit movement/reference clock scope required')
+    before=realize(original_clock)
+    # Use the registered pitch inverse. Full execution validation follows the
+    # comparison and regenerated current-clock commitment below.
+    after=realize(expand(current_clock))
+    kwargs=dict(flexible_strings=refs if model['schema']==SCHEMA_V2 else ())
+    old=_protected_rows(before,refs+reference_refs,**kwargs)
+    new=_protected_rows(after,refs+reference_refs,**kwargs)
+    def nonclock(rows):
+        rows=deepcopy(rows)
+        for row in rows:
+            if row['ref'] in permitted:
+                row.pop('onset_q');row.pop('duration_q')
+                for name in ('duration','type','dots'):row['beat'].pop(name,None)
+        return rows
+    if nonclock(old)!=nonclock(new):
+        raise ValueError('Parent timing changed protected pitch execution or notation')
+    result=deepcopy(current_clock)
+    result['owned_parameters'][SLOT]['protected_notation_sha256']=digest(new)
+    if realize(result)!=after:
+        raise ValueError('Retimed movement did not preserve the same inverse')
+    return result
 
 
 def _tie_scope(data, refs):

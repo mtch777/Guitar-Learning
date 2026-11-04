@@ -154,8 +154,15 @@ def _cut(t2,scope):
         if link['occurrence_ref']in refs or link['backing_ref']in refs:
             raise ValueError('Existing backing owner cannot be replaced by a material owner')
     active=t2['owned_parameters'].get(movement.SLOT)
-    if active and refs&set(movement._members(active['attacks'])):
-        raise ValueError('Existing melodic owner cannot be replaced by support material')
+    if active:
+        # Pitch and contact choices stay with the existing movement owner;
+        # this material may own their clock without duplicating those choices.
+        members=set(movement._members(active['attacks']))
+        retained=[p for p in t2['owned_parameters']['physical_positions'] if p['occurrence_ref'] in members]
+        contacts={p[k] for p in retained for k in ('fact_ref','string_ref')}
+        selected['physical_positions']=[p for p in selected['physical_positions'] if p['occurrence_ref'] not in members]
+        for field in ('source_choices','coverage'):
+            selected[field]=[r for r in selected[field] if r['fact_ref'] not in contacts]
     return selected
 
 
@@ -222,7 +229,14 @@ def fit(t2, *, parts, first_bar, last_bar, lower=None):
                 raise ValueError('Unsupported duration scalar realization')
             owned_notation.add(row['fact_ref'])
     if owned_notation!=notation:raise ValueError('Every written duration must have one removable owner')
-    paths=[];voicings=[];bindings=[];lanes=defaultdict(list)
+    paths=[];voicings=[];bindings=[];lanes=defaultdict(list);external=[]
+    active=t2['owned_parameters'].get(movement.SLOT)
+    if active:
+        index=movement.backing._index(core)
+        for ref in movement._members(active['attacks']):
+            if _event(ref,scope):
+                kind,_,_=movement._authority(index,ref,stored=True)
+                external.append(dict(occurrence_ref=ref,kind=kind))
     for g in fragment['coattacks']:
         if g['timing_uncertain']:raise ValueError('Uncertain clock cannot establish material allocation')
         if 'interpretation'in g:
@@ -230,7 +244,7 @@ def fit(t2, *, parts, first_bar, last_bar, lower=None):
                 raise ValueError('Derived interpretation conflicts with its pitch/time relationships')
             # Preserve its interface presence, never a stale pitch-derived view.
             g['interpretation']=None
-        if g['bass_register_anchor']is not None:lanes[g['part_id']].append(g)
+        if g.get('bass_register_anchor')is not None:lanes[g['part_id']].append(g)
     path_binding={}
     for part,groups in lanes.items():
         trajectory=pitch_path(pitches=[g['bass_register_anchor']for g in groups]);trajectory.pop('pitches')
@@ -243,10 +257,10 @@ def fit(t2, *, parts, first_bar, last_bar, lower=None):
         slot=by_beat[beat];a=ticks[slot['from_pulse']];b=ticks[slot['to_pulse']]
         if F(g['onset_q'])!=start+a or any(F(m['duration_q'])!=b-a for m in members):
             raise ValueError('Written beat and coattack clocks disagree')
-        shape=[m.pop('voicing_interval')for m in members];vi=_pool(voicings,shape)
+        shape=[m.pop('voicing_interval',None)for m in members];vi=_pool(voicings,shape)
         path,ordinal=path_binding.get(g['id'],(None,None))
         bindings.append(dict(coattack_ref=g['id'],beat_ref=beat,voicing_ref=vi,pitch_path_ref=path,attack=ordinal))
-        del g['onset_q'];del g['bass_register_anchor']
+        del g['onset_q'];g.pop('bass_register_anchor',None)
         for m in members:del m['duration_q']
     refs=set(fragment['realization_order']);internal=[]
     for record in execution._snapshot(execution.encoded(lower))['records']:
@@ -260,6 +274,7 @@ def fit(t2, *, parts, first_bar, last_bar, lower=None):
         lower_tier=fragment,observed_execution=internal,
         provenance=dict(origin=deepcopy(t2['source_origin']),current_input_sha256=digest(t2),bindings_sha256=digest(bindings),
             meaning='Current material; no additional original observations'))
+    if external:result['external_pitch_refs']=external
     validate_execution(result,lower)
     if expand(result)!=_cut(t2,scope):raise ValueError('Material inverse changed its preceding owners')
     return result
@@ -272,6 +287,7 @@ def expand(material):
         return expand(expand_approach(material))
     fields={'schema','scope','source_start_q','span_q','bar_spans_q','pulse_shares','slots','pitch_paths','voicings',
             'bindings','lower_tier','observed_execution','provenance'}
+    if type(material)is dict and 'external_pitch_refs' in material:fields.add('external_pitch_refs')
     if type(material)is not dict or set(material)!=fields or material['schema']!=MATERIAL:
         raise ValueError('Exact material interface required; hidden payload forbidden')
     scope=material['scope']
@@ -287,6 +303,15 @@ def expand(material):
     validate_origin(provenance['origin'])
     if type(material['lower_tier'])is not dict or set(material['lower_tier'])!=set(ARRAYS) or any(type(v)is not list for v in material['lower_tier'].values()):
         raise ValueError('Only declared lower-owner arrays may be stored')
+    external={}
+    for row in material.get('external_pitch_refs',[]):
+        if (type(row)is not dict or set(row)!={'occurrence_ref','kind'}
+                or row['kind'] not in ('singleton','upper_member')
+                or row['occurrence_ref'] in external or not _event(row['occurrence_ref'],scope)):
+            raise ValueError('Unique existing external movement references required')
+        external[row['occurrence_ref']]=row['kind']
+    if set(external)-set(material['lower_tier']['realization_order']):
+        raise ValueError('Dangling external pitch reference')
     if type(material['pitch_paths'])is not list or type(material['voicings'])is not list or type(material['bindings'])is not list:
         raise ValueError('Explicit relationship lists required')
     for path in material['pitch_paths']:
@@ -338,15 +363,24 @@ def expand(material):
             raise ValueError('Derived interpretation must be a presence marker, not a cached payload')
         g['onset_q']=str(F(material['source_start_q'])+onset)
         path=binding['pitch_path_ref'];ordinal=binding['attack']
-        g['bass_register_anchor']=None if path is None else paths[path][ordinal]
+        singleton=any(external.get(m['id'])=='singleton' for m in g['members'])
+        if singleton:
+            if path is not None:raise ValueError('External singleton pitch cannot have a material pitch path')
+        else:g['bass_register_anchor']=None if path is None else paths[path][ordinal]
         shape=material['voicings'][binding['voicing_ref']]
         if len(shape)!=len(g['members']):raise ValueError('Missing or added voicing member')
         for m,interval in zip(g['members'],shape):
             if 'duration_q'in m or 'voicing_interval'in m:raise ValueError('Duplicate lower hold/voicing authority')
-            m['duration_q']=str(duration);m['voicing_interval']=interval
+            m['duration_q']=str(duration)
+            if external.get(m['id'])=='upper_member':
+                if interval is not None:raise ValueError('External member has duplicate interval authority')
+            else:m['voicing_interval']=interval
             expected=f"track-{g['part_id']}.json#/measures/{m['bar']-1}/voices/{m['voice']}/beats/{m['beat']}"
             if expected!=binding['beat_ref']:raise ValueError('Coattack retargeted onto another valid beat')
-        if 'interpretation'in g:g['interpretation']=music.interpreted(g)
+        if 'interpretation'in g:
+            if any(m['id'] in external for m in g['members']):
+                raise ValueError('External pitch must defer derived interpretation to its owner')
+            g['interpretation']=music.interpreted(g)
     return result
 
 

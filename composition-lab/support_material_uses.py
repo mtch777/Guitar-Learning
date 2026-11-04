@@ -122,6 +122,8 @@ def _dynamic(fragment,part,level):
 
 def place(definition,slot,use,*,parent=None):
     """Resolve one distinct use. The immutable definition is never rewritten."""
+    if definition.get('external_pitch_refs') and definition['scope']!=slot['scope']:
+        raise ValueError('Material relocation needs explicit external movement correspondence')
     if parent is not None:
         foreign=material.expression_rows(parent);foreign_ids={r['id']for r in foreign}
         if any(row['id']in foreign_ids for row in definition['lower_tier']['source_structure']):
@@ -211,6 +213,19 @@ def realize_pair(upper):
     restored=material.restore_fragments(upper['lower_tier'],pieces)
     if upper['schema']==DIRECT_SCHEMA:
         from connected_tier2 import realize
+        from melodic_movement_ownership import SLOT,_shape as movement_shape,retime_from_parent
+        if SLOT in restored['owned_parameters']:
+            _,refs,references=movement_shape(restored)
+            moved=[u for u in upper['uses'] if F(u.get('rhythm_offset_q','0'))!=0]
+            permitted=[r for r in refs+references if any(material._event(r,upper['slots'][u['slot_ref']]['scope']) for u in moved)]
+            if permitted:
+                original_pieces=[]
+                for use in upper['uses']:
+                    base=deepcopy(use);base.pop('rhythm_offset_q',None)
+                    piece,_,_=place(upper['materials'][use['material_ref']],upper['slots'][use['slot_ref']],base,parent=upper['lower_tier'])
+                    original_pieces.append(piece)
+                original_clock=material.restore_fragments(upper['lower_tier'],original_pieces)
+                restored=retime_from_parent(original_clock,restored,permitted)
         result=restored;lower=realize(result)
     else:
         result={k:deepcopy(v)for k,v in upper.items()if k not in ('materials','slots','uses')};result['schema']=cell.TIER3_SCHEMA

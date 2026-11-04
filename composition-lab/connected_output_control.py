@@ -1,8 +1,8 @@
-"""Joint final-output targets for disjoint movement and material timing owners.
+"""Joint final-output targets for movement and material timing owners.
 
 The existing T2 movement and direct-T3 material inverses remain authoritative.
 No score is copied into a parent, and no constructor is used as an updater.
-Overlapping movement/material ownership is deliberately outside this boundary.
+The same occurrences may have independent pitch and material-clock owners.
 """
 from copy import deepcopy
 import random
@@ -38,15 +38,15 @@ def pack_movement(upper, changed_t2):
     model, refs, _ = movement._shape(current)
     if model['schema'] != movement.SCHEMA_V2:
         raise ValueError('Existing version2 movement owner required')
-    for slot in upper['slots']:
-        if any(material._event(ref, slot['scope']) for ref in refs):
-            raise ValueError('Overlapping movement and material owners are not supported by this boundary')
     # This protects full owners, observations, source facts and every field
     # outside the existing selected parameter/contact permission.
     movement._allowed_changes(current, changed_t2, before, after, version2=True)
     out = deepcopy(upper)
     parent = out['lower_tier']['owned_parameters']
-    if parent.get(movement.SLOT) != current['owned_parameters'][movement.SLOT]:
+    saved_model=deepcopy(parent.get(movement.SLOT));current_model=deepcopy(current['owned_parameters'][movement.SLOT])
+    if type(saved_model)is dict:
+        saved_model.pop('protected_notation_sha256',None);current_model.pop('protected_notation_sha256',None)
+    if saved_model != current_model:
         raise ValueError('Movement must remain owned completely by the retained lower T2')
     parent[movement.SLOT]['parameters'] = deepcopy(changed_t2['owned_parameters'][movement.SLOT]['parameters'])
     new_positions = _unique(changed_t2['owned_parameters']['physical_positions'], 'occurrence_ref')
@@ -97,7 +97,7 @@ def intervene(upper, movement_controls, rhythm_requests, rhythm_percent, *, seed
         max_candidates=max_candidates, defer_preference=True)
     report = dict(policy='connected_movement_rhythm_output/1', target_contract=contract,
         movement=movement_report, attempts=[], output=initial, satisfied=False, changed=False,
-        scope='Disjoint existing movement and material timing owners in direct T3',
+        scope='Existing movement and material timing owners in direct T3, including shared occurrences',
         joint_search_exhausted=False,
         search_limits='One deterministic bounded rhythm selection per admitted movement candidate; not all joint musical realizations')
 
@@ -131,6 +131,9 @@ def intervene(upper, movement_controls, rhythm_requests, rhythm_percent, *, seed
                 attempt.update(status='FINAL_OUTPUT_TARGET_NOT_MET', output=checked)
                 report['attempts'].append(attempt)
                 continue
+            if 'stable_pitch_preference' in before_t2:
+                from stable_pitch_policy import enforce_transition
+                enforce_transition(before_t2, before, final_lower)
             preference = halfsteps.evaluate(final_lower, context)
         except ValueError as error:
             attempt.update(status='UNSUPPORTED_COMPOSED_CANDIDATE', reason=str(error))

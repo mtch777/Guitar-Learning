@@ -14,6 +14,26 @@ def _value(value):
     return dict(unsupported_source_type=type(value).__name__)
 
 
+def canonical_signature(signature):
+    """Order independent records, never fields within a musical relationship.
+
+    HOPO discovery enumerates string lanes in first-seen order. Moving an
+    unrelated earlier chord to other strings can reorder those lanes without
+    changing any endpoint, interval or execution. Preserve full records and
+    duplicates; only their outer enumeration has no musical meaning. Ordered
+    contents such as a slide's tied members are deliberately left untouched.
+    """
+    out=deepcopy(signature)
+    def records(rows):
+        return sorted(rows,key=lambda row:json.dumps(row,sort_keys=True,separators=(',',':'),allow_nan=False))
+    for part in out['parts']:
+        for field in ('hopo_pairs','hopo_unresolved','hopo_excluded','slides'):
+            part[field]=records(part[field])
+    out['parts']=records(out['parts'])
+    out['declarations']=records(out['declarations'])
+    return out
+
+
 def build(tier1):
     from source_fact_tier1 import project_documents
     from source_tie_tier1 import extract_documents
@@ -95,7 +115,7 @@ def build(tier1):
                         status='declaration_only_unknown_end'if field=='letRing'else'declaration_only_unknown_performed_offsets'
                         semantics=dict(source_fact_ref=source,declaration=_value(beat[field]),performed_end_q=None)if field=='letRing'else dict(source_fact_ref=source,declaration=_value(beat[field]),performed_note_offsets=None)
                         add(field,status,members,semantics,'sounding_end_unspecified'if field=='letRing'else'performed_roll_offsets_unspecified')
-    signature=dict(parts=signatures,declarations=declarations)
+    signature=canonical_signature(dict(parts=signatures,declarations=declarations))
     # Require a plain JSON payload; there are no live source objects or note rows.
     result=dict(edges=edges,pinned_members=sorted({r for e in edges for r in e['member_refs']}),signature=signature,uncertainty=uncertainty)
     return json.loads(json.dumps(result,allow_nan=False))

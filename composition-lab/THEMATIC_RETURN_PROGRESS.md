@@ -1,5 +1,79 @@
 # T5: live return of an earlier arrangement
 
+## Current implementation — overlapping pitch/timing controls
+
+The user's full selected-song/all-lever output request is NOT complete. This
+increment fixes an actual false refusal and lets the same written occurrences
+retain pitch and clock owners together. It does not enlarge the melodic/rhythmic
+alternative vocabulary or turn old release-probability controls into output quotas.
+Release d461345 is pushed; GitHub run41761664036 completed successfully.
+
+- [x] Replay the FIRST saved Cloud voicing request unchanged. Retain the original
+  failure and compare complete dependency records, not only current notes.
+- [x] Repair outer-record ordering in the shared dependency signature. Do not sort
+  directed endpoints/tied-member contents or erase duplicate records/unknowns.
+- [x] Preserve existing movement/contact ownership while material owns the same
+  occurrences' clock; no duplicate raw pitch stream or separate inverse.
+- [x] Verify singleton and upper-chord-member movement/register/rhythm together,
+  save/reload, later edits, foreign relationships and atomic incompatible counts.
+- [x] Check held-pitch membership after timing changes. A pitch-only pass cannot
+  authorize moving a hold into a conflicting saved tonal context.
+- [x] Finish isolated final release checks:148 relevant tests PASS, plus actual
+  baseline/current source-and-lower-denied reconstruction through the public runner.
+- [ ] Commit/push the verified increment and inspect CI.
+- [ ] Deliver Cloud melody + register + groove on overlapping material through
+  the existing listening page. A bounded phrase checkpoint does not shrink the
+  whole-song request or its denominators. No new combined audio is claimed yet.
+
+Root's identified design error: treating narrow independent edit functions as a
+complete coordinated musical control system. Checks and quota accounting improved
+without adding the missing choices. Planner's earlier review identified cancellation
+in register measurement and the need for joint final-output evaluation. The current
+start/midpoint challenges are queued; Planner is unavailable with a usage-limit
+error. No independent completion approval is claimed.
+
+Evidence, private `local-artifacts/cloud-pitch-dependency-diagnostic-v1/`:
+- Original request: same405 edges and31 part2 HP pairs; first-seen string-lane order
+  alone changed. Its positional equality test falsely refused the whole edit.
+- `reproduce.py repaired-001`: same request succeeds; semitone dyad C4/Db4 moves
+  to C5/Db5, retaining its spacing. This is an octave result, not melodic development.
+- `verify_repair.py`, `source-proof-001/result.json`: all405 complete edge records,
+  pinned members, uncertainty and declarations preserved; only the four selected
+  fret/string fields change. Actual source/lower-denied saved inverse PASS.
+
+Evidence, private `local-artifacts/shared-movement-clock-v1/`:
+- `verify.py`:134 checks,132 passed, one authored physical-placement fixture was
+  infeasible, one requested test module did not exist. Both failures are retained.
+  The positive authored fixture now leaves a feasible string for its upper voice;
+  this is not a changed source song or relaxed production constraint.
+- `verify2.py`:10 combined-control tests PASS; production hashes unchanged from
+  clean001. Actual baseline/current denied inverses PASS on a shared coattack model.
+- A further tonal-context check is covered in `verify3.py`: a delayed C crosses
+  from C major into a declared D-major span. Single, batch and combined operations
+  must refuse the new out-of-collection hold without partial changes. Original
+  source notes and selected tonal interpretations are not rewritten.
+- `verify3.py`: clean HEAD plus only9 source/test files;148 tests PASS in245.563s.
+  Actual saved coattack baseline/current denied inverses PASS; all1,344 facts
+  reconstruct. On the same complete selection, both signed steps change, all3
+  selected upper pitches change octave, and all6 coattacking note onsets move.
+  Locked lower pitches, immutable observations and foreign relationships remain.
+- `cloud_scope.py`: first already-frozen rhythm scope (paired guitars,bar11),
+  first part, all11 existing selected attack roots. Shared pitch/clock ownership
+  and saved zero reproduce the complete source exactly. The100 movement request
+  still refuses: repeat-start can change only3 of10 signed steps, not all10.
+  No notes, direction or scope were retried. This directly exposes insufficient
+  melodic choices after the overlap repair; it is not another creative pass.
+
+QA1: previous first fresh-song refusal retained; creative portability still OPEN.
+QA2: scoped exact reconstruction and final local release verification PASS.
+QA3: pitch and clock remain independently meaningful relationships on the same
+notes; this does not establish Cloud musical usefulness or full lever coverage.
+
+Next musical blockers remain specific: Cloud's held-note execution and unison-line
+selection, repeat/reference motion's narrow choices, and445 attacks with no changed
+onset in the current clock vocabulary. Fix the missing relationships; do not rename
+these implementation limits as musical impossibility or count an octave as new melody.
+
 ## Active implementation — connected output targets, 2026-11-03
 
 User explicitly instructed execution after the overlap review. Root owns integration;
@@ -22,7 +96,7 @@ generator or an unbounded solver. Earlier percentage-audit scope below is comple
   verification. First verified audio is on the same page with actual UI checks.
 - [ ] Planner end review: unavailable after the subagent usage-limit error; no
   independent end approval is claimed. Root continues authorized verification.
-- [ ] Commit/push the verified increment and check its CI.
+- [x] Commit/push d461345; GitHub run41761664036 and all its steps passed.
 
 No claim that all30 controls are migrated. All requests use their complete named
 measurement; switching to a smaller denominator is not an escape from a failed100.
@@ -33,9 +107,10 @@ must remain explicit, not silently prioritize a tier or release a zero lock.
 
 Private reproducible work: `local-artifacts/joint-output-controls-v1/`.
 Public entry point: `run_output_change_controls.py MODEL REQUEST OUTDIR --denied`.
-Supported request kinds:movement, rhythm, connected. The combined boundary requires
-disjoint existing movement/material owners; shared-occurrence admission remains a
-specific implementation limit. No additional note generator or inverse was added.
+Supported request kinds:movement, rhythm, connected. At released d461345 the combined
+boundary required disjoint movement/material owners. The current increment above
+removes that restriction with explicit separate pitch/clock ownership on the same
+occurrences. No additional note generator or inverse was added.
 
 Planner caught a misleading register metric: an octave parameter could change
 while a simultaneous melodic edit left a final note in its previous octave.

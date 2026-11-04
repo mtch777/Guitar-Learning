@@ -132,7 +132,11 @@ conflict; do not silently release a target. Distinguish these contradictions fro
 unsupported owners, exhausted current alternatives and incomplete searches.
 
 Implemented boundary: `run_output_change_controls.py` applies movement/register,
-material timing, or their supported disjoint-owner combination to a saved model.
+material timing, or their joint combination to a saved model. The current increment
+extends this to shared occurrences: movement retains pitch/contact ownership while
+material owns the clock. Singleton/coattack saved-edit and denied-inverse tests
+pass. Final release/CI status is in the active checklist. Held pitches are checked
+against their saved tonal context after timing as well as pitch changes.
 It preserves the model on a refused target, measures the final score and can run
 the existing inverse with source/lower payloads unavailable. It does not migrate
 all30 rows or supply musical choices absent from existing relationships.
@@ -144,6 +148,11 @@ in BOTH reconstructed score and native playback. Its100 request refuses atomical
 current declared clock options reach at most619, leaving445 fixed/no-choice attacks.
 That maximum is clock feasibility, not a fully validated619-attack composition.
 The18.62s existing-page comparison keeps untouched original and the previous remix.
+It is still the prior rhythm delivery; no new Cloud combined-melody audio is claimed.
+The actual Cloud dependency-ordering defect is repaired and the exact saved request
+passes with405 relationships preserved. This restores one octave operation, not
+general melodic freedom or100% across all levers. Current vocabulary limits remain
+work to finish, not acceptable substitutes for the user's complete request.
 
 Fresh retained-capture draw4972602, Invent Animate *Fall like rain (better)*,
 preserves all7,187 source facts and passes actual denied reconstruction. The frozen
