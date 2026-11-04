@@ -50,6 +50,7 @@ def project(t2, plans):
     References to UNSPLIT occurrences move with their identity.
     """
     from material_subdivision import plan_maps
+    import written_tie_pitch_ownership as tie_owner
     maps = plan_maps(plans)
     beats, events, spans = maps['beats'], maps['events'], maps['spans']
     if not any(len(v)>1 for v in beats.values()):return deepcopy(t2)
@@ -79,12 +80,34 @@ def project(t2, plans):
         if key in source and any(ref in repr(source[key]) for ref in changed_refs):
             raise ValueError('SUBDIVISION_CONTEXT_PROJECTION_REQUIRED: '+key)
     core=source['musical_relationships']
+    tied=core.get('schema')==tie_owner.SCHEMA
     if core.get('schema') not in ('musical-context-relations/2','backing-relative-pitches/1',
-                                'backing-relative-pitches/2','backing-relative-pitches/3','backing-relative-pitches/4'):
+                                'backing-relative-pitches/2','backing-relative-pitches/3','backing-relative-pitches/4',
+                                tie_owner.SCHEMA):
         raise ValueError('SUBDIVISION_CORE_PROJECTION_REQUIRED: '+str(core.get('schema')))
-    for link in core.get('relationships',[]):
-        if {link['occurrence_ref'],link['backing_ref']}&split_refs:
-            raise ValueError('SUBDIVISION_LINK_ENDPOINT_MEANING_REQUIRED')
+    if tied:
+        import backing_written_tie_constraints as ties
+        tie_owner._shape(core)
+        if any(row['destination_ref'] in split_refs for row in core['relationships']):
+            raise ValueError('SUBDIVISION_BLOCKED: incoming written tie cannot become new attacks')
+        if any(set(row['neighborhood_refs']) & split_refs for row in core['unresolved']):
+            raise ValueError('SUBDIVISION_BLOCKED: unresolved written-tie neighborhood')
+        mapped=out['musical_relationships']
+        mapped['relationships']=[ties.relation(dict(origin=event(row['origin_ref'],-1),
+            destination=event(row['destination_ref']),kind=row['kind'])) for row in core['relationships']]
+        mapped['relationships'].sort(key=lambda r:(ties.address(r['destination_ref']),ties.address(r['origin_ref'])))
+        mapped['groups']=[dict(member_refs=[event(ref) for ref in row['member_refs']],
+                              basis_ref=None if row['basis_ref'] is None else event(row['basis_ref']))
+                          for row in core['groups']]
+        mapped['unresolved']=[dict(destination_ref=event(row['destination_ref']),reason=row['reason'],
+            context_fingerprint=row['context_fingerprint'],
+            neighborhood_refs=sorted((event(ref) for ref in row['neighborhood_refs']),key=ties.address))
+            for row in core['unresolved']]
+        mapped['unresolved'].sort(key=lambda row:ties.address(row['destination_ref']))
+    else:
+        for link in core.get('relationships',[]):
+            if {link['occurrence_ref'],link['backing_ref']}&split_refs:
+                raise ValueError('SUBDIVISION_LINK_ENDPOINT_MEANING_REQUIRED')
     # Reject remapped guarded endpoints until their full contracts have an
     # explicit coordinate projection. Unaffected guards remain byte-for-byte.
     for key,value in core.items():
@@ -174,7 +197,7 @@ def project(t2, plans):
     if isinstance(out['coverage'],dict):
         out['coverage']['rules']=[dict(relation=g['id']) for name in ('optional_note_accents','optional_beat_palm_mutes')
                                 for g in out['owned_parameters'].get(name,{}).get('groups',[])]
-    body=movement._body(out['musical_relationships']); old_body=movement._body(core)
+    body=material._body(out['musical_relationships']); old_body=material._body(core)
     new_groups=[]
     for group in old_body['coattacks']:
         first=group['members'][0]['id'];count=len(events.get(first,[first]))
@@ -192,7 +215,7 @@ def project(t2, plans):
     body['coattacks']=new_groups
     body['realization_order']=[dest for ref in old_body['realization_order'] for dest in events.get(ref,[ref])]
     body['source_quality']['expected']=body['source_quality']['actual']=len(body['realization_order'])
-    if 'relationships'in out['musical_relationships']:
+    if not tied and 'relationships'in out['musical_relationships']:
         out['musical_relationships']['relationships']=_rewrite(core['relationships'],fact,event)
     from group_rhythm_relations import VIEWS,refresh
     if any(k in body for k in VIEWS):

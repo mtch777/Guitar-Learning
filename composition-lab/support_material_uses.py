@@ -142,6 +142,8 @@ def place(definition,slot,use,*,parent=None):
     """Resolve one distinct use. The immutable definition is never rewritten."""
     if definition.get('external_pitch_refs') and definition['scope']!=slot['scope']:
         raise ValueError('Material relocation needs explicit external movement correspondence')
+    if definition.get('unresolved_execution_locks') and definition['scope']!=slot['scope']:
+        raise ValueError('Unresolved execution relocation requires explicit context correspondence')
     if parent is not None:
         foreign=material.expression_rows(parent);foreign_ids={r['id']for r in foreign}
         if any(row['id']in foreign_ids for row in definition['lower_tier']['source_structure']):
@@ -254,7 +256,11 @@ def realize_pair(upper):
         result={k:deepcopy(v)for k,v in upper.items()if k not in ('materials','slots','uses')};result['schema']=cell.TIER3_SCHEMA
         result['lower_tier']=restored
         lower=cell.reconstruct(result,{'variation':0})
-    for piece,records in zip(pieces,contracts):material.validate_fragment_execution(piece,records,lower)
+    for use,piece,records in zip(upper['uses'],pieces,contracts):
+        definition=upper['materials'][use['material_ref']]
+        material.validate_fragment_execution(piece,records,lower,
+            execution_locks=definition.get('unresolved_execution_locks'),
+            origin_q=definition['source_start_q'])
     from material_degree_paths import SCHEMA as degree_schema
     for use in upper['uses']:
         if upper['materials'][use['material_ref']]['schema'] == degree_schema:
@@ -312,6 +318,8 @@ def _subdivide_result(upper,parent,lower,pieces,contracts,ledger):
     import backing_pitch_ownership as backing
     def plain(model):
         core=model['musical_relationships']
+        from written_tie_pitch_ownership import SCHEMA as tie_schema,expand as expand_ties
+        if core.get('schema')==tie_schema:return expand_ties(core)
         return backing.expand(core) if core.get('schema')in backing.SCHEMAS else core
     selected=[r for r,children in maps['events'].items() if len(children)>1]
     before_ties=ties.from_tier1(plain(parent),lower,selected)
@@ -335,8 +343,10 @@ def _subdivide_result(upper,parent,lower,pieces,contracts,ledger):
     expected_ties.sort(key=lambda r:(ties.address(r['destination_ref']),ties.address(r['origin_ref'])))
     if actual_ties['relations']!=expected_ties:
         raise ValueError('SUBDIVISION_CHANGED_WRITTEN_TIE: final child must retain the original outgoing hold')
-    for piece,records in zip(pieces,contracts):
-        if not set(piece['realization_order'])&set(maps['events']):continue
+    for use,piece,records in zip(upper['uses'],pieces,contracts):
+        definition=upper['materials'][use['material_ref']]
+        guard=definition.get('unresolved_execution_locks')
+        if not set(piece['realization_order'])&set(maps['events']) and guard is None:continue
         projected=dict(realization_order=[r for old in piece['realization_order'] for r in maps['events'].get(old,[old])],
             physical_positions=[dict(occurrence_ref=r) for p in piece['physical_positions']
                                 for r in maps['events'].get(p['occurrence_ref'],[p['occurrence_ref']])])
@@ -344,7 +354,15 @@ def _subdivide_result(upper,parent,lower,pieces,contracts,ledger):
         for record in records:
             current=_rewrite(record,mapped_fact,mapped_event)
             current['id']=execution.identity(current);expected.append(current)
-        material.validate_fragment_execution(projected,expected,changed)
+        identities=None;facts=None
+        if guard is not None:
+            nodes=execution._snapshot(execution.encoded(changed))['nodes']
+            identities={child:(old if i==0 else old+'@subdivision:'+str(i)+'/'+str(len(children)))
+                for old,children in maps['events'].items() for i,child in enumerate(children) if child in nodes}
+            facts={mapped_fact(record['source_fact_ref']):record['source_fact_ref']
+                   for record in records if record['source_fact_ref'] is not None}
+        material.validate_fragment_execution(projected,expected,changed,execution_locks=guard,
+            identity_map=identities,fact_identity_map=facts,origin_q=definition['source_start_q'])
     identities={row['current_address']:row for row in ledger}; additions={}
     for planned in plans:
         for child in planned['event_map']:
@@ -496,6 +514,38 @@ def pack_expression(upper,changed_t2):
             row['definition_ref']=value;saved[row['fact_ref']]['definition_ref']=value
     if expected!=changed_t2:raise ValueError('Expression packing changed a protected relationship or owner')
     if expand(out)!=changed_t2:raise ValueError('Saved expression choices conflict with material notation or owners')
+    return out
+
+
+def bind_written_ties(upper):
+    """Attach shared sustain ownership without refitting existing definitions.
+
+    Existing uses may own attack heads. Continuations must still reside in the
+    common parent; migrating an already independently owned tail is a separate
+    operation. Subdivision projects the shared edge onto the final child.
+    """
+    from written_tie_pitch_ownership import SCHEMA as tie_schema,lift,expand as expand_ties
+    if upper.get('schema')!=DIRECT_SCHEMA:raise ValueError('Direct common material parent required')
+    before,lower,_=realize_pair(upper)
+    if upper['lower_tier']['musical_relationships'].get('schema')==tie_schema:return deepcopy(upper)
+    unsplit=deepcopy(upper)
+    for use in unsplit['uses']:use.pop('subdivision_factors',None)
+    complete,unsplit_lower,_=realize_pair(unsplit)
+    wrapped=deepcopy(complete)
+    wrapped['musical_relationships']=lift(complete['musical_relationships'],tier1=unsplit_lower)
+    tails={r['destination_ref'] for r in wrapped['musical_relationships']['relationships']}
+    scopes=[s['scope'] for s in upper['slots']]
+    if any(material._event(ref,scope) for ref in tails for scope in scopes):
+        raise ValueError('MATERIAL_TIE_AUTHORITY_MIGRATION_REQUIRED: existing definition owns a continuation')
+    out=deepcopy(upper)
+    # Existing source/expression owners remain the stored parent, including
+    # optional membership derived later by a use's rhythm choice. Replacing
+    # that parent with today's expanded notation would apply the choice twice.
+    out['lower_tier']['musical_relationships']=material._remove(wrapped,scopes)['musical_relationships']
+    after,restored,_=realize_pair(out)
+    comparison=deepcopy(after);comparison['musical_relationships']=expand_ties(after['musical_relationships'])
+    if comparison!=before or restored!=lower:
+        raise ValueError('Written sustain ownership changed existing choices or realization')
     return out
 
 

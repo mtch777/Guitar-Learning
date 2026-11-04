@@ -1,0 +1,210 @@
+"""Preserve unresolved execution context without keeping a second note stream.
+
+These locks describe an edit boundary, not a performed gesture or its endpoint.
+Every check is rebuilt from the current authoritative owners. Saved fingerprints
+are never updated to make an edited result pass.
+"""
+from fractions import Fraction as F
+import hashlib
+import json
+
+import backing_execution_constraints as execution
+
+SCHEMA='material-unresolved-execution-locks/1'
+_REF_FIELDS=('origin_ref','destination_ref','candidate_destination_ref')
+_LIST_FIELDS=('member_refs','tied_member_refs')
+
+
+def _hash(value):
+    return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
+
+
+def _digest(value):
+    return type(value)is str and len(value)==64 and all(c in '0123456789abcdef'for c in value)
+
+
+def _origin(value):
+    if type(value)is not str or str(F(value))!=value:
+        raise ValueError('Canonical material clock origin required')
+    return F(value)
+
+
+def _maps(nodes,identity_map,fact_identity_map):
+    mapping={} if identity_map is None else identity_map
+    facts={} if fact_identity_map is None else fact_identity_map
+    if any(type(m)is not dict or any(type(k)is not str or type(v)is not str or not v for k,v in m.items())for m in (mapping,facts)):
+        raise ValueError('Explicit current-to-stable identity maps required')
+    if set(mapping)-set(nodes):raise ValueError('Identity map names absent current occurrences')
+    identities={ref:mapping.get(ref,ref)for ref in nodes}
+    if len(set(identities.values()))!=len(identities):raise ValueError('Noninjective execution identity mapping')
+    return identities,{ident:ref for ref,ident in identities.items()},facts
+
+
+def _record(row,identities,facts):
+    if type(row)is not dict or set(row)!=execution.FIELDS or row['id']!=execution.identity(row):
+        raise ValueError('Complete authoritative execution record required')
+    result={k:v for k,v in row.items()if k!='id'}
+    for key in _LIST_FIELDS:
+        if type(row[key])is not list or len(set(row[key]))!=len(row[key]):raise ValueError('Unique execution members required')
+        try:result[key]=sorted(identities[ref]for ref in row[key])
+        except KeyError as error:raise ValueError('Execution member is absent')from error
+    for key in _REF_FIELDS:
+        ref=row[key]
+        if ref is not None:
+            if ref not in identities:raise ValueError('Execution endpoint is absent')
+            result[key]=identities[ref]
+    source=row['source_fact_ref']
+    if source is not None and type(source)is not str:raise ValueError('Optional execution fact reference must be string or null')
+    result['source_fact_ref']=facts.get(source,source)
+    return result
+
+
+def _unresolved(row):
+    return not ((row['kind']=='hopo'and row['status']=='source_transition_candidate')or
+                (row['kind']=='slide'and row['status']=='resolved_written_target'))
+
+
+def _touched(row):
+    refs=set(row['member_refs'])|set(row['tied_member_refs'])
+    refs.update(row[k]for k in _REF_FIELDS if row[k]is not None)
+    return refs
+
+
+def _context(tier1,observed,owned_refs,identity_map,fact_identity_map,origin_q):
+    data=execution._snapshot(execution.encoded(tier1));nodes=data['nodes']
+    if type(owned_refs)is not list or len(set(owned_refs))!=len(owned_refs)or set(owned_refs)-set(nodes):
+        raise ValueError('Unique current owned execution occurrences required')
+    if type(observed)is not list:raise ValueError('Explicit observed execution records required')
+    identities,inverse,facts=_maps(nodes,identity_map,fact_identity_map)
+    expected={}
+    for row in observed:
+        normalized=_record(row,identities,facts)
+        if _unresolved(row):
+            if not _touched(row)&set(owned_refs):raise ValueError('Unresolved record is outside this owner')
+            key=_hash(normalized)
+            if key in expected:raise ValueError('Duplicate unresolved execution record')
+            expected[key]=row
+    actual={}
+    for row in data['records']:
+        if _unresolved(row) and _touched(row)&set(owned_refs):
+            actual[_hash(_record(row,identities,facts))]=row
+    if set(actual)!=set(expected):raise ValueError('Unresolved execution metadata or membership changed')
+    return data,actual,identities,inverse,_origin(origin_q)
+
+
+def _policy(row):
+    if row['kind']=='hopo' or row['kind']=='slide'and row['slide_type']in ('shift','legato'):
+        return 'approved_written_successor_inputs'
+    if row['kind']=='slide'and row['status']=='exit_target_unspecified':
+        return 'next_written_contact_context'
+    if row['kind']=='letRing'and row['status']=='declaration_only_unknown_end':
+        return 'next_written_contact_context'
+    raise ValueError('Unsupported unresolved execution lock: '+str(row['kind'])+'/'+str(row['status']))
+
+
+def _part_end(tier1,part):
+    from source_fact_tier1 import project_documents
+    from source_key_tier1 import extract_documents
+    documents=project_documents(tier1)
+    count=len(documents[f'track-{part}.json']['measures'])
+    frames=extract_documents(documents)['measure_geometry']['frames']
+    if not count or count>len(frames):raise ValueError('Unknown part-end clock boundary')
+    frame=frames[count-1]
+    return F(frame['start_q'])+F(frame['span_q'])
+
+
+def _node(node,identity,origin):
+    return dict(identity=identity,part=node['part'],voice=node['voice'],string=node['string'],
+        string_valid=node['string_valid'],onset_q=str(node['onset']-origin),duration_q=str(node['duration']),
+        grace=node['grace'],tie_destination=node['tie_destination'],pitch=node['pitch'],fret=node['fret'])
+
+
+def _fences(row,nodes,identities):
+    result=[]
+    for ref in sorted(_touched(row)):
+        focal=nodes[ref]
+        if not focal['string_valid'] or focal['grace'] or focal['duration']<=0:
+            raise ValueError('Unresolved contact context requires a known positive written string contact')
+        following=[n for n in nodes.values()if n['part']==focal['part'] and n['string']==focal['string']
+                   and not n['grace'] and n['onset']>focal['onset']]
+        next_time=min((n['onset']for n in following),default=None)
+        ends=sorted(identities[n['ref']]for n in following if n['onset']==next_time)
+        result.append(dict(anchor=identities[ref],next_contact_ids=ends,
+            boundary='next_written_contact'if ends else'part_end'))
+    return sorted(result,key=lambda r:r['anchor'])
+
+
+def _projection(tier1,row,policy,fences,data,identities,inverse,origin):
+    nodes=data['nodes'];refs=execution._neighborhood(row,nodes);boundaries=[]
+    if policy=='next_written_contact_context':
+        for fence in fences:
+            if (type(fence)is not dict or set(fence)!={'anchor','next_contact_ids','boundary'}
+                    or type(fence['next_contact_ids'])is not list or len(set(fence['next_contact_ids']))!=len(fence['next_contact_ids'])
+                    or fence['boundary']!=('next_written_contact'if fence['next_contact_ids']else'part_end')):
+                raise ValueError('Closed written-contact boundary required')
+            try:focal=nodes[inverse[fence['anchor']]]
+            except (KeyError,TypeError)as error:raise ValueError('Protected anchor identity is missing')from error
+            if not focal['string_valid']:raise ValueError('Protected contact string is unresolved')
+            endpoints=[]
+            for stable in fence['next_contact_ids']:
+                if stable not in inverse:raise ValueError('Protected next-contact identity is missing')
+                endpoints.append(nodes[inverse[stable]])
+            if endpoints:
+                if len({r['onset']for r in endpoints})!=1:raise ValueError('Protected next-contact clock diverged')
+                end=endpoints[0]['onset']
+                if any(r['part']!=focal['part']or r['string']!=focal['string']or r['grace']for r in endpoints):
+                    raise ValueError('Protected next contact changed lane or kind')
+            else:end=_part_end(tier1,focal['part'])
+            if end<=focal['onset']:raise ValueError('Protected contact ordering changed')
+            # Same physical string, ALL voices. Include added contacts, grace
+            # points and earlier notes whose written holds overlap the window.
+            for ref,node in nodes.items():
+                if node['part']!=focal['part']or node['string']!=focal['string']:continue
+                intersects=(focal['onset']<=node['onset']<=end or
+                    (not node['grace']and node['onset']<focal['onset']<node['onset']+node['duration']))
+                if intersects:refs.add(ref)
+            boundaries.append(dict(anchor=fence['anchor'],end_q=str(end-origin),boundary=fence['boundary']))
+    elif fences:raise ValueError('Unexpected context boundaries for written successor policy')
+    if not refs:raise ValueError('Unresolved execution has no protected occurrence')
+    if {nodes[r]['part']for r in refs}&set(data['uncertain_parts']):
+        raise ValueError('Unverified execution clock cannot establish a context lock')
+    rows=sorted((_node(nodes[r],identities[r],origin)for r in refs),key=lambda r:r['identity'])
+    return _hash(dict(nodes=rows,boundaries=boundaries)),refs
+
+
+def capture(tier1,observed_execution,owned_refs,*,identity_map=None,fact_identity_map=None,origin_q='0'):
+    data,records,identities,inverse,origin=_context(tier1,observed_execution,owned_refs,identity_map,fact_identity_map,origin_q)
+    locks=[]
+    for key,row in sorted(records.items()):
+        policy=_policy(row)
+        fences=_fences(row,data['nodes'],identities)if policy=='next_written_contact_context'else[]
+        fingerprint,_=_projection(tier1,row,policy,fences,data,identities,inverse,origin)
+        locks.append(dict(record_identity=key,policy=policy,context_boundaries=fences,fingerprint=fingerprint))
+    return dict(schema=SCHEMA,locks=locks)
+
+
+def validate(guard,tier1,observed_execution,owned_refs,*,identity_map=None,fact_identity_map=None,origin_q='0'):
+    if type(guard)is not dict or set(guard)!={'schema','locks'}or guard['schema']!=SCHEMA or type(guard['locks'])is not list:
+        raise ValueError('Closed unresolved execution locks required')
+    data,records,identities,inverse,origin=_context(tier1,observed_execution,owned_refs,identity_map,fact_identity_map,origin_q)
+    locked=set();seen=set()
+    for lock in guard['locks']:
+        if type(lock)is not dict or set(lock)!={'record_identity','policy','context_boundaries','fingerprint'}:
+            raise ValueError('Closed execution lock without note payload required')
+        key=lock['record_identity']
+        if not _digest(key) or not _digest(lock['fingerprint']):raise ValueError('Exact execution commitment digests required')
+        if key not in records or key in seen:raise ValueError('Unknown or duplicate unresolved record lock')
+        seen.add(key);row=records[key]
+        if lock['policy']!=_policy(row):raise ValueError('Execution lock policy changed')
+        if type(lock['context_boundaries'])is not list:raise ValueError('Explicit execution context boundaries required')
+        if lock['policy']=='next_written_contact_context':
+            if any(type(f)is not dict or set(f)!={'anchor','next_contact_ids','boundary'} or type(f['anchor'])is not str
+                   for f in lock['context_boundaries']):raise ValueError('Closed written-contact boundary required')
+            anchors=sorted(identities[r]for r in _touched(row))
+            if sorted(f.get('anchor')for f in lock['context_boundaries'])!=anchors:
+                raise ValueError('Incomplete protected contact boundaries')
+        fingerprint,refs=_projection(tier1,row,lock['policy'],lock['context_boundaries'],data,identities,inverse,origin)
+        if fingerprint!=lock['fingerprint']:raise ValueError('Protected unresolved execution context changed')
+        locked.update(refs)
+    if seen!=set(records):raise ValueError('Missing unresolved execution lock')
+    return execution.ordered(locked)

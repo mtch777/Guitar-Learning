@@ -270,6 +270,10 @@ def realize(upper):
             if ident not in index or index[ident]['type']!='integer'or not registered(index[ident]):raise ValueError('Unknown tempo scalar')
             assign(ident,value,'global_step_tempo')
     core=upper['musical_relationships']
+    from written_tie_pitch_ownership import SCHEMA as tie_schema, expand as expand_tie_owner
+    tie_model=core if core.get('schema')==tie_schema else None
+    if tie_model is not None:
+        core=expand_tie_owner(tie_model)
     upper_motion_model=core if core.get('schema') in ('source-upper-voicing-motion/1','source-upper-voicing-motion/2') else None
     if upper_motion_model is not None:
         from upper_voicing_motion import expand as expand_upper_motion,validate_origin as validate_upper_motion_origin
@@ -370,6 +374,9 @@ def realize(upper):
     if seen!=set(index):raise ValueError('Unreachable source owner')
     restored=dict(tier=1,schema='complete-source-facts/1',documents=deepcopy(structure['documents']),facts=ordered,scope=structure['source_scope'])
     validate_source(restored)
+    if tie_model is not None:
+        from written_tie_pitch_ownership import validate_contacts as validate_written_ties
+        validate_written_ties(tie_model,restored,expanded=core)
     if upper_motion_model is not None:
         from upper_voicing_motion import validate_execution as validate_upper_motion_execution
         validate_upper_motion_execution(upper_motion_model,restored,normal=core)

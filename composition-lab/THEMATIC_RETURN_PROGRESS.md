@@ -45,6 +45,68 @@ below preserve their original results/settings; none supplies another active que
 | Required controls not yet implemented | Root | Remain explicitly owed under the canonical full register. Their absence cannot be hidden by restricting an all-controls completion claim to callable operations. |
 | Whole-song integration and listening | Root, with Planner's evidence challenge | One complete declared request, fixed denominators, per-feature/per-tier actual change, all three QA statuses, verified matched full-band playback and the existing inspection page. Missing claims remain open. |
 
+### Whole-song admission finding — 2026-11-04
+
+The current combined editing path owns66 of Cloud's666 instrument-bars
+(111 bars ×6 parts). Its38 existing definitions remain intact;39 deterministic
+disjoint additions cover the missing600. Coverage is ownership, not changed-output
+coverage. The current6414 written notes contain6056 attack heads and358 tied
+continuations belonging to168 sustain attacks.
+
+A retained ordinary-bass counterexample proved that independent material pitch
+paths could alter a tied continuation alone while existing validation passed.
+Planner rejected per-fragment tie repair: common-parent sustain ownership must
+resolve `pitch(continuation)=pitch(attack)` after assembly. No continuation is inside
+the old38 definitions, so their content/evidence need not be rewritten.
+
+- [x] Core proof: all358 actual ties, exact zero/reload, root propagation and
+  independent-tail refusal. Mixed held-lowest/new-upper members remain independent.
+- [x] Integrate common-parent closure, final-child subdivision projection and
+  mandatory current string/time validation; verify cross-material successive edits.
+- [x] Admit unchanged unresolved technique neighborhoods without granting edits
+  to them, then add the39 missing scopes without replacing accepted material.
+- [x] Complete final independent source/lower-denied proof for the saved whole
+  composition. Whole-ownership002 passes; expected answer was not staged.
+- [ ] Commit/push this increment and verify its CI.
+- [ ] Use that whole-song path to build/select compatible musical alternatives
+  and measure each lever's complete final-output denominator. Ownership alone
+  closes none of the100% requests.
+
+Whole-ownership002 currently passes complete T2/T1 equality and all666/666
+instrument-bars are represented through77 material definitions. The old38
+definitions/uses remain byte-exact.335 unresolved execution locks protect547
+occurrences, including10 contexts crossing the new material boundaries; validation
+uses the complete composition. These locks protect uncertain execution without
+giving permission to change it. None intersects the existing530 subdivision groups.
+The independent denied worker passes; ALL100 and fresh creative QA remain open.
+
+Verification: clean HEADee5b530 plus explicit owned files passed106 tests in76.283s.
+An independent saved unknown-tie counterexample then exposed missing immutable
+context protection: a changed pitch could remain classified as the same unresolved
+tie. The new inverse now checks a fingerprint of the accepted predicate inputs,
+without another note stream. Its38 affected tests pass in a second clean frozen
+snapshot (4.824s); unrelated tests were not repeated. Real Cloud has0 unresolved
+ties. Known/dead ties, mixed coattacks, saved successive edits and source-denied
+authored reconstruction are covered. No audio played or rerendered.
+
+Retained failures: first migration duplicated derived dots by reusing expanded
+notation as the stored parent; the update now changes only the common pitch owner,
+preserving stored expression/membership owners. Whole-ownership001 then passed its
+complete inverse but failed a private checker that incorrectly demanded unchanged
+lower arrays after their intentional transfer into material definitions. The
+corrected check preserves the untransferred owners and independently compares the
+complete reassembled preceding tier. Neither failed run is relabeled a pass.
+
+Next musical task, challenged by Planner: jointly select pitch/interval, voicing,
+register and contacts over the complete newly owned attack scope. Existing degree
+relations must preserve tied-member ownership and unresolved execution locks;
+their old finite grow/turn search is not a general feasibility limit. No further
+accent-only delivery substitutes for this work. Measure requested final-output
+features and retain every blocked unit in the whole-song denominator.
+Keep the original whole-request baseline fixed across increments. Generated
+reattack children are additional outcomes, not new original contour obligations;
+only a new request against the edited composition establishes a new baseline.
+
 ### Current intermediate implementation — recurring texture and subdivision
 
 - [x] Planner rejected treating Cloud bar 11 as one undifferentiated melody:

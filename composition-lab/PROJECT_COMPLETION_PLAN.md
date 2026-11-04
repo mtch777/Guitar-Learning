@@ -40,6 +40,15 @@ but does not close fresh creative applicability. The active checklist records th
 evidence and next shared whole-line ownership/pitch/clock work; remaining control
 requirements and complete denominators are unchanged.
 
+The subsequent shared-ownership increment now covers666/666 Cloud instrument-bars
+(111 bars ×6 parts), up from66, through77 definitions. Complete current T2/T1
+equality and final independent denied reconstruction pass; publication is recorded
+in the active checklist.358 ties stay live across materials and subdivision;
+uncertain execution protects its specific context rather than refusing entire
+parts. This is access for whole-song editing, not changed-output or ALL100
+completion. Next: compatible pitch/interval, voicing, register and contact choices
+over that complete scope; remaining expression/time/return controls remain owed.
+
 ### Latest user correction: percentages measure actual output changes
 
 This supersedes release-probability/no-original-preference semantics for NEW
@@ -55,6 +64,11 @@ APIs and all other controls retain previous semantics until individually migrate
   scope and complete denominator BEFORE candidate admission/selection. Expose
   feature-change counts, magnitude and source coverage separately. No metadata-only
   edit, silent dependency-mode change or intermediate edit later canceled counts.
+- One accepted whole-song request keeps that baseline across every implementation
+  increment. Added reattack children are reported separately through lineage;
+  they do not create extra original-request contour units. A NEW request against
+  the edited composition freezes its then-current units. Do not move the target
+  by silently freezing a new baseline after each partial result.
 - Compare the FINAL realized score/performance after all requested controls, not
   sampler decisions. Register is each final letter_octave octave coordinate;
   movement is signed pitch steps;

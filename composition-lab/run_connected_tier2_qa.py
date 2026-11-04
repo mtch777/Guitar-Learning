@@ -21,7 +21,8 @@ def bundle(root):
     names=names[:at]+('observed_expression',)+names[at:]
     at=names.index('context_membership')
     names=names[:at]+('verified_written_tie_support',)+names[at:]+('source_rhythm_groups','group_rhythm_relations','local_group_rhythm','melodic_contour_choices','melodic_contour_intervention','melodic_figure_intervention','backing_motion_relations','backing_motion_intervention')
-    names=names+('backing_written_tie_constraints','backing_execution_constraints','backing_pitch_ownership','explicit_backing_stream','canonical_backing_bindings')
+    names=names+('backing_written_tie_constraints','backing_execution_constraints','backing_pitch_ownership',
+                 'written_tie_pitch_ownership','material_execution_locks','explicit_backing_stream','canonical_backing_bindings')
     names=names+('observed_note_register','figure_register_ownership','figure_register_observations','observed_figure_register','figure_execution_contract','coattack_treatment_ownership','upper_voicing_motion','bend_gesture_ownership','stable_pitch_membership','stable_pitch_policy','note_rest_timing','local_note_rest_timing')
     names=names+('halfstep_preference','melodic_movement_ownership')
     for name in names:

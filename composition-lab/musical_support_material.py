@@ -14,6 +14,7 @@ import musical_tier2 as music
 import melodic_movement_ownership as movement
 import musical_cell_development as cell
 import backing_execution_constraints as execution
+import material_execution_locks as execution_locks
 from group_rhythm_relations import relation as clock_relation
 from group_rhythm_relations import VIEWS, refresh as refresh_views
 from source_fact_tier1 import project_documents
@@ -25,8 +26,14 @@ ARRAYS = ('source_structure', 'source_choices', 'physical_positions',
           'technique_declarations', 'coverage', 'coattacks', 'realization_order')
 
 
+def _body(shared):
+    """Material coordinates may defer sustains to the common assembly parent."""
+    from written_tie_pitch_ownership import SCHEMA as tie_schema
+    return shared['core'] if shared.get('schema')==tie_schema else movement._body(shared)
+
+
 def _arrays(t2):
-    p=t2['owned_parameters'];body=movement._body(t2['musical_relationships'])
+    p=t2['owned_parameters'];body=_body(t2['musical_relationships'])
     coverage=t2['coverage']
     if type(coverage)is dict:
         if (set(coverage)!={'schema','fixed','rules'} or coverage['schema']!='conditional-source-ownership/1'
@@ -151,7 +158,7 @@ def _cut(t2,scope):
     refs={m['id']for g in selected['coattacks']for m in g['members']}
     if refs!=set(selected['realization_order']):raise ValueError('Incomplete material event order')
     for link in t2['musical_relationships'].get('relationships',[]):
-        if link['occurrence_ref']in refs or link['backing_ref']in refs:
+        if 'occurrence_ref' in link and (link['occurrence_ref']in refs or link['backing_ref']in refs):
             raise ValueError('Existing backing owner cannot be replaced by a material owner')
     active=t2['owned_parameters'].get(movement.SLOT)
     if active:
@@ -192,7 +199,7 @@ def fit(t2, *, parts, first_bar, last_bar, lower=None):
     """
     scope=_scope(parts,first_bar,last_bar);fragment=_cut(t2,scope)
     lower=movement._realize(t2)if lower is None else lower
-    docs=project_documents(lower);core=movement._body(t2['musical_relationships'])
+    docs=project_documents(lower);core=_body(t2['musical_relationships'])
     # Complete T2 owns the source clock even where its optional normalized
     # geometry view is absent. Read the existing clock relation during fitting.
     from source_key_tier1 import extract_documents as written_context
@@ -248,6 +255,11 @@ def fit(t2, *, parts, first_bar, last_bar, lower=None):
             if _event(ref,scope):
                 kind,_,_=movement._authority(index,ref,stored=True)
                 external.append(dict(occurrence_ref=ref,kind=kind))
+    from written_tie_pitch_ownership import SCHEMA as tie_schema
+    if t2['musical_relationships'].get('schema')==tie_schema:
+        for edge in t2['musical_relationships']['relationships']:
+            if edge['kind']=='written_pitched_tie' and _event(edge['destination_ref'],scope):
+                external.append(dict(occurrence_ref=edge['destination_ref'],kind='tied_member'))
     for g in fragment['coattacks']:
         if g['timing_uncertain']:raise ValueError('Uncertain clock cannot establish material allocation')
         if 'interpretation'in g:
@@ -286,6 +298,8 @@ def fit(t2, *, parts, first_bar, last_bar, lower=None):
         provenance=dict(origin=deepcopy(t2['source_origin']),current_input_sha256=digest(t2),bindings_sha256=digest(bindings),
             meaning='Current material; no additional original observations'))
     if external:result['external_pitch_refs']=external
+    guard=execution_locks.capture(lower,internal,execution.ordered(refs),origin_q=str(start))
+    if guard['locks']:result['unresolved_execution_locks']=guard
     validate_execution(result,lower)
     if expand(result)!=_cut(t2,scope):raise ValueError('Material inverse changed its preceding owners')
     return result
@@ -302,6 +316,7 @@ def expand(material):
     fields={'schema','scope','source_start_q','span_q','bar_spans_q','pulse_shares','slots','pitch_paths','voicings',
             'bindings','lower_tier','observed_execution','provenance'}
     if type(material)is dict and 'external_pitch_refs' in material:fields.add('external_pitch_refs')
+    if type(material)is dict and 'unresolved_execution_locks' in material:fields.add('unresolved_execution_locks')
     if type(material)is not dict or set(material)!=fields or material['schema']!=MATERIAL:
         raise ValueError('Exact material interface required; hidden payload forbidden')
     scope=material['scope']
@@ -320,7 +335,7 @@ def expand(material):
     external={}
     for row in material.get('external_pitch_refs',[]):
         if (type(row)is not dict or set(row)!={'occurrence_ref','kind'}
-                or row['kind'] not in ('singleton','upper_member')
+                or row['kind'] not in ('singleton','upper_member','tied_member')
                 or row['occurrence_ref'] in external or not _event(row['occurrence_ref'],scope)):
             raise ValueError('Unique existing external movement references required')
         external[row['occurrence_ref']]=row['kind']
@@ -380,13 +395,16 @@ def expand(material):
         singleton=any(external.get(m['id'])=='singleton' for m in g['members'])
         if singleton:
             if path is not None:raise ValueError('External singleton pitch cannot have a material pitch path')
-        else:g['bass_register_anchor']=None if path is None else paths[path][ordinal]
         shape=material['voicings'][binding['voicing_ref']]
         if len(shape)!=len(g['members']):raise ValueError('Missing or added voicing member')
+        dependent_basis=any(external.get(m['id'])=='tied_member' for m in g['members']) and all(
+            value is None for m,value in zip(g['members'],shape) if external.get(m['id'])!='tied_member')
+        if dependent_basis and path is not None:raise ValueError('Fully tied coattack cannot have a material pitch path')
+        if not singleton and not dependent_basis:g['bass_register_anchor']=None if path is None else paths[path][ordinal]
         for m,interval in zip(g['members'],shape):
             if 'duration_q'in m or 'voicing_interval'in m:raise ValueError('Duplicate lower hold/voicing authority')
             m['duration_q']=str(duration)
-            if external.get(m['id'])=='upper_member':
+            if external.get(m['id']) in ('upper_member','tied_member'):
                 if interval is not None:raise ValueError('External member has duplicate interval authority')
             else:m['voicing_interval']=interval
             expected=f"track-{g['part_id']}.json#/measures/{m['bar']-1}/voices/{m['voice']}/beats/{m['beat']}"
@@ -398,7 +416,7 @@ def expand(material):
     return result
 
 
-def validate_execution(material,lower):
+def validate_execution(material,lower,*,execution_locks=None,identity_map=None,fact_identity_map=None,origin_q=None):
     """Keep internal gesture endpoints; reject new or old crossing dependencies.
 
     Whole-part guard records cannot be attached unchanged to a new allocation:
@@ -406,13 +424,23 @@ def validate_execution(material,lower):
     This boundary protects the complete selected material using the SAME existing
     execution records/occupancy and affected-unknown admission predicates.
     """
-    validate_fragment_execution(material['lower_tier'],material['observed_execution'],lower)
+    guard=material.get('unresolved_execution_locks')if execution_locks is None else execution_locks
+    validate_fragment_execution(material['lower_tier'],material['observed_execution'],lower,
+        execution_locks=guard,identity_map=identity_map,fact_identity_map=fact_identity_map,
+        origin_q=material['source_start_q']if origin_q is None else origin_q)
 
 
-def validate_fragment_execution(fragment,observed_execution,lower):
+def validate_fragment_execution(fragment,observed_execution,lower,*,execution_locks=None,
+                                identity_map=None,fact_identity_map=None,origin_q='0'):
     refs=set(fragment['realization_order']);pitched=defaultdict(list)
+    protected=set()
+    if execution_locks is not None:
+        from material_execution_locks import validate
+        protected=set(validate(execution_locks,lower,observed_execution,execution.ordered(refs),
+            identity_map=identity_map,fact_identity_map=fact_identity_map,origin_q=origin_q))
     for position in fragment['physical_positions']:
-        ref=position['occurrence_ref'];pitched[execution.address(ref)[1]].append(ref)
+        ref=position['occurrence_ref']
+        if ref not in protected:pitched[execution.address(ref)[1]].append(ref)
     for group in pitched.values():execution.build(lower,group)
     internal=[]
     for record in execution._snapshot(execution.encoded(lower))['records']:
@@ -434,7 +462,7 @@ def _remove(t2,scopes):
             removed={digest(r)for r in cut[field]}
             arrays[field][:]=[r for r in arrays[field]if digest(r)not in removed]
     if scopes:
-        core=movement._body(result['musical_relationships'])
+        core=_body(result['musical_relationships'])
         for name in VIEWS:
             if name in core:core[name]=None
     return result
@@ -448,8 +476,14 @@ def _restore(skeleton,materials):
 def restore_fragments(skeleton,fragments):
     """Compose resolved material instances through the existing lower owners."""
     result=deepcopy(skeleton);arrays=_arrays(result)
+    from written_tie_pitch_ownership import SCHEMA as tie_schema
+    tied=result['musical_relationships'].get('schema')==tie_schema
     for fragment in fragments:
         fragment=_return_beat_membership(result,deepcopy(fragment))
+        if tied:
+            # Old definitions keep their bytes. Their derived view is rebuilt
+            # after shared sustain closure, never used as another pitch owner.
+            for group in fragment['coattacks']:group.pop('interpretation',None)
         for field in ARRAYS:arrays[field].extend(fragment[field])
     # Restore ordered source ownership using its existing container grammar.
     from technique_observation_relations import realize as effects
@@ -487,7 +521,11 @@ def restore_fragments(skeleton,fragments):
         song,part,bar,voice,beat,note=execution.address(ref)
         return song,part,durations[ref]==0,bar,voice,beat,note
     arrays['realization_order'].sort(key=event_order)
-    core=movement._body(result['musical_relationships'])
+    core=_body(result['musical_relationships'])
+    if tied:
+        owner=result['musical_relationships']
+        order={tuple(m['id'] for m in g['members']):i for i,g in enumerate(core['coattacks'])}
+        owner['groups'].sort(key=lambda row:order.get(tuple(row['member_refs']),-1))
     core['source_quality']['expected']=core['source_quality']['actual']=len(arrays['realization_order'])
     present=[name for name in VIEWS if name in core]
     if present:
