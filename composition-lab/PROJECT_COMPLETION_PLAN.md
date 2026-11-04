@@ -46,10 +46,15 @@ and zero added attacks. The first independent comparison failed on generated
 container ordering; the versioned correction passes against the same audited
 output, with the failure retained. Actual measurement then caught five unchanged
 complete holds. Whole003 resolves those five through all40 final endpoint
-constraints; final production/native verification is running. The native export
-also exposed a128th-note import defect; its narrowly scoped repair preserves the
-duration guard. All controls, complete denominators and retained QA1 failure stay
-open. These are separate reconstruction, output-change and playback obligations.
+constraints. Final production, independent source-denied comparison and native
+verification now PASS:4992/4992 original onsets AND complete holds,3205/3205 gaps.
+All335 execution guards pass. Native conversion required two bounded repairs:
+128th notes misread as quarters, and pull-offs routed to an inserted tie instead
+of the fresh destination. Paired playback now verifies all398 ties,8 legato links,
+62 pull-off/hammer-on targets and6048 native callbacks. Original evidence and
+unrequested pitch/contact/velocity survive. Standalone GP fidelity, listening,
+remaining controls and retained QA1 failure stay open. These are separate
+reconstruction, output-change and playback obligations.
 
 Current implementation evidence: the new degree-path relation achieves20/20
 signed steps and38/38 final octaves in the first frozen Cloud scope; same-span

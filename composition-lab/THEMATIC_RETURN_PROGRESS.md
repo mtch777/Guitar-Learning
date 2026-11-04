@@ -139,13 +139,29 @@ choosing clocks, rather than patching those five notes or counting changed first
 fragments. Whole003 retains the same population, request and original denominator.
 Its independent arithmetic check reaches4992/4992 onsets AND complete holds,
 3205/3205 gaps,358 original ties and40 continuation obligations. Four lane choices
-change. This is a finite witness; the complete production/inverse retry is pending.
+change. The complete production/source-denied inverse now passes against the
+independent expected score in595.922s. Independent actual-output counts confirm
+all4992 onsets,4992 COMPLETE holds and3205 gaps changed, with zero cancellations.
+`whole-clock-apply-002` records actual T1 SHA178c91d9ff19fcb8205dfd0004b3056edc15cd6fd8748ca55f399c552551d1cd.
 The first silent native attempt separately refuses a percussion duration mismatch
 during conversion; no audio is approved from that attempt. The diagnosed boundary
 is alphaTab's GP5 import of128th notes as quarters, despite the source and bridge
-model agreeing. Twelve authored GP7 cases preserve128ths exactly. The bounded
-repair authenticates the known import loss before percussion validation; it does
-not relax duration equality, round timing or exclude affected notes.
+model agreeing. Initial notation checks were insufficient: double-dotted128th
+native clocks still lose fractional ticks and are explicitly unsupported by this
+repair. All196 affected actual beats are undotted. The bounded repair authenticates
+the known import loss before percussion validation; it does not relax duration
+equality, round timing or exclude affected notes. A second native failure routed
+12 pull-offs to inserted tie tails. Source-authenticated, hash-bound paired playback
+now follows each complete tie to its true fresh destination; no velocity override
+or source detector change.70 focused export/playback tests pass.
+
+Final `whole-clock-native-004` and the separate actual335-guard audit PASS.
+All398 ties,8 legato links,62 HP targets and6048 source-derived native callbacks
+match.6048 performed attack times change;4398 performed release lengths change.
+That performed release count is distinct from4992 changed written full holds,
+because current mute caps remain operative. GP SHA5eb4abf3fdcf591e1dc00b0064cd3265bf2a1f7626a871e27594b7e5e73d5c25.
+Offline audio is being published through the existing page; no playback by QA.
+Standalone GP fidelity, listening and ALL-control completion remain open.
 
 Parallel bend preflight finds usable1→2-semitone excursions for all four untied
 gestures, jointly with degree choices and retained in-key landings. All existing

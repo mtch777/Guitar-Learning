@@ -4,6 +4,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {loadWithExactBends} from './bend_fidelity.mjs';
 import {registerContinuousMutePlayback} from './continuous_mute_playback.mjs';
+import {restoreHammerPullThroughTies} from './restore_hammer_pull_through_ties.mjs';
 
 const POLICY_SCHEMA='composition-lab.execution-policy/1';
 const POLICY_NAME='composition-lab.continuous-mute-terminal-release/1';
@@ -37,10 +38,12 @@ export function loadPlaybackScore(at,file,job={}) {
  else if(executionData)throw Error('Playback execution policy receipt must be an object');
  const restored=sidecarData?loadWithExactBends(at,data,JSON.parse(sidecarData.toString('utf8'))):null;
  const score=restored?restored.score:at.importer.ScoreLoader.loadScoreFromBytes(data);
+ const hammerPullRegistration=executionReceipt?restoreHammerPullThroughTies(score):null;
  const executionRegistration=executionReceipt?registerContinuousMutePlayback(at,score):null;
  return {data,score,restored,sidecarData,sidecarPath,
          executionPolicyData:executionData,executionPolicyPath:executionPath,
          execution_policy_receipt:executionReceipt,execution_policy_registration:executionRegistration,
+         hammer_pull_registration:hammerPullRegistration,
          execution_policy_selection:executionReceipt?(typeof requested==='string'?'explicit':'adjacent'):requested===false?'disabled':'absent',
          companion_selection:restored?(explicit?'explicit':'adjacent'):job.exact_model_bends===false?'disabled':'absent'};
 }

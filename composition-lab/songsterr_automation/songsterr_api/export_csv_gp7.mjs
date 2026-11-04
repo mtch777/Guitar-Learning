@@ -7,6 +7,8 @@ import {checkSourceGraces} from './check_source_graces.mjs';
 import {joinSourceGraceChords} from './join_source_grace_chords.mjs';
 import {restoreSourceBendPoints} from './restore_source_bend_points.mjs';
 import {restoreSourcePercussion} from './restore_source_percussion.mjs';
+import {restoreSourceOrdinaryDurations} from './restore_source_ordinary_durations.mjs';
+import {checkSourceHammerPullThroughTies} from './restore_hammer_pull_through_ties.mjs';
 import {checkSourcePercussion} from './check_source_percussion.mjs';
 import {collectSourceTremoloTiming} from './source_tremolo_timing.mjs';
 const [modulePath,root,...options]=process.argv.slice(2),at=await import(pathToFileURL(path.resolve(modulePath)));
@@ -112,6 +114,8 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
   const graceCandidate=preservePitchedGraces?joinSourceGraceChords(score,sourceParts,at,settings):null;
   if(graceCandidate)score=graceCandidate.score;
   const pitchedGraceRestoration=preservePitchedGraces?restoreSourceGraces(score,sourceParts,at.model.GraceType):null;
+  const notationPath=path.join(folder,'notation-map.json');
+  restoreSourceOrdinaryDurations(score,sourceParts,fs.existsSync(notationPath)?JSON.parse(fs.readFileSync(notationPath,'utf8')):null,at);
   const percussionRestoration=preservePercussion?restoreSourcePercussion(score,sourceParts,at):null;
   const metadata=JSON.parse(fs.readFileSync(path.join(folder,'metadata.json'),'utf8'));score.title=metadata.title||score.title;score.artist=metadata.artist||score.artist;
   let rhythmRestorations=0;
@@ -138,6 +142,7 @@ for(const entry of fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isDirec
   // Restore verified source curves only after the final finish, then let the
   // existing hash-bound companion preserve them through the native GP boundary.
   const sourceBendRestoration=preserveBends?restoreSourceBendPoints(score,sourceParts,at.model,{restoreSimpleTiedHolds:preserveSimpleTiedHoldBends}):null;
+  if(sourceParts)checkSourceHammerPullThroughTies(score,sourceParts);
   const before=snapshot(score);
   const nativeExport=()=>{
    const saved=[];
