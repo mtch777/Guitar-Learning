@@ -160,13 +160,22 @@ def options(upper, use_id):
     """
     from source_fact_tier1 import project_documents
     from source_key_tier1 import extract_documents
-    from material_rhythm_displacement import solve
-    from material_approaches import SCHEMA, expand
     lower = uses.reconstruct(upper, {'variation': 0})
-    selected = _use(upper, use_id)
-    scope = upper['slots'][selected['slot_ref']]['scope']
     documents = project_documents(lower)
     events = extract_documents(documents)['events']
+    return _options_from_context(upper, use_id, documents, events)
+
+
+def _options_from_context(upper, use_id, documents, events):
+    """Same options equation with a caller-frozen, reconstructed current context.
+
+    Internal batch callers compute this context once before any proposals. It is
+    not cached source evidence and is never used instead of the final inverse.
+    """
+    from material_rhythm_displacement import solve
+    from material_approaches import SCHEMA, expand
+    selected = _use(upper, use_id)
+    scope = upper['slots'][selected['slot_ref']]['scope']
     times = {}
     for event in events:
         measure = documents[f'track-{event["part_id"]}.json']['measures'][event['bar']-1]

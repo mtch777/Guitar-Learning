@@ -2,6 +2,11 @@
 
 ## Listening autonomy — permanent user correction
 
+Mobile questions, 2026-11-03: the structured question cards do not render for the
+user in the mobile app. Ask optional feedback/clarification in ordinary chat with
+clickable links and short numbered options when useful. Do not use the structured
+request-user-input tools for this project unless the user asks for them again.
+
 Self-QA routine variants within accepted relationships and continue without an
 approval stop. Preserve verified original/comparison audio and feedback identities
 in the SAME page/queue under [LISTENING_REVIEW_TEMPLATE.md](LISTENING_REVIEW_TEMPLATE.md).
@@ -62,6 +67,13 @@ credit or denominator shrinking. Preserve coherent groups and locks; unsupported
 or infeasible committed requests refuse atomically. Existing finite-sampling code
 and receipts retain their old meaning until migrated; they do not pass the new
 output requirement. The canonical plan contains the complete current contract.
+
+For coupled controls, count the requested feature in the final realization. Never
+substitute a changed internal parameter or counterfactual contribution for it.
+Example: a downward melodic change canceled by an upward octave shift leaves that
+note unchanged. Check actual letter_octave octave coordinates for register targets;
+report common-offset parameters and semitone magnitude separately. Intentions that
+dictate incompatible answers to one choice cannot act as independent sliders.
 
 ## Canonical steering and reproducible publication
 

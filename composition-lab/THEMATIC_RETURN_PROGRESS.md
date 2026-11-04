@@ -1,5 +1,89 @@
 # T5: live return of an earlier arrangement
 
+## Active implementation — connected output targets, 2026-11-03
+
+User explicitly instructed execution after the overlap review. Root owns integration;
+Planner challenged the start. Implement a bounded joint movement/register and
+rhythmic-displacement route through existing relationships, not a replacement
+generator or an unbounded solver. Earlier percentage-audit scope below is completed.
+
+- [x] Freeze feature units and current baseline before candidate admission; enforce
+  actual 0/50/100 counts on the FINAL realization with half-up integer rounding.
+- [x] Choose movement and whole-octave placement jointly; distinguish intentions
+  from change targets. Preserve original evidence, stable occurrences and other owners.
+- [x] Choose existing rhythmic offsets against complete attack-onset counts;
+  protected boundaries and no-choice attacks remain in the denominator.
+- [x] Test cancellation, indivisible groups, overlapping measurements, saved edits,
+  zero locks and atomic refusals. Same inverse; no source payload access.
+- [x] Run a frozen Cloud request with final counts and exact reconstruction. Keep
+  unsupported/exhausted/not-exhaustive distinct; do not reroll the source or claim
+  current vocabulary proves musical impossibility. Preserve all three QA outcomes.
+- [x] Planner start/midpoint challenge; root integration review and isolated release
+  verification. First verified audio is on the same page with actual UI checks.
+- [ ] Planner end review: unavailable after the subagent usage-limit error; no
+  independent end approval is claimed. Root continues authorized verification.
+- [ ] Commit/push the verified increment and check its CI.
+
+No claim that all30 controls are migrated. All requests use their complete named
+measurement; switching to a smaller denominator is not an escape from a failed100.
+An all100 request can contain genuinely contradictory linked targets; such a result
+must remain explicit, not silently prioritize a tier or release a zero lock.
+
+### Actual execution evidence — connected output targets
+
+Private reproducible work: `local-artifacts/joint-output-controls-v1/`.
+Public entry point: `run_output_change_controls.py MODEL REQUEST OUTDIR --denied`.
+Supported request kinds:movement, rhythm, connected. The combined boundary requires
+disjoint existing movement/material owners; shared-occurrence admission remains a
+specific implementation limit. No additional note generator or inverse was added.
+
+Planner caught a misleading register metric: an octave parameter could change
+while a simultaneous melodic edit left a final note in its previous octave.
+Corrected to actual final letter_octave octave coordinates. The retained authored
+60,72 ->72,72 example earns1/2 register changes, not2/2. A final movement crossing
+an octave also affects a register0 lock. Common offset remains a separate parameter.
+
+Commands/results:
+- `.venv/Scripts/python.exe -m unittest` with the five new test modules (from
+  composition-lab):41tests PASS,56.853s.
+- `.venv/Scripts/python.exe composition-lab/local-artifacts/joint-output-controls-v1/check_release.py`:
+  clean HEAD archive plus only11 source/test files;114tests PASS,161.019s.
+  Includes movement/placement, halfstep, rhythm, expression composition and saved
+  unrelated dependency propagation. No reliance on unrelated unfinished work.
+- `.../prove_joint.py`: actual baseline/current source-lower-denied inverse PASS
+  through the clean candidate and public runner. Authored melody3/3, register4/4,
+  onset12/24 targets pass together; save/reload and original input preservation pass.
+- Cloud current combined T3 + frozen38 region requests, rhythm50:
+  SATISFIED,532/1064 onsets; original input unchanged; saved current inverse PASS;
+  two actual denied proofs PASS.375.39s. Prior expression choices remain fixed.
+- Same Cloud baseline, rhythm100: atomic unchanged refusal.619 maximum clock-count
+  reach,445 fixed/no-choice attacks,zero matching full-count vectors.184.562s.
+  This is exhaustion of declared clock options, not proof of musical impossibility.
+- Frozen QA1 retained-source population87, seed17236610044642358723 selected
+  Invent Animate4972602. `fresh-001/evaluate.py`:7,187 facts preserve exactly;
+  actual denied zero PASS; first structural guitar0/bar17 retained. Variation
+  refuses at NO_DEFINED_MAXIMUM_IN_REQUIRED_CONTEXT because no other part exists
+  for the predeclared independent-backing profile. No redraw; not a creative pass.
+- `cloud-001/prepare_audio.py`: independent raw fraction/meter/BPM/tie timing oracle,
+  native score comparison, source expression, percussion and four bend curves PASS.
+  Exactly532 native onsets and610 native callbacks' timing fields change; all
+  pitches, velocities and other native model fields remain exact. New audio only.
+- Existing publisher:18.621s bars17–25, focus21, identical PCM bounds and4context
+  bars each side. Original/Previous remix/Timing50;80 moved attacks in this excerpt.
+  Socket HTTP check was denied by sandbox; publication succeeded and was instead
+  checked in the actual existing browser. All three versions play; seeking,
+  preserved-position switching, natural end and two nonblank changed-part rolls
+  verified. Green/pink changes visible during playback. No new player or rerender
+  of existing audio. Same LAN URL http://192.168.0.12:5280/ .
+
+QA2 passes in the declared boundaries. QA3 passes the existing relationship/control
+and preservation checks; no learned musical preference or new pitch vocabulary is
+claimed. QA1 creative portability remains unproved. Listening is optional here;
+this is the already accepted groove operation with precise counts, not a tier exit.
+New controls do not close every lever or all100. The next musical constraint to
+resolve remains Cloud's explicit held-note/line identity support, independently
+of quota arithmetic. Do not turn the held-note guard into a soft preference.
+
 ## Active request — output-based percentages and complete lever audit
 
 Latest user correction replaces release probability with actual output change:

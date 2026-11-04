@@ -9,6 +9,16 @@ Artist scope: ONLY Invent Animate first, Currents second, ERRA third. Use Invent
 Animate for the next musical proof. Other artists' existing material is retained
 history/regression evidence only. This does not reduce the registered capabilities.
 
+Connected-output review: challenge final measurements after simultaneous controls.
+An octave parameter is not evidence that each final note changed octave; melodic
+motion can cancel it. Freeze complete units before feasibility, preserve zero locks,
+and distinguish contradictory intentions from missing implementation. The current
+bounded movement/register/rhythm migration does not close every lever or tier.
+
+Mobile communication: use ordinary chat for user questions and listening feedback,
+with clickable links and optional short numbered choices. Structured question
+cards do not render in the user's mobile app; do not use them unless requested.
+
 - Challenge whether work expands a reusable musical decision; examples are evidence.
 - Preserve full13T2areas/9techniques separately from the approved ordered MVP gates.
   T3MVP begins only after the fixed T2MVP exit passes; no full-tier promotion or

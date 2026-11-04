@@ -17,8 +17,9 @@ instruction dependencies. This plan contains the governing requirements and gate
 
 This supersedes release-probability/no-original-preference semantics for NEW
 requests. Existing accepted artifacts retain their historical settings; do not
-relabel them as passes under the new contract. Current control implementations
-still use the previous sampling semantics until individually migrated and verified.
+relabel them as passes under the new contract. The new movement/register and
+material-timing request APIs now enforce actual-output counts; their historical
+APIs and all other controls retain previous semantics until individually migrated.
 
 - 0% preserves the selected feature of the CURRENT input exactly.
 - 50% targets actual change in half the declared observable units.
@@ -28,7 +29,8 @@ still use the previous sampling semantics until individually migrated and verifi
   feature-change counts, magnitude and source coverage separately. No metadata-only
   edit, silent dependency-mode change or intermediate edit later canceled counts.
 - Compare the FINAL realized score/performance after all requested controls, not
-  sampler decisions. Register is octave placement; movement is signed pitch steps;
+  sampler decisions. Register is each final letter_octave octave coordinate;
+  movement is signed pitch steps;
   dynamics is effective loudness. Changes in one cannot credit another.
 - Musical units are not arbitrary JSON fields: pitch/accent use actual attack
   identities (ties form one attack; explicit rests have no pitch/accent unit).
@@ -74,7 +76,7 @@ may make a quota impossible; report that instead of redefining the measurement.
 | 10 | Repeat reference/follow chord interval | Every selected destination attack changes realized pitch; switching an equivalent treatment label does not count. |
 | 11 | Upper chord-member line | Every selected upper attack changes melodic pitch; fixed lower members remain exact. |
 | 12 | Repeat first note/follow signed movement | Every selected consecutive-attack signed step differs. An unchanged first anchor is not a changed pitch; report attack-pitch reach separately. |
-| 13 | Melody octave | Every selected attack moves by a nonzero whole octave, preserving separately locked movement. A common-line constraint may prevent50% of its attacks changing. |
+| 13 | Melody octave | Every selected attack's final letter_octave octave coordinate differs from baseline. The common-octave realization parameter alone earns no credit: a simultaneous melodic edit can cancel it. Report actual semitone movement separately. A common-line constraint can restrict attainable counts. |
 | 14 | Guitar figure octave, including admitted expressive/muted figures | Every selected attack changes octave; verify final combined output after other edits, ties and technique constraints. |
 | 15 | Keyboard-note octave | Every selected attack changes octave; no canceled intermediate register edit receives credit. |
 | 16 | Bend excursion | Every selected bend has a different realized pitch excursion; source markings and performed trajectory must agree. |
@@ -107,6 +109,49 @@ string vibrato, slides, open-string hammer-ons/pull-offs, tapping, harmonics and
 dead/ghost-note editing; tuning/capo; broad phrase development, arrangement/form
 and cross-song artist preferences. Their output units must be registered before
 implementation; absent controls cannot pass an all-levers100 run.
+
+### Connected-control implementation decision — 2026-11-03
+
+The user authorized implementation after reviewing overlaps. Percentage targets,
+musical intentions and hard locks are separate. Alternative ways of deciding the
+same pitches are intentions under one owner, not independent sequential sliders.
+Movement/register and material-clock changes are the first bounded migration;
+other control rows remain owed. Use the same existing relationships and inverse.
+
+Select compatible complete candidates and measure all targets against ONE frozen
+current baseline after composition. A single edit may satisfy several genuinely
+changed features; count the overall affected-note union once. A melodic step across
+an octave boundary changes actual register even without a separate octave shift;
+report its semitone extent instead of claiming a whole-octave audible leap. A zero
+register target locks those actual octave coordinates and can constrain melodic
+movement. Keep the common octave parameter separate from the output measurement.
+
+Original direction, return direction and their same/opposite relation contain only
+two independent binary choices. All three cannot flip together. Expose that exact
+conflict; do not silently release a target. Distinguish these contradictions from
+unsupported owners, exhausted current alternatives and incomplete searches.
+
+Implemented boundary: `run_output_change_controls.py` applies movement/register,
+material timing, or their supported disjoint-owner combination to a saved model.
+It preserves the model on a refused target, measures the final score and can run
+the existing inverse with source/lower payloads unavailable. It does not migrate
+all30 rows or supply musical choices absent from existing relationships.
+
+Verified evidence:114 relevant tests pass against clean HEAD plus this increment;
+authored combined movement/register/rhythm passes saved and denied reconstruction.
+Cloud's frozen38 timing groups contain1,064 attacks:50 changes exactly532 onsets
+in BOTH reconstructed score and native playback. Its100 request refuses atomically:
+current declared clock options reach at most619, leaving445 fixed/no-choice attacks.
+That maximum is clock feasibility, not a fully validated619-attack composition.
+The18.62s existing-page comparison keeps untouched original and the previous remix.
+
+Fresh retained-capture draw4972602, Invent Animate *Fall like rain (better)*,
+preserves all7,187 source facts and passes actual denied reconstruction. The frozen
+first scope is guitar0 bar17. Its only captured part leaves no independent backing
+for the declared tonal-profile policy; variation refuses before ownership. No
+reroll or relaxed tonal policy. QA1 creative generalization remains OPEN. Cloud
+melodic held-note/ambiguous-line gaps remain OPEN; this release proves precise
+control and preserved relationships, not new melodic vocabulary or completed T5.
 
 | Scope | Acceptance / remaining obligation |
 |---|---|
