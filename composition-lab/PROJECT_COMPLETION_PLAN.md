@@ -20,6 +20,12 @@ audio and asked for **50% for everything**. Prepare that revision from untouched
 Cloud, preserve the rejected audio, and measure final output rather than reducing
 playback speed or masking raw notes. The all-control requirements remain owed;
 partial50 feature success must not be labeled all-control completion.
+The revision is now rendered on the existing listening page: main pitch, interval,
+timing and written-expression features meet final half-up 50% counts, with exact
+denied-source reconstruction and independent native playback checks. Higher-level
+coverage does not: pitch changes reach 131/134 part/passage patterns. Full all-control
+coordination and fresh-song creative acceptance remain open; listening is pending.
+See the active checklist for exact receipts and remaining scope.
 The movement/register/rhythm increment is a prerequisite and an early listening
 checkpoint, not a replacement objective or completion of this request. The active
 checklist names the remaining control groups and accountable owners. Distinguish

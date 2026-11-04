@@ -10,22 +10,49 @@ This new request starts from untouched Songsterr, not the previously edited
 request baseline. Root owns integration; Planner challenges count versus magnitude,
 dependencies and remaining unsupported controls. QA remains silent.
 
-- [ ] Prepare the same complete ownership scope from untouched source; exact zero
+- [x] Prepare the same complete ownership scope from untouched source; exact zero
   must recover every source fact. No masking half the final raw notes.
-- [ ] Run existing relationships with actual-output50 targets (half-up integer
+- [x] Run existing relationships with actual-output50 targets (half-up integer
   rounding), coordinating shared pitch/interval/voicing, timing and expression
   choices. Freeze denominators first; report incompatible/missing targets rather
   than claiming all controls succeeded. Root integrates pitch and time/expression.
-- [ ] Verify saved composed reversal, original evidence and retained dependencies;
+- [x] Verify saved composed reversal, original evidence and retained dependencies;
   measure final changes against untouched source. Retained fresh-source failures
   remain open. Do not repeat a corpus campaign for this listening revision.
-- [ ] Render only the new verified candidate, with unchanged source soundfont/gain;
+- [x] Render only the new verified candidate, with unchanged source soundfont/gain;
   reuse untouched audio and existing5280 page. Show original,50-request result and
   retained100-request result, exact descriptions and changed-note colors.
-- [ ] Present audio promptly and retain the user's musical judgment separately
+- [x] Present audio promptly and retain the user's musical judgment separately
   from structural/technical checks. The complete all-control obligation remains open.
 
 Private evidence: `local-artifacts/cloud-half-output-2026-11-04/`.
+
+Delivered revision evidence: `verification/result.json` passes the complete
+source/lower-denied inverse in 83.156s. Final output meets half-up targets for
+pitch class and octave (1,953/3,905 each), contact (1,970/3,940), melodic intervals
+(978/1,955), voicing intervals (837/1,674), onsets and holds (2,496/4,992 each),
+adjacent gaps (1,603/3,205), dynamics and accents (2,496/4,992 each), and complete
+mute groups (1,232/2,464). Two of four bends change; neighboring dynamic differences
+change 5/10. Source-to-final evidence/owner/dependency comparison passes 16 checks.
+No notes added: 5,350 written notes, 4,992 attacks and 358 ties retained.
+
+This is **not all controls at 50%**. Pitch changes touch 131/134 part/passage
+patterns; those higher-level quotas remain uncoordinated. One global tempo region
+rounds to one changed region; 145 BPM is a separate pace choice, not 50% coverage.
+Eight legato destinations lack independent performed-emphasis measurements.
+Fresh-source creative failure remains retained; listening judgment is pending.
+
+`native/result.json` verifies source-derived export/playback and a silent render:
+4,984 callbacks, 183.725s, peak 0.6193, same soundfont/gain, WAV SHA-256
+`1241b49900e8e5a76af7c73cb0869db60c488ce8c4fa82da97cbaadc16ebb97d`.
+`audio/publication.json` reuses the existing page and untouched/previous WAVs.
+Silent actual UI QA: original and new audio load paused with no errors; opening
+and full-song views show six parts; changed-only remains populated; colored notes
+visible. LAN 5280 root opens 12 bars, `/full/` the complete song. Planner reviewed
+the evidence and rejected an all-30-controls claim. Production solver commit
+`d0efa7a` has 20 targeted tests passing; remote CI was still running at publication.
+Next: user listening on the new revision; keep the full remaining control obligation
+open. Do not call this partial measured delivery completion of the all-control task.
 
 Latest user-requested measurement audit: freeze current code and measure ALL
 registered output features on final Cloud. The dispatcher still lacks an all30
