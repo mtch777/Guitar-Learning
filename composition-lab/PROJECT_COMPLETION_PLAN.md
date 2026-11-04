@@ -22,7 +22,8 @@ true contradictory requests from missing musical choices or implementation; neit
 an overlap inventory nor a correct refusal closes an unfinished capability.
 
 **Latest delivered state (2026-11-04):** combined whole-song pitch, expression and
-174BPM tempo code is published in `5ab849b`; exact-commit CI is pending. The existing
+174BPM tempo code is published in `5ab849b`; exact-commit CI passed (41846684467).
+The listening-clock correction in `9cf3a80` also passed CI (41851363102). The existing
 listening page serves untouched original and both116/174BPM rewrites, with short
 context and full-song views. Actual silent browser QA passes, including position
 mapping between tempos and changed-note visibility. Exact saved/source-denied and
@@ -31,6 +32,17 @@ creative QA, listening and ALL-control completion remain open. Next: shared writ
 duration/entry relationships across the whole song, preserving ties, triplets and
 the existing pitch/expression result. The dated evidence below retains earlier
 partial counts; it is not a replacement current assignment.
+
+The next execution-guard increment preserves written contact ordering, overlaps,
+continuity and stable identities while allowing numeric timing choices. It keeps
+the original guard commitments and unknown acoustic endpoints. A clean published-
+HEAD snapshot plus this change passed35 guard/integration tests. The working
+shared-clock implementation now passes a complete denied-source inverse for four
+previously blocked held/fresh boundaries, with all unrequested score fields exact.
+Whole-song rhythm is NOT accepted: its first candidate breaks12 pull-off links and
+16 let-ring written-continuity links. One derived sustain-prefix relationship is
+being integrated to address both; no guard is weakened to admit those gaps. All
+controls, complete denominators and the retained fresh-source failure remain open.
 
 Current implementation evidence: the new degree-path relation achieves20/20
 signed steps and38/38 final octaves in the first frozen Cloud scope; same-span

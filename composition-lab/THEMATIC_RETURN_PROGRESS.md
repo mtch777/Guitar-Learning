@@ -53,7 +53,8 @@ below preserve their original results/settings; none supplies another active que
 ### Latest delivered result and next dependency — 2026-11-04
 
 The combined pitch/expression/tempo implementation is published in `5ab849b`.
-Its exact-commit CI is still running at this checkpoint (run41846684467).
+Its exact-commit CI passed (run41846684467). The subsequent listening-clock
+correction `9cf3a80` also passed exact-commit CI (run41851363102).
 The existing listening page on port5280 now serves untouched original, combined
 rewrite at116BPM, and that same written rewrite at174BPM. Default bars7–15 keep
 four context bars each side; `/full/` provides all111 bars. Existing verified PCM
@@ -76,6 +77,45 @@ Planner challenged using quotas as musical intention: apply an explicit rhythmic
 intention (anticipation/delay against the backing pulse), with quotas as acceptance.
 All30 controls, the8 within-slide emphasis measurements, remaining failures and
 fresh-source creative QA remain open; this delivery does not replace that request.
+
+### Shared rhythm integration — 2026-11-04, continuing the whole request
+
+- [x] Versioned execution-clock choices retain the original v1/v2 commitments,
+  contact identities/order/overlap/continuity and unknown acoustic endpoints.
+  New interfering contacts and broken incoming ties refuse. Clean HEAD overlay:
+  `python -m unittest discover -s <release>/composition-lab -p test_material_execution*.py -v`
+  passed35 tests, including existing denied-source integration. Runtime is the
+  repository `.venv/Scripts/python.exe`; no playback.
+- [x] Actual Cloud migration preserves335 locks across15 materials. Four retained
+  held-quarter/fresh-dotted-half cases now become two half notes through the shared
+  clock. `carry-clock-apply-002` independently reconstructs the complete expected
+  score without source/lower payloads (307.140s); unrequested fields are exact.
+  The preceding v2 refusal remains in `carry-clock-apply-001`.
+- [x] Joint entry/content choices now integrate with current subdivisions,
+  expression and stable identities. Six authored integration tests pass, including
+  actual denied-source reconstruction, existing rests and split→entry→expression→
+  save/reload→next timing edit. This is not yet whole-song rhythm acceptance.
+- [ ] Whole-song candidate: geometry changes4992/4992 original onsets/spans and
+  3205/3205 adjacent gaps, but independent execution checking finds12 broken
+  pull-offs and16 broken let-ring written-continuity relationships. Retain that
+  failure. Do not count geometry as an admitted musical edit.
+- [x] Smallest shared premise: a delayed connected entrance needs a derived tied
+  sustain through its prefix, rather than silence. An independent12-pull-off
+  check restores all405 canonical execution records with12 written tails and zero
+  new attacks; all12 carried pitches satisfy both retained collection hypotheses.
+- [ ] Integrate that continuation through current authoritative owners; preserve
+  mixed-coattack membership, original evidence, dependencies and unknown release.
+  Run complete inverse, final held/contact checks and silent native verification.
+  Planner challenged indiscriminate whole-chord extension and duplicate tie
+  ownership; those counterexamples are required. The16 let-ring contacts need
+  the same written-continuity relationship, not relaxed guard fingerprints.
+- [ ] Then measure the whole request again. Relative instrument placement is
+  currently only1698/3214 changed source-coincident comparisons, with1778 attacks
+  lacking a declared reference; moving against the metrical pulse does not prove
+  that separate control. ALL30,8 within-slide emphasis units and QA1 remain open.
+
+The guard change is an independently releasable prerequisite. The working joint
+clock/carry code is not represented as published or complete by that release.
 
 ### Verified whole-song pitch targets — 2026-11-04
 
