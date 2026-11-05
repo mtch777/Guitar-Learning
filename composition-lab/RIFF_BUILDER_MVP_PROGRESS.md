@@ -8,7 +8,7 @@
   rhythm/shape descriptors; retain per-artist counts and representative lengths.
 - [x] Add presets to the existing section builder, respecting selected artists
   and mode and keeping all settings editable. Preserve player and random controls.
-- [ ] Verify evidence counts, preset availability, real engine generation and
+- [x] Verify evidence counts, preset availability, real engine generation and
   relevant release checks; publish scoped changes and inspect the hosted page.
 
 Root owns UI/integration/publication and this record. Reference agent owns the
@@ -42,8 +42,21 @@ generation of top6 presets per artist plus top6 combined (E Dorian127BPM) genera
 within the existing bounded realizer. All six Invent Animate and all six combined
 presets generated. Failures are retained in the private report without rerolling;
 available reference counts do not promise generation or musical quality.
-Source library and pattern-pack hashes are unchanged. Publication/hosted review
-remain pending below; no new listening or tier completion is claimed.
+Source library and pattern-pack hashes are unchanged. No new listening or tier
+completion is claimed. Planner independently reran 15 focused checks and rebuilt
+the full aggregate from the private library and pack, confirming exact equality.
+
+Published f6f31ad217928e82e76f5aebd0f730623c035022, nine scoped files. Pages build
+42131954071 and deployment42132005424 succeeded. Hosted review verified:
+Invent Animate preset ranks20/18/14/9/5/5; all-artist ranks49/44/17/11/9/8;
+empty artist selection shows no presets without losing the prior playable riff.
+Applying arpeggio/single to row1 then pedal/interval to row2 retained Dorian,
+153BPM and the other row. The generated two-bar result reached Ready/Play with
+native tab. Seek to quarter4 showed Section2/Shape2, four outlined contacts and
+three current notes; audio remained stopped. The expanded statistics/length
+evidence and final desktop panel were visually inspected. Existing random and
+shape controls remain integrated; no player was rebuilt.
+URL: https://mtch777.github.io/Guitar-Learning/riff-builder.html?v=f6f31ad
 
 ## Playback shape highlighting — current request
 
