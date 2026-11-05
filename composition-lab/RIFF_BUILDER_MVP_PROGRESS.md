@@ -15,10 +15,10 @@ playback and downloadable results. Repeating identical inputs is deterministic.
 - [x] Package unchanged musical functions and seven minimal source-derived cells;
   omit full commercial scores, source identities and private annotations.
 - [x] Confirm all six default outputs equal the saved generated scores exactly.
-- [x] Connect Generate to Python worker and results to existing alphaTab playback (browser check pending).
-- [ ] Verify tempo, original/developed, playback readiness, errors and downloads.
+- [x] Connect Generate to Python worker and results to existing alphaTab playback.
+- [x] Verify tempo, original/developed, playback readiness, input errors and JSON download.
 - [x] Run relevant Python tests, existing JS tests and site build.
-- [ ] Publish only owned files to main; verify deployment and served page.
+- [x] Publish only owned files to main; verify deployment and served page.
 
 ## Progress
 
@@ -40,3 +40,23 @@ playback and downloadable results. Repeating identical inputs is deterministic.
 - Planner independently reran the Python tests and approved the bounded packaging.
 - Initial localhost browser preview timed out. Hosted browser verification remains
   required after deployment; no browser execution claim is made from unit tests.
+- Published main commit: ed9f42ff5a6a40a583a425ffa1ffd323bc5b875d. Pages publishing
+  workflow 42085126171 succeeded. Public URL:
+  https://mtch777.github.io/Guitar-Learning/riff-builder.html
+- Hosted browser Generate executed the Python worker for all three recipes:
+  Fracture Dialogue142, Open Orbit132 and Glass Counterweight175. All reached
+  Ready/Play enabled with native tab and interval fretboard. Original/developed
+  switches and half-speed selection passed; 7/2/2 and12/2/2 change summaries shown.
+- Browser JSON download equals local generate('conversation',142) completely.
+  Download tooling returned very slowly; no repeated download was initiated.
+- Screenshot visually confirmed the hosted controls, 24-fret board and green
+  changed contacts. Browser playback was kept stopped; no audible taste or
+  real-guitar performance approval is claimed. Prior native/MIDI checks supply
+  written-event fidelity evidence. The page is marked as the user deliverable.
+- Local shared checkout retains unrelated work. Publication used an exact owned
+  file list through GitHub's commit API, not a blanket staging/commit operation.
+- Broader Composition Lab CI42085126130 also passed. The separate existing live
+  pipeline preflight42085126493 failed before its browser test: its Playwright
+  installation does not support the runner's ubuntu26.04-x64. Its site build and
+  calibration checks passed. This is not reported as a passing browser preflight;
+  hosted builder browser verification above was independently completed.
