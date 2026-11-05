@@ -194,6 +194,56 @@ def _realize_window(template, palettes, mode, rng, ordinary, tapped):
     return (best[1],None) if best else (None,last_reason)
 
 
+def _shape_usage(palettes, mode, ordinary, tapped, events):
+    """Add evidence from the winning contact window; never infer a new shape."""
+    allowed = set(MODES[mode])
+    def compatible(contacts):
+        return {c for c in contacts if c[1] > 0 and (TUNING[c[0]-1]+c[1]-4)%12 in allowed}
+    ordinary, tapped = compatible(ordinary), compatible(tapped)
+    reference_shapes = {}
+    def describe(contact):
+        sources = []
+        for palette in palettes:
+            source_roles = palette.get('contact_roles')
+            roles = ([name for field, name in (('core_contacts', 'core'),
+                      ('extension_contacts', 'extension'), ('tapped_contacts', 'tapped'))
+                      if contact in {tuple(c) for c in source_roles.get(field, [])}]
+                     if source_roles is not None else
+                     ['unspecified'] if contact in {tuple(c) for c in palette['contacts']} else [])
+            if not roles:
+                continue
+            ref = palette.get('reference', {})
+            identity = {'palette_id': palette['id'], 'riff_id': ref.get('riff_id'),
+                        'shape_id': ref.get('shape_id')}
+            reference_shapes[palette['id']] = identity
+            sources.append({**identity, 'roles': roles})
+        string, fret = contact
+        return {'string_number': string, 'fret': fret, 'pitch': TUNING[string-1]+fret,
+                'roles': sorted({role for source in sources for role in source['roles']}),
+                'sources': sources}
+    ordinary_rows = [describe(c) for c in sorted(ordinary)]
+    tapped_rows = [describe(c) for c in sorted(tapped)]
+    used, opens = {}, set()
+    for event in events:
+        for member in event['members']:
+            string, fret = member['string_number'], member['fret']
+            if not fret:
+                opens.add(string)
+                continue
+            row = used.setdefault((string, fret), {'string_number': string, 'fret': fret,
+                'pitch': member['pitch'], 'as_fretting': False, 'as_tapping': False})
+            row['as_tapping' if member['marks'].get('tapping') else 'as_fretting'] = True
+    fretted_count = sum(row['as_fretting'] for row in used.values())
+    kind = ('shape_window' if fretted_count >= 2 else 'single_contact_context' if fretted_count == 1
+            else 'tapped_context_only' if used else 'open_string_only' if opens else 'no_fretted_contact')
+    frets = [c[1] for c in ordinary]
+    return {'schema': 'riff-shape-use/1', 'mode': mode, 'kind': kind,
+            'ordinary_fret_bounds': [min(frets), max(frets)] if frets else None,
+            'ordinary_contacts': ordinary_rows, 'tapped_contacts': tapped_rows,
+            'used_contacts': [used[c] for c in sorted(used)], 'open_strings_played': sorted(opens),
+            'reference_shapes': [reference_shapes[k] for k in sorted(reference_shapes)]}
+
+
 def _realize(template,palettes,mode,rng):
     ordinary=set();tapped=set()
     for palette in palettes:
@@ -216,9 +266,13 @@ def _realize(template,palettes,mode,rng):
         result,reason=_realize_window(template,palettes,mode,rng,set(window),tapped)
         if result:
             m=result['measurement'];quality=(-min(m['relative_pitch_changed_attacks'],2),m['fretting_hand_motion'],m['fretting_hand_span'])
-            if best is None or quality<best[0]:best=(quality,result)
+            if best is None or quality<best[0]:best=(quality,result,window)
             if quality[0]==-2 and quality[1]==0:break
-    return (best[1],None) if best else (None,reason)
+    if best:
+        result = best[1]
+        result['shape_usage'] = _shape_usage(palettes, mode, best[2], tapped, result['events'])
+        return result, None
+    return None, reason
 
 
 def generate(request, pack):
@@ -301,6 +355,7 @@ def generate(request, pack):
             support=[s for s in template['support'] if s['artist'] in selected_artists and style in s['style_ids']]
             outcome['blocks'].append({'pattern_id':template['id'],'offset_q':str(cursor),'duration_q':template['duration_q'],
                 'palette_ids':palette_used,'reference_support':support,'repeated_realization':repeated,
+                'shape_usage':deepcopy(realized['shape_usage']),
                 'measurement':realized['measurement'],'source_meter':template.get('source_meter',[]),
                 'local_construction':deepcopy(template.get('structural_profile',{})),
                 'placement':'whole_unit_no_time_stretch_or_truncation'})
