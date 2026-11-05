@@ -143,6 +143,97 @@ test('noncanonical callback IDs receive a unique deterministic fallback', async 
   assert.equal(result.events[1].members[0].id, 'random:s1:e0:n0:custom');
 });
 
+const allExclusions = ['artists', 'mode', 'tempo', 'style', 'focus', 'length_q'];
+const currentSettings = () => ({artists: ['Invent Animate'], mode: 'Aeolian', tempo: 142, seed: 0,
+  sections: [{style: 'arpeggio', focus: 'single', length_q: '8', seed: 0},
+    {style: 'pedal', focus: 'interval', length_q: '4', seed: 0}]});
+
+test('excluded global settings stay exact while other fields still vary', () => {
+  const current = currentSettings(); current.artists = ['ERRA', 'Invent Animate', 'Currents']; current.mode = 'Dorian'; current.tempo = 173;
+  const before = structuredClone(current), seen = new Set(), random = rng(66);
+  for (let i = 0; i < 50; i++) {
+    const request = randomRequest(availability, 3, random, {current, exclude: ['artists', 'mode', 'tempo']});
+    assert.deepEqual(request.artists, current.artists); assert.equal(request.mode, current.mode); assert.equal(request.tempo, current.tempo);
+    request.sections.forEach(section => seen.add(`${section.style}:${section.focus}:${section.length_q}`));
+  }
+  assert(seen.size > 10); assert.deepEqual(current, before);
+});
+
+test('conditional artist and mode sampling accommodates every excluded section style and focus', () => {
+  const current = currentSettings();
+  current.sections = [{style: 'other', focus: 'triad', length_q: '4'}, {style: 'chordal', focus: 'interval', length_q: '8'}];
+  const random = rng(9);
+  for (let i = 0; i < 100; i++) {
+    const request = randomRequest(availability, 5, random, {current, exclude: ['style', 'focus']});
+    assert(request.artists.includes('Invent Animate'), 'Only Invent Animate supplies the labelled other material');
+    assert(request.artists.some(artist => artist !== 'Invent Animate'), 'Chordal material requires another selected artist');
+    request.sections.forEach((section, index) => {
+      const expected = current.sections[index % 2];
+      assert.equal(section.style, expected.style); assert.equal(section.focus, expected.focus);
+      assert(request.artists.some(artist => availability.rhythms[artist]?.[section.style]?.[section.focus] > 0));
+      assert(request.artists.some(artist => availability.palettes[artist]?.[section.style]?.[request.mode] > 0));
+    });
+  }
+});
+
+test('impossible excluded artist/style and incompatible shared modes fail before generation without unlocking', async () => {
+  const current = currentSettings(); current.sections[0].style = 'chordal';
+  let draws = 0, calls = 0;
+  const options = {current, exclude: ['artists', 'style'], rng: () => {draws++; return 0;}};
+  assert.throws(() => randomRequest(availability, 1, options.rng, options), /match the excluded values.*Nothing was unlocked/);
+  await assert.rejects(generateRandomRiff(availability, 1, request => {calls++; return generated(request);}, options), /Nothing was unlocked/);
+  assert.equal(draws, 0); assert.equal(calls, 0); assert.equal(current.sections[0].style, 'chordal');
+  const disconnected = {rhythms: {'Invent Animate': {arpeggio: {single: 1}, pedal: {single: 1}}},
+    palettes: {'Invent Animate': {arpeggio: {Aeolian: 1}, pedal: {Dorian: 1}}}};
+  const two = currentSettings(); two.sections[1].focus = 'single';
+  assert.throws(() => randomRequest(disconnected, 2, () => 0, {current: two, exclude: ['style', 'focus']}), /Nothing was unlocked/);
+});
+
+test('excluded invalid values are rejected without coercion or silent replacement', () => {
+  for (const [key, value] of [['artists', []], ['artists', ['Invent Animate', 'Invent Animate']], ['mode', 'Locrian'], ['tempo', '142'],
+    ['tempo', 201], ['style', 'unknown'], ['focus', 'unknown'], ['length_q', '6']]) {
+    const current = currentSettings();
+    if (['style', 'focus', 'length_q'].includes(key)) current.sections[0][key] = value; else current[key] = value;
+    assert.throws(() => randomRequest(availability, 1, () => 0, {current, exclude: [key]}), /Excluded/);
+  }
+  assert.throws(() => randomRequest(availability, 1, () => 0, {exclude: ['style']}), /current section/);
+  assert.throws(() => randomRequest(availability, 1, () => 0, {current: currentSettings(), exclude: ['count']}), /Exclude only/);
+});
+
+test('excluded A/B section values repeat for five rows and stay fixed through retries', async () => {
+  const current = currentSettings(), before = structuredClone(current), calls = [];
+  const result = await generateRandomRiff(availability, 5, (request, {sectionIndex, attempt}) => {
+    calls.push({request: structuredClone(request), sectionIndex, attempt});
+    return attempt === 1 ? refused() : generated(request);
+  }, {rng: () => 0, current, exclude: allExclusions, maxAttemptsPerSection: 2});
+  assert.equal(result.status, 'generated'); assert.equal(calls.length, 10); assert.deepEqual(current, before);
+  for (const {request, sectionIndex} of calls) {
+    const expected = before.sections[sectionIndex % 2];
+    assert.deepEqual(request.artists, before.artists); assert.equal(request.mode, before.mode); assert.equal(request.tempo, before.tempo);
+    for (const key of ['style', 'focus', 'length_q']) assert.equal(request.sections[0][key], expected[key]);
+    assert.notEqual(request.sections[0].seed, expected.seed);
+  }
+  assert.deepEqual(result.request.sections.map(section => section.length_q), ['8', '4', '8', '4', '8']);
+  assert.deepEqual(result.random_generation.exclusions, allExclusions);
+  assert.deepEqual(result.random_generation.excluded_values, {artists: before.artists, mode: before.mode, tempo: before.tempo,
+    sections: before.sections.map(({style, focus, length_q}) => ({style, focus, length_q}))});
+  const one = randomRequest(availability, 1, rng(18), {current, exclude: allExclusions});
+  assert.equal(one.sections[0].style, before.sections[0].style); assert.equal(one.sections[0].length_q, before.sections[0].length_q);
+});
+
+test('excluded values are snapshotted before async generation and failures remain atomic', async () => {
+  const current = currentSettings(); let calls = 0;
+  const result = await generateRandomRiff(availability, 2, (request, {sectionIndex}) => {
+    calls++; current.tempo = 199; current.sections[0].style = 'chordal';
+    assert.equal(request.tempo, 142);
+    assert.equal(request.sections[0].style, sectionIndex === 0 ? 'arpeggio' : 'pedal');
+    return sectionIndex === 0 ? generated(request) : refused();
+  }, {rng: rng(11), current, exclude: allExclusions, maxAttemptsPerSection: 2});
+  assert.equal(result.status, 'no_choice'); assert.deepEqual(result.events, []); assert.equal(calls, 3);
+  assert.equal(result.random_generation.excluded_values.tempo, 142);
+  assert.equal(result.random_generation.excluded_values.sections[0].style, 'arpeggio');
+});
+
 const localPython = path.join(root, '.local/songsterr-venv/Scripts/python.exe');
 const python = existsSync(localPython) ? localPython : 'python3';
 function compose(request) {
@@ -214,4 +305,22 @@ test('fixed first-seed one-section request executes the public Python engine', {
   assert.equal(result.status, 'generated', JSON.stringify(result.refusals.at(-1)));
   assert.equal(result.sections.length, 1); assert(result.events.length > 0);
   await t.test('native alphaTab plays all random single-section onsets and pitches', {skip: at ? false : 'Native alphaTab is not installed'}, () => checkNative(result));
+});
+
+test('all fields excluded still generate new actual music from fresh seeds', {timeout: 120000}, async t => {
+  const current = currentSettings(), before = structuredClone(current);
+  const first = await generateRandomRiff(availability, 1, compose, {rng: rng(401), current, exclude: allExclusions});
+  const second = await generateRandomRiff(availability, 1, compose, {rng: rng(402), current, exclude: allExclusions});
+  t.diagnostic(JSON.stringify({first: first.status, second: second.status, seeds: [first.request.sections[0].seed, second.request.sections[0].seed],
+    attempts: [first.random_generation.attempts.length, second.random_generation.attempts.length]}));
+  assert.equal(first.status, 'generated'); assert.equal(second.status, 'generated'); assert.deepEqual(current, before);
+  for (const result of [first, second]) {
+    assert.deepEqual(result.request.artists, current.artists); assert.equal(result.request.mode, current.mode); assert.equal(result.request.tempo, current.tempo);
+    for (const key of ['style', 'focus', 'length_q']) assert.equal(result.request.sections[0][key], current.sections[0][key]);
+    assert.notEqual(result.request.sections[0].seed, current.sections[0].seed);
+  }
+  assert.notDeepEqual(first.events, second.events, 'The locked settings allow new music through independently sampled seeds');
+  await t.test('locked-settings examples retain native playback', {skip: at ? false : 'Native alphaTab is not installed'}, () => {
+    checkNative(first); checkNative(second);
+  });
 });

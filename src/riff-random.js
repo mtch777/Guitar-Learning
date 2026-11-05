@@ -4,6 +4,8 @@ const MODES = ['Aeolian', 'Dorian', 'Ionian', 'Mixolydian', 'Lydian', 'Phrygian'
 const STYLES = ['arpeggio', 'chordal', 'melodic', 'pedal', 'rhythmic', 'other'];
 const FOCUSES = ['single', 'interval', 'triad', 'chord', 'mixed'];
 const LENGTHS = ['4', '8', '16'];
+const EXCLUDABLE = ['artists', 'mode', 'tempo', 'style', 'focus', 'length_q'];
+const SECTION_FIELDS = ['style', 'focus', 'length_q'];
 const TUNING = [64, 59, 55, 50, 45, 40, 35, 28];
 const clone = value => structuredClone(value);
 
@@ -16,33 +18,91 @@ function draw(rng) {
   return value;
 }
 function pick(values, rng) { return values[Math.floor(draw(rng) * values.length)]; }
-function seed(rng) { return Math.floor(draw(rng) * 2147483648); }
+function seed(rng, previous) {
+  const value = Math.floor(draw(rng) * 2147483648);
+  return value === previous ? (value + 1) % 2147483648 : value;
+}
 
-function optionsFor(availability, artists, mode) {
-  return STYLES.flatMap(style => {
+function exclusions(current, exclude, count) {
+  if (!Array.isArray(exclude) || exclude.some(key => !EXCLUDABLE.includes(key))) {
+    throw new Error('Exclude only Artists, Mode, Tempo, Style, Focus, or Section length.');
+  }
+  const keys = EXCLUDABLE.filter(key => exclude.includes(key)), globals = {}, baseline = {};
+  if (keys.includes('artists')) {
+    const value = current?.artists;
+    if (!Array.isArray(value) || !value.length || new Set(value).size !== value.length || value.some(artist => !ARTISTS.includes(artist))) {
+      throw new Error('Excluded artists must contain one or more supported artists.');
+    }
+    globals.artists = [...value]; baseline.artists = [...value];
+  }
+  if (keys.includes('mode')) {
+    if (!MODES.includes(current?.mode)) throw new Error('Excluded mode must be one of the six available E modes.');
+    globals.mode = current.mode; baseline.mode = current.mode;
+  }
+  if (keys.includes('tempo')) {
+    if (!Number.isInteger(current?.tempo) || current.tempo < 80 || current.tempo > 200) {
+      throw new Error('Excluded tempo must be a whole number from 80 to 200 BPM.');
+    }
+    globals.tempo = current.tempo; baseline.tempo = current.tempo;
+  }
+  const sectionKeys = SECTION_FIELDS.filter(key => keys.includes(key));
+  let cycle = [{}];
+  if (sectionKeys.length) {
+    if (!Array.isArray(current?.sections) || !current.sections.length) throw new Error('Excluded section fields need at least one current section.');
+    cycle = current.sections.map((section, index) => {
+      const locked = {};
+      for (const key of sectionKeys) {
+        const value = section?.[key];
+        const valid = key === 'style' ? STYLES.includes(value) : key === 'focus' ? FOCUSES.includes(value)
+          : (typeof value === 'string' || Number.isInteger(value)) && LENGTHS.includes(String(value));
+        if (!valid) throw new Error(`Excluded ${key === 'length_q' ? 'section length' : key} is invalid in current section ${index + 1}.`);
+        locked[key] = value;
+      }
+      return locked;
+    });
+    baseline.sections = clone(cycle);
+  }
+  return {keys, globals, baseline, previousSeed: current?.seed,
+    previousSectionSeeds: Array.from({length: count}, (_, index) => current?.sections?.length ? current.sections[index % current.sections.length]?.seed : undefined),
+    sections: Array.from({length: count}, (_, index) => clone(cycle[index % cycle.length]))};
+}
+
+function optionsFor(availability, artists, mode, locked = {}) {
+  return STYLES.filter(style => locked.style === undefined || style === locked.style).flatMap(style => {
     if (!artists.some(artist => availability?.palettes?.[artist]?.[style]?.[mode] > 0)) return [];
-    const focuses = FOCUSES.filter(focus => artists.some(artist => availability?.rhythms?.[artist]?.[style]?.[focus] > 0));
+    const focuses = FOCUSES.filter(focus => (locked.focus === undefined || focus === locked.focus)
+      && artists.some(artist => availability?.rhythms?.[artist]?.[style]?.[focus] > 0));
     return focuses.length ? [{style, focuses}] : [];
   });
 }
-function globalOptions(availability) {
-  return Array.from({length: 7}, (_, i) => ARTISTS.filter((_, bit) => (i + 1) & (1 << bit)))
-    .map(artists => ({artists, modes: MODES.filter(mode => optionsFor(availability, artists, mode).length)}))
+function globalOptions(availability, locks) {
+  const artistSets = locks.globals.artists ? [locks.globals.artists]
+    : Array.from({length: 7}, (_, i) => ARTISTS.filter((_, bit) => (i + 1) & (1 << bit)));
+  const modes = locks.globals.mode ? [locks.globals.mode] : MODES;
+  return artistSets.map(artists => ({artists, modes: modes.filter(mode =>
+    locks.sections.every(locked => optionsFor(availability, artists, mode, locked).length))}))
     .filter(option => option.modes.length);
 }
-function randomSection(availability, artists, mode, rng) {
-  const {style, focuses} = pick(optionsFor(availability, artists, mode), rng);
-  return {style, focus: pick(focuses, rng), length_q: pick(LENGTHS, rng), seed: seed(rng)};
+function randomSection(availability, artists, mode, rng, locked = {}, previousSeed) {
+  const {style, focuses} = pick(optionsFor(availability, artists, mode, locked), rng);
+  return {style, focus: pick(focuses, rng), length_q: pick(locked.length_q === undefined ? LENGTHS : [locked.length_q], rng), seed: seed(rng, previousSeed)};
 }
 
-/** Every artist subset/style/focus/mode with labelled support remains eligible. */
-export function randomRequest(availability, count, rng = Math.random) {
-  countCheck(count);
-  const globals = globalOptions(availability);
-  if (!globals.length) throw new Error('No labelled rhythm and shape combinations are available.');
+function requestWithExclusions(availability, count, rng, locks) {
+  const globals = globalOptions(availability, locks);
+  if (!globals.length) throw new Error(locks.keys.length
+    ? 'No labelled rhythm and shape combinations match the excluded values. Nothing was unlocked.'
+    : 'No labelled rhythm and shape combinations are available.');
   const {artists, modes} = pick(globals, rng), mode = pick(modes, rng);
-  return {artists: [...artists], mode, tempo: 80 + Math.floor(draw(rng) * 121), seed: seed(rng),
-    sections: Array.from({length: count}, () => randomSection(availability, artists, mode, rng))};
+  const randomTempo = 80 + Math.floor(draw(rng) * 121);
+  return {artists: [...artists], mode, tempo: locks.globals.tempo ?? randomTempo, seed: seed(rng, locks.previousSeed),
+    sections: Array.from({length: count}, (_, index) => randomSection(availability, artists, mode, rng, locks.sections[index], locks.previousSectionSeeds[index]))};
+}
+
+/** Excluded values stay fixed; support is checked before any random sampling. */
+export function randomRequest(availability, count, rng = Math.random, {current, exclude = []} = {}) {
+  countCheck(count);
+  return requestWithExclusions(availability, count, rng, exclusions(current, exclude, count));
 }
 
 function gcd(a, b) { while (b) [a, b] = [b, a % b]; return a < 0n ? -a : a; }
@@ -83,19 +143,21 @@ function validateGenerated(result, request) {
  * A failed riff has no events; callers should keep their prior successful result.
  */
 export async function generateRandomRiff(availability, count, generateFn,
-  {rng = Math.random, maxAttemptsPerSection = 8, onProgress} = {}) {
+  {rng = Math.random, maxAttemptsPerSection = 8, onProgress, current, exclude = []} = {}) {
   if (typeof generateFn !== 'function') throw new TypeError('A generation callback is required.');
   if (!Number.isInteger(maxAttemptsPerSection) || maxAttemptsPerSection < 1 || maxAttemptsPerSection > 32) {
     throw new RangeError('Attempts per section must be between 1 and 32.');
   }
-  const request = randomRequest(availability, count, rng);
+  countCheck(count);
+  const locks = exclusions(current, exclude, count);
+  const request = requestWithExclusions(availability, count, rng, locks);
   const attempts = [], sections = [], events = [], limits = new Set(), refusals = [];
   let offset = '0', provenance = null, failed = null;
   for (let index = 0; index < count; index++) {
-    const attemptedSeeds = new Set();
+    const attemptedSeeds = new Set([locks.previousSectionSeeds[index]]);
     let accepted = null, chosen = clone(request.sections[index]);
     for (let attempt = 1; attempt <= maxAttemptsPerSection; attempt++) {
-      if (attempt > 1) chosen = randomSection(availability, request.artists, request.mode, rng);
+      if (attempt > 1) chosen = randomSection(availability, request.artists, request.mode, rng, locks.sections[index]);
       while (attemptedSeeds.has(chosen.seed)) chosen.seed = (chosen.seed + 1) % 2147483648;
       attemptedSeeds.add(chosen.seed);
       const single = {...clone(request), sections: [clone(chosen)]};
@@ -147,6 +209,7 @@ export async function generateRandomRiff(availability, count, generateFn,
     tempo: request.tempo, tuning: [...TUNING], duration_q: requestedDuration, meter: [4, 4],
     events: failed ? [] : events, sections, refusals, provenance: provenance || {}, limits: [...limits],
     random_generation: {count, max_attempts_per_section: maxAttemptsPerSection, attempts,
+      exclusions: locks.keys, excluded_values: clone(locks.baseline), section_value_rule: 'Repeat the current section sequence for added rows; one section uses its first row.',
       successful_sections: sections.filter(section => section.status === 'generated').length,
       global_rerolls: 0, scope: 'Labelled availability limits sampling; every accepted section was generated by the actual engine.'}};
 }

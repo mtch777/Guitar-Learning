@@ -231,14 +231,35 @@ export function mountBuilder() {
   }
   function startGeneration(payload,message) {
     if(busy)return;
+    closeExclusions();
     api?.stop(); playing=false; setBusy(true); requestId++; status(message);
     timeout=setTimeout(()=>{worker?.terminate();worker=null;requestId++;fail(new Error('Composer took too long. Try a shorter section or another selection.'));},180000);
     getWorker().postMessage({id:requestId,...payload,assetBase:new URL('riff-builder/',document.baseURI).href});
   }
   function generateRandom(count) {
     if(!Number.isInteger(count)||count<1||count>10){status('Choose 1–10 sections.',true);return;}
-    startGeneration({randomCount:count},`Choosing random settings for ${count===1?'one section':count+' sections'}…`);
+    const exclude=[...$('random-exclude-options').querySelectorAll('input:checked')].map(input=>input.value);
+    startGeneration({randomCount:count,current:settings(),exclude},`Choosing random settings for ${count===1?'one section':count+' sections'}…`);
   }
+  function closeExclusions() {
+    $('random-exclude-options').hidden=true;
+    $('random-exclude-toggle').setAttribute('aria-expanded','false');
+  }
+  $('random-exclude-toggle').addEventListener('click',()=>{
+    if(busy)return;
+    const open=$('random-exclude-options').hidden;
+    $('random-exclude-options').hidden=!open;
+    $('random-exclude-toggle').setAttribute('aria-expanded',String(open));
+  });
+  $('random-exclude-options').addEventListener('change',()=>{
+    const checked=[...$('random-exclude-options').querySelectorAll('input:checked')];
+    $('random-exclude-count').textContent=checked.length?` (${checked.length})`:'';
+    $('random-lock-help').hidden=!checked.some(input=>['style','focus','length_q'].includes(input.value));
+  });
+  document.addEventListener('click',event=>{if(!event.target.closest('.random-exclusions'))closeExclusions();});
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&!$('random-exclude-options').hidden){closeExclusions();$('random-exclude-toggle').focus();}
+  });
   $('artists').addEventListener('click',event=>{const b=event.target.closest('[data-artist]');if(!b||busy)return;const a=b.dataset.artist;artists=artists.includes(a)?artists.filter(x=>x!==a):[...artists,a];b.setAttribute('aria-pressed',String(artists.includes(a)));renderSections();});
   $('modes').addEventListener('click',event=>{const b=event.target.closest('[data-mode]');if(!b||busy)return;mode=b.dataset.mode;for(const x of $('modes').querySelectorAll('button'))x.setAttribute('aria-pressed',String(x===b));renderSections();});
   $('tempo').addEventListener('input',renderSections);

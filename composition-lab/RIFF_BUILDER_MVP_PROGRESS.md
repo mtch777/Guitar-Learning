@@ -1,5 +1,32 @@
 # Modular riff builder — current delivery, 2026-11-05
 
+## Exclude from random — current request
+
+- [x] Add a compact checkbox dropdown named Exclude from random: Reference artists,
+  Mode, Tempo, Style, Focus and Length. It applies to both random buttons.
+- [x] Preserve excluded global values and each current section's excluded values;
+  added sections repeat the current row sequence, while a single section uses row 1.
+  Random seeds still produce new music. Preserve exclusions through every retry.
+- [x] Choose remaining fields only from compatible available references. Refuse
+  unavailable locked combinations without changing the locks or previous output.
+- [x] Verify mixed/all/no exclusions, differing section rows, retries/refusal and
+  actual engine generation; run relevant release checks.
+- [ ] Verify publication and the hosted UI.
+
+Root owns page/worker/styles/progress/release; UI agent owns random helper/tests;
+Planner reviews constraints and evidence. Core music engine and corpus stay unchanged.
+Counterexample: locked Invent Animate + unsupported chord labels must not silently
+become another artist/style. User-edited current settings, not the previous result,
+are the preservation baseline. This UI feature does not change tier acceptance.
+
+Local checks: `node --test tests/*.test.mjs` passes 69 tests, including 22 focused
+random/exclusion checks; the public `test_riff_pattern_browser.py` passes 5 tests;
+`npm run build` passes. Tests retain all six excluded fields through repeated A/B
+rows and forced retries, reject impossible/invalid locks without sampling around
+them, preserve the current snapshot through asynchronous calls, and verify distinct
+actual Invent Animate / Aeolian outputs with all visible fields held fixed.
+Native playback checks pass for both outputs. No listening-quality claim is made.
+
 ## Random generation — current request
 
 User requested Generate random section and Generate random riff with a 1–10

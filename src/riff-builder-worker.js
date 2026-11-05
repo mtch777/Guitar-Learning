@@ -22,7 +22,7 @@ async function runtime(id) {
   return runtimePromise;
 }
 self.onmessage = async ({data}) => {
-  const {id, request, assetBase, randomCount} = data;
+  const {id, request, assetBase, randomCount, current, exclude} = data;
   try {
     self.__assetBase = assetBase;
     const {py, availability} = await runtime(id);
@@ -32,6 +32,7 @@ self.onmessage = async ({data}) => {
       return JSON.parse(await py.runPythonAsync('json.dumps(generate(json.loads(request_json), pattern_pack))'));
     };
     const result = randomCount === undefined ? await compose(request) : await generateRandomRiff(availability,randomCount,compose,{
+      current, exclude,
       onProgress: progress => self.postMessage({id,type:'status',message:`Generating random section ${progress.sectionIndex+1} of ${randomCount}…`})
     });
     self.postMessage({id, type: 'result', result, randomized:randomCount !== undefined});
