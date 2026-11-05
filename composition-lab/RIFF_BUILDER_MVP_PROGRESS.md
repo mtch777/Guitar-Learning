@@ -1,5 +1,43 @@
 # Modular riff builder — current delivery, 2026-11-05
 
+## Random generation — current request
+
+User requested Generate random section and Generate random riff with a 1–10
+section-count dropdown, sampling all available filter options.
+
+- [x] Add both buttons and exact 1–10 count; random section creates a fresh one-section riff.
+- [x] Sample one nonempty artist subset, E mode and tempo per riff, then independent
+  available style/focus/length choices and seeds for each section. Keep chosen
+  settings visible and editable after success.
+- [x] Use the unchanged engine; bounded section retries retain successful earlier
+  sections and record attempts. Reference availability is not proof of generation.
+  Never substitute global settings after partial success. Failure retains the
+  previous complete playable riff.
+- [x] Verify 1/10 sections, unsupported-combination avoidance, exact event clocks,
+  retry/exhaustion behavior, no input mutations, normal generation/regeneration,
+  native playback conversion and site build.
+- [ ] Verify deployment and hosted UI.
+
+Root owns HTML/CSS/page/worker/docs/release. UI agent owns riff-random.js and its
+focused tests. Planner reviews scope and concrete outcomes. No corpus, production
+composition controls, private input assets or existing music algorithms change.
+Strong counterexamples: changing mode under prior sections; treating available
+references as guaranteed success; wrong offsets/duplicate note IDs when assembling
+multiple generated sections; partial failure replacing a complete prior riff.
+
+Verification: `node --test tests/*.test.mjs` passes all 61 tests (14 random-generation
+checks including the real public Python engine). `test_riff_pattern_browser.py`
+passes all 5 tests. `npm run build` passes. The frozen ten-section seed 20261105
+generates exactly ten sections in 13 section attempts and matches whole-engine
+events/section evidence exactly. Native score/MIDI preserves 349 written notes:
+344 fresh attacks plus five explicit legato-slide destinations, verified against
+destination pitch bends and sustained origins. The initial attack-count mismatch
+was an incorrect test assumption, not an adapter defect; no technique was removed.
+Seed 73051 also produces a complete one-section result. Failed attempts stay in the
+exported random-generation receipts; availability and bounded retries bias the
+distribution toward feasible material, so equal output probabilities are not claimed.
+
+
 The existing site now connects artist/mode/independent section inputs to a shared
 reference-pattern engine. This replaces the three fixed recipe buttons; the old
 Python recipe assets remain only as regression evidence. No Composition Lab Cloud

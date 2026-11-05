@@ -53,7 +53,7 @@ export function mountBuilder() {
   const styleNames = {arpeggio:'Arpeggio', chordal:'Chord', melodic:'Melodic', pedal:'Pedal', rhythmic:'Rhythmic', other:'Other'};
   const focusNames = {single:'Mostly single notes', interval:'Mostly intervals', triad:'Mostly triads', chord:'Mostly chords', mixed:'Mixed'};
   let sections = [{style:'arpeggio', focus:'single', length_q:'8', seed:0}];
-  let artists = ['Invent Animate'], mode = 'Aeolian', result = null, api = null, at = null;
+  let artists = ['Invent Animate'], mode = 'Aeolian', generationSeed = 1, result = null, api = null, at = null;
   let worker = null, requestId = 0, busy = false, ready = false, playing = false, speed = 1, q = 0, playerPromise = null;
   let timeout = null, activeCells = new Map(), labelCells = [], scoreLoad = 0, lastRequest = null, availability = null;
   const status = (message, error = false) => { $('status').textContent = message; $('status').classList.toggle('error', error); };
@@ -143,8 +143,14 @@ export function mountBuilder() {
       $('sections').append(row);
     });
   }
-  function settings() {return {artists:['Invent Animate','Currents','ERRA'].filter(a=>artists.includes(a)),mode,tempo:Number($('tempo').value),seed:1,sections:sections.map(s=>({...s}))};}
+  function settings() {return {artists:['Invent Animate','Currents','ERRA'].filter(a=>artists.includes(a)),mode,tempo:Number($('tempo').value),seed:generationSeed,sections:sections.map(s=>({...s}))};}
   function sameSettings() {return Boolean(lastRequest) && JSON.stringify(settings()) === JSON.stringify(lastRequest);}
+  function applyRandomSettings(request) {
+    artists=[...request.artists]; mode=request.mode; generationSeed=request.seed;
+    sections=request.sections.map(s=>({...s})); $('tempo').value=String(request.tempo);
+    for(const b of $('artists').querySelectorAll('[data-artist]'))b.setAttribute('aria-pressed',String(artists.includes(b.dataset.artist)));
+    for(const b of $('modes').querySelectorAll('[data-mode]'))b.setAttribute('aria-pressed',String(mode===b.dataset.mode));
+  }
   async function ensurePlayer() {
     if (api) return;
     if (playerPromise) return playerPromise;
@@ -194,6 +200,8 @@ export function mountBuilder() {
           const descriptions=data.result.sections.filter(s=>s.status!=='generated').map(s=>{
             const reason=s.refusals?.at(-1)?.reason || 'no matching choice';
             const messages={no_admitted_rhythm_templates:'No rhythm material matches this artist/style/focus.',no_mode_compatible_shape_palette:'No compatible shape palette for this mode and style.',whole_units_cannot_fill_requested_length:'The available complete patterns cannot fill this length.',bounded_realization_search_exhausted:'No new pitch choice found within the current search.',bounded_realization_or_section_novelty_search_exhausted:'No complete new pitch choice found within the current search.'};
+            if(reason==='random_section_attempts_exhausted')return `Section ${s.index+1}: couldn't generate a complete section after trying several available combinations.`;
+            if(reason==='generation_callback_or_contract_error')return `Section ${s.index+1}: ${s.refusals.at(-1).message || 'generation stopped unexpectedly.'}`;
             return `Section ${s.index+1}: ${messages[reason] || reason.replaceAll('_',' ')}`;
           });
           fail(new Error(`No complete riff for this selection. ${descriptions.slice(0,3).join(' ')}${result?' Your previous riff is still available.':''}`)); return;
@@ -202,8 +210,9 @@ export function mountBuilder() {
         try {
           candidate.score=normalizeEvents(candidate);
           await ensurePlayer();
-          const native=toEventScore(at,candidate,`E ${mode} · Drop E riff`);
-          result=candidate; lastRequest=structuredClone(candidate.request || settings());
+          const native=toEventScore(at,candidate,`E ${candidate.request?.mode || mode} · Drop E riff`);
+          if(data.randomized)applyRandomSettings(candidate.request);
+          result=candidate; lastRequest=structuredClone(settings());
           $('result').hidden=false; $('result-title').textContent=`E ${mode} · ${candidate.tempo} BPM`;
           $('seek').max=String(duration()); showPatterns(); createFretboard(); updatePosition(0);
           ready=false; playing=false; scoreLoad++; api.stop(); api.load(native); api.playbackSpeed=speed;
@@ -218,15 +227,25 @@ export function mountBuilder() {
     if(!Number.isInteger(tempo)||tempo<80||tempo>200){status('Choose a whole-number tempo from 80 to 200 BPM.',true);return;}
     if(!artists.length){status('Select at least one reference artist.',true);return;}
     if(onlyIndex===null) sections.forEach(s=>s.seed++); else sections[onlyIndex].seed++;
-    const request=settings(); api?.stop(); playing=false; setBusy(true); requestId++; status('Finding reference patterns…');
+    startGeneration({request:settings()},'Finding reference patterns…');
+  }
+  function startGeneration(payload,message) {
+    if(busy)return;
+    api?.stop(); playing=false; setBusy(true); requestId++; status(message);
     timeout=setTimeout(()=>{worker?.terminate();worker=null;requestId++;fail(new Error('Composer took too long. Try a shorter section or another selection.'));},180000);
-    getWorker().postMessage({id:requestId,request,assetBase:new URL('riff-builder/',document.baseURI).href});
+    getWorker().postMessage({id:requestId,...payload,assetBase:new URL('riff-builder/',document.baseURI).href});
+  }
+  function generateRandom(count) {
+    if(!Number.isInteger(count)||count<1||count>10){status('Choose 1–10 sections.',true);return;}
+    startGeneration({randomCount:count},`Choosing random settings for ${count===1?'one section':count+' sections'}…`);
   }
   $('artists').addEventListener('click',event=>{const b=event.target.closest('[data-artist]');if(!b||busy)return;const a=b.dataset.artist;artists=artists.includes(a)?artists.filter(x=>x!==a):[...artists,a];b.setAttribute('aria-pressed',String(artists.includes(a)));renderSections();});
   $('modes').addEventListener('click',event=>{const b=event.target.closest('[data-mode]');if(!b||busy)return;mode=b.dataset.mode;for(const x of $('modes').querySelectorAll('button'))x.setAttribute('aria-pressed',String(x===b));renderSections();});
   $('tempo').addEventListener('input',renderSections);
   $('add-section').addEventListener('click',()=>{if(sections.length>=12){status('This version supports up to 12 sections.',true);return;}sections.push({style:'pedal',focus:'single',length_q:'8',seed:0});renderSections();});
   $('generate').addEventListener('click',()=>generate());
+  $('random-section').addEventListener('click',()=>generateRandom(1));
+  $('random-riff').addEventListener('click',()=>generateRandom(Number($('random-count').value)));
   $('play').addEventListener('click',()=>{if(ready&&!busy)api.playPause();});
   $('stop').addEventListener('click',()=>{api?.stop();updatePosition(0);});
   $('speeds').addEventListener('click',event=>{const b=event.target.closest('[data-speed]');if(!b)return;speed=Number(b.dataset.speed);if(api)api.playbackSpeed=speed;for(const x of $('speeds').querySelectorAll('button'))x.setAttribute('aria-pressed',String(x===b));});

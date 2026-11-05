@@ -30,6 +30,19 @@
     <div class="result-heading spaced"><div class="label">Build your riff</div><button id="add-section" type="button">+ Section</button></div>
     <div id="sections"></div>
     <div class="generate-row"><label for="tempo">Tempo <input id="tempo" type="number" min="80" max="200" step="1" value="142"> BPM</label><button id="generate" class="primary" type="button">Generate riff</button></div>
+    <div class="random-actions" aria-label="Random generation">
+      <button id="random-section" type="button">Generate random section</button>
+      <div class="random-riff-controls">
+        <label for="random-count">Number of sections
+          <select id="random-count">
+            <option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option>
+            <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+          </select>
+        </label>
+        <button id="random-riff" type="button">Generate random riff</button>
+      </div>
+    </div>
+    <p class="small">Random buttons create a new riff, choosing artists, mode, tempo and section settings from available references.</p>
     <p class="small">Observed rhythms + new shape-based pitch choices. Sections are independent. “Mostly” means more than half the attacks.</p>
     <p id="status" role="status" aria-live="polite">Choose your sections, then Generate. First load takes a moment.</p>
   </section>
