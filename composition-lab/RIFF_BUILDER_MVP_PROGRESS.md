@@ -16,7 +16,7 @@ section-count dropdown, sampling all available filter options.
 - [x] Verify 1/10 sections, unsupported-combination avoidance, exact event clocks,
   retry/exhaustion behavior, no input mutations, normal generation/regeneration,
   native playback conversion and site build.
-- [ ] Verify deployment and hosted UI.
+- [x] Verify deployment and hosted UI.
 
 Root owns HTML/CSS/page/worker/docs/release. UI agent owns riff-random.js and its
 focused tests. Planner reviews scope and concrete outcomes. No corpus, production
@@ -36,6 +36,18 @@ was an incorrect test assumption, not an adapter defect; no technique was remove
 Seed 73051 also produces a complete one-section result. Failed attempts stay in the
 exported random-generation receipts; availability and bounded retries bias the
 distribution toward feasible material, so equal output probabilities are not claimed.
+
+Published implementation: b739f2ec854e068358e87246c948db019ffa24ce (exact seven-file
+commit; no core engine or corpus changes). Pages build 42126684820 and deployment
+42126742719 both passed. Planner independently ran the 14 focused tests and found
+no material blocker. Hosted checks passed on the first live calls: random section
+produced ERRA / Ionian / 85 BPM, one four-bar melodic single-note section; random
+riff with count 10 produced Invent Animate + Currents / Lydian / 122 BPM, ten
+sections totaling 30 bars. Selected settings populated the editable controls;
+ten corresponding playback buttons, native tab, fretboard and Play-ready state
+were present. Audio remained stopped; musical usefulness still needs listening.
+URL: https://mtch777.github.io/Guitar-Learning/riff-builder.html?v=b739f2e
+
 
 
 The existing site now connects artist/mode/independent section inputs to a shared
