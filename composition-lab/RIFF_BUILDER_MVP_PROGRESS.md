@@ -1,5 +1,50 @@
 # Modular riff builder — current delivery, 2026-11-05
 
+## Common reference section presets — active request
+
+- [x] Measure actual reference gesture/section patterns, documenting the unit,
+  unique-song denominator, duplicates and inherited containing-riff style limits.
+- [x] Rank common supported style/focus/length combinations with source-derived
+  rhythm/shape descriptors; retain per-artist counts and representative lengths.
+- [x] Add presets to the existing section builder, respecting selected artists
+  and mode and keeping all settings editable. Preserve player and random controls.
+- [ ] Verify evidence counts, preset availability, real engine generation and
+  relevant release checks; publish scoped changes and inspect the hosted page.
+
+Root owns UI/integration/publication and this record. Reference agent owns the
+reproducible analysis and derived aggregate preset data; Planner independently
+reviews the denominator and actual delivery. Counterexamples: repeated templates
+must not inflate song prevalence, inherited riff tags are not proven local styles,
+and cropped windows do not establish natural phrase lengths. No engine redesign,
+corpus expansion, copyrighted score publication or separate Cloud-task changes.
+
+Measured 127 riff captures / 89 source song IDs / 88 canonical songs, with 1464
+complete detected gestures. The explicit Cloud Cascade six-string adaptation
+counts as the same song; raw observations remain. No identical source windows
+were found to remove. 392 gestures lack a positive containing-riff style tag.
+Gesture median is 1.25 quarter notes; observation-weighted mean is 4.219. The
+whole captured riff median/mean are 36/48.642 quarter notes. These are different
+units, neither a validated average musical section. The detector leaves some
+long uninterrupted passages as one gesture, so its per-song mean is much larger.
+
+23 source-context/focus combinations are retained. Overall top song support:
+pedal-single49, arpeggio-single44, pedal-interval17, arpeggio-interval11,
+melodic-single9, pedal-triad8. Group membership overlaps. UI ranks again within
+selected artists, preserves unavailable stronger groups, and changes only the
+chosen row's style/focus/length. Lengths prefer exact observed builder-supported
+durations; fallback mappings are explicit. Traits describe references and do not
+add density/technique/shape-transition controls or alter the engine.
+
+Local verification: 90 JS tests pass, five new aggregate Python tests pass,
+nine public pattern-engine tests pass, and Vite build passes. Frozen first seed0
+generation of top6 presets per artist plus top6 combined (E Dorian127BPM) generated
+21/24. Currents chordal/interval, ERRA arpeggio/triad and ERRA pedal/triad refused
+within the existing bounded realizer. All six Invent Animate and all six combined
+presets generated. Failures are retained in the private report without rerolling;
+available reference counts do not promise generation or musical quality.
+Source library and pattern-pack hashes are unchanged. Publication/hosted review
+remain pending below; no new listening or tier completion is claimed.
+
 ## Playback shape highlighting — current request
 
 - [x] Trace the exact shape material used by generation, including combined

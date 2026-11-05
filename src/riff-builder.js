@@ -1,6 +1,7 @@
 const ALPHATAB_ROOT = 'https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/';
 import {normalizeEvents, toEventScore} from './riff-event-score.js';
 import {buildShapeTimeline, playbackShapeFrame} from './riff-shapes.js';
+import {rankSectionPresets, applySectionPreset} from './riff-presets.js';
 const INTERVALS = ['1','♭2','2','♭3','3','4','♭5','5','♭6','6','♭7','7'];
 export function fraction(value) { const [a, b = '1'] = String(value).split('/'); return Number(a) / Number(b); }
 
@@ -58,6 +59,7 @@ export function mountBuilder() {
   let worker = null, requestId = 0, busy = false, ready = false, playing = false, speed = 1, q = 0, playerPromise = null;
   let timeout = null, activeCells = new Map(), labelCells = [], scoreLoad = 0, lastRequest = null, availability = null;
   let shapeTimeline = {spans:[],issues:[]}, displayedShapeSpan;
+  let presetData = null, presetLoadError = false;
   const status = (message, error = false) => { $('status').textContent = message; $('status').classList.toggle('error', error); };
   const duration = () => result?.score.duration_q || 0;
   function transport() {
@@ -164,6 +166,63 @@ export function mountBuilder() {
       }
       $('sections').append(row);
     });
+    renderPresets();
+  }
+  function renderPresets() {
+    const target=$('preset-target'), index=Math.min(Number(target.value)||0,sections.length-1);
+    target.replaceChildren();
+    sections.forEach((_,i)=>{const option=document.createElement('option');option.value=String(i);option.textContent=`Section ${i+1}`;target.append(option);});
+    target.value=String(index); target.disabled=busy;
+    const grid=$('section-presets'), body=$('preset-analysis-body');grid.replaceChildren();body.replaceChildren();
+    if(!presetData||!availability){$('preset-scope').textContent=presetLoadError?'Reference analysis could not load. Regular generation is still available.':'Loading reference analysis…';return;}
+    const ranked=artists.length?rankSectionPresets(presetData,artists,mode,availability):[];
+    $('preset-scope').textContent=artists.length?`Ranked by different songs from ${artists.join(' + ')}. Sets style, focus and length; keeps your mode and tempo.`:'Select an artist to see common sections.';
+    function card(preset,rank){
+      const button=document.createElement('button');button.type='button';button.className='preset-card';
+      const title=document.createElement('strong');title.textContent=`${rank+1}. ${preset.label}`;
+      const evidence=document.createElement('span');const bars=fraction(preset.section.length_q)/4;
+      evidence.textContent=`${preset.support.distinct_songs} songs · ${bars} ${bars===1?'bar':'bars'}`;
+      button.append(title,evidence);button.disabled=busy||!preset.available;
+      button.title=[preset.length_evidence.description,...preset.traits].join('\n');
+      const selected=sections[index];button.setAttribute('aria-pressed',String(['style','focus','length_q'].every(k=>String(selected[k])===String(preset.section[k]))));
+      if(!preset.available){const why=document.createElement('span');why.textContent=preset.disabled_reason;button.append(why);}
+      button.addEventListener('click',()=>{
+        if(busy)return;
+        const request=applySectionPreset(settings(),Number(target.value),preset);sections=request.sections;
+        renderSections();status(`${preset.label} applied to section ${index+1}. Generate to hear it.`);
+      });
+      return button;
+    }
+    ranked.slice(0,6).forEach((p,i)=>grid.append(card(p,i)));
+    if(!ranked.length){const p=document.createElement('p');p.className='small';p.textContent='No labelled section evidence for these artists.';grid.append(p);}
+    if(ranked.length>6){
+      const details=document.createElement('details'),summary=document.createElement('summary'),more=document.createElement('div');
+      summary.textContent=`All ${ranked.length} combinations`;more.className='preset-grid all-presets';
+      ranked.slice(6).forEach((p,i)=>more.append(card(p,i+6)));details.append(summary,more);body.append(details);
+    }
+    const scope=document.createElement('p');scope.className='small';scope.textContent='Measured units are detected gestures inside reviewed riffs, not confirmed phrase boundaries. Style comes from the containing riff; focus is measured locally. Counts overlap when a riff has several style tags.';body.append(scope);
+    const d=presetData.denominator, corpus=document.createElement('p');corpus.className='small';
+    corpus.textContent=`Full analyzed library: ${d.reference_captures} riff captures from ${d.canonical_song_identities} songs, containing ${d.deduplicated_gesture_occurrences} detected gestures. ${d.gestures_without_positive_inherited_style} gestures have no positive style label and do not support style presets. This is the enriched riff library, not every song in the original download.`;body.append(corpus);
+    const pretty=value=>Number(fraction(value).toFixed(2)), unitTable=document.createElement('table');
+    const header=document.createElement('tr');for(const text of ['Selected artist','Songs / gestures','Gesture beats: mean / median','Riff beats: mean / median','Median attacks / beat']){const th=document.createElement('th');th.textContent=text;header.append(th);}const unitHead=document.createElement('thead');unitHead.append(header);unitTable.append(unitHead);
+    const unitBody=document.createElement('tbody');
+    for(const artist of artists){
+      const u=presetData.units.by_artist[artist],g=u.gestures,r=u.whole_riff_captures,tr=document.createElement('tr');
+      for(const text of [artist,`${g.distinct_songs} / ${g.occurrences}`,`${pretty(g.duration.mean_q)} / ${pretty(g.duration.median_q)}`,`${pretty(r.duration.mean_q)} / ${pretty(r.duration.median_q)}`,String(pretty(g.metrics.attacks_per_quarter.median_q))]){const td=document.createElement('td');td.textContent=text;tr.append(td);}unitBody.append(tr);
+    }unitTable.append(unitBody);const unitScroll=document.createElement('div');unitScroll.className='preset-table-scroll';unitScroll.append(unitTable);body.append(unitScroll);
+    const explanation=document.createElement('p');explanation.className='small';explanation.textContent='Beats here mean quarter-note units, including songs with other meters. Means count each observation; long gestures pull them upward. Preset lengths use the most-supported observed 1/2/4-bar option, or an explicitly mapped length—not the mean.';body.append(explanation);
+    const focusTotals={single:0,interval:0,triad:0,chord:0,mixed:0},kindTotals={};let gestureTotal=0;
+    for(const artist of artists){const g=presetData.units.by_artist[artist].gestures;gestureTotal+=g.occurrences;for(const [k,v] of Object.entries(g.focus_presence))focusTotals[k]+=v.occurrences;for(const [k,v] of Object.entries(g.grammar_kind_presence))kindTotals[k]=(kindTotals[k]||0)+v.occurrences;}
+    if(gestureTotal){
+      const focus=document.createElement('p');focus.className='small';focus.textContent=`Local note grouping: ${Object.entries(focusTotals).map(([k,n])=>`${focusNames[k]} ${Number((n/gestureTotal*100).toFixed(1))}%`).join(' · ')}.`;body.append(focus);
+      const kinds={low_anchor_burst:'low-anchor bursts',moving_line:'moving lines',chord_gesture:'chord gestures',repeated_line:'repeated lines',short_or_unpitched_line:'short / unpitched fragments'},kind=document.createElement('p');kind.className='small';kind.textContent=`Detected building blocks: ${Object.entries(kindTotals).sort((a,b)=>b[1]-a[1]).map(([k,n])=>`${kinds[k]||k} ${n}`).join(' · ')}.`;body.append(kind);
+    }
+    const table=document.createElement('table'),head=document.createElement('thead'),hr=document.createElement('tr');
+    for(const name of ['Reference context + focus','Songs','Preset length','Observed length evidence']){const th=document.createElement('th');th.textContent=name;hr.append(th);}head.append(hr);table.append(head);
+    const rows=document.createElement('tbody');
+    ranked.forEach(p=>{const tr=document.createElement('tr');for(const text of [p.label,String(p.support.distinct_songs),`${fraction(p.section.length_q)/4} bars`,p.length_evidence?.description||'See source analysis']){const td=document.createElement('td');td.textContent=text;tr.append(td);}rows.append(tr);});table.append(rows);
+    const scroll=document.createElement('div');scroll.className='preset-table-scroll';scroll.append(table);body.append(scroll);
+    const traits=document.createElement('p');traits.className='small';traits.textContent='Presets apply the three existing section settings. Density, techniques and shape movement remain properties of the selected reference patterns, not additional preset locks.';body.append(traits);
   }
   function settings() {return {artists:['Invent Animate','Currents','ERRA'].filter(a=>artists.includes(a)),mode,tempo:Number($('tempo').value),seed:generationSeed,sections:sections.map(s=>({...s}))};}
   function sameSettings() {return Boolean(lastRequest) && JSON.stringify(settings()) === JSON.stringify(lastRequest);}
@@ -285,6 +344,7 @@ export function mountBuilder() {
   $('artists').addEventListener('click',event=>{const b=event.target.closest('[data-artist]');if(!b||busy)return;const a=b.dataset.artist;artists=artists.includes(a)?artists.filter(x=>x!==a):[...artists,a];b.setAttribute('aria-pressed',String(artists.includes(a)));renderSections();});
   $('modes').addEventListener('click',event=>{const b=event.target.closest('[data-mode]');if(!b||busy)return;mode=b.dataset.mode;for(const x of $('modes').querySelectorAll('button'))x.setAttribute('aria-pressed',String(x===b));renderSections();});
   $('tempo').addEventListener('input',renderSections);
+  $('preset-target').addEventListener('change',renderPresets);
   $('add-section').addEventListener('click',()=>{if(sections.length>=12){status('This version supports up to 12 sections.',true);return;}sections.push({style:'pedal',focus:'single',length_q:'8',seed:0});renderSections();});
   $('generate').addEventListener('click',()=>generate());
   $('random-section').addEventListener('click',()=>generateRandom(1));
@@ -299,6 +359,7 @@ export function mountBuilder() {
     link.href=url;link.download=`drop-e-${lastRequest.mode.toLowerCase()}-riff.json`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   });
   renderSections();transport();
-  fetch(new URL('riff-builder/availability.json',document.baseURI)).then(r=>r.ok?r.json():null).then(data=>{if(data){availability=data;renderSections();}}).catch(()=>{});
+  fetch(new URL('riff-builder/availability.json',document.baseURI)).then(r=>{if(!r.ok)throw new Error('Unavailable');return r.json();}).then(data=>{availability=data;renderSections();}).catch(()=>{presetLoadError=true;renderPresets();});
+  fetch(new URL('riff-builder/section-presets.json',document.baseURI)).then(r=>{if(!r.ok)throw new Error('Unavailable');return r.json();}).then(data=>{presetData=data;renderPresets();}).catch(()=>{presetLoadError=true;renderPresets();});
 }
 if(typeof document!=='undefined')mountBuilder();

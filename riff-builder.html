@@ -27,6 +27,13 @@
       <button type="button" data-mode="Lydian" aria-pressed="false">Lydian</button>
       <button type="button" data-mode="Phrygian" aria-pressed="false">Phrygian</button>
     </div>
+    <div class="preset-panel spaced" aria-label="Common reference sections">
+      <div class="preset-heading"><div class="label">Common section presets</div><label for="preset-target">Apply to <select id="preset-target"><option value="0">Section 1</option></select></label></div>
+      <p id="preset-scope" class="small">Loading reference analysis…</p>
+      <div id="section-presets" class="preset-grid"></div>
+      <p class="small">Reference-based settings; generation can still fail.</p>
+      <details id="preset-analysis"><summary>What the reference sections look like</summary><div id="preset-analysis-body"></div></details>
+    </div>
     <div class="result-heading spaced"><div class="label">Build your riff</div><button id="add-section" type="button">+ Section</button></div>
     <div id="sections"></div>
     <div class="generate-row"><label for="tempo">Tempo <input id="tempo" type="number" min="80" max="200" step="1" value="142"> BPM</label><button id="generate" class="primary" type="button">Generate riff</button></div>
