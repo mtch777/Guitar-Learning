@@ -42,6 +42,7 @@ jobs:
         run: |
           node --test tests/*.test.mjs
           python -B -m unittest discover -s composition-lab -p test_riff_browser.py
+          python -B -m unittest discover -s composition-lab -p test_riff_pattern_browser.py
           grep -q 'if (rakeBeats(voice).has(beat)) continue;' src/song-player.js
           ! grep -q 'isSoloRakeBeat(' src/song-player.js
 

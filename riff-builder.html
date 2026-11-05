@@ -10,17 +10,28 @@
 <main>
   <header><a href="./">← Guitar Learning</a><span class="badge">MVP</span></header>
   <h1>Riff Builder</h1>
-  <p class="subtitle">Drop E · 8 strings · 8 bars · Invent Animate ingredients</p>
+  <p class="subtitle">Drop E · 8 strings · Your sections, new riffs</p>
   <section class="panel" aria-label="Generate a riff">
-    <div class="label">Recipe</div>
-    <div id="recipes" class="recipes" role="group" aria-label="Riff recipe">
-      <button type="button" data-recipe="conversation" aria-pressed="true"><strong>Call & answer</strong><span>Fracture Dialogue</span></button>
-      <button type="button" data-recipe="flow" aria-pressed="false"><strong>Open-string flow</strong><span>Open Orbit</span></button>
-      <button type="button" data-recipe="chords" aria-pressed="false"><strong>Chord responses</strong><span>Glass Counterweight</span></button>
+    <div class="label">Reference artists</div>
+    <div id="artists" class="segmented wrap" role="group" aria-label="Reference artists">
+      <button type="button" data-artist="Invent Animate" aria-pressed="true">Invent Animate</button>
+      <button type="button" data-artist="Currents" aria-pressed="false">Currents</button>
+      <button type="button" data-artist="ERRA" aria-pressed="false">ERRA</button>
     </div>
+    <div class="label spaced">Mode · E</div>
+    <div id="modes" class="segmented wrap" role="group" aria-label="Mode">
+      <button type="button" data-mode="Aeolian" aria-pressed="true">Aeolian</button>
+      <button type="button" data-mode="Dorian" aria-pressed="false">Dorian</button>
+      <button type="button" data-mode="Ionian" aria-pressed="false">Ionian</button>
+      <button type="button" data-mode="Mixolydian" aria-pressed="false">Mixolydian</button>
+      <button type="button" data-mode="Lydian" aria-pressed="false">Lydian</button>
+      <button type="button" data-mode="Phrygian" aria-pressed="false">Phrygian</button>
+    </div>
+    <div class="result-heading spaced"><div class="label">Build your riff</div><button id="add-section" type="button">+ Section</button></div>
+    <div id="sections"></div>
     <div class="generate-row"><label for="tempo">Tempo <input id="tempo" type="number" min="80" max="200" step="1" value="142"> BPM</label><button id="generate" class="primary" type="button">Generate riff</button></div>
-    <p class="small">Runs the existing composer. The same recipe and tempo produce the same riff.</p>
-    <p id="status" role="status" aria-live="polite">Choose a recipe, then Generate. First load takes a moment.</p>
+    <p class="small">Observed rhythms + new shape-based pitch choices. Sections are independent. “Mostly” means more than half the attacks.</p>
+    <p id="status" role="status" aria-live="polite">Choose your sections, then Generate. First load takes a moment.</p>
   </section>
   <section id="result" class="panel" hidden aria-label="Generated riff">
     <div class="result-heading"><h2 id="result-title">Your riff</h2><button id="download" type="button">Download JSON</button></div>
@@ -28,10 +39,12 @@
       <button id="play" class="primary" type="button" disabled>▶ Play</button><button id="stop" type="button" disabled>Stop</button>
       <div id="speeds" class="segmented" role="group" aria-label="Playback speed"><button type="button" data-speed="0.5" aria-pressed="false">½×</button><button type="button" data-speed="0.75" aria-pressed="false">¾×</button><button type="button" data-speed="1" aria-pressed="true">1×</button></div>
     </div>
+    <div id="section-playback" class="segmented wrap" role="group" aria-label="Play a section"></div>
     <div class="seek-row"><input id="seek" type="range" min="0" max="32" step="0.0625" value="0" aria-label="Position in riff"><span id="position">Bar 1 / 8</span></div>
     <div class="fretboard-scroll"><div id="fretboard" aria-label="Drop E fretboard, intervals relative to E"></div></div>
     <p class="small legend"><span class="blue-dot"></span>Riff notes <span class="gray-dot"></span>Open string · filled notes are at the playhead</p>
     <details open><summary>Tab</summary><div id="score"></div></details>
+    <details><summary>Patterns used</summary><div id="pattern-details"></div></details>
     <p class="small">Playback uses a sampled guitar.</p>
   </section>
 </main>

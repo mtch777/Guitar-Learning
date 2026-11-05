@@ -1,3 +1,78 @@
+# Modular riff builder — current delivery, 2026-11-05
+
+The existing site now connects artist/mode/independent section inputs to a shared
+reference-pattern engine. This replaces the three fixed recipe buttons; the old
+Python recipe assets remain only as regression evidence. No Composition Lab Cloud
+controls, source captures or tier acceptance statuses change.
+
+## Contract
+
+- Artist multiselect strictly filters available source material: Invent Animate,
+  Currents and ERRA. It does not weight artist taste.
+- E mode: Aeolian, Dorian, Ionian, Mixolydian, Lydian or Phrygian.
+- Add independent sections: style, mostly single notes/intervals/triads/chords or
+  mixed, and 1/2/4 bars. Tempo80–200. Generate a new complete riff or regenerate
+  one section while retaining the other sections exactly.
+- Reuse observed complete rhythmic units, including rests/subdivisions and each
+  coattack member's own hold. Assign new ordered pitch roles into compatible
+  Drop E shapes. Repeated anchors can remain; novelty is checked across a section.
+- Existing fretboard/player, tab, speed controls and JSON export remain. Clicking
+  a section starts playback there. Output is original-only, per user instruction.
+- No arbitrary source cropping, quarter-note filler, artist/style substitution,
+  automatic key selection or original/developed comparison.
+
+## Evidence and current limits
+
+Existing-logic transfer is complete: the127-capture private library retains
+original observations and adds verified pitch/voicing, technique and accepted
+pedal-response relationships. Shared selector14 tests pass;1,260 frozen queries
+separate retrieved material from feasible generation and preserve rhythm pools
+when only mode changes.
+
+The browser pack contains701 short derived templates and529 shape palettes,
+supported by1,592 observations from88 captures/57 songs. It is211,152 bytes gzip;
+full scores and private review prose are excluded. Thirty-nine captures supply no
+supported template, including26 without positive style tags. Boundary-held context,
+crossing techniques and unimplemented effects remain visible exclusions. They are
+implementation/data gaps, not evidence that those riffs cannot be changed.
+
+Positive style tags belong to containing riffs, not every short local gesture.
+The builder shows missing labelled material. In particular, Invent Animate lacks
+positive melodic/chordal/rhythmic labels in this frozen library; it does have
+arpeggio/pedal/other material with varied attack cardinality. Do not infer those
+musical constructions are absent from the artist. Current labels need enrichment.
+
+The first actual run exposed distant palette unions, held-contact reach omissions
+and a per-block novelty restriction. Fixed before release: core/extension/tapping
+roles retained; ordinary contacts stay within one six-fret region per short unit;
+active held frets count; tapped-only contacts require tapping. Complete-unit
+assembly backtracks, and unchanged anchors may support a changed response.
+The first attempt remains in private EXAMPLES.first-attempt.json. The same seed1
+now generates all seven supported contrast cases; two admission failures remain.
+This six-fret bound is an MVP search constraint, not a universal guitar rule.
+Cross-section development, learned preference and human execution/listening
+acceptance are not claimed.
+
+## Verification and release
+
+-25 focused engine/pack/physical regressions pass (12engine,6pack contracts,7
+  independent regressions). All six offered modes plus Currents/ERRA contrasts
+  pass the fixed representative checks.
+-5 public Python tests pass: contrasted structures, exact Drop E/mode placement,
+  request validation, deterministic generation, independent section regeneration,
+  immutable pack and truthful no-match behavior.
+-Native event adapter verifies actual generated pitches/onsets and written holds,
+  plus unequal chord-member holds, cross-bar ties, rests, triplets and composite
+  notation. Source expression marks remain explicit; articulation may alter sound
+  duration. Native/MIDI correctness does not establish musical quality.
+-Publication/browser verification: pending in this current work record.
+
+Private detailed receipts live in local-artifacts/fretboard-study-2026-11-04/
+riff-engine-001. Public packaging is reproducible using package_pattern_browser.py;
+pattern-manifest.json records both source and delivered asset digests.
+
+---
+
 # Hosted riff composer MVP — 2026-11-05
 
 ## Current UI correction — original only
