@@ -6,11 +6,18 @@ User removed the original/developed comparison for this starting point.
 - [x] Remove version controls, difference counts, changed-note coloring and comparison prompt.
 - [x] Show/play only the original score; JSON download also contains only that score.
 - [x] Preserve existing musical functions and earlier comparison evidence.
-- [ ] Verify build and hosted generation after publication.
+- [x] Verify build and hosted generation after publication.
 
 The worker projects the existing generator's original score into the page result.
 Historical paired-output Python API remains available for regression evidence;
 its alternate score is not sent to the page or exported by this UI.
+
+Published5965c0fec5e41b0d33fbac53e596060eae498e0f; Pages build42089870804
+and deployment42089928331 succeeded. All36JS tests and Vite build pass.
+Hosted browser verified original-only generation reaching Ready/Play, with no
+version buttons, difference counts or changed-note legend. Original musical
+functions are unchanged. The old page was briefly served during deployment;
+the completed deployment was then verified using?v=5965c0f.
 
 The implementation record below describes the initial paired-output delivery.
 
