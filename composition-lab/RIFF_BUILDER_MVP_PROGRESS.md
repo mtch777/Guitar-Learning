@@ -1,5 +1,39 @@
 # Modular riff builder — current delivery, 2026-11-05
 
+## Playback shape highlighting — current request
+
+- [x] Trace the exact shape material used by generation, including combined
+  palettes and the selected fretting-hand window; keep generated music unchanged.
+- [x] Show that shape on the existing fretboard as its timed block plays, using
+  blue/orange for changes, dotted extensions and filled currently sounding notes.
+  Keep open strings separate (gray string labels), intervals and all 24 frets.
+- [x] Follow seek, pause, section transitions, repeated shapes, rests and the end
+  of the riff. Do not pretend one section necessarily uses one source shape.
+- [x] Verify metadata against the actual choice and unchanged output, timeline
+  boundaries/random assembly, native playback and release build.
+- [ ] Verify publication and hosted behavior.
+
+Root owns UI/integration/publication. Data agent owns engine trace plus public
+engine/manifest and Python checks. UI agent owns a pure timeline helper/tests;
+Planner reviews interpretation and evidence. No corpus expansion or pitch-rule
+change. Strong counterexample: a union of two palettes or a trimmed contact window
+must not be presented as one unchanged source shape. Missing geometry stays unknown.
+
+`block.shape_usage` records the winning mode-compatible ordinary window, separate
+tapping candidates, actual used contacts/opens and source role/shape IDs. Display
+shows full ordinary windows only for multi-contact shapes, plus actual tapping;
+single/open contexts get honest labels. Mixed core/extension evidence is retained,
+with core taking visual precedence. Colors follow displayed geometry and roles,
+not source IDs. Filled notes follow the written clock; native acoustic articulation
+remains the player's responsibility.
+
+Verification: all 80 JS tests pass, including 11 shape timeline/frame tests and
+real public Python output; all 9 public pattern-engine Python tests pass; build
+passes. Seven pre-edit complete-result hashes remain identical after removing
+ONLY added shape metadata. Private/public engine copies match SHA-256
+cab423c3eacb471c3b6adc0dae62399d863ba4932b533a6097f82d0fcc75ee33 and the manifest.
+Planner independently reran 20 focused Python/JS checks and found no material blocker.
+
 ## Exclude from random — current request
 
 - [x] Add a compact checkbox dropdown named Exclude from random: Reference artists,

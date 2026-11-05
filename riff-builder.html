@@ -66,8 +66,9 @@
     </div>
     <div id="section-playback" class="segmented wrap" role="group" aria-label="Play a section"></div>
     <div class="seek-row"><input id="seek" type="range" min="0" max="32" step="0.0625" value="0" aria-label="Position in riff"><span id="position">Bar 1 / 8</span></div>
+    <p id="current-shape" class="shape-indicator" aria-label="Current shape">Shape unavailable</p>
     <div class="fretboard-scroll"><div id="fretboard" aria-label="Drop E fretboard, intervals relative to E"></div></div>
-    <p class="small legend"><span class="blue-dot"></span>Riff notes <span class="gray-dot"></span>Open string · filled notes are at the playhead</p>
+    <p class="small">Outline: shape positions · dotted: extensions · dashed: tapping · filled: current notes. Blue/orange marks a shape change; open strings light gray.</p>
     <details open><summary>Tab</summary><div id="score"></div></details>
     <details><summary>Patterns used</summary><div id="pattern-details"></div></details>
     <p class="small">Playback uses a sampled guitar.</p>

@@ -1,5 +1,6 @@
 const ALPHATAB_ROOT = 'https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/';
 import {normalizeEvents, toEventScore} from './riff-event-score.js';
+import {buildShapeTimeline, playbackShapeFrame} from './riff-shapes.js';
 const INTERVALS = ['1','♭2','2','♭3','3','4','♭5','5','♭6','6','♭7','7'];
 export function fraction(value) { const [a, b = '1'] = String(value).split('/'); return Number(a) / Number(b); }
 
@@ -56,6 +57,7 @@ export function mountBuilder() {
   let artists = ['Invent Animate'], mode = 'Aeolian', generationSeed = 1, result = null, api = null, at = null;
   let worker = null, requestId = 0, busy = false, ready = false, playing = false, speed = 1, q = 0, playerPromise = null;
   let timeout = null, activeCells = new Map(), labelCells = [], scoreLoad = 0, lastRequest = null, availability = null;
+  let shapeTimeline = {spans:[],issues:[]}, displayedShapeSpan;
   const status = (message, error = false) => { $('status').textContent = message; $('status').classList.toggle('error', error); };
   const duration = () => result?.score.duration_q || 0;
   function transport() {
@@ -87,6 +89,7 @@ export function mountBuilder() {
   }
   function createFretboard() {
     const board = $('fretboard'); board.replaceChildren(); activeCells = new Map(); labelCells = [];
+    displayedShapeSpan=undefined;
     board.append(document.createElement('div'));
     for (let fret = 1; fret <= 24; fret++) { const cell = document.createElement('div'); cell.className = 'fret-number'; cell.textContent = fret; board.append(cell); }
     const score = result.score;
@@ -98,21 +101,40 @@ export function mountBuilder() {
         const cell = document.createElement('div'); cell.className = 'cell';
         const marker = document.createElement('span'); marker.className = 'marker';
         marker.textContent = INTERVALS[(score.tuning_high_to_low[string] + fret - 4 + 120) % 12];
-        cell.title = `Fret ${fret} · ${marker.textContent}`; cell.append(marker); board.append(cell); activeCells.set(`${string}:${fret}`, cell);
+        cell.title = `Fret ${fret} · ${marker.textContent}`; cell.dataset.baseTitle=cell.title;
+        cell.append(marker); board.append(cell); activeCells.set(`${string}:${fret}`, cell);
       }
     }
-    for (const note of score.notes) activeCells.get(`${note.string}:${note.fret}`)?.classList.add('used');
     drawActive();
   }
   function drawActive() {
     if (!result) return;
+    const frame=playbackShapeFrame(shapeTimeline,result.score,q), span=frame.span;
+    if(span!==displayedShapeSpan){
+      displayedShapeSpan=span;
+      const color=span?.color || 'blue';
+      $('fretboard').dataset.shapeColor=color; $('current-shape').dataset.color=color;
+      for(const cell of activeCells.values()){
+        cell.classList.remove('shape-outline','shape-extension','shape-tapped'); cell.title=cell.dataset.baseTitle;
+      }
+      for(const contact of span?.contacts || []){
+        const cell=activeCells.get(contact.key); if(!cell)continue;
+        cell.classList.add('shape-outline');
+        if(contact.displayRole==='extension')cell.classList.add('shape-extension');
+        if(contact.displayRole==='tapped')cell.classList.add('shape-tapped');
+        cell.title+=` · ${contact.roles.join(' / ')} · ${span.composite?'combined shape region':'shape region'}`;
+      }
+      const names={single_contact_context:'One fretted contact',open_string_only:'Open strings',tapped_context_only:'Tapping',no_fretted_contact:'No fretted shape'};
+      const label=!span ? (q>=duration()?'End of riff':'Shape unavailable')
+        : span.status!=='available'?'Shape unavailable'
+        : span.kind==='shape_window'?`Shape ${span.shapeNumber}${span.composite?' · combined':''}`
+        : names[span.kind] || 'Shape unavailable';
+      $('current-shape').textContent=span?`Section ${span.sectionIndex+1} · ${label}`:label;
+    }
     for (const cell of activeCells.values()) cell.classList.remove('active');
     for (const cell of labelCells) cell.classList.remove('open');
-    for (const note of result.score.notes) {
-      if (q < note.start || q >= note.end || q >= duration()) continue;
-      if (note.fret === 0) labelCells[note.string]?.classList.add('open');
-      else activeCells.get(`${note.string}:${note.fret}`)?.classList.add('active');
-    }
+    for(const note of frame.activeContacts)activeCells.get(`${note.string}:${note.fret}`)?.classList.add('active');
+    for(const string of frame.openStrings)labelCells[string]?.classList.add('open');
   }
   function renderSections() {
     $('sections').replaceChildren();
@@ -212,7 +234,7 @@ export function mountBuilder() {
           await ensurePlayer();
           const native=toEventScore(at,candidate,`E ${candidate.request?.mode || mode} · Drop E riff`);
           if(data.randomized)applyRandomSettings(candidate.request);
-          result=candidate; lastRequest=structuredClone(settings());
+          result=candidate; shapeTimeline=buildShapeTimeline(candidate); lastRequest=structuredClone(settings());
           $('result').hidden=false; $('result-title').textContent=`E ${mode} · ${candidate.tempo} BPM`;
           $('seek').max=String(duration()); showPatterns(); createFretboard(); updatePosition(0);
           ready=false; playing=false; scoreLoad++; api.stop(); api.load(native); api.playbackSpeed=speed;
