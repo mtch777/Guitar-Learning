@@ -11,7 +11,7 @@
   unavailable locked combinations without changing the locks or previous output.
 - [x] Verify mixed/all/no exclusions, differing section rows, retries/refusal and
   actual engine generation; run relevant release checks.
-- [ ] Verify publication and the hosted UI.
+- [x] Verify publication and the hosted UI.
 
 Root owns page/worker/styles/progress/release; UI agent owns random helper/tests;
 Planner reviews constraints and evidence. Core music engine and corpus stay unchanged.
@@ -26,6 +26,17 @@ rows and forced retries, reject impossible/invalid locks without sampling around
 them, preserve the current snapshot through asynchronous calls, and verify distinct
 actual Invent Animate / Aeolian outputs with all visible fields held fixed.
 Native playback checks pass for both outputs. No listening-quality claim is made.
+
+Published: 164196d3344b5d4ee536b404f8a1392e0782bbe7, exact seven-file commit.
+Pages build 42127958220 and deployment 42128028148 passed. Planner independently
+reran all 22 focused tests and reviewed the page/worker/helper integration.
+Hosted checks: all six selected fields retained IA / Aeolian / 142 BPM /
+arpeggio / single / two bars. Editing tempo to 153 and adding a one-bar pedal row
+then requesting four sections preserved 153 BPM and the A/B/A/B style/length values.
+An unavailable locked IA chord choice refused without changing that selection or
+replacing the prior playable six-bar result. Checkbox selection/count, Escape
+dismissal and player readiness verified; audio remained stopped.
+URL: https://mtch777.github.io/Guitar-Learning/riff-builder.html?v=164196d
 
 ## Random generation — current request
 
