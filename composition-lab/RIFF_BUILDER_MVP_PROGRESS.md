@@ -11,7 +11,7 @@ controls, source captures or tier acceptance statuses change.
   Currents and ERRA. It does not weight artist taste.
 - E mode: Aeolian, Dorian, Ionian, Mixolydian, Lydian or Phrygian.
 - Add independent sections: style, mostly single notes/intervals/triads/chords or
-  mixed, and 1/2/4 bars. Tempo80–200. Generate a new complete riff or regenerate
+  mixed, and 1/2/4 bars. Tempo 80–200. Generate a new complete riff or regenerate
   one section while retaining the other sections exactly.
 - Reuse observed complete rhythmic units, including rests/subdivisions and each
   coattack member's own hold. Assign new ordered pitch roles into compatible
@@ -23,16 +23,16 @@ controls, source captures or tier acceptance statuses change.
 
 ## Evidence and current limits
 
-Existing-logic transfer is complete: the127-capture private library retains
+Existing-logic transfer is complete: the 127-capture private library retains
 original observations and adds verified pitch/voicing, technique and accepted
-pedal-response relationships. Shared selector14 tests pass;1,260 frozen queries
+pedal-response relationships. Shared selector 14 tests pass; 1,260 frozen queries
 separate retrieved material from feasible generation and preserve rhythm pools
 when only mode changes.
 
-The browser pack contains701 short derived templates and529 shape palettes,
-supported by1,592 observations from88 captures/57 songs. It is211,152 bytes gzip;
+The browser pack contains 701 short derived templates and 529 shape palettes,
+supported by 1,592 observations from 88 captures / 57 songs. It is 211,152 bytes gzip;
 full scores and private review prose are excluded. Thirty-nine captures supply no
-supported template, including26 without positive style tags. Boundary-held context,
+supported template, including 26 without positive style tags. Boundary-held context,
 crossing techniques and unimplemented effects remain visible exclusions. They are
 implementation/data gaps, not evidence that those riffs cannot be changed.
 
@@ -47,7 +47,7 @@ and a per-block novelty restriction. Fixed before release: core/extension/tappin
 roles retained; ordinary contacts stay within one six-fret region per short unit;
 active held frets count; tapped-only contacts require tapping. Complete-unit
 assembly backtracks, and unchanged anchors may support a changed response.
-The first attempt remains in private EXAMPLES.first-attempt.json. The same seed1
+The first attempt remains in private EXAMPLES.first-attempt.json. The same seed 1
 now generates all seven supported contrast cases; two admission failures remain.
 This six-fret bound is an MVP search constraint, not a universal guitar rule.
 Cross-section development, learned preference and human execution/listening
@@ -55,17 +55,32 @@ acceptance are not claimed.
 
 ## Verification and release
 
--25 focused engine/pack/physical regressions pass (12engine,6pack contracts,7
+- 25 focused engine/pack/physical regressions pass (12 engine, 6 pack contracts, 7
   independent regressions). All six offered modes plus Currents/ERRA contrasts
   pass the fixed representative checks.
--5 public Python tests pass: contrasted structures, exact Drop E/mode placement,
+- 5 public Python tests pass: contrasted structures, exact Drop E/mode placement,
   request validation, deterministic generation, independent section regeneration,
   immutable pack and truthful no-match behavior.
--Native event adapter verifies actual generated pitches/onsets and written holds,
+- Native event adapter verifies actual generated pitches/onsets and written holds,
   plus unequal chord-member holds, cross-bar ties, rests, triplets and composite
   notation. Source expression marks remain explicit; articulation may alter sound
   duration. Native/MIDI correctness does not establish musical quality.
--Publication/browser verification: pending in this current work record.
+- `node --test tests/*.test.mjs`: 47 pass; existing Python recipe tests: 7 pass;
+  `test_riff_pattern_browser.py`: 5 pass. `npm run build`: pass.
+- Published main commit 229321f06d8153060effc2fd7bcd4d12f0c15029 using an exact
+  14-file list and expected-head lease. Committed file list and asset manifest
+  verified separately. Pages build 42120764917 and deployment 42120812491 succeeded.
+- Hosted page verified: generation through the Python worker, two sections,
+  independent second-section regeneration (first evidence identical), previous
+  playable output retained after a genuine no-match, all-three-artist chord/interval
+  request, Dorian request, seek, half speed, native tab/fretboard and Play ready.
+  Audio stayed stopped; no listening quality or live-guitar approval is claimed.
+- Planner independently reran 19 tests and audited all seven generated outputs:
+  corrected physical scope, exact clock/member evidence and preserved failures pass.
+- URL: https://mtch777.github.io/Guitar-Learning/riff-builder.html?v=229321f
+- Next: user listening feedback on musical usefulness; targeted improvements to
+  local style labels and shape transitions. Broad artist modeling and related
+  section development remain outside this first independent-section version.
 
 Private detailed receipts live in local-artifacts/fretboard-study-2026-11-04/
 riff-engine-001. Public packaging is reproducible using package_pattern_browser.py;
