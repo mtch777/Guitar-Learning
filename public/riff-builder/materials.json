@@ -1,0 +1,329 @@
+{
+  "hook": {
+    "id": "hook",
+    "source": {},
+    "events": [
+      {
+        "relative_onset_q": "0",
+        "notes": [
+          {
+            "string": 8,
+            "fret": 0,
+            "duration_q": "1/2"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "1/2",
+        "notes": [
+          {
+            "string": 8,
+            "fret": 0,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "3/4",
+        "notes": [
+          {
+            "string": 8,
+            "fret": 0,
+            "duration_q": "1/2"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "5/4",
+        "notes": [
+          {
+            "string": 8,
+            "fret": 0,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "3/2",
+        "notes": [
+          {
+            "string": 8,
+            "fret": 0,
+            "duration_q": "1/4"
+          }
+        ]
+      }
+    ]
+  },
+  "broken_hook": {
+    "id": "broken_hook",
+    "source": {},
+    "events": [
+      {
+        "relative_onset_q": "0",
+        "notes": [
+          {
+            "string": 8,
+            "fret": 0,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "3/4",
+        "notes": [
+          {
+            "string": 8,
+            "fret": 0,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "1",
+        "notes": [
+          {
+            "string": 8,
+            "fret": 0,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "5/4",
+        "notes": [
+          {
+            "string": 8,
+            "fret": 0,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "3/2",
+        "notes": [
+          {
+            "string": 8,
+            "fret": 0,
+            "duration_q": "1/4"
+          }
+        ]
+      }
+    ]
+  },
+  "middle": {
+    "id": "middle",
+    "source": {},
+    "events": [
+      {
+        "relative_onset_q": "0",
+        "notes": [
+          {
+            "string": 6,
+            "fret": 0,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "1/4",
+        "notes": [
+          {
+            "string": 5,
+            "fret": 10,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "1/2",
+        "notes": [
+          {
+            "string": 6,
+            "fret": 7,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "3/4",
+        "notes": [
+          {
+            "string": 6,
+            "fret": 0,
+            "duration_q": "1/4"
+          }
+        ]
+      }
+    ]
+  },
+  "high": {
+    "id": "high",
+    "source": {},
+    "events": [
+      {
+        "relative_onset_q": "0",
+        "notes": [
+          {
+            "string": 3,
+            "fret": 16,
+            "duration_q": "1/2"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "1/2",
+        "notes": [
+          {
+            "string": 4,
+            "fret": 17,
+            "duration_q": "1/2"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "1",
+        "notes": [
+          {
+            "string": 5,
+            "fret": 15,
+            "duration_q": "1/2"
+          }
+        ]
+      }
+    ]
+  },
+  "flow": {
+    "id": "flow",
+    "source": {},
+    "events": [
+      {
+        "relative_onset_q": "0",
+        "notes": [
+          {
+            "string": 6,
+            "fret": 15,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "1/4",
+        "notes": [
+          {
+            "string": 6,
+            "fret": 0,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "1/2",
+        "notes": [
+          {
+            "string": 4,
+            "fret": 16,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "3/4",
+        "notes": [
+          {
+            "string": 6,
+            "fret": 15,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "1",
+        "notes": [
+          {
+            "string": 6,
+            "fret": 0,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "5/4",
+        "notes": [
+          {
+            "string": 4,
+            "fret": 17,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "3/2",
+        "notes": [
+          {
+            "string": 4,
+            "fret": 16,
+            "duration_q": "1/4"
+          }
+        ]
+      },
+      {
+        "relative_onset_q": "7/4",
+        "notes": [
+          {
+            "string": 6,
+            "fret": 15,
+            "duration_q": "1/4"
+          }
+        ]
+      }
+    ]
+  },
+  "open_chord": {
+    "id": "open_chord",
+    "source": {},
+    "events": [
+      {
+        "relative_onset_q": "0",
+        "notes": [
+          {
+            "string": 2,
+            "fret": 0,
+            "duration_q": "1"
+          },
+          {
+            "string": 5,
+            "fret": 15,
+            "duration_q": "1"
+          }
+        ]
+      }
+    ]
+  },
+  "shell": {
+    "id": "shell",
+    "source": {},
+    "events": [
+      {
+        "relative_onset_q": "0",
+        "notes": [
+          {
+            "string": 3,
+            "fret": 11,
+            "duration_q": "1/2"
+          },
+          {
+            "string": 4,
+            "fret": 9,
+            "duration_q": "1/2"
+          },
+          {
+            "string": 5,
+            "fret": 10,
+            "duration_q": "1/2"
+          }
+        ]
+      }
+    ]
+  }
+}

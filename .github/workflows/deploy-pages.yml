@@ -5,8 +5,10 @@ on:
     branches: [main]
     paths:
       - 'src/**'
+      - 'public/riff-builder/**'
       - 'tests/**'
       - 'index.html'
+      - 'riff-builder.html'
       - 'package.json'
       - 'package-lock.json'
       - 'vite.config.js'
@@ -39,6 +41,7 @@ jobs:
       - name: Verify rake classifier and tests
         run: |
           node --test tests/*.test.mjs
+          python -B -m unittest discover -s composition-lab -p test_riff_browser.py
           grep -q 'if (rakeBeats(voice).has(beat)) continue;' src/song-player.js
           ! grep -q 'isSoloRakeBeat(' src/song-player.js
 
