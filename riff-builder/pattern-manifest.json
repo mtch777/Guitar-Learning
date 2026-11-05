@@ -1,0 +1,11 @@
+{
+  "schema": "riff-browser-packaging/1",
+  "pattern_pack_sha256": "a1e28a6797126e733f5aeaadde50bbbb409668fa7b7ad70ff23b4cf107ae706b",
+  "engine_sha256": "12938194a027d74f19a86cf66a93447f564cb9cb6b6cf5d39120a24ba7b904b1",
+  "gzip_sha256": "04fa64f3ae9e58e5dbae3a6b2c0f9eea433d483865f4a1690a488db955a07fff",
+  "source_library_sha256": "dd0cf927a6496366497c98163aa809c122bdd4aee55c8b04cc4b33c49e2a54cc",
+  "templates": 701,
+  "palettes": 529,
+  "compressed_bytes": 211152,
+  "input_policy": "Only derived short structure, normalized pitch roles, contacts and safe support IDs; no full source scores or raw private annotations"
+}
