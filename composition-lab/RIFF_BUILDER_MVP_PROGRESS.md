@@ -1,5 +1,19 @@
 # Hosted riff composer MVP — 2026-11-05
 
+## Current UI correction — original only
+
+User removed the original/developed comparison for this starting point.
+- [x] Remove version controls, difference counts, changed-note coloring and comparison prompt.
+- [x] Show/play only the original score; JSON download also contains only that score.
+- [x] Preserve existing musical functions and earlier comparison evidence.
+- [ ] Verify build and hosted generation after publication.
+
+The worker projects the existing generator's original score into the page result.
+Historical paired-output Python API remains available for regression evidence;
+its alternate score is not sent to the page or exported by this UI.
+
+The implementation record below describes the initial paired-output delivery.
+
 User request: the simplest existing riff composer, triggered from the existing
 GitHub Pages site. This is a separate site delivery, not a change to the Cloud
 Cascade controls assignment or tier acceptance.

@@ -50,15 +50,14 @@ function loadAlphaTab() {
 
 export function mountBuilder() {
   const $ = id => document.getElementById(id);
-  let recipe = 'conversation', version = 'baseline', result = null, api = null, at = null;
+  let recipe = 'conversation', result = null, api = null, at = null;
   let worker = null, requestId = 0, busy = false, ready = false, playing = false, speed = 1, q = 0, playerPromise = null;
-  let timeout = null, changedIds = new Set(), activeCells = new Map(), labelCells = [], scoreLoad = 0;
+  let timeout = null, activeCells = new Map(), labelCells = [], scoreLoad = 0;
   const status = (message, error = false) => { $('status').textContent = message; $('status').classList.toggle('error', error); };
   function transport() {
     $('play').disabled = busy || !ready; $('stop').disabled = busy || !ready;
     $('play').textContent = playing ? '❚❚ Pause' : '▶ Play';
     $('download').disabled = busy || !result; $('seek').disabled = busy || !ready;
-    for (const button of $('versions').querySelectorAll('button')) button.disabled = busy || !result;
   }
   function setBusy(value) {
     busy = value; document.body.setAttribute('aria-busy', String(value));
@@ -80,7 +79,7 @@ export function mountBuilder() {
     const board = $('fretboard'); board.replaceChildren(); activeCells = new Map(); labelCells = [];
     const blank = document.createElement('div'); board.append(blank);
     for (let fret = 1; fret <= 24; fret++) { const cell = document.createElement('div'); cell.className = 'fret-number'; cell.textContent = fret; board.append(cell); }
-    const score = result[version];
+    const score = result.score;
     for (let string = 0; string < 8; string++) {
       const label = document.createElement('div'); label.className = 'string-label';
       label.textContent = INTERVALS[(score.tuning_high_to_low[string] - 4 + 120) % 12];
@@ -94,19 +93,19 @@ export function mountBuilder() {
     }
     for (const note of score.notes) {
       const cell = activeCells.get(`${note.string}:${note.fret}`); if (!cell) continue;
-      cell.classList.add('used'); if (version === 'variation' && changedIds.has(note.id)) {cell.classList.add('changed'); cell.dataset.changed = 'true';}
+      cell.classList.add('used');
     }
     drawActive();
   }
   function drawActive() {
     if (!result) return;
-    for (const cell of activeCells.values()) {cell.classList.remove('active'); cell.classList.toggle('changed', cell.dataset.changed === 'true');}
+    for (const cell of activeCells.values()) cell.classList.remove('active');
     for (const cell of labelCells) cell.classList.remove('open');
-    for (const note of result[version].notes) {
+    for (const note of result.score.notes) {
       const start = fraction(note.onset_q), end = start + fraction(note.duration_q);
       if (q < start || q >= end || q >= 32) continue;
       if (note.fret === 0) labelCells[note.string]?.classList.add('open');
-      else {const cell = activeCells.get(`${note.string}:${note.fret}`); if (cell) {cell.classList.add('active'); cell.classList.toggle('changed', version === 'variation' && changedIds.has(note.id));}}
+      else activeCells.get(`${note.string}:${note.fret}`)?.classList.add('active');
     }
   }
   async function ensurePlayer() {
@@ -127,17 +126,14 @@ export function mountBuilder() {
     })().catch(error => {playerPromise = null; throw error;});
     return playerPromise;
   }
-  async function showVersion() {
+  async function showResult() {
     const load = ++scoreLoad;
     ready = false; playing = false; api?.stop(); transport();
-    for (const button of $('versions').querySelectorAll('button')) button.setAttribute('aria-pressed', String(button.dataset.version === version));
     updatePosition(0); createFretboard();
-    const changed = result.changes?.changed || {};
-    $('changes').textContent = version === 'baseline' ? 'Original composed riff. Switch to Developed return to compare.' : `${(changed.pitch || []).length} pitches · ${(changed.onset_q || []).length} starts · ${(changed.duration_q || []).length} holds changed. Green marks changed notes.`;
     status('Loading guitar sound…');
     try {
       await ensurePlayer(); if (load !== scoreLoad) return;
-      api.load(toNativeScore(at, result[version], `${result.title} — ${version === 'baseline' ? 'Original' : 'Developed return'}`));
+      api.load(toNativeScore(at, result.score, result.title));
       api.playbackSpeed = speed;
     } catch (error) {fail(error);}
   }
@@ -150,10 +146,9 @@ export function mountBuilder() {
       if (data.type === 'status') status(data.message);
       if (data.type === 'error') fail(new Error(data.message));
       if (data.type === 'result') {
-        clearTimeout(timeout); result = data.result; version = 'baseline';
-        changedIds = new Set(Object.values(result.changes?.changed || {}).flat());
+        clearTimeout(timeout); result = data.result;
         $('result').hidden = false; $('result-title').textContent = `${result.title} · ${result.tempo} BPM`;
-        setBusy(false); await showVersion();
+        setBusy(false); await showResult();
       }
     };
     return worker;
@@ -172,7 +167,6 @@ export function mountBuilder() {
     timeout = setTimeout(() => {worker?.terminate(); worker = null; requestId++; fail(new Error('Composer took too long to load. Check your connection and try again.'));}, 180000);
     getWorker().postMessage({id: requestId, recipe, tempo, assetBase: new URL('riff-builder/', document.baseURI).href});
   });
-  $('versions').addEventListener('click', event => {const button = event.target.closest('[data-version]'); if (!button || busy || !result || version === button.dataset.version) return; version = button.dataset.version; showVersion();});
   $('play').addEventListener('click', () => {if (ready && !busy) api.playPause();});
   $('stop').addEventListener('click', () => {api?.stop(); updatePosition(0);});
   $('speeds').addEventListener('click', event => {const button = event.target.closest('[data-speed]'); if (!button) return; speed = Number(button.dataset.speed); if (api) api.playbackSpeed = speed; for (const item of $('speeds').querySelectorAll('button')) item.setAttribute('aria-pressed', String(item === button));});

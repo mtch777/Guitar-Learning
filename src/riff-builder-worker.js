@@ -25,11 +25,15 @@ self.onmessage = async ({data}) => {
   try {
     self.__assetBase = assetBase;
     const py = await runtime(id);
-    self.postMessage({id, type: 'status', message: 'Composing original and developed return…'});
+    self.postMessage({id, type: 'status', message: 'Composing riff…'});
     py.globals.set('request_recipe', recipe);
     py.globals.set('request_tempo', tempo);
     const json = await py.runPythonAsync('generate_json(recipe=request_recipe, tempo=request_tempo)');
-    self.postMessage({id, type: 'result', result: JSON.parse(json)});
+    const generated = JSON.parse(json);
+    self.postMessage({id, type: 'result', result: {
+      title: generated.title, recipe: generated.recipe, tempo: generated.tempo,
+      tuning: generated.tuning, score: generated.baseline
+    }});
   } catch (error) {
     self.postMessage({id, type: 'error', message: error?.message || String(error)});
   }
