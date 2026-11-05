@@ -11,7 +11,7 @@
   of the riff. Do not pretend one section necessarily uses one source shape.
 - [x] Verify metadata against the actual choice and unchanged output, timeline
   boundaries/random assembly, native playback and release build.
-- [ ] Verify publication and hosted behavior.
+- [x] Verify publication and hosted behavior.
 
 Root owns UI/integration/publication. Data agent owns engine trace plus public
 engine/manifest and Python checks. UI agent owns a pure timeline helper/tests;
@@ -33,6 +33,17 @@ passes. Seven pre-edit complete-result hashes remain identical after removing
 ONLY added shape metadata. Private/public engine copies match SHA-256
 cab423c3eacb471c3b6adc0dae62399d863ba4932b533a6097f82d0fcc75ee33 and the manifest.
 Planner independently reran 20 focused Python/JS checks and found no material blocker.
+
+Published implementation df90006469b43ebcf969aa987a94d38c439a5fc8 (nine files).
+Pages build 42129246304 and deployment 42129346867 passed. Hosted IA / Aeolian
+arpeggio-interval then pedal-single example verified: quarter 0 shows Shape 1 blue,
+five outlined positions, one dotted extension and two current notes; seeking to
+quarter 8 shows Section 2 / Shape 2 / combined in orange, five outlined positions
+and one current note. Quarter 16 clears all outlines/current notes/open labels and
+reports End of riff; seeking back restores the correct shape. All 24 frets and
+interval labels remain. Playback stayed stopped; verification exercised the same
+written-clock display path via seek plus native/MIDI tests, not acoustic listening.
+URL: https://mtch777.github.io/Guitar-Learning/riff-builder.html?v=df90006
 
 ## Exclude from random — current request
 
