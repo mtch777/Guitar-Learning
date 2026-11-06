@@ -356,7 +356,7 @@ export function mountBuilder() {
   $('download').addEventListener('click',()=>{
     if(!result)return;
     const blob=new Blob([JSON.stringify(result,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');
-    link.href=url;link.download=`drop-e-${lastRequest.mode.toLowerCase()}-riff.json`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    link.href=url;link.download=`drop-e-${lastRequest.mode.toLowerCase()}-riff-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   });
   renderSections();transport();
   fetch(new URL('riff-builder/availability.json',document.baseURI)).then(r=>{if(!r.ok)throw new Error('Unavailable');return r.json();}).then(data=>{availability=data;renderSections();}).catch(()=>{presetLoadError=true;renderPresets();});
