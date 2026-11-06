@@ -1,0 +1,150 @@
+{
+  "title": "Generated Drop E listening preview 01",
+  "status": "Listening preview; full engine release still in progress.",
+  "request": {
+    "artists": [
+      "Invent Animate"
+    ],
+    "mode": "Phrygian",
+    "seed": 707
+  },
+  "reference_structure": "Invent Animate — Courier",
+  "seconds": 14.769342,
+  "tempo_bpm": 130,
+  "notes": 58,
+  "changed_pitch_notes": [
+    {
+      "note_number": 10,
+      "event_index": 9,
+      "member_index": 0,
+      "onset_q": "6",
+      "onset_seconds": 2.769231,
+      "generated_midi_pitch": 47,
+      "string_number": 6,
+      "fret": 7
+    },
+    {
+      "note_number": 11,
+      "event_index": 10,
+      "member_index": 0,
+      "onset_q": "19/3",
+      "onset_seconds": 2.923077,
+      "generated_midi_pitch": 48,
+      "string_number": 6,
+      "fret": 8
+    },
+    {
+      "note_number": 12,
+      "event_index": 11,
+      "member_index": 0,
+      "onset_q": "20/3",
+      "onset_seconds": 3.076923,
+      "generated_midi_pitch": 59,
+      "string_number": 4,
+      "fret": 9
+    },
+    {
+      "note_number": 14,
+      "event_index": 13,
+      "member_index": 0,
+      "onset_q": "22/3",
+      "onset_seconds": 3.384615,
+      "generated_midi_pitch": 52,
+      "string_number": 5,
+      "fret": 7
+    },
+    {
+      "note_number": 15,
+      "event_index": 14,
+      "member_index": 0,
+      "onset_q": "23/3",
+      "onset_seconds": 3.538462,
+      "generated_midi_pitch": 50,
+      "string_number": 5,
+      "fret": 5
+    },
+    {
+      "note_number": 26,
+      "event_index": 25,
+      "member_index": 0,
+      "onset_q": "27/2",
+      "onset_seconds": 6.230769,
+      "generated_midi_pitch": 60,
+      "string_number": 3,
+      "fret": 5
+    },
+    {
+      "note_number": 27,
+      "event_index": 25,
+      "member_index": 1,
+      "onset_q": "27/2",
+      "onset_seconds": 6.230769,
+      "generated_midi_pitch": 59,
+      "string_number": 4,
+      "fret": 9
+    },
+    {
+      "note_number": 40,
+      "event_index": 38,
+      "member_index": 0,
+      "onset_q": "22",
+      "onset_seconds": 10.153846,
+      "generated_midi_pitch": 47,
+      "string_number": 6,
+      "fret": 7
+    },
+    {
+      "note_number": 41,
+      "event_index": 39,
+      "member_index": 0,
+      "onset_q": "67/3",
+      "onset_seconds": 10.307692,
+      "generated_midi_pitch": 48,
+      "string_number": 6,
+      "fret": 8
+    },
+    {
+      "note_number": 42,
+      "event_index": 40,
+      "member_index": 0,
+      "onset_q": "68/3",
+      "onset_seconds": 10.461538,
+      "generated_midi_pitch": 59,
+      "string_number": 4,
+      "fret": 9
+    },
+    {
+      "note_number": 44,
+      "event_index": 42,
+      "member_index": 0,
+      "onset_q": "70/3",
+      "onset_seconds": 10.769231,
+      "generated_midi_pitch": 52,
+      "string_number": 5,
+      "fret": 7
+    },
+    {
+      "note_number": 45,
+      "event_index": 43,
+      "member_index": 0,
+      "onset_q": "71/3",
+      "onset_seconds": 10.923077,
+      "generated_midi_pitch": 50,
+      "string_number": 5,
+      "fret": 5
+    }
+  ],
+  "unchanged_pitch_notes": 46,
+  "new": "Pitch contour, modal realization and string/fret choices. Repeated passages share generated notes through 18 operative parent correspondence slots.",
+  "inherited": "Whole-riff order/form, phrase lengths, rhythm, rests, written holds, technique markings, tempo and written ending. This is not newly composed whole-riff ordering.",
+  "sound": "AlphaTab 1.8.4 / Sonivox GM distorted guitar; constant gain4 applied during MP3 encoding. No new soundfont or third-party source score uploaded.",
+  "limitations": [
+    "Synthetic guitar preview, not a human performance.",
+    "Timing/native-note and hand-path checks passed for this example; not final musical acceptance.",
+    "Other detector/generator corrections remain in progress."
+  ],
+  "score_sha256": "c8c6f29f039e22ca9fac72d79e78c300dbfe76cadfd25dafe13cc1a67970f94e",
+  "engine_sha256": "9564a4cbe28847cd98f3de4dd28e20c0cea1645ce1724c5207a108e1d7cd33c8",
+  "pack_sha256": "64c182f7085eb4a6e1d4e3acd8b0745060c3ed85cbd48aadbc1a87a44bfcdb90",
+  "audio_sha256": "aed7b1a9ce6aa3bc1dfdf962a8aca8bd9b83ba7e9ad7f5385fd579df1ca1d4fe"
+}
