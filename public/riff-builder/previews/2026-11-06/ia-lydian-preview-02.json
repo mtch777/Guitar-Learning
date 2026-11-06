@@ -1,0 +1,73 @@
+{
+  "title": "Generated Drop E listening comparison 02",
+  "status": "Listening comparison after rejected chug-heavy preview; musical acceptance pending.",
+  "request": {
+    "artists": [
+      "Invent Animate"
+    ],
+    "mode": "Lydian",
+    "seed": 2026
+  },
+  "reference_structure": "Invent Animate \u2014 White Wolf",
+  "seconds": 9.412789,
+  "tempo_bpm": 204,
+  "notes": 65,
+  "attack_groups": 57,
+  "low_E_notes": 19,
+  "changed_pitch_notes": 46,
+  "program_id": "new-program-62e7685da0e444a02651378e",
+  "inherited": "Complete reference-derived order, rhythm, tempo, articulation and return/ending structure.",
+  "generated": "New modal pitches, contour choices and Drop E string/fret placements, with operative return relationships.",
+  "listening_map": [
+    {
+      "seconds": [
+        0,
+        3.1
+      ],
+      "description": "Moving line and rising figure"
+    },
+    {
+      "seconds": [
+        3.2,
+        4.6
+      ],
+      "description": "Low rhythmic interruption and answer"
+    },
+    {
+      "seconds": [
+        4.7,
+        8.2
+      ],
+      "description": "Returning material with a changed continuation"
+    },
+    {
+      "seconds": [
+        8.4,
+        9.4
+      ],
+      "description": "Voiced closing attacks"
+    }
+  ],
+  "selection": "Selected from all22 retained current Invent Animate-only generated outputs; no edited notes or new seed retries.",
+  "audio": "Existing alphaTab1.8.4 / Sonivox guitar synthesis; constant gain4 and128kbps MP3.",
+  "checks": {
+    "native_score_passed": true,
+    "within_phrase_motion_passed": true,
+    "audible_picked_attacks": 65,
+    "audible_missing_attacks": 0,
+    "min_attack_offset_ms": -1.4485794317726786,
+    "max_attack_offset_ms": 0.9030278778183742,
+    "pcm_binding": {
+      "samples": 415104,
+      "different_samples": 1,
+      "max_16bit_sample_difference": 1
+    },
+    "listening_accepted": false
+  },
+  "provenance": {
+    "score_sha256": "deb559997d6251064a86dfa30d68de33ea082ab82575d062ec2a8d618cf3b9d5",
+    "runtime_sha256": "d5ca4a13394c1bc433c66318b3c611bd70093bcd3e55b61108cefa244c56e998",
+    "pack_sha256": "8bd28eafbb67e0998d683b2542ccea6ab5e607ec84116047e7fb448970d6133a",
+    "mp3_sha256": "d44b0d125355353413dac58097ff9b70416b35ecaf7a4fd4d18e983a828b6be7"
+  }
+}
