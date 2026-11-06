@@ -1,6 +1,6 @@
 {
   "title": "Generated Drop E listening comparison 02",
-  "status": "Listening comparison after rejected chug-heavy preview; musical acceptance pending.",
+  "status": "Generated listening comparison; full engine release still in progress.",
   "request": {
     "artists": [
       "Invent Animate"
@@ -59,10 +59,10 @@
     "max_attack_offset_ms": 0.9030278778183742,
     "pcm_binding": {
       "samples": 415104,
-      "different_samples": 1,
-      "max_16bit_sample_difference": 1
+      "exact_rendered_pcm_equal": true,
+      "diagnostic_rounding": "Float32 mono intermediate followed by16-bit quantization, matching renderer."
     },
-    "listening_accepted": false
+    "general_musical_quality_claim": false
   },
   "provenance": {
     "score_sha256": "deb559997d6251064a86dfa30d68de33ea082ab82575d062ec2a8d618cf3b9d5",

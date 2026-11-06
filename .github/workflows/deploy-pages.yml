@@ -38,11 +38,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install pinned native player for playback regression checks
+        run: npm install --prefix .local/qa --no-save @coderline/alphatab@1.8.4
+
       - name: Verify rake classifier and tests
         run: |
           node --test tests/*.test.mjs
           python -B -m unittest discover -s composition-lab -p test_riff_browser.py
           python -B -m unittest discover -s composition-lab -p test_riff_pattern_browser.py
+          python -B -m unittest discover -s composition-lab -p test_procedural_riff_browser.py
           grep -q 'if (rakeBeats(voice).has(beat)) continue;' src/song-player.js
           ! grep -q 'isSoloRakeBeat(' src/song-player.js
 

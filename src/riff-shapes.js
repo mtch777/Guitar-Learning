@@ -1,4 +1,4 @@
-/** Display the generator's exact contact window; never infer one from played notes. */
+/** Display declared reference geometry or the generator's planned contacts. */
 const TUNING = [64, 59, 55, 50, 45, 40, 35, 28];
 const ROLES = ['core', 'extension', 'tapped', 'unspecified'];
 const KINDS = ['shape_window', 'single_contact_context', 'open_string_only', 'tapped_context_only', 'no_fretted_contact'];
@@ -23,8 +23,17 @@ function reference(source) {
   if (!source || typeof source !== 'object') throw new Error('Shape reference is invalid');
   const out = {};
   for (const key of ['palette_id', 'riff_id', 'shape_id']) {
-    if (source[key] !== null && typeof source[key] !== 'string') throw new Error('Shape reference identifier is invalid');
-    out[key] = source[key];
+    if (source[key] != null && (typeof source[key] !== 'string' || !source[key].length)) throw new Error('Shape reference identifier is invalid');
+    out[key] = source[key] ?? null;
+  }
+  if (!out.palette_id && !out.riff_id && !out.shape_id) throw new Error('Shape reference has no identifier');
+  if (source.artist !== undefined) {
+    if (!['Invent Animate', 'Currents', 'ERRA'].includes(source.artist)) throw new Error('Shape reference artist is invalid');
+    out.artist = source.artist;
+  }
+  if (source.provenance_hashes !== undefined) {
+    if (!Array.isArray(source.provenance_hashes) || source.provenance_hashes.some(value => typeof value !== 'string' || !/^[a-f0-9]{16,64}$/.test(value))) throw new Error('Shape reference provenance is invalid');
+    out.provenance_hashes = [...new Set(source.provenance_hashes)];
   }
   return out;
 }
@@ -91,11 +100,13 @@ function view(metadata, tuning) {
     const bounds = frets.length ? [Math.min(...frets), Math.max(...frets)] : null;
     if (JSON.stringify(metadata.ordinary_fret_bounds) !== JSON.stringify(bounds)) throw new Error('Recorded fret bounds disagree with the ordinary window');
     const referenceShapes = [...new Map(metadata.reference_shapes.map(source => {const ref = reference(source); return [identity(ref), ref];})).values()];
-    const contacts = metadata.kind === 'shape_window' ? [...ordinaryContacts,
+    const constructed = metadata.context_origin === 'constructed_local_domain_from_observed_contacts';
+    const contacts = metadata.kind === 'shape_window' && !constructed ? [...ordinaryContacts,
       ...usedContacts.filter(contact => contact.as_tapping && !ordinary.has(contact.key)).map(contact => ({...contact, displayRole: 'tapped', dotted: false}))]
       : usedContacts.map(contact => contact.as_tapping && !contact.as_fretting ? {...contact, displayRole: 'tapped', dotted: false} : contact);
     return {status: 'available', kind: metadata.kind, mode: metadata.mode, color: null, shapeNumber: null,
       contacts, ordinaryContacts, tappedContacts, usedContacts, openStringNumbers, openStrings: openStringNumbers.map(string => string - 1),
+      outlineKind: constructed || metadata.kind !== 'shape_window' ? 'planned_contacts' : 'reference_shape',
       referenceShapes, referenceCount: referenceShapes.length, composite: referenceShapes.length > 1, ordinaryFretBounds: bounds};
   } catch (error) {return unavailable(error.message);}
 }
@@ -104,7 +115,8 @@ function view(metadata, tuning) {
 export function buildShapeTimeline(result) {
   const spans = [], issues = [];
   const tuning = Array.isArray(result?.tuning) && result.tuning.length === 8 ? result.tuning : TUNING;
-  for (const [sectionIndex, section] of (Array.isArray(result?.sections) ? result.sections : []).entries()) {
+  const phrases = result?.phrases ?? result?.sections;
+  for (const [sectionIndex, section] of (Array.isArray(phrases) ? phrases : []).entries()) {
     for (const [blockIndex, block] of (Array.isArray(section?.blocks) ? section.blocks : []).entries()) {
       try {
         const sectionStart = q(section.offset_q), sectionEnd = add(sectionStart, q(section.length_q));

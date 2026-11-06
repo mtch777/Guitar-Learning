@@ -1,0 +1,3 @@
+# Content-addressed composer assets must retain their exact hashed bytes.
+procedural-engine-*.py -text
+program-pack-*.json.gz -text

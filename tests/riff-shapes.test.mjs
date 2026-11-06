@@ -68,6 +68,23 @@ test('mixed provenance keeps all roles, core wins display and extensions remain 
   assert.deepEqual(timeline.spans.map(value => value.shapeNumber), [1, 1]);
 });
 
+test('procedural pooled palettes retain honest provenance without source score identifiers', () => {
+  const shape = metadata();
+  const publicRef = {palette_id: 'pool-123', artist: 'Invent Animate', provenance_hashes: ['a'.repeat(24)]};
+  shape.reference_shapes = [publicRef];
+  for (const point of shape.ordinary_contacts) point.sources = [{palette_id: 'pool-123', artist: 'Invent Animate', roles: point.roles}];
+  const input = {tuning, phrases: [section([block(shape)])]};
+  const before = structuredClone(input), timeline = buildShapeTimeline(input);
+  assert.deepEqual(timeline.issues, []);
+  assert.equal(timeline.spans[0].status, 'available');
+  assert.deepEqual(timeline.spans[0].referenceShapes, [{...publicRef, riff_id: null, shape_id: null}]);
+  assert.deepEqual(input, before);
+  for (const bad of [{}, {...publicRef, palette_id: 2}, {...publicRef, provenance_hashes: ['source path']}, {...publicRef, artist: 'Other'}]) {
+    const invalid = structuredClone(shape); invalid.reference_shapes = [bad];
+    assert.equal(buildShapeTimeline({tuning, phrases: [section([block(invalid)])]}).spans[0].status, 'unavailable');
+  }
+});
+
 test('only actually used tapping contacts outside the ordinary window are displayed', () => {
   const shape = metadata(); const tap = contact(2, 17, ['tapped']);
   shape.tapped_contacts.push(tap, contact(1, 22, ['tapped'])); shape.used_contacts.push(used(tap, false, true));
@@ -75,6 +92,31 @@ test('only actually used tapping contacts outside the ordinary window are displa
   assert.equal(span.contacts.length, 3); assert.equal(span.contacts[2].key, '1:17'); assert.equal(span.contacts[2].displayRole, 'tapped');
   assert.equal(span.usedContacts.find(point => point.key === '1:17').as_tapping, true);
   assert(!span.contacts.some(point => point.fret === 22));
+});
+
+test('a constructed search domain displays the complete planned shape, not unused eligible notes', () => {
+  const shape = metadata([5, 7, 9, 11]);
+  shape.used_contacts = shape.used_contacts.slice(0, 2);
+  shape.ordinary_contacts[1].roles = ['extension'];
+  shape.ordinary_contacts[1].sources[0].roles = ['extension'];
+  const tap = contact(2, 17, ['tapped']);
+  shape.tapped_contacts = [tap, contact(1, 22, ['tapped'])];
+  shape.used_contacts.push(used(tap, false, true));
+  shape.context_origin = 'constructed_local_domain_from_observed_contacts';
+  const input = result([section([block(shape)])]), before = structuredClone(input);
+  const timeline = buildShapeTimeline(input), span = shapeAt(timeline, 0);
+  assert.deepEqual(timeline.issues, []);
+  assert.deepEqual(span.contacts.map(point => point.key), ['1:17', '7:5', '7:7']);
+  assert.equal(span.contacts.find(point => point.fret === 7).dotted, true);
+  assert.equal(span.contacts.find(point => point.fret === 17).displayRole, 'tapped');
+  assert.equal(span.ordinaryContacts.length, 4, 'Preserve the actual search domain as metadata');
+  assert.equal(span.outlineKind, 'planned_contacts');
+  assert.deepEqual(shapeAt(timeline, 3).contacts, span.contacts, 'Show the whole planned shape throughout its context');
+  assert.deepEqual(input, before);
+  shape.context_origin = 'observed_palette_modal_subset';
+  const observed = buildShapeTimeline(result([section([block(shape)])])).spans[0];
+  assert.equal(observed.contacts.length, 5, 'An identified reference shape retains its reference outline');
+  assert.equal(observed.outlineKind, 'reference_shape');
 });
 
 test('single contacts, open-only and tapping-only contexts are not numbered shapes', () => {
