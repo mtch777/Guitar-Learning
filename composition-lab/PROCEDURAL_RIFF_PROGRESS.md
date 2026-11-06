@@ -64,8 +64,8 @@ retroactively fulfill that larger scope or provide fresh all-artist validation.
 The remaining eligible canonical pool is now exhausted. Corrected replay is
 development validation, not another fresh success. No fresh all-artist or
 universal consistency claim is established by these results.
-Separate listening previews are published; the updated generator release remains
-pending.
+Separate listening previews and the bounded current-library generator are
+published. Broader phrase-detector consistency remains open.
 
 - [x] Establish a corpus adapter/accounting for all existing riffs and freeze
   eligible population, seed and detector before each new random batch.
@@ -118,7 +118,7 @@ serialization do not prove human playability or musical listening acceptance.
   lengths and learned relations; ensure data changes can change musical choices.
 - [x] Integrate Artist + Mode workflow, hidden manual builder, terminology and
   length-control removal into the existing site/player. Implemented and browser
-  verified locally; final published verification remains below.
+  verified locally and on the published site; broader detector consistency stays open.
 - [x] Exercise multiple seeds and every supported artist/mode combination;
   independently inspect final notes, rhythm, returns, seams, starts/endings,
   physical execution, novelty, evidence and fallback behavior.
@@ -164,6 +164,13 @@ Experimental musical preferences remain separate from production defaults until
 the evidence justifies them; one successful or unsuccessful preview does not
 establish a universal quality rule.
 
-Preview-only publication: commit 73b18a1ed3875731c810928625d38f71d3bd8c6d,
-workflow 42286434998 passed. The public audio URL, exact bytes and playback were
-verified separately. The final updated generator remains pending.
+Current working generator: commit 7fdcdbe35af18683fac349cf3fdbb7b29b77362e,
+Pages workflow 42306035949 passed. The served runtime and pack hashes, actual
+browser generation, native playback, fretboard, phrase-click playback, mobile
+layout and timestamped downloads are independently verified. The browser's
+generated events and plan exactly match the native fixed-request result.
+
+Only the self-contained runtime, abstract data pack, UI and public requirements
+are published. Analysis helpers and private feedback workflows remain local.
+The earlier listening preview commit 73b18a1 remains preserved. This working
+release does not close Stage 1 or claim completion of all three stages.

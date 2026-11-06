@@ -12,7 +12,7 @@ program; this version does not compose a new whole-riff form.
 The local UI removes the length/manual-section workflow, uses phrases, and keeps
 the existing player, complete interval fretboard, active shapes, playback speeds
 and timestamped JSON downloads. Phrase selection starts playback. These features
-are implemented and browser-verified. The verified current library is being
+are live and browser-verified. The verified current library is
 released as a bounded working update while broader source consistency work
 continues; release does not certify that every newly analyzed passage is correct.
 
@@ -30,7 +30,9 @@ Current remaining work: correct the final source batch's omitted one-configurati
 rhythmic return and misplaced connected legato entry, retest shared rules and
 integrate any resulting library changes. The current runtime and library pass
 150 native-output checks and actual browser playback/download checks. Verify the
-exact served version separately. The separate Cloud
+exact served version separately: commit 7fdcdbe35af18683fac349cf3fdbb7b29b77362e
+passed Pages workflow 42306035949, and actual remote asset hashes, generation,
+playback, fretboard and downloads pass. The separate Cloud
 composition work remains outside this workstream.
 
 Historical progress and first failed outcomes are retained privately with hashes;
