@@ -1,0 +1,40 @@
+{
+  "schema": "procedural-riff-browser/1",
+  "engine": {
+    "file": "procedural-engine-a157789199b47f2b.py",
+    "sha256": "a157789199b47f2b1091709a6e9a141466af27596bfefd207e462856a9d9b3f1",
+    "bytes": 101737
+  },
+  "pack": {
+    "file": "program-pack-f3c3721e159b8524.json.gz",
+    "sha256": "f3c3721e159b8524b2a9203022c2f9a2bab3ec4f527a906008cf78ec83256515",
+    "bytes": 623881,
+    "json_sha256": "e7cd056b4269da7ccd0a9981a54475f79ed4e78d2733658cba60fc8061c2e53f"
+  },
+  "programs": 85,
+  "palettes": 240,
+  "artists": [
+    "Invent Animate",
+    "Currents",
+    "ERRA"
+  ],
+  "modes": [
+    "Aeolian",
+    "Dorian",
+    "Ionian",
+    "Mixolydian",
+    "Lydian",
+    "Phrygian"
+  ],
+  "tuning": [
+    64,
+    59,
+    55,
+    50,
+    45,
+    40,
+    35,
+    28
+  ],
+  "input_policy": "New ordinal programs with private noncopy witnesses; no original score or original-pitch membership oracle."
+}
