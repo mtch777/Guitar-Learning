@@ -13,7 +13,7 @@ Acceptance checklist:
 - [x] Independent final code review and all 101 JS tests passed, no skipped tests.
 - [x] Run the production build and Python browser-composer regression suites.
 - [ ] Actual browser download and visual layout verification: blocked by browser access.
-- [ ] Confirm publication and served assets separately from local code/build checks.
+- [x] Confirm publication and served assets separately from local code/build checks.
 
 ## Verification
 
@@ -47,5 +47,18 @@ The full clone attempt was stopped after no progress. Locked Vite dependencies a
 existing pinned alphaTab 1.8.4 were used. Dependency installation reports two existing
 high-severity findings; this feature adds no dependency or lockfile changes.
 
-Next: push the isolated fast-forward commit under the user's existing live-site
-workflow, check the exact commit's Pages build, and compare served assets to the build.
+Published implementation: 00147fb6fc130d97a56444f6ca001cb521efa0ce, confirmed on
+remote main. Pages workflow 42330749440 completed successfully for that exact SHA:
+https://github.com/mtch777/Guitar-Learning/actions/runs/42330749440
+
+Public page: https://mtch777.github.io/Guitar-Learning/riff-builder.html
+Verified MIDI Export in public HTML. Served riffBuilder-C18vlrm8.js and
+riffBuilder-D275nU2N.css match the local production build byte-for-byte.
+
+Additional smoke: the public composer with Invent Animate / Aeolian / seed 606
+produced 128 events, 150 BPM, 32 beats. Export produced a deterministic 1,744-byte
+MThd file. An extra optional mido cross-check could not run because that package
+was absent; the independent binary-parser tests above passed.
+
+Remaining verification limit: an actual browser click/download and visual layout
+check remain unperformed, as recorded above. No musical listening claim.
