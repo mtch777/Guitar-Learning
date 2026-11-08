@@ -2,7 +2,7 @@
   "schema": "listening-review/1",
   "title": "Full-span generated rhythms",
   "artist": "Invent Animate-informed generated melodic idea",
-  "playback_note": "Untouched seed-608 generated baseline versus complete new rhythmic spans. Same mapped pitches/voices, tempo, GM guitar and gain; contacts are re-solved and model accents may change. Color correspondence chooses exact source occurrence first, otherwise nearest; extra repeats are new identities. Human listening pending. Token timing probabilities are source-fitted; full-form planning and melody-mapping policies are authored. Space and connected labels describe intentions, not measured superiority. Human listening acceptance is pending. Distinct-composition held-out validation is not established: title aliases cross candidate work-group metadata.",
+  "playback_note": "Untouched seed-608 generated baseline versus complete new rhythmic spans. Same mapped pitches/voices, tempo, GM guitar and gain; contacts are re-solved and model accents may change. Color correspondence chooses exact source occurrence first, otherwise nearest; extra repeats are new identities. Human listening pending. 150 BPM. Corrected source fit uses conservative metadata alias groups, not independently verified compositions. Token timing probabilities are source-fitted; full-form planning and melody-mapping policies are authored. Space and connected labels describe intentions, not measured superiority. Human listening acceptance is pending. Earlier first-fit audio remains preserved.",
   "questions": [
     "Do the new rhythms still sound like the original melodic idea?",
     "Which version has the clearest build and release across all eight bars?",
@@ -1851,10 +1851,10 @@
     {
       "id": "treatment_a",
       "label": "New whole rhythm: space intention",
-      "description": "A newly sampled complete rhythm with recognizable melodic anchors, remembered common openings and freely re-solved guitar contacts. Space is an intention, not a listening verdict. Measured against untouched original: 81 attacks (100 before), 89 notes (108 before); 78 mapped onsets, 12 holds, 17 contacts and 0 accents differ.",
+      "description": "Whole-riff timing generated from the alias-audited source model, with ordered melodic anchors, generated common openings and a complete guitar solve. Form/mapping policies remain authored. Measured against untouched original: 75 attacks (100 before), 83 notes (108 before); 72 mapped onsets, 12 holds, 17 contacts and 0 accents differ.",
       "compare_to": "original",
-      "audio": "treatment_a-11437730dbf1cd42.wav",
-      "audio_sha256": "11437730dbf1cd42ec9effc120241272867915927a33b31c59f796944bb2bcfa",
+      "audio": "treatment_a-f11340c2497de6f1.wav",
+      "audio_sha256": "f11340c2497de6f1558f1cac91878ef58272728c0d0be925add714dec7232195",
       "notes": [
         {
           "part": 0,
@@ -2157,24 +2157,8 @@
           "dead": false,
           "ghost": false,
           "score_start_tick": 5760,
-          "score_end_tick": 6000,
-          "comparison_identity": "e1:n0"
-        },
-        {
-          "part": 0,
-          "start": 2.5,
-          "end": 2.5833333333333335,
-          "pitch": 28,
-          "bar": 2,
-          "voice": 0,
-          "velocity": 79,
-          "fret": 0,
-          "string": 8,
-          "dead": false,
-          "ghost": false,
-          "score_start_tick": 6000,
           "score_end_tick": 6240,
-          "comparison_identity": "e2:n0"
+          "comparison_identity": "e1:n0"
         },
         {
           "part": 0,
@@ -2190,7 +2174,7 @@
           "ghost": false,
           "score_start_tick": 6240,
           "score_end_tick": 6480,
-          "comparison_identity": "e4:n0"
+          "comparison_identity": "e2:n0"
         },
         {
           "part": 0,
@@ -2206,7 +2190,7 @@
           "ghost": false,
           "score_start_tick": 6480,
           "score_end_tick": 6720,
-          "comparison_identity": "e5:n0"
+          "comparison_identity": "e4:n0"
         },
         {
           "part": 0,
@@ -2221,44 +2205,12 @@
           "dead": false,
           "ghost": false,
           "score_start_tick": 6720,
-          "score_end_tick": 6960,
-          "comparison_identity": "e7:n0"
-        },
-        {
-          "part": 0,
-          "start": 2.9,
-          "end": 2.9833333333333334,
-          "pitch": 28,
-          "bar": 2,
-          "voice": 0,
-          "velocity": 79,
-          "fret": 0,
-          "string": 8,
-          "dead": false,
-          "ghost": false,
-          "score_start_tick": 6960,
           "score_end_tick": 7200,
-          "comparison_identity": "e8:n0"
+          "comparison_identity": "e5:n0"
         },
         {
           "part": 0,
           "start": 3,
-          "end": 3.0833333333333335,
-          "pitch": 28,
-          "bar": 2,
-          "voice": 0,
-          "velocity": 79,
-          "fret": 0,
-          "string": 8,
-          "dead": false,
-          "ghost": false,
-          "score_start_tick": 7200,
-          "score_end_tick": 7440,
-          "comparison_identity": "e10:n0"
-        },
-        {
-          "part": 0,
-          "start": 3.1,
           "end": 3.2,
           "pitch": 31,
           "bar": 2,
@@ -2268,13 +2220,13 @@
           "string": 8,
           "dead": false,
           "ghost": false,
-          "score_start_tick": 7440,
+          "score_start_tick": 7200,
           "score_end_tick": 7680,
           "comparison_identity": "e21:n0"
         },
         {
           "part": 0,
-          "start": 3.1,
+          "start": 3,
           "end": 3.2,
           "pitch": 38,
           "bar": 2,
@@ -2284,7 +2236,7 @@
           "string": 7,
           "dead": false,
           "ghost": false,
-          "score_start_tick": 7440,
+          "score_start_tick": 7200,
           "score_end_tick": 7680,
           "comparison_identity": "e21:n1"
         },
@@ -2909,24 +2861,8 @@
           "dead": false,
           "ghost": false,
           "score_start_tick": 21120,
-          "score_end_tick": 21360,
-          "comparison_identity": "e51:n0"
-        },
-        {
-          "part": 0,
-          "start": 8.9,
-          "end": 8.983333333333333,
-          "pitch": 28,
-          "bar": 6,
-          "voice": 0,
-          "velocity": 79,
-          "fret": 0,
-          "string": 8,
-          "dead": false,
-          "ghost": false,
-          "score_start_tick": 21360,
           "score_end_tick": 21600,
-          "comparison_identity": "e52:n0"
+          "comparison_identity": "e51:n0"
         },
         {
           "part": 0,
@@ -2942,7 +2878,7 @@
           "ghost": false,
           "score_start_tick": 21600,
           "score_end_tick": 21840,
-          "comparison_identity": "e54:n0"
+          "comparison_identity": "e52:n0"
         },
         {
           "part": 0,
@@ -2958,7 +2894,7 @@
           "ghost": false,
           "score_start_tick": 21840,
           "score_end_tick": 22080,
-          "comparison_identity": "e55:n0"
+          "comparison_identity": "e54:n0"
         },
         {
           "part": 0,
@@ -2973,44 +2909,12 @@
           "dead": false,
           "ghost": false,
           "score_start_tick": 22080,
-          "score_end_tick": 22320,
-          "comparison_identity": "e57:n0"
-        },
-        {
-          "part": 0,
-          "start": 9.3,
-          "end": 9.383333333333333,
-          "pitch": 28,
-          "bar": 6,
-          "voice": 0,
-          "velocity": 79,
-          "fret": 0,
-          "string": 8,
-          "dead": false,
-          "ghost": false,
-          "score_start_tick": 22320,
           "score_end_tick": 22560,
-          "comparison_identity": "e58:n0"
+          "comparison_identity": "e55:n0"
         },
         {
           "part": 0,
           "start": 9.4,
-          "end": 9.483333333333333,
-          "pitch": 28,
-          "bar": 6,
-          "voice": 0,
-          "velocity": 79,
-          "fret": 0,
-          "string": 8,
-          "dead": false,
-          "ghost": false,
-          "score_start_tick": 22560,
-          "score_end_tick": 22800,
-          "comparison_identity": "e60:n0"
-        },
-        {
-          "part": 0,
-          "start": 9.5,
           "end": 9.6,
           "pitch": 31,
           "bar": 6,
@@ -3020,13 +2924,13 @@
           "string": 8,
           "dead": false,
           "ghost": false,
-          "score_start_tick": 22800,
+          "score_start_tick": 22560,
           "score_end_tick": 23040,
           "comparison_identity": "e71:n1"
         },
         {
           "part": 0,
-          "start": 9.5,
+          "start": 9.4,
           "end": 9.6,
           "pitch": 38,
           "bar": 6,
@@ -3036,7 +2940,7 @@
           "string": 7,
           "dead": false,
           "ghost": false,
-          "score_start_tick": 22800,
+          "score_start_tick": 22560,
           "score_end_tick": 23040,
           "comparison_identity": "e71:n0"
         },
@@ -3285,10 +3189,10 @@
     {
       "id": "treatment_b",
       "label": "New whole rhythm: connected intention",
-      "description": "Another complete rhythm using the same melody and remembered openings, with a connected-motion preference. Form/mapping policies are authored; timing probabilities are source-fitted. Measured against untouched original: 92 attacks (100 before), 100 notes (108 before); 94 mapped onsets, 26 holds, 17 contacts and 0 accents differ.",
+      "description": "The same alias-audited model and original melody with a connected-motion preference. A separate rhythmic intention, not a claim of superior musical quality. Measured against untouched original: 90 attacks (100 before), 98 notes (108 before); 92 mapped onsets, 27 holds, 17 contacts and 0 accents differ.",
       "compare_to": "original",
-      "audio": "treatment_b-915a95a1b0c38591.wav",
-      "audio_sha256": "915a95a1b0c385917d8af2b2cf21d25024fd2e4675f11dbbd2f72041e08b9936",
+      "audio": "treatment_b-d10bd98d585ac7c3.wav",
+      "audio_sha256": "d10bd98d585ac7c30ab13a40c24bea3e1cc9dab321400a3b821abb1387307d34",
       "notes": [
         {
           "part": 0,
@@ -4750,38 +4654,22 @@
           "part": 0,
           "start": 11,
           "end": 11.083333333333334,
-          "pitch": 28,
-          "bar": 7,
-          "voice": 0,
-          "velocity": 79,
-          "fret": 0,
-          "string": 8,
-          "dead": false,
-          "ghost": false,
-          "score_start_tick": 26400,
-          "score_end_tick": 26640,
-          "comparison_identity": "e91:n0"
-        },
-        {
-          "part": 0,
-          "start": 12,
-          "end": 12.083333333333334,
           "pitch": 35,
-          "bar": 8,
+          "bar": 7,
           "voice": 0,
           "velocity": 79,
           "fret": 7,
           "string": 8,
           "dead": false,
           "ghost": false,
-          "score_start_tick": 28800,
-          "score_end_tick": 29040,
+          "score_start_tick": 26400,
+          "score_end_tick": 26880,
           "comparison_identity": "e95:n0"
         },
         {
           "part": 0,
-          "start": 12.1,
-          "end": 12.183333333333334,
+          "start": 12.2,
+          "end": 12.283333333333333,
           "pitch": 28,
           "bar": 8,
           "voice": 0,
@@ -4790,14 +4678,14 @@
           "string": 8,
           "dead": false,
           "ghost": false,
-          "score_start_tick": 29040,
-          "score_end_tick": 29280,
-          "comparison_identity": "e76:n0"
+          "score_start_tick": 29280,
+          "score_end_tick": 29520,
+          "comparison_identity": "e75:n0"
         },
         {
           "part": 0,
-          "start": 12.2,
-          "end": 12.283333333333333,
+          "start": 12.3,
+          "end": 12.383333333333333,
           "pitch": 36,
           "bar": 8,
           "voice": 0,
@@ -4806,25 +4694,9 @@
           "string": 8,
           "dead": false,
           "ghost": false,
-          "score_start_tick": 29280,
-          "score_end_tick": 29520,
-          "comparison_identity": "e96:n0"
-        },
-        {
-          "part": 0,
-          "start": 12.3,
-          "end": 12.383333333333333,
-          "pitch": 28,
-          "bar": 8,
-          "voice": 0,
-          "velocity": 79,
-          "fret": 0,
-          "string": 8,
-          "dead": false,
-          "ghost": false,
           "score_start_tick": 29520,
           "score_end_tick": 29760,
-          "comparison_identity": "e79:n0:repeat:treatment_b:e87:n0"
+          "comparison_identity": "e96:n0"
         },
         {
           "part": 0,
@@ -4856,7 +4728,7 @@
           "ghost": false,
           "score_start_tick": 30000,
           "score_end_tick": 30240,
-          "comparison_identity": "e82:n0"
+          "comparison_identity": "e79:n0:repeat:treatment_b:e87:n0"
         },
         {
           "part": 0,
@@ -4892,5 +4764,6 @@
         }
       ]
     }
-  ]
+  ],
+  "source_label": "GENERATED RIFF PLAYBACK"
 }
