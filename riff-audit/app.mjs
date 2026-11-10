@@ -1,11 +1,12 @@
+import {selectionEntries,matchesSelection,facetCounts,randomSelection,kindLabel} from './selection.mjs';
 import {mountGeneration} from './generation-ui.mjs';
 import {Q,qnum,qmin,qmax,compileSchedule,playbackGaps} from './timing.mjs';
-import {loadCatalog,loadReference} from './static-data.mjs';
+import {loadCatalog,loadReference,loadJson} from './static-data.mjs';
 import {ReferencePlayer} from './player.mjs';
 import {pitchedLaneGeometry,formatTime} from './review-helpers.mjs';
 const $=id=>document.getElementById(id),el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;};
 const svg=(tag,attrs={},text)=>{const e=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v]of Object.entries(attrs))e.setAttribute(k,v);if(text!==undefined)e.textContent=text;return e;};
-const state={catalog:null,records:[],lane:'reviewed',limit:100,record:null,ref:null,base:null,view:null,unit:null,loadId:0,plan:null,roll:null};
+const state={catalog:null,records:[],lane:'all',entries:[],selectionId:null,selectId:0,selecting:false,limit:100,record:null,ref:null,base:null,view:null,unit:null,loadId:0,plan:null,roll:null};
 const text=(id,value)=>$(id).textContent=value,pretty=value=>JSON.stringify(value,null,2),human=s=>String(s??'unknown').replaceAll('_',' ');
 const showError=e=>{text('error',e.message??String(e));$('error').hidden=false;};
 function hideError(){$('error').hidden=true;}
@@ -24,21 +25,43 @@ export function matches(r,{lane='reviewed',search='',identityFilter='all',availa
  if(availability==='training'&&!r.model_eligibility?.current_training)return false;
  return true;
 }
+const filters={artist:'all',song:'all',scope:'whole',kind:'all',sourceStyle:'all',search:''};
+const facetIds={artist:'artistFilter',song:'songFilter',scope:'scopeFilter',kind:'kindFilter',sourceStyle:'sourceStyleFilter'};
+const facetLabel=(key,value)=>key==='scope'?(value==='whole'?'Whole riffs':'Parts within riffs'):key==='kind'?kindLabel(value):key==='sourceStyle'?({pedal:'Pedal / anchor',chordal:'Chordal',arpeggio:'Arpeggio',melodic:'Melodic',rhythmic:'Rhythmic',other:'Other',unlabeled:'Unlabeled'})[value]??value:value;
 function renderCatalog(){
- const options={lane:state.lane,search:$('search').value.trim(),identityFilter:$('identityFilter').value,availability:$('availabilityFilter').value};
- const records=state.records.filter(r=>matches(r,options));$('records').replaceChildren();
- for(const r of records.slice(0,state.limit)){
-  const b=el('button','record'+(r.replay_export_status!=='ready'?' unavailable':''));b.dataset.id=r.id;b.setAttribute('aria-pressed',String(state.record?.id===r.id));
-  b.append(el('strong','',r.song||'Untitled source'),el('small','',`${r.artist} · ${r.track}`),el('small','record-status',`${identity(r)}${recordPending(r)?' · Public export pending':recordOutOfScope(r)?' · Metadata only':!r.available?' · Replay unavailable':''}${r.boundary?.current_capture_human_approved?' · Crop approved':''}`));
-  b.onclick=()=>loadRecord(r);$('records').append(b);
+ for(const [key,id] of Object.entries(facetIds)){
+  const counts=facetCounts(state.entries,filters,key),select=$(id);select.replaceChildren();
+  const all=el('option','',`All (${state.entries.filter(e=>matchesSelection(e,filters,key)).length.toLocaleString()})`);all.value='all';select.append(all);
+  // Keep incompatible selections visible and recoverable rather than silently broadening filters.
+  if(filters[key]!=='all'&&!counts.some(([v])=>v===filters[key]))counts.push([filters[key],0]);
+  for(const [value,count]of counts){const option=el('option','',`${facetLabel(key,value)} (${count.toLocaleString()})`);option.value=value;select.append(option);}select.value=filters[key];
  }
- text('resultCount',`${records.length.toLocaleString()} matching ${state.lane==='reviewed'?'reviewed references':'automatic hypotheses'} · ${Math.min(records.length,state.limit)} shown`);
- if(!records.length)$('records').append(el('p','micro','No references match. Try clearing a filter.'));
- $('moreRecords').hidden=records.length<=state.limit;
- $('reviewedLane').setAttribute('aria-pressed',String(state.lane==='reviewed'));$('automaticLane').setAttribute('aria-pressed',String(state.lane==='automatic'));
- text('laneNote',state.lane==='reviewed'?'Identity judgments and crop approvals are separate.':'Overlapping automatic hypotheses. These are not additional independent reviewed riffs.');
- const all=state.records.filter(r=>(r.collection==='reviewed')===(state.lane==='reviewed'));
- text('catalogStats',`${all.filter(r=>r.replay_export_status==='pending').length.toLocaleString()} public exports pending · ${all.filter(r=>['unknown','unsure','unresolved'].includes(r.status)).length.toLocaleString()} uncertain · ${all.filter(r=>['rejected','duplicate','excluded','nonriff'].includes(r.status)||r.collection==='automatic_excluded').length.toLocaleString()} excluded / negative · ${all.filter(r=>!r.available).length.toLocaleString()} unavailable`);
+ const entries=state.entries.filter(e=>matchesSelection(e,filters));$('records').replaceChildren();
+ for(const e of entries.slice(0,state.limit)){
+  const b=el('button','record');b.dataset.id=e.id;b.setAttribute('aria-pressed',String(state.selectionId===e.id));
+  b.append(el('strong','',e.record.song||'Untitled source'),el('small','',`${e.record.artist} · ${e.record.track}`),el('small','record-status',`${kindLabel(e.kind)} · ${e.range.join(' → ')} q · ${identity(e.record)}`));
+  b.onclick=()=>selectEntry(e);$('records').append(b);
+ }
+ text('resultCount',`${entries.length.toLocaleString()} matching ${filters.scope==='whole'?'riffs':filters.scope==='part'?'candidate parts':'riff / part selections'}`);
+ if(!entries.length)$('records').append(el('p','micro','No matches. Choose All in a filter to widen your selection.'));
+ $('moreRecords').hidden=entries.length<=state.limit;$('selectRandom').disabled=!entries.length||state.selecting;
+}
+async function selectEntry(entry){
+ const request=++state.selectId;state.selecting=true;state.selectionId=entry.id;generationUI.cancel();renderCatalog();
+ text('selectionStatus','Loading selection and preparing its comparison…');
+ text('selectedSummary',`${entry.record.artist} · ${entry.record.song} · ${kindLabel(entry.kind)} · ${entry.range.join(' → ')} q`);
+ try{
+  const whole=await loadRecord(entry.record,{view:entry.view});if(request!==state.selectId)return;if(!whole)throw Error('Could not load this reference.');
+  if(entry.scope==='part'){const part=await loadRecord(entry.record,{view:entry.view,range:entry.range,unit:entry.unit});if(request!==state.selectId)return;if(!part)throw Error('Could not load this candidate part.');}
+  // Both players use the same normalized tempo/sound for a meaningful comparison.
+  const tempo=state.ref.tempo_map?.filter(t=>qnum(t.onset_q)<=qnum(range()[0])).at(-1);const bpm=Number(tempo?.quarter_bpm??tempo?.bpm??120);
+  $('tempoMode').value='normalized';$('bpm').value=String(bpm);$('bpmLabel').hidden=false;$('speed').value='1';$('sound').value='neutral';
+  player.setOptions(settings());refreshPlan();soundExplanation();
+  text('selectionStatus','Reference ready. Generating the comparison; nothing will play automatically.');
+  await generationUI.generateSelection({bpm,extent:String(new Q(range()[1]).sub(range()[0]))});
+  if(request===state.selectId)text('selectionStatus','Selection loaded. Reference, structure, timeline and generation outcome are below. Press Play when ready.');
+ }catch(e){if(request===state.selectId){showError(e);text('selectionStatus','This selection could not finish. No replacement was silently chosen.');}}
+ finally{if(request===state.selectId){state.selecting=false;renderCatalog();}}
 }
 function busy(value){$('play').disabled=value||!state.ref?.available;$('stop').disabled=value||!state.ref?.available;$('seek').disabled=value||!state.ref?.available;document.body.dataset.busy=String(value);}
 async function loadRecord(record,options={}){
@@ -49,7 +72,7 @@ async function loadRecord(record,options={}){
  try{
   const ref=await loadReference(record,{view_id:options.view??null,start_q:options.range?.[0]??null,end_q:options.range?.[1]??null,voices:$('voice').value&&$('voice').value!=='all'?[Number($('voice').value)]:null});if(token!==state.loadId)return;
   state.ref=ref;if(!options.range||!state.base)state.base=ref;state.view=options.view??ref.selection?.view_id??ref.views?.at(-1)?.id;state.unit=options.unit??null;
-  renderReference();document.body.dataset.ready='true';window.dispatchEvent(new CustomEvent('riff-selection',{detail:{reference:ref}}));
+  renderReference();document.body.dataset.ready='true';window.dispatchEvent(new CustomEvent('riff-selection',{detail:{reference:ref}}));return ref;
  }catch(e){if(token===state.loadId){state.ref=null;showError(e);text('playbackStatus','Playback unavailable. No source data was changed.');}}finally{if(token===state.loadId){busy(false);if(state.ref?.available)refreshPlan();}}
 }
 function auditionReference(){const ref=state.ref;if($('auditionScope').value==='context'&&ref?.context)return {...ref,...ref.context,selection:{...ref.selection,range_q:ref.context.range_q}};return ref;}
@@ -78,6 +101,7 @@ function renderUnits(){
 }
 function renderReference(){
  const r=state.record,ref=state.ref,rg=range();
+ text('selectedSummary',`${r.artist} · ${r.song} · ${state.unit?'Selected candidate part':'Whole riff / selected range'} · ${rg?.join(' → ')} q`);
  const attribution=[r.attribution_flags,r.attribution_caveats,r.caveats].flatMap(v=>v==null?[]:Array.isArray(v)?v:[v]);$('attributionNotice').hidden=!attribution.length;text('attributionNotice',attribution.length?`Catalogue attribution caveat: ${attribution.map(v=>typeof v==='string'?human(v):pretty(v)).join('; ')}. Artist tags do not establish verified authorship.`:'');$('availabilityNotice').hidden=ref.available;
  text('sourceLine',`${ref.track_metadata?.name??r.track} · ${r.id}`);
  const badges=$('statusBadges');badges.replaceChildren(badge(identity(r),r.status==='accepted'?'positive':'warn'),badge(r.boundary?.current_capture_human_approved?'Crop approved':'Crop not human-approved',r.boundary?.current_capture_human_approved?'positive':'warn'),badge(r.model_eligibility?.current_training?'Current training':'Not current training'),badge(r.split?`Split: ${r.split}`:'Split unknown'));
@@ -132,8 +156,10 @@ function renderRoll(){
  root.addEventListener('click',event=>{if(event.target.closest('.note'))return;const box=root.getBoundingClientRect(),q=start+(event.clientX-box.left-left)/scale;player.seek(Math.min(end,Math.max(start,q))).catch(showError);});
  $('roll').replaceChildren(root);$('roll').style.width=width+'px';const head=el('div','playhead');head.style.left=left+'px';$('roll').append(head);state.roll={start,scale,left,head};
 }
-$('search').addEventListener('input',()=>{state.limit=100;renderCatalog();});for(const id of ['identityFilter','availabilityFilter'])$(id).onchange=()=>{state.limit=100;renderCatalog();};
-$('reviewedLane').onclick=()=>{state.lane='reviewed';state.limit=100;renderCatalog();};$('automaticLane').onclick=()=>{state.lane='automatic';state.limit=100;renderCatalog();};$('moreRecords').onclick=()=>{state.limit+=100;renderCatalog();};
+$('search').addEventListener('input',()=>{filters.search=$('search').value.trim();state.limit=100;renderCatalog();});
+for(const [key,id] of Object.entries(facetIds))$(id).onchange=()=>{filters[key]=$(id).value;if(key==='artist')filters.song='all';if(key==='scope')filters.kind='all';state.limit=100;renderCatalog();};
+$('selectRandom').onclick=()=>{const entry=randomSelection(state.entries.filter(e=>matchesSelection(e,filters)),Math.random,state.selectionId);if(entry)selectEntry(entry);};
+$('moreRecords').onclick=()=>{state.limit+=100;renderCatalog();};
 $('view').onchange=()=>{state.view=$('view').value;loadRecord(state.record,{view:state.view});};
 $('applyRange').onclick=()=>{try{const a=new Q($('rangeStart').value.trim()),b=new Q($('rangeEnd').value.trim()),whole=state.record.range_q;if(a.cmp(whole[0])<0||b.cmp(whole[1])>0||a.cmp(b)>=0)throw Error('Choose an increasing range inside the selected riff.');loadRecord(state.record,{view:state.view,range:[String(a),String(b)]});}catch(e){showError(e);}};
 $('voice').onchange=()=>loadRecord(state.record,{view:state.view,range:range(),unit:state.unit});
@@ -145,6 +171,29 @@ window.addEventListener('pagehide',()=>player.stop());
 // Read-only introspection for silent QA and the next integration. No audio auto-start.
 const generationUI=mountGeneration({host:document.getElementById('generationPanel'),getReference:()=>state.ref,stopReference:()=>player.stop()});
 window.riffAudit={state,player,compileSchedule,loadRecord,generationUI};
-try{state.catalog=await loadCatalog();state.records=state.catalog.records;text('reviewedCount',state.catalog.counts.canonical_reviews.toLocaleString());text('automaticCount',state.catalog.counts.automatic.toLocaleString());renderCatalog();const preferred=state.records.find(r=>r.id==='R5-552442-p3-456262334b')??state.records.find(r=>r.available);if(preferred)await loadRecord(preferred);else text('loading','No source records are available.');}catch(e){showError(e);text('loading','The source catalogue could not be opened.');}
-
-
+async function loadSelectionIndex(records){
+ const pending=records.filter(r=>r.available&&r.replay_export_status==='ready'&&r.detail_path);const parts=[];let failures=0;
+ // Reuse only already-published, integrity-checked structural details. No additional source export.
+ for(let i=0;i<pending.length;i+=8){
+  await Promise.all(pending.slice(i,i+8).map(async record=>{try{
+   const details=await loadJson(record.detail_path);
+   if(details.record_id!==record.id||details.reference_projection_sha256!==record.reference_projection_sha256)throw Error('Candidate index binding mismatch');
+   const seen=new Set();for(const view of details.views??[])for(const unit of view.ordered_units??[]){
+    const key=JSON.stringify([unit.range_q,unit.unit_kind]);if(seen.has(key))continue;seen.add(key);
+    parts.push({record_id:record.id,view:view.id,unit:unit.id,range:unit.range_q,kind:unit.unit_kind??'unknown'});
+   }
+  }catch{failures++;}}));
+  text('resultCount',`Loading categories: ${Math.min(i+8,pending.length)} / ${pending.length} detailed references…`);
+ }
+ if(failures)text('selectionStatus',`${failures} published part indexes could not load. Whole riffs remain available; part counts are partial. Reload to retry.`);
+ return {parts};
+}
+async function loadExistingStyles(){
+ const response=await fetch(new URL('../riff-builder/pattern-pack.json.gz',import.meta.url));if(!response.ok)throw Error('Existing reference labels could not load.');
+ const bytes=new Uint8Array(await response.arrayBuffer());
+ const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
+ if(hash!=='04fa64f3ae9e58e5dbae3a6b2c0f9eea433d483865f4a1690a488db955a07fff')throw Error('Existing reference label pack changed. Labels need a verified refresh.');
+ const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+ return (await new Response(stream).json()).references;
+}
+try{const [catalog,styles]=await Promise.all([loadCatalog(),loadExistingStyles()]);state.catalog=catalog;state.records=catalog.records;const index=await loadSelectionIndex(state.records);state.entries=selectionEntries(state.records,index,styles);renderCatalog();}catch(e){showError(e);text('loading','The source catalogue could not be opened.');}

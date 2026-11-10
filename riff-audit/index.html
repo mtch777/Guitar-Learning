@@ -3,23 +3,33 @@
 <body>
 <header class="masthead"><a href="./" class="brand"><span class="brandmark">≋</span> Riff reference audit</a><span class="private"><i></i> Public rhythm-only excerpts</span></header>
 <div class="layout">
-<aside class="catalogue" aria-label="Reference catalogue">
-<div class="catalogue-heading"><p class="eyebrow">SOURCE LIBRARY</p><h1>Find a rhythm.</h1><p class="subtle">Listen first. Keep the evidence in view.</p></div>
-<label class="search-label" for="search">Artist, song or track</label><input id="search" type="search" placeholder="Search your references…" autocomplete="off">
-<div class="lane-tabs" aria-label="Catalogue lane"><button id="reviewedLane" aria-pressed="true">Reviewed <span id="reviewedCount">—</span></button><button id="automaticLane" aria-pressed="false">Automatic <span id="automaticCount">—</span></button></div>
-<p id="laneNote" class="lane-note">Identity judgments and crop approvals are separate.</p>
-<div class="filter-grid"><label>Identity<select id="identityFilter"><option value="riffs" selected>Identified riffs</option><option value="all">All statuses</option><option value="human">Human accepted</option><option value="inferred">Inferred accepted</option><option value="uncertain">Uncertain / unknown</option><option value="excluded">Rejected / excluded</option></select></label><label>Availability<select id="availabilityFilter"><option value="all">All references</option><option value="available">Public replay ready</option><option value="pending">Public export pending</option><option value="missing">Unavailable</option><option value="training">Current training</option></select></label></div>
-<div id="catalogStats" class="catalog-stats"></div><p id="resultCount" class="result-count" role="status">Loading catalogue…</p><div id="records" class="records"></div><button id="moreRecords" class="quiet" hidden>Show 100 more</button>
+<aside class="catalogue" aria-label="Choose a riff or part">
+<div class="catalogue-heading"><p class="eyebrow">STEP 1 · CHOOSE</p><h1>Choose a riff or part</h1><p class="subtle">Narrow the choices, then select one at random.</p></div>
+<div class="filter-grid selection-filters">
+<label>Artist<select id="artistFilter"></select></label>
+<label>Song<select id="songFilter"></select></label>
+<label>Reference style<select id="sourceStyleFilter"></select></label>
+<label>What to select<select id="scopeFilter"></select></label>
+<label>Part category<select id="kindFilter"></select></label>
+</div>
+<p class="micro">Numbers count selectable riffs or parts, not songs. Reference styles reuse existing labels on the parent riff; a riff may have several. Unlabeled means no published label is linked. Part categories are detected candidates, not confirmed musical roles. Overlapping parts may appear in different structural views.</p>
+<button id="selectRandom" class="primary" disabled>Select random</button>
+<p id="resultCount" class="result-count" role="status">Loading choices…</p>
+<p id="selectionStatus" class="micro" role="status"></p>
+<details class="manual-browser"><summary>Or choose one yourself</summary>
+<label class="search-label" for="search">Find artist, song or track</label><input id="search" type="search" placeholder="Search these choices…" autocomplete="off">
+<div id="records" class="records"></div><button id="moreRecords" class="quiet" hidden>Show 100 more</button>
+</details>
 </aside>
 <main id="main">
-<div id="loading" class="empty-state"><span class="large-mark">≋</span><h2>Opening the source library</h2><p>Rhythm-only source excerpts. Playback starts only when you press Play.</p></div>
+<div id="loading" class="empty-state"><span class="large-mark">≋</span><h2>Choose your first reference</h2><p>Choose categories, then Select random. The reference and a generated comparison will appear here. Nothing plays automatically.</p></div>
 <div id="error" class="notice error" hidden role="alert"></div>
 <article id="reference" hidden>
-<div class="reference-title"><div><p id="artist" class="eyebrow"></p><h2 id="song"></h2><p id="sourceLine" class="subtle"></p></div><span class="source-badge">UNTOUCHED SOURCE</span></div>
+<p id="selectedSummary" class="selection-summary" aria-live="polite"></p><div class="reference-title"><div><p id="artist" class="eyebrow"></p><h2 id="song"></h2><p id="sourceLine" class="subtle"></p></div><span class="source-badge">UNTOUCHED SOURCE</span></div>
 <div id="statusBadges" class="status-badges"></div><p id="attributionNotice" class="notice" hidden></p>
 <div id="availabilityNotice" class="notice" hidden></div>
 <section class="audition" aria-labelledby="auditionTitle">
-<div class="section-heading"><h3 id="auditionTitle">Reference audition</h3><span id="rangeSummary" class="mono subtle"></span></div>
+<div class="section-heading"><h3 id="auditionTitle">2. Hear the reference</h3><span id="rangeSummary" class="mono subtle"></span></div>
 <p class="micro">Notation reconstruction, not a commercial recording. Exact rhythm timing is preserved. Original pitches, guitar techniques and outside context are not published.</p>
 <div class="transport"><button id="play" class="primary" disabled>▶ Play reference</button><button id="stop" disabled>Stop</button><label class="check"><input id="loop" type="checkbox"> Loop range</label><span id="position" class="position">—</span></div>
 <label class="seek-label" for="seek">Playback position</label><input id="seek" type="range" min="0" max="1" step="any" value="0" disabled>
