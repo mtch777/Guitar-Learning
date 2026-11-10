@@ -1,3 +1,4 @@
+import {mountGeneration} from './generation-ui.mjs';
 import {Q,qnum,qmin,qmax,compileSchedule,playbackGaps} from './timing.mjs';
 import {loadCatalog,loadReference} from './static-data.mjs';
 import {ReferencePlayer} from './player.mjs';
@@ -138,10 +139,12 @@ $('applyRange').onclick=()=>{try{const a=new Q($('rangeStart').value.trim()),b=n
 $('voice').onchange=()=>loadRecord(state.record,{view:state.view,range:range(),unit:state.unit});
 $('auditionScope').onchange=()=>{player.stop();$('allowPartial').checked=false;if(state.ref?.available){player.options=settings();player.load(auditionReference(),auditionRange());$('seek').min=String(qnum(auditionRange()[0]));$('seek').max=String(qnum(auditionRange()[1]));refreshPlan();renderRoll();}};
 $('wholeRange').onclick=()=>loadRecord(state.record,{view:state.view});
-$('play').onclick=()=>{if(player.state==='playing')player.pause();else player.play().catch(showError);};$('stop').onclick=()=>player.stop();$('seek').oninput=()=>player.seek(Number($('seek').value)).catch(showError);
+$('play').onclick=()=>{generationUI.stop();if(player.state==='playing')player.pause();else player.play().catch(showError);};$('stop').onclick=()=>player.stop();$('seek').oninput=()=>player.seek(Number($('seek').value)).catch(showError);
 for(const id of ['sound','tempoMode','speed','bpm','loop','allowPartial'])$(id).onchange=()=>{hideError();$('bpmLabel').hidden=$('tempoMode').value!=='normalized';player.setOptions(settings()).catch(showError);soundExplanation();if(state.ref?.available)refreshPlan();};
 window.addEventListener('pagehide',()=>player.stop());
 // Read-only introspection for silent QA and the next integration. No audio auto-start.
-const generationUI={stop(){},available:false};
+const generationUI=mountGeneration({host:document.getElementById('generationPanel'),getReference:()=>state.ref,stopReference:()=>player.stop()});
 window.riffAudit={state,player,compileSchedule,loadRecord,generationUI};
 try{state.catalog=await loadCatalog();state.records=state.catalog.records;text('reviewedCount',state.catalog.counts.canonical_reviews.toLocaleString());text('automaticCount',state.catalog.counts.automatic.toLocaleString());renderCatalog();const preferred=state.records.find(r=>r.id==='R5-552442-p3-456262334b')??state.records.find(r=>r.available);if(preferred)await loadRecord(preferred);else text('loading','No source records are available.');}catch(e){showError(e);text('loading','The source catalogue could not be opened.');}
+
+
