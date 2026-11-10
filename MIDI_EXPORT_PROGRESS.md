@@ -78,7 +78,7 @@ that ignore the MIDI RPN range need that setting configured manually.
 - [x] Route export-only notes, ties and slides to separate string channels/tracks.
 - [x] Verify every channel's range, native pitch paths, clocks and live-player isolation.
 - [x] Run full regressions and independent review.
-- [ ] Deploy and verify served assets.
+- [x] Deploy and verify served assets (November 10 verification below).
 
 Current implementation uses the pinned native generator's channel hook only on
 the export instance, not on its shared prototype. The original score adapter,
@@ -127,7 +127,7 @@ User requested MPE. Added separate MPE Export; conventional MIDI remains fallbac
   Preserve terminal events using original call indices, before Note Off and before
   any new attack/reset. Added isolated, same-key and different-key regression cases.
 - [x] Full regression and final independent review.
-- [ ] Push and live asset verification.
+- [x] Push and live asset verification (November 10 verification below).
 
 Receiver: import MPE into one MPE-enabled instrument with channel expression
 preserved, lower zone, manager 1, members 2-9, member range +/-48. Some importers
@@ -149,3 +149,23 @@ reported no remaining blocking findings. A subsequent static HTML test checks
 that both export modes show their different receiver requirements.
 Two mistakenly named Python discovery patterns found no tests; the correct suites
 were then run as listed above. No composer asset was changed or staged.
+
+## Release verification - 2026-11-10
+
+The user subsequently authorized project publication. Released only the five
+previously staged MIDI/MPE files; unrelated working-tree changes were preserved.
+Implementation commit: ec44c751211547cede2b8a05fc4bd8d0d8f04faf, verified on main.
+Fresh local checks: 115/115 JavaScript tests, zero skips; Python 19 passed,
+one existing optional corpus skip; production build and staged whitespace check passed.
+Build and publish run 42811746417 succeeded for the implementation commit.
+Pages deployment run 42811834460 succeeded for gh-pages
+33121867b2b30cd62d2d1907a6982a4f878503dc.
+
+Live riff-builder.html contains MIDI Export and MPE Export and loads
+assets/riffBuilder-Do7p3Qb4.js. Its 31,088 served bytes exactly match the local
+production build, SHA-256
+496262df151e0f363472c6467806f14a61b3afec9ca045ab51fbfbfbbeba2d31.
+The existing /riff-audit/ page still returns HTTP 200.
+
+Actual browser click/download, DAW import and listening remain unverified.
+Automated button-flow and binary MIDI tests are not substitutes for those checks.
