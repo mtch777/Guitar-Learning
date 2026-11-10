@@ -1,6 +1,6 @@
 import {normalizeEvents, toEventScore, qValue} from './riff-event-score.js';
 import {buildShapeTimeline, playbackShapeFrame} from './riff-shapes.js';
-import {createRiffMidi, riffMidiFilename} from './riff-midi-export.js';
+import {createRiffMidi, createRiffMpe, riffMidiFilename} from './riff-midi-export.js';
 
 const ALPHATAB_ROOT = 'https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/';
 const INTERVALS = ['1','♭2','2','♭3','3','4','♭5','5','♭6','6','♭7','7'];
@@ -52,7 +52,7 @@ export function mountBuilder() {
   function transport() {
     $('play').disabled=busy||!ready; $('stop').disabled=busy||!ready;
     $('play').textContent=playing?'❚❚ Pause':'▶ Play';
-    $('download').disabled=busy||!result; $('download-midi').disabled=busy||!result; $('seek').disabled=busy||!ready;
+    $('download').disabled=busy||!result; $('download-midi').disabled=busy||!result; $('download-mpe').disabled=busy||!result; $('seek').disabled=busy||!ready;
     for (const button of $('section-playback').querySelectorAll('button')) button.disabled=busy||!ready;
   }
   function setBusy(value) {
@@ -236,17 +236,19 @@ export function mountBuilder() {
     link.href=url;link.download=`drop-e-${result.request.mode.toLowerCase()}-riff-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
     link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   });
-  $('download-midi').addEventListener('click',()=>{
+  function downloadMidi(mpe=false) {
     if(busy||!result||!at)return;
     let url,link;
     try {
-      const bytes=createRiffMidi(at,result);
+      const bytes=(mpe?createRiffMpe:createRiffMidi)(at,result);
       url=URL.createObjectURL(new Blob([bytes],{type:'audio/midi'}));
-      link=document.createElement('a');link.href=url;link.download=riffMidiFilename(result);
+      link=document.createElement('a');link.href=url;link.download=riffMidiFilename(result,new Date(),mpe);
       link.hidden=true;document.body.append(link);link.click();
-      status('MIDI exported at the riff’s original tempo. Instrument sound and guitar techniques may vary in your DAW.');
+      status(mpe?'MPE exported at the original tempo. Use one MPE-enabled instrument: lower zone, manager channel 1, members 2-9, member pitch-bend range ±48 semitones.':'MIDI exported at the original tempo with separate string tracks. Keep tracks separate; use a ±16-semitone pitch-bend range.');
     } catch(error) {status(`MIDI export failed: ${error?.message||String(error)}`,true);}
     finally {link?.remove();if(url)setTimeout(()=>URL.revokeObjectURL(url),1000);}
-  });
+  }
+  $('download-midi').addEventListener('click',()=>downloadMidi());
+  $('download-mpe').addEventListener('click',()=>downloadMidi(true));
   transport();
 }
