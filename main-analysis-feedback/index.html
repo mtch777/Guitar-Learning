@@ -40,18 +40,54 @@ $('labels').onchange=draft;$('bounds').onchange=draft;$('note').oninput=draft;
 $('export').onclick=()=>{try{let rows=[];for(let i=0;i<localStorage.length;i++){let k=localStorage.key(i);if(k.startsWith('main-analysis-feedback:'))rows.push(JSON.parse(localStorage.getItem(k)));}if(!rows.length){$('backupStatus').textContent='No saved feedback yet.';return;}let b=new Blob([JSON.stringify({schema:'main-analysis-feedback/1',exported_at:new Date().toISOString(),feedback:rows},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='main-analysis-feedback-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),10000);$('backupStatus').textContent=rows.length+' feedback records exported. Keep the file or send it back in our conversation.';}catch{$('backupStatus').textContent='Could not read saved feedback from this browser.'}};
 indexReady=json('index.json').then(d=>{index=d;$('scope').textContent=d.summary.identified_riffs+' identified riff hypotheses, including overlapping candidates. These are not independently approved compositions. Phrase labels are proposals from the main analysis logic.';if(d.analysis_coverage)$('scope').textContent+=' '+d.analysis_coverage.complete+' analyzed, '+d.analysis_coverage.failed+' failed, '+d.analysis_coverage.pending+' pending; '+d.analysis_coverage.phrases+' phrases available. Pending is not zero phrases.';filter()}).catch(e=>$('status').textContent=e.message);
 
+/* COMPACT_PHRASE_CATALOG_BEGIN */
+function createPhraseCatalog(data){
+ const compact=data.schema==='main-analysis-phrase-facets/2';
+ if(!compact&&data.schema!=='main-analysis-phrase-facets/1')throw Error('Unsupported phrase catalog version. Refresh availability.');
+ const fields=data.fields,fieldMap=new Map(fields.map((f,i)=>[f.key,i])),valueMaps=fields.map(f=>new Map(f.values.map((v,i)=>[v.value,i])));
+ if(fieldMap.size!==fields.length)throw Error('Duplicate phrase filter field.');
+ const validIndex=(n,a)=>Number.isInteger(n)&&n>=0&&n<a.length;
+ const rows=compact?data.rows:data.phrases;
+ if(!Array.isArray(rows))throw Error('Phrase catalog rows are missing.');
+ if(compact){
+  if(data.encoding!=='riff-field-tagset-vector-tuples/1'||!Array.isArray(data.riffs)||!Array.isArray(data.vectors)||!Array.isArray(data.tag_sets)||data.tag_sets.length!==fields.length)throw Error('Invalid compact phrase catalog.');
+  for(let f=0;f<fields.length;f++){if(!Array.isArray(data.tag_sets[f]))throw Error('Invalid field tagset table.');for(const set of data.tag_sets[f])if(!Array.isArray(set)||!set.length||set.some(v=>!validIndex(v,fields[f].values)))throw Error('Invalid phrase tag value.');}
+  for(const v of data.vectors)if(!Array.isArray(v)||v.length!==fields.length||v.some((s,f)=>!validIndex(s,data.tag_sets[f])))throw Error('Invalid phrase tag vector.');
+  for(const r of data.riffs)if(!Array.isArray(r)||r.length!==5||typeof r[0]!=='string'||typeof r[4]!=='string')throw Error('Invalid phrase riff record.');
+  for(const p of rows)if(!Array.isArray(p)||p.length!==6||!validIndex(p[0],data.riffs)||!validIndex(p[5],data.vectors)||typeof p[1]!=='string'||typeof p[2]!=='string'||typeof p[3]!=='string'||!Number.isInteger(p[4])||p[4]<1)throw Error('Invalid compact phrase row.');
+ }
+ function phraseAt(i){
+  if(!Number.isInteger(i)||i<0||i>=rows.length)return null;
+  if(!compact)return rows[i];
+  const p=rows[i],r=data.riffs[p[0]];
+  return {riff_id:r[0],artist:r[1],title:r[2],part_id:r[3],revision:r[4],phrase_id:p[1],start_q:p[2],end_q:p[3],ordinal:p[4]};
+ }
+ function tagValues(i,key){const f=fieldMap.get(key);if(f===undefined||!Number.isInteger(i)||i<0||i>=rows.length)return [];if(!compact)return rows[i].tags[key]||[];return data.tag_sets[f][data.vectors[rows[i][5]][f]].map(v=>fields[f].values[v].value);}
+ function matchIndices(chosen){
+  if(!chosen.length)return Array.from({length:rows.length},(_,i)=>i);
+  const out=[];
+  if(!compact){for(let i=0;i<rows.length;i++)if(chosen.every(([k,v])=>(rows[i].tags[k]||[]).includes(v)))out.push(i);return out;}
+  const selections=[];for(const [k,v] of chosen){const f=fieldMap.get(k);if(f===undefined)return [];const n=valueMaps[f].get(v);if(n===undefined)return [];selections.push([f,n]);}
+  const matches=new Uint8Array(data.vectors.length);
+  for(let i=0;i<data.vectors.length;i++)if(selections.every(([f,n])=>data.tag_sets[f][data.vectors[i][f]].includes(n)))matches[i]=1;
+  for(let i=0;i<rows.length;i++)if(matches[rows[i][5]])out.push(i);return out;
+ }
+ return {schema:data.schema,compact,fields,coverage:data.coverage,index_sha256:data.index_sha256,length:rows.length,phraseAt,tagValues,matchIndices};
+}
+
+/* COMPACT_PHRASE_CATALOG_END */
 let phraseCatalog,facetControls={},matchingPhrases=[],matchPage=0,phraseNav=0;const MATCH_PAGE_SIZE=200;
 async function readVerifiedGzip(meta){let r=await fetch(meta.path,{cache:'no-cache'});if(!r.ok)throw Error('Phrase catalog could not load. Refresh availability.');let b=await r.arrayBuffer(),hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(x=>x.toString(16).padStart(2,'0')).join('');if(hash!==meta.sha256)throw Error('Phrase catalog integrity check failed. Refresh availability.');if(typeof DecompressionStream==='undefined')throw Error('Update your browser to use compressed phrase tags.');return new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'))).json();}
 function buildFacets(){
  const primary=new Set(['artist','category','role','texture','behavior','techniques','target_chug']);
  for(const field of phraseCatalog.fields){let wrap=document.createElement('label');wrap.textContent=field.label;let sel=document.createElement('select');sel.setAttribute('aria-label',field.label);sel.replaceChildren(new Option('All',''),...field.values.map(x=>new Option(x.label||nice(x.value),x.value)));sel.onchange=applyFacets;facetControls[field.key]=sel;wrap.append(sel);$(primary.has(field.key)?'primaryFacets':'extraFacets').append(wrap);}
- const c=phraseCatalog.coverage;$('phraseCoverage').textContent=phraseCatalog.phrases.length+' individual phrases available from completed analyses. Pending and failed analyses are not treated as having no matching tags. See the overall coverage above.';applyFacets();
+ const c=phraseCatalog.coverage;$('phraseCoverage').textContent=phraseCatalog.length+' individual phrases available from completed analyses. Pending and failed analyses are not treated as having no matching tags. See the overall coverage above.';applyFacets();
 }
-function applyFacets(){phraseNav++;const chosen=Object.entries(facetControls).filter(([k,s])=>s.value).map(([k,s])=>[k,s.value]);matchingPhrases=phraseCatalog.phrases.filter(p=>chosen.every(([k,v])=>(p.tags[k]||[]).includes(v)));matchPage=0;renderMatches();}
-function renderMatches(){const start=matchPage*MATCH_PAGE_SIZE,rows=matchingPhrases.slice(start,start+MATCH_PAGE_SIZE);$('matchingPhrase').replaceChildren(new Option(rows.length?'Choose an individual phrase...':'No phrases match these filters',''),...rows.map((p,i)=>new Option(p.artist+' / '+p.title+' / part '+p.part_id+' / phrase '+p.ordinal+' / '+p.start_q+'–'+p.end_q+'q',String(start+i))));$('matchingPhrase').disabled=!rows.length;$('matchCount').textContent=matchingPhrases.length?(start+1)+'–'+(start+rows.length)+' of '+matchingPhrases.length+' matching phrases':'0 matching phrases in completed analyses';$('prevMatches').disabled=matchPage===0;$('nextMatches').disabled=start+rows.length>=matchingPhrases.length;}
-async function openMatchingPhrase(){if($('matchingPhrase').value==='')return;const p=matchingPhrases[Number($('matchingPhrase').value)],nav=++phraseNav;if(!p)return;if(!index){$('matchCount').textContent='Riff index is still loading. Try again.';return;}$('search').value='';filter();$('riff').value=p.riff_id;await load();if(nav!==phraseNav)return;if(!result||result.id!==p.riff_id||result.revision!==p.revision){$('matchCount').textContent='This phrase belongs to a different analysis snapshot. Refresh availability.';return;}let i=result.phrases.findIndex(x=>x.id===p.phrase_id);if(i<0||result.phrases[i].start_q!==p.start_q||result.phrases[i].end_q!==p.end_q){$('matchCount').textContent='Exact phrase not found in this analysis version. Refresh availability.';return;}$('phrase').selectedIndex=i;show();$('card').scrollIntoView({behavior:'smooth',block:'start'});}
+function applyFacets(){phraseNav++;const chosen=Object.entries(facetControls).filter(([k,s])=>s.value).map(([k,s])=>[k,s.value]);matchingPhrases=phraseCatalog.matchIndices(chosen);matchPage=0;renderMatches();}
+function renderMatches(){const start=matchPage*MATCH_PAGE_SIZE,rows=matchingPhrases.slice(start,start+MATCH_PAGE_SIZE).map(i=>phraseCatalog.phraseAt(i));$('matchingPhrase').replaceChildren(new Option(rows.length?'Choose an individual phrase...':'No phrases match these filters',''),...rows.map((p,i)=>new Option(p.artist+' / '+p.title+' / part '+p.part_id+' / phrase '+p.ordinal+' / '+p.start_q+'–'+p.end_q+'q',String(start+i))));$('matchingPhrase').disabled=!rows.length;$('matchCount').textContent=matchingPhrases.length?(start+1)+'–'+(start+rows.length)+' of '+matchingPhrases.length+' matching phrases':'0 matching phrases in completed analyses';$('prevMatches').disabled=matchPage===0;$('nextMatches').disabled=start+rows.length>=matchingPhrases.length;}
+async function openMatchingPhrase(){if($('matchingPhrase').value==='')return;const p=phraseCatalog.phraseAt(matchingPhrases[Number($('matchingPhrase').value)]),nav=++phraseNav;if(!p)return;if(!index){$('matchCount').textContent='Riff index is still loading. Try again.';return;}$('search').value='';filter();$('riff').value=p.riff_id;await load();if(nav!==phraseNav)return;if(!result||result.id!==p.riff_id||result.revision!==p.revision){$('matchCount').textContent='This phrase belongs to a different analysis snapshot. Refresh availability.';return;}let i=result.phrases.findIndex(x=>x.id===p.phrase_id);if(i<0||result.phrases[i].start_q!==p.start_q||result.phrases[i].end_q!==p.end_q){$('matchCount').textContent='Exact phrase not found in this analysis version. Refresh availability.';return;}$('phrase').selectedIndex=i;show();$('card').scrollIntoView({behavior:'smooth',block:'start'});}
 $('matchingPhrase').onchange=openMatchingPhrase;$('prevMatches').onclick=()=>{if(matchPage>0){matchPage--;renderMatches()}};$('nextMatches').onclick=()=>{if((matchPage+1)*MATCH_PAGE_SIZE<matchingPhrases.length){matchPage++;renderMatches()}};$('clearFacets').onclick=()=>{for(const sel of Object.values(facetControls))sel.value='';applyFacets()};
-json('phrase-index-meta.json').then(async meta=>{await indexReady;if(!index||indexHash!==meta.index_sha256)throw Error('Riff and phrase-filter snapshots differ. Refresh availability before filtering.');return readVerifiedGzip(meta)}).then(d=>{phraseCatalog=d;buildFacets()}).catch(e=>{$('phraseCoverage').textContent=e.message;$('matchingPhrase').disabled=true;});
+json('phrase-index-meta.json').then(async meta=>{await indexReady;if(!index||indexHash!==meta.index_sha256)throw Error('Riff and phrase-filter snapshots differ. Refresh availability before filtering.');const chosen=meta.compact||meta;if(chosen.index_sha256!==meta.index_sha256||chosen.phrase_count!==meta.phrase_count)throw Error('Compact phrase snapshot mismatch. Refresh availability.');return readVerifiedGzip(chosen)}).then(d=>{if(d.index_sha256!==indexHash)throw Error('Phrase data snapshot mismatch. Refresh availability.');phraseCatalog=createPhraseCatalog(d);buildFacets()}).catch(e=>{$('phraseCoverage').textContent=e.message;$('matchingPhrase').disabled=true;});
 </script></html>
 
 
