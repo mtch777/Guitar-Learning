@@ -72,7 +72,7 @@ export function compileSchedule(ref,range,options={}){
     const pitch=m.pitch;
     const percussion=m.percussion===true&&Number.isInteger(m.percussion_id)&&m.percussion_id>=0&&m.percussion_id<=127;
     const item={id,pitch,percussion,percussion_id:percussion?m.percussion_id:null,onset_q:String(on),start_q:String(begin),end_q:String(finish),written_end_q:m.written_end_q,tied_end_q:String(off),voice:m.voice,carry_in:isCarry,carry_out:off.cmp(end)>0,start:clock.seconds(start,begin),end:clock.seconds(start,finish),marks:m.marks??{},source:m};
-    if(mode==='pitch'&&!percussion&&(pitch==null||!Number.isFinite(Number(pitch))))gaps.push({id,reason:'Pitch unavailable; rhythm click retained.'});
+    if(mode==='pitch'&&!percussion&&(pitch==null||!Number.isFinite(Number(pitch))))gaps.push({id,reason:'Pitch unavailable; omitted from pitched preview. Rhythm timing remains available.'});
     notes.push(item);
   }
   for(const event of ref.events??[]){
@@ -89,7 +89,7 @@ export function compileSchedule(ref,range,options={}){
 }
 export function frequency(midi){return 440*2**((Number(midi)-69)/12);}
 /* This function works with AudioContext, OfflineAudioContext or a strict test double. */
-export function scheduleAudio(ctx,plan,when,mode=plan.mode,destination=ctx.destination){
+export function scheduleAudio(ctx,plan,when,mode=plan.mode,destination=ctx.destination,options={}){
   const nodes=[];let active=0,peak=1;const points=plan.notes.flatMap(n=>[[n.start,1],[n.end,-1]]).sort((a,b)=>a[0]-b[0]||a[1]-b[1]);for(const [,delta]of points){active+=delta;peak=Math.max(peak,active);}const level=0.13/Math.sqrt(peak);
   for(const e of (mode==='click'?plan.clicks:plan.notes)){
     if(mode==='pitch'&&!e.percussion&&(e.pitch==null||!Number.isFinite(Number(e.pitch))))continue;
@@ -97,7 +97,7 @@ export function scheduleAudio(ctx,plan,when,mode=plan.mode,destination=ctx.desti
     if(mode==='pitch'&&e.percussion&&e.carry_in)continue;
     const start=when+e.start,end=e.percussion?Math.min(when+e.end,start+.035):when+e.end;if(end<=start)continue;
     const osc=ctx.createOscillator(),gain=ctx.createGain();
-    osc.type=mode==='click'||e.percussion?'sine':mode==='neutral'?'sine':'triangle';
+    osc.type=mode==='click'||e.percussion?'sine':mode==='neutral'?'sine':options.timbre==='bright'?'sawtooth':'triangle';
     osc.frequency.setValueAtTime(mode==='click'?1200:mode==='neutral'?220:e.percussion?700:frequency(e.pitch),start);
     const volume=mode==='click'?.14:e.percussion?Math.min(.08,level):level;
     gain.gain.setValueAtTime(0,start);

@@ -1,9 +1,10 @@
-import {ReferencePlayer} from '../playback/player.mjs?v=piano-roll-1';
+import {ReferencePlayer} from '../playback/player.mjs?v=audio-fix-1';
 import {Fretboard} from '../playback/fretboard.mjs?v=mapped-filters-1';
 import {renderPhraseShapes} from '../playback/shapes.mjs?v=mapped-filters-1';
-import {Q,qnum,memberEnd,compileSchedule} from '../playback/timing.mjs?v=piano-roll-1';
+import {Q,qnum,memberEnd,compileSchedule} from '../playback/timing.mjs?v=audio-fix-1';
 import {validateManifest,newSession,validateSession,putAnswer,mergeSessions,progress,verifiedJson} from './core.mjs?v=1';
 const $=id=>document.getElementById(id),panel=$('rhythmAudit');
+let clipNotice='';
 let deck,session,storageKey,hash=panel.dataset.manifestSha,storageError='',rawRecovery=null,loadEpoch=0,playEpoch=0,loaded=null,currentIndex=0,queue=null,playingSide='phrase',previousPlayerState='stopped';
 const cache=new Map();
 // Repair legacy display encoding only; never change source IDs or answer bindings.
@@ -12,14 +13,19 @@ function text(value){let s=String(value??'');for(let p=0;p<2;p++){let a=Array.fr
 const current=()=>deck.cases[currentIndex];
 const span=p=>`${p.start_q}\u2013${p.end_q} quarter notes`;
 const player=new ReferencePlayer(state=>{
- board?.update(state);$('auditPause').disabled=!['playing','paused'].includes(state.state);$('auditPause').textContent=state.state==='paused'?'Resume':'Pause';
- if(['starting','playing','paused'].includes(state.state))$('auditAudioStatus').textContent=`${state.state==='paused'?'Paused':state.state==='starting'?'Starting':'Playing'} ${playingSide}.`;
+ if(playingSide!=='sound test')board?.update(state);$('auditPause').disabled=!['playing','paused'].includes(state.state);$('auditPause').textContent=state.state==='paused'?'Resume':'Pause';
+ if(['starting','playing','paused'].includes(state.state))$('auditAudioStatus').textContent=state.state==='paused'&&state.contextState!=='running'?'Audio interrupted. Tap Resume to restart audio. '+clipNotice:`${state.state==='paused'?'Paused':state.state==='starting'?'Starting':'Playing'} ${playingSide}. ${clipNotice}`;
  const ended=previousPlayerState==='playing'&&state.state==='stopped';previousPlayerState=state.state;
- if(ended){if(queue){const next=queue;queue=null;Promise.resolve().then(()=>{if(next.epoch===playEpoch)return startSide(next.side,next.epoch);}).catch(e=>{if(next.epoch===playEpoch)showPlaybackError(e);});}else $('auditAudioStatus').textContent='Playback stopped.';}
+ if(ended&&playingSide==='sound test'){restoreAfterSoundTest();$('auditAudioStatus').textContent='Sound test finished. If you heard nothing, check media volume and Bluetooth/output routing. '+clipNotice;return;}
+ if(ended){if(queue){const next=queue;queue=null;Promise.resolve().then(()=>{if(next.epoch===playEpoch)return startSide(next.side,next.epoch);}).catch(e=>{if(next.epoch===playEpoch)showPlaybackError(e);});}else $('auditAudioStatus').textContent='Playback stopped. '+clipNotice;}
 });
-let board=new Fretboard({canvas:$('auditRoll'),scroller:$('auditRollScroll'),position:$('auditPosition'),readout:$('auditReadout'),notice:$('auditNotice'),follow:$('auditFollow'),onSeek:async value=>{if(!loaded)return;queue=null;const epoch=++playEpoch;try{await player.seek(value);}catch(e){if(epoch===playEpoch)showPlaybackError(e);}}});
-function stop(){queue=null;++playEpoch;player.stop();}
-function showPlaybackError(e){queue=null;player.stop();$('auditAudioStatus').textContent='Playback unavailable: '+text(e.message);}
+let board=new Fretboard({canvas:$('auditRoll'),scroller:$('auditRollScroll'),position:$('auditPosition'),readout:$('auditReadout'),notice:$('auditNotice'),follow:$('auditFollow'),onSeek:async value=>{if(!loaded||playingSide==='sound test')return;queue=null;const epoch=++playEpoch;try{await player.seek(value);}catch(e){if(epoch===playEpoch)showPlaybackError(e);}}});
+function restoreAfterSoundTest(){
+ if(playingSide!=='sound test')return;playingSide='phrase';
+ if(loaded){const side=current().comparison?'A':'B';clipNotice=describePlan(preview(side));selectSide(side);$('auditPosition').disabled=false;}
+}
+function stop(){queue=null;++playEpoch;player.stop();restoreAfterSoundTest();$('auditAudioStatus').textContent='Playback stopped. '+clipNotice;}
+function showPlaybackError(e){queue=null;player.stop();restoreAfterSoundTest();$('auditAudioStatus').textContent='Playback unavailable: '+text(e.message);}
 function setMode(audit){stop();window.dispatchEvent(new Event('rhythm-audit-mode'));document.body.classList.toggle('audit-mode',audit);panel.hidden=!audit;$('auditReturn').hidden=audit;if(audit)board.resize();}
 $('auditBrowse').onclick=()=>setMode(false);$('auditReturn').onclick=()=>setMode(true);
 function persist(){
@@ -46,12 +52,22 @@ async function asset(meta){if(!meta?.path||!meta.sha256)throw Error('Required sa
 function verifyPhrase(result,p){const found=result.phrases?.find(x=>x.id===p.id);if(!found||found.start_q!==p.start_q||found.end_q!==p.end_q)throw Error('Phrase boundaries differ from this audit version.');return found;}
 function sidePhrase(side){return side==='A'?current().comparison:current().primary;}
 function selectSide(side,context=false){const c=current(),p=sidePhrase(side),range=context?(c.context_range_q??loaded.ref.range_q):[p.start_q,p.end_q];playingSide=context?'captured riff context':c.comparison?side:'phrase';player.load(loaded.ref,range);board.load(loaded.ref,range,playingSide,loaded.geometry,'target',[p.start_q,p.end_q]);renderPhraseShapes($('auditShapeCards'),$('auditShapeNotice'),loaded.shapes,p,document);$('auditPairIdentity').textContent=c.comparison?`A: phrase ${c.comparison.ordinal??''}, ${span(c.comparison)} \xb7 B: phrase ${c.primary.ordinal??''}, ${span(c.primary)}.`:`Selected span: ${span(p)}. Context is the available captured riff, not the whole song.`;if(loaded.geometryError)$('auditNotice').textContent+=' '+loaded.geometryError;if(loaded.shapesError)$('auditShapeNotice').textContent=loaded.shapesError;}
-async function startSide(side,epoch,context=false){if(!loaded||epoch!==playEpoch)return;selectSide(side,context);await player.setOptions({mode:'pitch',normalized:false,loop:false,allowPartial:$('auditPartial').checked,speed:1});if(epoch!==playEpoch)return;await player.play();}
-async function play(side,context=false,pair=false){if(!loaded)return;stop();const epoch=playEpoch;if(pair)queue={side:'B',epoch};try{await startSide(side,epoch,context);}catch(e){if(epoch===playEpoch)showPlaybackError(e);}}
+function describePlan(plan){
+ const sounding=plan.notes.filter(n=>!n.percussion?Number.isFinite(n.pitch)&&n.pitch!==null:!n.carry_in).length;
+ const omitted=plan.notes.length-sounding;
+ return `${plan.duration.toFixed(2)} seconds. `+(!sounding?'Silent span: no sounding notes in this saved selection. Play context to hear the surrounding notes. ':plan.duration<.5?'Very short phrase; use Play context for a longer listen. ':'')+(plan.gaps.length?`Partial notation preview: ${sounding} playable notes${omitted?', '+omitted+' notes without pitches omitted':''}. Unresolved timing and grace notes are omitted, never guessed. `:'');
+}
+function preview(side,context=false){const c=current(),p=sidePhrase(side);return compileSchedule(loaded.ref,context?(c.context_range_q??loaded.ref.range_q):[p.start_q,p.end_q],{mode:'pitch',normalized:false,allowPartial:true});}
+async function startSide(side,epoch,context=false){if(!loaded||epoch!==playEpoch)return;clipNotice=describePlan(preview(side,context));selectSide(side,context);await player.setOptions({mode:'pitch',normalized:false,loop:false,allowPartial:true,speed:1,timbre:$('auditTone').value||'bright'});if(epoch!==playEpoch)return;await player.play();}
+async function play(side,context=false,pair=false){if(!loaded)return;stop();const epoch=playEpoch;const unlocked=player.unlock();$('auditAudioStatus').textContent='Starting audio...';if(pair)queue={side:'B',epoch};try{await unlocked;if(epoch===playEpoch)await startSide(side,epoch,context);}catch(e){if(epoch===playEpoch)showPlaybackError(e);}}
 $('auditPlay').onclick=()=>play(current().comparison?'A':'B');$('auditPlayB').onclick=()=>play('B');$('auditPair').onclick=()=>play('A',false,true);$('auditContext').onclick=()=>play('B',true);$('auditStop').onclick=()=>stop();
 $('auditPause').onclick=async()=>{const epoch=playEpoch;try{if(player.state==='playing')player.pause();else if(player.state==='paused')await player.play();}catch(e){if(epoch===playEpoch)showPlaybackError(e);}};
 $('auditNote').oninput=()=>save();
-$('auditPartial').onchange=()=>{stop();setPlaybackDisabled(!$('auditPartial').checked);$('auditAudioStatus').textContent=$('auditPartial').checked?'Partial playback enabled. Missing pitches or unresolved notation are not invented.':'Partial playback disabled.';};
+$('auditTone').onchange=()=>{stop();$('auditAudioStatus').textContent='Tone changed. Tap Play. '+clipNotice;};
+$('auditSoundTest').onclick=async()=>{
+ stop();const epoch=playEpoch;clipNotice='Sound test: a short 440 Hz tone, not part of the source phrase. If silent, raise media volume and check Bluetooth/output routing.';playingSide='sound test';$('auditPosition').disabled=true;const unlocked=player.unlock();$('auditAudioStatus').textContent='Starting sound test...';
+ try{await unlocked;if(epoch!==playEpoch)return;player.load({tempo_map:[{onset_q:'0',quarter_bpm:120}],events:[{onset_q:'0',members:[{id:'sound-test',onset_q:'0',written_end_q:'1',pitch:69}]}]},['0','1']);await player.setOptions({mode:'pitch',allowPartial:true,loop:false,timbre:$('auditTone').value||'bright'});if(epoch!==playEpoch)return;await player.play();if(epoch!==playEpoch||player.state!=='playing')return;$('auditAudioStatus').textContent='Sound test playing. If silent, raise media volume and check Bluetooth/output routing.';}catch(e){if(epoch===playEpoch)showPlaybackError(e);}
+};
 $('auditPrevious').onclick=()=>loadCase(currentIndex-1);$('auditNext').onclick=()=>{if(currentIndex<23)loadCase(currentIndex+1);else{$('auditCoverage').open=true;$('auditCoverage').scrollIntoView({behavior:'smooth',block:'center'});}};
 function setPlaybackDisabled(value){for(const id of ['auditPlay','auditPlayB','auditPair','auditContext','auditPosition'])$(id).disabled=value;}
 function renderTimeline(c,ref){
@@ -70,7 +86,7 @@ async function loadCase(i){
  $('auditTitle').textContent=text(c.artist)+' / '+text(c.title);$('auditType').textContent=`Set ${c.set} \xb7 Example ${i+1} of 24 \xb7 ${c.question.kind==='relation'?'Relationship':c.question.kind==='boundary'?'Boundary':'Label'}`;
  $('auditSource').textContent='Source part '+text(c.part??'unknown');$('auditQuestion').textContent=c.question.text;$('auditHint').textContent=c.question.hint??'';$('auditNote').value=a?.note??'';
  $('auditModelAnswer').textContent='Proposed answer: '+(c.question.options.find(o=>o.value===c.question.model_answer)?.label??text(c.question.model_answer??'Not established'));$('auditModelExplanation').textContent=c.question.explanation??'';$('auditModel').open=false;$('auditShapes').open=false;
- $('auditPartial').checked=false;$('auditPartialWrap').hidden=true;renderTimeline(c);$('auditPlay').textContent=c.comparison?'Play A':'Play phrase';$('auditPlayB').hidden=!c.comparison;$('auditPair').hidden=!c.comparison;$('auditPrevious').disabled=i===0;$('auditNext').textContent=i===23?'Review progress':i%6===5?'Next set':'Next example';
+ clipNotice='';$('auditPartial').checked=true;$('auditPartialWrap').hidden=true;renderTimeline(c);$('auditPlay').textContent=c.comparison?'Play A':'Play phrase';$('auditPlayB').hidden=!c.comparison;$('auditPair').hidden=!c.comparison;$('auditPrevious').disabled=i===0;$('auditNext').textContent=i===23?'Review progress':i%6===5?'Next set':'Next example';
  $('auditAudioStatus').textContent='Loading verified phrase data\u2026';$('auditPairIdentity').textContent='';$('auditShapeCards').replaceChildren();$('auditShapeNotice').textContent='';$('auditNotice').textContent='';$('auditReadout').textContent='';board.model=null;board.ctx.clearRect(0,0,board.canvas.width,board.canvas.height);setPlaybackDisabled(true);renderAnswers();renderProgress();persist();
  try{
   const result=await asset(c.assets.result??c.assets.analysis),ref=await asset(c.assets.playback);if(epoch!==loadEpoch)return;
@@ -81,8 +97,14 @@ async function loadCase(i){
   try{geometry=await asset(c.assets.fretboard);if(geometry.id!==c.riff_id||geometry.revision!==c.revision||geometry.playback_sha256!==c.assets.playback.sha256)throw Error('Fretboard source binding differs.');}catch(e){geometry=null;geometryError='Fretboard unavailable: '+e.message;}
   try{shapes=await asset(c.assets.shapes);if(shapes.id!==c.riff_id||shapes.revision!==c.revision||shapes.result_sha256!==(c.assets.result??c.assets.analysis).sha256)throw Error('Shape source binding differs.');}catch(e){shapes=null;shapesError='Shapes unavailable: '+e.message;}
   if(epoch!==loadEpoch)return;loaded={result,ref,geometry,shapes,geometryError,shapesError};renderTimeline(c,ref);selectSide(c.comparison?'A':'B');setPlaybackDisabled(false);
-  const options={mode:'pitch',normalized:false,allowPartial:false};let unsupported=[];for(const [label,p]of (c.comparison?[['A',c.comparison],['B',c.primary]]:[['phrase',c.primary]])){try{compileSchedule(ref,[p.start_q,p.end_q],options);}catch(e){unsupported.push(label+': '+e.message);}}
-  if(unsupported.length){setPlaybackDisabled(true);$('auditPartialWrap').hidden=false;$('auditAudioStatus').textContent='Incomplete source notation. '+unsupported.join(' ')+' You may inspect it, explicitly allow partial playback, or choose Unsure.';}else $('auditAudioStatus').textContent=c.comparison?'A is the earlier phrase; B is the phrase being reviewed.':'Ready. Playback starts only when you press Play.';
+  const labels=c.comparison?[['A',c.comparison],['B',c.primary]]:[['phrase',c.primary]];
+  const descriptions=[];let partial=false;
+  for(const [label]of labels){const plan=preview(label==='A'?'A':'B');partial ||= plan.gaps.length>0;descriptions.push((c.comparison?label+': ':'')+describePlan(plan));}
+  const first=preview(c.comparison?'A':'B'),silent=!first.notes.some(n=>n.percussion?!n.carry_in:n.pitch!==null&&Number.isFinite(n.pitch));
+  $('auditPlay').textContent=silent?'Play silent span':c.comparison?'Play A':partial?'Play available notation':'Play phrase';
+  $('auditContext').textContent=silent?'Hear surrounding notes':'Play context';
+  clipNotice=descriptions.join(' ');$('auditAudioStatus').textContent=clipNotice+' Playback starts when you press Play.';
+
  }catch(e){if(epoch!==loadEpoch)return;$('auditAudioStatus').textContent='Data unavailable: '+e.message+' You can choose Unsure and continue.';}
 }
 $('auditExport').onclick=()=>{

@@ -1,8 +1,24 @@
-import {compileSchedule,scheduleAudio,qnum,Q} from './timing.mjs?v=piano-roll-1';
+import {compileSchedule,scheduleAudio,qnum,Q} from './timing.mjs?v=audio-fix-1';
 export class ReferencePlayer{
-  constructor(update,contextFactory=()=>new AudioContext()){
+  constructor(update,contextFactory=()=>{const C=globalThis.AudioContext??globalThis.webkitAudioContext;if(!C)throw Error('This browser does not support Web Audio. Open this page in Chrome or Safari.');return new C();}){
     this.update=update;this.contextFactory=contextFactory;this.ctx=null;this.nodes=[];this.cycles=[];this.state='stopped';this.position=0;this.positionQ='0';this.token=0;
-    this.options={mode:'pitch',speed:1,normalized:false,bpm:120,loop:false,allowPartial:false};
+    this.options={timbre:'soft',mode:'pitch',speed:1,normalized:false,bpm:120,loop:false,allowPartial:false};
+  }
+  // Call directly in the tap handler, before asynchronous selection work.
+  unlock(){
+    try{
+      if(!this.ctx||this.ctx.state==='closed'){
+        this.ctx=this.contextFactory();const ctx=this.ctx;
+        ctx.onstatechange=()=>{if(ctx!==this.ctx)return;if(ctx.state!=='running'&&this.state==='playing')this.pause();else this.emit();};
+      }
+      const ctx=this.ctx;
+      if(ctx.state==='running')return Promise.resolve();
+      const resumed=ctx.resume();
+      return new Promise((resolve,reject)=>{
+        const timer=setTimeout(()=>reject(Error('Audio did not start. Tap Play again, or open this page directly in Chrome.')),2500);
+        Promise.resolve(resumed).then(()=>{clearTimeout(timer);if(ctx.state==='running')resolve();else reject(Error('Audio is '+ctx.state+'. Tap Play again.'));},e=>{clearTimeout(timer);reject(Error('Audio was blocked. Tap Play again. '+(e.message??e)));});
+      });
+    }catch(e){return Promise.reject(e);}
   }
   load(ref,range){this.stop();this.ref=ref;this.range=range.map(String);this.positionQ=this.range[0];this.position=qnum(this.positionQ);this.plan=null;this.emit();}
   setOptions(options){const was=this.state==='playing';if(was)this.pause();Object.assign(this.options,options);this.emit();if(was)return this.play();return Promise.resolve();}
@@ -17,12 +33,12 @@ export class ReferencePlayer{
     if(this.options.loop&&this.plan.duration<.005)throw Error('Loop is shorter than the 5 ms scheduling limit; audition without looping.');
     const fullPlan=this.options.loop?compileSchedule(this.ref,this.range,this.options):null;
     const epoch=++this.token;this.state='starting';this.emit();
-    try{this.ctx??=this.contextFactory();await this.ctx.resume();}catch(e){if(epoch===this.token){this.state='paused';this.emit();}throw e;}
+    try{await this.unlock();}catch(e){if(epoch===this.token){this.state='paused';this.emit();}throw e;}
     if(epoch!==this.token)return;
-    const addCycle=(plan,when)=>{this.cycles.push({plan,when});this.nodes.push(...scheduleAudio(this.ctx,plan,when,this.options.mode));};
+    const addCycle=(plan,when)=>{this.cycles.push({plan,when});this.nodes.push(...scheduleAudio(this.ctx,plan,when,this.options.mode,this.ctx.destination,this.options));};
     const firstWhen=this.ctx.currentTime+.04;addCycle(this.plan,firstWhen);let nextWhen=firstWhen+this.plan.duration;
     // Audio nodes are scheduled at contiguous AudioContext times. Timers never define loop boundaries.
-    const pump=()=>{if(epoch!==this.token)return;const now=this.ctx.currentTime;
+    const pump=()=>{if(epoch!==this.token)return;if(this.ctx.state!=='running'){this.pause();return;}const now=this.ctx.currentTime;
       if(this.options.loop){let count=0;while(nextWhen<now+.3&&count++<128){addCycle(fullPlan,nextWhen);nextWhen+=fullPlan.duration;}}
       else if(now>=nextWhen){this.stop();return;}
       this.cycles=this.cycles.filter(c=>c.when+c.plan.duration>=now-.1);

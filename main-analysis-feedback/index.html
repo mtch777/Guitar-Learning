@@ -14,6 +14,8 @@
       <p id="auditType" class="auditEyebrow"></p><h3 id="auditTitle"></h3><p id="auditSource" class="muted"></p>
       <h3 id="auditQuestion"></h3><p id="auditHint" class="muted"></p>
       <div class="auditListen" aria-label="Audit playback"><button id="auditPlay" type="button">Play phrase</button><button id="auditPlayB" type="button" hidden>Play B</button><button id="auditPair" type="button" hidden>Play A then B</button><button id="auditContext" type="button">Play context</button><button id="auditPause" type="button" disabled>Pause</button><button id="auditStop" type="button">Stop</button></div>
+      <div class="auditListen"><label>Sound <select id="auditTone"><option value="bright">Phone-friendly</option><option value="soft">Soft tone</option></select></label><button id="auditSoundTest" type="button">Test sound</button></div>
+      <p class="muted">Synthetic notation preview. Phone-friendly sound adds upper harmonics without changing note pitches. Test sound checks audio separately from the phrase.</p>
       <label id="auditPartialWrap" hidden><input id="auditPartial" type="checkbox" style="width:auto"> Allow incomplete notation playback</label>
       <p id="auditAudioStatus" role="status"></p>
       <p id="auditPairIdentity" class="muted"></p>
@@ -61,7 +63,7 @@
 </div></section>
 <footer id="backup"><button id="export">📥 Download feedback backup</button><p id="backupStatus" role="status"></p></footer>
 <script type="module">
-import {ReferencePlayer} from "./playback/player.mjs?v=piano-roll-1";
+import {ReferencePlayer} from "./playback/player.mjs?v=audio-fix-1";
 import {renderPhraseShapes} from "./playback/shapes.mjs?v=mapped-filters-1";
 import {Fretboard as PianoRoll} from "./playback/fretboard.mjs?v=mapped-filters-1";
 const $=id=>document.getElementById(id);let index, indexReady, indexHash, result, current, epoch=0, stopAt=0, playbackManifest, playbackRef, failureBoundaryManifest,backingManifest,backingRef,backingLoading=false,backingError='',mixEpoch=0,activeRange,playEpoch=0; let pianoRoll;let selectedPhraseIndex=null,selectedRiffId=null;let fretboardManifest,fretboardData,fretboardError="",wholeRiffMode=false;let shapeManifest,shapeData,shapeError="";
@@ -269,7 +271,7 @@ $('randomPhrase').onclick=()=>selectRandomPhrase(true);
 json('phrase-index-meta.json').then(async meta=>{await indexReady;if(!index||indexHash!==meta.index_sha256)throw Error('Riff and phrase-filter snapshots differ. Reload the page before filtering.');const chosen=meta.compact||meta;if(chosen.index_sha256!==meta.index_sha256||chosen.phrase_count!==meta.phrase_count)throw Error('Compact phrase snapshot mismatch. Reload the page.');return readVerifiedGzip(chosen)}).then(d=>{if(d.index_sha256!==indexHash)throw Error('Phrase data snapshot mismatch. Reload the page.');phraseCatalog=createPhraseCatalog(d);buildFacets()}).catch(e=>{$('phraseCoverage').textContent=e.message;$('randomPhrase').disabled=true;});
 
 globalThis.addEventListener?.("rhythm-audit-mode",stop);
-</script><script type="module" src="./rhythm-audit/runtime.mjs?v=1"></script>
+</script><script type="module" src="./rhythm-audit/runtime.mjs?v=audio-fix-1"></script>
 </body></html>
 
 
