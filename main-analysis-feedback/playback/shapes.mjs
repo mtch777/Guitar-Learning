@@ -38,15 +38,13 @@ function diagram(doc,card){
 }
 export function renderPhraseShapes(container,notice,data,phrase,doc=globalThis.document){
  container.replaceChildren();const model=phraseShapeModel(data,phrase);
- const messages={unavailable:'Verified shape data is unavailable for this analysis.',mismatch:'Shape identity or phrase boundaries do not match. Refresh availability.',none:'No reportable detector shape is associated with this phrase. This does not mean it uses no fingering pattern.'};
+ const messages={unavailable:'Shape data unavailable.',mismatch:'Shape data changed. Reload the page.',none:'No shapes detected.'};
  if(model.status!=='available'){notice.textContent=messages[model.status];return model;}
- notice.textContent=model.cards.length+' detected shape'+(model.cards.length===1?'':'s')+' in mapped 8-string Drop E. Full detector segments are shown, with their overlap with this phrase. These are provisional placements, not simultaneous chord diagrams or verified artist fingerings. Blue: core. Orange outline/marker: extension. Purple: tap. Dashed: held/carry-in context.';
+ notice.textContent='Blue: core · Orange: extension · Purple: tap · Dashed: held notes';
  for(const [i,card] of model.cards.entries()){
   const article=doc.createElement('article');article.setAttribute('class','shapeCard');
   const title=doc.createElement('h4');title.textContent='Shape '+(i+1);article.append(title);
-  const span=doc.createElement('p');span.textContent='Segment q'+card.start_q+'–'+card.end_q+'; this phrase q'+card.overlap_q.join('–')+'. '+card.witness_count+' linked note occurrence'+(card.witness_count===1?'':'s')+'.';article.append(span);
   const scroll=doc.createElement('div');scroll.setAttribute('class','shapeDiagram');scroll.append(diagram(doc,card));article.append(scroll);
-  const identity=doc.createElement('p');identity.setAttribute('class','muted shapeIdentity');identity.textContent=card.id+(card.family_id?' · Family '+card.family_id:'');article.append(identity);
   container.append(article);
  }
  return model;

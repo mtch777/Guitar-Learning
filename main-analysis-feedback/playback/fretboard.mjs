@@ -2,7 +2,7 @@ import {Q,qnum,memberEnd} from './timing.mjs?v=piano-roll-1';
 
 const names=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const pc=p=>((p%12)+12)%12;
-export function fretboardModel(ref,range,geometry,basis='source',phraseRange=range){
+export function fretboardModel(ref,range,geometry,basis='target',phraseRange=range){
   const [lo,hi]=range.map(v=>new Q(v));
   if(lo.cmp(hi)>=0)throw Error('Fretboard range must increase.');
   const [phraseLo,phraseHi]=phraseRange.map(v=>new Q(v));
@@ -48,21 +48,21 @@ export function contactAppearance(contact){
 }
 
 export class Fretboard{
-  constructor({canvas,scroller,position,readout,notice,zoom,follow,onSeek}){
-    Object.assign(this,{canvas,scroller,slider:position,readout,notice,zoom,follow,onSeek});
+  constructor({canvas,scroller,position,readout,notice,follow,onSeek}){
+    Object.assign(this,{canvas,scroller,slider:position,readout,notice,follow,onSeek});
     this.ctx=canvas.getContext('2d');this.q=0;this.state='stopped';this.left=48;this.top=42;this.rowHeight=42;
-    zoom.onchange=()=>this.resize();follow.onchange=()=>this.draw();
+    follow.onchange=()=>this.draw();
     position.oninput=()=>{if(!this.model)return;const[a,b]=this.model.range,v=Number(position.value);if(!Number.isFinite(v))return;return onSeek(v<=0?this.exactRange[0]:v>=1000?this.exactRange[1]:a+(b-a)*v/1000);};
     canvas.onclick=e=>this.seekContact(e);
     if(typeof ResizeObserver!=='undefined'){this.observer=new ResizeObserver(()=>this.resize());this.observer.observe(scroller);}
   }
-  load(ref,range,label,geometry,basis='source',phraseRange=range){
+  load(ref,range,label,geometry,basis='target',phraseRange=range){
     this.exactRange=range.map(String);this.phraseRange=phraseRange;this.model=fretboardModel(ref,range,geometry,basis,phraseRange);this.label=label;this.q=this.model.range[0];this.state='stopped';this.scroller.scrollLeft=0;this.resize();
   }
   resize(){
     if(!this.model||!this.ctx)return;
-    const frets=this.model.notes.map(n=>n.fret),wide=this.zoom.value==='wide';
-    this.minFret=wide||!frets.length?0:Math.min(...frets);this.maxFret=wide?Math.max(24,...frets):frets.length?Math.max(...frets):0;
+    const frets=this.model.notes.map(n=>n.fret);
+    this.minFret=frets.length?Math.min(...frets):0;this.maxFret=frets.length?Math.max(...frets):0;
     const columns=this.maxFret-this.minFret+1,visible=Math.max(240,Math.min(8192,this.scroller.clientWidth||640));
     this.cellWidth=Math.max(36,Math.min(72,(visible-this.left-12)/columns));
     this.width=Math.max(visible,this.left+columns*this.cellWidth+12);this.plotWidth=this.width-this.left;
@@ -99,11 +99,10 @@ export class Fretboard{
         if(p.notes.length>1){c.fillStyle='#1e293b';c.font='9px system-ui';c.fillText('×'+p.notes.length,x+11,y-17);}
       }
     }else{c.fillStyle='#475569';c.fillText('Fretboard geometry unavailable',this.width/2,55);}
-    const q=Math.max(a,Math.min(b,this.q));this.slider.value=String(Math.round((q-a)/(b-a)*1000));this.slider.setAttribute('aria-valuetext','Source quarter '+q.toFixed(2));this.readout.textContent='Source quarter '+q.toFixed(2)+' / '+b.toFixed(2)+' · '+this.state;
+    const q=Math.max(a,Math.min(b,this.q));this.slider.value=String(Math.round((q-a)/(b-a)*1000));this.slider.setAttribute('aria-valuetext','Source quarter '+q.toFixed(2));this.readout.textContent=Math.round((q-a)/(b-a)*100)+'%';
     const warnings=[m.unknown?m.unknown+' notes with missing or invalid coordinates not plotted':'',m.unplaced?m.unplaced+' unresolved or unplaced notes not plotted':'',m.grace?m.grace+' grace notes without resolved timing':'',m.unknownCarry?m.unknownCarry+' incoming holds with unknown geometry':''].filter(Boolean);
-    this.notice.textContent=this.label+' · '+(m.available?(m.basis==='target'?'Mapped':'Source')+' geometry · '+m.notes.length+' notes at '+m.contacts.length+' contacts. String 1 is highest; string '+m.stringCount+' is lowest. Pitch-class colors; X = unknown/dead pitch. Gold ring = sounding now. Click a contact to seek its nearest source onset.': 'Fretboard unavailable: verified geometry or string count missing.')+(warnings.length?' '+warnings.join('; ')+'.':'');
-    if(m.wholeRiff&&m.available)this.notice.textContent+=' Whole riff: selected-phrase attacks are colorful; other attacks and earlier held notes are gray. Gray rim with colorful center = contact shared by phrase and context. Purple X = selected unknown/dead pitch. Gold sounding ring does not change ownership.';
-    this.canvas.setAttribute('aria-label',this.notice.textContent+' Source quarters '+a+' to '+b+'. '+m.contacts.map(p=>'String '+p.string+', '+(p.fret===0?'open':'fret '+p.fret)+', '+p.notes.length+' notes'+(m.wholeRiff?', '+p.notes.filter(n=>!n.context).length+' selected phrase, '+p.notes.filter(n=>n.context).length+' context':'')+(p.notes.some(n=>this.active(n))?', sounding':'')).join('; ')+'. Use the playback-position slider to seek.');
+    this.notice.textContent=(!m.available?'Fretboard unavailable.':m.wholeRiff?'Color: selected phrase · Gray: rest of riff':'')+(warnings.length?' '+warnings.join('; ')+'.':'');
+    this.canvas.setAttribute('aria-label',this.label+'. Drop E. Gold ring: sounding note. X: unknown/dead pitch. '+this.notice.textContent+' Source quarters '+a+' to '+b+'. '+m.contacts.map(p=>'String '+p.string+', '+(p.fret===0?'open':'fret '+p.fret)+', '+p.notes.length+' notes'+(m.wholeRiff?', '+p.notes.filter(n=>!n.context).length+' selected phrase, '+p.notes.filter(n=>n.context).length+' context':'')+(p.notes.some(n=>this.active(n))?', sounding':'')).join('; ')+'. Use the playback-position slider to seek.');
     if(this.follow.checked&&this.state==='playing'){const n=m.notes.find(n=>this.active(n));if(n){const x=this.x(n.fret),w=this.scroller.clientWidth||640,left=this.scroller.scrollLeft;if(x>left+w-24||x<left+24)this.scroller.scrollLeft=Math.max(0,Math.min(this.width-w,x-w/2));}}
   }
 }
