@@ -1,4 +1,4 @@
-import {compileSchedule,scheduleAudio,qnum,Q} from './timing.mjs';
+import {compileSchedule,scheduleAudio,qnum,Q} from './timing.mjs?v=piano-roll-1';
 export class ReferencePlayer{
   constructor(update,contextFactory=()=>new AudioContext()){
     this.update=update;this.contextFactory=contextFactory;this.ctx=null;this.nodes=[];this.cycles=[];this.state='stopped';this.position=0;this.positionQ='0';this.token=0;

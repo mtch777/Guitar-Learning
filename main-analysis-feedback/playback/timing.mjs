@@ -47,7 +47,7 @@ export function memberEnd(m){return m.tied_end_q??m.written_end_q;}
 export function playbackGaps(ref,mode='pitch',options={}){
   const gaps=[];const c=ref.coverage??{};
   if(c.neutral_rhythm_eligible===false&&!(options.normalized&&c.exact_clocks_known===true))gaps.push('Selected source has unresolved timing, grace or tempo evidence.');
-  if(mode==='pitch'&&c.pitched_notation_eligible===false)gaps.push('Some selected source pitches cannot be reconstructed.');
+  if(mode==='pitch'&&(c.playable_notation_eligible??c.pitched_notation_eligible)===false)gaps.push('Some selected source pitches cannot be reconstructed.');
   if((ref.unplaced_or_unknown??[]).length)gaps.push(`${ref.unplaced_or_unknown.length} unresolved or unplaced records remain visible in source details.`);
   if((ref.grace_members??[]).length)gaps.push(`${ref.grace_members.length} grace members are retained but not assigned invented timing.`);
   return gaps;
@@ -56,6 +56,7 @@ export function compileSchedule(ref,range,options={}){
   const [start,end]=range.map(x=>new Q(x));
   if(start.cmp(end)>=0)throw Error('Choose an increasing range.');
   const mode=options.mode??'pitch';
+  if(ref.schema==='main-analysis-backing-excerpt/1'&&ref.coverage?.tempo_known===false&&!options.normalized)throw Error('Backing channel tempos are unknown or disagree. Choose normalized 120 BPM explicitly.');
   const clock=makeClock(ref.tempo_map??[],options);
   const duration=clock.seconds(start,end), notes=[], clicks=[], gaps=playbackGaps(ref,mode,options).map(reason=>({reason}));
   if(gaps.length&&!options.allowPartial)throw Error('Incomplete reconstruction. Review playback gaps and explicitly enable partial audition.');
@@ -64,13 +65,14 @@ export function compileSchedule(ref,range,options={}){
     if((m.onset_q??event?.onset_q)==null||memberEnd(m)==null){gaps.push({id:m.occurrence??m.id,reason:'Unknown note clock; member cannot be scheduled.'});if(!options.allowPartial)throw Error('Unknown note clock requires explicit partial audition.');return;}
     const on=new Q(m.onset_q??event?.onset_q),off=new Q(memberEnd(m));
     if(off.cmp(start)<=0||on.cmp(end)>=0)return;
-    const id=m.occurrence??JSON.stringify(m.source_ids??[String(on),m.voice,m.pitch]);
+    const id=m.occurrence??m.id??JSON.stringify(m.source_ids??[String(on),m.voice,m.pitch]);
     if(seen.has(id))return;seen.add(id);
     const isCarry=carry||on.cmp(start)<0;
     const begin=qmax(start,on),finish=qmin(end,off);
     const pitch=m.pitch;
-    const item={id,pitch,onset_q:String(on),start_q:String(begin),end_q:String(finish),written_end_q:m.written_end_q,tied_end_q:String(off),voice:m.voice,carry_in:isCarry,carry_out:off.cmp(end)>0,start:clock.seconds(start,begin),end:clock.seconds(start,finish),marks:m.marks??{},source:m};
-    if(mode==='pitch'&&(pitch==null||!Number.isFinite(Number(pitch))))gaps.push({id,reason:'Pitch unavailable; rhythm click retained.'});
+    const percussion=m.percussion===true&&Number.isInteger(m.percussion_id)&&m.percussion_id>=0&&m.percussion_id<=127;
+    const item={id,pitch,percussion,percussion_id:percussion?m.percussion_id:null,onset_q:String(on),start_q:String(begin),end_q:String(finish),written_end_q:m.written_end_q,tied_end_q:String(off),voice:m.voice,carry_in:isCarry,carry_out:off.cmp(end)>0,start:clock.seconds(start,begin),end:clock.seconds(start,finish),marks:m.marks??{},source:m};
+    if(mode==='pitch'&&!percussion&&(pitch==null||!Number.isFinite(Number(pitch))))gaps.push({id,reason:'Pitch unavailable; rhythm click retained.'});
     notes.push(item);
   }
   for(const event of ref.events??[]){
@@ -90,12 +92,14 @@ export function frequency(midi){return 440*2**((Number(midi)-69)/12);}
 export function scheduleAudio(ctx,plan,when,mode=plan.mode,destination=ctx.destination){
   const nodes=[];let active=0,peak=1;const points=plan.notes.flatMap(n=>[[n.start,1],[n.end,-1]]).sort((a,b)=>a[0]-b[0]||a[1]-b[1]);for(const [,delta]of points){active+=delta;peak=Math.max(peak,active);}const level=0.13/Math.sqrt(peak);
   for(const e of (mode==='click'?plan.clicks:plan.notes)){
-    if(mode==='pitch'&&(e.pitch==null||!Number.isFinite(Number(e.pitch))))continue;
-    const start=when+e.start,end=when+e.end;if(end<=start)continue;
+    if(mode==='pitch'&&!e.percussion&&(e.pitch==null||!Number.isFinite(Number(e.pitch))))continue;
+    // A short drum cue represents an attack, never a fabricated attack on a carried tail.
+    if(mode==='pitch'&&e.percussion&&e.carry_in)continue;
+    const start=when+e.start,end=e.percussion?Math.min(when+e.end,start+.035):when+e.end;if(end<=start)continue;
     const osc=ctx.createOscillator(),gain=ctx.createGain();
-    osc.type=mode==='click'?'sine':mode==='neutral'?'sine':'triangle';
-    osc.frequency.setValueAtTime(mode==='click'?1200:mode==='neutral'?220:frequency(e.pitch),start);
-    const volume=mode==='click'?.14:level;
+    osc.type=mode==='click'||e.percussion?'sine':mode==='neutral'?'sine':'triangle';
+    osc.frequency.setValueAtTime(mode==='click'?1200:mode==='neutral'?220:e.percussion?700:frequency(e.pitch),start);
+    const volume=mode==='click'?.14:e.percussion?Math.min(.08,level):level;
     gain.gain.setValueAtTime(0,start);
     gain.gain.linearRampToValueAtTime(volume,start+Math.min(e.carry_in?.005:.002,(end-start)/3));
     gain.gain.setValueAtTime(volume,Math.max(start+(end-start)/3,end-Math.min(.006,(end-start)/3)));
