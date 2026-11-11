@@ -87,7 +87,7 @@ function renderTimeline(c,ref){
 }
 
 function renderComparison(ev){
- const box=$('auditComparison');box.hidden=!ev.comparison;if(!ev.comparison)return;
+ const box=$('auditComparison'),answered=!!session?.answers[current().id]?.answer;box.hidden=!ev.comparison||!answered;$('auditPairDetails').hidden=box.hidden;if(box.hidden){box.textContent='';return;}
  const sig=s=>(s.attacks??[]).map(a=>a.offset_q).join('|');
  const holds=s=>(s.attacks??[]).map(a=>a.offset_q+':'+[...new Set((a.members??[]).map(m=>m.tied_duration_q??m.written_duration_q))].sort().join(',')).join('|')+';carry:'+JSON.stringify((s.carry_in??[]).map(m=>String(new Q(m.tied_end_q??m.end_q??s.start_q).sub(s.start_q))).sort());
  const a=ev.comparison,b=ev.primary,equal=String(a.duration_q)===String(b.duration_q),attacks=equal&&sig(a)===sig(b),same=attacks&&holds(a)===holds(b);
@@ -109,7 +109,7 @@ function updateReveal(){
  if(!deck||!session)return;const c=current(),a=session.answers[c.id];$('auditReveal').disabled=!a?.answer;$('auditModel').hidden=!a?.model_revealed_at;
  $('auditReveal').textContent=a?.model_revealed_at?'Model has been revealed':'Reveal model after answering';
  $('auditRevealStatus').textContent=a?.model_revealed_at?'Later edits are recorded as made after model reveal.':'Your first judgment is saved before you see the model.';
- $('auditShapes').hidden=blindBoundary();$('auditFretboard').hidden=blindBoundary();
+ $('auditShapes').hidden=blindBoundary();$('auditFretboard').hidden=blindBoundary();if(loaded){const ev=evidence?.cases.find(x=>x.id===c.id);if(ev)renderComparison(ev);}
  if(a?.model_revealed_at){const ev=evidence?.cases.find(x=>x.id===c.id);const cuts=(ev?.context?.phrases??[]).slice(1).map(p=>String(new Q(p.start_q).sub(c.context_range_q[0]))).filter(v=>qnum(v)>0&&qnum(v)<qnum(new Q(c.context_range_q[1]).sub(c.context_range_q[0])));$('auditModelAnswer').textContent=c.question.kind==='boundary'?'Model cuts inside this excerpt: '+(cuts.length?cuts.map(x=>'+'+x+'q').join(', '):'none')+'. These are hypotheses, not correct answers.':c.question.model_note??c.question.model_label??'No musical verdict is established for this question.';$('auditModelExplanation').textContent=c.question.explanation??'';}
 }
 function renderVisibleRhythm(box,c,ev){
@@ -133,10 +133,10 @@ window.addEventListener('orientationchange',()=>{clearTimeout(rhythmResizeTimer)
 async function loadCase(i){
  if(!deck||i<0||i>=deck.cases.length)return;stop();const epoch=++loadEpoch;loaded=null;currentIndex=i;session.index=i;const c=current(),a=session.answers[c.id];
  $('auditTitle').textContent=text(c.artist)+' / '+text(c.title);$('auditType').textContent=`Set ${c.set} \xb7 Example ${i+1} of ${deck.cases.length} \xb7 ${({boundary:'Phrase boundaries',grouping:'Grouping / perceived accents',repetition:'Repetition / development',dialogue:'Call and response',sustain:'Rest / sustain function'})[c.question.kind]}`;
- $('auditSource').textContent='Source part '+text(c.part??'unknown');$('auditQuestion').textContent=c.question.text;$('auditHint').textContent=c.question.hint??'';$('auditNote').value=a?.note??'';$('auditConfidence').value=a?.confidence??'';$('auditContextQuality').value=a?.context_quality??'';$('auditBoundaryMarks').value=a?.boundary_marks??'';$('auditMarkError').textContent='';$('auditMode').value='pitch';$('auditBoundaryWrap').hidden=c.question.kind!=='boundary';updateReveal();
+ $('auditSource').textContent='Source part '+text(c.part??'unknown');$('auditQuestion').textContent=c.question.text;$('auditHint').textContent=c.question.hint??'';$('auditNote').value=a?.note??'';$('auditConfidence').value=a?.confidence??'';$('auditContextQuality').value=a?.context_quality??'';$('auditBoundaryMarks').value=a?.boundary_marks??'';$('auditMarkError').textContent='';$('auditMode').value=c.question.kind==='sustain'&&c.playback_quality?.unknown_pitch_members?'neutral':'pitch';$('auditBoundaryWrap').hidden=c.question.kind!=='boundary';updateReveal();
  $('auditModelAnswer').textContent='No musical verdict established. This question needs your judgment.';$('auditModelExplanation').textContent=c.question.explanation??'';$('auditModel').open=false;$('auditShapes').open=false;
- $('auditRhythm').replaceChildren();$('auditComparison').hidden=true;$('auditPairDetails').hidden=!c.comparison;clipNotice='';$('auditPartial').checked=true;$('auditPartialWrap').hidden=true;renderTimeline(c);$('auditPlay').textContent=c.comparison?'Play A':'Play phrase';$('auditPlayB').hidden=!c.comparison;$('auditPair').hidden=!c.comparison;$('auditPrevious').disabled=i===0;$('auditNext').textContent=i===deck.cases.length-1?'Review progress':deck.cases[i+1]?.set!==c.set?'Next set':'Next example';
- $('auditAudioStatus').textContent='Loading verified phrase data\u2026';$('auditPairIdentity').textContent='';$('auditShapeCards').replaceChildren();$('auditShapeNotice').textContent='';$('auditNotice').textContent='';$('auditReadout').textContent='';board.model=null;board.ctx.clearRect(0,0,board.canvas.width,board.canvas.height);setPlaybackDisabled(true);renderAnswers();renderProgress();persist();
+ $('auditRhythm').replaceChildren();$('auditComparison').hidden=true;$('auditPairDetails').hidden=true;$('auditPairDetails').open=false;clipNotice='';$('auditPartial').checked=true;$('auditPartialWrap').hidden=true;renderTimeline(c);$('auditPlay').textContent=c.comparison?'Play A':'Play phrase';$('auditPlayB').hidden=!c.comparison;$('auditPair').hidden=!c.comparison;$('auditPrevious').disabled=i===0;$('auditNext').textContent=i===deck.cases.length-1?'Review progress':deck.cases[i+1]?.set!==c.set?'Next set':'Next example';
+ $('auditContextAdvice').textContent='Start with the surrounding context, then use the isolated excerpt if useful.';$('auditAudioStatus').textContent='Loading verified phrase data\u2026';$('auditPairIdentity').textContent='';$('auditShapeCards').replaceChildren();$('auditShapeNotice').textContent='';$('auditNotice').textContent='';$('auditReadout').textContent='';board.model=null;board.ctx.clearRect(0,0,board.canvas.width,board.canvas.height);setPlaybackDisabled(true);renderAnswers();renderProgress();persist();
  try{
   const result=await asset(c.assets.result??c.assets.analysis),ref=await asset(c.assets.playback);if(epoch!==loadEpoch)return;
   if(result.id!==c.riff_id||result.revision!==c.revision||ref.id!==c.riff_id||String(ref.binding?.song_id)!==String(c.source_song_id))throw Error('Source identity differs from the frozen deck.');
@@ -151,7 +151,7 @@ async function loadCase(i){
   for(const [label]of labels){const plan=preview(label==='A'?'A':'B');partial ||= plan.gaps.length>0;descriptions.push((c.comparison?label+': ':'')+describePlan(plan));}
   const first=preview(c.comparison?'A':'B'),silent=first.mode==='click'?!first.clicks.length:!first.notes.length;
   $('auditPlay').textContent=blindBoundary()?'Play excerpt':silent?'Play silent span':c.comparison?'Play A':partial?'Play available notation':'Play phrase';
-  $('auditContext').textContent=silent?'Hear surrounding notes':'Play context';
+  $('auditContext').textContent=blindBoundary()?'Play full excerpt':c.question.kind==='dialogue'?'Play dialogue in context':'Play context first';const short=labels.some(([side])=>preview(side==='A'?'A':'B').duration<1),missing=c.playback_quality?.unknown_pitch_members??0;$('auditContextAdvice').textContent=c.question.kind==='sustain'&&missing?`Rhythm + holds is recommended for this pause/hold judgment: it includes every known attack and hold. The highlighted gesture has complete timing and pitches. Optional source-pitch context omits ${missing} notes with unknown pitches later in the wider excerpt, outside the target.`:short?'These isolated gestures are under a second. Start with context; isolated playback is only an optional close-up.':'Start with the surrounding context, then compare the isolated gestures if useful.';
   clipNotice=descriptions.join(' ');$('auditAudioStatus').textContent=clipNotice+' Playback starts when you press Play.';
 
  }catch(e){if(epoch!==loadEpoch)return;$('auditAudioStatus').textContent='Data unavailable: '+e.message+' You can choose Unsure and continue.';}
