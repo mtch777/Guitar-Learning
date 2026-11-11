@@ -1,7 +1,40 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Main analysis feedback</title><style>body{font:17px system-ui;background:#f4f6f8;color:#172331;max-width:760px;margin:auto;padding:18px}section{background:white;border-radius:14px;padding:18px;margin:16px 0}label{display:block;margin:12px 0 5px}select,button,textarea,input{font:inherit;padding:12px;box-sizing:border-box;max-width:100%;border:1px solid #b6c2cf;border-radius:8px}select,textarea,input,audio{width:100%}button{margin:5px;background:#e8eef6}small,.muted{color:#536476}pre{white-space:pre-wrap;overflow-wrap:anywhere}#status{min-height:28px}h1{font-size:28px}.facetGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 16px}.facetGrid label{min-width:0}summary{cursor:pointer;padding:12px 0;font-weight:600}.rollScroll{overflow-x:auto;overscroll-behavior-x:contain;border:1px solid #cbd5e1;border-radius:8px;max-width:100%;background:#f8fafc}.rollScroll canvas{display:block;max-width:none;cursor:crosshair}.rollTools{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.rollTools label{flex:1;min-width:130px}#playbackPosition{padding:0;min-height:44px}#pianoRollPanel{padding:12px;background:#f5f8fc;border-radius:10px;margin-top:16px}#pianoRollPanel h3{margin:0 0 10px}#rollNotice,#mixNotice{font-size:14px;line-height:1.5}@media(max-width:480px){body{padding:10px}section{padding:12px}.facetGrid{grid-template-columns:minmax(0,1fr)}h1{font-size:25px}}.filterState{padding:10px;border-left:4px solid #b6c2cf;font-size:15px;line-height:1.5}.filterState[data-match="no"]{background:#fff4df;border-color:#a55d00;color:#6d3d00}.playbackControls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.playbackControls button{margin:0;min-height:44px}#play{background:#155ac0;color:white;border-color:#155ac0;font-weight:650}.playbackControls button[aria-pressed="true"]{outline:3px solid #0f3466;outline-offset:2px}.shapeCard{border:1px solid #cbd5e1;border-radius:10px;padding:12px;margin:12px 0}.shapeCard h4{margin:0 0 8px}.shapeCard p{font-size:14px;line-height:1.5}.shapeDiagram{overflow-x:auto;max-width:100%;overscroll-behavior-x:contain}.shapeDiagram svg{display:block;max-width:none}.shapeIdentity{overflow-wrap:anywhere;font-size:12px!important}#shapeNotice{font-size:14px;line-height:1.5}
-[hidden]{display:none!important}p:empty{display:none}h2{font-size:21px}h3{font-size:19px}button{cursor:pointer;min-height:44px}button:disabled{cursor:default;opacity:.55}button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #155ac0;outline-offset:3px}#scope{font-size:14px}#matchCount{font-weight:600}#randomPhrase{margin:8px 0 0;background:#155ac0;color:white;border-color:#155ac0;width:100%;font-weight:650}#status{min-height:0}#backup{margin:24px 0 8px;padding-top:16px;border-top:1px solid #cbd5e1}#export{margin:0}#title{overflow-wrap:anywhere}.rollTools label{margin:4px 0 12px}#partialLabel{font-size:14px}#rollChannel{font-size:14px}#tags{font:inherit;line-height:1.6}#save{background:#155ac0;color:white;border-color:#155ac0;margin-left:0}#pianoRollPanel{margin-top:8px}#phraseFilters h2{margin-top:0}#card h2:first-child{margin-top:0}</style></head><body>
+[hidden]{display:none!important}p:empty{display:none}h2{font-size:21px}h3{font-size:19px}button{cursor:pointer;min-height:44px}button:disabled{cursor:default;opacity:.55}button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #155ac0;outline-offset:3px}#scope{font-size:14px}#matchCount{font-weight:600}#randomPhrase{margin:8px 0 0;background:#155ac0;color:white;border-color:#155ac0;width:100%;font-weight:650}#status{min-height:0}#backup{margin:24px 0 8px;padding-top:16px;border-top:1px solid #cbd5e1}#export{margin:0}#title{overflow-wrap:anywhere}.rollTools label{margin:4px 0 12px}#partialLabel{font-size:14px}#rollChannel{font-size:14px}#tags{font:inherit;line-height:1.6}#save{background:#155ac0;color:white;border-color:#155ac0;margin-left:0}#pianoRollPanel{margin-top:8px}#phraseFilters h2{margin-top:0}#card h2:first-child{margin-top:0}</style><link rel="stylesheet" href="./rhythm-audit/audit.css?v=1"></head><body class="audit-mode">
 <h1>Main analysis feedback</h1>
+<section id="rhythmAudit" data-manifest-sha="522b564a01ce934f36d71a6363b14c56fdb1e5e018fb261387c1495affbef401" aria-labelledby="auditHeading">
+  <div class="auditHeading"><div><p class="auditEyebrow">24 examples · Four short sets</p><h2 id="auditHeading">Rhythm audit</h2></div><button id="auditBrowse" type="button">Browse all phrases</button></div>
+  <p id="auditLoadStatus" role="status">Loading your frozen review deck…</p>
+  <div id="auditContent" hidden>
+    <p class="auditIntro">One question at a time. Listen, inspect, then choose an answer. You can stop and return.</p>
+    <nav id="auditSets" aria-label="Review sets"></nav>
+    <div class="auditProgress"><span id="auditCount"></span><progress id="auditProgress" max="24" value="0" aria-label="Questions answered"></progress></div>
+    <div id="auditDots" aria-label="Examples in this set"></div>
+    <article id="auditCard">
+      <p id="auditType" class="auditEyebrow"></p><h3 id="auditTitle"></h3><p id="auditSource" class="muted"></p>
+      <h3 id="auditQuestion"></h3><p id="auditHint" class="muted"></p>
+      <div class="auditListen" aria-label="Audit playback"><button id="auditPlay" type="button">Play phrase</button><button id="auditPlayB" type="button" hidden>Play B</button><button id="auditPair" type="button" hidden>Play A then B</button><button id="auditContext" type="button">Play context</button><button id="auditPause" type="button" disabled>Pause</button><button id="auditStop" type="button">Stop</button></div>
+      <label id="auditPartialWrap" hidden><input id="auditPartial" type="checkbox" style="width:auto"> Allow incomplete notation playback</label>
+      <p id="auditAudioStatus" role="status"></p>
+      <p id="auditPairIdentity" class="muted"></p>
+      <p class="muted" style="font-size:13px">Phrase within captured riff · attacks and holds</p><div id="auditTimeline" class="rollScroll"></div>
+      <details id="auditFretboard"><summary>Fretboard</summary><div class="rollScroll" id="auditRollScroll"><canvas id="auditRoll" role="img"></canvas></div>
+      <label for="auditPosition" class="auditSeek">Playback position</label><input id="auditPosition" type="range" min="0" max="1000" value="0" step="1"><p id="auditReadout" class="muted"></p><p id="auditNotice" class="muted"></p>
+      <input id="auditFollow" type="checkbox" checked hidden></details>
+      <details id="auditShapes"><summary>Phrase shapes</summary><p id="auditShapeNotice" class="muted"></p><div id="auditShapeCards"></div></details>
+      <div id="auditAnswers" role="group" aria-labelledby="auditQuestion"></div>
+      <label for="auditNote">Anything to change? <span class="muted">Optional</span></label><textarea id="auditNote" rows="2" maxlength="4900" placeholder="Your correction or what sounds wrong"></textarea>
+      <p id="auditSaveStatus" role="status"></p>
+      <details id="auditModel"><summary>What the analysis says</summary><p id="auditModelAnswer"></p><p id="auditModelExplanation" class="muted"></p></details>
+      <div class="auditNavigation"><button id="auditPrevious" type="button">Previous</button><button id="auditNext" type="button">Next example</button></div>
+    </article>
+    <details id="auditCoverage"><summary>Review coverage</summary><div id="auditCoverageBody"></div></details>
+    <div class="auditBackup"><button id="auditExport" type="button">Download answers</button><button id="auditImport" type="button">Restore backup</button><input id="auditImportFile" type="file" accept="application/json,.json" hidden><p id="auditBackupStatus" role="status"></p><p class="muted">Saved only in this browser. Download your answers to back them up or send them to dot. They are not submitted automatically.</p></div>
+    <details><summary>About this deck</summary><p id="auditSampling"></p><p>Synthetic playback uses source pitches and written timing. The fretboard shows mapped fingering. These tones do not reproduce guitar sound, bends or slide motion. No human musical verdict is implied.</p><p id="auditVersion" class="muted"></p></details>
+  </div>
+</section>
+<button id="auditReturn" type="button" hidden>Return to 24-example audit</button>
+
 <p id="scope" class="muted"></p>
 <section id="phraseFilters">
 <h2>Phrase filters</h2><p id="phraseCoverage" class="muted" role="status">Loading filters...</p>
@@ -234,6 +267,9 @@ async function selectRandomPhrase(scroll=true){
 }
 $('randomPhrase').onclick=()=>selectRandomPhrase(true);
 json('phrase-index-meta.json').then(async meta=>{await indexReady;if(!index||indexHash!==meta.index_sha256)throw Error('Riff and phrase-filter snapshots differ. Reload the page before filtering.');const chosen=meta.compact||meta;if(chosen.index_sha256!==meta.index_sha256||chosen.phrase_count!==meta.phrase_count)throw Error('Compact phrase snapshot mismatch. Reload the page.');return readVerifiedGzip(chosen)}).then(d=>{if(d.index_sha256!==indexHash)throw Error('Phrase data snapshot mismatch. Reload the page.');phraseCatalog=createPhraseCatalog(d);buildFacets()}).catch(e=>{$('phraseCoverage').textContent=e.message;$('randomPhrase').disabled=true;});
-</script></body></html>
+
+globalThis.addEventListener?.("rhythm-audit-mode",stop);
+</script><script type="module" src="./rhythm-audit/runtime.mjs?v=1"></script>
+</body></html>
 
 
