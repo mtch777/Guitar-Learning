@@ -15,7 +15,7 @@
 <label id="partialLabel" hidden><input type="checkbox" id="partial" style="width:auto"> Allow incomplete notation</label>
 <label for="playbackMix">Listen to</label><select id="playbackMix"><option value="riff" selected>Riff channel only</option><option value="full">Full backing track</option></select>
 <p id="mixNotice" class="muted"></p><p id="playbackState" role="status"></p>
-<div id="pianoRollPanel"><h3>Phrase fretboard · Drop E</h3><p id="rollChannel" class="muted"></p>
+<div id="pianoRollPanel"><h3>Phrase fretboard</h3><p id="rollChannel" class="muted"></p>
 <div class="rollTools"><label><input id="rollFollow" type="checkbox" checked style="width:auto"> Follow sounding notes</label></div>
 <div id="playbackControls" class="playbackControls" aria-label="Playback controls"><button id="play">▶️ Play phrase</button><button id="context">🎸 Play whole riff</button><button id="pause" disabled>⏸️ Pause</button><button id="stop">⏹️ Stop</button></div>
 <div id="rollScroll" class="rollScroll"><canvas id="pianoRoll" role="img"></canvas></div>
@@ -29,8 +29,8 @@
 <footer id="backup"><button id="export">📥 Download feedback backup</button><p id="backupStatus" role="status"></p></footer>
 <script type="module">
 import {ReferencePlayer} from "./playback/player.mjs?v=piano-roll-1";
-import {renderPhraseShapes} from "./playback/shapes.mjs?v=ui-cleanup-1";
-import {Fretboard as PianoRoll} from "./playback/fretboard.mjs?v=ui-cleanup-1";
+import {renderPhraseShapes} from "./playback/shapes.mjs?v=mapped-filters-1";
+import {Fretboard as PianoRoll} from "./playback/fretboard.mjs?v=mapped-filters-1";
 const $=id=>document.getElementById(id);let index, indexReady, indexHash, result, current, epoch=0, stopAt=0, playbackManifest, playbackRef, failureBoundaryManifest,backingManifest,backingRef,backingLoading=false,backingError='',mixEpoch=0,activeRange,playEpoch=0; let pianoRoll;let selectedPhraseIndex=null,selectedRiffId=null;let fretboardManifest,fretboardData,fretboardError="",wholeRiffMode=false;let shapeManifest,shapeData,shapeError="";
 const notationPlayer=new ReferencePlayer(s=>{$("playbackState").textContent=s.state;pianoRoll?.update(s);$('pause').disabled=!['playing','paused'].includes(s.state);$('pause').textContent=s.state==='paused'?'▶️ Resume':'⏸️ Pause';});
 $('playbackMix').value='riff';
@@ -179,7 +179,7 @@ let phraseCatalog,facetControls={},matchingPhrases=[],phraseNav=0;
 async function readVerifiedGzip(meta,label='Phrase catalog'){let r=await fetch(meta.path,{cache:'no-cache'});if(!r.ok)throw Error(label+' could not load. Reload the page.');let b=await r.arrayBuffer(),hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(x=>x.toString(16).padStart(2,'0')).join('');if(hash!==meta.sha256)throw Error(label+' integrity check failed. Reload the page.');if(typeof DecompressionStream==='undefined')throw Error('Update your browser to use compressed phrase tags.');return new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'))).json();}
 // Four exclusive UI choices derived from the existing coverage tags; raw analysis is unchanged.
 const CHUG_CHOICES=[{value:'all_matching',label:'All chugs'},{value:'some_matching',label:'Some chugs'},{value:'no_matching',label:'No chugs'},{value:'unsure',label:'Unsure'}];
-function isChugField(key){return key==='source_chug'||key==='target_chug';}
+function isChugField(key){return key==='target_chug';}
 function chugChoice(tags){
  if(tags.includes('unknown')||tags.includes('contains_unknown'))return 'unsure';
  if(tags.includes('all_matching'))return 'all_matching';
@@ -192,9 +192,13 @@ function matchFacetSelections(chosen){
  const matches=phraseCatalog.matchIndices(other);
  return chugs.length?matches.filter(i=>chugs.every(([key,value])=>chugChoice(phraseCatalog.tagValues(i,key))===value)):matches;
 }
+// Review only mapped fingering. Original-pitch intervals are identical to mapped
+// intervals in this catalog; retain one interval control, not duplicate analysis.
+const HIDDEN_FACETS=new Set(['source_open','source_chug','source_low_strings','source_intervals']);
+const FACET_LABELS={target_open:'Open notes',target_chug:'Chug position',target_low_strings:'Lowest two strings',target_intervals:'Simultaneous intervals'};
 function buildFacets(){
  const primary=new Set(['artist','category','role','texture','behavior','techniques','target_chug']);
- for(const field of phraseCatalog.fields){let wrap=document.createElement('label');wrap.textContent=field.label;let sel=document.createElement('select');sel.setAttribute('aria-label',field.label);sel.replaceChildren(new Option(isChugField(field.key)?'Any':'All',''),...(isChugField(field.key)?CHUG_CHOICES:field.values).map(x=>new Option(displayText(x.label)||nice(x.value),x.value)));sel.onchange=applyFacets;facetControls[field.key]=sel;wrap.append(sel);$(primary.has(field.key)?'primaryFacets':'extraFacets').append(wrap);}
+ for(const field of phraseCatalog.fields){if(HIDDEN_FACETS.has(field.key))continue;const label=FACET_LABELS[field.key]??field.label;let wrap=document.createElement('label');wrap.textContent=label;let sel=document.createElement('select');sel.setAttribute('aria-label',label);sel.replaceChildren(new Option(isChugField(field.key)?'Any':'All',''),...(isChugField(field.key)?CHUG_CHOICES:field.values).map(x=>new Option(displayText(x.label)||nice(x.value),x.value)));sel.onchange=applyFacets;facetControls[field.key]=sel;wrap.append(sel);$(primary.has(field.key)?'primaryFacets':'extraFacets').append(wrap);}
  $('phraseCoverage').textContent='';applyFacets(false);
 }
 function cancelPhraseNavigation(){phraseNav++;epoch++;stop();current=null;selectedPhraseIndex=null;$('card').hidden=true;$('status').textContent='';}

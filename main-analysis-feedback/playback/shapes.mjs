@@ -25,7 +25,7 @@ function diagram(doc,card){
  const frets=contacts.map(p=>p.fret),lo=frets.length?Math.min(...frets):0,hi=frets.length?Math.max(...frets):0;
  const cell=34,left=36,top=34,row=27,width=Math.max(300,left+(hi-lo+1)*cell+10),height=top+8*row+10;
  const node=(tag,attrs={},text='')=>{const n=doc.createElementNS('http://www.w3.org/2000/svg',tag);for(const[k,v]of Object.entries(attrs))n.setAttribute(k,String(v));if(text)n.textContent=text;svg.append(n);return n;};
- svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.setAttribute('width',width);svg.setAttribute('height',height);svg.setAttribute('role','img');svg.setAttribute('aria-label','Mapped Drop-E shape. '+contacts.map(p=>`String ${p.string}, fret ${p.fret}: ${p.kinds.join(', ')}`).join('; '));
+ svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.setAttribute('width',width);svg.setAttribute('height',height);svg.setAttribute('role','img');svg.setAttribute('aria-label','Phrase shape. '+contacts.map(p=>`String ${p.string}, fret ${p.fret}: ${p.kinds.join(', ')}`).join('; '));
  node('rect',{x:left,y:top-10,width:width-left-5,height:8*row,fill:'#f1f5f9'});
  for(let f=lo;f<=hi;f++){const x=left+(f-lo+.5)*cell;node('text',{x,y:17,'text-anchor':'middle',fill:'#334155','font-size':12},f===0?'Open':String(f));node('line',{x1:x+cell/2,x2:x+cell/2,y1:top-10,y2:height-20,stroke:'#94a3b8'});}
  for(let string=1;string<=8;string++){const y=top+(string-.5)*row;node('text',{x:16,y:y+4,'text-anchor':'middle',fill:'#334155','font-size':11},'S'+string);node('line',{x1:left,x2:width-5,y1:y,y2:y,stroke:'#94a3b8'});}
