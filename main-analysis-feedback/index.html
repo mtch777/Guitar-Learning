@@ -105,9 +105,24 @@ function createPhraseCatalog(data){
 /* COMPACT_PHRASE_CATALOG_END */
 let phraseCatalog,facetControls={},matchingPhrases=[],matchPage=0,phraseNav=0;const MATCH_PAGE_SIZE=200;
 async function readVerifiedGzip(meta){let r=await fetch(meta.path,{cache:'no-cache'});if(!r.ok)throw Error('Phrase catalog could not load. Refresh availability.');let b=await r.arrayBuffer(),hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(x=>x.toString(16).padStart(2,'0')).join('');if(hash!==meta.sha256)throw Error('Phrase catalog integrity check failed. Refresh availability.');if(typeof DecompressionStream==='undefined')throw Error('Update your browser to use compressed phrase tags.');return new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'))).json();}
+// Four exclusive UI choices derived from the existing coverage tags; raw analysis is unchanged.
+const CHUG_CHOICES=[{value:'all_matching',label:'All chugs'},{value:'some_matching',label:'Some chugs'},{value:'no_matching',label:'No chugs'},{value:'unsure',label:'Unsure'}];
+function isChugField(key){return key==='source_chug'||key==='target_chug';}
+function chugChoice(tags){
+ if(tags.includes('unknown')||tags.includes('contains_unknown'))return 'unsure';
+ if(tags.includes('all_matching'))return 'all_matching';
+ if(tags.includes('some_matching'))return 'some_matching';
+ if(tags.includes('no_matching')||tags.includes('no_attacks'))return 'no_matching';
+ return 'unsure';
+}
+function matchFacetSelections(chosen){
+ const chugs=chosen.filter(([key])=>isChugField(key)),other=chosen.filter(([key])=>!isChugField(key));
+ const matches=phraseCatalog.matchIndices(other);
+ return chugs.length?matches.filter(i=>chugs.every(([key,value])=>chugChoice(phraseCatalog.tagValues(i,key))===value)):matches;
+}
 function buildFacets(){
  const primary=new Set(['artist','category','role','texture','behavior','techniques','target_chug']);
- for(const field of phraseCatalog.fields){let wrap=document.createElement('label');wrap.textContent=field.label;let sel=document.createElement('select');sel.setAttribute('aria-label',field.label);sel.replaceChildren(new Option('All',''),...field.values.map(x=>new Option(x.label||nice(x.value),x.value)));sel.onchange=applyFacets;facetControls[field.key]=sel;wrap.append(sel);$(primary.has(field.key)?'primaryFacets':'extraFacets').append(wrap);}
+ for(const field of phraseCatalog.fields){let wrap=document.createElement('label');wrap.textContent=field.label;let sel=document.createElement('select');sel.setAttribute('aria-label',field.label);sel.replaceChildren(new Option(isChugField(field.key)?'Any':'All',''),...(isChugField(field.key)?CHUG_CHOICES:field.values).map(x=>new Option(x.label||nice(x.value),x.value)));sel.onchange=applyFacets;facetControls[field.key]=sel;wrap.append(sel);if(field.key==='target_chug'){const help=document.createElement('small');help.textContent='Unsure includes incomplete note facts, even when some chugs are known. No chugs includes phrases with no attacked notes.';wrap.append(help);}$(primary.has(field.key)?'primaryFacets':'extraFacets').append(wrap);}
  const c=phraseCatalog.coverage;$('phraseCoverage').textContent=phraseCatalog.length+' individual phrases available from completed analyses. Pending and failed analyses are not treated as having no matching tags. See the overall coverage above.';applyFacets(false);
 }
 function cancelPhraseNavigation(){phraseNav++;if($('card').hidden)epoch++;stop();if($('card').hidden&&$('status').textContent==='Loading analysis...')$('status').textContent='Selection canceled. Choose a phrase to open it.';}
@@ -132,7 +147,7 @@ function rebuildPhraseOptions(preferred=$('phrase').value){
  $('previous').textContent=filtered?'Previous matching phrase':'Previous phrase in this riff';$('next').textContent=filtered?'Next matching phrase':'Next phrase in this riff';show();
 }
 function navigatePhrase(direction){phraseNav++;if(!result||result.status!=='complete'||visiblePhraseIndices.length<2)return;const position=visiblePhraseIndices.indexOf(Number($('phrase').value));$('phrase').value=String(visiblePhraseIndices[(position+direction+visiblePhraseIndices.length)%visiblePhraseIndices.length]);show();}
-function applyFacets(cancelPending=true){if(cancelPending)cancelPhraseNavigation();const chosen=Object.entries(facetControls).filter(([k,s])=>s.value).map(([k,s])=>[k,s.value]);matchingPhrases=phraseCatalog.matchIndices(chosen);matchPage=0;if(cancelPending&&!$('card').hidden)rebuildPhraseOptions();renderMatches();}
+function applyFacets(cancelPending=true){if(cancelPending)cancelPhraseNavigation();const chosen=Object.entries(facetControls).filter(([k,s])=>s.value).map(([k,s])=>[k,s.value]);matchingPhrases=matchFacetSelections(chosen);matchPage=0;if(cancelPending&&!$('card').hidden)rebuildPhraseOptions();renderMatches();}
 function renderMatches(){const start=matchPage*MATCH_PAGE_SIZE,rows=matchingPhrases.slice(start,start+MATCH_PAGE_SIZE).map(i=>phraseCatalog.phraseAt(i));$('matchingPhrase').replaceChildren(new Option(rows.length?'Choose an individual phrase...':'No phrases match these filters',''),...rows.map((p,i)=>new Option(p.artist+' / '+p.title+' / part '+p.part_id+' / phrase '+p.ordinal+' / '+p.start_q+'–'+p.end_q+'q',String(start+i))));$('matchingPhrase').disabled=!rows.length;$('matchCount').textContent=matchingPhrases.length?(start+1)+'–'+(start+rows.length)+' of '+matchingPhrases.length+' matching phrases':'0 matching phrases in completed analyses';$('prevMatches').disabled=matchPage===0;$('nextMatches').disabled=start+rows.length>=matchingPhrases.length;syncDisplayedPhrase();}
 
 // The filtered result picker must describe the phrase actually visible below.
