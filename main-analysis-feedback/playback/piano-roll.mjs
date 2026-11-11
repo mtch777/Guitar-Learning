@@ -26,8 +26,9 @@ export class PianoRoll{
     Object.assign(this,{canvas,scroller,slider:position,readout,notice,zoom,follow,onSeek});
     this.ctx=canvas.getContext('2d');this.q=0;this.state='stopped';this.left=48;this.top=26;
     zoom.onchange=()=>this.resize();
-    position.oninput=()=>{if(!this.model)return;const [a,b]=this.model.range,v=Number(position.value);onSeek(v<=0?this.exactRange[0]:v>=1000?this.exactRange[1]:a+(b-a)*v/1000);};
-    canvas.onclick=e=>{if(!this.model)return;const box=canvas.getBoundingClientRect(),x=e.clientX-box.left; if(x<this.left)return;const[a,b]=this.model.range;onSeek(Math.max(a,Math.min(b,a+(x-this.left)/this.plotWidth*(b-a))));};
+    follow.onchange=()=>this.draw();
+    position.oninput=()=>{if(!this.model)return;const [a,b]=this.model.range,v=Number(position.value);return onSeek(v<=0?this.exactRange[0]:v>=1000?this.exactRange[1]:a+(b-a)*v/1000);};
+    canvas.onclick=e=>{if(!this.model)return;const box=canvas.getBoundingClientRect(),x=e.clientX-box.left; if(x<this.left)return;const[a,b]=this.model.range;return onSeek(Math.max(a,Math.min(b,a+(x-this.left)/this.plotWidth*(b-a))));};
     if(typeof ResizeObserver!=='undefined'){this.observer=new ResizeObserver(()=>this.resize());this.observer.observe(scroller);}
   }
   load(ref,range,label){this.exactRange=range.map(String);this.model=rollModel(ref,range);this.label=label;this.q=this.model.range[0];this.state='stopped';this.scroller.scrollLeft=0;this.resize();}
@@ -42,6 +43,6 @@ export class PianoRoll{
     this.slider.value=String(Math.round((q-a)/(b-a)*1000));this.slider.setAttribute('aria-valuetext','Source quarter '+q.toFixed(2));this.readout.textContent='Source quarter '+q.toFixed(2)+' / '+b.toFixed(2);
     this.notice.textContent=this.label+' · '+m.notes.length+' pitched notes'+(m.unknown?' · '+m.unknown+' unknown pitches not plotted':'')+(m.unplaced?' · '+m.unplaced+' notes with unknown timing not plotted':'')+(m.grace?' · '+m.grace+' grace notes without resolved timing':'')+'. Blue: written notes. Gold: sounding now. Outlined: held across selection edge.';
     this.canvas.setAttribute('aria-label',this.label+'. '+m.notes.length+' written notes, source quarters '+a+' to '+b+'. Use the playback-position slider to seek.');
-    if(this.state==='playing'&&this.follow.checked){const w=this.scroller.clientWidth||640,left=this.scroller.scrollLeft;if(px>left+w-35||px<left+this.left)this.scroller.scrollLeft=Math.max(0,px-w*.35);}
+    if(this.follow.checked){const w=this.scroller.clientWidth||640,left=this.scroller.scrollLeft;if(px>left+w-35||px<left+this.left)this.scroller.scrollLeft=Math.max(0,px-w*.35);}
   }
 }
