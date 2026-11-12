@@ -1,9 +1,10 @@
+import {DivisionRoll,parseDivisions} from './divisions.mjs?v=1';
 import {renderRhythm,measuredStream} from '../rhythm-audit/rhythm-view-v3.mjs?v=3';
 import {ReferencePlayer} from '../playback/player.mjs?v=audio-fix-1';
 import {Fretboard} from '../playback/fretboard.mjs?v=mapped-filters-1';
 import {renderPhraseShapes} from '../playback/shapes.mjs?v=mapped-filters-1';
 import {Q,qnum,memberEnd,compileSchedule} from '../playback/timing.mjs?v=audio-fix-1';
-import {validateManifest,newSession,validateSession,putAnswer,mergeSessions,progress,verifiedJson} from './core.mjs?v=1';
+import {validateManifest,newSession,validateSession,putAnswer,mergeSessions,progress,verifiedJson} from './core.mjs?v=2';
 const $=id=>document.getElementById(id),panel=$('rhythmAudit');
 let clipNotice='',pairPlayback=false;
 let evidence,legacyDeck,legacyRaw=null,previousDeck,previousRaw=null;let priorArchives=[];
@@ -15,24 +16,27 @@ function text(value){let s=String(value??'');for(let p=0;p<2;p++){let a=Array.fr
 const current=()=>deck.cases[currentIndex];
 const span=p=>`${p.start_q}\u2013${p.end_q} quarter notes`;
 const player=new ReferencePlayer(state=>{
- if(playingSide!=='sound test')board?.update(state);$('auditPause').disabled=!['playing','paused'].includes(state.state);$('auditPause').textContent=state.state==='paused'?'Resume':'Pause';
+ if(playingSide!=='sound test'){board?.update(state);divisionRoll?.update(state);}$('auditPause').disabled=!['playing','paused'].includes(state.state);$('auditPause').textContent=state.state==='paused'?'Resume':'Pause';
  if(['starting','playing','paused'].includes(state.state))$('auditAudioStatus').textContent=state.state==='paused'&&state.contextState!=='running'?'Audio interrupted. Tap Resume to restart audio. '+clipNotice:`${state.state==='paused'?'Paused':state.state==='starting'?'Starting':'Playing'} ${playingSide}. ${clipNotice}`;
  const ended=previousPlayerState==='playing'&&state.state==='stopped';previousPlayerState=state.state;
  if(ended&&playingSide==='sound test'){restoreAfterSoundTest();$('auditAudioStatus').textContent='Sound test finished. If you heard nothing, check media volume and Bluetooth/output routing. '+clipNotice;return;}
  if(ended){if(queue){const next=queue;queue=null;Promise.resolve().then(()=>{if(next.epoch===playEpoch)return startSide(next.side,next.epoch);}).catch(e=>{if(next.epoch===playEpoch)showPlaybackError(e);});}else $('auditAudioStatus').textContent='Playback stopped. '+clipNotice;}
 });
 let board=new Fretboard({canvas:$('auditRoll'),scroller:$('auditRollScroll'),position:$('auditPosition'),readout:$('auditReadout'),notice:$('auditNotice'),follow:$('auditFollow'),onSeek:async value=>{if(!loaded||playingSide==='sound test')return;queue=null;const epoch=++playEpoch;try{await player.seek(value);}catch(e){if(epoch===playEpoch)showPlaybackError(e);}}});
+let divisionRoll=new DivisionRoll({host:$('auditDivisionCanvas'),scroller:$('auditDivisionScroll'),list:$('auditDivisionList'),status:$('auditDivisionStatus'),snap:$('auditDivisionSnap'),zoom:$('auditDivisionZoom'),undo:$('auditDivisionUndo'),onChange:raw=>{$('auditBoundaryMarks').value=raw;$('auditMarkError').textContent='';save();}});
+$('auditDivisionAdd').onclick=()=>{divisionRoll.add($('auditDivisionExact').value);};
+$('auditDivisionExact').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('auditDivisionAdd').click();}};
 function restoreAfterSoundTest(){
  if(playingSide!=='sound test')return;playingSide='phrase';
  if(loaded){const side=current().comparison?'A':'B';clipNotice=describePlan(preview(side));selectSide(side);$('auditPosition').disabled=false;}
 }
 function stop(){queue=null;pairPlayback=false;++playEpoch;player.stop();restoreAfterSoundTest();$('auditAudioStatus').textContent='Playback stopped. '+clipNotice;}
 function showPlaybackError(e){queue=null;player.stop();restoreAfterSoundTest();$('auditAudioStatus').textContent='Playback unavailable: '+text(e.message);}
-function setMode(audit){stop();window.dispatchEvent(new Event('rhythm-audit-mode'));document.body.classList.toggle('audit-mode',audit);panel.hidden=!audit;$('auditReturn').hidden=audit;if(audit){board.resize();redrawRhythm(true);}}
+function setMode(audit){stop();window.dispatchEvent(new Event('rhythm-audit-mode'));document.body.classList.toggle('audit-mode',audit);panel.hidden=!audit;$('auditReturn').hidden=audit;if(audit){board.resize();divisionRoll.draw();redrawRhythm(true);}}
 $('auditBrowse').onclick=()=>setMode(false);$('auditReturn').onclick=()=>setMode(true);
 function persist(){
  if(storageError){$('auditSaveStatus').textContent=storageError+' Your current answers are kept in this tab. Download them before closing.';$('auditSaveStatus').dataset.error='true';return false;}
- try{localStorage.setItem(storageKey,JSON.stringify(session));$('auditSaveStatus').dataset.error='false';$('auditSaveStatus').textContent=session.answers[current().id]?.answer?'Answer saved in this browser.':session.answers[current().id]?.note?'Note saved in this browser.':'Choose an answer, or skip for now.';return true;}
+ try{localStorage.setItem(storageKey,JSON.stringify(session));$('auditSaveStatus').dataset.error='false';$('auditSaveStatus').textContent=session.answers[current().id]?.answer?'Answer saved in this browser.':session.answers[current().id]?.boundary_marks?'Divisions saved in this browser.':session.answers[current().id]?.note?'Note saved in this browser.':'Choose an answer, or mark your divisions.';return true;}
  catch(e){storageError='Browser storage is unavailable or full.';return persist();}
 }
 function save(answer){const c=current(),old=session.answers[c.id];if(answer==='marked'&&!safeBoundaryMarks()&&!$('auditNote').value.trim()){$('auditMarkError').textContent='Enter boundary positions or describe them in your note before saving Marked.';return;}putAnswer(session,c,answer??old?.answer??'',$('auditNote').value,new Date().toISOString(),{confidence:$('auditConfidence').value,context_quality:$('auditContextQuality').value,boundary_marks:safeBoundaryMarks()});persist();renderAnswers();renderProgress();updateReveal();}
@@ -65,7 +69,7 @@ async function play(side,context=false,pair=false){if(!loaded)return;stop();cons
 $('auditPlay').onclick=()=>play(current().comparison?'A':'B');$('auditPlayB').onclick=()=>play('B');$('auditPair').onclick=()=>play('A',false,true);$('auditContext').onclick=()=>play('B',true);$('auditStop').onclick=()=>stop();
 $('auditPause').onclick=async()=>{const epoch=playEpoch;try{if(player.state==='playing')player.pause();else if(player.state==='paused')await player.play();}catch(e){if(epoch===playEpoch)showPlaybackError(e);}};
 $('auditNote').oninput=()=>save();
-$('auditConfidence').onchange=()=>save();$('auditContextQuality').onchange=()=>save();$('auditBoundaryMarks').oninput=()=>{try{validBoundaryMarks();$('auditMarkError').textContent='';save();}catch(e){$('auditMarkError').textContent=e.message;}};
+$('auditConfidence').onchange=()=>save();$('auditContextQuality').onchange=()=>save();$('auditBoundaryMarks').oninput=()=>{try{validBoundaryMarks();divisionRoll.setMarks($('auditBoundaryMarks').value);$('auditMarkError').textContent='';save();}catch(e){$('auditMarkError').textContent=e.message;}};
 for(const id of ['auditMode','auditSpeed','auditLoop'])$(id).onchange=()=>{stop();if(loaded){clipNotice=describePlan(preview(current().comparison?'A':'B'));$('auditAudioStatus').textContent='Playback setting changed. Tap Play. '+clipNotice;}};
 $('auditTone').onchange=()=>{stop();$('auditAudioStatus').textContent='Tone changed. Tap Play. '+clipNotice;};
 $('auditSoundTest').onclick=async()=>{
@@ -99,12 +103,7 @@ function renderComparison(ev){
 
 function blindBoundary(){return !!deck&&current().question.kind==='boundary'&&!session?.answers[current().id]?.model_revealed_at;}
 function safeBoundaryMarks(){try{return validBoundaryMarks();}catch(e){$('auditMarkError').textContent=e.message;return session.answers[current().id]?.boundary_marks??'';}}
-function validBoundaryMarks(){
- const raw=$('auditBoundaryMarks').value.trim();if(!raw)return '';
- const limit=qnum(new Q(current().context_range_q[1]).sub(current().context_range_q[0]));
- for(const word of raw.split(/[,\s]+/)){if(!/^(?:\d+(?:\.\d+)?|\d+\/\d+)$/.test(word))throw Error('Use positions such as 2, 3.5, 5/2, measured in quarter notes from the excerpt start.');const n=word.includes('/')?qnum(word):Number(word);if(!Number.isFinite(n)||n<=0||n>=limit)throw Error(`Place internal boundaries above 0 and below ${limit}q.`);}
- return raw;
-}
+function validBoundaryMarks(){const raw=$('auditBoundaryMarks').value.trim();parseDivisions(raw,current().context_range_q);return raw;}
 function updateReveal(){
  if(!deck||!session)return;const c=current(),a=session.answers[c.id];$('auditReveal').disabled=!a?.answer;$('auditModel').hidden=!a?.model_revealed_at;
  $('auditReveal').textContent=a?.model_revealed_at?'Model has been revealed':'Reveal model after answering';
@@ -127,13 +126,13 @@ function redrawRhythm(force=false){
  if(!force&&Number(box.dataset.gridWidth)===width)return;
  const opened=Array.from(box.querySelectorAll?.('details')??[]).map(d=>d.open);const ev=evidence.cases.find(x=>x.id===current().id);renderVisibleRhythm(box,current(),ev);Array.from(box.querySelectorAll?.('details')??[]).forEach((d,i)=>d.open=!!opened[i]);
 }
-window.addEventListener('resize',()=>{clearTimeout(rhythmResizeTimer);rhythmResizeTimer=setTimeout(()=>redrawRhythm(),80);});
-window.addEventListener('orientationchange',()=>{clearTimeout(rhythmResizeTimer);rhythmResizeTimer=setTimeout(()=>redrawRhythm(),120);});
+window.addEventListener('resize',()=>{clearTimeout(rhythmResizeTimer);rhythmResizeTimer=setTimeout(()=>{redrawRhythm();divisionRoll.draw();},80);});
+window.addEventListener('orientationchange',()=>{clearTimeout(rhythmResizeTimer);rhythmResizeTimer=setTimeout(()=>{redrawRhythm();divisionRoll.draw();},120);});
 
 async function loadCase(i){
- if(!deck||i<0||i>=deck.cases.length)return;stop();const epoch=++loadEpoch;loaded=null;currentIndex=i;session.index=i;const c=current(),a=session.answers[c.id];
+ if(!deck||i<0||i>=deck.cases.length)return;stop();const epoch=++loadEpoch;loaded=null;divisionRoll.clear();currentIndex=i;session.index=i;const c=current(),a=session.answers[c.id];
  $('auditTitle').textContent=text(c.artist)+' / '+text(c.title);$('auditType').textContent=`Set ${c.set} \xb7 Example ${i+1} of ${deck.cases.length} \xb7 ${({boundary:'Phrase boundaries',grouping:'Grouping / perceived accents',repetition:'Repetition / development',dialogue:'Call and response',sustain:'Rest / sustain function'})[c.question.kind]}`;
- $('auditSource').textContent='Source part '+text(c.part??'unknown');$('auditQuestion').textContent=c.question.text;$('auditHint').textContent=c.question.hint??'';$('auditNote').value=a?.note??'';$('auditConfidence').value=a?.confidence??'';$('auditContextQuality').value=a?.context_quality??'';$('auditBoundaryMarks').value=a?.boundary_marks??'';$('auditMarkError').textContent='';$('auditMode').value=c.question.kind==='sustain'&&c.playback_quality?.unknown_pitch_members?'neutral':'pitch';$('auditBoundaryWrap').hidden=c.question.kind!=='boundary';updateReveal();
+ $('auditSource').textContent='Source part '+text(c.part??'unknown');$('auditQuestion').textContent=c.question.text;$('auditHint').textContent=c.question.hint??'';$('auditNote').value=a?.note??'';$('auditConfidence').value=a?.confidence??'';$('auditContextQuality').value=a?.context_quality??'';$('auditBoundaryMarks').value=a?.boundary_marks??'';$('auditMarkError').textContent='';$('auditMode').value=c.question.kind==='sustain'&&c.playback_quality?.unknown_pitch_members?'neutral':'pitch';$('auditBoundaryWrap').hidden=false;updateReveal();
  $('auditModelAnswer').textContent='No musical verdict established. This question needs your judgment.';$('auditModelExplanation').textContent=c.question.explanation??'';$('auditModel').open=false;$('auditShapes').open=false;
  $('auditRhythm').replaceChildren();$('auditComparison').hidden=true;$('auditPairDetails').hidden=true;$('auditPairDetails').open=false;clipNotice='';$('auditPartial').checked=true;$('auditPartialWrap').hidden=true;renderTimeline(c);$('auditPlay').textContent=c.comparison?'Play A':'Play phrase';$('auditPlayB').hidden=!c.comparison;$('auditPair').hidden=!c.comparison;$('auditPrevious').disabled=i===0;$('auditNext').textContent=i===deck.cases.length-1?'Review progress':deck.cases[i+1]?.set!==c.set?'Next set':'Next example';
  $('auditContextAdvice').textContent='Start with the surrounding context, then use the isolated excerpt if useful.';$('auditAudioStatus').textContent='Loading verified phrase data\u2026';$('auditPairIdentity').textContent='';$('auditShapeCards').replaceChildren();$('auditShapeNotice').textContent='';$('auditNotice').textContent='';$('auditReadout').textContent='';board.model=null;board.ctx.clearRect(0,0,board.canvas.width,board.canvas.height);setPlaybackDisabled(true);renderAnswers();renderProgress();persist();
@@ -145,7 +144,7 @@ async function loadCase(i){
   let geometry=null,shapes=null,geometryError='',shapesError='';
   try{geometry=await asset(c.assets.fretboard);if(geometry.id!==c.riff_id||geometry.revision!==c.revision||geometry.playback_sha256!==c.assets.playback.sha256)throw Error('Fretboard source binding differs.');}catch(e){geometry=null;geometryError='Fretboard unavailable: '+e.message;}
   try{shapes=await asset(c.assets.shapes);if(shapes.id!==c.riff_id||shapes.revision!==c.revision||shapes.result_sha256!==(c.assets.result??c.assets.analysis).sha256)throw Error('Shape source binding differs.');}catch(e){shapes=null;shapesError='Shapes unavailable: '+e.message;}
-  if(epoch!==loadEpoch)return;loaded={result,ref,geometry,shapes,geometryError,shapesError};const ev=evidence.cases.find(x=>x.id===c.id);if(!ev||ev.revision!==c.revision)throw Error('Rhythm evidence differs from this source revision.');renderVisibleRhythm($('auditRhythm'),c,ev);renderComparison(ev);renderTimeline(c,ref);selectSide(c.comparison?'A':'B');setPlaybackDisabled(false);updateReveal();
+  if(epoch!==loadEpoch)return;loaded={result,ref,geometry,shapes,geometryError,shapesError};divisionRoll.load(ref,c.context_range_q,a?.boundary_marks??'');$('auditDivisionOrigin').textContent=`Time runs left to right, pitch runs upward. +0q is the excerpt start (source ${c.context_range_q[0]}q). Each mark proposes a split across the selected part, not a change to the notes. Model cuts are not shown on this roll.`;const ev=evidence.cases.find(x=>x.id===c.id);if(!ev||ev.revision!==c.revision)throw Error('Rhythm evidence differs from this source revision.');renderVisibleRhythm($('auditRhythm'),c,ev);renderComparison(ev);renderTimeline(c,ref);selectSide(c.comparison?'A':'B');setPlaybackDisabled(false);updateReveal();
   const labels=c.comparison?[['A',c.comparison],['B',c.primary]]:[['phrase',c.primary]];
   const descriptions=[];let partial=false;
   for(const [label]of labels){const plan=preview(label==='A'?'A':'B');partial ||= plan.gaps.length>0;descriptions.push((c.comparison?label+': ':'')+describePlan(plan));}
