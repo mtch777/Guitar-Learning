@@ -1,4 +1,5 @@
-import {divisionData} from './divisions.mjs?v=2';
+import {Q} from '../playback/timing.mjs?v=audio-fix-1';
+import {divisionData} from './divisions.mjs?v=3';
 export const FEEDBACK_SCHEMA='rhythm-pilot-feedback/1';
 export const safeText=x=>String(x??'').replace(/[\u200b\ufeff]/g,'');
 export function validateManifest(m){
@@ -35,12 +36,13 @@ function quality(a,c){
  const boundary_marks=typeof a.boundary_marks==='string'?a.boundary_marks.slice(0,500):'';
  if(!/^[0-9.,/ \n]*$/.test(boundary_marks))throw Error('Boundary marks must be quarter-note positions.');
  const model_revealed_at=a.model_revealed_at??null;if(model_revealed_at&&!Number.isFinite(Date.parse(model_revealed_at)))throw Error('Invalid model reveal time.');
- return {confidence,context_quality,boundary_marks,model_revealed_at,proposed_divisions:divisionData(boundary_marks,c.context_range_q)};
+ const window=a.displayed_context_range_q??c.context_range_q;if(!Array.isArray(window)||window.length!==2)throw Error('Invalid displayed context range.');const displayed_context_range_q=window.map(v=>String(new Q(v)));if(new Q(displayed_context_range_q[0]).cmp(c.context_range_q[0])<0||new Q(displayed_context_range_q[1]).cmp(c.context_range_q[1])>0||new Q(displayed_context_range_q[0]).cmp(displayed_context_range_q[1])>=0)throw Error('Displayed context is outside this source.');
+ return {confidence,context_quality,boundary_marks,model_revealed_at,displayed_context_range_q,proposed_divisions:divisionData(boundary_marks,c.context_range_q)};
 }
 export function putAnswer(session,c,answer,note,now=new Date().toISOString(),extra={}){
  if(answer!==''&&!c.question.options.some(o=>o.value===answer))throw Error('Invalid answer.');
  const previous=session.answers[c.id],q=quality({...previous,...extra},c);
- if(previous&&(previous.answer!==answer||previous.model_revealed_at!==q.model_revealed_at||previous.boundary_marks!==q.boundary_marks))session.history.push({...previous});
+ if(previous&&(previous.answer!==answer||previous.model_revealed_at!==q.model_revealed_at||previous.boundary_marks!==q.boundary_marks||JSON.stringify(previous.displayed_context_range_q??c.context_range_q)!==JSON.stringify(q.displayed_context_range_q)))session.history.push({...previous});
  session.answers[c.id]={binding:binding(c),answer,note:note.slice(0,4900),updated_at:now,...q};session.updated_at=now;return session;
 }
 export function mergeSessions(current,incoming){
