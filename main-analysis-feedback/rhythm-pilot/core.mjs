@@ -1,4 +1,4 @@
-import {divisionData} from './divisions.mjs?v=1';
+import {divisionData} from './divisions.mjs?v=2';
 export const FEEDBACK_SCHEMA='rhythm-pilot-feedback/1';
 export const safeText=x=>String(x??'').replace(/[\u200b\ufeff]/g,'');
 export function validateManifest(m){

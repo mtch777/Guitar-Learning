@@ -1,10 +1,10 @@
-import {DivisionRoll,parseDivisions} from './divisions.mjs?v=1';
+import {DivisionRoll,parseDivisions} from './divisions.mjs?v=2';
 import {renderRhythm,measuredStream} from '../rhythm-audit/rhythm-view-v3.mjs?v=3';
 import {ReferencePlayer} from '../playback/player.mjs?v=audio-fix-1';
 import {Fretboard} from '../playback/fretboard.mjs?v=mapped-filters-1';
 import {renderPhraseShapes} from '../playback/shapes.mjs?v=mapped-filters-1';
 import {Q,qnum,memberEnd,compileSchedule} from '../playback/timing.mjs?v=audio-fix-1';
-import {validateManifest,newSession,validateSession,putAnswer,mergeSessions,progress,verifiedJson} from './core.mjs?v=2';
+import {validateManifest,newSession,validateSession,putAnswer,mergeSessions,progress,verifiedJson} from './core.mjs?v=3';
 const $=id=>document.getElementById(id),panel=$('rhythmAudit');
 let clipNotice='',pairPlayback=false;
 let evidence,legacyDeck,legacyRaw=null,previousDeck,previousRaw=null;let priorArchives=[];
@@ -16,14 +16,14 @@ function text(value){let s=String(value??'');for(let p=0;p<2;p++){let a=Array.fr
 const current=()=>deck.cases[currentIndex];
 const span=p=>`${p.start_q}\u2013${p.end_q} quarter notes`;
 const player=new ReferencePlayer(state=>{
- if(playingSide!=='sound test'){board?.update(state);divisionRoll?.update(state);}$('auditPause').disabled=!['playing','paused'].includes(state.state);$('auditPause').textContent=state.state==='paused'?'Resume':'Pause';
+ if(playingSide!=='sound test'){board?.update(state);divisionRoll?.update(state);}else divisionRoll?.update(null);$('auditPause').disabled=!['playing','paused'].includes(state.state);$('auditPause').textContent=state.state==='paused'?'Resume':'Pause';
  if(['starting','playing','paused'].includes(state.state))$('auditAudioStatus').textContent=state.state==='paused'&&state.contextState!=='running'?'Audio interrupted. Tap Resume to restart audio. '+clipNotice:`${state.state==='paused'?'Paused':state.state==='starting'?'Starting':'Playing'} ${playingSide}. ${clipNotice}`;
  const ended=previousPlayerState==='playing'&&state.state==='stopped';previousPlayerState=state.state;
  if(ended&&playingSide==='sound test'){restoreAfterSoundTest();$('auditAudioStatus').textContent='Sound test finished. If you heard nothing, check media volume and Bluetooth/output routing. '+clipNotice;return;}
  if(ended){if(queue){const next=queue;queue=null;Promise.resolve().then(()=>{if(next.epoch===playEpoch)return startSide(next.side,next.epoch);}).catch(e=>{if(next.epoch===playEpoch)showPlaybackError(e);});}else $('auditAudioStatus').textContent='Playback stopped. '+clipNotice;}
 });
 let board=new Fretboard({canvas:$('auditRoll'),scroller:$('auditRollScroll'),position:$('auditPosition'),readout:$('auditReadout'),notice:$('auditNotice'),follow:$('auditFollow'),onSeek:async value=>{if(!loaded||playingSide==='sound test')return;queue=null;const epoch=++playEpoch;try{await player.seek(value);}catch(e){if(epoch===playEpoch)showPlaybackError(e);}}});
-let divisionRoll=new DivisionRoll({host:$('auditDivisionCanvas'),scroller:$('auditDivisionScroll'),list:$('auditDivisionList'),status:$('auditDivisionStatus'),snap:$('auditDivisionSnap'),zoom:$('auditDivisionZoom'),undo:$('auditDivisionUndo'),onChange:raw=>{$('auditBoundaryMarks').value=raw;$('auditMarkError').textContent='';save();}});
+let divisionRoll=new DivisionRoll({host:$('auditDivisionCanvas'),scroller:$('auditDivisionScroll'),list:$('auditDivisionList'),status:$('auditDivisionStatus'),snap:$('auditDivisionSnap'),zoom:$('auditDivisionZoom'),undo:$('auditDivisionUndo'),follow:$('auditDivisionFollow'),onChange:raw=>{$('auditBoundaryMarks').value=raw;$('auditMarkError').textContent='';save();}});
 $('auditDivisionAdd').onclick=()=>{divisionRoll.add($('auditDivisionExact').value);};
 $('auditDivisionExact').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('auditDivisionAdd').click();}};
 function restoreAfterSoundTest(){
