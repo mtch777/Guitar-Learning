@@ -279,7 +279,7 @@ $('randomPhrase').onclick=()=>selectRandomPhrase(true);
 json('phrase-index-meta.json').then(async meta=>{await indexReady;if(!index||indexHash!==meta.index_sha256)throw Error('Riff and phrase-filter snapshots differ. Reload the page before filtering.');const chosen=meta.compact||meta;if(chosen.index_sha256!==meta.index_sha256||chosen.phrase_count!==meta.phrase_count)throw Error('Compact phrase snapshot mismatch. Reload the page.');return readVerifiedGzip(chosen)}).then(d=>{if(d.index_sha256!==indexHash)throw Error('Phrase data snapshot mismatch. Reload the page.');phraseCatalog=createPhraseCatalog(d);buildFacets()}).catch(e=>{$('phraseCoverage').textContent=e.message;$('randomPhrase').disabled=true;});
 
 globalThis.addEventListener?.("rhythm-audit-mode",stop);
-</script><script type="module" src="./rhythm-pilot/runtime.mjs?v=7"></script>
+</script><script type="module" src="./rhythm-pilot/runtime.mjs?v=8"></script>
 </body></html>
 
 

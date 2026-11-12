@@ -188,7 +188,7 @@ $('auditImportFile').onchange=async()=>{const file=$('auditImportFile').files?.[
 $('auditImportCancel').onclick=()=>{++importEpoch;clearImport();$('auditBackupStatus').textContent='Import canceled. Your saved feedback was not changed.';};
 $('auditImportConfirm').onclick=async()=>{if(!pendingImport)return;const {incoming,name,before}=pendingImport;
  if(before!==JSON.stringify(session)){previewImport(incoming,name);$('auditBackupStatus').textContent='Your feedback changed after the preview. Review the updated merge and confirm again.';return;}
- clearImport();session=mergeSessions(session,incoming);const saved=persist();await loadCase(currentIndex);$('auditBackupStatus').textContent=saved?'Backup merged. Newer records were kept; earlier versions remain in download history.':'Backup merged in this tab, but browser storage is unavailable. Download a backup before closing.';
+ const epoch=++importEpoch;clearImport();session=mergeSessions(session,incoming);const saved=persist();await loadCase(currentIndex);if(epoch!==importEpoch)return;$('auditBackupStatus').textContent=saved?'Backup merged. Newer records were kept; earlier versions remain in download history.':'Backup merged in this tab, but browser storage is unavailable. Download a backup before closing.';
 };
 window.addEventListener('pagehide',()=>stop());
 async function init(){try{
