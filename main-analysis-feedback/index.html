@@ -39,7 +39,7 @@
       <div class="auditNavigation"><button id="auditPrevious" type="button">Previous</button><button id="auditNext" type="button">Next example</button></div>
     </article>
     <details id="auditCoverage"><summary>Review coverage</summary><div id="auditCoverageBody"></div></details>
-    <div class="auditBackup"><button id="auditExport" type="button">Download answers</button><button id="auditImport" type="button">Restore backup</button><input id="auditImportFile" type="file" accept="application/json,.json" hidden><p id="auditBackupStatus" role="status"></p><p class="muted">Saved only in this browser. Download your answers to back them up or send them to dot. They are not submitted automatically.</p></div>
+    <div class="auditBackup"><button id="auditExport" type="button">Download answers (.json)</button><button id="auditExportText" type="button">Download for chat (.txt)</button><button id="auditImport" type="button">Restore backup</button><input id="auditImportFile" type="file" aria-label="Choose a feedback backup" hidden><p id="auditBackupStatus" role="status"></p><div id="auditImportPreview" hidden><p id="auditImportSummary" role="status"></p><button id="auditImportConfirm" type="button">Merge backup</button><button id="auditImportCancel" type="button">Cancel</button></div><p class="muted">If Android will not attach the JSON file, use Download for chat (.txt). It contains the same complete feedback. Restore backup accepts either file and checks its contents before asking to merge.</p><p class="muted">Saved only in this browser. Download your answers to back them up or send them to dot. They are not submitted automatically.</p></div>
     <details><summary>About this deck</summary><p id="auditSampling"></p><p>This pilot covers five kinds of judgment with four examples per artist. It is not a representative error-rate estimate. After revising the questions, the plan expands to 60 development items and a separate fresh-song check. Synthetic playback uses source pitches and written timing. The fretboard shows mapped fingering. These tones do not reproduce guitar sound, bends or slide motion. No human musical verdict is implied.</p><p id="auditVersion" class="muted"></p></details>
   </div>
 </section>
@@ -279,7 +279,7 @@ $('randomPhrase').onclick=()=>selectRandomPhrase(true);
 json('phrase-index-meta.json').then(async meta=>{await indexReady;if(!index||indexHash!==meta.index_sha256)throw Error('Riff and phrase-filter snapshots differ. Reload the page before filtering.');const chosen=meta.compact||meta;if(chosen.index_sha256!==meta.index_sha256||chosen.phrase_count!==meta.phrase_count)throw Error('Compact phrase snapshot mismatch. Reload the page.');return readVerifiedGzip(chosen)}).then(d=>{if(d.index_sha256!==indexHash)throw Error('Phrase data snapshot mismatch. Reload the page.');phraseCatalog=createPhraseCatalog(d);buildFacets()}).catch(e=>{$('phraseCoverage').textContent=e.message;$('randomPhrase').disabled=true;});
 
 globalThis.addEventListener?.("rhythm-audit-mode",stop);
-</script><script type="module" src="./rhythm-pilot/runtime.mjs?v=6"></script>
+</script><script type="module" src="./rhythm-pilot/runtime.mjs?v=7"></script>
 </body></html>
 
 

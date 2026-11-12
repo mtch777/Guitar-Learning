@@ -160,11 +160,36 @@ async function loadCase(i){
 
  }catch(e){if(epoch!==loadEpoch)return;$('auditAudioStatus').textContent='Data unavailable: '+e.message+' You can choose Unsure and continue.';}
 }
-$('auditExport').onclick=()=>{
+function downloadAnswers(format='json'){
  const payload={...session,presentation_windows:reviewWindows,exported_at:new Date().toISOString(),source_snapshot:deck.source_snapshot,deck,progress:progress(deck,session),unreadable_previous_storage:rawRecovery,legacy_archive:{manifest_sha256:deck.legacy_manifest_sha256,deck:legacyDeck,raw_saved_feedback:legacyRaw},previous_rhythm_archive:{manifest_sha256:deck.previous_manifest_sha256,deck:previousDeck,raw_saved_feedback:previousRaw},prior_archives:priorArchives,rhythm_evidence:{path:deck.evidence.path,sha256:deck.evidence.sha256}};
- const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='rhythm-audit-'+deck.id+'-'+new Date().toISOString().slice(0,10)+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);$('auditBackupStatus').textContent='Backup download started. Send that JSON file to dot when you want the answers reviewed.';
+ const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:format==='txt'?'text/plain;charset=utf-8':'application/json'})),a=document.createElement('a');a.href=url;a.download='rhythm-audit-'+deck.id+'-'+new Date().toISOString().slice(0,10)+'.'+format;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);$('auditBackupStatus').textContent=format==='txt'?'Text backup download started. Attach the .txt file in chat; it contains your complete feedback, including divisions.':'JSON backup download started. If your chat file picker will not select it, use Download for chat (.txt).';
+}
+$('auditExport').onclick=()=>downloadAnswers('json');$('auditExportText').onclick=()=>downloadAnswers('txt');
+let pendingImport=null,importEpoch=0;
+function clearImport(){pendingImport=null;$('auditImportPreview').hidden=true;}
+function previewImport(incoming,name){
+ let added=0,replaced=0,kept=0;
+ for(const [id,a]of Object.entries(incoming.answers)){const old=session.answers[id];if(!old)added++;else if(JSON.stringify(old)!==JSON.stringify(a)){if(Date.parse(a.updated_at)>Date.parse(old.updated_at))replaced++;else kept++;}}
+ pendingImport={incoming,name,before:JSON.stringify(session)};
+ $('auditImportSummary').textContent=`${name}: ${Object.keys(incoming.answers).length} saved examples. This merge will add ${added} and replace ${replaced} current example records with newer backup versions (answers, notes and divisions). ${kept} differing backup records are older or tied, so the current versions will stay. All displaced versions remain in download history. Nothing changes until you choose Merge backup.`;
+ $('auditImportPreview').hidden=false;$('auditBackupStatus').textContent='Backup checked. Review the merge below.';
+}
+// No accept filter: Android document providers may label valid JSON as text or generic data.
+// Treat file names and MIME types only as picker metadata; validate the content and deck binding.
+$('auditImport').onclick=()=>{++importEpoch;clearImport();$('auditBackupStatus').textContent='Choose your .json or .txt feedback backup. Other files will be rejected after checking.';$('auditImportFile').click();};
+$('auditImportFile').onchange=async()=>{const file=$('auditImportFile').files?.[0],epoch=++importEpoch;clearImport();if(!file)return;try{
+ if(file.size>10000000)throw Error('Backup is too large (maximum 10 MB).');
+ const contents=await file.text();if(epoch!==importEpoch)return;let raw;try{raw=JSON.parse(contents.replace(/^\uFEFF/,''));}catch{throw Error('This file does not contain valid feedback JSON. Choose a downloaded .json or .txt backup.');}
+ if([deck.legacy_manifest_sha256,deck.previous_manifest_sha256].includes(raw?.manifest_sha256))throw Error('This backup is from an earlier review version. It has not been overwritten or counted toward revised questions. Keep it; the new deck saves answers separately.');
+ previewImport(validateSession(raw,deck,hash),file.name||'Feedback backup');
+ }catch(e){if(epoch===importEpoch)$('auditBackupStatus').textContent='Backup not restored: '+e.message;}
+ finally{if(epoch===importEpoch)$('auditImportFile').value='';}
 };
-$('auditImport').onclick=()=>$('auditImportFile').click();$('auditImportFile').onchange=async()=>{const file=$('auditImportFile').files?.[0];if(!file)return;try{if(file.size>10000000)throw Error('Backup is too large.');const raw=JSON.parse(await file.text());if([deck.legacy_manifest_sha256,deck.previous_manifest_sha256].includes(raw.manifest_sha256))throw Error('This backup is from an earlier review version. It has not been overwritten or counted toward revised questions. Keep it; the new deck saves answers separately.');const incoming=validateSession(raw,deck,hash);session=mergeSessions(session,incoming);persist();await loadCase(currentIndex);$('auditBackupStatus').textContent='Backup merged. Newer answers were kept; earlier versions remain in the export history.';}catch(e){$('auditBackupStatus').textContent='Backup not restored: '+e.message;}$('auditImportFile').value='';};
+$('auditImportCancel').onclick=()=>{++importEpoch;clearImport();$('auditBackupStatus').textContent='Import canceled. Your saved feedback was not changed.';};
+$('auditImportConfirm').onclick=async()=>{if(!pendingImport)return;const {incoming,name,before}=pendingImport;
+ if(before!==JSON.stringify(session)){previewImport(incoming,name);$('auditBackupStatus').textContent='Your feedback changed after the preview. Review the updated merge and confirm again.';return;}
+ clearImport();session=mergeSessions(session,incoming);const saved=persist();await loadCase(currentIndex);$('auditBackupStatus').textContent=saved?'Backup merged. Newer records were kept; earlier versions remain in download history.':'Backup merged in this tab, but browser storage is unavailable. Download a backup before closing.';
+};
 window.addEventListener('pagehide',()=>stop());
 async function init(){try{
  deck=validateManifest(await verifiedJson('rhythm-pilot/manifest.json',hash));evidence=await verifiedJson(deck.evidence.path,deck.evidence.sha256);if(evidence.source_selection_sha256!==deck.source_selection_sha256||evidence.cases.length!==deck.cases.length)throw Error('Rhythm evidence binding is invalid.');legacyDeck=await verifiedJson('rhythm-audit/manifest.json',deck.legacy_manifest_sha256);previousDeck=await verifiedJson(deck.previous_manifest_path,deck.previous_manifest_sha256);try{previousRaw=localStorage.getItem('rhythm-audit:'+deck.previous_manifest_sha256);}catch{}try{legacyRaw=localStorage.getItem('rhythm-audit:'+deck.legacy_manifest_sha256);}catch{}$('auditLegacy').textContent='12-example pilot. Answer before revealing the model. Earlier review answers stay separate and unchanged.';storageKey='rhythm-pilot:'+hash;session=newSession(deck,hash);
