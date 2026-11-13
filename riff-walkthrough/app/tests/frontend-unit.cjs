@@ -3,6 +3,8 @@ const noop=()=>{};
 const node={addEventListener:noop,querySelectorAll:()=>[],querySelector:()=>node,setAttribute:noop,append:noop,textContent:'',hidden:false};
 const sandbox={console,location:{origin:'http://127.0.0.1:8768'},btoa:value=>Buffer.from(value,'binary').toString('base64'),CSS:{escape:String},document:{querySelector:()=>node,addEventListener:noop},window:{addEventListener:noop},sessionStorage:{getItem:()=>null,setItem:noop},setTimeout,clearTimeout,setInterval,clearInterval,requestAnimationFrame:()=>1,cancelAnimationFrame:noop,Map,Set,URL,Math,JSON,Number,String,Array,Object,Error,Promise};
 let code=fs.readFileSync(require('path').join(__dirname,'../static/app.js'),'utf8');
+// Baseline stage tests isolate the disabled editor; enabled restoration is exercised in editor-ui.cjs.
+code=code.replace(/const selectiveRegenerationEnabled=(true|false);/, 'const selectiveRegenerationEnabled=false;');
 code=code.replace('  init();\n})();',`  globalThis.test={saveableAudio,selectedViews,saveGithub,previousSessionReference,midiText,player,refresh,repeatLabel,phraseMarkup,get(){return {state,connected};},invalidate(version){generationEpoch++;responseSerial++;versionSession=state.session_id;minimumVersion=version;},cancelPoll(){clearTimeout(polling);},stable,readPath,writePath,formatNumber,summaryMarkup,parameterMarkup,resultMarkup,isDirty,formatTime,duration,set(c,s,d){config=c;state=s;drafts=d;connected=true;}};\n})();`);
 vm.createContext(sandbox);vm.runInContext(code,sandbox);const t=sandbox.test;
 assert.notEqual(t.stable({weights:{a:1}}),t.stable({weights:{a:2}}));
