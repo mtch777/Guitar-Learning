@@ -36,3 +36,6 @@ Technical correctness does not establish musical quality or human listening appr
 - Localhost and LAN-address HTTP config requests succeed from the desktop itself. This is not physical phone verification.
 - Real Generate 1 completed all six stages. Generate 4 completed all six stages with stages 1–3 deep-equal, retained prior opening output, and a valid 1,007-byte MIDI response.
 - Live browser layout and device playback remain unverified; browser integration is unavailable and native UI route is being checked.
+
+## Silence correction
+Independent desktop rhythm regeneration exposed a valid rest phrase being classified as a pitch lookup failure. The adapter now preserves empty later-phrase rhythms without selecting notes or changing scale possibilities. Exact-repeat and nonempty carry-in behavior are unchanged. Four new regression tests pass, independently reviewed; application suite now14 tests. Desktop replay follows deployment of the fix.
