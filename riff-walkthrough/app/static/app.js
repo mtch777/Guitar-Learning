@@ -104,6 +104,12 @@
     return phrases.length>1?`<details class="evidence phrase-details" data-details="phrases-${esc(id)}"><summary>Phrases (${phrases.length})</summary>${chips}</details>`:chips;
   }
   function audioAvailable(output) { return !!output?.audio?.notes?.length; }
+  function saveableAudio(id,ss) {
+    const a=ss?.output?.audio;
+    if(!a || a.unavailable || a.reason || !Array.isArray(a.notes) || !Number.isFinite(a.length_beats) || a.length_beats<=0 || a.tempo!==120)return false;
+    if(!a.notes.every(n=>Number.isFinite(n.start_beats)&&n.start_beats>=0&&Number.isFinite(n.duration_beats)&&n.duration_beats>0&&Number.isInteger(n.midi_pitch)&&n.midi_pitch>=0&&n.midi_pitch<=127&&n.start_beats+n.duration_beats<=a.length_beats+1e-8))return false;
+    return ss.status==='complete' || (String(id)==='5' && ss.status==='blocked' && !!ss.output.blocker && typeof a.label==='string' && a.label.startsWith('Partial') && a.notes.length>0);
+  }
   function resultMarkup(stage, ss) {
     const id=idOf(stage), usePrevious=selectedViews[id]==='previous' && !!ss?.previous;
     const previous=ss?.previous?.output ?? ss?.previous;
@@ -126,9 +132,9 @@
     const applied=usePrevious?(ss.previous.applied || undefined):ss.applied;
     if (applied && Object.keys(applied).length) evidence['Applied parameters']=applied;
     if (Object.keys(evidence).length) html+=`<details class="evidence" data-details="evidence-${esc(id)}"><summary>Details</summary><pre>${esc(JSON.stringify(evidence,null,2))}</pre></details>`;
-    if (!usePrevious && !isBusy() && output.can_export===true) {
+    if (!usePrevious && !isBusy() && saveableAudio(id,ss)) {
       const saved=saveResults.get(saveKey(id,state.version));
-      html+=`<button type="button" data-save-midi="${esc(id)}" data-version="${state.version}" ${saved?.pending?'disabled':''}>${saved?.pending?'Saving…':'💾 Save'}</button> <a href="${githubFolder}" target="_blank" rel="noopener noreferrer">🔗 Folder</a>`;
+      html+=`<button type="button" data-save-midi="${esc(id)}" data-version="${state.version}" ${saved?.pending?'disabled':''}>${saved?.pending?'Saving…':ss.status==='blocked'?'💾 Save partial MIDI':'💾 Save MIDI'}</button> <a href="${githubFolder}" target="_blank" rel="noopener noreferrer">🔗 Folder</a>`;
       if(saved?.file_url)html+=`<p>Saved v${state.version} · <a href="${esc(saved.file_url)}" target="_blank" rel="noopener noreferrer">MIDI</a></p>`;
     }
     return html;
