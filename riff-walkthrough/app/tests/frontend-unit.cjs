@@ -1,9 +1,9 @@
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
 const noop=()=>{};
 const node={addEventListener:noop,querySelectorAll:()=>[],querySelector:()=>node,setAttribute:noop,append:noop,textContent:'',hidden:false};
-const sandbox={console,CSS:{escape:String},document:{querySelector:()=>node,addEventListener:noop},window:{addEventListener:noop},sessionStorage:{getItem:()=>null,setItem:noop},setTimeout,clearTimeout,setInterval,clearInterval,requestAnimationFrame:()=>1,cancelAnimationFrame:noop,Map,Set,URL,Math,JSON,Number,String,Array,Object,Error,Promise};
+const sandbox={console,btoa:value=>Buffer.from(value,'binary').toString('base64'),CSS:{escape:String},document:{querySelector:()=>node,addEventListener:noop},window:{addEventListener:noop},sessionStorage:{getItem:()=>null,setItem:noop},setTimeout,clearTimeout,setInterval,clearInterval,requestAnimationFrame:()=>1,cancelAnimationFrame:noop,Map,Set,URL,Math,JSON,Number,String,Array,Object,Error,Promise};
 let code=fs.readFileSync(require('path').join(__dirname,'../static/app.js'),'utf8');
-code=code.replace('  init();\n})();',`  globalThis.test={player,refresh,repeatLabel,phraseMarkup,get(){return {state,connected};},invalidate(version){generationEpoch++;responseSerial++;versionSession=state.session_id;minimumVersion=version;},cancelPoll(){clearTimeout(polling);},stable,readPath,writePath,formatNumber,summaryMarkup,parameterMarkup,resultMarkup,isDirty,formatTime,duration,set(c,s,d){config=c;state=s;drafts=d;connected=true;}};\n})();`);
+code=code.replace('  init();\n})();',`  globalThis.test={midiText,player,refresh,repeatLabel,phraseMarkup,get(){return {state,connected};},invalidate(version){generationEpoch++;responseSerial++;versionSession=state.session_id;minimumVersion=version;},cancelPoll(){clearTimeout(polling);},stable,readPath,writePath,formatNumber,summaryMarkup,parameterMarkup,resultMarkup,isDirty,formatTime,duration,set(c,s,d){config=c;state=s;drafts=d;connected=true;}};\n})();`);
 vm.createContext(sandbox);vm.runInContext(code,sandbox);const t=sandbox.test;
 assert.notEqual(t.stable({weights:{a:1}}),t.stable({weights:{a:2}}));
 assert.equal(t.stable({b:2,a:{y:3,x:4}}),t.stable({a:{x:4,y:3},b:2}));
@@ -23,6 +23,15 @@ assert.equal(t.repeatLabel('2; 4; unknown comparisons: 6'),'2, 4');
 const phraseHTML=t.phraseMarkup([{phrase:1,length_beats:4,repeat:'2; unknown comparisons: 4',rhythm_repeat:'2'},{phrase:2,length_beats:4,repeat:'1'}],'2');
 assert.ok(phraseHTML.includes('Phrases (2)'));assert.ok(phraseHTML.includes('Notes + timing: 2'));assert.ok(phraseHTML.includes('Rhythm: 2'));assert.ok(!phraseHTML.includes('unknown comparisons'));assert.ok(!phraseHTML.includes(' open'));
 assert.ok(t.summaryMarkup({Similarity:44.512649}).includes('44.5%'));
+const midi=Buffer.from('4d546864000000060000000103c04d54726b0000000400ff2f00','hex');
+const beforeCopy=t.stable(t.get().state),exportText=JSON.parse(t.midiText(Uint8Array.from(midi).buffer,2));
+assert.equal(exportText.version,2);assert.equal(exportText.filename,'riff-2.mid');assert.equal(exportText.type,'riff-midi');
+assert.deepEqual(Buffer.from(exportText.base64,'base64'),midi);assert.equal(t.stable(t.get().state),beforeCopy);
+assert.throws(()=>t.midiText(Uint8Array.from([1,2,3]).buffer,2),/not a MIDI/);
+const exportState={id:'2',status:'complete',applied:{},output:{can_export:true}};
+assert.ok(t.resultMarkup(config.stages[1],exportState).includes('data-copy-midi="2"'));
+assert.ok(t.resultMarkup(config.stages[1],exportState).includes('data-version="1"'));
+console.log('MIDI text checks passed: exact byte roundtrip, captured version, invalid response rejection, no session state changes.');
 console.log('Frontend unit checks passed: nested drafts, safe labels, compact phrase topology, export gating, unavailable audio, numeric/time formatting.');
 const fixtureRoot=process.env.QA_FIXTURES || require('path').join(__dirname,'../qa');
 if (fs.existsSync(fixtureRoot+'/stage12_actual.json') && fs.existsSync(fixtureRoot+'/stage3_contextual.json')) {
