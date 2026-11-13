@@ -85,5 +85,17 @@ class EditorManager:
    updated=copy.deepcopy(w);updated['revision']+=1
    from engine import audio
    phrases=result['phrases'];a=audio(phrases,'Edited riff')
-   updated['output']={**copy.deepcopy(w['output']),'phrases':phrases,'audio':a,'details':{**w['output'].get('details',{}),'edit':{k:v for k,v in result.items() if k not in ('phrases','audio')}},'summary':{'Phrases':len(phrases),'Beats':a['length_beats'],'Notes':len(a['notes']),'Edit':updated['revision']}}
+   details=copy.deepcopy(w['output'].get('details',{}));details.pop('overlapping_unison_events',None);details.pop('MIDI playback note',None)
+   overlapping=0;by_pitch={}
+   for note in a['notes']:by_pitch.setdefault(note['midi_pitch'],[]).append(note)
+   for notes in by_pitch.values():
+    ends=[]
+    for note in sorted(notes,key=lambda n:n['start_beats']):
+     ends=[end for end in ends if end>note['start_beats']]
+     if ends:overlapping+=1
+     ends.append(note['start_beats']+note['duration_beats'])
+   details['overlapping_unison_events']=overlapping
+   if overlapping:details['MIDI playback note']='Overlapping same-pitch notes are preserved as separate MIDI events; receiver playback may differ.'
+   details['possible_scales']=result.get('possible_scales',[])
+   updated['output']={**copy.deepcopy(w['output']),'phrases':phrases,'audio':a,'details':{**details,'edit':{k:v for k,v in result.items() if k not in ('phrases','audio')}},'summary':{'Phrases':len(phrases),'Beats':a['length_beats'],'Notes':len(a['notes']),'Edit':updated['revision']}}
    self.write(key,updated);return {**self.public(updated),**plan}
