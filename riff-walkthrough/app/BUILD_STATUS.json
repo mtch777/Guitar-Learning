@@ -7,8 +7,8 @@
     5,
     6
   ],
-  "engine_qa": "passed independent full corpus and cascade checks",
+  "engine_qa": "Independent full-corpus/cascade checks passed, including deployed silence-fix replay and unchanged carry blocker",
   "ui": "unit/race/audio scheduling checks pass; live browser QA not run",
-  "deployment": "Desktop server running; real full-corpus generation and step-4 regeneration/MIDI API checks passed",
+  "deployment": "Desktop server running; full generation, regeneration isolation, silence handling, blocked-result retention and MIDI API verified",
   "phone_reachability": "Desktop localhost and LAN self-check passed; physical phone not verified"
 }
