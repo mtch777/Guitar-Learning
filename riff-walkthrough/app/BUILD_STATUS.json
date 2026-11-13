@@ -9,6 +9,6 @@
   ],
   "engine_qa": "passed independent full corpus and cascade checks",
   "ui": "unit/race/audio scheduling checks pass; live browser QA not run",
-  "deployment": "Source published on separately approved branch; desktop deployment and live browser QA in progress",
-  "phone_reachability": "not verified"
+  "deployment": "Desktop server running; real full-corpus generation and step-4 regeneration/MIDI API checks passed",
+  "phone_reachability": "Desktop localhost and LAN self-check passed; physical phone not verified"
 }
