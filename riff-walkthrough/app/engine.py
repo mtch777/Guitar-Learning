@@ -185,6 +185,10 @@ class Engine:
      scales=T.from_notes(notes)
     elif exact[idx]!=idx:
      source=exact[idx];notes=copy.deepcopy(phrases[source-1]['notes']);decision={'method':'Exact repeat','copy_from':source};scales=T.from_notes(notes,scales)
+    elif not rhythm:
+     # A complete empty rhythm is a rest, not missing pitch evidence.
+     # Preserve its duration and the prior scale set; no donor or RNG draw is needed.
+     notes=[];decision={'method':'Preserved silence'}
     else:
      target={'Phrase role':row['Phrase role'],'Category - dominant texture':row['Dominant texture'],'Accent function':row['Accent function']}
      report=self.pitch.run(rid,{'selection_performed':True,'selected_rhythm':rhythm},pathlib.Path(tmp)/str(idx),rng+idx,target_row=target,current_scales=scales,similarities=up[1]['raw']['scores'])
