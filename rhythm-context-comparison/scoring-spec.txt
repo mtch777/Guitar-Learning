@@ -1,0 +1,39 @@
+CONTEXTUAL RHYTHM REVIEW
+
+Scope and comparison
+The same existing scaffold, repeat constraints, and opening rhythm are used in A and B. No new seed/scaffold draw. Same per-phrase uniform RNG draws in both modes; candidate weight distributions differ. Three examples are original scaffold plus the first two prior batch scaffolds with 5-12 phrases and <=48 beats. No pitch generation.
+
+Source eligibility
+All 7,455 completed riffs with known opening role. Different known roles and seed riff included. All matching-length phrases, no rank/artist/score cap or deduplication. Current phrase timing must be complete; phrase-local grace/tie ambiguities excluded explicitly. Prior/context timing unavailable does NOT exclude the current candidate. Complete silence and voice-unknown timings remain eligible. Requires an extraction outcome for every completed source phrase; refuses partial source universe.
+
+Repeat handling
+Only intended same-notes-and-timing and same-rhythm-and-holds links make rhythm-copy groups. Earliest phrase of each connected equality group supplies the rhythm, with phrase1 authoritative. All group lengths must already match; no resizing. Copy includes every pitch-free start/duration/overlap and carry flag. Pitch-sequence-only and variation links do not trigger copying or candidate restrictions.
+
+A: independent baseline
+Uses original current-phrase role3, texture3, accent2, source-opening similarity1 scoring. Unknown comparisons omitted. Each non-repeat phrase drawn independently in proportion to score.
+
+B: contextual weighted mean
+Current phrase 40%; previous phrase 25%; entire preceding sequence15%; broader riff context20%. Entire missing component excluded from denominator, not counted as zero. Known mismatch0 remains included. Probability is score divided by sum of candidate scores. No additional threshold/temperature or deterministic best-match selection.
+
+Current phrase fit
+Role3, dominant texture3, accent function2 normalized within current component. Source-opening similarity is NOT included here; it belongs to context.
+
+Previous phrase fit
+Compare already-selected previous rhythm with candidate's source predecessor. Four equally weighted rhythmic features only; no role/texture/accent metadata:
+1. Unique attack-onset count / phrase beats. Similarity100*min/max; both0 =>100.
+2. Ordered interattack intervals in beats. Weighted Levenshtein: insertion/deletion cost1, substitution1-min/max. Normalize by larger sequence length, score100*(1-distance/length). Fewer than2attacks means interval evidence missing, not mismatch.
+3. Rest fraction inside phrase window:1-union(note-covered intervals)/length. Similarity100*(1-absolute difference).
+4. Overlap fraction: time with >=2 simultaneously sounding slots / length. Similarity100*(1-absolute difference).
+Known feature scores averaged equally. If candidate has no predecessor, or predecessor timing is unresolved, previous component missing. Ties/held notes contribute to coverage; only in-window attacks contribute density/spacing. Silence contributes density0,rest1,overlap0,spacingmissing.
+
+Full preceding sequence fit
+Separately weighted, not hidden inside previous comparison. Suffix-align all available preceding positions: generated phrase i-k with source phrase j-k, k1..min(i-1,j-1). Compare each pair with those same four features, average available pair scores equally. Do not invent history before source beginning. Missing timing pairs omitted; pair count and both available history lengths recorded. If no usable pairs, entire history component missing. Immediate predecessor participates in both previous and history by design; history also includes all earlier aligned usable pairs.
+
+Broader riff context
+Equal mean of (a) candidate source riff opening's approved 32-field weighted similarity to seed opening, (b) structural position score100*(1-abs(targetrelativeposition-sourcerelativeposition)). Relativeposition=(phraseindex-1)/(phrasecount-1). Single-phrase riff position undefined and omitted. Missing source similarity omitted. No aggregate assumed future rhythm profile.
+
+Evidence limits
+Source similarity and these rhythm descriptors are proxies, not validated musical-quality judgments. Suffix comparison covers only source-available history, with coverage exposed rather than penalized. No use of existing variation classifications in candidate lookup. Different random outcomes can score low because sampling is proportional, not top-ranked.
+
+Playback
+Neutral attack clicks, preview-only120BPM. No guitar/pitches, fixed click loudness per distinct onset. Holds and overlaps visible in timeline but not sustained audio. Original source carry-in/out intervals remain visible. Carry-ins do not trigger a new boundary click. No inferred cross-phrase note identity/ties between independently sourced rhythms. No later pitch stage performed.
