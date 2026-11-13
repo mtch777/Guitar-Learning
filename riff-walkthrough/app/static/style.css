@@ -4,12 +4,12 @@
 .summary-item dd.identifier{max-width:210px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.8rem}.phrase-details{margin-top:10px}.phrase-details .phrase-list{margin-top:2px}
 
 /* Selection controls share the piano roll's horizontal scroller and exact phrase widths. */
-.timeline.timeline-selectable{height:208px}
-.timeline-selectable .timeline-track{height:190px;position:relative}
-.timeline-selectable canvas{top:44px}
-.phrase-checkbox-row{position:absolute;left:0;right:0;top:0;height:44px;pointer-events:auto}
-button.phrase-checkbox{position:absolute;top:0;height:44px;min-height:44px;min-width:0;margin:0;padding:0;display:flex;align-items:center;justify-content:center;border:0;border-right:1px solid #47553d;border-bottom:1px solid #47553d;border-radius:0;background:#1d281b;color:#d4f2b5;overflow:hidden;touch-action:pan-x pan-y}
+.timeline.timeline-selectable{height:192px}
+.timeline-selectable .timeline-track{height:174px;position:relative}
+.timeline-selectable canvas{top:28px}
+.phrase-checkbox-row{position:absolute;left:0;right:0;top:0;height:28px;pointer-events:auto}
+button.phrase-checkbox{position:absolute;top:0;height:28px;min-height:28px;min-width:0;margin:0;padding:0;display:flex;align-items:center;justify-content:center;border:0;border-right:1px solid #47553d;border-bottom:1px solid #47553d;border-radius:0;background:#1d281b;color:#d4f2b5;overflow:hidden;touch-action:pan-x pan-y}
 button.phrase-checkbox[aria-checked=true]{background:#476535;box-shadow:inset 0 -3px #b7df8b}
 button.phrase-checkbox:focus-visible{outline:2px solid #d4f2b5;outline-offset:-3px;z-index:1}
-.phrase-checkbox-box{width:19px;height:19px;flex-shrink:0;border:2px solid currentColor;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;line-height:1;pointer-events:none}
-@media(max-width:600px){.timeline.timeline-selectable{height:200px}.timeline-selectable .timeline-track{height:182px}}
+.phrase-checkbox-box{width:14px;height:14px;flex-shrink:0;border:2px solid currentColor;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;line-height:1;pointer-events:none}
+@media(max-width:600px){.timeline.timeline-selectable{height:184px}.timeline-selectable .timeline-track{height:166px}}
