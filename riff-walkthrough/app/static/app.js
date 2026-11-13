@@ -173,9 +173,56 @@
     }}
     finally{if(e===currentEditor())e.busy=false;render();}
   }
-  function phraseCheckboxMarkup(output){
-    const e=currentEditor(),selected=e?.selected||[],busy=!!e?.busy||isBusy();
-    return `<div class="phrase-checkbox-row" role="group" aria-label="Select phrases">${(output.phrases||[]).map(p=>`<button type="button" class="phrase-checkbox" role="checkbox" data-phrase-select="${Number(p.phrase)}" data-phrase-start="${Number(p.start_beats)}" data-phrase-length="${Number(p.length_beats)}" aria-label="Select phrase ${Number(p.phrase)}" aria-checked="${selected.includes(Number(p.phrase))}"${busy?' disabled':''}><span class="phrase-checkbox-box" aria-hidden="true">${selected.includes(Number(p.phrase))?'✓':''}</span></button>`).join('')}</div>`;
+  const stageSelections=new Map();
+  const selectionKey=id=>`${editorKey()}:${id}`;
+  function currentSelection(id){if(String(id)==='6')return currentEditor();const entry=stageSelections.get(String(id));return entry?.key===selectionKey(id)?entry:null;}
+  function selectionReady(id){return !isBusy()&&connected&&selectedViews[String(id)]!=='previous'&&saveableAudio(String(id),stageState(id));}
+  async function selectionRequest(action,payload){
+    const endpoint=new URL(location.origin);endpoint.port='8769';endpoint.pathname='/selection/'+action;
+    const response=await fetch(endpoint.href,{method:'POST',credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const result=await response.json();if(!response.ok)throw Error(result.error||'Phrase selection is unavailable.');return result;
+  }
+  async function openSelection(id,retry=false){
+    id=String(id);if(id==='6'||!selectionReady(id))return null;
+    const existing=currentSelection(id);if(existing&&!retry)return existing;
+    const key=selectionKey(id),version=state.version,entry={key,busy:true,selected:[],context:null,error:null,saved:null};stageSelections.set(id,entry);render();
+    try{
+      const result=await selectionRequest('open',{stage:Number(id),version});
+      if(key!==selectionKey(id)||stageSelections.get(id)!==entry)return null;
+      if(result.stage!==Number(id)||result.version!==version||!Array.isArray(result.phrases)||!result.phrases.length||!result.phrases.every(p=>Number.isInteger(p.phrase)&&p.phrase>0&&Number.isFinite(p.start_beats)&&p.start_beats>=0&&Number.isFinite(p.length_beats)&&p.length_beats>0)||new Set(result.phrases.map(p=>p.phrase)).size!==result.phrases.length)throw Error('Phrase windows could not be verified.');
+      entry.context=result;return entry;
+    }catch(error){if(key===selectionKey(id)&&stageSelections.get(id)===entry)entry.error=error.message;return null;}
+    finally{if(stageSelections.get(id)===entry)entry.busy=false;render();}
+  }
+  async function restoreSelectionsIfNeeded(){await Promise.all(['1','2','3','4','5'].filter(id=>selectionReady(id)&&!currentSelection(id)).map(id=>openSelection(id)));}
+  async function toggleStagePhrase(id,number){
+    id=String(id);if(id==='6'){await togglePhrase(number);return;}
+    if(!selectionReady(id))return;const entry=currentSelection(id);if(!entry?.context||entry.busy||!entry.context.phrases.some(p=>p.phrase===number))return;
+    entry.selected=entry.selected.includes(number)?entry.selected.filter(n=>n!==number):[...entry.selected,number].sort((a,b)=>a-b);entry.saved=null;render();
+  }
+  async function saveStageSelection(id){
+    id=String(id);if(id==='6'){await editorAction('save');return;}
+    const entry=currentSelection(id);if(!selectionReady(id)||!entry?.context||entry.busy||!entry.selected.length)return;
+    const key=entry.key,version=state.version,selected=[...entry.selected];entry.busy=true;render();
+    try{
+      const result=await selectionRequest('save',{stage:Number(id),version,selected});
+      if(key!==selectionKey(id)||entry!==currentSelection(id))return;
+      if(result.saved!==true||result.version!==version||!result.file_url?.startsWith('https://github.com/mtch777/Guitar-Learning/blob/generated-midi/generated-midi/')||result.folder_url!==githubFolder)throw Error('The selected MIDI save could not be verified.');
+      entry.saved={...result,selected};notify(`Saved step ${id} selected MIDI to GitHub.`);
+    }catch(error){if(key===selectionKey(id)&&entry===currentSelection(id))notify(error.message);}
+    finally{entry.busy=false;render();}
+  }
+  function stageSelectionMarkup(id){
+    const entry=currentSelection(id);if(!entry)return '<p role="status">Loading phrase controls…</p>';
+    if(entry.error)return `<p class="empty">${esc(entry.error)}</p><button type="button" data-selection-retry="${esc(id)}">↻ Retry phrase controls</button>`;
+    if(!entry.context)return '<p role="status">Loading phrase controls…</p>';
+    let html='';if(entry.selected.length)html=`<p>Selected: ${entry.selected.join(', ')}</p><button type="button" data-save-selection="${esc(id)}"${entry.busy||isBusy()?' disabled':''}>💾 Save selected MIDI</button><p>Joins selected phrases in original order; holds are clipped at selection edges.</p>`;
+    if(entry.saved?.file_url)html+=`<p>Saved · <a href="${esc(entry.saved.file_url)}" target="_blank" rel="noopener noreferrer">Selected MIDI</a></p>`;
+    return html;
+  }
+  function phraseCheckboxMarkup(output,id='6'){
+    const e=currentSelection(id),selected=e?.selected||[],busy=!!e?.busy||isBusy();
+    return `<div class="phrase-checkbox-row" role="group" aria-label="Select phrases">${(output.phrases||[]).map(p=>`<button type="button" class="phrase-checkbox" role="checkbox" data-phrase-select="${Number(p.phrase)}" data-phrase-stage="${esc(id)}" data-phrase-start="${Number(p.start_beats)}" data-phrase-length="${Number(p.length_beats)}" aria-label="Select phrase ${Number(p.phrase)}" aria-checked="${selected.includes(Number(p.phrase))}"${busy?' disabled':''}><span class="phrase-checkbox-box" aria-hidden="true">${selected.includes(Number(p.phrase))?'✓':''}</span></button>`).join('')}</div>`;
   }
   function editorMarkup(output){
     const e=currentEditor(),selected=e?.selected||[],busy=!!e?.busy||isBusy();
@@ -207,12 +254,14 @@
     }
     html+=summaryMarkup(output.summary);
     if (output.blocker) html+=`<div class="blocker">${esc(output.blocker)}</div>`;
-    if (audioAvailable(output)) {
-      const selectable=id==='6'&&!usePrevious&&ss?.status==='complete';
+    if (audioAvailable(output)||(!usePrevious&&saveableAudio(id,{...ss,output}))) {
+      const context=id==='6'?output:currentSelection(id)?.context;
+      const selectable=!usePrevious&&saveableAudio(id,{...ss,output})&&!!context;
       const active=player.active?.stage===id && player.active?.view===(usePrevious?'previous':'current');
-      html+=`<div class="audio-section"><div class="audio-toolbar"><button class="play-button" data-action="play" data-stage="${esc(id)}"${isBusy()||(id==='6'&&!!currentEditor()?.busy)?' disabled':''} aria-label="${active?'Stop':'Play'} ${esc(output.audio.label || '')}${usePrevious?' previous result':''}">${active?'■ Stop':'▶ Play'}</button><span class="audio-label">${esc(output.audio.label || 'Audio')}${usePrevious?' · Previous':''}</span><span class="audio-clock" data-clock="${esc(id)}">${active?'0:00 / ':''}${formatTime(duration(output.audio))}</span></div><div class="timeline${selectable?' timeline-selectable':''}" data-timeline="${esc(id)}"><div class="timeline-scroll"><div class="timeline-track">${selectable?phraseCheckboxMarkup(output):''}</div></div><canvas aria-label="Note timing and playback position" role="img"></canvas></div></div>`;
+      html+=`<div class="audio-section"><div class="audio-toolbar"><button class="play-button" data-action="play" data-stage="${esc(id)}"${isBusy()||!audioAvailable(output)||(id==='6'&&!!currentEditor()?.busy)?' disabled':''} aria-label="${active?'Stop':'Play'} ${esc(output.audio.label || '')}${usePrevious?' previous result':''}">${active?'■ Stop':'▶ Play'}</button><span class="audio-label">${esc(output.audio.label || 'Audio')}${usePrevious?' · Previous':''}</span><span class="audio-clock" data-clock="${esc(id)}">${active?'0:00 / ':''}${formatTime(duration(output.audio))}</span></div><div class="timeline${selectable?' timeline-selectable':''}" data-timeline="${esc(id)}"><div class="timeline-scroll"><div class="timeline-track">${selectable?phraseCheckboxMarkup(context,id):''}</div></div><canvas aria-label="Note timing and playback position" role="img"></canvas></div></div>`;
     } else if(output.audio?.unavailable || output.audio?.reason) html+=`<p class="empty">${esc(output.audio.unavailable || output.audio.reason)}</p>`;
     if(id==='6'&&!usePrevious&&ss?.status==='complete')html+=editorMarkup(output);
+    else if(!usePrevious&&saveableAudio(id,{...ss,output}))html+=stageSelectionMarkup(id);
     html+=phraseMarkup(output.phrases,id);
     const evidence={...(output.details || {})};
     const applied=usePrevious?(ss.previous.applied || undefined):ss.applied;
@@ -225,7 +274,7 @@
     }
     return html;
   }
-  async function setResultView(id,view){player.stop();selectedViews[id]=view;render();if(String(id)==='6'&&view==='current')await restoreEditorIfNeeded();}
+  async function setResultView(id,view){player.stop();selectedViews[id]=view;render();if(view==='current'){if(String(id)==='6')await restoreEditorIfNeeded();else await restoreSelectionsIfNeeded();}}
   const markupCache = new Map();
   function render() {
     if (!config || !state) return;
@@ -245,7 +294,7 @@
       for(const d of element.querySelectorAll('details'))if(d.dataset.details in opened)d.open=opened[d.dataset.details];
       const prev=selectedViews[id]==='previous',out=prev?(ss?.previous?.output??ss?.previous):id==='6'?(currentEditor()?.output||ss?.output):ss?.output;
       const el=element.querySelector('[data-timeline]');
-      if(el && out?.audio){const t=new Timeline(el,out.audio,out.audio.phrases || (/reference/i.test(out.audio.label || '')?[]:out.phrases || []),id==='6'&&!prev?togglePhrase:null);timelines.set(id,t);t.scroller.scrollLeft=scroll;t.draw();}
+      if(el && out?.audio){const context=id==='6'?out:currentSelection(id)?.context,selectable=!prev&&saveableAudio(id,{...ss,output:out})&&!!context;const phrases=prev?[]:(context?.phrases||[]);const t=new Timeline(el,out.audio,phrases,selectable?n=>toggleStagePhrase(id,n):null,id);timelines.set(id,t);t.scroller.scrollLeft=scroll;t.draw();}
     }
     $('#connection').textContent=!connected?'Disconnected':isBusy()?'Generating…':'';
   }
@@ -288,7 +337,7 @@
       else minimumVersion=Math.max(minimumVersion,Number(next.version)||0);
       const reconnected=!connected;connected=true;state=next;
       if((manual||reconnected)&&!keepNotice)notify('');
-      render();await restoreEditorIfNeeded();
+      render();await Promise.all([restoreEditorIfNeeded(),restoreSelectionsIfNeeded()]);
       if(state.busy)polling=setTimeout(()=>refresh(),1000);
     }catch(error){
       if(serial!==responseSerial || epoch!==generationEpoch)return;
@@ -301,7 +350,8 @@
     }
   }
   class Timeline{
-    constructor(el,audio,phrases,onSelect=null){
+    constructor(el,audio,phrases,onSelect=null,stage='6'){
+      this.stage=String(stage);
       this.el=el;this.audio=audio;this.phrases=phrases;this.canvas=el.querySelector('canvas');this.scroller=el.querySelector('.timeline-scroll');this.track=el.querySelector('.timeline-track');
       this.length=audio.notes.reduce((end,n)=>Math.max(end,Number(n.start_beats)+Number(n.duration_beats)),Math.max(Number(audio.length_beats)||0,1));this.cursor=null;
       const pitches=audio.notes.map(n=>Number(n.midi_pitch)).filter(Number.isFinite);this.lo=pitches.reduce((v,p)=>Math.min(v,p),127)-1;this.hi=pitches.reduce((v,p)=>Math.max(v,p),0)+1;
@@ -312,11 +362,11 @@
       this.selectable=!!onSelect;
       this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(el);this.resize();
     }
-    resize(){const w=this.el.clientWidth,h=this.el.clientHeight-18-(this.selectable?44:0),dpr=Math.min(window.devicePixelRatio||1,2);this.canvas.width=Math.round(w*dpr);this.canvas.height=Math.round(h*dpr);this.canvas.style.height=h+'px';this.width=w;this.height=h;this.dpr=dpr;this.scale=Math.max(25,w/this.length);this.track.style.width=Math.max(w,this.length*this.scale)+'px';this.layoutPhraseControls();this.draw();}
+    resize(){const w=this.el.clientWidth,h=this.el.clientHeight-18-(this.selectable?28:0),dpr=Math.min(window.devicePixelRatio||1,2);this.canvas.width=Math.round(w*dpr);this.canvas.height=Math.round(h*dpr);this.canvas.style.height=h+'px';this.width=w;this.height=h;this.dpr=dpr;this.scale=Math.max(25,w/this.length);this.track.style.width=Math.max(w,this.length*this.scale)+'px';this.layoutPhraseControls();this.draw();}
     layoutPhraseControls(){for(const button of this.el.querySelectorAll('[data-phrase-select]')){button.style.left=(Number(button.dataset.phraseStart)*this.scale)+'px';button.style.width=(Number(button.dataset.phraseLength)*this.scale)+'px';}}
     draw(){
       const c=this.canvas.getContext('2d'),w=this.width,h=this.height;if(!w)return;c.setTransform(this.dpr,0,0,this.dpr,0,0);c.clearRect(0,0,w,h);const offset=this.scroller.scrollLeft;const x=b=>b*this.scale-offset;
-      if(this.selectable)for(const p of this.phrases){if(currentEditor()?.selected.includes(Number(p.phrase))){c.fillStyle='rgba(130,180,90,.22)';c.fillRect(x(Number(p.start_beats)),18,Number(p.length_beats)*this.scale,h-18);}}
+      if(this.selectable)for(const p of this.phrases){if(currentSelection(this.stage||'6')?.selected.includes(Number(p.phrase))){c.fillStyle='rgba(130,180,90,.22)';c.fillRect(x(Number(p.start_beats)),18,Number(p.length_beats)*this.scale,h-18);}}
       c.font='10px system-ui';c.textBaseline='top';
       for(let beat=Math.max(0,Math.floor(offset/this.scale));beat<=(offset+w)/this.scale;beat++){
         c.strokeStyle=beat%4===0?'#354333':'#233020';c.lineWidth=1;c.beginPath();c.moveTo(Math.round(x(beat))+.5,18);c.lineTo(Math.round(x(beat))+.5,h);c.stroke();
@@ -405,7 +455,9 @@
   }
   stagesNode.addEventListener('click',async event=>{
     const retry=event.target.closest('[data-editor-retry]');if(retry){await restoreEditorIfNeeded(true);return;}
-    const phrase=event.target.closest('[data-phrase-select]');if(phrase){if(!phrase.disabled)await togglePhrase(Number(phrase.dataset.phraseSelect));return;}
+    const selectionRetry=event.target.closest('[data-selection-retry]');if(selectionRetry){await openSelection(selectionRetry.dataset.selectionRetry,true);return;}
+    const selectedSave=event.target.closest('[data-save-selection]');if(selectedSave){if(!selectedSave.disabled)await saveStageSelection(selectedSave.dataset.saveSelection);return;}
+    const phrase=event.target.closest('[data-phrase-select]');if(phrase){if(!phrase.disabled)await toggleStagePhrase(phrase.dataset.phraseStage,Number(phrase.dataset.phraseSelect));return;}
     const edit=event.target.closest('[data-editor-action]');if(edit){if(!edit.disabled)await editorAction(edit.dataset.editorAction);return;}
     const saveMidi=event.target.closest('[data-save-midi]');
     if(saveMidi){if(saveMidi.dataset.saveMidi==='6'&&selectiveRegenerationEnabled&&!currentEditor()?.output)return;if(!saveMidi.disabled){if(saveMidi.dataset.saveMidi==='6'&&currentEditor()?.revision>0)await editorAction('save',true);else await saveGithub(saveMidi.dataset.saveMidi,Number(saveMidi.dataset.version));}return;}
@@ -436,7 +488,7 @@
       const nextConfig=await api('/api/config'),nextState=await api('/api/state');
       if(serial!==responseSerial || epoch!==generationEpoch)return;
       config=nextConfig;state=nextState;versionSession=state.session_id;minimumVersion=Number(state.version)||0;
-      connected=true;notify('');initDrafts();render();renderRecovery();await restoreEditorIfNeeded();if(state.busy)polling=setTimeout(()=>refresh(),1000);
+      connected=true;notify('');initDrafts();render();renderRecovery();await Promise.all([restoreEditorIfNeeded(),restoreSelectionsIfNeeded()]);if(state.busy)polling=setTimeout(()=>refresh(),1000);
     }catch(error){
       if(serial!==responseSerial || epoch!==generationEpoch)return;
       connected=false;if(error.loading){$('#connection').textContent='Loading dataset…';notify('');polling=setTimeout(init,1500);}else{$('#connection').textContent='Disconnected';notify(error.message || 'Cannot reach the generator.',true);}
