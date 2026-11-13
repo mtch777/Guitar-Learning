@@ -2,6 +2,8 @@ const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
 const noop=()=>{},node={addEventListener:noop,querySelectorAll:()=>[],querySelector:()=>node,setAttribute:noop,append:noop,textContent:'',hidden:false};
 const sandbox={console,location:{origin:'http://127.0.0.1:8768'},CSS:{escape:String},document:{querySelector:()=>node,addEventListener:noop},window:{addEventListener:noop},sessionStorage:{getItem:()=>null,setItem(){throw Error('Editor must not write storage');}},setTimeout,clearTimeout,setInterval,clearInterval,requestAnimationFrame:()=>1,cancelAnimationFrame:noop,Map,Set,URL,Math,JSON,Number,String,Array,Object,Error,Promise};
 let code=fs.readFileSync(require('path').join(__dirname,'../static/app.js'),'utf8');
+// Disabled-mode regression harness, regardless of the live phase flag.
+code=code.replace(/const selectiveRegenerationEnabled=(true|false);/, 'const selectiveRegenerationEnabled=false;');
 code=code.replace('  init();\n})();',`  globalThis.test={phraseCheckboxMarkup,resultMarkup,Timeline,togglePhrase,setEditorMode,editorAction,editorMarkup,getOutput,currentEditor,openEditor,selectedViews,set(s){config={stages:[]};state=s;connected=true;},get(){return state;}};\n})();`);
 vm.createContext(sandbox);vm.runInContext(code,sandbox);const t=sandbox.test;
 const original={audio:{tempo:120,length_beats:8,notes:[{start_beats:0,duration_beats:1,midi_pitch:28}]},phrases:[{phrase:1,start_beats:0,length_beats:4},{phrase:2,start_beats:4,length_beats:4}]};
@@ -33,5 +35,5 @@ function response(data,ok=true){return {ok,json:async()=>data};}
  const unchecked=t.phraseCheckboxMarkup(original);assert.ok(unchecked.includes('aria-label="Select phrase 2" aria-checked="false"'));assert.ok(!t.editorMarkup(original).includes('data-phrase-select'));
  const html=t.resultMarkup({id:'6'},state.stages[1]);assert.ok(html.indexOf('play-button')<html.indexOf('phrase-checkbox-row'));assert.ok(html.indexOf('phrase-checkbox-row')<html.indexOf('<canvas'));
 
- console.log('Phase 1 selection/export UI PASS: multi-select, exact scope, no original mutation, regeneration controls absent and handlers disabled.');
+ console.log('Disabled-mode regression UI PASS: multi-select, exact scope, no original mutation, regeneration controls absent and handlers disabled.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
