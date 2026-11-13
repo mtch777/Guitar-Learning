@@ -9,6 +9,6 @@
   ],
   "engine_qa": "passed independent full corpus and cascade checks",
   "ui": "unit/race/audio scheduling checks pass; live browser QA not run",
-  "deployment": "blocked: Windows Library xattrs failure; no enabled signed-in desktop browser; public source publication needs explicit user approval",
+  "deployment": "Source published on separately approved branch; desktop deployment and live browser QA in progress",
   "phone_reachability": "not verified"
 }
