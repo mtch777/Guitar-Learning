@@ -7,6 +7,9 @@
   let config = null, state = null, drafts = {}, requestBusy = false, polling = null, connected = false;
   let responseSerial=0, generationEpoch=0, minimumVersion=0, versionSession=null;
   const selectedViews = {}, timelines = new Map();
+  const saveResults=new Map();
+  const saveKey=(stage,version,identity=state?.session_id)=>`${identity||''}:${stage}:${version}`;
+  const githubFolder='https://github.com/mtch777/Guitar-Learning/tree/generated-midi/generated-midi';
   const stagesNode = $('#steps'), noticeNode = $('#notice');
   const stable = value => JSON.stringify(canonical(value));
   function canonical(value){if(Array.isArray(value))return value.map(canonical);if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).sort().map(k=>[k,canonical(value[k])]));return value;}
@@ -124,7 +127,9 @@
     if (applied && Object.keys(applied).length) evidence['Applied parameters']=applied;
     if (Object.keys(evidence).length) html+=`<details class="evidence" data-details="evidence-${esc(id)}"><summary>Details</summary><pre>${esc(JSON.stringify(evidence,null,2))}</pre></details>`;
     if (!usePrevious && !isBusy() && output.can_export===true) {
-      html+=`<a class="export" href="/api/midi?stage=${encodeURIComponent(id)}&version=${encodeURIComponent(state.version)}" download>↓ MIDI</a> <button type="button" data-copy-midi="${esc(id)}" data-version="${state.version}">📋 Copy MIDI</button>`;
+      const saved=saveResults.get(saveKey(id,state.version));
+      html+=`<button type="button" data-save-midi="${esc(id)}" data-version="${state.version}" ${saved?.pending?'disabled':''}>${saved?.pending?'Saving…':'💾 Save'}</button> <a href="${githubFolder}" target="_blank" rel="noopener noreferrer">🔗 Folder</a>`;
+      if(saved?.file_url)html+=`<p>Saved v${state.version} · <a href="${esc(saved.file_url)}" target="_blank" rel="noopener noreferrer">MIDI</a></p>`;
     }
     return html;
   }
@@ -274,7 +279,33 @@
     button.addEventListener('click',()=>{area.focus();area.select();area.setSelectionRange(0,area.value.length);let copied=false;try{copied=document.execCommand('copy');}catch{}label.textContent=`MIDI v${version}. `+(copied?'Copied. Paste it in the chat.':'Select all and copy the text, then paste it in the chat.');});
     panel.append(label,area,button,close);document.querySelector('main').prepend(panel);panel.scrollIntoView({block:'start'});area.focus();area.select();
   }
+  function previousSessionReference(){
+    try{const value=JSON.parse(sessionStorage.getItem('riff-walkthrough-drafts'));return /^[A-Za-z0-9_-]{32}$/.test(value?.session||'') && value.session!==state?.session_id?value.session:null;}catch{return null;}
+  }
+  async function saveGithub(stage,version,previous=null){
+    const identity=previous||state?.session_id,key=saveKey(stage,version,identity);if(saveResults.get(key)?.pending)return;
+    saveResults.set(key,{pending:true});render();
+    try{
+      const endpoint=new URL(location.origin);endpoint.port='8769';endpoint.pathname=previous?'/recover':'/save';
+      const response=await fetch(endpoint.href,{method:'POST',credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(previous?{session_id:previous}:{stage:Number(stage),version:Number(version)})});
+      const result=await response.json();if(!response.ok || result.saved!==true)throw Error(result.error||'GitHub save was not confirmed.');
+      if(!result.file_url?.startsWith('https://github.com/mtch777/Guitar-Learning/blob/generated-midi/generated-midi/') || result.folder_url!==githubFolder)throw Error('The save destination could not be verified.');
+      saveResults.set(key,result);notify(`Saved ${previous?'previous session ':identity!==state?.session_id?'earlier session ':''}MIDI v${result.version} to GitHub.`);
+    }catch(error){saveResults.delete(key);notify(error.message==='Failed to fetch'?'Cannot reach the MIDI save service. Nothing was confirmed saved.':error.message);}
+    render();
+  }
+  function renderRecovery(){
+    if(document.querySelector('#previous-save'))return;
+    if(!previousSessionReference())return;
+    const panel=document.createElement('section');panel.id='previous-save';panel.className='notice';
+    const button=document.createElement('button');button.type='button';button.textContent='💾 Save previous result';
+    const link=document.createElement('a');link.href=githubFolder;link.target='_blank';link.rel='noopener noreferrer';link.textContent=' 🔗 Folder';
+    button.addEventListener('click',async()=>{const previous=previousSessionReference();if(!previous){notify('No previous session reference is available.');return;}button.disabled=true;await saveGithub('6','previous',previous);button.disabled=false;});
+    panel.append(button,link);document.querySelector('main').prepend(panel);
+  }
   stagesNode.addEventListener('click',async event=>{
+    const saveMidi=event.target.closest('[data-save-midi]');
+    if(saveMidi){if(!saveMidi.disabled)await saveGithub(saveMidi.dataset.saveMidi,Number(saveMidi.dataset.version));return;}
     const copyMidi=event.target.closest('[data-copy-midi]');
     if(copyMidi){
       if(copyMidi.disabled)return;copyMidi.disabled=true;
@@ -302,7 +333,7 @@
       const nextConfig=await api('/api/config'),nextState=await api('/api/state');
       if(serial!==responseSerial || epoch!==generationEpoch)return;
       config=nextConfig;state=nextState;versionSession=state.session_id;minimumVersion=Number(state.version)||0;
-      connected=true;notify('');initDrafts();render();if(state.busy)polling=setTimeout(()=>refresh(),1000);
+      connected=true;notify('');initDrafts();render();renderRecovery();if(state.busy)polling=setTimeout(()=>refresh(),1000);
     }catch(error){
       if(serial!==responseSerial || epoch!==generationEpoch)return;
       connected=false;if(error.loading){$('#connection').textContent='Loading dataset…';notify('');polling=setTimeout(init,1500);}else{$('#connection').textContent='Disconnected';notify(error.message || 'Cannot reach the generator.',true);}
