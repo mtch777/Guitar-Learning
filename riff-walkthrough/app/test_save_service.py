@@ -115,6 +115,8 @@ class GitTests(unittest.TestCase):
      self.assertEqual(run('--git-dir',remote,'show','generated-midi:'+expected).stdout,MIDI)
      self.assertEqual(result['stage'],stage)
     result=p.publish(MIDI,2,5,True);self.assertIn('5_remaining_pitches_partial_',result['file_url']);self.assertTrue(result['partial'])
+    result=p.publish(MIDI,2,6,False,selected=True);self.assertIn('6_review_selected_',result['file_url'])
+    self.assertEqual(p.publish(MIDI,2,6,False,selected=True)['commit'],result['commit'])
     first=result
     (work/'unrelated.txt').write_text('keep')
     with self.assertRaises(S.SaveError):p.publish(MIDI,2)
