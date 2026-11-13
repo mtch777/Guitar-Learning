@@ -25,10 +25,8 @@
 
 Technical correctness does not establish musical quality or human listening approval.
 
-## Delivery blocker (verified)
-- Windows Library materialization fails at `os.setxattr`; the helper removes the temporary ZIP, leaving no readable deployment file.
-- The documented native private Library download route was considered, but desktop browser inventory is empty: no available signed-in browser session.
-- A public Git source-only push was rejected for missing explicit user approval. The isolated local commit exists but the remote branch is absent. It was not retried through another tool.
-- No server was started on the desktop, and no firewall, router or other security settings were changed.
-
-To continue, either download this private ZIP onto the desktop and let the assistant finish deployment, or explicitly approve publishing the app source (no corpus, scores or private annotations) on a separate branch of the existing public Guitar-Learning repository. Desktop/browser/phone verification must still follow successful transfer.
+## Delivery progress
+- User explicitly approved source-only publication on a separate branch of the existing public repository.
+- Exact Library v3 archive recovered and hash-verified after cloud workspace rollback.
+- Git push passed action review but lacked local GitHub authentication. The authenticated GitHub connector published the same 31 source/test/document files; subsequent Git fetch/diff verified exact source parity. No corpus or private annotations were included.
+- Desktop deployment and live browser/phone verification remain in progress. No firewall, router or other security settings changed.
