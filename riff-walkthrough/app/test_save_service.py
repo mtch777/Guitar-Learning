@@ -65,6 +65,12 @@ class SourceTests(unittest.TestCase):
    p=S.Publisher('.',server.server_port);cookie='unrelated=secret; riff_session='+sid
    for i in range(1,7):self.assertEqual(p.current_audio_midi(cookie,i,2),(midi_bytes(audio),False))
    self.assertTrue(all(x==('/api/state','riff_session='+sid) for x in seen))
+   for stage in state['stages']:
+    stage['previous']={'audio':{'notes':[{'start_beats':1,'duration_beats':2,'midi_pitch':40}],'tempo':120,'length_beats':4,'label':'Previous'}}
+    self.assertEqual(p.current_audio_midi(cookie,int(stage['id']),2,view='previous')[0],midi_bytes(stage['previous']['audio']))
+   del state['stages'][0]['previous']
+   with self.assertRaises(S.SaveError):p.current_audio_midi(cookie,1,2,view='previous')
+
    with self.assertRaises(S.SaveError):p.current_midi(cookie,1,1)
    with self.assertRaises(S.SaveError):p.current_midi('',1,2)
    state['busy']=True
