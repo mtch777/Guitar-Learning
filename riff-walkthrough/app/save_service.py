@@ -1,7 +1,7 @@
 """Narrow companion: save current generated MIDI through existing Git credentials.
 Does not load, restart, regenerate, or persist generator sessions.
 """
-import argparse, hashlib, http.client, http.cookies, http.server, json, math, os, pathlib, re, subprocess, threading
+import argparse, hashlib, http.client, http.cookies, http.server, json, math, os, pathlib, re, subprocess, threading, urllib.parse
 
 REPOSITORY='https://github.com/mtch777/Guitar-Learning.git'
 BRANCH='generated-midi'
@@ -24,7 +24,7 @@ class Publisher:
   except (OSError,subprocess.TimeoutExpired) as e:raise SaveError('GitHub save timed out or Git is unavailable. Retry Save.') from e
   if check and r.returncode:raise SaveError('GitHub save could not be verified. Retry Save; identical files will not duplicate.')
   return r
- def current_audio_midi(self,cookie,stage,version,include_output=False):
+ def current_audio_midi(self,cookie,stage,version,include_output=False,view='current'):
   from server import midi_bytes
   parsed=http.cookies.SimpleCookie()
   try:parsed.load(cookie or '')
@@ -39,13 +39,15 @@ class Publisher:
   except (OSError,http.client.HTTPException,ValueError) as e:raise SaveError('Cannot read the running generator.') from e
   finally:conn.close()
   entry=next((s for s in state.get('stages',[]) if str(s.get('id'))==str(stage)),{})
-  out=entry.get('output') or {};audio=out.get('audio');partial=stage==5 and entry.get('status')=='blocked'
-  if entry.get('status')!='complete' and not partial:raise SaveError('This step has no current playback to save.')
+  if view not in ('current','previous'):raise SaveError('Invalid playback snapshot.')
+  out=(entry.get('previous') if view=='previous' else entry.get('output')) or {}
+  audio=out.get('audio');partial=stage==5 and (str((audio or {}).get('label','')).startswith('Partial') if view=='previous' else entry.get('status')=='blocked')
+  if view=='current' and entry.get('status')!='complete' and not partial:raise SaveError('This step has no current playback to save.')
   if not isinstance(audio,dict) or audio.get('unavailable') or audio.get('reason'):raise SaveError('This step has no available playback to save.')
   def number(x):return type(x) in (int,float) and math.isfinite(x)
   notes=audio.get('notes');length=audio.get('length_beats')
   if not isinstance(notes,list) or not number(length) or length<=0 or audio.get('tempo')!=120:raise SaveError('This playback cannot be exported accurately.')
-  if partial and (not notes or not out.get('blocker') or not str(audio.get('label','')).startswith('Partial')):raise SaveError('This step has no partial playback to save.')
+  if partial and (not notes or (view=='current' and not out.get('blocker')) or not str(audio.get('label','')).startswith('Partial')):raise SaveError('This step has no partial playback to save.')
   for n in notes:
    if not isinstance(n,dict) or not all(number(n.get(k)) for k in ('start_beats','duration_beats','midi_pitch')):raise SaveError('Invalid playback note.')
    if n['start_beats']<0 or n['duration_beats']<=0 or n['midi_pitch']!=int(n['midi_pitch']) or not 0<=n['midi_pitch']<=127 or n['start_beats']+n['duration_beats']>length+1e-8:raise SaveError('Invalid playback note.')
@@ -115,9 +117,11 @@ def handler_for(publisher,allowed_origins):
  allowed_origins=frozenset(allowed_origins)
  from editor_service import EditorManager
  from selection_service import SelectionManager
+ from render_service import RenderManager
  editor=None
  selection=None
- routes=['/save','/recover','/editor/open','/editor/plan','/editor/regenerate','/editor/save','/selection/open','/selection/save']
+ renderer=None
+ routes=['/save','/recover','/editor/open','/editor/plan','/editor/regenerate','/editor/save','/selection/open','/selection/save','/render/presets','/render/start','/render/status','/render/audio']
  class Handler(http.server.BaseHTTPRequestHandler):
   def reply(self,code,data,origin=None):
    body=json.dumps(data).encode();self.send_response(code)
@@ -127,10 +131,10 @@ def handler_for(publisher,allowed_origins):
    self.end_headers();self.wfile.write(body)
   def do_OPTIONS(self):
    origin=self.headers.get('Origin')
-   if self.path not in routes or origin not in allowed_origins:self.reply(403,{'error':'Origin not allowed'});return
-   self.send_response(204);self.send_header('Access-Control-Allow-Origin',origin);self.send_header('Access-Control-Allow-Credentials','true');self.send_header('Access-Control-Allow-Methods','POST');self.send_header('Access-Control-Allow-Headers','Content-Type');self.send_header('Vary','Origin');self.end_headers()
+   if urllib.parse.urlparse(self.path).path not in routes or origin not in allowed_origins:self.reply(403,{'error':'Origin not allowed'});return
+   self.send_response(204);self.send_header('Access-Control-Allow-Origin',origin);self.send_header('Access-Control-Allow-Credentials','true');self.send_header('Access-Control-Allow-Methods','GET, POST');self.send_header('Access-Control-Allow-Headers','Content-Type, Range');self.send_header('Vary','Origin');self.end_headers()
   def do_POST(self):
-   nonlocal editor,selection
+   nonlocal editor,selection,renderer
    origin=self.headers.get('Origin')
    if self.path not in routes or origin not in allowed_origins:self.reply(403,{'error':'Origin not allowed'});return
    try:
@@ -139,6 +143,17 @@ def handler_for(publisher,allowed_origins):
     if not 0<length<=2048:raise ValueError('Invalid request size')
     data=json.loads(self.rfile.read(length))
     if not isinstance(data,dict):raise ValueError('Object required')
+    if self.path.startswith('/render/'):
+     if editor is None:editor=EditorManager(publisher)
+     if selection is None:selection=SelectionManager(publisher)
+     if renderer is None:renderer=RenderManager(publisher,editor,selection)
+     try:
+      if self.path=='/render/presets' and not data:result={'presets':renderer.available()}
+      elif self.path=='/render/start':result=renderer.start(self.headers.get('Cookie'),data)
+      elif self.path=='/render/status' and set(data)=={'job_id'}:result=renderer.status(self.headers.get('Cookie'),data['job_id'])
+      else:raise ValueError('Invalid Kontakt request.')
+     except ValueError as e:raise SaveError(str(e)) from e
+     self.reply(200,result,origin);return
     if self.path.startswith('/selection/'):
      if selection is None:selection=SelectionManager(publisher)
      try:result=selection.request(self.path,self.headers.get('Cookie'),data)
@@ -158,7 +173,28 @@ def handler_for(publisher,allowed_origins):
    except (ValueError,TypeError,json.JSONDecodeError):self.reply(400,{'error':'Provide a current stage 1–6 MIDI version.'},origin)
    except SaveError as e:self.reply(409,{'error':str(e)},origin)
    except Exception:self.reply(500,{'error':'Save failed. No successful GitHub save was confirmed.'},origin)
-  def do_GET(self):self.reply(405,{'error':'Use Save in the generator.'})
+  def do_GET(self):
+   origin=self.headers.get('Origin');query=urllib.parse.urlparse(self.path)
+   if query.path!='/render/audio':self.reply(405,{'error':'Use the generator controls.'});return
+   if origin not in allowed_origins:self.reply(403,{'error':'Origin not allowed'});return
+   try:
+    if renderer is None:raise ValueError('Audio is not ready.')
+    args=urllib.parse.parse_qs(query.query)
+    if set(args)!={'job'} or len(args['job'])!=1:raise ValueError('Invalid audio request.')
+    body=renderer.audio(self.headers.get('Cookie'),args['job'][0]);size=len(body);start=0;end=size-1;code=200
+    requested=self.headers.get('Range')
+    if requested:
+     match=re.fullmatch(r'bytes=(\d*)-(\d*)',requested)
+     invalid=not match or not any(match.groups())
+     if not invalid and match.group(1):start=int(match.group(1));end=min(end,int(match.group(2))) if match.group(2) else end
+     elif not invalid:start=max(0,size-int(match.group(2)))
+     if invalid or not 0<=start<=end<size:
+      self.send_response(416);self.send_header('Content-Range',f'bytes */{size}');self.send_header('Content-Length','0');self.send_header('Access-Control-Allow-Origin',origin);self.send_header('Access-Control-Allow-Credentials','true');self.end_headers();return
+     code=206
+    self.send_response(code);self.send_header('Content-Type','audio/wav');self.send_header('Content-Length',str(end-start+1));self.send_header('Accept-Ranges','bytes');self.send_header('Cache-Control','no-store');self.send_header('Access-Control-Allow-Origin',origin);self.send_header('Access-Control-Allow-Credentials','true');self.send_header('Vary','Origin')
+    if code==206:self.send_header('Content-Range',f'bytes {start}-{end}/{size}')
+    self.end_headers();self.wfile.write(body[start:end+1])
+   except ValueError as e:self.reply(409,{'error':str(e)},origin)
   def log_message(self,*args):pass  # Never put cookies or request payloads in logs.
  return Handler
 
