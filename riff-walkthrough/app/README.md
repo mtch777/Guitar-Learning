@@ -1,12 +1,12 @@
 # Riff walkthrough
 
-A local Python 3.10+ server with browser HTML/JS UI. Standard library only. Keep sibling `seed-scoring` and `weighted-scoring` directories alongside `riff-walkthrough`; the original approved generator code is imported, not copied into a new algorithm.
+A local Python 3.10+ server with browser HTML/JS UI. Standard library only. Keep sibling `seed-scoring` and `weighted-scoring` directories alongside `app` inside `riff-walkthrough`; the original approved generator code is imported, not copied into a new algorithm.
 
-Windows launch (PowerShell):
+Windows launch from the repository root (PowerShell):
 ```
 $env:RIFF_CSV='C:\Users\User\riff-csv-engine\full-export\all_riffs_phrase_composition.csv'
 $env:RIFF_TIMING='C:\Users\User\riff-csv-engine\pitch-free-all-lengths\pitch_free_all_lengths_phrase_rhythms.json'
-python riff-walkthrough\server.py --host 127.0.0.1 --port 8768
+python riff-walkthrough\app\server.py --host 127.0.0.1 --port 8768
 ```
 
 Open http://127.0.0.1:8768. Initial full-corpus load takes about 30 seconds in the cloud test and uses several GB of memory. The browser reports loading, not fake progress. Do not open multiple server processes. Stop the server before replacing source code.
