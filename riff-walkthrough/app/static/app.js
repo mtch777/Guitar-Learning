@@ -110,8 +110,8 @@
     if(!a.notes.every(n=>Number.isFinite(n.start_beats)&&n.start_beats>=0&&Number.isFinite(n.duration_beats)&&n.duration_beats>0&&Number.isInteger(n.midi_pitch)&&n.midi_pitch>=0&&n.midi_pitch<=127&&n.start_beats+n.duration_beats<=a.length_beats+1e-8))return false;
     return ss.status==='complete' || (String(id)==='5' && ss.status==='blocked' && !!ss.output.blocker && typeof a.label==='string' && a.label.startsWith('Partial') && a.notes.length>0);
   }
-  const selectiveRegenerationEnabled=false;
-  let editor=null,editorSerial=0;
+  const selectiveRegenerationEnabled=true;
+  let editor=null,editorSerial=0,editorRestoreError=null,editorRecoveryPrefs=null;
   const editorKey=()=>`${state?.session_id||''}:${state?.version}`;
   function currentEditor(){return editor?.key===editorKey()&&stageState('6')?.status==='complete'?editor:null;}
   function editorReady(){return !isBusy()&&connected&&stageState('6')?.status==='complete'&&selectedViews['6']!=='previous';}
@@ -125,15 +125,17 @@
     if(!editorReady())return null;
     if(currentEditor())return currentEditor();
     const key=editorKey(),serial=++editorSerial;
-    editor={key,busy:true,revision:0,selected:[],mode:'both',plan:null,output:null};render();
+    const prefs=editorRecoveryPrefs?.key===key?editorRecoveryPrefs:null;
+    editorRestoreError=null;editor={key,busy:true,revision:0,selected:prefs?[...prefs.selected]:[],mode:prefs?.mode||'both',plan:null,output:null};render();
     try{
       const result=await editorRequest('open',{version:state.version});
       if(serial!==editorSerial||key!==editorKey())return null;
       if(result.source_version!==state.version||!Number.isInteger(result.revision)||!result.output?.audio)throw Error('The editor returned an invalid result.');
-      Object.assign(editor,{revision:result.revision,output:result.output,busy:false});return editor;
-    }catch(e){if(serial===editorSerial&&key===editorKey()){editor=null;notify(e.message);}return null;}
+      Object.assign(editor,{revision:result.revision,output:result.output,busy:false});editor.selected=editor.selected.filter(n=>result.output.phrases?.some(p=>Number(p.phrase)===n));if(editorRecoveryPrefs?.key===key)editorRecoveryPrefs=null;return editor;
+    }catch(e){if(serial===editorSerial&&key===editorKey()){editor=null;editorRestoreError={key,message:e.message};notify(e.message);}return null;}
     finally{render();}
   }
+  async function restoreEditorIfNeeded(force=false){if(selectiveRegenerationEnabled&&editorReady()&&!currentEditor()&&(force||editorRestoreError?.key!==editorKey()))await openEditor();}
   async function togglePhrase(number){
     if(!editorReady()||currentEditor()?.busy)return;
     const e=await openEditor();if(!e||e!==currentEditor()||e.busy)return;
@@ -148,7 +150,7 @@
     const key=e.key,serial=++editorSerial,revision=e.revision;
     const payload={version:state.version,revision,selected:full?null:[...e.selected]};
     if(action!=='save')payload.mode=e.mode;
-    e.busy=true;render();
+    if(action==='regenerate')player.stop();e.busy=true;render();
     try{
       const result=await editorRequest(action,payload);
       if(serial!==editorSerial||key!==editorKey()||e!==currentEditor())return;
@@ -162,7 +164,13 @@
         if(result.saved!==true||result.editor_revision!==revision||!result.file_url?.startsWith('https://github.com/mtch777/Guitar-Learning/blob/generated-midi/generated-midi/')||result.folder_url!==githubFolder)throw Error('The save destination could not be verified.');
         e.saved={...result,selected:payload.selected,revision};notify('Saved '+(full?'full':'selected')+' MIDI to GitHub.');
       }
-    }catch(error){if(serial===editorSerial&&key===editorKey()){if(action==='regenerate')e.plan=null;notify(error.message);}}
+    }catch(error){if(serial===editorSerial&&key===editorKey()){
+      if(action==='regenerate'){
+        editorRecoveryPrefs={key,selected:[...e.selected],mode:e.mode};editor=null;editorRestoreError=null;render();
+        const restored=await openEditor();
+        if(key===editorKey())notify(error.message+(restored?' · Review restored from saved state.':' · Review must be restored before continuing.'));
+      }else notify(error.message);
+    }}
     finally{if(e===currentEditor())e.busy=false;render();}
   }
   function phraseCheckboxMarkup(output){
@@ -188,6 +196,7 @@
   function resultMarkup(stage, ss) {
     const id=idOf(stage), usePrevious=selectedViews[id]==='previous' && !!ss?.previous;
     const previous=ss?.previous?.output ?? ss?.previous;
+    if(id==='6'&&!usePrevious&&selectiveRegenerationEnabled&&ss?.status==='complete'&&!currentEditor()?.output){const error=editorRestoreError?.key===editorKey()?editorRestoreError.message:null;return error?`<p class="blocker">Review could not be restored: ${esc(error)}</p><button type="button" data-editor-retry>↻ Retry Review</button>`:'<p role="status">Restoring Review…</p>';}
     const output=usePrevious ? previous : id==='6'?(currentEditor()?.output||ss?.output):ss?.output;
     let html='';
     if (previous) html+=`<div class="compare" role="group" aria-label="Result version"><button data-action="view" data-stage="${esc(id)}" data-view="current" aria-pressed="${!usePrevious}">Current</button><button data-action="view" data-stage="${esc(id)}" data-view="previous" aria-pressed="${!!usePrevious}">Previous</button></div>`;
@@ -201,7 +210,7 @@
     if (audioAvailable(output)) {
       const selectable=id==='6'&&!usePrevious&&ss?.status==='complete';
       const active=player.active?.stage===id && player.active?.view===(usePrevious?'previous':'current');
-      html+=`<div class="audio-section"><div class="audio-toolbar"><button class="play-button" data-action="play" data-stage="${esc(id)}"${isBusy()?' disabled':''} aria-label="${active?'Stop':'Play'} ${esc(output.audio.label || '')}${usePrevious?' previous result':''}">${active?'■ Stop':'▶ Play'}</button><span class="audio-label">${esc(output.audio.label || 'Audio')}${usePrevious?' · Previous':''}</span><span class="audio-clock" data-clock="${esc(id)}">${active?'0:00 / ':''}${formatTime(duration(output.audio))}</span></div><div class="timeline${selectable?' timeline-selectable':''}" data-timeline="${esc(id)}"><div class="timeline-scroll"><div class="timeline-track">${selectable?phraseCheckboxMarkup(output):''}</div></div><canvas aria-label="Note timing and playback position" role="img"></canvas></div></div>`;
+      html+=`<div class="audio-section"><div class="audio-toolbar"><button class="play-button" data-action="play" data-stage="${esc(id)}"${isBusy()||(id==='6'&&!!currentEditor()?.busy)?' disabled':''} aria-label="${active?'Stop':'Play'} ${esc(output.audio.label || '')}${usePrevious?' previous result':''}">${active?'■ Stop':'▶ Play'}</button><span class="audio-label">${esc(output.audio.label || 'Audio')}${usePrevious?' · Previous':''}</span><span class="audio-clock" data-clock="${esc(id)}">${active?'0:00 / ':''}${formatTime(duration(output.audio))}</span></div><div class="timeline${selectable?' timeline-selectable':''}" data-timeline="${esc(id)}"><div class="timeline-scroll"><div class="timeline-track">${selectable?phraseCheckboxMarkup(output):''}</div></div><canvas aria-label="Note timing and playback position" role="img"></canvas></div></div>`;
     } else if(output.audio?.unavailable || output.audio?.reason) html+=`<p class="empty">${esc(output.audio.unavailable || output.audio.reason)}</p>`;
     if(id==='6'&&!usePrevious&&ss?.status==='complete')html+=editorMarkup(output);
     html+=phraseMarkup(output.phrases,id);
@@ -216,6 +225,7 @@
     }
     return html;
   }
+  async function setResultView(id,view){player.stop();selectedViews[id]=view;render();if(String(id)==='6'&&view==='current')await restoreEditorIfNeeded();}
   const markupCache = new Map();
   function render() {
     if (!config || !state) return;
@@ -242,7 +252,7 @@
   function formatNumber(n){const v=Number(n);return Number.isFinite(v)?String(Math.round(v*1000)/1000):String(n);}
   function formatTime(seconds){seconds=Math.max(0,Number(seconds)||0);return `${Math.floor(seconds/60)}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;}
   function duration(a){return (a.notes||[]).reduce((end,n)=>Math.max(end,Number(n.start_beats)+Number(n.duration_beats)),Number(a.length_beats)||0)*60/(Number(a.tempo)||120);}
-  function getOutput(id){const s=stageState(id);return selectedViews[id]==='previous'?(s?.previous?.output??s?.previous):String(id)==='6'?(currentEditor()?.output||s?.output):s?.output;}
+  function getOutput(id){const s=stageState(id);return selectedViews[id]==='previous'?(s?.previous?.output??s?.previous):String(id)==='6'?(selectiveRegenerationEnabled?currentEditor()?.output:(currentEditor()?.output||s?.output)):s?.output;}
   async function generate(id){
     if(isBusy() || currentEditor()?.busy || !connected)return;
     const index=config.stages.findIndex(s=>idOf(s)===id);
@@ -278,7 +288,7 @@
       else minimumVersion=Math.max(minimumVersion,Number(next.version)||0);
       const reconnected=!connected;connected=true;state=next;
       if((manual||reconnected)&&!keepNotice)notify('');
-      render();
+      render();await restoreEditorIfNeeded();
       if(state.busy)polling=setTimeout(()=>refresh(),1000);
     }catch(error){
       if(serial!==responseSerial || epoch!==generationEpoch)return;
@@ -329,6 +339,7 @@
     context:null,active:null,nodes:new Set(),timer:null,frame:null,token:0,
     stop(){this.token++;clearInterval(this.timer);cancelAnimationFrame(this.frame);for(const n of this.nodes){try{n.stop();}catch{}}this.nodes.clear();const old=this.active;this.active=null;if(old){const t=timelines.get(old.stage);if(t){t.cursor=null;t.draw();}const b=stagesNode.querySelector(`[data-action="play"][data-stage="${CSS.escape(old.stage)}"]`);if(b){b.textContent='▶ Play';b.setAttribute('aria-label','Play');}const clock=stagesNode.querySelector(`[data-clock="${CSS.escape(old.stage)}"]`);if(clock)clock.textContent=formatTime(old.duration);}},
     async play(id){
+      if(String(id)==='6'&&selectiveRegenerationEnabled&&(!currentEditor()?.output||currentEditor()?.busy))return;
       const view=selectedViews[id] || 'current';if(this.active?.stage===id && this.active?.view===view){this.stop();return;}
       this.stop();const token=this.token;const output=getOutput(id);if(!audioAvailable(output))return;
       try{
@@ -393,10 +404,11 @@
     panel.append(button,link);document.querySelector('main').prepend(panel);
   }
   stagesNode.addEventListener('click',async event=>{
+    const retry=event.target.closest('[data-editor-retry]');if(retry){await restoreEditorIfNeeded(true);return;}
     const phrase=event.target.closest('[data-phrase-select]');if(phrase){if(!phrase.disabled)await togglePhrase(Number(phrase.dataset.phraseSelect));return;}
     const edit=event.target.closest('[data-editor-action]');if(edit){if(!edit.disabled)await editorAction(edit.dataset.editorAction);return;}
     const saveMidi=event.target.closest('[data-save-midi]');
-    if(saveMidi){if(!saveMidi.disabled){if(saveMidi.dataset.saveMidi==='6'&&currentEditor()?.revision>0)await editorAction('save',true);else await saveGithub(saveMidi.dataset.saveMidi,Number(saveMidi.dataset.version));}return;}
+    if(saveMidi){if(saveMidi.dataset.saveMidi==='6'&&selectiveRegenerationEnabled&&!currentEditor()?.output)return;if(!saveMidi.disabled){if(saveMidi.dataset.saveMidi==='6'&&currentEditor()?.revision>0)await editorAction('save',true);else await saveGithub(saveMidi.dataset.saveMidi,Number(saveMidi.dataset.version));}return;}
     const copyMidi=event.target.closest('[data-copy-midi]');
     if(copyMidi){
       if(copyMidi.disabled)return;copyMidi.disabled=true;
@@ -414,7 +426,7 @@
     const button=event.target.closest('[data-action]');if(!button||button.disabled)return;const id=button.dataset.stage;
     if(button.dataset.action==='generate')generate(id);
     if(button.dataset.action==='play')player.play(id);
-    if(button.dataset.action==='view'){player.stop();selectedViews[id]=button.dataset.view;render();}
+    if(button.dataset.action==='view')await setResultView(id,button.dataset.view);
   });
   document.addEventListener('visibilitychange',()=>{if(document.hidden)player.stop();else if(config)refresh();});
   window.addEventListener('pagehide',()=>player.stop());
@@ -424,7 +436,7 @@
       const nextConfig=await api('/api/config'),nextState=await api('/api/state');
       if(serial!==responseSerial || epoch!==generationEpoch)return;
       config=nextConfig;state=nextState;versionSession=state.session_id;minimumVersion=Number(state.version)||0;
-      connected=true;notify('');initDrafts();render();renderRecovery();if(state.busy)polling=setTimeout(()=>refresh(),1000);
+      connected=true;notify('');initDrafts();render();renderRecovery();await restoreEditorIfNeeded();if(state.busy)polling=setTimeout(()=>refresh(),1000);
     }catch(error){
       if(serial!==responseSerial || epoch!==generationEpoch)return;
       connected=false;if(error.loading){$('#connection').textContent='Loading dataset…';notify('');polling=setTimeout(init,1500);}else{$('#connection').textContent='Disconnected';notify(error.message || 'Cannot reach the generator.',true);}
