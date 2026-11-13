@@ -1,0 +1,171 @@
+{
+  "version": "approved-scaffold-weights-v1",
+  "role_field": "Phrase role",
+  "role_filter": "same known role; unassigned/unresolved excluded",
+  "fields": [
+    {
+      "schema_id": 5,
+      "field": "Category - dominant texture",
+      "weight": 3
+    },
+    {
+      "schema_id": 6,
+      "field": "Category - pedal behavior",
+      "weight": 1
+    },
+    {
+      "schema_id": 7,
+      "field": "Category - chug coverage",
+      "weight": 1
+    },
+    {
+      "schema_id": 8,
+      "field": "Category - arpeggio status",
+      "weight": 1
+    },
+    {
+      "schema_id": 10,
+      "field": "Category - other overlapping phrase-type tags (including provisional status)",
+      "weight": 1
+    },
+    {
+      "schema_id": 11,
+      "field": "Length (quarter-note beats)",
+      "weight": 3
+    },
+    {
+      "schema_id": 13,
+      "field": "Attack count",
+      "weight": 1
+    },
+    {
+      "schema_id": 14,
+      "field": "Individual note count",
+      "weight": 1
+    },
+    {
+      "schema_id": 15,
+      "field": "Attack density (attacks per beat)",
+      "weight": 1
+    },
+    {
+      "schema_id": 24,
+      "field": "Accent function",
+      "weight": 2
+    },
+    {
+      "schema_id": 25,
+      "field": "Accent subtype",
+      "weight": 2
+    },
+    {
+      "schema_id": 26,
+      "field": "Techniques",
+      "weight": 0.5
+    },
+    {
+      "schema_id": 27,
+      "field": "Pitch range",
+      "weight": 0.5
+    },
+    {
+      "schema_id": 30,
+      "field": "Pedal anchor returns",
+      "weight": 1
+    },
+    {
+      "schema_id": 31,
+      "field": "Strings used",
+      "weight": 0.5
+    },
+    {
+      "schema_id": 32,
+      "field": "Fret range",
+      "weight": 0.5
+    },
+    {
+      "schema_id": 35,
+      "field": "Simplified melody (ordered pitches; consecutive repeats condensed; simultaneous notes bracketed)",
+      "weight": 0.5
+    },
+    {
+      "schema_id": 37,
+      "field": "Melody repeated-note counts",
+      "weight": 1
+    },
+    {
+      "schema_id": 38,
+      "field": "Open-string coverage (all/some/none/unknown)",
+      "weight": 1
+    },
+    {
+      "schema_id": 39,
+      "field": "Open-note count",
+      "weight": 1
+    },
+    {
+      "schema_id": 40,
+      "field": "Open-note percentage",
+      "weight": 1
+    },
+    {
+      "schema_id": 41,
+      "field": "Open strings used",
+      "weight": 0.5
+    },
+    {
+      "schema_id": 42,
+      "field": "Open-note pitches",
+      "weight": 0.5
+    },
+    {
+      "schema_id": 43,
+      "field": "Open-note positions",
+      "weight": 0.5
+    },
+    {
+      "schema_id": 45,
+      "field": "Mapped open-string fingering",
+      "weight": 0.5
+    },
+    {
+      "schema_id": 46,
+      "field": "Lowest-string usage",
+      "weight": 1
+    },
+    {
+      "schema_id": 47,
+      "field": "Lowest-two-string usage",
+      "weight": 1
+    },
+    {
+      "schema_id": 48,
+      "field": "Rhythmic events in order (all attacks/rests; dotted notes/tuplets/ties; simultaneous chords grouped)",
+      "weight": 0.5
+    },
+    {
+      "schema_id": 49,
+      "field": "Separate note durations for unequal chord holds",
+      "weight": 0.5
+    },
+    {
+      "schema_id": 50,
+      "field": "Attack gaps versus actual rests",
+      "weight": 0.5
+    },
+    {
+      "schema_id": 51,
+      "field": "Leading silence",
+      "weight": 1
+    },
+    {
+      "schema_id": 52,
+      "field": "Trailing silence",
+      "weight": 1
+    }
+  ],
+  "unknown_policy": "exclude from numerator and sum-of-weights denominator; no score boost or zero imputation",
+  "probability_policy": "score divided by sum of eligible scores; zero score has zero chance",
+  "seconds_removed": true,
+  "removed_field": "Length (seconds at source tempo)"
+}
