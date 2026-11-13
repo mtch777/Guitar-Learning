@@ -22,7 +22,7 @@ function response(data,ok=true){return {ok,json:async()=>data};}
  assert.ok(calls.every(c=>!c.url.includes('/regenerate')&&!c.url.includes('/plan')&&!c.url.includes('/api/generate')));
  const controls=[{dataset:{phraseStart:'0',phraseLength:'4'},style:{}},{dataset:{phraseStart:'4',phraseLength:'4'},style:{}}];
  t.Timeline.prototype.layoutPhraseControls.call({el:{querySelectorAll:()=>controls},scale:25});assert.equal(controls[0].style.left,'0px');assert.equal(controls[1].style.left,'100px');assert.equal(controls[1].style.width,'100px');
- const sized={el:{clientWidth:300,clientHeight:200},canvas:{style:{}},track:{style:{}},length:16,selectable:true,phrases:[{length_beats:.25},{length_beats:15.75}],layoutPhraseControls(){},draw(){}};t.Timeline.prototype.resize.call(sized);assert.equal(sized.scale,25);assert.equal(.25*sized.scale,6.25);assert.equal(sized.height,138);
+ const sized={el:{clientWidth:300,clientHeight:200},canvas:{style:{}},track:{style:{}},length:16,selectable:true,phrases:[{length_beats:.25},{length_beats:15.75}],layoutPhraseControls(){},draw(){}};t.Timeline.prototype.resize.call(sized);assert.equal(sized.scale,25);assert.equal(.25*sized.scale,6.25);assert.equal(sized.height,154);
  // Same scroller applies its scrollLeft to both controls and canvas coordinates.
  const scroll=37;assert.equal(parseFloat(controls[1].style.left)-scroll,4*25-scroll);
  const draws=[],ctx={setTransform:noop,clearRect:noop,beginPath:noop,moveTo:noop,lineTo:noop,stroke:noop,setLineDash:noop,fillRect(...v){draws.push(['fill',this.fillStyle,...v]);},strokeRect(...v){draws.push(['outline',this.strokeStyle,...v]);},fillText(...v){draws.push(['text',...v]);}};
