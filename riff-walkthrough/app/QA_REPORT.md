@@ -15,7 +15,7 @@
 
 ## Not yet verified
 - Live browser rendering, native phone interaction and physical device sound.
-- Reachable desktop/LAN serving and persistent app deployment.
+- Physical phone connectivity from a separate device and persistence across desktop restarts.
 
 ## Existing musical limitations intentionally retained
 - Carry-in pitch slots lack attacked-note correspondence and may stop pitch selection.
@@ -30,3 +30,9 @@ Technical correctness does not establish musical quality or human listening appr
 - Exact Library v3 archive recovered and hash-verified after cloud workspace rollback.
 - Git push passed action review but lacked local GitHub authentication. The authenticated GitHub connector published the same 31 source/test/document files; subsequent Git fetch/diff verified exact source parity. No corpus or private annotations were included.
 - Desktop deployment and live browser/phone verification remain in progress. No firewall, router or other security settings changed.
+
+## Desktop runtime verification
+- Source deployed in an isolated directory. One hidden server started with the canonical CSV and timing hashes; no firewall/security changes or audible playback.
+- Localhost and LAN-address HTTP config requests succeed from the desktop itself. This is not physical phone verification.
+- Real Generate 1 completed all six stages. Generate 4 completed all six stages with stages 1–3 deep-equal, retained prior opening output, and a valid 1,007-byte MIDI response.
+- Live browser layout and device playback remain unverified; browser integration is unavailable and native UI route is being checked.
