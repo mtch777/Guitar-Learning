@@ -114,9 +114,11 @@ class GitTests(unittest.TestCase):
      result=p.publish(MIDI,2,stage);prefix=S.PREFIXES[stage];expected='generated-midi/'+prefix+hashlib.sha256(MIDI).hexdigest()+'.mid'
      self.assertEqual(run('--git-dir',remote,'show','generated-midi:'+expected).stdout,MIDI)
      self.assertEqual(result['stage'],stage)
+     selection=p.publish(MIDI,2,stage,selected=True);self.assertIn(prefix+'selected_',selection['file_url']);self.assertEqual(p.publish(MIDI,2,stage,selected=True)['commit'],selection['commit'])
     result=p.publish(MIDI,2,5,True);self.assertIn('5_remaining_pitches_partial_',result['file_url']);self.assertTrue(result['partial'])
     result=p.publish(MIDI,2,6,False,selected=True);self.assertIn('6_review_selected_',result['file_url'])
     self.assertEqual(p.publish(MIDI,2,6,False,selected=True)['commit'],result['commit'])
+    result=p.publish(MIDI,2,5,True,True);self.assertIn('5_remaining_pitches_partial_selected_',result['file_url'])
     first=result
     (work/'unrelated.txt').write_text('keep')
     with self.assertRaises(S.SaveError):p.publish(MIDI,2)
