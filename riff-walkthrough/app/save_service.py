@@ -52,9 +52,9 @@ class Publisher:
   data=midi_bytes(audio);midi_hash(data)
   return data,partial
  def current_midi(self,cookie,stage,version):return self.current_audio_midi(cookie,stage,version)[0]
- def publish(self,data,version,stage=6,partial=False):
+ def publish(self,data,version,stage=6,partial=False,selected=False):
   if stage not in PREFIXES or (partial and stage!=5):raise SaveError('Invalid MIDI stage.')
-  digest=midi_hash(data);prefix=PREFIXES[stage]+('partial_' if partial else '');relative=f'{FOLDER}/{prefix}{digest}.mid'
+  digest=midi_hash(data);prefix=PREFIXES[stage]+('selected_' if selected else '')+('partial_' if partial else '');relative=f'{FOLDER}/{prefix}{digest}.mid'
   if self.git('remote','get-url','origin').stdout.decode().strip()!=REPOSITORY:raise SaveError('Save repository configuration does not match the project.')
   if self.git('branch','--show-current').stdout.decode().strip()!=BRANCH:raise SaveError('Save repository is on the wrong branch.')
   dirty=self.git('status','--porcelain').stdout.decode().splitlines()
@@ -87,7 +87,7 @@ class Publisher:
    for change in changes:
     parts=change.split('\t')
     if len(parts)!=2 or parts[0]!='A':raise SaveError('Save repository has unrelated local commits; nothing was pushed.')
-    path=parts[1];match=re.fullmatch(r'generated-midi/(?:riff-|1_seed_rhythm_|2_scaffold_rhythm_|3_rhythm_|4_opening_pitches_|5_remaining_pitches_(?:partial_)?|6_review_)([a-f0-9]{64})\.mid',path)
+    path=parts[1];match=re.fullmatch(r'generated-midi/(?:riff-|1_seed_rhythm_|2_scaffold_rhythm_|3_rhythm_|4_opening_pitches_|5_remaining_pitches_(?:partial_)?|6_review_(?:selected_)?)([a-f0-9]{64})\.mid',path)
     if not match or midi_hash(self.git('show',f'{commit}:{path}').stdout)!=match.group(1):raise SaveError('Save repository has unrelated local commits; nothing was pushed.')
  def save(self,cookie,stage,version):
   # Snapshot the clicked version before waiting for a slow Git operation.
@@ -113,6 +113,9 @@ class Publisher:
 
 def handler_for(publisher,allowed_origins):
  allowed_origins=frozenset(allowed_origins)
+ from editor_service import EditorManager
+ editor=None
+ routes=['/save','/recover','/editor/open','/editor/save']
  class Handler(http.server.BaseHTTPRequestHandler):
   def reply(self,code,data,origin=None):
    body=json.dumps(data).encode();self.send_response(code)
@@ -122,17 +125,23 @@ def handler_for(publisher,allowed_origins):
    self.end_headers();self.wfile.write(body)
   def do_OPTIONS(self):
    origin=self.headers.get('Origin')
-   if self.path not in ['/save','/recover'] or origin not in allowed_origins:self.reply(403,{'error':'Origin not allowed'});return
+   if self.path not in routes or origin not in allowed_origins:self.reply(403,{'error':'Origin not allowed'});return
    self.send_response(204);self.send_header('Access-Control-Allow-Origin',origin);self.send_header('Access-Control-Allow-Credentials','true');self.send_header('Access-Control-Allow-Methods','POST');self.send_header('Access-Control-Allow-Headers','Content-Type');self.send_header('Vary','Origin');self.end_headers()
   def do_POST(self):
+   nonlocal editor
    origin=self.headers.get('Origin')
-   if self.path not in ['/save','/recover'] or origin not in allowed_origins:self.reply(403,{'error':'Origin not allowed'});return
+   if self.path not in routes or origin not in allowed_origins:self.reply(403,{'error':'Origin not allowed'});return
    try:
     if self.headers.get('Content-Type','').split(';')[0]!='application/json':raise ValueError('JSON required')
     length=int(self.headers.get('Content-Length','0'))
     if not 0<length<=2048:raise ValueError('Invalid request size')
     data=json.loads(self.rfile.read(length))
     if not isinstance(data,dict):raise ValueError('Object required')
+    if self.path.startswith('/editor/'):
+     if editor is None:editor=EditorManager(publisher)
+     try:result=editor.request(self.path,self.headers.get('Cookie'),data)
+     except (ValueError,KeyError,AssertionError) as e:raise SaveError(str(e)) from e
+     self.reply(200,result,origin);return
     if self.path=='/recover':
      if set(data)!={'session_id'}:raise ValueError('Invalid recovery request')
      self.reply(200,publisher.recover(data['session_id']),origin);return
