@@ -115,7 +115,7 @@ def handler_for(publisher,allowed_origins):
  allowed_origins=frozenset(allowed_origins)
  from editor_service import EditorManager
  editor=None
- routes=['/save','/recover','/editor/open','/editor/save']
+ routes=['/save','/recover','/editor/open','/editor/plan','/editor/regenerate','/editor/save']
  class Handler(http.server.BaseHTTPRequestHandler):
   def reply(self,code,data,origin=None):
    body=json.dumps(data).encode();self.send_response(code)
