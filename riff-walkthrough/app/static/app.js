@@ -124,7 +124,7 @@
     if (applied && Object.keys(applied).length) evidence['Applied parameters']=applied;
     if (Object.keys(evidence).length) html+=`<details class="evidence" data-details="evidence-${esc(id)}"><summary>Details</summary><pre>${esc(JSON.stringify(evidence,null,2))}</pre></details>`;
     if (!usePrevious && !isBusy() && output.can_export===true) {
-      html+=`<a class="export" href="/api/midi?stage=${encodeURIComponent(id)}&version=${encodeURIComponent(state.version)}" download>↓ MIDI</a>`;
+      html+=`<a class="export" href="/api/midi?stage=${encodeURIComponent(id)}&version=${encodeURIComponent(state.version)}" download>↓ MIDI</a> <button type="button" data-copy-midi="${esc(id)}" data-version="${state.version}">📋 Copy MIDI</button>`;
     }
     return html;
   }
@@ -258,7 +258,30 @@
     writePath(drafts[id],key,input.type==='checkbox'?input.checked:input.type==='number'?(input.value===''?'':Number(input.value)):input.value);
     const tag=input.closest('.params').querySelector('.draft-tag');tag.hidden=!isDirty(id);saveDrafts();
   });
+  function midiText(buffer,version){
+    const bytes=new Uint8Array(buffer);
+    if(bytes.length<14 || String.fromCharCode(...bytes.slice(0,4))!=='MThd')throw Error('The export is not a MIDI file.');
+    let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));
+    return JSON.stringify({type:'riff-midi',version,filename:`riff-${version}.mid`,base64:btoa(binary)});
+  }
+  function showMidiText(text,version){
+    document.querySelector('#midi-copy-panel')?.remove();
+    const panel=document.createElement('section');panel.id='midi-copy-panel';panel.className='notice';
+    const label=document.createElement('p');label.textContent=`MIDI v${version}. Copy this text and paste it in the chat.`;
+    const area=document.createElement('textarea');area.readOnly=true;area.value=text;area.rows=4;area.style.width='100%';area.setAttribute('aria-label','Exact MIDI export text');
+    const button=document.createElement('button');button.type='button';button.textContent='📋 Copy text';
+    const close=document.createElement('button');close.type='button';close.textContent='✕';close.setAttribute('aria-label','Close MIDI text');close.addEventListener('click',()=>panel.remove());
+    button.addEventListener('click',()=>{area.focus();area.select();area.setSelectionRange(0,area.value.length);let copied=false;try{copied=document.execCommand('copy');}catch{}label.textContent=`MIDI v${version}. `+(copied?'Copied. Paste it in the chat.':'Select all and copy the text, then paste it in the chat.');});
+    panel.append(label,area,button,close);document.querySelector('main').prepend(panel);panel.scrollIntoView({block:'start'});area.focus();area.select();
+  }
   stagesNode.addEventListener('click',async event=>{
+    const copyMidi=event.target.closest('[data-copy-midi]');
+    if(copyMidi){
+      if(copyMidi.disabled)return;copyMidi.disabled=true;
+      const version=Number(copyMidi.dataset.version),stage=copyMidi.dataset.copyMidi;
+      try{const response=await fetch(`/api/midi?stage=${encodeURIComponent(stage)}&version=${encodeURIComponent(version)}`,{credentials:'same-origin',cache:'no-store'});if(!response.ok)throw Error('MIDI is unavailable for this result.');showMidiText(midiText(await response.arrayBuffer(),version),version);}catch(error){notify(error.message);}finally{copyMidi.disabled=false;}
+      return;
+    }
     const download=event.target.closest('.export');
     if(download){
       event.preventDefault();if(download.getAttribute('aria-disabled')==='true')return;
