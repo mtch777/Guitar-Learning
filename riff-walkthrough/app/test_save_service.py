@@ -25,7 +25,7 @@ class SaveHTTPTests(unittest.TestCase):
   self.assertEqual(headers['Access-Control-Allow-Origin'],'http://127.0.0.1:8768');self.assertEqual(headers['Access-Control-Allow-Credentials'],'true')
   self.assertEqual(self.calls,[('riff_session=test',6,2)])
  def test_client_cannot_choose_repo_path_or_invalid_version(self):
-  for body in [{'stage':6,'version':2,'repo':'other'},{'stage':5,'version':2},{'stage':6,'version':True},{'stage':6,'version':0}]:
+  for body in [{'stage':6,'version':2,'repo':'other'},{'stage':7,'version':2},{'stage':6,'version':True},{'stage':6,'version':0}]:
    self.assertEqual(self.request(body)[0],400)
   self.assertEqual(self.calls,[])
  def test_get_cannot_publish(self):self.assertEqual(self.request({},method='GET')[0],405);self.assertEqual(self.calls,[])
@@ -51,19 +51,41 @@ class SourceTests(unittest.TestCase):
    with self.assertRaises(S.SaveError):p.recover(sid)
    with self.assertRaises(S.SaveError):p.recover('invalid')
   finally:server.shutdown();server.server_close();t.join()
- def test_cookie_scoped_exact_version_only(self):
-  seen=[]
+ def test_all_stage_snapshots_and_blockers(self):
+  from server import midi_bytes
+  sid='a'*32;seen=[]
+  audio={'notes':[{'start_beats':0,'duration_beats':1,'midi_pitch':28}],'tempo':120,'length_beats':4,'label':'Rhythm'}
+  state={'session_id':sid,'version':2,'busy':False,'stages':[{'id':str(i),'status':'complete','output':{'audio':dict(audio)}} for i in range(1,7)]}
   class Handler(http.server.BaseHTTPRequestHandler):
    def do_GET(self):
-    seen.append((self.path,self.headers.get('Cookie')));self.send_response(200 if 'version=2' in self.path else 409);self.end_headers();self.wfile.write(MIDI)
+    seen.append((self.path,self.headers.get('Cookie')));self.send_response(200);self.end_headers();self.wfile.write(json.dumps(state).encode())
    def log_message(self,*args):pass
   server=http.server.ThreadingHTTPServer(('127.0.0.1',0),Handler);t=threading.Thread(target=server.serve_forever,daemon=True);t.start()
   try:
-   p=S.Publisher('.',server.server_port)
-   self.assertEqual(p.current_midi('unrelated=secret; riff_session=original',6,2),MIDI)
-   self.assertEqual(seen,[('/api/midi?stage=6&version=2','riff_session=original')])
-   with self.assertRaises(S.SaveError):p.current_midi('riff_session=original',6,1)
-   with self.assertRaises(S.SaveError):p.current_midi('',6,2)
+   p=S.Publisher('.',server.server_port);cookie='unrelated=secret; riff_session='+sid
+   for i in range(1,7):self.assertEqual(p.current_audio_midi(cookie,i,2),(midi_bytes(audio),False))
+   self.assertTrue(all(x==('/api/state','riff_session='+sid) for x in seen))
+   with self.assertRaises(S.SaveError):p.current_midi(cookie,1,1)
+   with self.assertRaises(S.SaveError):p.current_midi('',1,2)
+   state['busy']=True
+   with self.assertRaises(S.SaveError):p.current_midi(cookie,1,2)
+   state['busy']=False;state['session_id']='b'*32
+   with self.assertRaises(S.SaveError):p.current_midi(cookie,1,2)
+   state['session_id']=sid
+   for status in ['stale','pending','error','blocked','empty']:
+    state['stages'][0]['status']=status
+    with self.assertRaises(S.SaveError):p.current_midi(cookie,1,2)
+   state['stages'][0]['status']='complete';a=state['stages'][0]['output']['audio']
+   for key,value in [('unavailable','bad'),('tempo',90),('length_beats',0)]:
+    old=a.get(key);a[key]=value
+    with self.assertRaises(S.SaveError):p.current_midi(cookie,1,2)
+    if old is None:a.pop(key)
+    else:a[key]=old
+   a['notes']=[];self.assertEqual(p.current_midi(cookie,1,2),midi_bytes(a))
+   partial=state['stages'][4];partial['status']='blocked';partial['output']['blocker']='Stopped';partial['output']['audio']['label']='Partial generated pitches'
+   data,ispartial=p.current_audio_midi(cookie,5,2);self.assertTrue(ispartial);self.assertEqual(data,midi_bytes(partial['output']['audio']))
+   partial['output']['audio']['notes']=[]
+   with self.assertRaises(S.SaveError):p.current_midi(cookie,5,2)
   finally:server.shutdown();server.server_close();t.join()
 
 class GitTests(unittest.TestCase):
@@ -86,8 +108,14 @@ class GitTests(unittest.TestCase):
    try:
     S.REPOSITORY=str(remote);p=S.Publisher(work);first=p.publish(MIDI,2);again=p.publish(MIDI,2)
     self.assertFalse(first['already_saved']);self.assertTrue(again['already_saved']);self.assertEqual(first['commit'],again['commit'])
-    path='generated-midi/riff-'+hashlib.sha256(MIDI).hexdigest()+'.mid'
+    path='generated-midi/6_review_'+hashlib.sha256(MIDI).hexdigest()+'.mid'
     self.assertEqual(run('--git-dir',remote,'show','generated-midi:'+path).stdout,MIDI)
+    for stage in range(1,7):
+     result=p.publish(MIDI,2,stage);prefix=S.PREFIXES[stage];expected='generated-midi/'+prefix+hashlib.sha256(MIDI).hexdigest()+'.mid'
+     self.assertEqual(run('--git-dir',remote,'show','generated-midi:'+expected).stdout,MIDI)
+     self.assertEqual(result['stage'],stage)
+    result=p.publish(MIDI,2,5,True);self.assertIn('5_remaining_pitches_partial_',result['file_url']);self.assertTrue(result['partial'])
+    first=result
     (work/'unrelated.txt').write_text('keep')
     with self.assertRaises(S.SaveError):p.publish(MIDI,2)
     self.assertEqual((work/'unrelated.txt').read_text(),'keep')
