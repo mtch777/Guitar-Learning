@@ -165,10 +165,14 @@
     }catch(error){if(serial===editorSerial&&key===editorKey()){if(action==='regenerate')e.plan=null;notify(error.message);}}
     finally{if(e===currentEditor())e.busy=false;render();}
   }
+  function phraseCheckboxMarkup(output){
+    const e=currentEditor(),selected=e?.selected||[],busy=!!e?.busy||isBusy();
+    return `<div class="phrase-checkbox-row" role="group" aria-label="Select phrases">${(output.phrases||[]).map(p=>`<button type="button" class="phrase-checkbox" role="checkbox" data-phrase-select="${Number(p.phrase)}" data-phrase-start="${Number(p.start_beats)}" data-phrase-length="${Number(p.length_beats)}" aria-label="Select phrase ${Number(p.phrase)}" aria-checked="${selected.includes(Number(p.phrase))}"${busy?' disabled':''}><span class="phrase-checkbox-box" aria-hidden="true">${selected.includes(Number(p.phrase))?'✓':''}</span></button>`).join('')}</div>`;
+  }
   function editorMarkup(output){
     const e=currentEditor(),selected=e?.selected||[],busy=!!e?.busy||isBusy();
-    const buttons=(output.phrases||[]).map(p=>`<button type="button" data-phrase-select="${Number(p.phrase)}" aria-pressed="${selected.includes(Number(p.phrase))}"${busy?' disabled':''}>${selected.includes(Number(p.phrase))?'✓ ':''}${Number(p.phrase)}</button>`).join(' ');
-    let html=`<section aria-label="Phrase editor"><p>Select phrases${selectiveRegenerationEnabled?' · Review edits leave earlier steps unchanged.':''}</p><div role="group" aria-label="Phrases">${buttons}</div>`;
+    let html='<section aria-label="Phrase editor">';
+    if(selectiveRegenerationEnabled)html+='<p>Review edits leave earlier steps unchanged.</p>';
     if(e?.revision>0)html+=`<p>Edited · revision ${e.revision}</p>`;
     if(e?.busy)html+='<p role="status">Working…</p>';
     if(selected.length){
@@ -195,8 +199,9 @@
     html+=summaryMarkup(output.summary);
     if (output.blocker) html+=`<div class="blocker">${esc(output.blocker)}</div>`;
     if (audioAvailable(output)) {
+      const selectable=id==='6'&&!usePrevious&&ss?.status==='complete';
       const active=player.active?.stage===id && player.active?.view===(usePrevious?'previous':'current');
-      html+=`<div class="audio-section"><div class="audio-toolbar"><button class="play-button" data-action="play" data-stage="${esc(id)}"${isBusy()?' disabled':''} aria-label="${active?'Stop':'Play'} ${esc(output.audio.label || '')}${usePrevious?' previous result':''}">${active?'■ Stop':'▶ Play'}</button><span class="audio-label">${esc(output.audio.label || 'Audio')}${usePrevious?' · Previous':''}</span><span class="audio-clock" data-clock="${esc(id)}">${active?'0:00 / ':''}${formatTime(duration(output.audio))}</span></div><div class="timeline" data-timeline="${esc(id)}"><div class="timeline-scroll"><div class="timeline-track"></div></div><canvas aria-label="Note timing and playback position" role="img"></canvas></div></div>`;
+      html+=`<div class="audio-section"><div class="audio-toolbar"><button class="play-button" data-action="play" data-stage="${esc(id)}"${isBusy()?' disabled':''} aria-label="${active?'Stop':'Play'} ${esc(output.audio.label || '')}${usePrevious?' previous result':''}">${active?'■ Stop':'▶ Play'}</button><span class="audio-label">${esc(output.audio.label || 'Audio')}${usePrevious?' · Previous':''}</span><span class="audio-clock" data-clock="${esc(id)}">${active?'0:00 / ':''}${formatTime(duration(output.audio))}</span></div><div class="timeline${selectable?' timeline-selectable':''}" data-timeline="${esc(id)}"><div class="timeline-scroll"><div class="timeline-track">${selectable?phraseCheckboxMarkup(output):''}</div></div><canvas aria-label="Note timing and playback position" role="img"></canvas></div></div>`;
     } else if(output.audio?.unavailable || output.audio?.reason) html+=`<p class="empty">${esc(output.audio.unavailable || output.audio.reason)}</p>`;
     if(id==='6'&&!usePrevious&&ss?.status==='complete')html+=editorMarkup(output);
     html+=phraseMarkup(output.phrases,id);
@@ -291,13 +296,14 @@
       this.length=audio.notes.reduce((end,n)=>Math.max(end,Number(n.start_beats)+Number(n.duration_beats)),Math.max(Number(audio.length_beats)||0,1));this.cursor=null;
       const pitches=audio.notes.map(n=>Number(n.midi_pitch)).filter(Number.isFinite);this.lo=pitches.reduce((v,p)=>Math.min(v,p),127)-1;this.hi=pitches.reduce((v,p)=>Math.max(v,p),0)+1;
       this.scrollHandler=()=>this.draw();this.scroller.addEventListener('scroll',this.scrollHandler,{passive:true});
-      this.selectHandler=event=>{if(!onSelect)return;const r=this.scroller.getBoundingClientRect();const beat=(event.clientX-r.left+this.scroller.scrollLeft)/this.scale;const p=this.phrases.find(p=>beat>=Number(p.start_beats)&&beat<Number(p.start_beats)+Number(p.length_beats));if(p&&(!this.pointerStart||Math.abs(event.clientX-this.pointerStart.x)<6&&Math.abs(this.scroller.scrollLeft-this.pointerStart.scroll)<6))onSelect(Number(p.phrase));};
+      this.selectHandler=event=>{if(!onSelect||event.target?.closest?.('[data-phrase-select]'))return;const r=this.scroller.getBoundingClientRect();const beat=(event.clientX-r.left+this.scroller.scrollLeft)/this.scale;const p=this.phrases.find(p=>beat>=Number(p.start_beats)&&beat<Number(p.start_beats)+Number(p.length_beats));if(p&&(!this.pointerStart||Math.abs(event.clientX-this.pointerStart.x)<6&&Math.abs(this.scroller.scrollLeft-this.pointerStart.scroll)<6))onSelect(Number(p.phrase));};
       this.downHandler=event=>{this.pointerStart={x:event.clientX,scroll:this.scroller.scrollLeft};};
       this.scroller.addEventListener('pointerdown',this.downHandler);this.scroller.addEventListener('click',this.selectHandler);
       this.selectable=!!onSelect;
       this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(el);this.resize();
     }
-    resize(){const w=this.el.clientWidth,h=this.el.clientHeight-18,dpr=Math.min(window.devicePixelRatio||1,2);this.canvas.width=Math.round(w*dpr);this.canvas.height=Math.round(h*dpr);this.canvas.style.height=h+'px';this.width=w;this.height=h;this.dpr=dpr;this.scale=Math.max(25,w/this.length);this.track.style.width=Math.max(w,this.length*this.scale)+'px';this.draw();}
+    resize(){const w=this.el.clientWidth,h=this.el.clientHeight-18-(this.selectable?44:0),dpr=Math.min(window.devicePixelRatio||1,2);this.canvas.width=Math.round(w*dpr);this.canvas.height=Math.round(h*dpr);this.canvas.style.height=h+'px';this.width=w;this.height=h;this.dpr=dpr;this.scale=Math.max(25,w/this.length);this.track.style.width=Math.max(w,this.length*this.scale)+'px';this.layoutPhraseControls();this.draw();}
+    layoutPhraseControls(){for(const button of this.el.querySelectorAll('[data-phrase-select]')){button.style.left=(Number(button.dataset.phraseStart)*this.scale)+'px';button.style.width=(Number(button.dataset.phraseLength)*this.scale)+'px';}}
     draw(){
       const c=this.canvas.getContext('2d'),w=this.width,h=this.height;if(!w)return;c.setTransform(this.dpr,0,0,this.dpr,0,0);c.clearRect(0,0,w,h);const offset=this.scroller.scrollLeft;const x=b=>b*this.scale-offset;
       if(this.selectable)for(const p of this.phrases){if(currentEditor()?.selected.includes(Number(p.phrase))){c.fillStyle='rgba(130,180,90,.22)';c.fillRect(x(Number(p.start_beats)),18,Number(p.length_beats)*this.scale,h-18);}}
