@@ -1,12 +1,13 @@
 """Narrow companion: save current generated MIDI through existing Git credentials.
 Does not load, restart, regenerate, or persist generator sessions.
 """
-import argparse, hashlib, http.client, http.cookies, http.server, json, os, pathlib, re, subprocess, threading
+import argparse, hashlib, http.client, http.cookies, http.server, json, math, os, pathlib, re, subprocess, threading
 
 REPOSITORY='https://github.com/mtch777/Guitar-Learning.git'
 BRANCH='generated-midi'
 FOLDER='generated-midi'
 WEB='https://github.com/mtch777/Guitar-Learning'
+PREFIXES={1:'1_seed_rhythm_',2:'2_scaffold_rhythm_',3:'3_rhythm_',4:'4_opening_pitches_',5:'5_remaining_pitches_',6:'6_review_'}
 
 class SaveError(Exception): pass
 
@@ -23,23 +24,37 @@ class Publisher:
   except (OSError,subprocess.TimeoutExpired) as e:raise SaveError('GitHub save timed out or Git is unavailable. Retry Save.') from e
   if check and r.returncode:raise SaveError('GitHub save could not be verified. Retry Save; identical files will not duplicate.')
   return r
- def current_midi(self,cookie,stage,version):
+ def current_audio_midi(self,cookie,stage,version):
+  from server import midi_bytes
   parsed=http.cookies.SimpleCookie()
   try:parsed.load(cookie or '')
   except http.cookies.CookieError:pass
   sid=parsed.get('riff_session')
-  if not sid:raise SaveError('This browser has no generator session. Return to the generator.')
-  # Forward only this application's cookie, only to its loopback endpoint.
+  if not sid or not re.fullmatch(r'[A-Za-z0-9_-]{32}',sid.value):raise SaveError('This browser has no generator session. Return to the generator.')
   conn=http.client.HTTPConnection('127.0.0.1',self.source_port,timeout=30)
   try:
-   conn.request('GET',f'/api/midi?stage={stage}&version={version}',headers={'Cookie':'riff_session='+sid.value})
-   response=conn.getresponse();data=response.read()
-   if response.status!=200:raise SaveError('This MIDI is no longer current or complete. Save the current result.')
-  except (OSError,http.client.HTTPException) as e:raise SaveError('Cannot reach the running generator.') from e
+   conn.request('GET','/api/state',headers={'Cookie':'riff_session='+sid.value})
+   response=conn.getresponse();state=json.loads(response.read())
+   if response.status!=200 or state.get('session_id')!=sid.value or state.get('version')!=version or state.get('busy'):raise SaveError('This result changed or is generating. Save the current result.')
+  except (OSError,http.client.HTTPException,ValueError) as e:raise SaveError('Cannot read the running generator.') from e
   finally:conn.close()
-  midi_hash(data);return data
- def publish(self,data,version):
-  digest=midi_hash(data);relative=f'{FOLDER}/riff-{digest}.mid'
+  entry=next((s for s in state.get('stages',[]) if str(s.get('id'))==str(stage)),{})
+  out=entry.get('output') or {};audio=out.get('audio');partial=stage==5 and entry.get('status')=='blocked'
+  if entry.get('status')!='complete' and not partial:raise SaveError('This step has no current playback to save.')
+  if not isinstance(audio,dict) or audio.get('unavailable') or audio.get('reason'):raise SaveError('This step has no available playback to save.')
+  def number(x):return type(x) in (int,float) and math.isfinite(x)
+  notes=audio.get('notes');length=audio.get('length_beats')
+  if not isinstance(notes,list) or not number(length) or length<=0 or audio.get('tempo')!=120:raise SaveError('This playback cannot be exported accurately.')
+  if partial and (not notes or not out.get('blocker') or not str(audio.get('label','')).startswith('Partial')):raise SaveError('This step has no partial playback to save.')
+  for n in notes:
+   if not isinstance(n,dict) or not all(number(n.get(k)) for k in ('start_beats','duration_beats','midi_pitch')):raise SaveError('Invalid playback note.')
+   if n['start_beats']<0 or n['duration_beats']<=0 or n['midi_pitch']!=int(n['midi_pitch']) or not 0<=n['midi_pitch']<=127 or n['start_beats']+n['duration_beats']>length+1e-8:raise SaveError('Invalid playback note.')
+  data=midi_bytes(audio);midi_hash(data)
+  return data,partial
+ def current_midi(self,cookie,stage,version):return self.current_audio_midi(cookie,stage,version)[0]
+ def publish(self,data,version,stage=6,partial=False):
+  if stage not in PREFIXES or (partial and stage!=5):raise SaveError('Invalid MIDI stage.')
+  digest=midi_hash(data);prefix=PREFIXES[stage]+('partial_' if partial else '');relative=f'{FOLDER}/{prefix}{digest}.mid'
   if self.git('remote','get-url','origin').stdout.decode().strip()!=REPOSITORY:raise SaveError('Save repository configuration does not match the project.')
   if self.git('branch','--show-current').stdout.decode().strip()!=BRANCH:raise SaveError('Save repository is on the wrong branch.')
   dirty=self.git('status','--porcelain').stdout.decode().splitlines()
@@ -64,7 +79,7 @@ class Publisher:
    self.git('fetch','origin',BRANCH)
    if hashlib.sha256(self.git('show',f'FETCH_HEAD:{relative}').stdout).hexdigest()!=digest:raise SaveError('GitHub bytes could not be verified. Retry Save.')
   commit=self.git('rev-parse','FETCH_HEAD').stdout.decode().strip()
-  return {'saved':True,'version':version,'sha256':digest,'size':len(data),'already_saved':existed,'commit':commit,'file_url':f'{WEB}/blob/{BRANCH}/{relative}','folder_url':f'{WEB}/tree/{BRANCH}/{FOLDER}'}
+  return {'saved':True,'version':version,'stage':stage,'partial':partial,'sha256':digest,'size':len(data),'already_saved':existed,'commit':commit,'file_url':f'{WEB}/blob/{BRANCH}/{relative}','folder_url':f'{WEB}/tree/{BRANCH}/{FOLDER}'}
  def verify_ahead_midi_only(self):
   for commit in self.git('rev-list','FETCH_HEAD..HEAD').stdout.decode().splitlines():
    if len(self.git('rev-list','--parents','-n','1',commit).stdout.decode().split())>2:raise SaveError('Save repository has an unexpected local merge; nothing was pushed.')
@@ -72,13 +87,13 @@ class Publisher:
    for change in changes:
     parts=change.split('\t')
     if len(parts)!=2 or parts[0]!='A':raise SaveError('Save repository has unrelated local commits; nothing was pushed.')
-    path=parts[1];match=re.fullmatch(r'generated-midi/riff-([a-f0-9]{64})\.mid',path)
+    path=parts[1];match=re.fullmatch(r'generated-midi/(?:riff-|1_seed_rhythm_|2_scaffold_rhythm_|3_rhythm_|4_opening_pitches_|5_remaining_pitches_(?:partial_)?|6_review_)([a-f0-9]{64})\.mid',path)
     if not match or midi_hash(self.git('show',f'{commit}:{path}').stdout)!=match.group(1):raise SaveError('Save repository has unrelated local commits; nothing was pushed.')
  def save(self,cookie,stage,version):
   # Snapshot the clicked version before waiting for a slow Git operation.
-  data=self.current_midi(cookie,stage,version)
+  data,partial=self.current_audio_midi(cookie,stage,version)
   if not self.lock.acquire(blocking=False):raise SaveError('Another MIDI is being saved. Wait, then retry Save.')
-  try:return self.publish(data,version)
+  try:return self.publish(data,version,stage,partial)
   finally:self.lock.release()
  def recover(self,sid):
   # This bearer identifier stays between the user's browser and local services.
@@ -122,9 +137,9 @@ def handler_for(publisher,allowed_origins):
      if set(data)!={'session_id'}:raise ValueError('Invalid recovery request')
      self.reply(200,publisher.recover(data['session_id']),origin);return
     stage=data.get('stage');version=data.get('version')
-    if set(data)!={'stage','version'} or type(stage) is not int or stage!=6 or type(version) is not int or version<1:raise ValueError('Invalid current MIDI version')
+    if set(data)!={'stage','version'} or type(stage) is not int or stage not in PREFIXES or type(version) is not int or version<1:raise ValueError('Invalid current MIDI version')
     result=publisher.save(self.headers.get('Cookie'),stage,version);self.reply(200,result,origin)
-   except (ValueError,TypeError,json.JSONDecodeError):self.reply(400,{'error':'Provide a current stage 6 MIDI version.'},origin)
+   except (ValueError,TypeError,json.JSONDecodeError):self.reply(400,{'error':'Provide a current stage 1–6 MIDI version.'},origin)
    except SaveError as e:self.reply(409,{'error':str(e)},origin)
    except Exception:self.reply(500,{'error':'Save failed. No successful GitHub save was confirmed.'},origin)
   def do_GET(self):self.reply(405,{'error':'Use Save in the generator.'})
