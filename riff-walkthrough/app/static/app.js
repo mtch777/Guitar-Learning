@@ -110,10 +110,81 @@
     if(!a.notes.every(n=>Number.isFinite(n.start_beats)&&n.start_beats>=0&&Number.isFinite(n.duration_beats)&&n.duration_beats>0&&Number.isInteger(n.midi_pitch)&&n.midi_pitch>=0&&n.midi_pitch<=127&&n.start_beats+n.duration_beats<=a.length_beats+1e-8))return false;
     return ss.status==='complete' || (String(id)==='5' && ss.status==='blocked' && !!ss.output.blocker && typeof a.label==='string' && a.label.startsWith('Partial') && a.notes.length>0);
   }
+  const selectiveRegenerationEnabled=false;
+  let editor=null,editorSerial=0;
+  const editorKey=()=>`${state?.session_id||''}:${state?.version}`;
+  function currentEditor(){return editor?.key===editorKey()&&stageState('6')?.status==='complete'?editor:null;}
+  function editorReady(){return !isBusy()&&connected&&stageState('6')?.status==='complete'&&selectedViews['6']!=='previous';}
+  function reviewOutput(){return currentEditor()?.output||stageState('6')?.output;}
+  async function editorRequest(action,payload){
+    const endpoint=new URL(location.origin);endpoint.port='8769';endpoint.pathname='/editor/'+action;
+    const r=await fetch(endpoint.href,{method:'POST',credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const result=await r.json();if(!r.ok)throw Error(result.error||'The edit could not be completed.');return result;
+  }
+  async function openEditor(){
+    if(!editorReady())return null;
+    if(currentEditor())return currentEditor();
+    const key=editorKey(),serial=++editorSerial;
+    editor={key,busy:true,revision:0,selected:[],mode:'both',plan:null,output:null};render();
+    try{
+      const result=await editorRequest('open',{version:state.version});
+      if(serial!==editorSerial||key!==editorKey())return null;
+      if(result.source_version!==state.version||!Number.isInteger(result.revision)||!result.output?.audio)throw Error('The editor returned an invalid result.');
+      Object.assign(editor,{revision:result.revision,output:result.output,busy:false});return editor;
+    }catch(e){if(serial===editorSerial&&key===editorKey()){editor=null;notify(e.message);}return null;}
+    finally{render();}
+  }
+  async function togglePhrase(number){
+    if(!editorReady()||currentEditor()?.busy)return;
+    const e=await openEditor();if(!e||e!==currentEditor()||e.busy)return;
+    if(!e.output.phrases?.some(p=>Number(p.phrase)===number))return;
+    e.selected=e.selected.includes(number)?e.selected.filter(n=>n!==number):[...e.selected,number].sort((a,b)=>a-b);e.plan=null;e.saved=null;render();
+  }
+  function setEditorMode(mode){if(!selectiveRegenerationEnabled)return;const e=currentEditor();if(!e||e.busy||!['rhythm','pitches','both'].includes(mode))return;e.mode=mode;e.plan=null;render();}
+  async function editorAction(action,full=false){
+    if(action!=='save'&&!selectiveRegenerationEnabled)return;
+    if(!editorReady())return;const e=await openEditor();if(!e||e!==currentEditor()||e.busy)return;
+    if(!full&&!e.selected.length)return;if(action==='regenerate'&&!e.plan)return;
+    const key=e.key,serial=++editorSerial,revision=e.revision;
+    const payload={version:state.version,revision,selected:full?null:[...e.selected]};
+    if(action!=='save')payload.mode=e.mode;
+    e.busy=true;render();
+    try{
+      const result=await editorRequest(action,payload);
+      if(serial!==editorSerial||key!==editorKey()||e!==currentEditor())return;
+      if(action==='plan'){
+        if(!Array.isArray(result.affected)||!Array.isArray(result.rhythm_affected)||!Array.isArray(result.pitch_affected))throw Error('The affected phrase list could not be verified.');
+        e.plan=result;
+      }else if(action==='regenerate'){
+        if(result.source_version!==payload.version||!Number.isInteger(result.revision)||result.revision<=revision||!result.output?.audio)throw Error('The edit returned an invalid revision.');
+        player.stop();e.revision=result.revision;e.output=result.output;e.plan=null;e.saved=null;
+      }else{
+        if(result.saved!==true||result.editor_revision!==revision||!result.file_url?.startsWith('https://github.com/mtch777/Guitar-Learning/blob/generated-midi/generated-midi/')||result.folder_url!==githubFolder)throw Error('The save destination could not be verified.');
+        e.saved={...result,selected:payload.selected,revision};notify('Saved '+(full?'full':'selected')+' MIDI to GitHub.');
+      }
+    }catch(error){if(serial===editorSerial&&key===editorKey()){if(action==='regenerate')e.plan=null;notify(error.message);}}
+    finally{if(e===currentEditor())e.busy=false;render();}
+  }
+  function editorMarkup(output){
+    const e=currentEditor(),selected=e?.selected||[],busy=!!e?.busy||isBusy();
+    const buttons=(output.phrases||[]).map(p=>`<button type="button" data-phrase-select="${Number(p.phrase)}" aria-pressed="${selected.includes(Number(p.phrase))}"${busy?' disabled':''}>${selected.includes(Number(p.phrase))?'✓ ':''}${Number(p.phrase)}</button>`).join(' ');
+    let html=`<section aria-label="Phrase editor"><p>Select phrases${selectiveRegenerationEnabled?' · Review edits leave earlier steps unchanged.':''}</p><div role="group" aria-label="Phrases">${buttons}</div>`;
+    if(e?.revision>0)html+=`<p>Edited · revision ${e.revision}</p>`;
+    if(e?.busy)html+='<p role="status">Working…</p>';
+    if(selected.length){
+      html+=`<p>Selected: ${selected.join(', ')}</p><button data-editor-action="save"${busy?' disabled':''}>💾 Save selected MIDI</button><p>Selected MIDI joins phrases in original order and clips holds at selection edges.</p>`;
+      if(selectiveRegenerationEnabled){
+        html+=`<label>Regenerate <select data-editor-mode${busy?' disabled':''}>${[['rhythm','Rhythm'],['pitches','Pitches'],['both','Both']].map(([v,l])=>`<option value="${v}"${(e?.mode||'both')===v?' selected':''}>${l}</option>`).join('')}</select></label> <button data-editor-action="plan"${busy?' disabled':''}>Check affected phrases</button>`;
+        if(e?.plan)html+=`<p>Will regenerate: ${esc(e.mode)} · phrases ${e.plan.affected.map(esc).join(', ')}<br>Rhythm: ${e.plan.rhythm_affected.map(esc).join(', ')||'none'} · Pitches: ${e.plan.pitch_affected.map(esc).join(', ')||'none'}</p><button data-editor-action="regenerate"${busy?' disabled':''}>🎲 Regenerate affected phrases</button>`;
+      }
+    }
+    if(e?.saved?.file_url)html+=`<p>Saved revision ${e.saved.revision} · <a href="${esc(e.saved.file_url)}" target="_blank" rel="noopener noreferrer">${e.saved.selected?'Selected MIDI':'Full MIDI'}</a></p>`;
+    return html+'</section>';
+  }
   function resultMarkup(stage, ss) {
     const id=idOf(stage), usePrevious=selectedViews[id]==='previous' && !!ss?.previous;
     const previous=ss?.previous?.output ?? ss?.previous;
-    const output=usePrevious ? previous : ss?.output;
+    const output=usePrevious ? previous : id==='6'?(currentEditor()?.output||ss?.output):ss?.output;
     let html='';
     if (previous) html+=`<div class="compare" role="group" aria-label="Result version"><button data-action="view" data-stage="${esc(id)}" data-view="current" aria-pressed="${!usePrevious}">Current</button><button data-action="view" data-stage="${esc(id)}" data-view="previous" aria-pressed="${!!usePrevious}">Previous</button></div>`;
     if (!output) {
@@ -127,13 +198,14 @@
       const active=player.active?.stage===id && player.active?.view===(usePrevious?'previous':'current');
       html+=`<div class="audio-section"><div class="audio-toolbar"><button class="play-button" data-action="play" data-stage="${esc(id)}"${isBusy()?' disabled':''} aria-label="${active?'Stop':'Play'} ${esc(output.audio.label || '')}${usePrevious?' previous result':''}">${active?'■ Stop':'▶ Play'}</button><span class="audio-label">${esc(output.audio.label || 'Audio')}${usePrevious?' · Previous':''}</span><span class="audio-clock" data-clock="${esc(id)}">${active?'0:00 / ':''}${formatTime(duration(output.audio))}</span></div><div class="timeline" data-timeline="${esc(id)}"><div class="timeline-scroll"><div class="timeline-track"></div></div><canvas aria-label="Note timing and playback position" role="img"></canvas></div></div>`;
     } else if(output.audio?.unavailable || output.audio?.reason) html+=`<p class="empty">${esc(output.audio.unavailable || output.audio.reason)}</p>`;
+    if(id==='6'&&!usePrevious&&ss?.status==='complete')html+=editorMarkup(output);
     html+=phraseMarkup(output.phrases,id);
     const evidence={...(output.details || {})};
     const applied=usePrevious?(ss.previous.applied || undefined):ss.applied;
     if (applied && Object.keys(applied).length) evidence['Applied parameters']=applied;
     if (Object.keys(evidence).length) html+=`<details class="evidence" data-details="evidence-${esc(id)}"><summary>Details</summary><pre>${esc(JSON.stringify(evidence,null,2))}</pre></details>`;
-    if (!usePrevious && !isBusy() && saveableAudio(id,ss)) {
-      const saved=saveResults.get(saveKey(id,state.version));
+    if (!usePrevious && !isBusy() && !currentEditor()?.busy && saveableAudio(id,{...ss,output})) {
+      const saved=id==='6'&&currentEditor()?.revision>0?null:saveResults.get(saveKey(id,state.version));
       html+=`<button type="button" data-save-midi="${esc(id)}" data-version="${state.version}" ${saved?.pending?'disabled':''}>${saved?.pending?'Saving…':ss.status==='blocked'?'💾 Save partial MIDI':'💾 Save MIDI'}</button> <a href="${githubFolder}" target="_blank" rel="noopener noreferrer">🔗 Folder</a>`;
       if(saved?.file_url)html+=`<p>Saved v${state.version} · <a href="${esc(saved.file_url)}" target="_blank" rel="noopener noreferrer">MIDI</a></p>`;
     }
@@ -146,7 +218,7 @@
       const id=idOf(stage), ss=stageState(id) || {}, status=displayStatus(ss);
       const old=stagesNode.querySelector(`[data-step="${CSS.escape(id)}"]`);
       const prevOK=index===0 || ['complete','completed','ready'].includes(stageState(config.stages[index-1].id)?.status);
-      const disabled=isBusy() || !connected || !prevOK;
+      const disabled=isBusy() || !!currentEditor()?.busy || !connected || !prevOK;
       const markup=`<section class="step ${esc(ss.status || '')}" data-step="${esc(id)}"><div class="step-head"><div class="step-heading"><span class="step-number">${index+1}</span><div><h2>${esc(stage.title)}</h2>${status?`<div class="status ${['error','blocked'].includes(ss.status)?'bad':''}">${ss.status==='running'?'<span class="busy-dot"></span>':''}${esc(status)}</div>`:''}</div></div>${!finalStage(id)?`<button class="primary" data-action="generate" data-stage="${esc(id)}"${disabled?' disabled':''}${!prevOK?' title="Generate an earlier step first"':''}>🎲 Generate</button>`:''}</div>${parameterMarkup(stage)}<div class="result">${resultMarkup(stage,ss)}</div></section>`;
       if(old && markupCache.get(id)===markup)continue;
       const opened={}; if(old)for(const d of old.querySelectorAll('details'))opened[d.dataset.details]=d.open;
@@ -156,18 +228,18 @@
       if(old)old.replaceWith(element);else stagesNode.append(element);
       markupCache.set(id,markup);
       for(const d of element.querySelectorAll('details'))if(d.dataset.details in opened)d.open=opened[d.dataset.details];
-      const prev=selectedViews[id]==='previous',out=prev?(ss?.previous?.output??ss?.previous):ss?.output;
+      const prev=selectedViews[id]==='previous',out=prev?(ss?.previous?.output??ss?.previous):id==='6'?(currentEditor()?.output||ss?.output):ss?.output;
       const el=element.querySelector('[data-timeline]');
-      if(el && out?.audio){const t=new Timeline(el,out.audio,out.audio.phrases || (/reference/i.test(out.audio.label || '')?[]:out.phrases || []));timelines.set(id,t);t.scroller.scrollLeft=scroll;t.draw();}
+      if(el && out?.audio){const t=new Timeline(el,out.audio,out.audio.phrases || (/reference/i.test(out.audio.label || '')?[]:out.phrases || []),id==='6'&&!prev?togglePhrase:null);timelines.set(id,t);t.scroller.scrollLeft=scroll;t.draw();}
     }
     $('#connection').textContent=!connected?'Disconnected':isBusy()?'Generating…':'';
   }
   function formatNumber(n){const v=Number(n);return Number.isFinite(v)?String(Math.round(v*1000)/1000):String(n);}
   function formatTime(seconds){seconds=Math.max(0,Number(seconds)||0);return `${Math.floor(seconds/60)}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;}
   function duration(a){return (a.notes||[]).reduce((end,n)=>Math.max(end,Number(n.start_beats)+Number(n.duration_beats)),Number(a.length_beats)||0)*60/(Number(a.tempo)||120);}
-  function getOutput(id){const s=stageState(id);return selectedViews[id]==='previous'?(s?.previous?.output??s?.previous):s?.output;}
+  function getOutput(id){const s=stageState(id);return selectedViews[id]==='previous'?(s?.previous?.output??s?.previous):String(id)==='6'?(currentEditor()?.output||s?.output):s?.output;}
   async function generate(id){
-    if(isBusy() || !connected)return;
+    if(isBusy() || currentEditor()?.busy || !connected)return;
     const index=config.stages.findIndex(s=>idOf(s)===id);
     const affected=new Set(config.stages.slice(index).map(idOf));
     const inputs=[...stagesNode.querySelectorAll('input,select')].filter(input=>affected.has(input.dataset.stage));
@@ -214,16 +286,21 @@
     }
   }
   class Timeline{
-    constructor(el,audio,phrases){
+    constructor(el,audio,phrases,onSelect=null){
       this.el=el;this.audio=audio;this.phrases=phrases;this.canvas=el.querySelector('canvas');this.scroller=el.querySelector('.timeline-scroll');this.track=el.querySelector('.timeline-track');
       this.length=audio.notes.reduce((end,n)=>Math.max(end,Number(n.start_beats)+Number(n.duration_beats)),Math.max(Number(audio.length_beats)||0,1));this.cursor=null;
       const pitches=audio.notes.map(n=>Number(n.midi_pitch)).filter(Number.isFinite);this.lo=pitches.reduce((v,p)=>Math.min(v,p),127)-1;this.hi=pitches.reduce((v,p)=>Math.max(v,p),0)+1;
       this.scrollHandler=()=>this.draw();this.scroller.addEventListener('scroll',this.scrollHandler,{passive:true});
+      this.selectHandler=event=>{if(!onSelect)return;const r=this.scroller.getBoundingClientRect();const beat=(event.clientX-r.left+this.scroller.scrollLeft)/this.scale;const p=this.phrases.find(p=>beat>=Number(p.start_beats)&&beat<Number(p.start_beats)+Number(p.length_beats));if(p&&(!this.pointerStart||Math.abs(event.clientX-this.pointerStart.x)<6&&Math.abs(this.scroller.scrollLeft-this.pointerStart.scroll)<6))onSelect(Number(p.phrase));};
+      this.downHandler=event=>{this.pointerStart={x:event.clientX,scroll:this.scroller.scrollLeft};};
+      this.scroller.addEventListener('pointerdown',this.downHandler);this.scroller.addEventListener('click',this.selectHandler);
+      this.selectable=!!onSelect;
       this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(el);this.resize();
     }
     resize(){const w=this.el.clientWidth,h=this.el.clientHeight-18,dpr=Math.min(window.devicePixelRatio||1,2);this.canvas.width=Math.round(w*dpr);this.canvas.height=Math.round(h*dpr);this.canvas.style.height=h+'px';this.width=w;this.height=h;this.dpr=dpr;this.scale=Math.max(25,w/this.length);this.track.style.width=Math.max(w,this.length*this.scale)+'px';this.draw();}
     draw(){
       const c=this.canvas.getContext('2d'),w=this.width,h=this.height;if(!w)return;c.setTransform(this.dpr,0,0,this.dpr,0,0);c.clearRect(0,0,w,h);const offset=this.scroller.scrollLeft;const x=b=>b*this.scale-offset;
+      if(this.selectable)for(const p of this.phrases){if(currentEditor()?.selected.includes(Number(p.phrase))){c.fillStyle='rgba(130,180,90,.22)';c.fillRect(x(Number(p.start_beats)),18,Number(p.length_beats)*this.scale,h-18);}}
       c.font='10px system-ui';c.textBaseline='top';
       for(let beat=Math.max(0,Math.floor(offset/this.scale));beat<=(offset+w)/this.scale;beat++){
         c.strokeStyle=beat%4===0?'#354333':'#233020';c.lineWidth=1;c.beginPath();c.moveTo(Math.round(x(beat))+.5,18);c.lineTo(Math.round(x(beat))+.5,h);c.stroke();
@@ -240,7 +317,7 @@
       if(this.cursor!=null){c.strokeStyle='#c2c7c0';c.lineWidth=2;c.beginPath();c.moveTo(x(this.cursor),0);c.lineTo(x(this.cursor),h);c.stroke();}
     }
     progress(beat){this.cursor=beat;const pos=beat*this.scale;const left=this.scroller.scrollLeft;if(pos>left+this.width*.82 || pos<left)this.scroller.scrollLeft=Math.max(0,pos-this.width*.25);this.draw();}
-    destroy(){this.resizeObserver.disconnect();this.scroller.removeEventListener('scroll',this.scrollHandler);}
+    destroy(){this.scroller.removeEventListener('pointerdown',this.downHandler);this.scroller.removeEventListener('click',this.selectHandler);this.resizeObserver.disconnect();this.scroller.removeEventListener('scroll',this.scrollHandler);}
   }
   const player={
     context:null,active:null,nodes:new Set(),timer:null,frame:null,token:0,
@@ -265,7 +342,7 @@
     }
   };
   stagesNode.addEventListener('input',event=>{
-    const input=event.target;if(!input.dataset.key)return;const id=input.dataset.stage,key=input.dataset.key;
+    const input=event.target;if(input.hasAttribute?.('data-editor-mode')){setEditorMode(input.value);return;}if(!input.dataset.key)return;const id=input.dataset.stage,key=input.dataset.key;
     writePath(drafts[id],key,input.type==='checkbox'?input.checked:input.type==='number'?(input.value===''?'':Number(input.value)):input.value);
     const tag=input.closest('.params').querySelector('.draft-tag');tag.hidden=!isDirty(id);saveDrafts();
   });
@@ -310,8 +387,10 @@
     panel.append(button,link);document.querySelector('main').prepend(panel);
   }
   stagesNode.addEventListener('click',async event=>{
+    const phrase=event.target.closest('[data-phrase-select]');if(phrase){if(!phrase.disabled)await togglePhrase(Number(phrase.dataset.phraseSelect));return;}
+    const edit=event.target.closest('[data-editor-action]');if(edit){if(!edit.disabled)await editorAction(edit.dataset.editorAction);return;}
     const saveMidi=event.target.closest('[data-save-midi]');
-    if(saveMidi){if(!saveMidi.disabled)await saveGithub(saveMidi.dataset.saveMidi,Number(saveMidi.dataset.version));return;}
+    if(saveMidi){if(!saveMidi.disabled){if(saveMidi.dataset.saveMidi==='6'&&currentEditor()?.revision>0)await editorAction('save',true);else await saveGithub(saveMidi.dataset.saveMidi,Number(saveMidi.dataset.version));}return;}
     const copyMidi=event.target.closest('[data-copy-midi]');
     if(copyMidi){
       if(copyMidi.disabled)return;copyMidi.disabled=true;
