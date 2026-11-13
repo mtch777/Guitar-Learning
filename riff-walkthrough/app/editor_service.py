@@ -1,0 +1,89 @@
+"""Revisioned Review working copies. Original generator sessions are read-only."""
+import copy,hashlib,http.client,http.cookies,json,pathlib,re,secrets,threading
+SaveError=ValueError
+from server import midi_bytes
+
+def selected_audio(output,selected):
+ phrases=output['phrases'];ids={p['phrase'] for p in phrases}
+ if not isinstance(selected,list) or not selected or any(type(i) is not int or i not in ids for i in selected):raise SaveError('Select at least one valid phrase.')
+ chosen=[p for p in phrases if p['phrase'] in set(selected)];spans=[]
+ for p in chosen:
+  a=float(p['start_beats']);b=a+float(p['length_beats'])
+  if spans and abs(spans[-1][1]-a)<1e-8:spans[-1]=(spans[-1][0],b)
+  else:spans.append((a,b))
+ notes=[];offset=0
+ for a,b in spans:
+  for n in output['audio']['notes']:
+   start=max(a,n['start_beats']);end=min(b,n['start_beats']+n['duration_beats'])
+   if end>start:notes.append({**n,'start_beats':offset+start-a,'duration_beats':end-start})
+  offset+=b-a
+ return {'label':'Selected phrases · joined, edge holds clipped','notes':notes,'tempo':120,'length_beats':offset}
+
+class EditorManager:
+ def __init__(self,publisher):
+  self.publisher=publisher;self.directory=publisher.repo.parent/'riff-editor-state';self.lock=threading.RLock();self.engine=None
+ def source(self,cookie,version):
+  c=http.cookies.SimpleCookie()
+  try:c.load(cookie or '')
+  except http.cookies.CookieError:pass
+  sid=c.get('riff_session')
+  if not sid or not re.fullmatch(r'[A-Za-z0-9_-]{32}',sid.value):raise SaveError('No current generator session.')
+  def get(path):
+   conn=http.client.HTTPConnection('127.0.0.1',self.publisher.source_port,timeout=30)
+   try:
+    conn.request('GET',path,headers={'Cookie':'riff_session='+sid.value});r=conn.getresponse();data=json.loads(r.read())
+    if r.status!=200:raise SaveError('Generator is unavailable.')
+    return data
+   finally:conn.close()
+  state=get('/api/state')
+  if state.get('session_id')!=sid.value or state.get('version')!=version or state.get('busy'):raise SaveError('The original result changed or is generating.')
+  final=next((s for s in state['stages'] if str(s['id'])=='6'),{})
+  if final.get('status')!='complete' or not final.get('output',{}).get('can_export'):raise SaveError('A complete Review is required.')
+  state.pop('session_id',None);state['dataset']=get('/api/config')['dataset']
+  key=hashlib.sha256((sid.value+':'+str(version)).encode()).hexdigest()
+  return key,state
+ def path(self,key):return self.directory/(key+'.json')
+ def write(self,key,workspace):
+  self.directory.mkdir(parents=True,exist_ok=True);p=self.path(key);tmp=p.with_suffix('.tmp');tmp.write_text(json.dumps(workspace),encoding='utf-8');tmp.replace(p)
+ def public(self,w):return {k:copy.deepcopy(w[k]) for k in ('source_version','revision','output')}
+ def workspace(self,key,state):
+  p=self.path(key)
+  if p.exists():
+   w=json.loads(p.read_text(encoding='utf-8'))
+   if w['state']['dataset']!=state['dataset']:raise SaveError('The source dataset changed.')
+   return w
+  output=next(s['output'] for s in state['stages'] if str(s['id'])=='6')
+  return {'source_version':state['version'],'revision':0,'output':copy.deepcopy(output),'state':state}
+ def request(self,path,cookie,data):
+  if type(data.get('version')) is not int or data['version']<1:raise SaveError('Invalid source version.')
+  key,state=self.source(cookie,data['version'])
+  with self.lock:
+   w=self.workspace(key,state)
+   if path=='/editor/open':
+    if set(data)!={'version'}:raise SaveError('Invalid editor request.')
+    self.write(key,w);return self.public(w)
+   if type(data.get('revision')) is not int or data['revision']!=w['revision']:raise SaveError('Edited result changed. Open the current Review again.')
+   if path=='/editor/save':
+    if set(data)!={'version','revision','selected'}:raise SaveError('Invalid selected MIDI request.')
+    audio=w['output']['audio'] if data['selected'] is None else selected_audio(w['output'],data['selected'])
+    body=midi_bytes(audio)
+    if not self.publisher.lock.acquire(blocking=False):raise SaveError('Another MIDI is being saved. Retry shortly.')
+    try:
+     result=self.publisher.publish(body,data['version'],6,False,selected=data['selected'] is not None)
+     return {**result,'editor_revision':w['revision'],'selected':data['selected'],'timing':'full' if data['selected'] is None else 'joined; edge holds clipped'}
+    finally:self.publisher.lock.release()
+   if set(data)!={'version','revision','selected','mode'}:raise SaveError('Invalid selective regeneration request.')
+   from selective_edit import plan_selection,SelectiveEditor
+   plan=plan_selection(w['state'],w['output']['phrases'],data['selected'],data['mode'])
+   if path=='/editor/plan':return {**plan,'revision':w['revision']}
+   if path!='/editor/regenerate':raise SaveError('Unknown editor action.')
+   if self.engine is None:
+    from engine import Engine
+    self.engine=Engine()
+   # The engine works on a private copy. Nothing is committed on lookup failure.
+   result=SelectiveEditor(self.engine).regenerate(copy.deepcopy(w['state']),copy.deepcopy(w['output']['phrases']),data['selected'],data['mode'],secrets.randbits(52))
+   updated=copy.deepcopy(w);updated['revision']+=1
+   from engine import audio
+   phrases=result['phrases'];a=audio(phrases,'Edited riff')
+   updated['output']={**copy.deepcopy(w['output']),'phrases':phrases,'audio':a,'details':{**w['output'].get('details',{}),'edit':{k:v for k,v in result.items() if k not in ('phrases','audio')}},'summary':{'Phrases':len(phrases),'Beats':a['length_beats'],'Notes':len(a['notes']),'Edit':updated['revision']}}
+   self.write(key,updated);return {**self.public(updated),**plan}
