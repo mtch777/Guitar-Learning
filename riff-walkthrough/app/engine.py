@@ -4,6 +4,7 @@ The original CSV, extraction and generator modules are read-only inputs.
 from __future__ import annotations
 import collections, contextlib, copy, csv, hashlib, json, math, os, pathlib, random, secrets, sys, tempfile, threading, time
 from fractions import Fraction as Q
+from runtime_options import temporary_directory
 ROOT=pathlib.Path(__file__).resolve().parent
 BASE=ROOT.parent
 sys.path[:0]=[str(BASE/'seed-scoring'),str(BASE/'weighted-scoring')]
@@ -192,7 +193,7 @@ class Engine:
  def stage3(self,p,up):
   rid=up[0]['raw']['seed_id'];seed=self.first[rid];blueprint=up[1]['raw']['blueprint'];scores=up[1]['raw']['scores'];rng=seed_of(p)
   candidates=[(r,scores[r],None) for r in sorted(self.rhythm.pool)]
-  with tempfile.TemporaryDirectory(prefix='riff-rhythm-') as tmp,settings(fields=up[1]['details']['field_weights'],fit=p['opening_weights'],context=p['context_weights'],preferences=p.get('phrase_preferences',DEFAULTS['3']['phrase_preferences'])):
+  with temporary_directory(prefix='riff-rhythm-') as tmp,settings(fields=up[1]['details']['field_weights'],fit=p['opening_weights'],context=p['context_weights'],preferences=p.get('phrase_preferences',DEFAULTS['3']['phrase_preferences'])):
    opening=R.run(seed,candidates,self.csv,self.timing,pathlib.Path(tmp)/'opening',cached=self.source_cache,rng_seed_override=rng)
    if not opening['selection_performed']:return {'summary':{},'phrases':[],'blocker':opening['status'],'details':{k:v for k,v in opening.items() if k not in ['pool']}}
    report=self.rhythm.run(blueprint,opening,p['method'],pathlib.Path(tmp)/'sequence',rng+1)
@@ -200,7 +201,7 @@ class Engine:
   return {'summary':{'Method':p['method'],'Phrases':len(phrases),'Beats':report['total_beats']},'phrases':phrases,'audio':audio(phrases,'Rhythm · E1'),'details':{'random_seed':rng,'opening':{k:v for k,v in opening.items() if k not in ['pool','selected_rhythm','excluded']},'opening_excluded_counts':dict(collections.Counter(x['reason'] for x in opening['excluded'])),'weights':report['weights'],'phrase_selections':[{k:v for k,v in x.items() if k!='notes'} for x in phrases]},'raw':{'report':report,'opening':opening}}
  def stage4(self,p,up):
   rid=up[0]['raw']['seed_id'];rng=seed_of(p);rhythm=up[2]['raw']['report'];opening=up[2]['raw']['opening']
-  with tempfile.TemporaryDirectory(prefix='riff-pitch1-') as tmp,settings(fit=p['fit_weights'],tiers=p['tier_weights'],preferences=clean_preferences('4',p.get('phrase_preferences',DEFAULTS['4']['phrase_preferences']))):
+  with temporary_directory(prefix='riff-pitch1-') as tmp,settings(fit=p['fit_weights'],tiers=p['tier_weights'],preferences=clean_preferences('4',p.get('phrase_preferences',DEFAULTS['4']['phrase_preferences']))):
    report=self.pitch.run(rid,opening,tmp,rng,similarities=up[1]['raw']['scores'])
   if not report['selection_performed']:return {'summary':{},'phrases':[],'blocker':report['reason'],'details':report}
   assert S.stripped(report['notes'])==rhythm['phrases'][0]['notes'],'Opening pitch selection changed its rhythm'
@@ -212,7 +213,7 @@ class Engine:
   exact=S.exact_roots(rows);scales=None;phrases=[];decisions=[];blocker=None
   def snapshot():
    return {'summary':{'Completed phrases':len(phrases),'Planned phrases':len(rows),'Compatible scale collections':len(scales or ())},'progress':{'completed':len(phrases),'total':len(rows)},'phrases':copy.deepcopy(phrases),'audio':audio(phrases,'Generated pitches' if len(phrases)==len(rows) and not blocker else 'Partial generated pitches'),'details':{'random_seed':rng,'phrase_selections':copy.deepcopy(decisions),'possible_scales':T.public(scales or ()),'scale_policy':'Every generated pitch must fit at least one shared diatonic collection. Chromatic/color notes can stop this version.','rhythms_preserved':True},**({'blocker':blocker} if blocker else {})}
-  with tempfile.TemporaryDirectory(prefix='riff-pitches-') as tmp,settings(fit=p['fit_weights'],tiers=p['tier_weights'],preferences=clean_preferences('5',p.get('phrase_preferences',DEFAULTS['5']['phrase_preferences']))):
+  with temporary_directory(prefix='riff-pitches-') as tmp,settings(fit=p['fit_weights'],tiers=p['tier_weights'],preferences=clean_preferences('5',p.get('phrase_preferences',DEFAULTS['5']['phrase_preferences']))):
    for idx,row in enumerate(rows,1):
     rhythm=fixed[idx-1]['notes'];before=scales;decision={}
     if idx==1:

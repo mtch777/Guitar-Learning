@@ -4,6 +4,8 @@ Does not load, restart, regenerate, or persist generator sessions.
 """
 import argparse, hashlib, http.client, http.cookies, http.server, json, math, os, pathlib, re, subprocess, threading, urllib.parse
 
+from runtime_options import output_path
+
 REPOSITORY='https://github.com/mtch777/Guitar-Learning.git'
 BRANCH='generated-midi'
 FOLDER='generated-midi'
@@ -18,7 +20,7 @@ def midi_hash(data):
 
 class Publisher:
  def __init__(self,repo,source_port=8768):
-  self.repo=pathlib.Path(repo).resolve();self.source_port=source_port;self.lock=threading.Lock()
+  self.repo=output_path(repo);self.source_port=source_port;self.lock=threading.Lock()
  def git(self,*args,check=True):
   env={**os.environ,'GIT_TERMINAL_PROMPT':'0','GCM_INTERACTIVE':'never'}
   try:r=subprocess.run(['git','-C',str(self.repo),*args],capture_output=True,timeout=90,env=env)

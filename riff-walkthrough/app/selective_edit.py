@@ -4,6 +4,7 @@ Never changes the original session or regenerates unselected pipeline stages.
 import copy, math, pathlib, random, tempfile
 from fractions import Fraction as Q
 import engine as E
+from runtime_options import temporary_directory
 C,R,S,T=E.C,E.R,E.S,E.T
 
 class EditBlocked(ValueError): pass
@@ -143,7 +144,7 @@ class SelectiveEditor:
     for i in members:
      phrases[i-1]['notes']=copy.deepcopy(notes) if i in pitch else _transfer_pitches(original[i-1]['notes'],notes)
     decisions.append({'kind':'rhythm','phrases':members,**decision})
-  with tempfile.TemporaryDirectory(prefix='riff-selective-') as temporary:
+  with temporary_directory(prefix='riff-selective-') as temporary:
    for root in sorted({exact[i] for i in pitch}):
     members=sorted(i for i in pitch if exact[i]==root);row=rows[root-1];slots=S.stripped(phrases[root-1]['notes'])
     if any(_timing_signature(phrases[i-1]['notes'])!=_timing_signature(phrases[root-1]['notes']) for i in members):raise EditBlocked('Exact-repeat timing is inconsistent; no changes were applied.')

@@ -1,4 +1,4 @@
-from runtime_options import SESSION_COOKIE
+from runtime_options import SESSION_COOKIE, output_path
 """Isolated Kontakt renders of captured playback. Never regenerates source music."""
 import array,concurrent.futures,copy,hashlib,http.cookies,json,math,os,pathlib,struct,subprocess,threading,time,uuid,wave
 from server import midi_bytes
@@ -46,7 +46,7 @@ def inspect_wav(path,seconds):
 
 class RenderManager:
  def __init__(self,publisher,editor,selection):
-  self.publisher=publisher;self.editor=editor;self.selection=selection;self.directory=publisher.repo.parent/'riff-kontakt-renders';self.jobs={};self.lock=threading.Lock();self.executor=concurrent.futures.ThreadPoolExecutor(max_workers=1)
+  self.publisher=publisher;self.editor=editor;self.selection=selection;self.directory=output_path(publisher.repo.parent/'riff-kontakt-renders');self.jobs={};self.lock=threading.Lock();self.executor=concurrent.futures.ThreadPoolExecutor(max_workers=1)
  def catalog(self):
   directory=os.environ.get('RIFF_KONTAKT_PRESET_DIR');python=os.environ.get('RIFF_RENDER_PYTHON');worker=os.environ.get('RIFF_RENDER_WORKER')
   if not all(x and pathlib.Path(x).exists() for x in (directory,python,worker)):return []

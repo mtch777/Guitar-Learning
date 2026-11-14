@@ -1,9 +1,9 @@
 param([string]$RuntimeRoot=(Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'riff-generator-runtime'))
 $ErrorActionPreference='Stop'
 $RuntimeRoot=[IO.Path]::GetFullPath($RuntimeRoot)
-if([IO.Path]::GetPathRoot($RuntimeRoot) -eq 'C:\'){throw 'Project runtime must not be on C.'}
+if([IO.Path]::GetPathRoot($RuntimeRoot) -ne 'F:\'){throw 'Project runtime must be on F.'}
 foreach($name in @('temp','logs','cache')){New-Item -ItemType Directory -Force -Path (Join-Path $RuntimeRoot $name)|Out-Null}
-$env:TEMP=Join-Path $RuntimeRoot 'temp';$env:TMP=$env:TEMP;$env:TMPDIR=$env:TEMP
+$env:TEMP=Join-Path $RuntimeRoot 'temp';$env:TMP=$env:TEMP;$env:TMPDIR=$env:TEMP;$env:RIFF_TEMP_DIR=$env:TEMP
 $env:PYTHONDONTWRITEBYTECODE='1';$env:PYTHONPYCACHEPREFIX=Join-Path $RuntimeRoot 'cache\python'
 $env:PIP_CACHE_DIR=Join-Path $RuntimeRoot 'cache\pip';$env:XDG_CACHE_HOME=Join-Path $RuntimeRoot 'cache';$env:MPLCONFIGDIR=Join-Path $RuntimeRoot 'cache\matplotlib';$env:NUMBA_CACHE_DIR=Join-Path $RuntimeRoot 'cache\numba'
 $env:RIFF_SESSION_COOKIE='riff_weights_session'

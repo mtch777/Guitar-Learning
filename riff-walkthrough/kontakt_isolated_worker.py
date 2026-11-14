@@ -31,6 +31,7 @@ def main():
  if not math.isfinite(args.bpm) or args.bpm<=0 or not math.isfinite(args.duration) or args.duration<=0: raise ValueError("bpm/duration must be finite and positive")
  source=pathlib.Path(args.midi).resolve(strict=True);out=pathlib.Path(args.output).resolve()
  meta=pathlib.Path(str(out)+".json")
+ if os.name=="nt" and (out.drive.upper()!="F:" or ROOT.resolve().drive.upper()!="F:"): raise ValueError("Renderer output and lock directory must be on F")
  if source==out: raise ValueError("output cannot overwrite input")
  if out.exists() or meta.exists(): raise FileExistsError("Use fresh output path; refusing existing result")
  if not out.parent.is_dir(): raise ValueError("Output directory must already exist")

@@ -1,4 +1,4 @@
-from runtime_options import SESSION_COOKIE
+from runtime_options import SESSION_COOKIE, output_path
 """Revisioned Review working copies. Original generator sessions are read-only."""
 import copy,hashlib,http.client,http.cookies,json,pathlib,re,secrets,threading
 SaveError=ValueError
@@ -22,7 +22,7 @@ def selected_audio(output,selected):
 
 class EditorManager:
  def __init__(self,publisher):
-  self.publisher=publisher;self.directory=publisher.repo.parent/'riff-editor-state';self.lock=threading.RLock();self.engine=None
+  self.publisher=publisher;self.directory=output_path(publisher.repo.parent/'riff-editor-state');self.lock=threading.RLock();self.engine=None
  def source(self,cookie,version):
   c=http.cookies.SimpleCookie()
   try:c.load(cookie or '')
