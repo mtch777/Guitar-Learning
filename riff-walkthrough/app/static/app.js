@@ -160,8 +160,10 @@
   function reviewOutput(){return currentEditor()?.output||stageState('6')?.output;}
   async function editorRequest(action,payload){
     const endpoint=new URL(location.origin);endpoint.port=String(Number(endpoint.port||8768)+1);endpoint.pathname='/editor/'+action;
-    const r=await fetch(endpoint.href,{method:'POST',credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    const result=await r.json();if(!r.ok)throw Error(result.error==='The original result changed or is generating.'?'Review is out of sync. Retry Review to check the current result.':result.error||'The edit could not be completed.');return result;
+    let timer;const controller=action==='plan'&&typeof AbortController!=='undefined'?new AbortController():null;
+    const request=async()=>{const r=await fetch(endpoint.href,{method:'POST',credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),...(controller?{signal:controller.signal}:{})});return {r,result:await r.json()};};
+    let response;try{response=action==='plan'?await Promise.race([request(),new Promise((_,reject)=>{timer=setTimeout(()=>{reject(Error('Repeat check timed out. Retry selection.'));controller?.abort();},15000);})]):await request();}finally{clearTimeout(timer);}
+    const {r,result}=response;if(!r.ok)throw Error(result.error==='The original result changed or is generating.'?'Review is out of sync. Retry Review to check the current result.':result.error||'The edit could not be completed.');return result;
   }
   async function openEditor(){
     if(!editorReady())return null;
@@ -173,7 +175,7 @@
       const result=await editorRequest('open',{version:state.version});
       if(serial!==editorSerial||key!==editorKey())return null;
       if(result.source_version!==state.version||!Number.isInteger(result.revision)||!result.output?.audio)throw Error('The editor returned an invalid result.');
-      Object.assign(editor,{revision:result.revision,output:result.output,preferences:copy(prefs?.preferences||result.preferences||{}),busy:false});editor.selected=editor.selected.filter(n=>result.output.phrases?.some(p=>Number(p.phrase)===n));if(editorRecoveryPrefs?.key===key)editorRecoveryPrefs=null;if(priorError&&noticeNode.textContent===priorError)notify('');return editor;
+      Object.assign(editor,{revision:result.revision,output:result.output,preferences:copy(prefs?.preferences||result.preferences||{}),busy:false});editor.selected=editor.selected.filter(n=>result.output.phrases?.some(p=>Number(p.phrase)===n));if(editorRecoveryPrefs?.key===key)editorRecoveryPrefs=null;if(priorError&&noticeNode.textContent===priorError)notify('');const restored=editor;if(restored.selected.length)await updateRepeatSelection(restored);return serial===editorSerial&&key===editorKey()&&restored===currentEditor()?restored:null;
     }catch(e){if(serial===editorSerial&&key===editorKey()){editor=null;editorRestoreError={key,message:e.message};notify(e.message);}return null;}
     finally{render();}
   }
@@ -194,19 +196,20 @@
   }
   async function updateRepeatSelection(e=currentEditor()){
     if(!selectiveRegenerationEnabled||!e||e!==currentEditor())return;
-    const serial=(e.planSerial||0)+1;e.planSerial=serial;e.plan=null;e.planPending=!!e.selected.length;
+    const serial=(e.planSerial||0)+1;e.planSerial=serial;e.plan=null;e.planError=null;e.planPending=!!e.selected.length;
     if(!e.selected.length){render();return;}
     const selected=[...e.selected],revision=e.revision;
     try{const plan=await editorRequest('plan',{version:state.version,revision,selected,mode:e.mode||rememberedEditorMode});
       if(e!==currentEditor()||serial!==e.planSerial||revision!==e.revision)return;
       if(!Array.isArray(plan.affected)||!Array.isArray(plan.rhythm_affected)||!Array.isArray(plan.pitch_affected))throw Error('Repeat selection could not be verified.');
       e.plan=plan;
-    }catch(error){if(e===currentEditor()&&serial===e.planSerial)notify(error.message);}
+    }catch(error){if(e===currentEditor()&&serial===e.planSerial){e.planError=error.message;notify(error.message);}}
     finally{if(e===currentEditor()&&serial===e.planSerial){e.planPending=false;render();}}
   }
   function setEditorMode(mode){if(!selectiveRegenerationEnabled)return;if(!['both','rhythm','pitches'].includes(mode)||currentEditor()?.busy)return;rememberedEditorMode=mode;try{localStorage.setItem('riff-regeneration-mode',mode);}catch{}const e=currentEditor();if(e){e.mode=mode;updateRepeatSelection(e);}}
   function selectedPhraseNumbers(id){const e=currentSelection(String(id));return String(id)==='6'?(e?.plan?.affected||e?.selected||[]):(e?.expanded||e?.selected||[]);}
   async function editorAction(action,full=false){
+    if(action==='retry-plan'){await updateRepeatSelection();return;}
     if(action!=='save'&&!selectiveRegenerationEnabled)return;
     if(!editorReady())return;const e=await openEditor();if(!e||e!==currentEditor()||e.busy)return;
     if(!full&&!e.selected.length)return;if(['regenerate','delete'].includes(action)&&(e.planPending||!e.plan))return;
@@ -306,6 +309,7 @@
         html+=`<select data-editor-mode aria-label="Regenerate"${busy?' disabled':''}>${[['both','Rhythm and pitch'],['rhythm','Rhythm'],['pitches','Pitch']].map(([value,label])=>`<option value="${value}"${(e?.mode||rememberedEditorMode)===value?' selected':''}>${label}</option>`).join('')}</select><button data-editor-action="regenerate"${busy||e?.planPending||!e?.plan?' disabled':''}>${e?.planPending?'Checking repeats.':'↻ Regenerate'}</button><button data-editor-action="delete" title="Delete selected phrases and their exact repeats; join remaining phrases"${busy||e?.planPending||!e?.plan?' disabled':''}>🗑 Delete</button>`;
       }
     }
+    if(e?.planError)html+=`<p role="status">${esc(e.planError)}</p><button data-editor-action="retry-plan"${busy||e.planPending?' disabled':''}>Retry selection</button>`;
     if(e?.saved?.file_url)html+=`<p>Saved revision ${e.saved.revision} · <a href="${esc(e.saved.file_url)}" target="_blank" rel="noopener noreferrer">${e.saved.selected?'Selected MIDI':'Full MIDI'}</a></p>`;
     return html+'</section>';
   }

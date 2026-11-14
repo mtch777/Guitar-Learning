@@ -5,7 +5,7 @@ const sandbox={console,localStorage:{getItem:k=>settings.get(k)||null,setItem:(k
 let code=fs.readFileSync(require('path').join(__dirname,'../static/app.js'),'utf8');
 // Phase 2 draft behavior is tested explicitly with its shipped-disabled gate enabled only in this harness.
 code=code.replace(/const selectiveRegenerationEnabled=(true|false);/, 'const selectiveRegenerationEnabled=true;');
-code=code.replace('  init();\n})();',`  globalThis.test={setResultView,resultMarkup,refresh,restoreEditorIfNeeded,togglePhrase,setEditorMode,editorAction,editorMarkup,getOutput,currentEditor,openEditor,retryReview,selectedViews,selectedPhraseNumbers,phraseCheckboxMarkup,updateRepeatSelection,setMarker,markerBeat,seekPlayback,player,kontaktPlayer,timelines,capturePlaybackPosition,restorePlaybackPosition,setPresets(p){kontaktPresets=p;},set(s){config={stages:[]};state=s;connected=true;},get(){return state;}};\n})();`);
+code=code.replace('  init();\n})();',`  globalThis.test={setResultView,resultMarkup,refresh,restoreEditorIfNeeded,togglePhrase,setEditorMode,editorAction,editorMarkup,getOutput,currentEditor,openEditor,retryReview,selectedViews,selectedPhraseNumbers,phraseCheckboxMarkup,updateRepeatSelection,setMarker,markerBeat,seekPlayback,player,kontaktPlayer,timelines,capturePlaybackPosition,restorePlaybackPosition,setRecovery(p){editor=null;editorRecoveryPrefs=p;},setPresets(p){kontaktPresets=p;},set(s){config={stages:[]};state=s;connected=true;},get(){return state;}};\n})();`);
 vm.createContext(sandbox);vm.runInContext(code,sandbox);const t=sandbox.test;
 const original={audio:{tempo:120,length_beats:8,notes:[{start_beats:0,duration_beats:1,midi_pitch:28}]},phrases:[{phrase:1,start_beats:0,length_beats:4},{phrase:2,start_beats:4,length_beats:4}]};
 const state={session_id:'a'.repeat(32),version:7,busy:false,stages:[{id:'1',status:'complete',output:{fixed:'seed'}},{id:'6',status:'complete',output:original}]};
@@ -29,7 +29,9 @@ function response(data,ok=true){return {ok,json:async()=>data};}
  await t.editorAction('save');assert.deepEqual(requests.at(-1).b.selected,[1,2]);
  // Deselect the manual phrase removes its auto repeat; explicit second selection survives independently.
  await t.togglePhrase(2);assert.deepEqual(Array.from(t.currentEditor().selected),[1,2]);await t.togglePhrase(1);assert.deepEqual(Array.from(t.currentEditor().selected),[2]);await t.togglePhrase(2);assert.deepEqual(Array.from(t.selectedPhraseNumbers('6')),[]);
- await t.togglePhrase(1);fail=true;await t.editorAction('regenerate');assert.equal(t.currentEditor().revision,1);assert.equal(renderStarts,1);assert.equal(JSON.stringify(state),snapshot);
+ await t.togglePhrase(1);fail=true;await t.editorAction('regenerate');assert.equal(t.currentEditor().revision,1);assert.ok(t.currentEditor().plan,'failed edit must restore usable selection plan');assert.equal(renderStarts,1);assert.equal(JSON.stringify(state),snapshot);
+ // Failed plan checks expose a recovery action without starting generation.
+ const healthyFetch=sandbox.fetch;sandbox.fetch=async()=>{throw Error('Connection interrupted');};await t.updateRepeatSelection();assert.equal(t.currentEditor().plan,null);assert.ok(t.editorMarkup(original).includes('Retry selection'));sandbox.fetch=healthyFetch;await t.editorAction('retry-plan');assert.ok(t.currentEditor().plan);assert.equal(t.currentEditor().planError,null);assert.equal(renderStarts,1);
  // Mode changes feed plan and regeneration, remembered when reopening a fresh editor.
  t.setEditorMode('pitches');await new Promise(resolve=>setImmediate(resolve));assert.equal(t.currentEditor().mode,'pitches');assert.equal(requests.filter(r=>r.url.endsWith('/plan')).at(-1).b.mode,'pitches');
  t.setEditorMode('rhythm');await new Promise(resolve=>setImmediate(resolve));assert.equal(t.currentEditor().mode,'rhythm');assert.equal(settings.get('riff-regeneration-mode'),'rhythm');
@@ -46,5 +48,8 @@ function response(data,ok=true){return {ok,json:async()=>data};}
  const oldAudio={currentTime:3,paused:false},replacement={replaceWith(value){this.reused=value;}},timeline={draw(){},cursor:null};
  // Test direct source contract because currentKontakt requires a valid capture/job for DOM reuse.
  assert.ok(code.includes('element.replaceWith(snapshot.element)'));assert.ok(!code.includes('if(kontaktPlayer.active?.stage===id)kontaktPlayer.stop();'));
+ // A restored editor waiting for its repeat plan cannot return a newer session's editor.
+ t.set(state);t.setRecovery({key:state.session_id+':7',selected:[1],mode:'both'});let resolveRestore;sandbox.fetch=async(url)=>url.endsWith('/open')?response({source_version:t.get().version,revision:0,output:original}):new Promise(resolve=>resolveRestore=resolve);
+ const oldOpen=t.openEditor();await new Promise(resolve=>setImmediate(resolve));t.set({...state,version:9});const newOpen=await t.openEditor();assert.ok(newOpen);resolveRestore(response({affected:[1],rhythm_affected:[1],pitch_affected:[1]}));assert.equal(await oldOpen,null);assert.equal(t.currentEditor(),newOpen);
  console.log('Editor/playback UI PASS: automatic repeat plan, manual-only regen scope, one-click Both, gray selection, marker preservation/seek, auto render success-only, no autoplay, stale plan and rollback.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
