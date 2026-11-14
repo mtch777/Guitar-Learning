@@ -234,7 +234,7 @@
       }else notify(error.message);
     }}
     finally{if(e===currentEditor()){e.busy=false;e.regenerating=false;}render();}
-    if(action==='regenerate'&&e===currentEditor()&&e.revision>revision){await updateRepeatSelection(e);await autoRenderReview();}
+    if(action==='regenerate'&&e===currentEditor()&&e.revision>revision){const completedRevision=e.revision;await updateRepeatSelection(e);if(e===currentEditor()&&e.revision===completedRevision)await autoRenderReview();}
   }
   const stageSelections=new Map();
   const selectionKey=id=>`${editorKey()}:${id}`;
@@ -265,7 +265,7 @@
   }
   function expandStageRepeats(id,manual){
     const output=getOutput(id),phrases=currentSelection(id)?.context?.phrases||[];
-    const signature=p=>stable((output?.audio?.notes||[]).filter(n=>n.start_beats>=p.start_beats&&n.start_beats<p.start_beats+p.length_beats).map(n=>[n.start_beats-p.start_beats,n.duration_beats,n.midi_pitch]).sort((a,b)=>a[0]-b[0]||a[2]-b[2]));
+    const signature=p=>stable((output?.audio?.notes||[]).map(n=>{const start=Math.max(p.start_beats,n.start_beats),end=Math.min(p.start_beats+p.length_beats,n.start_beats+n.duration_beats);return end>start?[Number((start-p.start_beats).toFixed(9)),Number((end-start).toFixed(9)),n.midi_pitch]:null;}).filter(Boolean).sort((a,b)=>a[0]-b[0]||a[2]-b[2]||a[1]-b[1]));
     const selected=phrases.filter(p=>manual.includes(p.phrase));
     return phrases.filter(p=>manual.includes(p.phrase)||selected.some(q=>p.length_beats===q.length_beats&&signature(p)===signature(q))).map(p=>p.phrase);
   }
@@ -312,23 +312,27 @@
     if(e?.preferences&&config.phrase_preference_controls){html+='<section class="review-preferences" aria-label="Review phrase weights"><h3>Phrase weights</h3><p>Applied to the next selected-phrase regeneration. 1 = neutral.</p>';for(const step of ['3','4','5']){if(!e.preferences[step])continue;html+=`<div class="param-group">${({'3':'Rhythm','4':'Opening pitches','5':'Remaining pitches'})[step]}</div><div class="param-grid">${(config.phrase_preference_controls[step]||[]).map(p=>`<label class="param-field"><span>${esc(p.label)}</span><input type="number" inputmode="decimal" min="0" step="any" required data-editor-preference="${esc(p.key)}" data-pref-stage="${step}" value="${esc(e.preferences[step][p.key]??p.default)}"${busy?' disabled':''}></label>`).join('')}</div>`;}html+='</section>';}
     return html;
   }
-  function kontaktSettingsMarkup(){const pref=kontaktPreference('6');return `<label class="param-field"><span>Kontakt preset</span><select data-global-kontakt>${(kontaktPresets||[]).map(p=>`<option value="${esc(p.id)}"${pref.preset===p.id?' selected':''}>${esc(p.label)}</option>`).join('')}</select></label>`;}
+  function kontaktSettingsMarkup(){const pref=kontaktPreference('6');return `<label class="param-field"><span>Kontakt audio</span><select data-global-kontakt="scope"><option value="full"${pref.scope==='full'?' selected':''}>Full step</option><option value="selected"${pref.scope==='selected'?' selected':''}>Selected phrases (keep timeline)</option></select></label>`;}
   let autoRenderedKey=null;
   async function autoRenderReview(){
-    const e=currentEditor();if(!e?.output||e.busy||!editorReady())return;
+    const e=currentEditor();if(!e?.output||e.busy||!editorReady())return;const revision=e.revision;
     if(!kontaktPresets?.length){await loadKontaktPresets();if(!kontaktPresets?.length){notify('Generation finished. Kontakt presets are unavailable; retry Render in Kontakt.');return;}}
+    if(e!==currentEditor()||e.revision!==revision||e.busy||!editorReady())return;
     const key=`${e.key}:${e.revision}`;if(autoRenderedKey===key)return;autoRenderedKey=key;
-    kontaktPreference('6').scope='full';await startKontakt('6');
+    if(kontaktPreference('6').scope==='selected'&&!selectedPhraseNumbers('6').length)kontaktPreference('6').scope='full';await startKontakt('6');
   }
-  let kontaktPresets=null,kontaktPresetError=null,kontaktPresetsLoading=false;
+  let kontaktPresets=null,kontaktPresetError=null,kontaktPresetsLoading=false,kontaktPresetsPromise=null;
   const kontaktSettings=new Map(),kontaktJobs=new Map();
   let kontaktChooser=null;
   function companionURL(path){const url=new URL(location.origin);url.port=String(Number(url.port||8768)+1);url.pathname=path;url.search='';return url;}
   async function kontaktRequest(action,payload){const r=await fetch(companionURL('/render/'+action).href,{method:'POST',credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const result=await r.json();if(!r.ok)throw Error(result.error||'Kontakt render failed.');return result;}
   async function loadKontaktPresets(){
-    if(kontaktPresetsLoading)return;kontaktPresetsLoading=true;kontaktPresetError=null;
-    try{const result=await kontaktRequest('presets',{});if(!Array.isArray(result.presets))throw Error('Kontakt presets could not be verified.');kontaktPresets=result.presets.filter(p=>['modern-metal-1','ready-to-djent'].includes(p.id)&&typeof p.label==='string');if(!kontaktPresets.length)kontaktPresetError='No verified Kontakt presets are available.';}
-    catch(e){kontaktPresetError=e.message;kontaktPresets=[];}finally{kontaktPresetsLoading=false;render();}
+    if(kontaktPresetsPromise)return kontaktPresetsPromise;
+    kontaktPresetsLoading=true;kontaktPresetError=null;
+    kontaktPresetsPromise=(async()=>{
+      try{const result=await kontaktRequest('presets',{});if(!Array.isArray(result.presets))throw Error('Kontakt presets could not be verified.');kontaktPresets=result.presets.filter(p=>['modern-metal-1','ready-to-djent'].includes(p.id)&&typeof p.label==='string');if(!kontaktPresets.length)kontaktPresetError='No verified Kontakt presets are available.';}
+      catch(e){kontaktPresetError=e.message;kontaktPresets=[];}finally{kontaktPresetsLoading=false;kontaktPresetsPromise=null;render();}
+    })();return kontaktPresetsPromise;
   }
   function kontaktPreference(id){const current=kontaktSettings.get(String(id))||{preset:null,scope:'full'};if(!kontaktPresets?.some(p=>p.id===current.preset))current.preset=kontaktPresets?.[0]?.id||null;kontaktSettings.set(String(id),current);return current;}
   function kontaktCapture(id,overrides={}){
@@ -383,8 +387,8 @@
   async function confirmKontaktChooser(id){id=String(id);if(!kontaktChooser||kontaktChooser.id!==id||kontaktChooser.key!==kontaktChooserKey(id)){cancelKontaktChooser();return;}kontaktChooser=null;await startKontakt(id);render();}
   function kontaktControls(id){
     id=String(id);const previous=selectedViews[id]==='previous',preference=kontaktPreference(id),scope=previous?'full':preference.scope,job=currentKontakt(id),selection=previous?[]:currentSelection(id)?.selected||[],pending=job&&['starting','queued','running'].includes(job.status);
-    let html=`<button type="button" data-kontakt-render="${esc(id)}" aria-expanded="${kontaktChooser?.id===id}"${!kontaktChooserKey(id)||pending?' disabled':''}>${pending?(job.status==='queued'?'Queued…':'Rendering…'):'Render in Kontakt'}</button>`;
-    if(kontaktChooser?.id===id)html+=`<div class="kontakt-chooser" role="group" aria-label="Choose Kontakt render"><label>Preset<select aria-label="Kontakt preset" data-kontakt-setting="preset" data-stage="${esc(id)}">${kontaktPresets.map(p=>`<option value="${esc(p.id)}"${p.id===preference.preset?' selected':''}>${esc(p.label)}</option>`).join('')}</select></label><label>Audio<select aria-label="Kontakt render scope" data-kontakt-setting="scope" data-stage="${esc(id)}"><option value="full"${scope==='full'?' selected':''}>${previous?'Previous · full step':'Full step'}</option><option value="selected"${scope==='selected'?' selected':''}${!selection.length?' disabled':''}>Selected phrases (keep timeline)</option></select></label><div class="kontakt-chooser-actions"><button type="button" data-kontakt-confirm="${esc(id)}"${!kontaktCapture(id)?' disabled':''}>Render</button><button type="button" data-kontakt-cancel>Cancel</button></div></div>`;
+    let html=`<button type="button" data-kontakt-render="${esc(id)}" ${!kontaktChooserKey(id)||pending?' disabled':''}>${pending?(job.status==='queued'?'Queued…':'Rendering…'):'Render in Kontakt'}</button>`;
+    if(id==='6')html+=`<label class="kontakt-preset"><span>Preset</span><select data-kontakt-setting="preset" data-stage="6"${pending?' disabled':''}>${(kontaktPresets||[]).map(p=>`<option value="${esc(p.id)}"${preference.preset===p.id?' selected':''}>${esc(p.label)}</option>`).join('')}</select></label>`;
     if(kontaktPresetError)html+='<button type="button" data-kontakt-retry-presets>Retry presets</button>';
     return html;
   }
@@ -392,6 +396,7 @@
   const kontaktPlayer={active:null,frame:null,
     stop(){const old=this.active;this.active=null;cancelAnimationFrame(this.frame);if(old){old.element.pause();const timeline=timelines.get(old.stage);if(timeline){setMarker(old.stage,old.element.currentTime*2);timeline.cursor=markerBeat(old.stage);timeline.draw();}}},
     bind(element,id,entry){
+      element._kontaktKey=entry.key;
       const valid=()=>currentKontakt(id)===entry&&entry.status==='ready';
       const sync=()=>{if(valid())timelines.get(id)?.progress(element.currentTime*2);};
       element.addEventListener('play',()=>{if(!valid()){element.pause();return;}this.stop();player.stop();this.active={stage:id,key:entry.key,element};const tick=()=>{if(this.active?.element!==element||!valid()){if(this.active?.element===element)this.stop();return;}sync();if(!element.paused&&!element.ended)this.frame=requestAnimationFrame(tick);};tick();});
@@ -559,7 +564,7 @@
       this.rendered=rendered;this.waveCanvas=el.querySelector('.kontakt-waveform');
       this.stage=String(stage);
       this.el=el;this.audio=audio;this.phrases=phrases;this.canvas=el.querySelector('canvas');this.scroller=el.querySelector('.timeline-scroll');this.track=el.querySelector('.timeline-track');
-      this.nominalLength=audio.notes.reduce((end,n)=>Math.max(end,Number(n.start_beats)+Number(n.duration_beats)),Math.max(Number(audio.length_beats)||0,1));this.length=Math.max(this.nominalLength,rendered?.duration_seconds*2||0);this.cursor=markerBeat(stage);
+      this.nominalLength=audio.notes.reduce((end,n)=>Math.max(end,Number(n.start_beats)+Number(n.duration_beats)),Math.max(Number(audio.length_beats)||0,1));this.length=Math.max(this.nominalLength,rendered?.duration_seconds*2||0);this.cursor=markerBeat(stage);this.identity=markerKey(String(stage));
       const pitches=audio.notes.map(n=>Number(n.midi_pitch)).filter(Number.isFinite);this.lo=pitches.reduce((v,p)=>Math.min(v,p),127)-1;this.hi=pitches.reduce((v,p)=>Math.max(v,p),0)+1;
       this.scrollHandler=()=>this.draw();this.scroller.addEventListener('scroll',this.scrollHandler,{passive:true});
       this.selectHandler=event=>{if(event.target?.closest?.('[data-phrase-select]'))return;const r=this.scroller.getBoundingClientRect();const beat=Math.max(0,Math.min(this.nominalLength,(event.clientX-r.left+this.scroller.scrollLeft)/this.scale));if(!this.pointerStart||Math.abs(event.clientX-this.pointerStart.x)<6&&Math.abs(this.scroller.scrollLeft-this.pointerStart.scroll)<6)seekPlayback(this.stage,beat);};
@@ -598,9 +603,9 @@
     destroy(){this.scroller.removeEventListener('pointerdown',this.downHandler);this.scroller.removeEventListener('click',this.selectHandler);this.resizeObserver.disconnect();this.scroller.removeEventListener('scroll',this.scrollHandler);}
   }
   function capturePlaybackPosition(id){
-    const t=timelines.get(id);if(t?.cursor!=null)setMarker(id,t.cursor);
+    const t=timelines.get(id);if(t?.identity===markerKey(String(id))&&t.cursor!=null)setMarker(id,t.cursor);
     const element=stagesNode.querySelector(`[data-kontakt-audio="${id}"]`),entry=currentKontakt(id);
-    return {element,key:entry?.key,beat:markerBeat(id)};
+    return {element,key:element?._kontaktKey,beat:markerBeat(id)};
   }
   function restorePlaybackPosition(id,t,element,snapshot){
     t.cursor=markerBeat(id);t.draw();const entry=currentKontakt(id);
@@ -619,7 +624,7 @@
     context:null,active:null,nodes:new Set(),timer:null,frame:null,token:0,
     stop(){this.token++;clearInterval(this.timer);cancelAnimationFrame(this.frame);for(const n of this.nodes){try{n.stop();}catch{}}this.nodes.clear();const old=this.active;this.active=null;if(old){if(this.context&&old.seconds)setMarker(old.stage,Math.min(old.duration,Math.max(0,this.context.currentTime-old.start))/old.seconds);const t=timelines.get(old.stage);if(t){t.cursor=markerBeat(old.stage);t.draw();}const b=stagesNode.querySelector(`[data-action="play"][data-stage="${CSS.escape(old.stage)}"]`);if(b){b.textContent='▶ Play';b.setAttribute('aria-label','Play');}const clock=stagesNode.querySelector(`[data-clock="${CSS.escape(old.stage)}"]`);if(clock)clock.textContent=formatTime(old.duration);}},
     async play(id){
-      id=String(id);
+      id=String(id);if(isBusy()||currentEditor()?.busy)return;
       const rendered=currentKontakt(id),element=stagesNode.querySelector(`[data-kontakt-audio="${id}"]`);
       if(rendered?.status==='ready'&&element){if(!element.paused){element.pause();return;}this.stop();element.currentTime=markerBeat(id)/2;try{await element.play();}catch(error){notify('Tap the rendered audio Play button to start playback.');}return;}
       kontaktPlayer.stop();
@@ -634,7 +639,7 @@
         const seconds=60/(Number(a.tempo)||120),notes=a.notes.map(n=>({start:Math.max(0,Number(n.start_beats))*seconds,end:(Number(n.start_beats)+Number(n.duration_beats))*seconds,pitch:Number(n.midi_pitch)})).filter(n=>Number.isFinite(n.pitch)&&n.end>n.start).sort((a,b)=>a.start-b.start);
         if(!notes.length)throw Error('There are no playable notes in this result.');
         const total=duration(a),offset=Math.min(total,markerBeat(id)*seconds),start=this.context.currentTime+.06-offset;this.active={stage:id,view,start,duration:total,seconds};let next=0;while(next<notes.length&&notes[next].end<=offset)next++;
-        const schedule=()=>{if(token!==this.token)return;const ahead=this.context.currentTime-start+.25;while(next<notes.length&&notes[next].start<ahead){const note=notes[next++],osc=this.context.createOscillator(),gain=this.context.createGain(),on=Math.max(this.context.currentTime+.005,start+note.start),off=start+note.end;osc.setPeriodicWave(this.wave);osc.frequency.value=440*Math.pow(2,(note.pitch-69)/12);const span=off-on,attack=Math.min(.008,span*.2),release=Math.min(.012,span*.3);gain.gain.setValueAtTime(0,on);gain.gain.linearRampToValueAtTime(.45,on+attack);gain.gain.setValueAtTime(.45,off-release);gain.gain.linearRampToValueAtTime(0,off);osc.connect(gain);gain.connect(this.gain);osc.start(on);osc.stop(off+.02);this.nodes.add(osc);osc.onended=()=>{this.nodes.delete(osc);osc.disconnect();gain.disconnect();};}};
+        const schedule=()=>{if(token!==this.token)return;const ahead=this.context.currentTime-start+.25;while(next<notes.length&&notes[next].start<ahead){const note=notes[next++],on=Math.max(this.context.currentTime+.005,start+note.start),off=start+note.end;if(off<=on)continue;const osc=this.context.createOscillator(),gain=this.context.createGain();osc.setPeriodicWave(this.wave);osc.frequency.value=440*Math.pow(2,(note.pitch-69)/12);const span=off-on,attack=Math.min(.008,span*.2),release=Math.min(.012,span*.3);gain.gain.setValueAtTime(0,on);gain.gain.linearRampToValueAtTime(.45,on+attack);gain.gain.setValueAtTime(.45,off-release);gain.gain.linearRampToValueAtTime(0,off);osc.connect(gain);gain.connect(this.gain);osc.start(on);osc.stop(off+.02);this.nodes.add(osc);osc.onended=()=>{this.nodes.delete(osc);osc.disconnect();gain.disconnect();};}};
         schedule();this.timer=setInterval(schedule,60);
         const b=stagesNode.querySelector(`[data-action="play"][data-stage="${CSS.escape(id)}"]`);if(b){b.textContent='■ Stop';b.setAttribute('aria-label','Stop playback');}
         const t=timelines.get(id);if(t)t.progress(offset/seconds);
@@ -643,7 +648,7 @@
     }
   };
   stagesNode.addEventListener('input',event=>{
-    const input=event.target;if(input.hasAttribute?.('data-global-kontakt')){for(const step of config.stages)kontaktPreference(idOf(step)).preset=input.value;return;}if(input.dataset.editorPreference){const e=currentEditor();if(e&&!e.busy)e.preferences[input.dataset.prefStage][input.dataset.editorPreference]=input.value===''?'':Number(input.value);return;}if(input.dataset.kontaktSetting){setKontaktSetting(input.dataset.stage,input.dataset.kontaktSetting,input.value);return;}if(input.hasAttribute?.('data-editor-mode')){setEditorMode(input.value);return;}if(!input.dataset.key)return;const id=input.dataset.stage,key=input.dataset.key;
+    const input=event.target;if(input.hasAttribute?.('data-global-kontakt')){const key=input.dataset.globalKontakt||'preset';if(['preset','scope'].includes(key))for(const step of config.stages)kontaktPreference(idOf(step))[key]=input.value;return;}if(input.dataset.editorPreference){const e=currentEditor();if(e&&!e.busy)e.preferences[input.dataset.prefStage][input.dataset.editorPreference]=input.value===''?'':Number(input.value);return;}if(input.dataset.kontaktSetting){setKontaktSetting(input.dataset.stage,input.dataset.kontaktSetting,input.value);return;}if(input.hasAttribute?.('data-editor-mode')){setEditorMode(input.value);return;}if(!input.dataset.key)return;const id=input.dataset.stage,key=input.dataset.key;
     writePath(drafts[id],key,input.type==='checkbox'?input.checked:input.type==='number'?(input.value===''?'':Number(input.value)):input.value);
     const tag=input.closest('.params').querySelector('.draft-tag');tag.hidden=!isDirty(id);saveDrafts();
   });
@@ -690,7 +695,7 @@
   stagesNode.addEventListener('click',async event=>{
     const toggle=event.target.closest('[data-toggle-step]');if(toggle){const id=toggle.dataset.toggleStep;expandedStep=expandedStep===id?null:id;render();return;}
     const category=event.target.closest('[data-category-value]');if(category){const readout=category.closest('.category-timeline').querySelector('.category-readout');readout.textContent=category.dataset.categoryHeading+': '+category.dataset.categoryValue;readout.hidden=false;readout.scrollIntoView({block:'nearest'});return;}
-    const renderButton=event.target.closest('[data-kontakt-render]');if(renderButton){if(!renderButton.disabled)openKontaktChooser(renderButton.dataset.kontaktRender);return;}
+    const renderButton=event.target.closest('[data-kontakt-render]');if(renderButton){if(!renderButton.disabled)await startKontakt(renderButton.dataset.kontaktRender);return;}
     const confirmRender=event.target.closest('[data-kontakt-confirm]');if(confirmRender){if(!confirmRender.disabled)await confirmKontaktChooser(confirmRender.dataset.kontaktConfirm);return;}
     if(event.target.closest('[data-kontakt-cancel]')){cancelKontaktChooser();return;}
     if(event.target.closest('[data-kontakt-retry-presets]')){await loadKontaktPresets();return;}
