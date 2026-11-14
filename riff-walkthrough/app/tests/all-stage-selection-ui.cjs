@@ -12,21 +12,21 @@ function response(data,ok=true){return {ok,json:async()=>data};}
 (async()=>{
  t.set(state);
  sandbox.fetch=async(url,options)=>{const body=JSON.parse(options.body);calls.push({url,...options,body});return response({stage:body.stage,version:body.version,audio_label:audio.label,phrases:body.stage===1?[{phrase:1,start_beats:0,length_beats:8}]:[{phrase:1,start_beats:0,length_beats:3},{phrase:2,start_beats:3,length_beats:5}]});};
- await t.restoreSelectionsIfNeeded();assert.equal(calls.length,5);assert.ok(calls.every(c=>c.url.endsWith('/selection/open')&&c.credentials==='include'));assert.deepEqual(calls.map(c=>c.body.stage).sort(),[1,2,3,4,5]);
- await t.restoreSelectionsIfNeeded();assert.equal(calls.length,5); // No duplicate loads.
- for(let i=1;i<=5;i++){
+ await t.restoreSelectionsIfNeeded();assert.equal(calls.length,3);assert.ok(calls.every(c=>c.url.endsWith('/selection/open')&&c.credentials==='include'));assert.deepEqual(calls.map(c=>c.body.stage).sort(),[3,4,5]);
+ await t.restoreSelectionsIfNeeded();assert.equal(calls.length,3); // No duplicate loads.
+ for(let i=3;i<=5;i++){
   const id=String(i);await t.toggleStagePhrase(id,1);assert.deepEqual(Array.from(t.currentSelection(id).selected),[1]);
   assert.ok(t.resultMarkup({id},state.stages[i-1]).includes(`data-save-selection="${id}"`));
  }
- const seedHTML=t.resultMarkup({id:'1'},state.stages[0]);assert.ok(seedHTML.includes('timeline-selectable'));assert.ok(seedHTML.includes('data-phrase-stage="1"'));assert.ok(/play-button[^>]*disabled/.test(seedHTML));
- const donorHTML=t.resultMarkup({id:'2'},state.stages[1]);assert.ok(donorHTML.includes('data-phrase-start="3" data-phrase-length="5"'));assert.ok(!donorHTML.includes('data-phrase-start="4"')); // Donor timing, not scaffold replacement.
- await t.toggleStagePhrase('2',2);assert.deepEqual(Array.from(t.currentSelection('2').selected),[1,2]);assert.deepEqual(Array.from(t.currentSelection('3').selected),[1]);
+ const seedHTML=t.resultMarkup({id:'1'},state.stages[0]);assert.ok(seedHTML.includes('category-timeline'));assert.ok(!seedHTML.includes('data-phrase-select'));assert.ok(!seedHTML.includes('play-button'));
+ const donorHTML=t.resultMarkup({id:'2'},state.stages[1]);assert.ok(donorHTML.includes('category-timeline'));assert.ok(!donorHTML.includes('data-phrase-start'));
+ await t.toggleStagePhrase('3',2);assert.deepEqual(Array.from(t.currentSelection('3').selected),[1,2]);assert.deepEqual(Array.from(t.currentSelection('4').selected),[1]);
  sandbox.fetch=async(url,options)=>{const body=JSON.parse(options.body);calls.push({url,...options,body});return response({saved:true,version:7,file_url:`https://github.com/mtch777/Guitar-Learning/blob/generated-midi/generated-midi/${body.stage}_selected.mid`,folder_url:folder});};
- for(let i=1;i<=5;i++){await t.saveStageSelection(String(i));assert.equal(calls.at(-1).body.stage,i);assert.equal(calls.at(-1).body.version,7);assert.deepEqual(calls.at(-1).body.selected,i===2?[1,2]:[1]);}
+ for(let i=3;i<=5;i++){await t.saveStageSelection(String(i));assert.equal(calls.at(-1).body.stage,i);assert.equal(calls.at(-1).body.version,7);assert.deepEqual(calls.at(-1).body.selected,i===3?[1,2]:[1]);}
  assert.equal(JSON.stringify(state),snapshot);assert.ok(calls.every(c=>!c.url.includes('generate')&&!c.url.includes(state.session_id)));
- t.selectedViews['2']='previous';const n=calls.length;await t.saveStageSelection('2');assert.equal(calls.length,n);delete t.selectedViews['2'];
- const next={...state,session_id:'b'.repeat(32),version:8};t.set(next);assert.equal(t.currentSelection('2'),null);
- let finish;sandbox.fetch=()=>new Promise(resolve=>{finish=resolve;});const pending=t.openSelection('2');t.set({...next,version:9});finish(response({stage:2,version:8,phrases:[{phrase:1,start_beats:0,length_beats:8}]}));await pending;assert.equal(t.currentSelection('2'),null);
- sandbox.fetch=async()=>response({error:'Unavailable'},false);await t.openSelection('2');assert.ok(t.resultMarkup({id:'2'},state.stages[1]).includes('Retry phrase controls'));assert.ok(!t.resultMarkup({id:'2'},state.stages[1]).includes('data-save-selection'));
- console.log('All-stage selection UI PASS: exact independent stage/version scope, donor windows, silent stage1, partial stage5, every save payload, no generation/original mutation, stale response isolation and failure retry.');
+ t.selectedViews['3']='previous';const n=calls.length;await t.saveStageSelection('3');assert.equal(calls.length,n);delete t.selectedViews['3'];
+ const next={...state,session_id:'b'.repeat(32),version:8};t.set(next);assert.equal(t.currentSelection('3'),null);
+ let finish;sandbox.fetch=()=>new Promise(resolve=>{finish=resolve;});const pending=t.openSelection('3');t.set({...next,version:9});finish(response({stage:3,version:8,phrases:[{phrase:1,start_beats:0,length_beats:8}]}));await pending;assert.equal(t.currentSelection('3'),null);
+ sandbox.fetch=async()=>response({error:'Unavailable'},false);await t.openSelection('3');assert.ok(t.resultMarkup({id:'3'},state.stages[2]).includes('Retry phrase controls'));assert.ok(!t.resultMarkup({id:'3'},state.stages[2]).includes('data-save-selection'));
+ console.log('Stage3-5 selection UI PASS: exact independent stage/version scope, categorical stage1/2 without MIDI selection controls, partial stage5, every save payload, no generation/original mutation, stale response isolation and failure retry.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

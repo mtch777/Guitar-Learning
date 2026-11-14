@@ -18,8 +18,8 @@ const state={version:1,stages:[{id:'1',status:'complete',output:{}},{id:'2',stat
 t.set(config,state,{'1':{artist:'all'},'2':{weights:{a:0}}});
 assert.equal(t.isDirty('2'),true);const html=t.parameterMarkup(config.stages[1]);assert.ok(html.includes('value="0"'));assert.ok(html.includes('required'));assert.ok(html.includes('Not applied'));assert.ok(!html.includes(' open>'));
 const result=t.resultMarkup(config.stages[1],state.stages[1]);assert.ok(!result.includes('data-save-midi'));
-state.stages[1].output.audio={tempo:120,length_beats:4,notes:[]};assert.ok(t.resultMarkup(config.stages[1],state.stages[1]).includes('data-save-midi'));
-state.stages[1].output={audio:{notes:[],unavailable:'Carry-in notes need mapping'}};assert.ok(t.resultMarkup(config.stages[1],state.stages[1]).includes('Carry-in notes need mapping'));
+state.stages[1].output.audio={tempo:120,length_beats:4,notes:[]};assert.ok(!t.resultMarkup(config.stages[1],state.stages[1]).includes('data-save-midi'));
+state.stages[1].output={audio:{notes:[],unavailable:'Carry-in notes need mapping'}};assert.ok(!t.resultMarkup(config.stages[1],state.stages[1]).includes('Carry-in notes need mapping'));
 assert.equal(t.repeatLabel('none among comparable phrases; unknown comparisons: 2'),'');
 assert.equal(t.repeatLabel('2; 4; unknown comparisons: 6'),'2, 4');
 const phraseHTML=t.phraseMarkup([{phrase:1,length_beats:4,repeat:'2; unknown comparisons: 4',rhythm_repeat:'2'},{phrase:2,length_beats:4,repeat:'1'}],'2');
@@ -31,14 +31,14 @@ assert.equal(exportText.version,2);assert.equal(exportText.filename,'riff-2.mid'
 assert.deepEqual(Buffer.from(exportText.base64,'base64'),midi);assert.equal(t.stable(t.get().state),beforeCopy);
 assert.throws(()=>t.midiText(Uint8Array.from([1,2,3]).buffer,2),/not a MIDI/);
 const exportState={id:'2',status:'complete',applied:{},output:{can_export:true,audio:{tempo:120,length_beats:4,notes:[]}}};
-assert.ok(t.resultMarkup(config.stages[1],exportState).includes('data-save-midi="2"'));
-assert.ok(t.resultMarkup(config.stages[1],exportState).includes('data-version="1"'));
+assert.ok(!t.resultMarkup(config.stages[1],exportState).includes('data-save-midi="2"'));
+assert.ok(!t.resultMarkup(config.stages[1],exportState).includes('data-version="1"'));
 // Every stage saves its actual current audio, without can_export or generation.
 const stageAudio={tempo:120,length_beats:4,label:'Fixture audio',notes:[{start_beats:0,duration_beats:1,midi_pitch:28}]};
 for(let i=1;i<=6;i++){
  const id=String(i),stage={id},ss={id,status:'complete',output:{audio:stageAudio}};
  assert.equal(t.saveableAudio(id,ss),true);
- assert.ok(t.resultMarkup(stage,ss).includes(`data-save-midi="${id}"`));
+ assert.equal(t.resultMarkup(stage,ss).includes(`data-save-midi="${id}"`),i>2);
  for(const status of ['empty','running','pending','queued','stale','invalidated','error'])assert.ok(!t.resultMarkup(stage,{...ss,status}).includes('data-save-midi'));
  for(const audio of [null,{...stageAudio,unavailable:'Missing source'},{...stageAudio,reason:'Missing source'},{...stageAudio,tempo:90},{...stageAudio,notes:[{start_beats:3,duration_beats:2,midi_pitch:28}]},{...stageAudio,notes:[{start_beats:0,duration_beats:0,midi_pitch:28}]}])assert.ok(!t.resultMarkup(stage,{...ss,output:{audio}}).includes('data-save-midi'));
  t.selectedViews[id]='previous';assert.ok(!t.resultMarkup(stage,{...ss,previous:{output:{audio:stageAudio}}}).includes('data-save-midi'));delete t.selectedViews[id];
@@ -63,8 +63,8 @@ const realState={version:4,stages:[pair.seed,pair.scaffold,rhythm].map((output,i
 t.set(realConfig,realState,{'1':{},'2':{},'3':{}});
 for(let i=0;i<3;i++){
  const html=t.resultMarkup(realConfig.stages[i],realState.stages[i]);
- assert.ok(html.includes('▶ Play'));assert.ok(html.includes('E1'));
- assert.ok(!html.includes('undefined'));assert.ok(!html.includes('NaN'));assert.ok(html.includes('data-save-midi'));
+ if(i===2){assert.ok(html.includes('▶ Play'));assert.ok(html.includes('E1'));}
+ assert.ok(!html.includes('undefined'));assert.ok(!html.includes('NaN'));assert.equal(html.includes('data-save-midi'),i===2);
 }
 console.log('Actual stage 1–3 artifacts render labels, audio controls and details without undefined/NaN and with stage MIDI save.');
 

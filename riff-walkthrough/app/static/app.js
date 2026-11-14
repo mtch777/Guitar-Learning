@@ -103,6 +103,36 @@
     }).join('')}</div>`;
     return phrases.length>1?`<details class="evidence phrase-details" data-details="phrases-${esc(id)}"><summary>Phrases (${phrases.length})</summary>${chips}</details>`:chips;
   }
+  // Seed/scaffold are categorical plans, never a picture of donor MIDI.
+  function categoryData(output,id){
+    const scaffold=String(id)==='2';
+    const rows=scaffold?output.details?.blueprint?.phrases:[output.details?.attributes];
+    const phrases=output.phrases||[];
+    const actual=Array.isArray(rows)&&rows.length&&rows.every(r=>r&&typeof r==='object')?rows:null;
+    const fields=[['Role','Phrase role'],['Texture',scaffold?'Dominant texture':'Category - dominant texture'],['Accent','Accent function']];
+    const relationFields=[['Notes + timing',scaffold?'Intended same notes and timing as (phrase #s)':'Same notes and timing as (phrase #s)'],['Pitch sequence',scaffold?'Intended same pitch sequence as (phrase #s)':'Same pitch sequence as (phrase #s)'],['Rhythm + holds',scaffold?'Intended same rhythm and holds as (phrase #s)':'Same rhythm and holds as (phrase #s)'],['Variation of',scaffold?'Intended variation of (phrase #s)':'Variation of (phrase #s)'],['Keep',scaffold?'Variation target - what stays the same':'Variation - what stays the same'],['Change',scaffold?'Variation target - what changes':'Variation - what changes'],['Variation evidence',scaffold?'Source variation evidence status':'Variation - relationship status']];
+    if(scaffold)fields.push(...relationFields);
+    return {scaffold,fields,phrases:(actual||phrases).map((r,i)=>{
+      const length=Number(actual?r[scaffold?'Length (beats)':'Length (quarter-note beats)']:r.length_beats);
+      const number=Number(actual?r['Phrase #']:r.phrase);
+      const values=fields.map(([label,key])=>{
+        let value=actual?r[key]:({Role:r.role,Texture:r.texture})[label];
+        if(label==='Accent'&&!scaffold&&typeof value==='string')value=value.split(';')[0].replace(/^phrase function: /,'').trim();
+        // Preserve source distinctions: none, unknown, unassigned and not assessed.
+        return value==null||String(value).trim()===''?'Not available':String(value).replace(/_/g,' ');
+      });
+      return {number:Number.isInteger(number)&&number>0?number:i+1,length,values};
+    })};
+  }
+  function categoricalMarkup(output,id){
+    const data=categoryData(output,id),p=data.phrases;
+    if(!p.length)return '<p class="empty">No phrase categories available.</p>';
+    if(p.some(x=>!Number.isFinite(x.length)||x.length<=0))return '<p class="blocker">Phrase lengths unavailable; timeline cannot be sized.</p>';
+    const total=p.reduce((sum,x)=>sum+x.length,0),scale=Math.max(38,44/Math.min(...p.map(x=>x.length)));
+    const columns=p.map(x=>`${x.length}fr`).join(' '),width=total*scale;
+    const cells=(values,row)=>values.map((value,i)=>`<button type="button" class="category-cell category-row-${row}" data-category-value="${esc(value)}" data-category-heading="Phrase ${p[i].number} · ${esc(data.fields[row][0])}" aria-label="Phrase ${p[i].number}, ${esc(data.fields[row][0])}: ${esc(value)}"><span>${esc(value)}</span></button>`).join('');
+    return `<section class="category-timeline" aria-label="${data.scaffold?'Scaffold targets':'Seed categories'}">${data.scaffold?'<div class="category-caption">Intended relationships</div>':''}<div class="category-layout"><div class="category-labels"><div class="category-label category-header">Phrase</div>${data.fields.map(([label])=>`<div class="category-label">${esc(label)}</div>`).join('')}</div><div class="category-scroll" tabindex="0" aria-label="Phrase categories; scroll horizontally"><div class="category-track" style="width:${width}px;min-width:100%;--category-columns:${columns}"><div class="category-row category-header">${p.map(x=>`<div class="category-number">${x.number}</div>`).join('')}</div>${data.fields.map((field,row)=>`<div class="category-row">${cells(p.map(x=>x.values[row]),row)}</div>`).join('')}</div></div></div><p class="category-readout" aria-live="polite" hidden></p></section>`;
+  }
   function audioAvailable(output) { return !!output?.audio?.notes?.length; }
   function saveableAudio(id,ss) {
     const a=ss?.output?.audio;
@@ -194,7 +224,7 @@
     }catch(error){if(key===selectionKey(id)&&stageSelections.get(id)===entry)entry.error=error.message;return null;}
     finally{if(stageSelections.get(id)===entry)entry.busy=false;render();}
   }
-  async function restoreSelectionsIfNeeded(){await Promise.all(['1','2','3','4','5'].filter(id=>selectionReady(id)&&!currentSelection(id)).map(id=>openSelection(id)));}
+  async function restoreSelectionsIfNeeded(){await Promise.all(['3','4','5'].filter(id=>selectionReady(id)&&!currentSelection(id)).map(id=>openSelection(id)));}
   async function toggleStagePhrase(id,number){
     id=String(id);if(id==='6'){await togglePhrase(number);return;}
     if(!selectionReady(id))return;const entry=currentSelection(id);if(!entry?.context||entry.busy||!entry.context.phrases.some(p=>p.phrase===number))return;
@@ -331,6 +361,10 @@
       const status=String(ss?.status || '').toLowerCase();
       const message = ['running','queued','pending','stale','invalidated'].includes(status) ? (status==='running'?'Generating…':'Waiting for earlier steps.') : ss?.error || ss?.blocker || (config.stages.indexOf(stage)===0?'':'Generate an earlier step to begin.');
       return html+(message?`<p class="empty">${esc(message)}</p>`:'');
+    }
+    if(id==='1'||id==='2'){
+      const summary=Object.fromEntries(Object.entries(output.summary||{}).filter(([key])=>['Artist','Riff','Reference artist','Reference riff','Phrases','Similarity'].includes(key)));
+      return html+summaryMarkup(summary)+(output.blocker?`<div class="blocker">${esc(output.blocker)}</div>`:'')+categoricalMarkup(output,id);
     }
     html+=summaryMarkup(output.summary);
     if (output.blocker) html+=`<div class="blocker">${esc(output.blocker)}</div>`;
@@ -546,6 +580,7 @@
     panel.append(button,link);document.querySelector('main').prepend(panel);
   }
   stagesNode.addEventListener('click',async event=>{
+    const category=event.target.closest('[data-category-value]');if(category){const readout=category.closest('.category-timeline').querySelector('.category-readout');readout.textContent=category.dataset.categoryHeading+': '+category.dataset.categoryValue;readout.hidden=false;readout.scrollIntoView({block:'nearest'});return;}
     const renderButton=event.target.closest('[data-kontakt-render]');if(renderButton){if(!renderButton.disabled)openKontaktChooser(renderButton.dataset.kontaktRender);return;}
     const confirmRender=event.target.closest('[data-kontakt-confirm]');if(confirmRender){if(!confirmRender.disabled)await confirmKontaktChooser(confirmRender.dataset.kontaktConfirm);return;}
     if(event.target.closest('[data-kontakt-cancel]')){cancelKontaktChooser();return;}
