@@ -71,7 +71,7 @@ class SelectiveEditor:
   exact=S.exact_roots(rows);rhythm=C.repeat_roots(rows)
   p2=_stage(state,2);p3=_stage(state,3);p4=_stage(state,4);p5=_stage(state,5)
   weights=p2['output']['details']['field_weights']
-  rp={**E.DEFAULTS['3'],**p3.get('applied',{})};scores=self.engine.scores(seed,weights)
+  rp={**E.DEFAULTS['3'],**p3.get('applied',{})};rp['phrase_preferences']={**E.DEFAULTS['3']['phrase_preferences'],**rp['phrase_preferences']};scores=self.engine.scores(seed,weights)
   decisions=[]
   # Frozen pitches include rhythm-only siblings and all untouched phrases.
   frozen=[n for p in phrases if p['phrase'] not in pitch for n in p['notes']]
@@ -166,7 +166,7 @@ class SelectiveEditor:
    if idx==1 or mode=='independent':
     target={'Phrase role':cats['role'],'Category - dominant texture':cats['texture'],'Accent function':cats['accent']};result=R.score(target,c['row'],scores.get(rid));score=result['score']
    else:score,_=C.weighted(vals)
-   factor,flags=E.P.rhythm(c['notes'],c['row'])
+   factor,flags=E.P.rhythm(c['notes'],c['row'],c.get('timing_length',length))
    audit.append((c,(score or 0)*factor,vals))
   total=math.fsum(a[1] for a in audit)
   if total<=0:raise EditBlocked('Phrase '+str(idx)+': no positive-weight exact-length rhythm fits the pitches that must stay unchanged.')

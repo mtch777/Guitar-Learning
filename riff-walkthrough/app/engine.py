@@ -17,10 +17,26 @@ DEFAULT_FIELD_WEIGHTS={str(f['schema_id']):f['weight'] for f in W.FIELDS}
 DEFAULTS={
  '1':{'artist':'all','role':'all','random_seed':''},
  '2':{'field_weights':DEFAULT_FIELD_WEIGHTS,'random_seed':''},
- '3':{'phrase_preferences':{k:P.DEFAULTS[k] for k in ('plain_long_singles','triplets','intervals')},'method':'contextual','opening_weights':dict(R.WEIGHTS),'context_weights':dict(C.WEIGHTS),'random_seed':''},
+ '3':{'phrase_preferences':{k:P.DEFAULTS[k] for k in ('plain_long_singles','triplets','intervals','mostly_silent')},'method':'contextual','opening_weights':dict(R.WEIGHTS),'context_weights':dict(C.WEIGHTS),'random_seed':''},
  '4':{'phrase_preferences':{k:P.DEFAULTS[k] for k in ('intervals','minor_second')},'tier_weights':{str(k):v for k,v in F.MULTIPLIERS.items()},'fit_weights':dict(R.WEIGHTS),'random_seed':''},
  '5':{'phrase_preferences':{k:P.DEFAULTS[k] for k in ('intervals','minor_second')},'tier_weights':{str(k):v for k,v in F.MULTIPLIERS.items()},'fit_weights':dict(R.WEIGHTS),'random_seed':''},
  '6':{}}
+
+def preference_controls():
+ labels={'plain_long_singles':'Long uniform single notes x','triplets':'Triplets x','intervals':'Two-note intervals x','minor_second':'Minor 2nd extra x','mostly_silent':'50% or more silence/rest x'}
+ return {step:[{'key':k,'label':labels[k],'default':v} for k,v in DEFAULTS[step]['phrase_preferences'].items()] for step in ('3','4','5')}
+
+def clean_preferences(step,value):
+ defaults=DEFAULTS[step]['phrase_preferences']
+ if not isinstance(value,dict) or not set(value)<=set(defaults):raise ValueError('Unknown phrase preference')
+ result={**defaults,**value}
+ for k,v in result.items():
+  if isinstance(v,bool):raise ValueError('Phrase multipliers must be positive numbers')
+  try:result[k]=float(v)
+  except (ValueError,TypeError):raise ValueError('Phrase multipliers must be positive numbers')
+  if not math.isfinite(result[k]) or result[k]<=0:raise ValueError('Phrase multipliers must be positive numbers')
+ if math.prod(min(1,v) for v in result.values())==0 or not math.isfinite(100*math.prod(max(1,v) for v in result.values())):raise ValueError('Combined phrase multipliers exceed numeric precision')
+ return result
 
 def seed_of(p):return int(p['random_seed']) if p.get('random_seed') not in ['',None] else secrets.randbits(52)
 def draw(items,weights,seed):
@@ -91,10 +107,10 @@ class Engine:
    [{'key':'method','label':'Method','type':'select','default':'contextual','options':[{'value':'independent','label':'Independent'},{'value':'contextual','label':'Contextual'}]}]+group('opening_weights',fits,DEFAULTS['3']['opening_weights'])+group('context_weights',context,DEFAULTS['3']['context_weights'])+[rng],
    group('tier_weights',tiers,DEFAULTS['4']['tier_weights'])+group('fit_weights',fits,DEFAULTS['4']['fit_weights'])+[rng],
    group('tier_weights',tiers,DEFAULTS['5']['tier_weights'])+group('fit_weights',fits,DEFAULTS['4']['fit_weights'])+[rng],[]]
-  labels={'plain_long_singles':'Long uniform single notes ×','triplets':'Triplets ×','intervals':'Two-note intervals ×','minor_second':'Minor 2nd extra ×'}
+  labels={p['key']:p['label'] for controls in preference_controls().values() for p in controls}
   for index in (2,3,4):
    pars[index]=group('phrase_preferences',labels,DEFAULTS[str(index+1)]['phrase_preferences'])+pars[index]
-  return {'stages':[{'id':str(i),'title':name,'parameters':pars[i-1],'defaults':copy.deepcopy(DEFAULTS[str(i)])} for i,name in enumerate(TITLES,1)],'defaults':copy.deepcopy(DEFAULTS),'counts':{'riffs':len(self.first),'eligible_seed_riffs':len(self.eligible),'phrases':len(self.pitch.rows)},'engine':'existing-analytical-pipeline','dataset':self.hashes}
+  return {'stages':[{'id':str(i),'title':name,'parameters':pars[i-1],'defaults':copy.deepcopy(DEFAULTS[str(i)])} for i,name in enumerate(TITLES,1)],'defaults':copy.deepcopy(DEFAULTS),'phrase_preference_controls':preference_controls(),'counts':{'riffs':len(self.first),'eligible_seed_riffs':len(self.eligible),'phrases':len(self.pitch.rows)},'engine':'existing-analytical-pipeline','dataset':self.hashes}
  def validate(self,params):
   if not isinstance(params,dict):raise ValueError('Parameters must be an object')
   out=copy.deepcopy(DEFAULTS)
@@ -103,6 +119,7 @@ class Engine:
    for key,value in values.items():
     if key not in out[step]:raise ValueError('Unknown parameter: '+key)
     if isinstance(out[step][key],dict):
+     if key=='phrase_preferences' and step=='3' and isinstance(value,dict) and set(value)==set(out[step][key])-{'mostly_silent'}:value={**value,'mostly_silent':P.DEFAULTS['mostly_silent']}
      if not isinstance(value,dict) or set(value)!=set(out[step][key]):raise ValueError('Weight fields do not match this step')
      clean={}
      for k,v in value.items():

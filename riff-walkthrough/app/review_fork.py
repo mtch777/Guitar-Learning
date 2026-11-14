@@ -14,7 +14,7 @@ class ReviewApp(S.App):
   super().__init__();self.workspace=copy.deepcopy(workspace);self.publisher=publisher
   if not workspace.get('output',{}).get('can_export'):raise ValueError('A complete saved Review is required')
   class Config:
-   def config(inner):return {'stages':[{'id':'6','title':'Review copy','parameters':[],'defaults':{}}], 'defaults':{'6':{}},'counts':{},'engine':'review-copy','dataset':workspace['state']['dataset']}
+   def config(inner):return {'stages':[{'id':'6','title':'Review copy','parameters':[],'defaults':{}}], 'defaults':{'6':{}},'phrase_preference_controls':__import__('engine').preference_controls(),'counts':{},'engine':'review-copy','dataset':workspace['state']['dataset']}
   self.engine=Config();self.loading=False
  def session(self,cookie):
   session,new=super().session(cookie)

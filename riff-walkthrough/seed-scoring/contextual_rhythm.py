@@ -73,7 +73,7 @@ class Engine:
     except (ValueError,TypeError,ZeroDivisionError):exact=length
     notes,reasons=R.validated_notes(record,exact)
     if not reasons:f=features(notes,exact)
-   item={'key':key,'row':row,'categories':categories(row),'notes':notes,'features':f,'reasons':reasons,'length':length}
+   item={'key':key,'row':row,'categories':categories(row),'notes':notes,'features':f,'reasons':reasons,'length':length,'timing_length':exact if record else length}
    self.items[key]=item
    if rid in self.pool:
     if R.unresolved_role(row):self.unresolved_excluded[length]+=1;continue
@@ -110,7 +110,7 @@ class Engine:
       a={'Phrase role':cats['role'],'Category - dominant texture':cats['texture'],'Accent function':cats['accent']};z=R.score(a,c['row'],scores.get(rid));s=z['score'];den=z['known_weight']
      else:s,den=weighted(vals)
      if s is None:s=0
-     base_score=s;factor,flags=P.rhythm(c['notes'],c['row']);s*=factor
+     base_score=s;factor,flags=P.rhythm(c['notes'],c['row'],c.get('timing_length',length));s*=factor
      audit.append({'target_phrase':idx,'source_riff':rid,'source_phrase':j,'score':s,'base_score':base_score,'preference_multiplier':factor,'preference_flags':flags,'known_weight':den,**vals,'history_pairs':len(aligned),'target_history_phrases':idx-1,'source_history_phrases':j-1,'source_opening_similarity':scores.get(rid)})
     total=math.fsum(a['score'] for a in audit)
     if total<=0:raise ValueError(f'No positive-score exact-length candidates for phrase{idx}')

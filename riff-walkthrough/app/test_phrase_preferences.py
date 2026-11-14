@@ -55,3 +55,32 @@ class Preferences(unittest.TestCase):
   n=[{'start_beats':0,'duration_beats':1,'note_slot':1},{'start_beats':0,'duration_beats':2,'note_slot':2}]
   self.assertTrue(all(x['midi_pitch'] is None for x in P.assigned_notes(n,[[28,29]],source_evidence=True)))
   self.assertTrue(P.sounding_flags(P.assigned_notes(n,[[28,29]]))['minor_second'])
+
+class SilencePreferences(unittest.TestCase):
+ def n(self,a,d):return {'start_exact':str(a),'duration_exact':str(d)}
+ def test_boundary_union_and_unknown(self):
+  self.assertEqual(P.silence_fraction([self.n(0,2)],4),.5)
+  self.assertEqual(P.silence_fraction([self.n(0,2),self.n(0,2)],4),.5)
+  self.assertEqual(P.silence_fraction([self.n(-1,3),self.n(3,3)],4),.25)
+  self.assertEqual(P.silence_fraction([],4),1)
+  for notes,length in [([{}],4),([],None),([],0),([self.n(0,-1)],4)]:self.assertIsNone(P.silence_fraction(notes,length))
+  self.assertTrue(P.rhythm_flags([self.n(0,2)],{},4)['mostly_silent'])
+  self.assertFalse(P.rhythm_flags([self.n(0,'2.00001')],{},4)['mostly_silent'])
+  self.assertTrue(P.rhythm_flags([self.n(0,'1/3')],{},'2/3')['mostly_silent'])
+ def test_old_weights_migrate_and_override(self):
+  e=E.Engine.__new__(E.Engine);e.artists=[];e.roles=[]
+  old=copy.deepcopy(E.DEFAULTS);del old['3']['phrase_preferences']['mostly_silent']
+  self.assertEqual(e.validate(old)['3']['phrase_preferences']['mostly_silent'],.1)
+  self.assertEqual(E.clean_preferences('3',{'mostly_silent':1})['mostly_silent'],1)
+  for value in [0,-1,float('nan'),'']:
+   with self.assertRaises(ValueError):E.clean_preferences('3',{'mostly_silent':value})
+ def test_penalty_neutral_unknown(self):
+  with E.settings(preferences=E.DEFAULTS['3']['phrase_preferences']):
+   self.assertEqual(P.rhythm([],{},4)[0],.1)
+   self.assertEqual(P.rhythm([],{},None)[0],1)
+
+ def test_config_has_readable_silence_label(self):
+  from types import SimpleNamespace
+  e=E.Engine.__new__(E.Engine);e.artists=[];e.roles=[];e.first={};e.eligible=[];e.pitch=SimpleNamespace(rows=[]);e.hashes={}
+  config=e.config();control=next(p for p in config['stages'][2]['parameters'] if p['key']=='phrase_preferences.mostly_silent')
+  self.assertEqual(control['label'],'50% or more silence/rest x')

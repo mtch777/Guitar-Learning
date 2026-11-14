@@ -1,7 +1,7 @@
 """Positive per-phrase multipliers. No candidate gates or count-based stacking."""
 import math, re, collections
 from fractions import Fraction as Q
-DEFAULTS={'plain_long_singles':0.1,'triplets':2.0,'intervals':2.0,'minor_second':2.0}
+DEFAULTS={'plain_long_singles':0.1,'triplets':2.0,'intervals':2.0,'minor_second':2.0,'mostly_silent':0.1}
 ACTIVE={k:1.0 for k in DEFAULTS}
 EVENTS='Rhythmic events in order (all attacks/rests; dotted notes/tuplets/ties; simultaneous chords grouped)'
 def pitch_flags(groups):
@@ -45,7 +45,26 @@ def assigned_notes(notes,groups,source_evidence=False):
    assigned.append({**n,'midi_pitch':pitch})
  return assigned
 
-def rhythm_flags(notes,row):
+def silence_fraction(notes,length):
+ """Fraction of the phrase with no sounding note; clipped interval union."""
+ try:
+  if not isinstance(notes,list) or isinstance(length,bool):return None
+  length=Q(str(length))
+  if length<=0:return None
+  spans=[]
+  for n in notes:
+   a=Q(str(n['start_exact'] if 'start_exact' in n else n['start_beats']))
+   d=Q(str(n['duration_exact'] if 'duration_exact' in n else n['duration_beats']))
+   if d<=0:return None
+   a,b=max(Q(0),a),min(length,a+d)
+   if b>a:spans.append((a,b))
+  covered=Q(0);end=Q(0)
+  for a,b in sorted(spans):
+   if b>end:covered+=b-max(a,end);end=b
+  return (length-covered)/length
+ except (ValueError,TypeError,KeyError,ZeroDivisionError):return None
+
+def rhythm_flags(notes,row,length=None):
  starts=collections.defaultdict(list);durations=[];intervals=[];complete=bool(notes)
  for n in notes:
   try:
@@ -63,11 +82,12 @@ def rhythm_flags(notes,row):
   import first_phrase_pitch as F
   flags=sounding_flags(assigned_notes(notes,F.groups(row),source_evidence=True))
  except (ValueError,KeyError,TypeError):flags={'intervals':None,'minor_second':None}
- return {'plain_long_singles':bool(plain),'triplets':triplets,'intervals':flags['intervals']}
+ fraction=silence_fraction(notes,length if length is not None else row.get('Length (quarter-note beats)',row.get('Length (beats)')))
+ return {'plain_long_singles':bool(plain),'triplets':triplets,'intervals':flags['intervals'],'mostly_silent':None if fraction is None else fraction>=Q(1,2)}
 def multiplier(flags,weights=None):
  weights=ACTIVE if weights is None else weights
  value=math.prod(weights[k] for k,v in flags.items() if v)
  if not math.isfinite(value) or value<=0:raise ValueError('Combined phrase multipliers exceed numeric precision; use less extreme values. No draw performed.')
  return value
-def rhythm(notes,row):
- flags=rhythm_flags(notes,row);return multiplier(flags),flags
+def rhythm(notes,row,length=None):
+ flags=rhythm_flags(notes,row,length);return multiplier(flags),flags

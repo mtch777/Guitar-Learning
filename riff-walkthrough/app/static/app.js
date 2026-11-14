@@ -60,7 +60,7 @@
   }
   function parameterMarkup(stage) {
     const id = idOf(stage); let lastGroup = null;
-    const content = (stage.parameters || []).map(p => {
+    const fields = parameters => parameters.map(p => {
       let heading = '';
       if (p.group && p.group !== lastGroup) { lastGroup=p.group; heading=`<div class="param-group">${esc(({phrase_preferences:'Phrase preferences',field_weights:'Field weights',opening_weights:'Opening / independent fit',context_weights:'Contextual fit',tier_weights:'Matching tiers',fit_weights:'Reference fit',details:'Reproducibility'})[p.group]||p.group)}</div>`; }
       const name = `param-${id}-${p.key}`, value = readPath(drafts[id],p.key) ?? p.default ?? '';
@@ -81,8 +81,11 @@
       }
       return heading+`<label class="param-field${p.type==='checkbox'||p.type==='boolean'?' checkbox':''}" for="${esc(name)}"><span>${esc(p.label || p.key)}</span>${field}</label>`;
     }).join('');
-    if (!content) return '';
-    return `<details class="params" data-details="params-${esc(id)}"${config.stages.indexOf(stage)===0&&!stageState(id)?.output?' open':''}><summary>Parameters <span class="draft-tag"${isDirty(id)?'':' hidden'}>Not applied</span></summary><div class="param-grid">${content}</div></details>`;
+    const preferences=fields((stage.parameters||[]).filter(p=>p.group==='phrase_preferences'));lastGroup=null;
+    const content=fields((stage.parameters||[]).filter(p=>p.group!=='phrase_preferences'));
+    const visible=preferences?`<section class="params phrase-preferences" aria-label="Phrase preferences"><div class="param-grid">${preferences}</div><p>Multipliers: 1 = neutral. Applied when you Generate this step.</p><span class="draft-tag"${isDirty(id)?'':' hidden'}>Not applied</span></section>`:'';
+    if (!content) return visible;
+    return visible+`<details class="params" data-details="params-${esc(id)}"${config.stages.indexOf(stage)===0&&!stageState(id)?.output?' open':''}><summary>Parameters <span class="draft-tag"${isDirty(id)?'':' hidden'}>Not applied</span></summary><div class="param-grid">${content}</div></details>`;
   }
   function summaryMarkup(summary) {
     if (summary == null) return '';
@@ -161,7 +164,7 @@
       const result=await editorRequest('open',{version:state.version});
       if(serial!==editorSerial||key!==editorKey())return null;
       if(result.source_version!==state.version||!Number.isInteger(result.revision)||!result.output?.audio)throw Error('The editor returned an invalid result.');
-      Object.assign(editor,{revision:result.revision,output:result.output,busy:false});editor.selected=editor.selected.filter(n=>result.output.phrases?.some(p=>Number(p.phrase)===n));if(editorRecoveryPrefs?.key===key)editorRecoveryPrefs=null;return editor;
+      Object.assign(editor,{revision:result.revision,output:result.output,preferences:copy(prefs?.preferences||result.preferences||{}),busy:false});editor.selected=editor.selected.filter(n=>result.output.phrases?.some(p=>Number(p.phrase)===n));if(editorRecoveryPrefs?.key===key)editorRecoveryPrefs=null;return editor;
     }catch(e){if(serial===editorSerial&&key===editorKey()){editor=null;editorRestoreError={key,message:e.message};notify(e.message);}return null;}
     finally{render();}
   }
@@ -180,7 +183,7 @@
     const key=e.key,serial=++editorSerial,revision=e.revision;
     const payload={version:state.version,revision,selected:full?null:[...e.selected]};
     if(action!=='save')payload.mode=e.mode;
-    if(action==='regenerate')player.stop();e.busy=true;render();
+    if(action==='regenerate'){if(config.phrase_preference_controls&&['3','4','5'].every(step=>e.preferences?.[step]))payload.preferences=copy(e.preferences);player.stop();}e.busy=true;render();
     try{
       const result=await editorRequest(action,payload);
       if(serial!==editorSerial||key!==editorKey()||e!==currentEditor())return;
@@ -189,14 +192,14 @@
         e.plan=result;
       }else if(action==='regenerate'){
         if(result.source_version!==payload.version||!Number.isInteger(result.revision)||result.revision<=revision||!result.output?.audio)throw Error('The edit returned an invalid revision.');
-        player.stop();e.revision=result.revision;e.output=result.output;e.plan=null;e.saved=null;
+        player.stop();e.revision=result.revision;e.output=result.output;if(result.preferences)e.preferences=copy(result.preferences);e.plan=null;e.saved=null;
       }else{
         if(result.saved!==true||result.editor_revision!==revision||!result.file_url?.startsWith('https://github.com/mtch777/Guitar-Learning/blob/generated-midi/generated-midi/')||result.folder_url!==githubFolder)throw Error('The save destination could not be verified.');
         e.saved={...result,selected:payload.selected,revision};notify('Saved '+(full?'full':'selected')+' MIDI to GitHub.');
       }
     }catch(error){if(serial===editorSerial&&key===editorKey()){
       if(action==='regenerate'){
-        editorRecoveryPrefs={key,selected:[...e.selected],mode:e.mode};editor=null;editorRestoreError=null;render();
+        editorRecoveryPrefs={key,selected:[...e.selected],mode:e.mode,preferences:copy(e.preferences)};editor=null;editorRestoreError=null;render();
         const restored=await openEditor();
         if(key===editorKey())notify(error.message+(restored?' · Review restored from saved state.':' · Review must be restored before continuing.'));
       }else notify(error.message);
@@ -258,6 +261,7 @@
     const e=currentEditor(),selected=e?.selected||[],busy=!!e?.busy||isBusy();
     let html='<section aria-label="Phrase editor">';
     if(selectiveRegenerationEnabled)html+='<p>Review edits leave earlier steps unchanged.</p>';
+    if(e?.preferences&&config.phrase_preference_controls){html+='<section class="review-preferences" aria-label="Review phrase weights"><h3>Phrase weights</h3><p>Applied to the next selected-phrase regeneration. 1 = neutral.</p>';for(const step of ['3','4','5']){if(!e.preferences[step])continue;html+=`<div class="param-group">${({'3':'Rhythm','4':'Opening pitches','5':'Remaining pitches'})[step]}</div><div class="param-grid">${(config.phrase_preference_controls[step]||[]).map(p=>`<label class="param-field"><span>${esc(p.label)}</span><input type="number" inputmode="decimal" min="0" step="any" required data-editor-preference="${esc(p.key)}" data-pref-stage="${step}" value="${esc(e.preferences[step][p.key]??p.default)}"${busy?' disabled':''}></label>`).join('')}</div>`;}html+='</section>';}
     if(e?.revision>0)html+=`<p>Edited · revision ${e.revision}</p>`;
     if(e?.busy)html+='<p role="status">Working…</p>';
     if(selected.length){
@@ -535,7 +539,7 @@
     }
   };
   stagesNode.addEventListener('input',event=>{
-    const input=event.target;if(input.dataset.kontaktSetting){setKontaktSetting(input.dataset.stage,input.dataset.kontaktSetting,input.value);return;}if(input.hasAttribute?.('data-editor-mode')){setEditorMode(input.value);return;}if(!input.dataset.key)return;const id=input.dataset.stage,key=input.dataset.key;
+    const input=event.target;if(input.dataset.editorPreference){const e=currentEditor();if(e&&!e.busy)e.preferences[input.dataset.prefStage][input.dataset.editorPreference]=input.value===''?'':Number(input.value);return;}if(input.dataset.kontaktSetting){setKontaktSetting(input.dataset.stage,input.dataset.kontaktSetting,input.value);return;}if(input.hasAttribute?.('data-editor-mode')){setEditorMode(input.value);return;}if(!input.dataset.key)return;const id=input.dataset.stage,key=input.dataset.key;
     writePath(drafts[id],key,input.type==='checkbox'?input.checked:input.type==='number'?(input.value===''?'':Number(input.value)):input.value);
     const tag=input.closest('.params').querySelector('.draft-tag');tag.hidden=!isDirty(id);saveDrafts();
   });

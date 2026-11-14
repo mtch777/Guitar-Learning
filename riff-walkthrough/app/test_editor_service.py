@@ -36,3 +36,30 @@ class WorkspaceTests(unittest.TestCase):
    self.assertEqual(state,original);self.assertNotIn('private',m.path('test').read_text())
    reopened=EditorManager(pub);reopened.source=m.source;self.assertEqual(reopened.request('/editor/open','private',{'version':2})['revision'],1)
 if __name__=='__main__':unittest.main()
+
+class PreferenceTransactions(unittest.TestCase):
+ def test_review_override_applies_only_on_success(self):
+  import engine as E
+  with tempfile.TemporaryDirectory() as d:
+   class Pub:repo=pathlib.Path(d)/'repo'
+   m=EditorManager(Pub());m.engine=object()
+   out={'phrases':[{'phrase':1,'start_beats':0,'length_beats':4,'notes':[]}],'audio':{'notes':[],'length_beats':4,'tempo':120},'details':{},'can_export':True}
+   state={'version':1,'dataset':{'csv':'h'},'stages':[{'id':str(i),'applied':copy.deepcopy(E.DEFAULTS[str(i)]),'output':copy.deepcopy(out)} for i in range(1,7)]}
+   source=copy.deepcopy(state);m.source=lambda *_:('test',copy.deepcopy(state))
+   opened=m.request('/editor/open','',{'version':1})
+   prefs=opened['preferences'];prefs['3']['mostly_silent']=.02
+   data={'version':1,'revision':0,'selected':[1],'mode':'rhythm','preferences':prefs}
+   plan={'affected':[1],'rhythm_affected':[1],'pitch_affected':[]}
+   before=m.path('test').read_bytes()
+   with patch('selective_edit.plan_selection',return_value=plan),patch('selective_edit.SelectiveEditor.regenerate',side_effect=ValueError('no candidates')):
+    with self.assertRaises(ValueError):m.request('/editor/regenerate','',data)
+   self.assertEqual(before,m.path('test').read_bytes())
+   with patch('selective_edit.plan_selection',return_value=plan),patch('selective_edit.SelectiveEditor.regenerate',return_value={'phrases':copy.deepcopy(out['phrases']),**plan}) as run:
+    result=m.request('/editor/regenerate','',data)
+    self.assertEqual(run.call_args.args[0]['stages'][2]['applied']['phrase_preferences']['mostly_silent'],.02)
+    self.assertEqual(result['preferences']['3']['mostly_silent'],.02)
+   self.assertEqual(state,source)
+   data['revision']=1;data['preferences']['3']['mostly_silent']=-1;before=m.path('test').read_bytes()
+   with patch('selective_edit.plan_selection',return_value=plan):
+    with self.assertRaises(ValueError):m.request('/editor/regenerate','',data)
+   self.assertEqual(before,m.path('test').read_bytes())

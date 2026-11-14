@@ -46,7 +46,10 @@ class EditorManager:
  def path(self,key):return self.directory/(key+'.json')
  def write(self,key,workspace):
   self.directory.mkdir(parents=True,exist_ok=True);p=self.path(key);tmp=p.with_suffix('.tmp');tmp.write_text(json.dumps(workspace),encoding='utf-8');tmp.replace(p)
- def public(self,w):return {k:copy.deepcopy(w[k]) for k in ('source_version','revision','output')}
+ def public(self,w):
+  from engine import DEFAULTS
+  preferences={step:{**DEFAULTS[step]['phrase_preferences'],**next((s.get('applied',{}).get('phrase_preferences',{}) for s in w['state']['stages'] if str(s['id'])==step),{})} for step in ('3','4','5')}
+  return {**{k:copy.deepcopy(w[k]) for k in ('source_version','revision','output')},'preferences':preferences}
  def workspace(self,key,state):
   p=self.path(key)
   if p.exists():
@@ -73,7 +76,8 @@ class EditorManager:
      result=self.publisher.publish(body,data['version'],6,False,selected=data['selected'] is not None)
      return {**result,'editor_revision':w['revision'],'selected':data['selected'],'timing':'full' if data['selected'] is None else 'joined; edge holds clipped'}
     finally:self.publisher.lock.release()
-   if set(data)!={'version','revision','selected','mode'}:raise SaveError('Invalid selective regeneration request.')
+   required={'version','revision','selected','mode'}
+   if set(data) not in (required,required|{'preferences'}) or ('preferences' in data and path!='/editor/regenerate'):raise SaveError('Invalid selective regeneration request.')
    from selective_edit import plan_selection,SelectiveEditor
    plan=plan_selection(w['state'],w['output']['phrases'],data['selected'],data['mode'])
    if path=='/editor/plan':return {**plan,'revision':w['revision']}
@@ -82,8 +86,17 @@ class EditorManager:
     from engine import Engine
     self.engine=Engine()
    # The engine works on a private copy. Nothing is committed on lookup failure.
-   result=SelectiveEditor(self.engine).regenerate(copy.deepcopy(w['state']),copy.deepcopy(w['output']['phrases']),data['selected'],data['mode'],secrets.randbits(52))
-   updated=copy.deepcopy(w);updated['revision']+=1
+   edit_state=copy.deepcopy(w['state'])
+   if 'preferences' in data:
+    from engine import clean_preferences
+    if not isinstance(data['preferences'],dict) or set(data['preferences'])!={'3','4','5'}:raise SaveError('Invalid review weights')
+    for step,value in data['preferences'].items():
+     clean=clean_preferences(step,value)
+     entry=next((s for s in edit_state['stages'] if str(s['id'])==step),None)
+     if entry is None:raise SaveError('Required stage missing for review weights')
+     entry.setdefault('applied',{})['phrase_preferences']=clean
+   result=SelectiveEditor(self.engine).regenerate(edit_state,copy.deepcopy(w['output']['phrases']),data['selected'],data['mode'],secrets.randbits(52))
+   updated=copy.deepcopy(w);updated['revision']+=1;updated['state']=edit_state
    from engine import audio
    phrases=result['phrases'];a=audio(phrases,'Edited riff')
    details=copy.deepcopy(w['output'].get('details',{}));details.pop('overlapping_unison_events',None);details.pop('MIDI playback note',None)
