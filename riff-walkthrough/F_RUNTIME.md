@@ -9,7 +9,7 @@ Installed Python, Kontakt plugin, and licensed libraries remain on C as read-onl
 
 The standalone start-companion.ps1 is retired to avoid incomplete configuration.
 
-Verified preset rollout: 45 of 56 installed Hydra presets currently have independent initialized-state/render verification. Only those entries are exposed. The remaining 11 are not selectable yet.
+Verified preset rollout: 56 of 56 installed Hydra presets currently have independent initialized-state/render verification. Only those entries are exposed. All installed snapshots are now selectable, including factory INIT.
 
 ## Path hardening - 2026-11-14
 - [x] Replace stale QA data/import/worker/editor paths with existing F runtime locations; leave approved C virtualenv read dependency.
