@@ -18,6 +18,11 @@ def _groups(notes):
 
 def _signature(notes):return tuple(map(len,_groups(notes)))
 
+def _timing_signature(notes):
+ """Audible timing only: ignore pitches, donor metadata, slots and fraction spelling."""
+ return tuple(sorted((Q(str(n.get('start_exact',n['start_beats']))),
+                      Q(str(n.get('end_exact',n['end_beats'])))) for n in notes))
+
 def _transfer_pitches(old,new):
  oldgroups,newgroups=_groups(old),_groups(new)
  if list(map(len,oldgroups))!=list(map(len,newgroups)):raise EditBlocked('New rhythm cannot preserve the existing ordered pitch groups.')
@@ -135,12 +140,19 @@ class SelectiveEditor:
    if (bounded and (n['start_beats']<0 or n['end_beats']>float(length)+1e-8)) or n['end_beats']<=n['start_beats'] or n['midi_pitch']!=int(n['midi_pitch']) or not 0<=n['midi_pitch']<=127:raise EditBlocked('Notes cross a phrase boundary or have invalid pitch evidence; no changes were applied.')
  def _rhythm_draw(self,rows,idx,phrases,scores,mode,rng,signature):
   row=rows[idx-1];length=Q(str(row['Length (beats)']));cats=C.categories(row);candidates=[]
+  current_timing=_timing_signature(phrases[idx-1]['notes']);same_timing=0;invalid_timing=0
   for c in self.engine.rhythm.lengths.get(length,[]):
+   if any(n.get('carry_in') or n['start_beats']<0 or n['end_beats']>float(length)+1e-8 or n['end_beats']<=n['start_beats'] for n in c['notes']):
+    invalid_timing+=1;continue
    if signature is not None:
     try:
      if _signature(c['notes'])!=signature:continue
     except EditBlocked:continue
+   if _timing_signature(c['notes'])==current_timing:
+    same_timing+=1;continue
    candidates.append(c)
+  if not candidates and same_timing:
+   raise EditBlocked('Phrase '+str(idx)+': no different rhythm fits the current length and preserved pitch groups. Nothing was changed.')
   chosen=[{'notes':p['notes'],'features':C.features(p['notes'],p['length_beats']),'categories':C.categories(rows[i])} for i,p in enumerate(phrases[:idx-1])]
   audit=[]
   for c in candidates:
@@ -164,7 +176,7 @@ class SelectiveEditor:
    if u*total<acc:winner=(candidate,score,vals);break
   if winner is None:raise EditBlocked('Rhythm selection could not be resolved.')
   c,score,vals=winner
-  return copy.deepcopy(c['notes']),{'method':'Weighted rhythm selection','source_riff':c['key'][0],'source_phrase':c['key'][1],'candidate_count':len(candidates),'selected_score':score,'selected_probability':score/total,'components':vals,'pitch_group_pattern_required':list(signature) if signature is not None else None}
+  return copy.deepcopy(c['notes']),{'method':'Weighted rhythm selection','source_riff':c['key'][0],'source_phrase':c['key'][1],'candidate_count':len(candidates),'same_timing_excluded':same_timing,'out_of_bounds_excluded':invalid_timing,'selected_score':score,'selected_probability':score/total,'components':vals,'pitch_group_pattern_required':list(signature) if signature is not None else None}
 
 def plan_selection(state,current_phrases,selected,mode):
  """Pure scope preview; does not load data, choose notes, or mutate input."""

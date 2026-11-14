@@ -46,6 +46,39 @@ class SelectiveTests(unittest.TestCase):
   p=X.plan_selection(state,phrases,[3,3],'pitches');self.assertEqual(p['affected'],[1,3]);self.assertEqual(p['rhythm_affected'],[])
   p=X.plan_selection(state,phrases,[3,4],'both');self.assertEqual(p['rhythm_affected'],[1,2,3,4]);self.assertEqual(p['pitch_affected'],[1,3,4]);self.assertEqual(p['pitch_preserved'],[2])
   self.assertEqual((state,phrases),before)
+ def test_rhythm_regeneration_excludes_identical_timing_donors(self):
+  state,phrases,e=fixture();alternative=e.rhythm.lengths[Q(2)][0]
+  same=copy.deepcopy(alternative);same['key']=('same',1);same['notes']=notes((None,None),(0,.5))
+  # Equivalent fraction spelling, reversed list and changed slots do not make new timing.
+  same['notes'].reverse();same['notes'][0]['start_exact']='2/4'
+  e.rhythm.by['same']=[('same',1)];e.rhythm.items[('same',1)]=same
+  e.rhythm.lengths[Q(2)]=[same]*20+[alternative]
+  before=copy.deepcopy(phrases)
+  for seed in range(20):
+   r=X.SelectiveEditor(e).regenerate(state,phrases,[3],'rhythm',seed)
+   self.assertNotEqual(X._timing_signature(r['phrases'][0]['notes']),X._timing_signature(phrases[0]['notes']))
+   self.assertEqual(r['decisions'][0]['same_timing_excluded'],20)
+   self.assertEqual(r['phrases'][3],before[3])
+  self.assertEqual(phrases,before)
+ def test_out_of_bounds_alternatives_are_excluded_before_draw(self):
+  state,phrases,e=fixture();bad=copy.deepcopy(e.rhythm.lengths[Q(2)][0]);bad['notes'][1]['end_beats']=3;bad['notes'][1]['end_exact']='3'
+  e.rhythm.lengths[Q(2)]=[bad]*20+e.rhythm.lengths[Q(2)]
+  r=X.SelectiveEditor(e).regenerate(state,phrases,[3],'rhythm',22)
+  self.assertEqual(r['decisions'][0]['out_of_bounds_excluded'],20)
+  self.assertEqual(r['phrases'][0]['notes'][1]['end_beats'],1.25)
+ def test_no_different_rhythm_is_explicit_and_transactional(self):
+  state,phrases,e=fixture();c=e.rhythm.lengths[Q(2)][0];c['notes']=notes((None,None),(0,.5))
+  before=copy.deepcopy((state,phrases))
+  with self.assertRaisesRegex(X.EditBlocked,'no different rhythm'):
+   X.SelectiveEditor(e).regenerate(state,phrases,[3],'rhythm',22)
+  self.assertEqual((state,phrases),before)
+ def test_consecutive_rhythm_regeneration_avoids_immediately_previous_timing(self):
+  state,phrases,e=fixture();alt=copy.deepcopy(e.rhythm.lengths[Q(2)][0]);alt['key']=('other',1);alt['notes']=notes((None,None),(0,.75))
+  e.rhythm.by['other']=[('other',1)];e.rhythm.items[('other',1)]=alt;e.rhythm.lengths[Q(2)].append(alt)
+  for seed in range(6):
+   r=X.SelectiveEditor(e).regenerate(state,phrases,[3],'rhythm',seed)
+   self.assertNotEqual(X._timing_signature(phrases[0]['notes']),X._timing_signature(r['phrases'][0]['notes']))
+   phrases=r['phrases']
  def test_pitch_only_preserves_all_timing_and_other_phrases(self):
   state,phrases,e=fixture();before=copy.deepcopy((state,phrases));r=X.SelectiveEditor(e).regenerate(state,phrases,[3],'pitches',22)
   self.assertEqual(r['phrases'][1],phrases[1]);self.assertEqual(r['phrases'][3],phrases[3])
