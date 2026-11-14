@@ -44,6 +44,62 @@ def _members(roots,selected):
  wanted={roots[i] for i in selected}
  return {i for i,root in roots.items() if root in wanted}
 
+def exact_current_roots(phrases):
+ """Current musical identity, not stale donor topology or note metadata."""
+ seen={};roots={}
+ for p in phrases:
+  idx=p['phrase']
+  try:
+   length=Q(str(p['length_beats']))
+   events=[]
+   for n in p['notes']:
+    pitch=n['midi_pitch']
+    if type(pitch) not in (int,float) or not math.isfinite(pitch) or pitch!=int(pitch):raise ValueError()
+    a=Q(str(n.get('start_exact',n['start_beats'])));b=Q(str(n.get('end_exact',n['end_beats'])))
+    if b<=a:raise ValueError()
+    events.append((a,b,int(pitch)))
+   signature=(length,tuple(sorted(events)))
+   roots[idx]=seen.setdefault(signature,idx)
+  except (KeyError,ValueError,TypeError,ZeroDivisionError):roots[idx]=idx
+ return roots
+
+
+def delete_phrases(state,current_phrases,selected):
+ """Delete the visible exact-match selection and close gaps, atomically on copies."""
+ plan=plan_selection(state,current_phrases,selected,'both');deleted=set(plan['affected'])
+ newstate=copy.deepcopy(state);blueprint=_stage(newstate,2)['output']['details']['blueprint']
+ oldrows=blueprint['phrases'];kept=[p for p in current_phrases if p['phrase'] not in deleted]
+ mapping={p['phrase']:i for i,p in enumerate(kept,1)}
+ # Holds inside a surviving contiguous run stay intact; cut only at deleted gaps.
+ runs=[]
+ for p in kept:
+  a=Q(str(p['start_beats']));b=a+Q(str(p['length_beats']))
+  if runs and runs[-1][1]==a:runs[-1]=(runs[-1][0],b)
+  else:runs.append((a,b))
+ phrases=[];rows=[];offset=Q(0)
+ for old in kept:
+  p=copy.deepcopy(old);oldid=p['phrase'];start=Q(str(p['start_beats']));length=Q(str(p['length_beats']))
+  lo,hi=next((a,b) for a,b in runs if a<=start<b)
+  retained=[]
+  for note in p['notes']:
+   n=copy.deepcopy(note);a=max(lo,start+Q(str(n.get('start_exact',n['start_beats']))));b=min(hi,start+Q(str(n.get('end_exact',n['end_beats']))))
+   if b<=a:continue
+   a-=start;b-=start;n.update(start_beats=float(a),end_beats=float(b),duration_beats=float(b-a),start_exact=str(a),end_exact=str(b),carry_in=a<0)
+   retained.append(n)
+  p.update(phrase=mapping[oldid],start_beats=float(offset),notes=retained)
+  p['deleted_from_phrase']=old.get('deleted_from_phrase',oldid)
+  row=copy.deepcopy(oldrows[oldid-1]);row.update({'Phrase #':p['phrase'],'Start position (beats)':float(offset),'End position (beats)':float(offset+length)})
+  for field,value in list(row.items()):
+   if '(phrase #s)' in field:
+    try:targets=[int(x.strip()) for x in str(value).split(';')]
+    except ValueError:targets=[]
+    row[field]='; '.join(str(mapping[i]) for i in targets if i in mapping) or 'none'
+  row['Relationship status']='Review edited; current notes determine exact repeat selection.'
+  rows.append(row);phrases.append(p);offset+=length
+ blueprint['phrases']=rows
+ if isinstance(blueprint.get('metadata'),dict):blueprint['metadata'].update(phrase_count=len(rows),blueprint_total_beats=float(offset))
+ return {'state':newstate,'phrases':phrases,'deleted':sorted(deleted),'affected':sorted(deleted),'selected':plan['selected'],'old_to_new':mapping,'audio':E.audio(phrases,'Edited riff')}
+
 class SelectiveEditor:
  def __init__(self,engine):self.engine=engine
  def plan(self,state,current_phrases,selected,mode):
@@ -53,8 +109,8 @@ class SelectiveEditor:
   ids=[int(r['Phrase #']) for r in rows]
   if ids!=list(range(1,len(rows)+1)) or [p.get('phrase') for p in current_phrases]!=ids:raise EditBlocked('Review phrase positions do not match the scaffold.')
   if not set(selected)<=set(ids):raise EditBlocked('Selected phrase is outside this riff.')
-  exact=S.exact_roots(rows);rhythm=C.repeat_roots(rows)
-  timing=_members(rhythm,selected) if mode!='pitches' else set()
+  exact=exact_current_roots(current_phrases);rhythm=exact
+  timing=_members(exact,selected) if mode!='pitches' else set()
   pitch=_members(exact,selected) if mode!='rhythm' else set()
   return {'selected':sorted(set(selected)),'affected':sorted(timing|pitch),'rhythm_affected':sorted(timing),'pitch_affected':sorted(pitch),'pitch_preserved':sorted(timing-pitch),'mode':mode}
  def regenerate(self,state,current_phrases,selected,mode,rng):
@@ -68,7 +124,7 @@ class SelectiveEditor:
    if Q(str(phrase['length_beats']))!=Q(str(row['Length (beats)'])) or Q(str(phrase['start_beats']))!=Q(str(row['Start position (beats)'])):raise EditBlocked('Review phrase positions changed; refusing to shift other phrases.')
    self._validate_notes(phrase['notes'],phrase['length_beats'],phrase['phrase'] in set(plan['affected']))
   timing=set(plan['rhythm_affected']);pitch=set(plan['pitch_affected']);affected=timing|pitch
-  exact=S.exact_roots(rows);rhythm=C.repeat_roots(rows)
+  exact=exact_current_roots(current_phrases);rhythm=exact
   p2=_stage(state,2);p3=_stage(state,3);p4=_stage(state,4);p5=_stage(state,5)
   weights=p2['output']['details']['field_weights']
   rp={**E.DEFAULTS['3'],**p3.get('applied',{})};rp['phrase_preferences']={**E.DEFAULTS['3']['phrase_preferences'],**rp['phrase_preferences']};scores=self.engine.scores(seed,weights)
@@ -90,7 +146,7 @@ class SelectiveEditor:
   with tempfile.TemporaryDirectory(prefix='riff-selective-') as temporary:
    for root in sorted({exact[i] for i in pitch}):
     members=sorted(i for i in pitch if exact[i]==root);row=rows[root-1];slots=S.stripped(phrases[root-1]['notes'])
-    if any(S.stripped(phrases[i-1]['notes'])!=slots for i in members):raise EditBlocked('Exact-repeat timing is inconsistent; no changes were applied.')
+    if any(_timing_signature(phrases[i-1]['notes'])!=_timing_signature(phrases[root-1]['notes']) for i in members):raise EditBlocked('Exact-repeat timing is inconsistent; no changes were applied.')
     if not slots:
      notes=[];decision={'method':'Preserved silence'}
     else:
@@ -112,11 +168,11 @@ class SelectiveEditor:
    if before['start_beats']!=after['start_beats'] or before['length_beats']!=after['length_beats']:raise AssertionError('Phrase window changed')
    self._validate_notes(after['notes'],after['length_beats'],i in affected)
    if i in affected and i not in pitch and [[n['midi_pitch'] for n in g] for g in _groups(before['notes'])]!=[[n['midi_pitch'] for n in g] for g in _groups(after['notes'])]:raise AssertionError('Frozen pitch sequence changed')
-   if i not in timing and S.stripped(after['notes'])!=S.stripped(before['notes']):raise AssertionError('Frozen rhythm changed')
+   if i not in timing and _timing_signature(after['notes'])!=_timing_signature(before['notes']):raise AssertionError('Frozen rhythm changed')
   for i,root in exact.items():
-   if phrases[i-1]['notes']!=phrases[root-1]['notes']:raise EditBlocked('Exact-repeat notes are inconsistent; edit was discarded.')
+   if exact_current_roots(phrases)[i]!=exact_current_roots(phrases)[root]:raise EditBlocked('Exact-repeat notes are inconsistent; edit was discarded.')
   for i,root in rhythm.items():
-   if S.stripped(phrases[i-1]['notes'])!=S.stripped(phrases[root-1]['notes']):raise EditBlocked('Rhythm-repeat notes are inconsistent; edit was discarded.')
+   if _timing_signature(phrases[i-1]['notes'])!=_timing_signature(phrases[root-1]['notes']):raise EditBlocked('Rhythm-repeat notes are inconsistent; edit was discarded.')
   if not T.from_notes([n for p in phrases for n in p['notes']]):raise EditBlocked('Edited riff has no shared compatible scale; edit was discarded.')
   provenance_keys=('method','source_riff','source_phrase','tier','candidate_count','selected_score','selected_probability','components','random_seed','rng_seed','copy_from','matching_scale_sets','matching_estimated_scale_sets','pitch_source_riff','pitch_source_phrase','source_tonic','source_tonal_status','source_mode_status','uniform_draw','weight_sum','known_weight','history_pairs')
   for i in sorted(affected):

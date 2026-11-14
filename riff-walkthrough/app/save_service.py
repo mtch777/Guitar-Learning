@@ -122,7 +122,7 @@ def handler_for(publisher,allowed_origins):
  editor=None
  selection=None
  renderer=None
- routes=['/save','/recover','/editor/open','/editor/plan','/editor/regenerate','/editor/save','/selection/open','/selection/save','/render/presets','/render/start','/render/status','/render/audio']
+ routes=['/save','/recover','/editor/open','/editor/plan','/editor/regenerate','/editor/delete','/editor/save','/selection/open','/selection/save','/render/presets','/render/start','/render/status','/render/audio']
  class Handler(http.server.BaseHTTPRequestHandler):
   def reply(self,code,data,origin=None):
    body=json.dumps(data).encode();self.send_response(code)

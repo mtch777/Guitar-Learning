@@ -44,7 +44,7 @@ class SelectiveTests(unittest.TestCase):
  def test_plan_repeat_scopes_and_no_mutation(self):
   state,phrases,e=fixture();before=copy.deepcopy((state,phrases))
   p=X.plan_selection(state,phrases,[3,3],'pitches');self.assertEqual(p['affected'],[1,3]);self.assertEqual(p['rhythm_affected'],[])
-  p=X.plan_selection(state,phrases,[3,4],'both');self.assertEqual(p['rhythm_affected'],[1,2,3,4]);self.assertEqual(p['pitch_affected'],[1,3,4]);self.assertEqual(p['pitch_preserved'],[2])
+  p=X.plan_selection(state,phrases,[3,4],'both');self.assertEqual(p['rhythm_affected'],[1,3,4]);self.assertEqual(p['pitch_affected'],[1,3,4]);self.assertEqual(p['pitch_preserved'],[])
   self.assertEqual((state,phrases),before)
  def test_rhythm_regeneration_excludes_identical_timing_donors(self):
   state,phrases,e=fixture();alternative=e.rhythm.lengths[Q(2)][0]
@@ -89,11 +89,11 @@ class SelectiveTests(unittest.TestCase):
  def test_rhythm_only_retains_each_ordered_pitch_sequence(self):
   state,phrases,e=fixture();r=X.SelectiveEditor(e).regenerate(state,phrases,[3],'rhythm',22)
   self.assertEqual(e.pitch.calls,[]);self.assertEqual(r['phrases'][3],phrases[3])
-  for i in range(3):
+  for i in (0,2):
    self.assertEqual([n['midi_pitch'] for n in r['phrases'][i]['notes']],[n['midi_pitch'] for n in phrases[i]['notes']]);self.assertEqual(r['phrases'][i]['notes'][1]['start_beats'],1)
  def test_both_retains_rhythm_only_sibling_pitches(self):
   state,phrases,e=fixture();r=X.SelectiveEditor(e).regenerate(state,phrases,[3],'both',22)
-  self.assertEqual(r['pitch_preserved'],[2]);self.assertEqual(r['phrases'][3],phrases[3]);self.assertEqual([n['midi_pitch'] for n in r['phrases'][1]['notes']],[40,42]);self.assertEqual(r['phrases'][0]['notes'],r['phrases'][2]['notes'])
+  self.assertEqual(r['pitch_preserved'],[]);self.assertEqual(r['phrases'][3],phrases[3]);self.assertEqual([n['midi_pitch'] for n in r['phrases'][1]['notes']],[40,42]);self.assertEqual(r['phrases'][0]['notes'],r['phrases'][2]['notes'])
  def test_failed_pitch_is_transactional(self):
   state,phrases,e=fixture();e.pitch.fail=True;before=copy.deepcopy((state,phrases))
   with self.assertRaisesRegex(X.EditBlocked,'No suitable donor'):X.SelectiveEditor(e).regenerate(state,phrases,[3],'both',22)
@@ -101,7 +101,7 @@ class SelectiveTests(unittest.TestCase):
  def test_multiple_selection_transitive_changes_and_late_failure_atomicity(self):
   state,phrases,e=fixture();before=copy.deepcopy((state,phrases))
   r=X.SelectiveEditor(e).regenerate(state,phrases,[3,4],'both',22)
-  self.assertEqual(r['affected'],[1,2,3,4]);self.assertEqual(r['pitch_affected'],[1,3,4]);self.assertEqual(len(e.pitch.calls),2)
+  self.assertEqual(r['affected'],[1,3,4]);self.assertEqual(r['pitch_affected'],[1,3,4]);self.assertEqual(len(e.pitch.calls),2)
   self.assertEqual((state,phrases),before)
   oldrun=e.pitch.run;calls=[]
   def later_failure(*args,**kwargs):

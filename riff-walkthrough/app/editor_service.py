@@ -76,6 +76,21 @@ class EditorManager:
      result=self.publisher.publish(body,data['version'],6,False,selected=data['selected'] is not None)
      return {**result,'editor_revision':w['revision'],'selected':data['selected'],'timing':'full' if data['selected'] is None else 'joined; edge holds clipped'}
     finally:self.publisher.lock.release()
+   if path=='/editor/delete':
+    if set(data)!={'version','revision','selected'}:raise SaveError('Invalid phrase deletion request.')
+    from selective_edit import delete_phrases
+    from engine import audio
+    result=delete_phrases(w['state'],w['output']['phrases'],data['selected'])
+    updated=copy.deepcopy(w);updated['revision']+=1;updated['state']=result['state']
+    phrases=result['phrases'];a=audio(phrases,'Edited riff')
+    details=copy.deepcopy(w['output'].get('details',{}))
+    for k in ('overlapping_unison_events','MIDI playback note','edit'):details.pop(k,None)
+    details['edit']={'mode':'delete','deleted':result['deleted'],'old_to_new':{str(k):v for k,v in result['old_to_new'].items()}}
+    updated['output']={**copy.deepcopy(w['output']),'phrases':phrases,'audio':a,'details':details,'summary':{'Phrases':len(phrases),'Beats':a['length_beats'],'Notes':len(a['notes']),'Edit':updated['revision']}}
+    # A normal recoverable revision copy, never remove the original generator result.
+    self.write(key+'.revision-'+str(w['revision']),w)
+    self.write(key,updated)
+    return {**self.public(updated),**{k:result[k] for k in ('selected','affected','deleted','old_to_new')}}
    required={'version','revision','selected','mode'}
    if set(data) not in (required,required|{'preferences'}) or ('preferences' in data and path!='/editor/regenerate'):raise SaveError('Invalid selective regeneration request.')
    from selective_edit import plan_selection,SelectiveEditor
