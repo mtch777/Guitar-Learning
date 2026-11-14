@@ -96,7 +96,7 @@ class SelectiveEditor:
     else:
      pp={**E.DEFAULTS['4' if root==1 else '5'],**(p4 if root==1 else p5).get('applied',{})}
      target={'Phrase role':row['Phrase role'],'Category - dominant texture':row['Dominant texture'],'Accent function':row['Accent function']}
-     with E.settings(fit=pp['fit_weights'],tiers=pp['tier_weights'],preferences=pp['phrase_preferences']):
+     with E.settings(fit=pp['fit_weights'],tiers=pp['tier_weights'],preferences=E.clean_preferences('4' if root==1 else '5',pp['phrase_preferences'])):
       # With no frozen or earlier chosen notes, the opening remains unrestricted.
       prior=None if not frozen and not any(d['kind']=='pitch' and d.get('notes_count',0) for d in decisions) else scales
       report=self.engine.pitch.run(seed,{'selection_performed':True,'selected_rhythm':slots},pathlib.Path(temporary)/str(root),rng+root*2+1,target_row=target,current_scales=prior,similarities=scores)

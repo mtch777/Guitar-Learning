@@ -1,0 +1,38 @@
+{
+  "scaffold": {
+    "1": {
+      "interval_capable_draws": 3797,
+      "draws": 10000,
+      "expected_probability": 0.38378428944398985
+    },
+    "2": {
+      "interval_capable_draws": 5608,
+      "draws": 10000,
+      "expected_probability": 0.5546880281437431
+    },
+    "10": {
+      "interval_capable_draws": 8638,
+      "draws": 10000,
+      "expected_probability": 0.8616507403236998
+    }
+  },
+  "scaffold_candidates": 7352,
+  "rhythm": {
+    "1": {
+      "interval_capable_draws": 2327,
+      "draws": 10000,
+      "expected_probability": 0.23519923612873866
+    },
+    "2": {
+      "interval_capable_draws": 3859,
+      "draws": 10000,
+      "expected_probability": 0.3808280142171738
+    },
+    "10": {
+      "interval_capable_draws": 7576,
+      "draws": 10000,
+      "expected_probability": 0.7546193368761576
+    }
+  },
+  "rhythm_candidates": 304
+}

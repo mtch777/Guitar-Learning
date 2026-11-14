@@ -47,8 +47,8 @@ class EditorManager:
  def write(self,key,workspace):
   self.directory.mkdir(parents=True,exist_ok=True);p=self.path(key);tmp=p.with_suffix('.tmp');tmp.write_text(json.dumps(workspace),encoding='utf-8');tmp.replace(p)
  def public(self,w):
-  from engine import DEFAULTS
-  preferences={step:{**DEFAULTS[step]['phrase_preferences'],**next((s.get('applied',{}).get('phrase_preferences',{}) for s in w['state']['stages'] if str(s['id'])==step),{})} for step in ('3','4','5')}
+  from engine import DEFAULTS,clean_preferences
+  preferences={step:clean_preferences(step,next((s.get('applied',{}).get('phrase_preferences',{}) for s in w['state']['stages'] if str(s['id'])==step),{})) for step in ('3','4','5')}
   return {**{k:copy.deepcopy(w[k]) for k in ('source_version','revision','output')},'preferences':preferences}
  def workspace(self,key,state):
   p=self.path(key)

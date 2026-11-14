@@ -16,18 +16,19 @@ TITLES=['Seed','Scaffold','Rhythms','Opening pitches','Remaining pitches','Revie
 DEFAULT_FIELD_WEIGHTS={str(f['schema_id']):f['weight'] for f in W.FIELDS}
 DEFAULTS={
  '1':{'artist':'all','role':'all','random_seed':''},
- '2':{'field_weights':DEFAULT_FIELD_WEIGHTS,'random_seed':''},
+ '2':{'phrase_preferences':{'intervals':P.DEFAULTS['intervals']},'field_weights':DEFAULT_FIELD_WEIGHTS,'random_seed':''},
  '3':{'phrase_preferences':{k:P.DEFAULTS[k] for k in ('plain_long_singles','triplets','intervals','mostly_silent')},'method':'contextual','opening_weights':dict(R.WEIGHTS),'context_weights':dict(C.WEIGHTS),'random_seed':''},
- '4':{'phrase_preferences':{k:P.DEFAULTS[k] for k in ('intervals','minor_second')},'tier_weights':{str(k):v for k,v in F.MULTIPLIERS.items()},'fit_weights':dict(R.WEIGHTS),'random_seed':''},
- '5':{'phrase_preferences':{k:P.DEFAULTS[k] for k in ('intervals','minor_second')},'tier_weights':{str(k):v for k,v in F.MULTIPLIERS.items()},'fit_weights':dict(R.WEIGHTS),'random_seed':''},
+ '4':{'phrase_preferences':{k:P.DEFAULTS[k] for k in ('minor_second',)},'tier_weights':{str(k):v for k,v in F.MULTIPLIERS.items()},'fit_weights':dict(R.WEIGHTS),'random_seed':''},
+ '5':{'phrase_preferences':{k:P.DEFAULTS[k] for k in ('minor_second',)},'tier_weights':{str(k):v for k,v in F.MULTIPLIERS.items()},'fit_weights':dict(R.WEIGHTS),'random_seed':''},
  '6':{}}
 
 def preference_controls():
- labels={'plain_long_singles':'Long uniform single notes x','triplets':'Triplets x','intervals':'Two-note intervals x','minor_second':'Minor 2nd extra x','mostly_silent':'50% or more silence/rest x'}
- return {step:[{'key':k,'label':labels[k],'default':v} for k,v in DEFAULTS[step]['phrase_preferences'].items()] for step in ('3','4','5')}
+ labels={'plain_long_singles':'Long uniform single notes x','triplets':'Triplets x','intervals':'Two-note overlap potential x','minor_second':'Minor 2nd extra x','mostly_silent':'50% or more silence/rest x'}
+ return {step:[{'key':k,'label':labels[k],'default':v} for k,v in DEFAULTS[step]['phrase_preferences'].items()] for step in ('2','3','4','5')}
 
 def clean_preferences(step,value):
  defaults=DEFAULTS[step]['phrase_preferences']
+ if step in ('4','5') and isinstance(value,dict):value={k:v for k,v in value.items() if k!='intervals'}
  if not isinstance(value,dict) or not set(value)<=set(defaults):raise ValueError('Unknown phrase preference')
  result={**defaults,**value}
  for k,v in result.items():
@@ -108,7 +109,7 @@ class Engine:
    group('tier_weights',tiers,DEFAULTS['4']['tier_weights'])+group('fit_weights',fits,DEFAULTS['4']['fit_weights'])+[rng],
    group('tier_weights',tiers,DEFAULTS['5']['tier_weights'])+group('fit_weights',fits,DEFAULTS['4']['fit_weights'])+[rng],[]]
   labels={p['key']:p['label'] for controls in preference_controls().values() for p in controls}
-  for index in (2,3,4):
+  for index in (1,2,3,4):
    pars[index]=group('phrase_preferences',labels,DEFAULTS[str(index+1)]['phrase_preferences'])+pars[index]
   return {'stages':[{'id':str(i),'title':name,'parameters':pars[i-1],'defaults':copy.deepcopy(DEFAULTS[str(i)])} for i,name in enumerate(TITLES,1)],'defaults':copy.deepcopy(DEFAULTS),'phrase_preference_controls':preference_controls(),'counts':{'riffs':len(self.first),'eligible_seed_riffs':len(self.eligible),'phrases':len(self.pitch.rows)},'engine':'existing-analytical-pipeline','dataset':self.hashes}
  def validate(self,params):
@@ -119,6 +120,7 @@ class Engine:
    for key,value in values.items():
     if key not in out[step]:raise ValueError('Unknown parameter: '+key)
     if isinstance(out[step][key],dict):
+     if key=='phrase_preferences' and step in ('4','5') and isinstance(value,dict):value={k:v for k,v in value.items() if k!='intervals'}
      if key=='phrase_preferences' and step=='3' and isinstance(value,dict) and set(value)==set(out[step][key])-{'mostly_silent'}:value={**value,'mostly_silent':P.DEFAULTS['mostly_silent']}
      if not isinstance(value,dict) or set(value)!=set(out[step][key]):raise ValueError('Weight fields do not match this step')
      clean={}
@@ -173,12 +175,20 @@ class Engine:
  def stage2(self,p,up):
   rid=up[0]['raw']['seed_id'];seed=self.first[rid];scores=self.scores(rid,p['field_weights'])
   ids=[r for r in sorted(self.first) if r!=rid and self.first[r]['Phrase role']==seed['Phrase role'] and R.known(self.first[r]['Phrase role'])]
-  donor,selection=draw(ids,[scores[x] or 0 for x in ids],seed_of(p));rows,meta=B.build(seed,self.by[donor]);blueprint={'phrases':rows,'metadata':meta}
+  prefs=p.get('phrase_preferences',DEFAULTS['2']['phrase_preferences'])
+  def has_interval(riff):
+   # Donor opening is replaced by seed; only retained scaffold references count.
+   return any(P.interval_slots(self.rhythm.items[(riff,int(r['Phrase #']))]['notes'] or [],self.rhythm.items[(riff,int(r['Phrase #']))]['timing_length']) is True for r in self.by[riff] if int(r['Phrase #'])>1 and not self.rhythm.items[(riff,int(r['Phrase #']))]['reasons'])
+  flags={x:has_interval(x) for x in ids}
+  weights=[(scores[x] or 0)*(prefs['intervals'] if flags[x] else 1) for x in ids]
+  donor,selection=draw(ids,weights,seed_of(p));rows,meta=B.build(seed,self.by[donor]);blueprint={'phrases':rows,'metadata':meta}
+  selection.update(base_similarity=scores[donor],interval_capable_reference=flags[donor],preference_multiplier=prefs['intervals'] if flags[donor] else 1)
+
   phrases=[public_phrase(r,source_riff=rid if i==0 else donor,source_phrase=i+1,repeat=r['Intended same notes and timing as (phrase #s)'],rhythm_repeat=r['Intended same rhythm and holds as (phrase #s)']) for i,r in enumerate(rows)]
   refs=[];offset=0
   for row in self.by[donor]:
    ph=public_phrase(row,self.rhythm.items[(donor,int(row['Phrase #']))]['notes'] or [],source_riff=donor,source_phrase=int(row['Phrase #']));ph['start_beats']=offset;offset+=ph['length_beats'];refs.append(ph)
-  return {'summary':{'Reference artist':self.first[donor]['Artist'],'Reference riff':donor,'Phrases':len(rows),'Beats':meta['blueprint_total_beats'],'Similarity':selection['selected_score']},'phrases':phrases,'audio':self.reference_audio(donor,[int(r['Phrase #']) for r in self.by[donor]],'Donor reference rhythm · E1'),'details':{**selection,'blueprint':blueprint,'field_weights':p['field_weights'],'reference_audio_riff':donor},'raw':{'blueprint':blueprint,'scores':scores}}
+  return {'summary':{'Reference artist':self.first[donor]['Artist'],'Reference riff':donor,'Phrases':len(rows),'Beats':meta['blueprint_total_beats'],'Similarity':selection['base_similarity']},'phrases':phrases,'audio':self.reference_audio(donor,[int(r['Phrase #']) for r in self.by[donor]],'Donor reference rhythm · E1'),'details':{**selection,'blueprint':blueprint,'field_weights':p['field_weights'],'reference_audio_riff':donor},'raw':{'blueprint':blueprint,'scores':scores}}
  def stage3(self,p,up):
   rid=up[0]['raw']['seed_id'];seed=self.first[rid];blueprint=up[1]['raw']['blueprint'];scores=up[1]['raw']['scores'];rng=seed_of(p)
   candidates=[(r,scores[r],None) for r in sorted(self.rhythm.pool)]
@@ -190,7 +200,7 @@ class Engine:
   return {'summary':{'Method':p['method'],'Phrases':len(phrases),'Beats':report['total_beats']},'phrases':phrases,'audio':audio(phrases,'Rhythm · E1'),'details':{'random_seed':rng,'opening':{k:v for k,v in opening.items() if k not in ['pool','selected_rhythm','excluded']},'opening_excluded_counts':dict(collections.Counter(x['reason'] for x in opening['excluded'])),'weights':report['weights'],'phrase_selections':[{k:v for k,v in x.items() if k!='notes'} for x in phrases]},'raw':{'report':report,'opening':opening}}
  def stage4(self,p,up):
   rid=up[0]['raw']['seed_id'];rng=seed_of(p);rhythm=up[2]['raw']['report'];opening=up[2]['raw']['opening']
-  with tempfile.TemporaryDirectory(prefix='riff-pitch1-') as tmp,settings(fit=p['fit_weights'],tiers=p['tier_weights'],preferences=p.get('phrase_preferences',DEFAULTS['4']['phrase_preferences'])):
+  with tempfile.TemporaryDirectory(prefix='riff-pitch1-') as tmp,settings(fit=p['fit_weights'],tiers=p['tier_weights'],preferences=clean_preferences('4',p.get('phrase_preferences',DEFAULTS['4']['phrase_preferences']))):
    report=self.pitch.run(rid,opening,tmp,rng,similarities=up[1]['raw']['scores'])
   if not report['selection_performed']:return {'summary':{},'phrases':[],'blocker':report['reason'],'details':report}
   assert S.stripped(report['notes'])==rhythm['phrases'][0]['notes'],'Opening pitch selection changed its rhythm'
@@ -202,7 +212,7 @@ class Engine:
   exact=S.exact_roots(rows);scales=None;phrases=[];decisions=[];blocker=None
   def snapshot():
    return {'summary':{'Completed phrases':len(phrases),'Planned phrases':len(rows),'Compatible scale collections':len(scales or ())},'progress':{'completed':len(phrases),'total':len(rows)},'phrases':copy.deepcopy(phrases),'audio':audio(phrases,'Generated pitches' if len(phrases)==len(rows) and not blocker else 'Partial generated pitches'),'details':{'random_seed':rng,'phrase_selections':copy.deepcopy(decisions),'possible_scales':T.public(scales or ()),'scale_policy':'Every generated pitch must fit at least one shared diatonic collection. Chromatic/color notes can stop this version.','rhythms_preserved':True},**({'blocker':blocker} if blocker else {})}
-  with tempfile.TemporaryDirectory(prefix='riff-pitches-') as tmp,settings(fit=p['fit_weights'],tiers=p['tier_weights'],preferences=p.get('phrase_preferences',DEFAULTS['4']['phrase_preferences'])):
+  with tempfile.TemporaryDirectory(prefix='riff-pitches-') as tmp,settings(fit=p['fit_weights'],tiers=p['tier_weights'],preferences=clean_preferences('5',p.get('phrase_preferences',DEFAULTS['5']['phrase_preferences']))):
    for idx,row in enumerate(rows,1):
     rhythm=fixed[idx-1]['notes'];before=scales;decision={}
     if idx==1:

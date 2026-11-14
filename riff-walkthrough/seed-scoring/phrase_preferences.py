@@ -45,6 +45,25 @@ def assigned_notes(notes,groups,source_evidence=False):
    assigned.append({**n,'midi_pitch':pitch})
  return assigned
 
+def interval_slots(notes,length=None):
+ """Exactly two overlapping sounding slots; structural capacity, not pitch identity."""
+ events=collections.defaultdict(int)
+ try:
+  limit=Q(str(length)) if length is not None else None
+  if limit is not None and limit<=0:return None
+  for n in notes:
+   a=Q(str(n.get('start_exact',n.get('start_beats'))));d=Q(str(n.get('duration_exact',n.get('duration_beats'))))
+   if d<=0:return None
+   b=a+d;a=max(Q(0),a)
+   if limit is not None:b=min(b,limit)
+   if b>a:events[a]+=1;events[b]-=1
+ except (TypeError,ValueError,ZeroDivisionError):return None
+ count=0;times=sorted(events)
+ for i,t in enumerate(times[:-1]):
+  count+=events[t]
+  if count==2 and times[i+1]>max(t,0):return True
+ return False
+
 def silence_fraction(notes,length):
  """Fraction of the phrase with no sounding note; clipped interval union."""
  try:
@@ -83,7 +102,7 @@ def rhythm_flags(notes,row,length=None):
   flags=sounding_flags(assigned_notes(notes,F.groups(row),source_evidence=True))
  except (ValueError,KeyError,TypeError):flags={'intervals':None,'minor_second':None}
  fraction=silence_fraction(notes,length if length is not None else row.get('Length (quarter-note beats)',row.get('Length (beats)')))
- return {'plain_long_singles':bool(plain),'triplets':triplets,'intervals':flags['intervals'],'mostly_silent':None if fraction is None else fraction>=Q(1,2)}
+ return {'plain_long_singles':bool(plain),'triplets':triplets,'intervals':interval_slots(notes,length if length is not None else row.get('Length (quarter-note beats)',row.get('Length (beats)'))),'mostly_silent':None if fraction is None else fraction>=Q(1,2)}
 def multiplier(flags,weights=None):
  weights=ACTIVE if weights is None else weights
  value=math.prod(weights[k] for k,v in flags.items() if v)
