@@ -47,11 +47,31 @@ def inspect_wav(path,seconds):
 class RenderManager:
  def __init__(self,publisher,editor,selection):
   self.publisher=publisher;self.editor=editor;self.selection=selection;self.directory=publisher.repo.parent/'riff-kontakt-renders';self.jobs={};self.lock=threading.Lock();self.executor=concurrent.futures.ThreadPoolExecutor(max_workers=1)
- def available(self):
+ def catalog(self):
   directory=os.environ.get('RIFF_KONTAKT_PRESET_DIR');python=os.environ.get('RIFF_RENDER_PYTHON');worker=os.environ.get('RIFF_RENDER_WORKER')
   if not all(x and pathlib.Path(x).exists() for x in (directory,python,worker)):return []
-  verified=set(os.environ.get('RIFF_KONTAKT_PRESETS','').split(','))
-  return [{'id':key,'label':label} for key,(label,file) in PRESETS.items() if key in verified and (pathlib.Path(directory)/file).is_file()]
+  root=pathlib.Path(directory).resolve();manifest=os.environ.get('RIFF_KONTAKT_MANIFEST')
+  if manifest:
+   try:items=json.loads(pathlib.Path(manifest).read_text(encoding='utf-8-sig'))['presets']
+   except (OSError,ValueError,KeyError,TypeError):return []
+   if not isinstance(items,list):return []
+  else:
+   verified=set(os.environ.get('RIFF_KONTAKT_PRESETS','').split(','))
+   items=[{'id':key,'label':label,'state_file':file,'group':'Djentcore','rank':i,'verified':True} for i,(key,(label,file)) in enumerate(PRESETS.items()) if key in verified]
+  import re
+  result=[];seen=set()
+  for item in items:
+   if not isinstance(item,dict) or item.get('verified') is not True:continue
+   key=item.get('id');label=item.get('label');file=item.get('state_file')
+   if not isinstance(key,str) or not re.fullmatch('[a-z0-9][a-z0-9-]*',key) or key in seen or not isinstance(label,str) or not label.strip() or not isinstance(file,str):continue
+   path=(root/file).resolve()
+   if path.parent!=root or not path.is_file():continue
+   expected=item.get('state_sha256')
+   if expected and hashlib.sha256(path.read_bytes()).hexdigest()!=expected:continue
+   rank=item.get('rank',len(result));rank=rank if isinstance(rank,(int,float)) and math.isfinite(rank) else len(result)
+   result.append({'id':key,'label':label,'group':str(item.get('group') or 'Other'),'rank':rank,'state_file':file});seen.add(key)
+  return sorted(result,key=lambda p:p['rank'])
+ def available(self):return [{k:v for k,v in p.items() if k!='state_file'} for p in self.catalog()]
  def public(self,job):return {k:copy.deepcopy(v) for k,v in job.items() if k not in ('owner','path')}
  def capture(self,cookie,data):
   stage=data.get('stage');version=data.get('version');revision=data.get('editor_revision');selected=data.get('selected');view=data.get('view')
@@ -79,7 +99,9 @@ class RenderManager:
   identity=owner(cookie);available={p['id'] for p in self.available()};preset=data.get('preset')
   if preset not in available:raise ValueError('Choose an available Kontakt preset.')
   audio=self.capture(cookie,data);midi=midi_bytes(audio);seconds=audio['length_beats']*.5+2
-  presetfile=pathlib.Path(os.environ['RIFF_KONTAKT_PRESET_DIR'])/PRESETS[preset][1];worker=pathlib.Path(os.environ['RIFF_RENDER_WORKER'])
+  preset_entry=next((p for p in self.catalog() if p['id']==preset),None)
+  if preset_entry is None:raise ValueError('Kontakt preset is no longer available.')
+  presetfile=pathlib.Path(os.environ['RIFF_KONTAKT_PRESET_DIR'])/preset_entry['state_file'];worker=pathlib.Path(os.environ['RIFF_RENDER_WORKER'])
   state_bytes=presetfile.read_bytes();state_sha=hashlib.sha256(state_bytes).hexdigest()
   fingerprint=hashlib.sha256(midi+state_bytes+worker.read_bytes()+str(seconds).encode()).hexdigest()
   jobid=uuid.uuid4().hex;capture={k:copy.deepcopy(data[k]) for k in ('stage','version','editor_revision','selected','preset','view')};capture.update({'tempo':120,'length_beats':audio['length_beats'],'selection_timing':'original positions; unselected regions silent'})

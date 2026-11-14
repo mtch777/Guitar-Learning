@@ -10,8 +10,8 @@ const snapshot=JSON.stringify(state),calls=[];let jobCount=0;
 function response(data,ok=true){return {ok,json:async()=>data};}
 function ready(capture,job_id='job'+(++jobCount)){return {job_id,status:'ready',capture:{...capture,tempo:120,length_beats:capture.view==='previous'?10:8},audio_url:'/render/audio?job='+job_id,duration_seconds:capture.view==='previous'?7:6,sample_rate:44100,waveform:[[-.1,.1],[-.2,.2],[-.3,.3],[-.4,.4]]};}
 (async()=>{
- t.set(state);sandbox.fetch=async(url,options)=>{calls.push({url,options});return response({presets:[{id:'modern-metal-1',label:'Modern Metal 1'},{id:'ready-to-djent',label:'Ready to Djent'},{id:'fake',label:'Not verified'}]});};
- await t.loadKontaktPresets();assert.ok(!t.kontaktControls('1').includes('Not verified'));
+ t.set(state);sandbox.fetch=async(url,options)=>{calls.push({url,options});return response({presets:[{id:'modern-metal-1',label:'Modern Metal 1'},{id:'ready-to-djent',label:'Ready to Djent'},{id:'modern-metal-2',label:'Modern Metal 2',group:'Djentcore',rank:2}]});};
+ await t.loadKontaktPresets();assert.ok(t.kontaktControls('6').includes('Modern Metal 2'));assert.ok(t.kontaktControls('6').includes('<optgroup label="Djentcore">'));assert.ok(!code.includes('Save previous result'));
  sandbox.fetch=async(url,options)=>{const body=JSON.parse(options.body);calls.push({url,options,body});return response(ready(body));};
  const beforeConfirm=calls.length;t.openKontaktChooser('1');assert.equal(calls.length,beforeConfirm);await t.confirmKontaktChooser('1');assert.equal(calls.length,beforeConfirm+1);assert.equal(t.currentKontakt('1').status,'ready');assert.ok(!t.kontaktControls('1').includes('data-kontakt-confirm'));
  for(let i=1;i<=6;i++){await t.startKontakt(String(i));assert.equal(t.currentKontakt(String(i)).status,'ready');assert.equal(calls.at(-1).body.stage,i);assert.equal(calls.at(-1).body.editor_revision,i===6?2:null);assert.equal(calls.at(-1).body.selected,null);assert.equal(calls.at(-1).options.credentials,'include');}

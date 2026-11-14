@@ -335,7 +335,7 @@
     if(kontaktPresetsPromise)return kontaktPresetsPromise;
     kontaktPresetsLoading=true;kontaktPresetError=null;
     kontaktPresetsPromise=(async()=>{
-      try{const result=await kontaktRequest('presets',{});if(!Array.isArray(result.presets))throw Error('Kontakt presets could not be verified.');kontaktPresets=result.presets.filter(p=>['modern-metal-1','ready-to-djent'].includes(p.id)&&typeof p.label==='string');if(!kontaktPresets.length)kontaktPresetError='No verified Kontakt presets are available.';}
+      try{const result=await kontaktRequest('presets',{});if(!Array.isArray(result.presets))throw Error('Kontakt presets could not be verified.');const ids=new Set();kontaktPresets=result.presets.filter(p=>typeof p.id==='string'&&/^[a-z0-9][a-z0-9-]*$/.test(p.id)&&typeof p.label==='string'&&p.label.trim()&&!ids.has(p.id)&&ids.add(p.id)).sort((a,b)=>(Number(a.rank)||0)-(Number(b.rank)||0));if(!kontaktPresets.length)kontaktPresetError='No verified Kontakt presets are available.';}
       catch(e){kontaktPresetError=e.message;kontaktPresets=[];}finally{kontaktPresetsLoading=false;kontaktPresetsPromise=null;render();}
     })();return kontaktPresetsPromise;
   }
@@ -390,10 +390,11 @@
   function openKontaktChooser(id){id=String(id);const key=kontaktChooserKey(id);if(!key)return;const preference=kontaktPreference(id);if(!currentSelection(id)?.selected?.length)preference.scope='full';kontaktChooser={id,key};render();}
   function cancelKontaktChooser(){kontaktChooser=null;render();}
   async function confirmKontaktChooser(id){id=String(id);if(!kontaktChooser||kontaktChooser.id!==id||kontaktChooser.key!==kontaktChooserKey(id)){cancelKontaktChooser();return;}kontaktChooser=null;await startKontakt(id);render();}
+  function kontaktPresetOptions(preference){const groups=new Map();for(const preset of kontaktPresets||[]){const group=typeof preset.group==='string'&&preset.group.trim()?preset.group:(['modern-metal-1','ready-to-djent'].includes(preset.id)?'Djentcore':'Other');if(!groups.has(group))groups.set(group,[]);groups.get(group).push(preset);}return [...groups].map(([group,presets])=>`<optgroup label="${esc(group)}">${presets.map(p=>`<option value="${esc(p.id)}"${preference.preset===p.id?' selected':''}>${esc(p.label)}</option>`).join('')}</optgroup>`).join('');}
   function kontaktControls(id){
     id=String(id);const previous=selectedViews[id]==='previous',preference=kontaktPreference(id),scope=previous?'full':preference.scope,job=currentKontakt(id),selection=previous?[]:currentSelection(id)?.selected||[],pending=job&&['starting','queued','running'].includes(job.status);
     let html=`<button type="button" data-kontakt-render="${esc(id)}" ${!kontaktChooserKey(id)||pending?' disabled':''}>${pending?(job.status==='queued'?'Queued…':'Rendering…'):'Render in Kontakt'}</button>`;
-    if(id==='6')html+=`<label class="kontakt-preset"><span>Preset</span><select data-kontakt-setting="preset" data-stage="6"${pending?' disabled':''}>${(kontaktPresets||[]).map(p=>`<option value="${esc(p.id)}"${preference.preset===p.id?' selected':''}>${esc(p.label)}</option>`).join('')}</select></label>`;
+    if(id==='6')html+=`<label class="kontakt-preset"><span>Preset</span><select data-kontakt-setting="preset" data-stage="6"${pending?' disabled':''}>${kontaktPresetOptions(preference)}</select></label>`;
     if(kontaktPresetError)html+='<button type="button" data-kontakt-retry-presets>Retry presets</button>';
     return html;
   }

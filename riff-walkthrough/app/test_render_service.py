@@ -18,6 +18,19 @@ class RenderTests(unittest.TestCase):
    def source(self,cookie,version):return 'key',{}
    def workspace(self,key,state):return {'revision':3,'output':copy.deepcopy(out)}
   return R.RenderManager(Publisher(),Editor(),Selection()),out
+ def test_verified_manifest_groups_and_files(self):
+  with tempfile.TemporaryDirectory() as d:
+   root=pathlib.Path(d);m,_=self.fixture(root);worker=root/'worker.py';worker.write_text('# worker');state=root/'modern2.state';state.write_bytes(b'initialized verified state')
+   manifest=root/'presets.json';manifest.write_text(json.dumps({'presets':[
+    {'id':'modern-metal-2','label':'Modern Metal 2','group':'Djentcore','rank':1,'state_file':state.name,'state_sha256':hashlib.sha256(state.read_bytes()).hexdigest(),'verified':True},
+    {'id':'not-tested','label':'Unverified','state_file':state.name,'verified':False},
+    {'id':'missing','label':'Missing','state_file':'missing.state','verified':True},
+    {'id':'changed','label':'Changed','state_file':state.name,'state_sha256':'bad','verified':True},
+    {'id':'escape','label':'Escape','state_file':'../outside.state','verified':True}]}))
+   with patch.dict(os.environ,{'RIFF_RENDER_PYTHON':__file__,'RIFF_RENDER_WORKER':str(worker),'RIFF_KONTAKT_PRESET_DIR':str(root),'RIFF_KONTAKT_MANIFEST':str(manifest)}):
+    self.assertEqual(m.available(),[{'id':'modern-metal-2','label':'Modern Metal 2','group':'Djentcore','rank':1}])
+    manifest.write_text('bad json');self.assertEqual(m.available(),[])
+   m.executor.shutdown()
  def test_selected_keeps_timeline_and_contiguous_holds(self):
   with tempfile.TemporaryDirectory() as d:
    m,out=self.fixture(pathlib.Path(d))
