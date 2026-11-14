@@ -6,7 +6,10 @@
   const copy = value => value == null ? value : JSON.parse(JSON.stringify(value));
   let config = null, state = null, drafts = {}, requestBusy = false, polling = null, connected = false;
   let responseSerial=0, generationEpoch=0, minimumVersion=0, versionSession=null;
-  const selectedViews = {}, timelines = new Map();
+  const selectedViews = {}, timelines = new Map(), playbackMarkers = new Map();
+  const markerKey=id=>`${state?.session_id}:${state?.version}:${id}:${selectedViews[id]||'current'}`;
+  const markerBeat=id=>playbackMarkers.get(markerKey(String(id)))||0;
+  function setMarker(id,beat){playbackMarkers.set(markerKey(String(id)),Math.max(0,Number(beat)||0));}
   const saveResults=new Map();
   const saveKey=(stage,version,identity=state?.session_id)=>`${identity||''}:${stage}:${version}`;
   const githubFolder='https://github.com/mtch777/Guitar-Learning/tree/generated-midi/generated-midi';
@@ -186,17 +189,30 @@
     if(!editorReady()||currentEditor()?.busy)return;
     const e=await openEditor();if(!e||e!==currentEditor()||e.busy)return;
     if(!e.output.phrases?.some(p=>Number(p.phrase)===number))return;
-    e.selected=e.selected.includes(number)?e.selected.filter(n=>n!==number):[...e.selected,number].sort((a,b)=>a-b);e.plan=null;e.saved=null;render();
+    e.selected=e.selected.includes(number)?e.selected.filter(n=>n!==number):[...e.selected,number].sort((a,b)=>a-b);e.plan=null;e.saved=null;render();await updateRepeatSelection(e);
   }
-  function setEditorMode(mode){if(!selectiveRegenerationEnabled)return;const e=currentEditor();if(!e||e.busy||!['rhythm','pitches','both'].includes(mode))return;e.mode=mode;e.plan=null;render();}
+  async function updateRepeatSelection(e=currentEditor()){
+    if(!selectiveRegenerationEnabled||!e||e!==currentEditor())return;
+    const serial=(e.planSerial||0)+1;e.planSerial=serial;e.plan=null;e.planPending=!!e.selected.length;
+    if(!e.selected.length){render();return;}
+    const selected=[...e.selected],revision=e.revision;
+    try{const plan=await editorRequest('plan',{version:state.version,revision,selected,mode:'both'});
+      if(e!==currentEditor()||serial!==e.planSerial||revision!==e.revision)return;
+      if(!Array.isArray(plan.affected)||!Array.isArray(plan.rhythm_affected)||!Array.isArray(plan.pitch_affected))throw Error('Repeat selection could not be verified.');
+      e.plan=plan;
+    }catch(error){if(e===currentEditor()&&serial===e.planSerial)notify(error.message);}
+    finally{if(e===currentEditor()&&serial===e.planSerial){e.planPending=false;render();}}
+  }
+  function setEditorMode(){/* Regenerate uses both rhythm and pitches. */}
+  function selectedPhraseNumbers(id){const e=currentSelection(String(id));return String(id)==='6'?(e?.plan?.affected||e?.selected||[]):(e?.expanded||e?.selected||[]);}
   async function editorAction(action,full=false){
     if(action!=='save'&&!selectiveRegenerationEnabled)return;
     if(!editorReady())return;const e=await openEditor();if(!e||e!==currentEditor()||e.busy)return;
-    if(!full&&!e.selected.length)return;if(action==='regenerate'&&!e.plan)return;
+    if(!full&&!e.selected.length)return;if(action==='regenerate'&&(e.planPending||!e.plan))return;
     const key=e.key,serial=++editorSerial,revision=e.revision;
-    const payload={version:state.version,revision,selected:full?null:[...e.selected]};
-    if(action!=='save')payload.mode=e.mode;
-    if(action==='regenerate'){if(config.phrase_preference_controls&&['3','4','5'].every(step=>e.preferences?.[step]))payload.preferences=copy(e.preferences);player.stop();}e.busy=true;render();
+    const payload={version:state.version,revision,selected:full?null:action==='save'?[...selectedPhraseNumbers('6')]:[...e.selected]};
+    if(action!=='save')payload.mode='both';
+    if(action==='regenerate'){if(config.phrase_preference_controls&&['3','4','5'].every(step=>e.preferences?.[step]))payload.preferences=copy(e.preferences);player.stop();kontaktPlayer.stop();}e.busy=true;e.regenerating=action==='regenerate';render();
     try{
       const result=await editorRequest(action,payload);
       if(serial!==editorSerial||key!==editorKey()||e!==currentEditor())return;
@@ -217,7 +233,8 @@
         if(key===editorKey())notify(error.message+(restored?' · Review restored from saved state.':' · Review must be restored before continuing.'));
       }else notify(error.message);
     }}
-    finally{if(e===currentEditor())e.busy=false;render();}
+    finally{if(e===currentEditor()){e.busy=false;e.regenerating=false;}render();}
+    if(action==='regenerate'&&e===currentEditor()&&e.revision>revision){await updateRepeatSelection(e);await autoRenderReview();}
   }
   const stageSelections=new Map();
   const selectionKey=id=>`${editorKey()}:${id}`;
@@ -244,12 +261,18 @@
   async function toggleStagePhrase(id,number){
     id=String(id);if(id==='6'){await togglePhrase(number);return;}
     if(!selectionReady(id))return;const entry=currentSelection(id);if(!entry?.context||entry.busy||!entry.context.phrases.some(p=>p.phrase===number))return;
-    entry.selected=entry.selected.includes(number)?entry.selected.filter(n=>n!==number):[...entry.selected,number].sort((a,b)=>a-b);entry.saved=null;render();
+    entry.selected=entry.selected.includes(number)?entry.selected.filter(n=>n!==number):[...entry.selected,number].sort((a,b)=>a-b);entry.expanded=expandStageRepeats(id,entry.selected);entry.saved=null;render();
+  }
+  function expandStageRepeats(id,manual){
+    const output=getOutput(id),phrases=currentSelection(id)?.context?.phrases||[];
+    const signature=p=>stable((output?.audio?.notes||[]).filter(n=>n.start_beats>=p.start_beats&&n.start_beats<p.start_beats+p.length_beats).map(n=>[n.start_beats-p.start_beats,n.duration_beats,n.midi_pitch]).sort((a,b)=>a[0]-b[0]||a[2]-b[2]));
+    const selected=phrases.filter(p=>manual.includes(p.phrase));
+    return phrases.filter(p=>manual.includes(p.phrase)||selected.some(q=>p.length_beats===q.length_beats&&signature(p)===signature(q))).map(p=>p.phrase);
   }
   async function saveStageSelection(id){
     id=String(id);if(id==='6'){await editorAction('save');return;}
     const entry=currentSelection(id);if(!selectionReady(id)||!entry?.context||entry.busy||!entry.selected.length)return;
-    const key=entry.key,version=state.version,selected=[...entry.selected];entry.busy=true;render();
+    const key=entry.key,version=state.version,selected=[...selectedPhraseNumbers(id)];entry.busy=true;render();
     try{
       const result=await selectionRequest('save',{stage:Number(id),version,selected});
       if(key!==selectionKey(id)||entry!==currentSelection(id))return;
@@ -262,30 +285,40 @@
     const entry=currentSelection(id);if(!entry)return '<p role="status">Loading phrase controls…</p>';
     if(entry.error)return `<p class="empty">${esc(entry.error)}</p><button type="button" data-selection-retry="${esc(id)}">↻ Retry phrase controls</button>`;
     if(!entry.context)return '<p role="status">Loading phrase controls…</p>';
-    let html='';if(entry.selected.length)html=`<p>Selected: ${entry.selected.join(', ')}</p><button type="button" data-save-selection="${esc(id)}"${entry.busy||isBusy()?' disabled':''}>💾 Save selected MIDI</button><p>Joins selected phrases in original order; holds are clipped at selection edges.</p>`;
+    let html='';if(entry.selected.length)html=`<p>Selected: ${selectedPhraseNumbers(id).join(', ')}</p><button type="button" data-save-selection="${esc(id)}"${entry.busy||isBusy()?' disabled':''}>💾 Save selected MIDI</button><p>Joins selected phrases in original order; holds are clipped at selection edges.</p>`;
     if(entry.saved?.file_url)html+=`<p>Saved · <a href="${esc(entry.saved.file_url)}" target="_blank" rel="noopener noreferrer">Selected MIDI</a></p>`;
     return html;
   }
   function phraseCheckboxMarkup(output,id='6'){
-    const e=currentSelection(id),selected=e?.selected||[],busy=!!e?.busy||isBusy();
-    return `<div class="phrase-checkbox-row" role="group" aria-label="Select phrases">${(output.phrases||[]).map(p=>`<button type="button" class="phrase-checkbox" role="checkbox" data-phrase-select="${Number(p.phrase)}" data-phrase-stage="${esc(id)}" data-phrase-start="${Number(p.start_beats)}" data-phrase-length="${Number(p.length_beats)}" aria-label="Select phrase ${Number(p.phrase)}" aria-checked="${selected.includes(Number(p.phrase))}"${busy?' disabled':''}><span class="phrase-checkbox-box" aria-hidden="true">${selected.includes(Number(p.phrase))?'✓':''}</span></button>`).join('')}</div>`;
+    const e=currentSelection(id),selected=selectedPhraseNumbers(id),busy=!!e?.busy||isBusy();
+    return `<div class="phrase-checkbox-row" role="group" aria-label="Select phrases">${(output.phrases||[]).map(p=>`<button type="button" class="phrase-checkbox${selected.includes(Number(p.phrase))&&!e?.selected?.includes(Number(p.phrase))?' auto-selected':''}" role="checkbox" data-phrase-select="${Number(p.phrase)}" data-phrase-stage="${esc(id)}" data-phrase-start="${Number(p.start_beats)}" data-phrase-length="${Number(p.length_beats)}" aria-label="Select phrase ${Number(p.phrase)}" aria-checked="${selected.includes(Number(p.phrase))}"${busy?' disabled':''}><span class="phrase-checkbox-box" aria-hidden="true">${selected.includes(Number(p.phrase))?'✓':''}</span></button>`).join('')}</div>`;
   }
   function editorMarkup(output){
-    const e=currentEditor(),selected=e?.selected||[],busy=!!e?.busy||isBusy();
+    const e=currentEditor(),selected=selectedPhraseNumbers('6'),busy=!!e?.busy||isBusy();
     let html='<section aria-label="Phrase editor">';
     if(selectiveRegenerationEnabled)html+='<p>Review edits leave earlier steps unchanged.</p>';
-    if(e?.preferences&&config.phrase_preference_controls){html+='<section class="review-preferences" aria-label="Review phrase weights"><h3>Phrase weights</h3><p>Applied to the next selected-phrase regeneration. 1 = neutral.</p>';for(const step of ['3','4','5']){if(!e.preferences[step])continue;html+=`<div class="param-group">${({'3':'Rhythm','4':'Opening pitches','5':'Remaining pitches'})[step]}</div><div class="param-grid">${(config.phrase_preference_controls[step]||[]).map(p=>`<label class="param-field"><span>${esc(p.label)}</span><input type="number" inputmode="decimal" min="0" step="any" required data-editor-preference="${esc(p.key)}" data-pref-stage="${step}" value="${esc(e.preferences[step][p.key]??p.default)}"${busy?' disabled':''}></label>`).join('')}</div>`;}html+='</section>';}
     if(e?.revision>0)html+=`<p>Edited · revision ${e.revision}</p>`;
     if(e?.busy)html+='<p role="status">Working…</p>';
     if(selected.length){
       html+=`<p>Selected: ${selected.join(', ')}</p><button data-editor-action="save"${busy?' disabled':''}>💾 Save selected MIDI</button><p>Selected MIDI joins phrases in original order and clips holds at selection edges.</p>`;
       if(selectiveRegenerationEnabled){
-        html+=`<label>Regenerate <select data-editor-mode${busy?' disabled':''}>${[['rhythm','Rhythm'],['pitches','Pitches'],['both','Both']].map(([v,l])=>`<option value="${v}"${(e?.mode||'both')===v?' selected':''}>${l}</option>`).join('')}</select></label> <button data-editor-action="plan"${busy?' disabled':''}>Check affected phrases</button>`;
-        if(e?.plan)html+=`<p>Will regenerate: ${esc(e.mode)} · phrases ${e.plan.affected.map(esc).join(', ')}<br>Rhythm: ${e.plan.rhythm_affected.map(esc).join(', ')||'none'} · Pitches: ${e.plan.pitch_affected.map(esc).join(', ')||'none'}</p><button data-editor-action="regenerate"${busy?' disabled':''}>🎲 Regenerate affected phrases</button>`;
+        html+=`<button data-editor-action="regenerate" aria-label="Regenerate selected phrases' rhythm and pitches, including linked repeats"${busy||e?.planPending||!e?.plan?' disabled':''}>${e?.planPending?'Checking repeats…':'↻ Regenerate'}</button>`;
       }
     }
     if(e?.saved?.file_url)html+=`<p>Saved revision ${e.saved.revision} · <a href="${esc(e.saved.file_url)}" target="_blank" rel="noopener noreferrer">${e.saved.selected?'Selected MIDI':'Full MIDI'}</a></p>`;
     return html+'</section>';
+  }
+  function reviewSettingsMarkup(){const e=currentEditor(),busy=!!e?.busy||isBusy();let html='';
+    if(e?.preferences&&config.phrase_preference_controls){html+='<section class="review-preferences" aria-label="Review phrase weights"><h3>Phrase weights</h3><p>Applied to the next selected-phrase regeneration. 1 = neutral.</p>';for(const step of ['3','4','5']){if(!e.preferences[step])continue;html+=`<div class="param-group">${({'3':'Rhythm','4':'Opening pitches','5':'Remaining pitches'})[step]}</div><div class="param-grid">${(config.phrase_preference_controls[step]||[]).map(p=>`<label class="param-field"><span>${esc(p.label)}</span><input type="number" inputmode="decimal" min="0" step="any" required data-editor-preference="${esc(p.key)}" data-pref-stage="${step}" value="${esc(e.preferences[step][p.key]??p.default)}"${busy?' disabled':''}></label>`).join('')}</div>`;}html+='</section>';}
+    return html;
+  }
+  function kontaktSettingsMarkup(){const pref=kontaktPreference('6');return `<label class="param-field"><span>Kontakt preset</span><select data-global-kontakt>${(kontaktPresets||[]).map(p=>`<option value="${esc(p.id)}"${pref.preset===p.id?' selected':''}>${esc(p.label)}</option>`).join('')}</select></label>`;}
+  let autoRenderedKey=null;
+  async function autoRenderReview(){
+    const e=currentEditor();if(!e?.output||e.busy||!editorReady())return;
+    if(!kontaktPresets?.length){await loadKontaktPresets();if(!kontaktPresets?.length){notify('Generation finished. Kontakt presets are unavailable; retry Render in Kontakt.');return;}}
+    const key=`${e.key}:${e.revision}`;if(autoRenderedKey===key)return;autoRenderedKey=key;
+    kontaktPreference('6').scope='full';await startKontakt('6');
   }
   let kontaktPresets=null,kontaktPresetError=null,kontaktPresetsLoading=false;
   const kontaktSettings=new Map(),kontaktJobs=new Map();
@@ -302,7 +335,7 @@
     id=String(id);if(isBusy()||!connected)return null;
     const view=selectedViews[id]==='previous'?'previous':'current',output=getOutput(id),ss=view==='previous'?{status:output?.blocker?'blocked':'complete',output}:stageState(id),preference={...kontaktPreference(id),...overrides},selection=currentSelection(id);
     if(!preference.preset||!saveableAudio(id,{...ss,output})||(view==='current'&&id==='6'&&(!currentEditor()?.output||currentEditor()?.busy)))return null;
-    const selected=view==='current'&&preference.scope==='selected'?[...(selection?.selected||[])].sort((a,b)=>a-b):null;
+    const selected=view==='current'&&preference.scope==='selected'?[...selectedPhraseNumbers(id)].sort((a,b)=>a-b):null;
     if(selected&&!selected.length)return null;
     return {stage:Number(id),version:state.version,view,editor_revision:view==='current'&&id==='6'?currentEditor().revision:null,selected,preset:preference.preset};
   }
@@ -357,7 +390,7 @@
   }
   function kontaktAudioMarkup(id){const entry=currentKontakt(id);if(!entry)return '';if(entry.status==='failed')return `<p class="empty">${esc(entry.error||'Kontakt render failed.')}</p>`;if(entry.status!=='ready')return '';const result=entry.result;return `<div class="kontakt-audio"><p>${esc(kontaktPresets.find(p=>p.id===entry.capture.preset)?.label||entry.capture.preset)} · ${entry.capture.view==='previous'?'Previous · ':''}${entry.capture.selected?'Selected phrases (keep timeline)':'Full step'}${id==='6'&&entry.capture.view==='current'?` · revision ${entry.capture.editor_revision}`:''}</p><audio controls preload="metadata" crossorigin="use-credentials" data-kontakt-audio="${esc(id)}" src="${esc(result.audioURL)}"></audio>${result.warning?`<p>${esc(result.warning)}</p>`:''}</div>`;}
   const kontaktPlayer={active:null,frame:null,
-    stop(){const old=this.active;this.active=null;cancelAnimationFrame(this.frame);if(old){old.element.pause();const timeline=timelines.get(old.stage);if(timeline){timeline.cursor=null;timeline.draw();}}},
+    stop(){const old=this.active;this.active=null;cancelAnimationFrame(this.frame);if(old){old.element.pause();const timeline=timelines.get(old.stage);if(timeline){setMarker(old.stage,old.element.currentTime*2);timeline.cursor=markerBeat(old.stage);timeline.draw();}}},
     bind(element,id,entry){
       const valid=()=>currentKontakt(id)===entry&&entry.status==='ready';
       const sync=()=>{if(valid())timelines.get(id)?.progress(element.currentTime*2);};
@@ -420,7 +453,7 @@
       const markup=`<section class="step ${esc(ss.status || '')}" data-step="${esc(id)}"><div class="step-head"><div class="step-heading"><span class="step-number">${index+1}</span><div><h2>${esc(stage.title)}</h2>${status?`<div class="status ${['error','blocked'].includes(ss.status)?'bad':''}">${ss.status==='running'?'<span class="busy-dot"></span>':''}${esc(status)}</div>`:''}</div></div>${!finalStage(id)?`<button class="primary" data-action="generate" data-stage="${esc(id)}"${disabled?' disabled':''}${!prevOK?' title="Generate an earlier step first"':''}>🎲 Generate</button>`:''}</div>${parameterMarkup(stage)}<div class="result">${resultMarkup(stage,ss)}</div></section>`;
       if(old && markupCache.get(id)===markup)continue;
       const opened={}; if(old)for(const d of old.querySelectorAll('details'))opened[d.dataset.details]=d.open;
-      if(kontaktPlayer.active?.stage===id)kontaktPlayer.stop();
+      const playbackSnapshot=capturePlaybackPosition(id);
       const oldTimeline=timelines.get(id),scroll=oldTimeline?.scroller.scrollLeft || 0;
       oldTimeline?.destroy();timelines.delete(id);
       const template=document.createElement('template');template.innerHTML=markup;const element=template.content.firstElementChild;
@@ -429,7 +462,7 @@
       for(const d of element.querySelectorAll('details'))if(d.dataset.details in opened)d.open=opened[d.dataset.details];
       const prev=selectedViews[id]==='previous',out=prev?(ss?.previous?.output??ss?.previous):id==='6'?(currentEditor()?.output||ss?.output):ss?.output;
       const el=element.querySelector('[data-timeline]');
-      if(el && out?.audio){const context=id==='6'?out:currentSelection(id)?.context,selectable=!prev&&saveableAudio(id,{...ss,output:out})&&!!context;const phrases=prev?[]:(context?.phrases||[]);const t=new Timeline(el,out.audio,phrases,selectable?n=>toggleStagePhrase(id,n):null,id,currentKontakt(id)?.status==='ready'?currentKontakt(id).result:null);timelines.set(id,t);t.scroller.scrollLeft=scroll;t.draw();const audioElement=element.querySelector('[data-kontakt-audio]');if(audioElement)kontaktPlayer.bind(audioElement,id,currentKontakt(id));}
+      if(el && out?.audio){const context=id==='6'?out:currentSelection(id)?.context,selectable=!prev&&saveableAudio(id,{...ss,output:out})&&!!context;const phrases=prev?[]:(context?.phrases||[]);const t=new Timeline(el,out.audio,phrases,selectable?n=>toggleStagePhrase(id,n):null,id,currentKontakt(id)?.status==='ready'?currentKontakt(id).result:null);timelines.set(id,t);t.scroller.scrollLeft=scroll;t.draw();const audioElement=element.querySelector('[data-kontakt-audio]');restorePlaybackPosition(id,t,audioElement,playbackSnapshot);}
     }
     $('#connection').textContent=!connected?'Disconnected':isBusy()?'Generating…':'';
   }
@@ -489,10 +522,10 @@
       this.rendered=rendered;this.waveCanvas=el.querySelector('.kontakt-waveform');
       this.stage=String(stage);
       this.el=el;this.audio=audio;this.phrases=phrases;this.canvas=el.querySelector('canvas');this.scroller=el.querySelector('.timeline-scroll');this.track=el.querySelector('.timeline-track');
-      this.nominalLength=audio.notes.reduce((end,n)=>Math.max(end,Number(n.start_beats)+Number(n.duration_beats)),Math.max(Number(audio.length_beats)||0,1));this.length=Math.max(this.nominalLength,rendered?.duration_seconds*2||0);this.cursor=null;
+      this.nominalLength=audio.notes.reduce((end,n)=>Math.max(end,Number(n.start_beats)+Number(n.duration_beats)),Math.max(Number(audio.length_beats)||0,1));this.length=Math.max(this.nominalLength,rendered?.duration_seconds*2||0);this.cursor=markerBeat(stage);
       const pitches=audio.notes.map(n=>Number(n.midi_pitch)).filter(Number.isFinite);this.lo=pitches.reduce((v,p)=>Math.min(v,p),127)-1;this.hi=pitches.reduce((v,p)=>Math.max(v,p),0)+1;
       this.scrollHandler=()=>this.draw();this.scroller.addEventListener('scroll',this.scrollHandler,{passive:true});
-      this.selectHandler=event=>{if(!onSelect||event.target?.closest?.('[data-phrase-select]'))return;const r=this.scroller.getBoundingClientRect();const beat=(event.clientX-r.left+this.scroller.scrollLeft)/this.scale;const p=this.phrases.find(p=>beat>=Number(p.start_beats)&&beat<Number(p.start_beats)+Number(p.length_beats));if(p&&(!this.pointerStart||Math.abs(event.clientX-this.pointerStart.x)<6&&Math.abs(this.scroller.scrollLeft-this.pointerStart.scroll)<6))onSelect(Number(p.phrase));};
+      this.selectHandler=event=>{if(event.target?.closest?.('[data-phrase-select]'))return;const r=this.scroller.getBoundingClientRect();const beat=Math.max(0,Math.min(this.nominalLength,(event.clientX-r.left+this.scroller.scrollLeft)/this.scale));if(!this.pointerStart||Math.abs(event.clientX-this.pointerStart.x)<6&&Math.abs(this.scroller.scrollLeft-this.pointerStart.scroll)<6)seekPlayback(this.stage,beat);};
       this.downHandler=event=>{this.pointerStart={x:event.clientX,scroll:this.scroller.scrollLeft};};
       this.scroller.addEventListener('pointerdown',this.downHandler);this.scroller.addEventListener('click',this.selectHandler);
       this.selectable=!!onSelect;
@@ -502,7 +535,7 @@
     layoutPhraseControls(){for(const button of this.el.querySelectorAll('[data-phrase-select]')){button.style.left=(Number(button.dataset.phraseStart)*this.scale)+'px';button.style.width=(Number(button.dataset.phraseLength)*this.scale)+'px';}}
     draw(){
       const c=this.canvas.getContext('2d'),w=this.width,h=this.height;if(!w)return;c.setTransform(this.dpr,0,0,this.dpr,0,0);c.clearRect(0,0,w,h);const offset=this.scroller.scrollLeft;const x=b=>b*this.scale-offset;
-      if(this.selectable)for(const p of this.phrases){if(currentSelection(this.stage||'6')?.selected.includes(Number(p.phrase))){c.fillStyle='rgba(130,180,90,.22)';c.fillRect(x(Number(p.start_beats)),18,Number(p.length_beats)*this.scale,h-18);}}
+      if(this.selectable)for(const p of this.phrases){if(selectedPhraseNumbers(this.stage||'6').includes(Number(p.phrase))){c.fillStyle=currentSelection(this.stage||'6')?.selected.includes(Number(p.phrase))?'rgba(130,180,90,.22)':'rgba(160,160,160,.24)';c.fillRect(x(Number(p.start_beats)),18,Number(p.length_beats)*this.scale,h-18);}}
       c.font='10px system-ui';c.textBaseline='top';
       for(let beat=Math.max(0,Math.floor(offset/this.scale));beat<=(offset+w)/this.scale;beat++){
         c.strokeStyle=beat%4===0?'#354333':'#233020';c.lineWidth=1;c.beginPath();c.moveTo(Math.round(x(beat))+.5,18);c.lineTo(Math.round(x(beat))+.5,h);c.stroke();
@@ -524,13 +557,34 @@
       c.strokeStyle='#91b7d3';c.lineWidth=1;for(let i=0;i<bins.length;i++){const x=(i+.5)*beatSpan*this.scale-this.scroller.scrollLeft;if(x<0||x>w)continue;c.beginPath();c.moveTo(x,30-bins[i][1]*26);c.lineTo(x,30-bins[i][0]*26);c.stroke();}
       if(this.cursor!=null){const x=this.cursor*this.scale-this.scroller.scrollLeft;c.strokeStyle='#c2c7c0';c.lineWidth=2;c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke();}
     }
-    progress(beat){this.cursor=beat;const pos=beat*this.scale;const left=this.scroller.scrollLeft;if(pos>left+this.width*.82 || pos<left)this.scroller.scrollLeft=Math.max(0,pos-this.width*.25);this.draw();}
+    progress(beat){this.cursor=beat;setMarker(this.stage,beat);const pos=beat*this.scale;const left=this.scroller.scrollLeft;if(pos>left+this.width*.82 || pos<left)this.scroller.scrollLeft=Math.max(0,pos-this.width*.25);this.draw();}
     destroy(){this.scroller.removeEventListener('pointerdown',this.downHandler);this.scroller.removeEventListener('click',this.selectHandler);this.resizeObserver.disconnect();this.scroller.removeEventListener('scroll',this.scrollHandler);}
+  }
+  function capturePlaybackPosition(id){
+    const t=timelines.get(id);if(t?.cursor!=null)setMarker(id,t.cursor);
+    const element=stagesNode.querySelector(`[data-kontakt-audio="${id}"]`),entry=currentKontakt(id);
+    return {element,key:entry?.key,beat:markerBeat(id)};
+  }
+  function restorePlaybackPosition(id,t,element,snapshot){
+    t.cursor=markerBeat(id);t.draw();const entry=currentKontakt(id);
+    if(!element||!entry)return;
+    if(snapshot?.element&&snapshot.key===entry.key){element.replaceWith(snapshot.element);return;}
+    element.currentTime=markerBeat(id)/2;kontaktPlayer.bind(element,id,entry);
+  }
+  function seekPlayback(id,beat){
+    const wasSynth=player.active?.stage===id;
+    if(wasSynth)player.stop();setMarker(id,beat);timelines.get(id)?.progress(beat);
+    const element=stagesNode.querySelector(`[data-kontakt-audio="${id}"]`);
+    if(element)element.currentTime=beat/2;
+    if(wasSynth)player.play(id);
   }
   const player={
     context:null,active:null,nodes:new Set(),timer:null,frame:null,token:0,
-    stop(){this.token++;clearInterval(this.timer);cancelAnimationFrame(this.frame);for(const n of this.nodes){try{n.stop();}catch{}}this.nodes.clear();const old=this.active;this.active=null;if(old){const t=timelines.get(old.stage);if(t){t.cursor=null;t.draw();}const b=stagesNode.querySelector(`[data-action="play"][data-stage="${CSS.escape(old.stage)}"]`);if(b){b.textContent='▶ Play';b.setAttribute('aria-label','Play');}const clock=stagesNode.querySelector(`[data-clock="${CSS.escape(old.stage)}"]`);if(clock)clock.textContent=formatTime(old.duration);}},
+    stop(){this.token++;clearInterval(this.timer);cancelAnimationFrame(this.frame);for(const n of this.nodes){try{n.stop();}catch{}}this.nodes.clear();const old=this.active;this.active=null;if(old){if(this.context&&old.seconds)setMarker(old.stage,Math.min(old.duration,Math.max(0,this.context.currentTime-old.start))/old.seconds);const t=timelines.get(old.stage);if(t){t.cursor=markerBeat(old.stage);t.draw();}const b=stagesNode.querySelector(`[data-action="play"][data-stage="${CSS.escape(old.stage)}"]`);if(b){b.textContent='▶ Play';b.setAttribute('aria-label','Play');}const clock=stagesNode.querySelector(`[data-clock="${CSS.escape(old.stage)}"]`);if(clock)clock.textContent=formatTime(old.duration);}},
     async play(id){
+      id=String(id);
+      const rendered=currentKontakt(id),element=stagesNode.querySelector(`[data-kontakt-audio="${id}"]`);
+      if(rendered?.status==='ready'&&element){if(!element.paused){element.pause();return;}this.stop();element.currentTime=markerBeat(id)/2;try{await element.play();}catch(error){notify('Tap the rendered audio Play button to start playback.');}return;}
       kontaktPlayer.stop();
       if(String(id)==='6'&&selectedViews[id]!=='previous'&&selectiveRegenerationEnabled&&(!currentEditor()?.output||currentEditor()?.busy))return;
       const view=selectedViews[id] || 'current';if(this.active?.stage===id && this.active?.view===view){this.stop();return;}
@@ -542,17 +596,17 @@
         if(a.notes.some(n=>n.midi_pitch==null || !Number.isFinite(Number(n.midi_pitch)) || Number(n.midi_pitch)<0 || Number(n.midi_pitch)>127 || !Number.isFinite(Number(n.start_beats)) || !Number.isFinite(Number(n.duration_beats)) || Number(n.duration_beats)<=0))throw Error('Audio contains an invalid note. Playback stopped.');
         const seconds=60/(Number(a.tempo)||120),notes=a.notes.map(n=>({start:Math.max(0,Number(n.start_beats))*seconds,end:(Number(n.start_beats)+Number(n.duration_beats))*seconds,pitch:Number(n.midi_pitch)})).filter(n=>Number.isFinite(n.pitch)&&n.end>n.start).sort((a,b)=>a.start-b.start);
         if(!notes.length)throw Error('There are no playable notes in this result.');
-        const start=this.context.currentTime+.06,total=duration(a);this.active={stage:id,view,start,duration:total};let next=0;
-        const schedule=()=>{if(token!==this.token)return;const ahead=this.context.currentTime-start+.25;while(next<notes.length&&notes[next].start<ahead){const note=notes[next++],osc=this.context.createOscillator(),gain=this.context.createGain(),on=start+note.start,off=start+note.end;osc.setPeriodicWave(this.wave);osc.frequency.value=440*Math.pow(2,(note.pitch-69)/12);const span=off-on,attack=Math.min(.008,span*.2),release=Math.min(.012,span*.3);gain.gain.setValueAtTime(0,on);gain.gain.linearRampToValueAtTime(.45,on+attack);gain.gain.setValueAtTime(.45,off-release);gain.gain.linearRampToValueAtTime(0,off);osc.connect(gain);gain.connect(this.gain);osc.start(on);osc.stop(off+.02);this.nodes.add(osc);osc.onended=()=>{this.nodes.delete(osc);osc.disconnect();gain.disconnect();};}};
+        const total=duration(a),offset=Math.min(total,markerBeat(id)*seconds),start=this.context.currentTime+.06-offset;this.active={stage:id,view,start,duration:total,seconds};let next=0;while(next<notes.length&&notes[next].end<=offset)next++;
+        const schedule=()=>{if(token!==this.token)return;const ahead=this.context.currentTime-start+.25;while(next<notes.length&&notes[next].start<ahead){const note=notes[next++],osc=this.context.createOscillator(),gain=this.context.createGain(),on=Math.max(this.context.currentTime+.005,start+note.start),off=start+note.end;osc.setPeriodicWave(this.wave);osc.frequency.value=440*Math.pow(2,(note.pitch-69)/12);const span=off-on,attack=Math.min(.008,span*.2),release=Math.min(.012,span*.3);gain.gain.setValueAtTime(0,on);gain.gain.linearRampToValueAtTime(.45,on+attack);gain.gain.setValueAtTime(.45,off-release);gain.gain.linearRampToValueAtTime(0,off);osc.connect(gain);gain.connect(this.gain);osc.start(on);osc.stop(off+.02);this.nodes.add(osc);osc.onended=()=>{this.nodes.delete(osc);osc.disconnect();gain.disconnect();};}};
         schedule();this.timer=setInterval(schedule,60);
         const b=stagesNode.querySelector(`[data-action="play"][data-stage="${CSS.escape(id)}"]`);if(b){b.textContent='■ Stop';b.setAttribute('aria-label','Stop playback');}
-        const t=timelines.get(id);if(t)t.scroller.scrollLeft=0;
+        const t=timelines.get(id);if(t)t.progress(offset/seconds);
         const update=()=>{if(token!==this.token)return;const elapsed=Math.max(0,this.context.currentTime-start);timelines.get(id)?.progress(elapsed/seconds);const clock=stagesNode.querySelector(`[data-clock="${CSS.escape(id)}"]`);if(clock)clock.textContent=`${formatTime(elapsed)} / ${formatTime(total)}`;if(elapsed>=total+.05){this.stop();return;}this.frame=requestAnimationFrame(update);};update();
       }catch(error){this.stop();notify(error.message);}
     }
   };
   stagesNode.addEventListener('input',event=>{
-    const input=event.target;if(input.dataset.editorPreference){const e=currentEditor();if(e&&!e.busy)e.preferences[input.dataset.prefStage][input.dataset.editorPreference]=input.value===''?'':Number(input.value);return;}if(input.dataset.kontaktSetting){setKontaktSetting(input.dataset.stage,input.dataset.kontaktSetting,input.value);return;}if(input.hasAttribute?.('data-editor-mode')){setEditorMode(input.value);return;}if(!input.dataset.key)return;const id=input.dataset.stage,key=input.dataset.key;
+    const input=event.target;if(input.hasAttribute?.('data-global-kontakt')){for(const step of config.stages)kontaktPreference(idOf(step)).preset=input.value;return;}if(input.dataset.editorPreference){const e=currentEditor();if(e&&!e.busy)e.preferences[input.dataset.prefStage][input.dataset.editorPreference]=input.value===''?'':Number(input.value);return;}if(input.dataset.kontaktSetting){setKontaktSetting(input.dataset.stage,input.dataset.kontaktSetting,input.value);return;}if(input.hasAttribute?.('data-editor-mode')){setEditorMode(input.value);return;}if(!input.dataset.key)return;const id=input.dataset.stage,key=input.dataset.key;
     writePath(drafts[id],key,input.type==='checkbox'?input.checked:input.type==='number'?(input.value===''?'':Number(input.value)):input.value);
     const tag=input.closest('.params').querySelector('.draft-tag');tag.hidden=!isDirty(id);saveDrafts();
   });
