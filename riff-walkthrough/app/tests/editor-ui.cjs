@@ -1,10 +1,11 @@
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
 const noop=()=>{},node={addEventListener:noop,querySelectorAll:()=>[],querySelector:()=>node,setAttribute:noop,append:noop,textContent:'',hidden:false};
-const sandbox={console,location:{origin:'http://127.0.0.1:8768'},CSS:{escape:String},document:{querySelector:()=>node,addEventListener:noop},window:{addEventListener:noop},sessionStorage:{getItem:()=>null,setItem(){throw Error('Editor must not write storage');}},setTimeout,clearTimeout,setInterval,clearInterval,requestAnimationFrame:()=>1,cancelAnimationFrame:noop,Map,Set,URL,Math,JSON,Number,String,Array,Object,Error,Promise};
+const notice={...node};
+const sandbox={console,location:{origin:'http://127.0.0.1:8768'},CSS:{escape:String},document:{querySelector:s=>s==='#notice'?notice:node,addEventListener:noop},window:{addEventListener:noop},sessionStorage:{getItem:()=>null,setItem(){throw Error('Editor must not write storage');}},setTimeout,clearTimeout,setInterval,clearInterval,requestAnimationFrame:()=>1,cancelAnimationFrame:noop,Map,Set,URL,Math,JSON,Number,String,Array,Object,Error,Promise};
 let code=fs.readFileSync(require('path').join(__dirname,'../static/app.js'),'utf8');
 // Phase 2 draft behavior is tested explicitly with its shipped-disabled gate enabled only in this harness.
 code=code.replace(/const selectiveRegenerationEnabled=(true|false);/, 'const selectiveRegenerationEnabled=true;');
-code=code.replace('  init();\n})();',`  globalThis.test={setResultView,resultMarkup,refresh,restoreEditorIfNeeded,togglePhrase,setEditorMode,editorAction,editorMarkup,getOutput,currentEditor,openEditor,selectedViews,set(s){config={stages:[]};state=s;connected=true;},get(){return state;}};\n})();`);
+code=code.replace('  init();\n})();',`  globalThis.test={setResultView,resultMarkup,refresh,restoreEditorIfNeeded,togglePhrase,setEditorMode,editorAction,editorMarkup,getOutput,currentEditor,openEditor,retryReview,selectedViews,set(s){config={stages:[]};state=s;connected=true;},get(){return state;}};\n})();`);
 vm.createContext(sandbox);vm.runInContext(code,sandbox);const t=sandbox.test;
 const original={audio:{tempo:120,length_beats:8,notes:[{start_beats:0,duration_beats:1,midi_pitch:28}]},phrases:[{phrase:1,start_beats:0,length_beats:4},{phrase:2,start_beats:4,length_beats:4}]};
 const state={session_id:'a'.repeat(32),version:7,busy:false,stages:[{id:'1',status:'complete',output:{fixed:'seed'}},{id:'6',status:'complete',output:original}]};
@@ -53,7 +54,7 @@ function response(data,ok=true){return {ok,json:async()=>data};}
  sandbox.fetch=async(url)=>url==='/api/state'?response(failedState):response({error:'Offline workspace'},false);await t.refresh();
  const failure=t.resultMarkup({id:'6'},failedState.stages[1]);assert.ok(failure.includes('Retry Review'));assert.ok(!failure.includes('data-save-midi'));assert.equal(t.getOutput('6'),undefined);
  sandbox.fetch=async()=>response({source_version:10,revision:4,output:edited});await t.restoreEditorIfNeeded(true);
- assert.equal(t.currentEditor().revision,4);assert.equal(t.getOutput('6').audio.notes[0].midi_pitch,40);
+ assert.equal(t.currentEditor().revision,4);assert.equal(t.getOutput('6').audio.notes[0].midi_pitch,40);assert.equal(notice.textContent,'');
  // Previous view defers restore; returning Current triggers read-only reopen.
  const previousState={...state,session_id:'h'.repeat(32),version:11};t.set(previousState);t.selectedViews['6']='previous';const previousCalls=[];
  sandbox.fetch=async(url)=>{previousCalls.push(url);return response(url==='/api/state'?previousState:{source_version:11,revision:2,output:edited});};
@@ -69,5 +70,9 @@ function response(data,ok=true){return {ok,json:async()=>data};}
  assert.equal(t.currentEditor().revision,3);assert.equal(t.currentEditor().mode,'pitches');assert.deepEqual(Array.from(t.currentEditor().selected),[1]);assert.equal(recoveryCalls.filter(u=>u.endsWith('/regenerate')).length,1);assert.equal(recoveryCalls.filter(u=>u.endsWith('/open')).length,1);
  sandbox.fetch=async()=>response({affected:[1],rhythm_affected:[],pitch_affected:[1]});await t.editorAction('plan');
  sandbox.fetch=async()=>{throw Error('Connection lost');};await t.editorAction('regenerate');assert.equal(t.currentEditor(),null);assert.equal(t.getOutput('6'),undefined);assert.ok(t.resultMarkup({id:'6'},previousState.stages[1]).includes('Retry Review'));
+ // Retry must fetch current source version before reopening; it must never generate.
+ const renewed={...state,session_id:'z'.repeat(32),version:19};const retryCalls=[];
+ sandbox.fetch=async(url)=>{retryCalls.push(url);return response(url==='/api/state'?renewed:{source_version:19,revision:0,output:original});};
+ await t.retryReview();assert.equal(notice.textContent,'');assert.equal(retryCalls[0],'/api/state');assert.equal(t.get().version,19);assert.equal(t.currentEditor().revision,0);assert.ok(!retryCalls.some(u=>u.endsWith('/generate')||u.endsWith('/regenerate')));
  console.log('Editor UI PASS: lazy open, multi-select, explicit affected plan, mode invalidation, exact save scope, separate revision/playback, rollback and stale response isolation; no generation/session/storage mutation.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

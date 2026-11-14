@@ -37,6 +37,10 @@
   function saveDrafts() {
     try { sessionStorage.setItem('riff-walkthrough-drafts', JSON.stringify({session:state?.session_id, drafts})); } catch {}
   }
+  function normalizedDraft(value,defaults){
+    if(!defaults||!Object.keys(defaults).length)return copy(value);
+    return Object.fromEntries(Object.entries(defaults).map(([key,fallback])=>[key,fallback&&typeof fallback==='object'&&!Array.isArray(fallback)?normalizedDraft(value?.[key],fallback):value?.[key]??copy(fallback)]));
+  }
   function initDrafts() {
     let stored;
     try { stored = JSON.parse(sessionStorage.getItem('riff-walkthrough-drafts')); } catch {}
@@ -44,13 +48,14 @@
       const id = idOf(stage), current = stageState(id);
       const defaults = stage.defaults || Object.fromEntries((stage.parameters || []).map(p => [p.key, p.default]));
       drafts[id] = copy(current?.applied && Object.keys(current.applied).length ? current.applied : defaults);
-      if (stored?.session === state?.session_id && stored.drafts?.[id]) drafts[id] = {...drafts[id], ...stored.drafts[id]};
+      if (stored?.session === state?.session_id && stored.drafts?.[id]) drafts[id] = normalizedDraft(stored.drafts[id],drafts[id]);
+      drafts[id]=normalizedDraft(drafts[id],defaults);
     }
   }
   function isDirty(id) {
     const stage = config.stages.find(s => idOf(s) === id), ss = stageState(id);
     const actual = ss?.applied && Object.keys(ss.applied).length ? ss.applied : stage.defaults || {};
-    return stable(drafts[id]) !== stable(actual);
+    return stable(normalizedDraft(drafts[id],stage.defaults)) !== stable(normalizedDraft(actual,stage.defaults));
   }
   function displayStatus(ss) {
     if (!ss) return '';
@@ -152,21 +157,29 @@
   async function editorRequest(action,payload){
     const endpoint=new URL(location.origin);endpoint.port=String(Number(endpoint.port||8768)+1);endpoint.pathname='/editor/'+action;
     const r=await fetch(endpoint.href,{method:'POST',credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    const result=await r.json();if(!r.ok)throw Error(result.error||'The edit could not be completed.');return result;
+    const result=await r.json();if(!r.ok)throw Error(result.error==='The original result changed or is generating.'?'Review is out of sync. Retry Review to check the current result.':result.error||'The edit could not be completed.');return result;
   }
   async function openEditor(){
     if(!editorReady())return null;
     if(currentEditor())return currentEditor();
     const key=editorKey(),serial=++editorSerial;
-    const prefs=editorRecoveryPrefs?.key===key?editorRecoveryPrefs:null;
+    const prefs=editorRecoveryPrefs?.key===key?editorRecoveryPrefs:null,priorError=editorRestoreError?.message;
     editorRestoreError=null;editor={key,busy:true,revision:0,selected:prefs?[...prefs.selected]:[],mode:prefs?.mode||'both',plan:null,output:null};render();
     try{
       const result=await editorRequest('open',{version:state.version});
       if(serial!==editorSerial||key!==editorKey())return null;
       if(result.source_version!==state.version||!Number.isInteger(result.revision)||!result.output?.audio)throw Error('The editor returned an invalid result.');
-      Object.assign(editor,{revision:result.revision,output:result.output,preferences:copy(prefs?.preferences||result.preferences||{}),busy:false});editor.selected=editor.selected.filter(n=>result.output.phrases?.some(p=>Number(p.phrase)===n));if(editorRecoveryPrefs?.key===key)editorRecoveryPrefs=null;return editor;
+      Object.assign(editor,{revision:result.revision,output:result.output,preferences:copy(prefs?.preferences||result.preferences||{}),busy:false});editor.selected=editor.selected.filter(n=>result.output.phrases?.some(p=>Number(p.phrase)===n));if(editorRecoveryPrefs?.key===key)editorRecoveryPrefs=null;if(priorError&&noticeNode.textContent===priorError)notify('');return editor;
     }catch(e){if(serial===editorSerial&&key===editorKey()){editor=null;editorRestoreError={key,message:e.message};notify(e.message);}return null;}
     finally{render();}
+  }
+  async function retryReview(){
+    if(requestBusy||currentEditor()?.busy)return;
+    await refresh(true);
+    if(!connected)return;
+    if(state?.busy){notify('Generation is still running. Review will reopen when it finishes.');return;}
+    if(stageState('6')?.status!=='complete'){notify('This session has no complete Review. Generate a riff to continue.');return;}
+    await restoreEditorIfNeeded(true);
   }
   async function restoreEditorIfNeeded(force=false){if(selectiveRegenerationEnabled&&editorReady()&&!currentEditor()&&(force||editorRestoreError?.key!==editorKey()))await openEditor();}
   async function togglePhrase(number){
@@ -589,7 +602,7 @@
     const confirmRender=event.target.closest('[data-kontakt-confirm]');if(confirmRender){if(!confirmRender.disabled)await confirmKontaktChooser(confirmRender.dataset.kontaktConfirm);return;}
     if(event.target.closest('[data-kontakt-cancel]')){cancelKontaktChooser();return;}
     if(event.target.closest('[data-kontakt-retry-presets]')){await loadKontaktPresets();return;}
-    const retry=event.target.closest('[data-editor-retry]');if(retry){await restoreEditorIfNeeded(true);return;}
+    const retry=event.target.closest('[data-editor-retry]');if(retry){await retryReview();return;}
     const selectionRetry=event.target.closest('[data-selection-retry]');if(selectionRetry){await openSelection(selectionRetry.dataset.selectionRetry,true);return;}
     const selectedSave=event.target.closest('[data-save-selection]');if(selectedSave){if(!selectedSave.disabled)await saveStageSelection(selectedSave.dataset.saveSelection);return;}
     const phrase=event.target.closest('[data-phrase-select]');if(phrase){if(!phrase.disabled)await toggleStagePhrase(phrase.dataset.phraseStage,Number(phrase.dataset.phraseSelect));return;}
