@@ -1,0 +1,15 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const noop=()=>{},node={addEventListener:noop,querySelectorAll:()=>[],querySelector:()=>node,setAttribute:noop,append:noop};
+const sandbox={console,document:{querySelector:()=>node,addEventListener:noop},window:{addEventListener:noop},sessionStorage:{getItem:()=>null,setItem:noop},setTimeout,clearTimeout,setInterval,clearInterval,Map,Set,URL,Math,JSON,Number,String,Array,Object,Error,Promise};
+let code=fs.readFileSync(require('path').join(__dirname,'../static/app.js'),'utf8').replace('  init();\n})();',`globalThis.t={settingsMarkup,progressMarkup,latestGenerationStep,set(c,s,d){config=c;state=s;drafts=d;}};\n})();`);vm.createContext(sandbox);vm.runInContext(code,sandbox);const t=sandbox.t;
+const c={stages:[1,2,3,4,5,6].map(id=>({id:String(id),title:'Step '+id,defaults:{weight:2},parameters:[{key:'weight',label:'Weight',type:'number',default:2}]}))};
+const s={session_id:'x',version:1,stages:c.stages.map(x=>({id:x.id,status:'empty'}))},d=Object.fromEntries(c.stages.map(x=>[x.id,{weight:2}]));t.set(c,s,d);
+const h=t.settingsMarkup();assert.match(h,/data-step="0"/);for(let id=1;id<=6;id++)assert.match(h,new RegExp('data-stage="'+id+'"'));assert.equal(t.latestGenerationStep(),null);
+s.stages[0].status='complete';assert.equal(t.latestGenerationStep(),'1');s.stages[1].status='running';assert.equal(t.latestGenerationStep(),'2');s.stages[1].status='blocked';assert.equal(t.latestGenerationStep(),'2');s.stages[5].status='complete';assert.equal(t.latestGenerationStep(),'6');
+assert.match(t.progressMarkup({status:'running'},'3'),/<progress[^>]+max="1">/);assert.doesNotMatch(t.progressMarkup({status:'running'},'3'),/value=/);
+assert.match(t.progressMarkup({status:'running',output:{progress:{completed:2,total:4}}},'3'),/value="0.5"/);
+assert.match(t.progressMarkup({status:'complete'},'3'),/value="1"/);
+for(const status of ['empty','queued','error','blocked'])assert.match(t.progressMarkup({status},'3'),/value="0"/);
+const render=code.slice(code.indexOf('  function render()'),code.indexOf('  function formatNumber'));
+assert.ok(!render.includes('parameterMarkup(stage)'));assert.match(render,/focusChanged&&focus/);assert.match(render,/expandedStep===id/);assert.match(render,/capturePlaybackPosition/);assert.match(render,/restorePlaybackPosition/);
+console.log('PASS step0 settings, latest focus, truthful progress, folded output, playback hooks');

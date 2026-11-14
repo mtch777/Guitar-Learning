@@ -441,16 +441,51 @@
   }
   async function setResultView(id,view){player.stop();selectedViews[id]=view;render();if(view==='current'){if(String(id)==='6')await restoreEditorIfNeeded();else await restoreSelectionsIfNeeded();}}
   const markupCache = new Map();
+  let focusTransition=null, expandedStep=null;
+  function latestGenerationStep(){
+    const stages=config?.stages||[];
+    if(currentEditor()?.regenerating)return '6';
+    const running=stages.find(s=>stageState(s.id)?.status==='running');
+    if(running)return idOf(running);
+    return [...stages].reverse().find(s=>['complete','completed','ready','blocked','error'].includes(stageState(s.id)?.status))?.id?.toString() || null;
+  }
+  function progressMarkup(ss,id){
+    const status=String(ss?.status||'empty').toLowerCase(),p=ss?.output?.progress;
+    if(String(id)==='6'&&currentEditor()?.regenerating)return '<div class="step-progress"><progress aria-label="Regenerating selected phrases" max="1"></progress><span>Regenerating</span></div>';
+    const done=['complete','completed','ready'].includes(status);
+    const running=status==='running';
+    const measured=p&&Number.isFinite(p.completed)&&Number.isFinite(p.total)&&p.total>0;
+    const fraction=done?1:measured?Math.min(.999,Math.max(0,p.completed/p.total)):0;
+    const label=done?'Complete':running?(measured?`${p.completed} / ${p.total} phrases`:'Generating'):({queued:'Waiting',pending:'Waiting',blocked:'Stopped',error:'Failed',stale:'Waiting',invalidated:'Waiting'})[status]||'Not started';
+    return `<div class="step-progress"><progress aria-label="Step ${esc(id)}: ${esc(label)}" max="1"${running&&!measured?'':` value="${fraction}"`}></progress><span>${esc(label)}</span></div>`;
+  }
+  function settingsMarkup(){
+    const content=config.stages.filter(s=>s.parameters?.length).map(s=>`<details class="settings-stage" data-details="settings-${esc(idOf(s))}"><summary>${esc(s.title)} <span class="draft-tag"${isDirty(idOf(s))?'':' hidden'}>Not applied</span></summary>${parameterMarkup(s)}</details>`).join('');
+    const extras=(typeof reviewSettingsMarkup==='function'?reviewSettingsMarkup():'')+(typeof kontaktSettingsMarkup==='function'?kontaktSettingsMarkup():'');
+    return `<section class="step settings-step" data-step="0"><div class="step-head"><div class="step-heading"><span class="step-number">0</span><h2>Settings</h2></div></div><details class="settings-all" data-details="settings-all"><summary>Parameters &amp; weights</summary>${content}${extras}</details></section>`;
+  }
+  function renderSettings(){
+    const html=settingsMarkup(),old=stagesNode.querySelector('[data-step="0"]');
+    if(old&&markupCache.get('0')===html)return;
+    const opened={};if(old)for(const d of old.querySelectorAll('details'))opened[d.dataset.details]=d.open;
+    const template=document.createElement('template');template.innerHTML=html;const el=template.content.firstElementChild;
+    if(old)old.replaceWith(el);else stagesNode.prepend(el);markupCache.set('0',html);
+    for(const d of el.querySelectorAll('details'))if(d.dataset.details in opened)d.open=opened[d.dataset.details];
+  }
   function render() {
     if (!config || !state) return;
     if(kontaktChooser&&kontaktChooser.key!==kontaktChooserKey(kontaktChooser.id))kontaktChooser=null;
     if(kontaktPlayer.active&&kontaktKey(kontaktPlayer.active.stage)!==kontaktPlayer.active.key)kontaktPlayer.stop();
+    if(config.stages.length)renderSettings();
+    const focus=latestGenerationStep(),transition=`${state.session_id}:${state.version}:${focus}:${stageState(focus)?.status||''}:${currentEditor()?.regenerating?'editing':currentEditor()?.revision||0}:${currentKontakt('6')?.status||''}`;
+    const focusChanged=transition!==focusTransition;
+    if(focusChanged){focusTransition=transition;expandedStep=focus;}
     for(const [index,stage] of config.stages.entries()) {
       const id=idOf(stage), ss=stageState(id) || {}, status=displayStatus(ss);
       const old=stagesNode.querySelector(`[data-step="${CSS.escape(id)}"]`);
       const prevOK=index===0 || ['complete','completed','ready'].includes(stageState(config.stages[index-1].id)?.status);
       const disabled=isBusy() || !!currentEditor()?.busy || !connected || !prevOK;
-      const markup=`<section class="step ${esc(ss.status || '')}" data-step="${esc(id)}"><div class="step-head"><div class="step-heading"><span class="step-number">${index+1}</span><div><h2>${esc(stage.title)}</h2>${status?`<div class="status ${['error','blocked'].includes(ss.status)?'bad':''}">${ss.status==='running'?'<span class="busy-dot"></span>':''}${esc(status)}</div>`:''}</div></div>${!finalStage(id)?`<button class="primary" data-action="generate" data-stage="${esc(id)}"${disabled?' disabled':''}${!prevOK?' title="Generate an earlier step first"':''}>🎲 Generate</button>`:''}</div>${parameterMarkup(stage)}<div class="result">${resultMarkup(stage,ss)}</div></section>`;
+      const markup=`<section class="step ${esc(ss.status || '')}" data-step="${esc(id)}"><div class="step-head"><div class="step-heading"><button type="button" class="step-toggle" data-toggle-step="${esc(id)}" aria-expanded="${expandedStep===id}" aria-label="${expandedStep===id?'Collapse':'Expand'} ${esc(stage.title)}"><span class="step-number">${index+1}</span></button><div><h2>${esc(stage.title)}</h2>${status?`<div class="status ${['error','blocked'].includes(ss.status)?'bad':''}">${ss.status==='running'?'<span class="busy-dot"></span>':''}${esc(status)}</div>`:''}</div></div>${!finalStage(id)?`<button class="primary" data-action="generate" data-stage="${esc(id)}"${disabled?' disabled':''}${!prevOK?' title="Generate an earlier step first"':''}>🎲 Generate</button>`:''}</div>${progressMarkup(ss,id)}<div class="result"${expandedStep===id?'':' hidden'}>${resultMarkup(stage,ss)}</div></section>`;
       if(old && markupCache.get(id)===markup)continue;
       const opened={}; if(old)for(const d of old.querySelectorAll('details'))opened[d.dataset.details]=d.open;
       const playbackSnapshot=capturePlaybackPosition(id);
@@ -464,6 +499,7 @@
       const el=element.querySelector('[data-timeline]');
       if(el && out?.audio){const context=id==='6'?out:currentSelection(id)?.context,selectable=!prev&&saveableAudio(id,{...ss,output:out})&&!!context;const phrases=prev?[]:(context?.phrases||[]);const t=new Timeline(el,out.audio,phrases,selectable?n=>toggleStagePhrase(id,n):null,id,currentKontakt(id)?.status==='ready'?currentKontakt(id).result:null);timelines.set(id,t);t.scroller.scrollLeft=scroll;t.draw();const audioElement=element.querySelector('[data-kontakt-audio]');restorePlaybackPosition(id,t,audioElement,playbackSnapshot);}
     }
+    if(focusChanged&&focus)requestAnimationFrame(()=>stagesNode.querySelector(`[data-step="${CSS.escape(focus)}"]`)?.scrollIntoView({block:'start',behavior:'auto'}));
     $('#connection').textContent=!connected?'Disconnected':isBusy()?'Generating…':'';
   }
   function formatNumber(n){const v=Number(n);return Number.isFinite(v)?String(Math.round(v*1000)/1000):String(n);}
@@ -475,7 +511,7 @@
     const index=config.stages.findIndex(s=>idOf(s)===id);
     const affected=new Set(config.stages.slice(index).map(idOf));
     const inputs=[...stagesNode.querySelectorAll('input,select')].filter(input=>affected.has(input.dataset.stage));
-    for(const input of inputs){if(!input.checkValidity()){input.closest('details').open=true;input.reportValidity();return;}}
+    for(const input of inputs){if(!input.checkValidity()){for(let d=input.closest('details');d;d=d.parentElement?.closest('details'))d.open=true;input.reportValidity();return;}}
     player.stop();notify('');requestBusy=true;generationEpoch++;responseSerial++;clearTimeout(polling);
     const params=copy(drafts);
     for(const earlier of config.stages.slice(0,index))params[idOf(earlier)]=copy(stageState(earlier.id)?.applied || earlier.defaults || {});
@@ -506,6 +542,7 @@
       const reconnected=!connected;connected=true;state=next;
       if((manual||reconnected)&&!keepNotice)notify('');
       render();await Promise.all([restoreEditorIfNeeded(),restoreSelectionsIfNeeded()]);
+      if(epoch>0&&!state.busy&&stageState('6')?.status==='complete'&&typeof autoRenderReview==='function')autoRenderReview();
       if(state.busy)polling=setTimeout(()=>refresh(),1000);
     }catch(error){
       if(serial!==responseSerial || epoch!==generationEpoch)return;
@@ -651,6 +688,7 @@
     panel.append(button,link);document.querySelector('main').prepend(panel);
   }
   stagesNode.addEventListener('click',async event=>{
+    const toggle=event.target.closest('[data-toggle-step]');if(toggle){const id=toggle.dataset.toggleStep;expandedStep=expandedStep===id?null:id;render();return;}
     const category=event.target.closest('[data-category-value]');if(category){const readout=category.closest('.category-timeline').querySelector('.category-readout');readout.textContent=category.dataset.categoryHeading+': '+category.dataset.categoryValue;readout.hidden=false;readout.scrollIntoView({block:'nearest'});return;}
     const renderButton=event.target.closest('[data-kontakt-render]');if(renderButton){if(!renderButton.disabled)openKontaktChooser(renderButton.dataset.kontaktRender);return;}
     const confirmRender=event.target.closest('[data-kontakt-confirm]');if(confirmRender){if(!confirmRender.disabled)await confirmKontaktChooser(confirmRender.dataset.kontaktConfirm);return;}
