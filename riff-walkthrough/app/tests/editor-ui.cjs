@@ -1,7 +1,7 @@
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
 const noop=()=>{},node={addEventListener:noop,querySelectorAll:()=>[],querySelector:()=>node,setAttribute:noop,append:noop,textContent:'',hidden:false};
-const notice={...node};
-const sandbox={console,location:{origin:'http://127.0.0.1:8768'},CSS:{escape:String},document:{querySelector:s=>s==='#notice'?notice:node,addEventListener:noop},window:{addEventListener:noop},sessionStorage:{getItem:()=>null,setItem(){throw Error('Editor must not write storage');}},setTimeout,clearTimeout,setInterval,clearInterval,requestAnimationFrame:()=>1,cancelAnimationFrame:noop,Map,Set,URL,Math,JSON,Number,String,Array,Object,Error,Promise};
+const notice={...node},settings=new Map();
+const sandbox={console,localStorage:{getItem:k=>settings.get(k)||null,setItem:(k,v)=>settings.set(k,v)},location:{origin:'http://127.0.0.1:8768'},CSS:{escape:String},document:{querySelector:s=>s==='#notice'?notice:node,addEventListener:noop},window:{addEventListener:noop},sessionStorage:{getItem:()=>null,setItem(){throw Error('Editor must not write storage');}},setTimeout,clearTimeout,setInterval,clearInterval,requestAnimationFrame:()=>1,cancelAnimationFrame:noop,Map,Set,URL,Math,JSON,Number,String,Array,Object,Error,Promise};
 let code=fs.readFileSync(require('path').join(__dirname,'../static/app.js'),'utf8');
 // Phase 2 draft behavior is tested explicitly with its shipped-disabled gate enabled only in this harness.
 code=code.replace(/const selectiveRegenerationEnabled=(true|false);/, 'const selectiveRegenerationEnabled=true;');
@@ -32,7 +32,7 @@ function response(data,ok=true){return {ok,json:async()=>data};}
  await t.togglePhrase(1);fail=true;await t.editorAction('regenerate');assert.equal(t.currentEditor().revision,1);assert.equal(renderStarts,1);assert.equal(JSON.stringify(state),snapshot);
  // Mode changes feed plan and regeneration, remembered when reopening a fresh editor.
  t.setEditorMode('pitches');await new Promise(resolve=>setImmediate(resolve));assert.equal(t.currentEditor().mode,'pitches');assert.equal(requests.filter(r=>r.url.endsWith('/plan')).at(-1).b.mode,'pitches');
- t.setEditorMode('rhythm');await new Promise(resolve=>setImmediate(resolve));assert.equal(t.currentEditor().mode,'rhythm');
+ t.setEditorMode('rhythm');await new Promise(resolve=>setImmediate(resolve));assert.equal(t.currentEditor().mode,'rhythm');assert.equal(settings.get('riff-regeneration-mode'),'rhythm');
  fail=false;await t.editorAction('delete');assert.equal(requests.find(r=>r.url.endsWith('/delete')).b.mode,undefined);assert.deepEqual(requests.find(r=>r.url.endsWith('/delete')).b.selected,[1]);assert.deepEqual(Array.from(t.currentEditor().selected),[]);assert.equal(t.currentEditor().output.phrases.length,1);assert.equal(renderStarts,2);
  await t.togglePhrase(1);
  // Late plan response cannot resurrect removed selection.
