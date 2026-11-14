@@ -153,6 +153,7 @@
   }
   const selectiveRegenerationEnabled=true;
   let editor=null,editorSerial=0,editorRestoreError=null,editorRecoveryPrefs=null;
+  let rememberedEditorMode='both';try{const saved=localStorage.getItem('riff-regeneration-mode');if(['both','rhythm','pitches'].includes(saved))rememberedEditorMode=saved;}catch{}
   const editorKey=()=>`${state?.session_id||''}:${state?.version}`;
   function currentEditor(){return editor?.key===editorKey()&&stageState('6')?.status==='complete'?editor:null;}
   function editorReady(){return !isBusy()&&connected&&stageState('6')?.status==='complete'&&selectedViews['6']!=='previous';}
@@ -167,7 +168,7 @@
     if(currentEditor())return currentEditor();
     const key=editorKey(),serial=++editorSerial;
     const prefs=editorRecoveryPrefs?.key===key?editorRecoveryPrefs:null,priorError=editorRestoreError?.message;
-    editorRestoreError=null;editor={key,busy:true,revision:0,selected:prefs?[...prefs.selected]:[],mode:prefs?.mode||'both',plan:null,output:null};render();
+    editorRestoreError=null;editor={key,busy:true,revision:0,selected:prefs?[...prefs.selected]:[],mode:prefs?.mode||rememberedEditorMode,plan:null,output:null};render();
     try{
       const result=await editorRequest('open',{version:state.version});
       if(serial!==editorSerial||key!==editorKey())return null;
@@ -196,45 +197,45 @@
     const serial=(e.planSerial||0)+1;e.planSerial=serial;e.plan=null;e.planPending=!!e.selected.length;
     if(!e.selected.length){render();return;}
     const selected=[...e.selected],revision=e.revision;
-    try{const plan=await editorRequest('plan',{version:state.version,revision,selected,mode:'both'});
+    try{const plan=await editorRequest('plan',{version:state.version,revision,selected,mode:e.mode||rememberedEditorMode});
       if(e!==currentEditor()||serial!==e.planSerial||revision!==e.revision)return;
       if(!Array.isArray(plan.affected)||!Array.isArray(plan.rhythm_affected)||!Array.isArray(plan.pitch_affected))throw Error('Repeat selection could not be verified.');
       e.plan=plan;
     }catch(error){if(e===currentEditor()&&serial===e.planSerial)notify(error.message);}
     finally{if(e===currentEditor()&&serial===e.planSerial){e.planPending=false;render();}}
   }
-  function setEditorMode(){/* Regenerate uses both rhythm and pitches. */}
+  function setEditorMode(mode){if(!selectiveRegenerationEnabled)return;if(!['both','rhythm','pitches'].includes(mode)||currentEditor()?.busy)return;rememberedEditorMode=mode;try{localStorage.setItem('riff-regeneration-mode',mode);}catch{}const e=currentEditor();if(e){e.mode=mode;updateRepeatSelection(e);}}
   function selectedPhraseNumbers(id){const e=currentSelection(String(id));return String(id)==='6'?(e?.plan?.affected||e?.selected||[]):(e?.expanded||e?.selected||[]);}
   async function editorAction(action,full=false){
     if(action!=='save'&&!selectiveRegenerationEnabled)return;
     if(!editorReady())return;const e=await openEditor();if(!e||e!==currentEditor()||e.busy)return;
-    if(!full&&!e.selected.length)return;if(action==='regenerate'&&(e.planPending||!e.plan))return;
+    if(!full&&!e.selected.length)return;if(['regenerate','delete'].includes(action)&&(e.planPending||!e.plan))return;
     const key=e.key,serial=++editorSerial,revision=e.revision;
     const payload={version:state.version,revision,selected:full?null:action==='save'?[...selectedPhraseNumbers('6')]:[...e.selected]};
-    if(action!=='save')payload.mode='both';
-    if(action==='regenerate'){if(config.phrase_preference_controls&&['3','4','5'].every(step=>e.preferences?.[step]))payload.preferences=copy(e.preferences);player.stop();kontaktPlayer.stop();}e.busy=true;e.regenerating=action==='regenerate';render();
+    if(action==='regenerate')payload.mode=e.mode||rememberedEditorMode;
+    if(action==='regenerate'){if(config.phrase_preference_controls&&['3','4','5'].every(step=>e.preferences?.[step]))payload.preferences=copy(e.preferences);player.stop();kontaktPlayer.stop();}if(action==='delete'){player.stop();kontaktPlayer.stop();}e.busy=true;e.regenerating=['regenerate','delete'].includes(action);render();
     try{
       const result=await editorRequest(action,payload);
       if(serial!==editorSerial||key!==editorKey()||e!==currentEditor())return;
       if(action==='plan'){
         if(!Array.isArray(result.affected)||!Array.isArray(result.rhythm_affected)||!Array.isArray(result.pitch_affected))throw Error('The affected phrase list could not be verified.');
         e.plan=result;
-      }else if(action==='regenerate'){
+      }else if(['regenerate','delete'].includes(action)){
         if(result.source_version!==payload.version||!Number.isInteger(result.revision)||result.revision<=revision||!result.output?.audio)throw Error('The edit returned an invalid revision.');
-        player.stop();e.revision=result.revision;e.output=result.output;if(result.preferences)e.preferences=copy(result.preferences);e.plan=null;e.saved=null;
+        player.stop();e.revision=result.revision;e.output=result.output;if(result.preferences)e.preferences=copy(result.preferences);e.plan=null;e.saved=null;if(action==='delete'){e.selected=[];const beat=Math.min(markerBeat('6'),Number(result.output.audio.length_beats)||0);setMarker('6',beat);const timeline=timelines.get('6');if(timeline)timeline.cursor=beat;}
       }else{
         if(result.saved!==true||result.editor_revision!==revision||!result.file_url?.startsWith('https://github.com/mtch777/Guitar-Learning/blob/generated-midi/generated-midi/')||result.folder_url!==githubFolder)throw Error('The save destination could not be verified.');
         e.saved={...result,selected:payload.selected,revision};notify('Saved '+(full?'full':'selected')+' MIDI to GitHub.');
       }
     }catch(error){if(serial===editorSerial&&key===editorKey()){
-      if(action==='regenerate'){
+      if(['regenerate','delete'].includes(action)){
         editorRecoveryPrefs={key,selected:[...e.selected],mode:e.mode,preferences:copy(e.preferences)};editor=null;editorRestoreError=null;render();
         const restored=await openEditor();
         if(key===editorKey())notify(error.message+(restored?' · Review restored from saved state.':' · Review must be restored before continuing.'));
       }else notify(error.message);
     }}
     finally{if(e===currentEditor()){e.busy=false;e.regenerating=false;}render();}
-    if(action==='regenerate'&&e===currentEditor()&&e.revision>revision){const completedRevision=e.revision;await updateRepeatSelection(e);if(e===currentEditor()&&e.revision===completedRevision)await autoRenderReview();}
+    if(['regenerate','delete'].includes(action)&&e===currentEditor()&&e.revision>revision){const completedRevision=e.revision;await updateRepeatSelection(e);if(e===currentEditor()&&e.revision===completedRevision)await autoRenderReview();}
   }
   const stageSelections=new Map();
   const selectionKey=id=>`${editorKey()}:${id}`;
@@ -302,7 +303,7 @@
     if(selected.length){
       html+=`<p>Selected: ${selected.join(', ')}</p><button data-editor-action="save"${busy?' disabled':''}>💾 Save selected MIDI</button><p>Selected MIDI joins phrases in original order and clips holds at selection edges.</p>`;
       if(selectiveRegenerationEnabled){
-        html+=`<button data-editor-action="regenerate" aria-label="Regenerate selected phrases' rhythm and pitches, including linked repeats"${busy||e?.planPending||!e?.plan?' disabled':''}>${e?.planPending?'Checking repeats…':'↻ Regenerate'}</button>`;
+        html+=`<select data-editor-mode aria-label="Regenerate"${busy?' disabled':''}>${[['both','Rhythm and pitch'],['rhythm','Rhythm'],['pitches','Pitch']].map(([value,label])=>`<option value="${value}"${(e?.mode||rememberedEditorMode)===value?' selected':''}>${label}</option>`).join('')}</select><button data-editor-action="regenerate"${busy||e?.planPending||!e?.plan?' disabled':''}>${e?.planPending?'Checking repeats.':'↻ Regenerate'}</button><button data-editor-action="delete" title="Delete selected phrases and their exact repeats; join remaining phrases"${busy||e?.planPending||!e?.plan?' disabled':''}>🗑 Delete</button>`;
       }
     }
     if(e?.saved?.file_url)html+=`<p>Saved revision ${e.saved.revision} · <a href="${esc(e.saved.file_url)}" target="_blank" rel="noopener noreferrer">${e.saved.selected?'Selected MIDI':'Full MIDI'}</a></p>`;
@@ -312,7 +313,7 @@
     if(e?.preferences&&config.phrase_preference_controls){html+='<section class="review-preferences" aria-label="Review phrase weights"><h3>Phrase weights</h3><p>Applied to the next selected-phrase regeneration. 1 = neutral.</p>';for(const step of ['3','4','5']){if(!e.preferences[step])continue;html+=`<div class="param-group">${({'3':'Rhythm','4':'Opening pitches','5':'Remaining pitches'})[step]}</div><div class="param-grid">${(config.phrase_preference_controls[step]||[]).map(p=>`<label class="param-field"><span>${esc(p.label)}</span><input type="number" inputmode="decimal" min="0" step="any" required data-editor-preference="${esc(p.key)}" data-pref-stage="${step}" value="${esc(e.preferences[step][p.key]??p.default)}"${busy?' disabled':''}></label>`).join('')}</div>`;}html+='</section>';}
     return html;
   }
-  function kontaktSettingsMarkup(){const pref=kontaktPreference('6');return `<label class="param-field"><span>Kontakt audio</span><select data-global-kontakt="scope"><option value="full"${pref.scope==='full'?' selected':''}>Full step</option><option value="selected"${pref.scope==='selected'?' selected':''}>Selected phrases (keep timeline)</option></select></label>`;}
+  function kontaktSettingsMarkup(){return '';}
   let autoRenderedKey=null;
   async function autoRenderReview(){
     const e=currentEditor();if(!e?.output||e.busy||!editorReady())return;const revision=e.revision;

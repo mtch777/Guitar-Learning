@@ -15,22 +15,28 @@ function response(data,ok=true){return {ok,json:async()=>data};}
  t.set(state);let revision=0,output=original,fail=false,renderStarts=0;const requests=[];
  sandbox.fetch=async(url,options={})=>{const b=options.body?JSON.parse(options.body):{};requests.push({url,b});
    if(url.endsWith('/open'))return response({source_version:state.version,revision,output});
-   if(url.endsWith('/plan'))return response({affected:[1,2],rhythm_affected:[1,2],pitch_affected:[1],revision});
+   if(url.endsWith('/plan'))return response({affected:[1,2],rhythm_affected:[1,2],pitch_affected:[1,2],revision});
    if(url.endsWith('/regenerate')){if(fail)return response({error:'No different compatible rhythm'},false);revision++;output={...original,audio:{...original.audio,notes:[{start_beats:1,duration_beats:1,midi_pitch:40}]}};return response({source_version:7,revision,output});}
+   if(url.endsWith('/delete')){revision++;output={...original,phrases:[original.phrases[0]],audio:{...original.audio,length_beats:4}};return response({source_version:7,revision,output});}
    if(url.endsWith('/start')){renderStarts++;return response({error:'Test render unavailable'},false);}
    if(url.endsWith('/save'))return response({saved:true,version:7,editor_revision:revision,file_url:'https://github.com/mtch777/Guitar-Learning/blob/generated-midi/generated-midi/selected.mid',folder_url:'https://github.com/mtch777/Guitar-Learning/tree/generated-midi/generated-midi'});
    throw Error('Unexpected '+url);
  };
  t.setPresets([{id:'modern-metal-1',label:'Modern Metal 1'}]);t.setMarker('6',3.25);
  await t.togglePhrase(1);assert.equal(t.markerBeat('6'),3.25);assert.deepEqual(Array.from(t.currentEditor().selected),[1]);assert.deepEqual(Array.from(t.selectedPhraseNumbers('6')),[1,2]);
- const html=t.phraseCheckboxMarkup(original);assert.ok(html.includes('auto-selected'));assert.ok(!t.editorMarkup(original).includes('data-editor-mode'));assert.ok(!t.editorMarkup(original).includes('data-editor-action="plan"'));
+ const html=t.phraseCheckboxMarkup(original);assert.ok(html.includes('auto-selected'));assert.ok(t.editorMarkup(original).includes('data-editor-mode'));assert.ok(!t.editorMarkup(original).includes('data-editor-action="plan"'));
  await t.editorAction('regenerate');assert.equal(revision,1);assert.equal(renderStarts,1);assert.equal(t.markerBeat('6'),3.25);assert.deepEqual(requests.find(r=>r.url.endsWith('/regenerate')).b.selected,[1]);assert.equal(requests.find(r=>r.url.endsWith('/regenerate')).b.mode,'both');assert.equal(JSON.stringify(state),snapshot);
  await t.editorAction('save');assert.deepEqual(requests.at(-1).b.selected,[1,2]);
  // Deselect the manual phrase removes its auto repeat; explicit second selection survives independently.
  await t.togglePhrase(2);assert.deepEqual(Array.from(t.currentEditor().selected),[1,2]);await t.togglePhrase(1);assert.deepEqual(Array.from(t.currentEditor().selected),[2]);await t.togglePhrase(2);assert.deepEqual(Array.from(t.selectedPhraseNumbers('6')),[]);
  await t.togglePhrase(1);fail=true;await t.editorAction('regenerate');assert.equal(t.currentEditor().revision,1);assert.equal(renderStarts,1);assert.equal(JSON.stringify(state),snapshot);
+ // Mode changes feed plan and regeneration, remembered when reopening a fresh editor.
+ t.setEditorMode('pitches');await new Promise(resolve=>setImmediate(resolve));assert.equal(t.currentEditor().mode,'pitches');assert.equal(requests.filter(r=>r.url.endsWith('/plan')).at(-1).b.mode,'pitches');
+ t.setEditorMode('rhythm');await new Promise(resolve=>setImmediate(resolve));assert.equal(t.currentEditor().mode,'rhythm');
+ fail=false;await t.editorAction('delete');assert.equal(requests.find(r=>r.url.endsWith('/delete')).b.mode,undefined);assert.deepEqual(requests.find(r=>r.url.endsWith('/delete')).b.selected,[1]);assert.deepEqual(Array.from(t.currentEditor().selected),[]);assert.equal(t.currentEditor().output.phrases.length,1);assert.equal(renderStarts,2);
+ await t.togglePhrase(1);
  // Late plan response cannot resurrect removed selection.
- let resolvePlan;sandbox.fetch=()=>new Promise(resolve=>resolvePlan=resolve);const pending=t.updateRepeatSelection();await t.togglePhrase(1);resolvePlan(response({affected:[1,2],rhythm_affected:[1,2],pitch_affected:[1]}));await pending;assert.deepEqual(Array.from(t.selectedPhraseNumbers('6')),[]);
+ let resolvePlan;sandbox.fetch=()=>new Promise(resolve=>resolvePlan=resolve);const pending=t.updateRepeatSelection();await t.togglePhrase(1);resolvePlan(response({affected:[1,2],rhythm_affected:[1,2],pitch_affected:[1,2]}));await pending;assert.deepEqual(Array.from(t.selectedPhraseNumbers('6')),[]);
  // Markers are scoped by session/version and roll seek updates marker/audio without selecting.
  const audioElement={currentTime:0};node.querySelector=()=>audioElement;t.seekPlayback('6',5);assert.equal(t.markerBeat('6'),5);assert.equal(audioElement.currentTime,2.5);assert.deepEqual(Array.from(t.currentEditor().selected),[]);
  t.set({...state,version:8});assert.equal(t.markerBeat('6'),0);t.set(state);assert.equal(t.markerBeat('6'),5);
