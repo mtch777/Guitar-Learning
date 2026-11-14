@@ -688,15 +688,8 @@
     }catch(error){saveResults.delete(key);notify(error.message==='Failed to fetch'?'Cannot reach the MIDI save service. Nothing was confirmed saved.':error.message);}
     render();
   }
-  function renderRecovery(){
-    if(document.querySelector('#previous-save'))return;
-    if(!previousSessionReference())return;
-    const panel=document.createElement('section');panel.id='previous-save';panel.className='notice';
-    const button=document.createElement('button');button.type='button';button.textContent='💾 Save previous result';
-    const link=document.createElement('a');link.href=githubFolder;link.target='_blank';link.rel='noopener noreferrer';link.textContent=' 🔗 Folder';
-    button.addEventListener('click',async()=>{const previous=previousSessionReference();if(!previous){notify('No previous session reference is available.');return;}button.disabled=true;await saveGithub('6','previous',previous);button.disabled=false;});
-    panel.append(button,link);document.querySelector('main').prepend(panel);
-  }
+  function renderRecovery(){}
+
   stagesNode.addEventListener('click',async event=>{
     const toggle=event.target.closest('[data-toggle-step]');if(toggle){const id=toggle.dataset.toggleStep;expandedStep=expandedStep===id?null:id;render();return;}
     const category=event.target.closest('[data-category-value]');if(category){const readout=category.closest('.category-timeline').querySelector('.category-readout');readout.textContent=category.dataset.categoryHeading+': '+category.dataset.categoryValue;readout.hidden=false;readout.scrollIntoView({block:'nearest'});return;}
