@@ -42,7 +42,9 @@ def main():
  job=args.job_id or uuid.uuid4().hex
  # Cross-process lock shared across all renders; OS releases it on process exit.
  import msvcrt
- lock=open(ROOT/"kontakt-render.lock","a+b");lock.seek(0);lock.write(b"0");lock.flush();lock.seek(0)
+ lock_path=(ROOT/"kontakt-render.lock").resolve()
+ if os.name=="nt" and lock_path.drive.upper()!="F:":raise ValueError("Renderer lock must be on F")
+ lock=open(lock_path,"a+b");lock.seek(0);lock.write(b"0");lock.flush();lock.seek(0)
  try: msvcrt.locking(lock.fileno(),msvcrt.LK_NBLCK,1)
  except OSError: raise RuntimeError("Kontakt renderer busy; serialize and retry")
  import dawdreamer as d,numpy as np

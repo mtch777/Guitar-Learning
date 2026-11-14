@@ -113,7 +113,7 @@ class RenderManager:
   with self.lock:self.jobs[jobid]['status']='running'
   folder=self.directory/fingerprint;wav=folder/'render.wav';meta=folder/'render.wav.json';midi_path=folder/'source.mid';host=folder/'host-result.json'
   try:
-   folder.mkdir(parents=True,exist_ok=True)
+   output_path(folder).mkdir(parents=True,exist_ok=True)
    # Only validated completed artifacts are reusable. Invalid prior artifacts stay untouched.
    reusable=False
    if wav.is_file() and meta.is_file() and host.is_file():
@@ -123,7 +123,8 @@ class RenderManager:
     except Exception:reusable=False
    if not reusable:
     if wav.exists() or meta.exists():
-     folder=self.directory/(fingerprint+'-'+uuid.uuid4().hex);folder.mkdir();wav=folder/'render.wav';meta=folder/'render.wav.json';midi_path=folder/'source.mid';host=folder/'host-result.json'
+     folder=self.directory/(fingerprint+'-'+uuid.uuid4().hex);output_path(folder).mkdir();wav=folder/'render.wav';meta=folder/'render.wav.json';midi_path=folder/'source.mid';host=folder/'host-result.json'
+    for destination in (midi_path,wav,meta,host):output_path(destination)
     midi_path.write_bytes(midi)
     command=[os.environ['RIFF_RENDER_PYTHON'],os.environ['RIFF_RENDER_WORKER'],'--midi',str(midi_path),'--output',str(wav),'--preset',preset,'--bpm','120','--duration',str(seconds),'--job-id',jobid]
     result=subprocess.run(command,capture_output=True,timeout=180,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
@@ -137,7 +138,7 @@ class RenderManager:
     if exit_code==85 and (receipt.get('termination_mode')!='controlled_process_termination' or receipt.get('expected_exit_code')!=85):raise ValueError('Kontakt controlled shutdown receipt is missing.')
    info=inspect_wav(wav,seconds)
    if receipt.get('wav_sha256')!=info['audio_sha256']:raise ValueError('Rendered audio checksum does not match the completed receipt.')
-   if not reusable:host.write_text(json.dumps({'exit_code':exit_code,'wav_sha256':info['audio_sha256']}),encoding='utf-8')
+   if not reusable:output_path(host).write_text(json.dumps({'exit_code':exit_code,'wav_sha256':info['audio_sha256']}),encoding='utf-8')
    with self.lock:
     self.jobs[jobid].update({'status':'ready','host_exit_code':exit_code,'cached':reusable,'path':str(wav),'audio_url':'/render/audio?job='+jobid,**info})
     if exit_code==85:self.jobs[jobid]['host_shutdown']='controlled_process_termination' 

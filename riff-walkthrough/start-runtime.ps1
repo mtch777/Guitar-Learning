@@ -21,7 +21,7 @@ if((Get-FileHash -LiteralPath $env:RIFF_CSV).Hash -ne $expected.csv -or (Get-Fil
 $manifest=Get-Content -LiteralPath $env:RIFF_KONTAKT_MANIFEST -Raw|ConvertFrom-Json
 foreach($preset in $manifest.presets){if($preset.verified){$path=Join-Path $env:RIFF_KONTAKT_PRESET_DIR $preset.state_file;if((Get-FileHash -LiteralPath $path).Hash -ne $preset.state_sha256){throw "Preset hash mismatch: $($preset.id)"}}}
 $record=@{runtime_root=$RuntimeRoot;environment=@{};installed_read_only=@($python,$env:RIFF_RENDER_PYTHON);started_utc=[DateTime]::UtcNow.ToString('o')}
-foreach($key in @('TEMP','TMP','TMPDIR','PYTHONDONTWRITEBYTECODE','PYTHONPYCACHEPREFIX','PIP_CACHE_DIR','XDG_CACHE_HOME','MPLCONFIGDIR','NUMBA_CACHE_DIR','RIFF_SESSION_COOKIE','RIFF_CSV','RIFF_TIMING','RIFF_KONTAKT_PRESET_DIR','RIFF_KONTAKT_MANIFEST','RIFF_RENDER_WORKER','RIFF_RENDER_PYTHON')){$record.environment[$key]=[Environment]::GetEnvironmentVariable($key)}
+foreach($key in @('TEMP','TMP','TMPDIR','RIFF_TEMP_DIR','PYTHONDONTWRITEBYTECODE','PYTHONPYCACHEPREFIX','PIP_CACHE_DIR','XDG_CACHE_HOME','MPLCONFIGDIR','NUMBA_CACHE_DIR','RIFF_SESSION_COOKIE','RIFF_CSV','RIFF_TIMING','RIFF_KONTAKT_PRESET_DIR','RIFF_KONTAKT_MANIFEST','RIFF_RENDER_WORKER','RIFF_RENDER_PYTHON')){$record.environment[$key]=[Environment]::GetEnvironmentVariable($key)}
 $server=Start-Process -FilePath $python -ArgumentList @('-B',('"'+(Join-Path $RuntimeRoot 'app\server.py')+'"'),'--host','0.0.0.0','--port','8878') -WorkingDirectory $RuntimeRoot -WindowStyle Hidden -RedirectStandardOutput (Join-Path $RuntimeRoot 'logs\server.stdout.log') -RedirectStandardError (Join-Path $RuntimeRoot 'logs\server.stderr.log') -PassThru
 $record.server_pid=$server.Id
 $ready=$false

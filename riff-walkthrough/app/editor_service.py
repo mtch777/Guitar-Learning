@@ -18,7 +18,7 @@ def selected_audio(output,selected):
    start=max(a,n['start_beats']);end=min(b,n['start_beats']+n['duration_beats'])
    if end>start:notes.append({**n,'start_beats':offset+start-a,'duration_beats':end-start})
   offset+=b-a
- return {'label':'Selected phrases · joined, edge holds clipped','notes':notes,'tempo':120,'length_beats':offset}
+ return {'label':'Selected phrases Â· joined, edge holds clipped','notes':notes,'tempo':120,'length_beats':offset}
 
 class EditorManager:
  def __init__(self,publisher):
@@ -45,7 +45,7 @@ class EditorManager:
   return key,state
  def path(self,key):return self.directory/(key+'.json')
  def write(self,key,workspace):
-  self.directory.mkdir(parents=True,exist_ok=True);p=self.path(key);tmp=p.with_suffix('.tmp');tmp.write_text(json.dumps(workspace),encoding='utf-8');tmp.replace(p)
+  output_path(self.directory).mkdir(parents=True,exist_ok=True);p=output_path(self.path(key));tmp=output_path(p.with_suffix('.tmp'));tmp.write_text(json.dumps(workspace),encoding='utf-8');tmp.replace(p)
  def public(self,w):
   from engine import DEFAULTS,clean_preferences
   preferences={step:clean_preferences(step,next((s.get('applied',{}).get('phrase_preferences',{}) for s in w['state']['stages'] if str(s['id'])==step),{})) for step in ('3','4','5')}

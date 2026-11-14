@@ -23,6 +23,11 @@ class Publisher:
   self.repo=output_path(repo);self.source_port=source_port;self.lock=threading.Lock()
  def git(self,*args,check=True):
   env={**os.environ,'GIT_TERMINAL_PROMPT':'0','GCM_INTERACTIVE':'never'}
+  if os.name=='nt':
+   for flag in ('--absolute-git-dir','--git-common-dir'):
+    probe=subprocess.run(['git','-C',str(self.repo),'rev-parse',flag],capture_output=True,timeout=15,env=env)
+    if probe.returncode:raise SaveError('Cannot verify save repository storage path.')
+    output_path(self.repo/probe.stdout.decode().strip())
   try:r=subprocess.run(['git','-C',str(self.repo),*args],capture_output=True,timeout=90,env=env)
   except (OSError,subprocess.TimeoutExpired) as e:raise SaveError('GitHub save timed out or Git is unavailable. Retry Save.') from e
   if check and r.returncode:raise SaveError('GitHub save could not be verified. Retry Save; identical files will not duplicate.')
@@ -71,7 +76,7 @@ class Publisher:
    if hashlib.sha256(self.git('show',f'FETCH_HEAD:{relative}').stdout).hexdigest()!=digest:raise SaveError('Existing saved file does not match; refusing to overwrite it.')
   else:
    self.git('merge','--ff-only','FETCH_HEAD')
-   path=self.repo/relative;path.parent.mkdir(parents=True,exist_ok=True)
+   path=output_path(self.repo/relative);path.parent.mkdir(parents=True,exist_ok=True)
    if path.exists():
     if path.read_bytes()!=data:raise SaveError('Existing local file differs; refusing to overwrite it.')
    else:
@@ -173,7 +178,7 @@ def handler_for(publisher,allowed_origins):
     stage=data.get('stage');version=data.get('version')
     if set(data)!={'stage','version'} or type(stage) is not int or stage not in PREFIXES or type(version) is not int or version<1:raise ValueError('Invalid current MIDI version')
     result=publisher.save(self.headers.get('Cookie'),stage,version);self.reply(200,result,origin)
-   except (ValueError,TypeError,json.JSONDecodeError):self.reply(400,{'error':'Provide a current stage 1–6 MIDI version.'},origin)
+   except (ValueError,TypeError,json.JSONDecodeError):self.reply(400,{'error':'Provide a current stage 1Ã¢â‚¬â€œ6 MIDI version.'},origin)
    except SaveError as e:self.reply(409,{'error':str(e)},origin)
    except Exception:self.reply(500,{'error':'Save failed. No successful GitHub save was confirmed.'},origin)
   def do_GET(self):
