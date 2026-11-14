@@ -4,6 +4,7 @@ from fractions import Fraction as Q
 P=pathlib.Path(__file__).parent;sys.path.insert(0,str(P.parent/'weighted-scoring'))
 import weighted_scoring as W,opening_rhythm as R
 import tonal_scale_sets as T
+import phrase_preferences as P
 MULTIPLIERS={1:1.,2:.75,3:.5,4:.25}
 EVENTS='Rhythmic events in order (all attacks/rests; dotted notes/tuplets/ties; simultaneous chords grouped)'
 CENTER='Provisional tonal center/key (riff; mapped)'
@@ -47,7 +48,7 @@ class Engine:
   self.parsed={rid:W.parse_phrase(r) for rid,r in self.first.items()};self.refs=[]
   for r in self.rows:
    g=groups(r);self.refs.append((r,g,[len(x) for x in g]))
- def run(self,seed_id,rhythm,out,rng_seed,*,target_row=None,current_scales=None,similarities=None):
+ def run(self,seed_id,rhythm,out,rng_seed,*,target_row=None,current_scales=None,similarities=None,context_notes=None):
   out=pathlib.Path(out);out.mkdir(parents=True,exist_ok=True)
   path=out/'first_phrase_pitch.json'
   if path.exists():raise ValueError('Refuse overwrite existing pitch draw; use isolated output')
@@ -90,7 +91,8 @@ class Engine:
    if a is None:excluded['no fully known in-range matched pitch alignment']+=1;continue
    tier,indices=a;sc=R.score(fit_target,row,similarities.get(key[0]));score=sc['score']
    if score is None:excluded['no comparable similarity fields']+=1;continue
-   candidates.append({'riff_id':key[0],'phrase':key[1],'artist':row['Artist'],'tier':tier,'similarity':score,'known_weight':sc['known_weight'],'components':sc['components'],'tier_multiplier':MULTIPLIERS[tier],'weight':score*MULTIPLIERS[tier],'source_group_indices_zero_based':indices,'source_pattern':source_pattern,'source_tonic':row.get(CENTER,''),'source_tonal_status':row.get('Tonal estimate status (riff; mapped)',''),'source_warnings':row['Unknowns and warnings'],'source_compatible_modes':row.get(MODES_FIELD,''),'source_mode_status':row.get(MODE_STATUS,''),'matching_current_scales':[list(k) for k in (common or [])],'transpose_semitones':0,'mapped_source_pitch_groups':[pitches[i] for i in indices]})
+   flags=P.sounding_flags(P.assigned_notes(slots,[pitches[i] for i in indices])+(context_notes or []));preference=P.multiplier(flags)
+   candidates.append({'preference_multiplier':preference,'preference_flags':flags,'riff_id':key[0],'phrase':key[1],'artist':row['Artist'],'tier':tier,'similarity':score,'known_weight':sc['known_weight'],'components':sc['components'],'tier_multiplier':MULTIPLIERS[tier],'weight':score*MULTIPLIERS[tier]*preference,'source_group_indices_zero_based':indices,'source_pattern':source_pattern,'source_tonic':row.get(CENTER,''),'source_tonal_status':row.get('Tonal estimate status (riff; mapped)',''),'source_warnings':row['Unknowns and warnings'],'source_compatible_modes':row.get(MODES_FIELD,''),'source_mode_status':row.get(MODE_STATUS,''),'matching_current_scales':[list(k) for k in (common or [])],'transpose_semitones':0,'mapped_source_pitch_groups':[pitches[i] for i in indices]})
   candidates.sort(key=lambda c:(c['riff_id'],c['phrase']));total=math.fsum(c['weight'] for c in candidates)
   report.update({'all_completed_reference_phrases':len(self.refs),'structural_tier_counts':dict(structural),'eligible_tier_counts':dict(collections.Counter(c['tier'] for c in candidates)),'excluded_counts':dict(excluded),'eligible_candidates':len(candidates),'positive_weight_candidates':sum(c['weight']>0 for c in candidates),'sum_weights':total})
   if total<=0:return blocked('No positive-weight pitch candidates after evidence checks')

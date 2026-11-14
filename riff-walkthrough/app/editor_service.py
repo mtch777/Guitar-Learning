@@ -1,3 +1,4 @@
+from runtime_options import SESSION_COOKIE
 """Revisioned Review working copies. Original generator sessions are read-only."""
 import copy,hashlib,http.client,http.cookies,json,pathlib,re,secrets,threading
 SaveError=ValueError
@@ -26,12 +27,12 @@ class EditorManager:
   c=http.cookies.SimpleCookie()
   try:c.load(cookie or '')
   except http.cookies.CookieError:pass
-  sid=c.get('riff_session')
+  sid=c.get(SESSION_COOKIE)
   if not sid or not re.fullmatch(r'[A-Za-z0-9_-]{32}',sid.value):raise SaveError('No current generator session.')
   def get(path):
    conn=http.client.HTTPConnection('127.0.0.1',self.publisher.source_port,timeout=30)
    try:
-    conn.request('GET',path,headers={'Cookie':'riff_session='+sid.value});r=conn.getresponse();data=json.loads(r.read())
+    conn.request('GET',path,headers={'Cookie':SESSION_COOKIE+'='+sid.value});r=conn.getresponse();data=json.loads(r.read())
     if r.status!=200:raise SaveError('Generator is unavailable.')
     return data
    finally:conn.close()

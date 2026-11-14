@@ -9,6 +9,7 @@ BASE=ROOT.parent
 sys.path[:0]=[str(BASE/'seed-scoring'),str(BASE/'weighted-scoring')]
 import weighted_scoring as W, blueprint as B, opening_rhythm as R
 import contextual_rhythm as C, first_phrase_pitch as F, tonal_scale_sets as T, sequential_pitch as S
+import phrase_preferences as P
 CSV=pathlib.Path(os.environ.get('RIFF_CSV',str(BASE/'csv-current/all_riffs_phrase_composition.csv')))
 TIMING=pathlib.Path(os.environ.get('RIFF_TIMING',str(BASE/'opening-rhythm/source-all-lengths/pitch_free_all_lengths_phrase_rhythms.json')))
 TITLES=['Seed','Scaffold','Rhythms','Opening pitches','Remaining pitches','Review']
@@ -16,9 +17,9 @@ DEFAULT_FIELD_WEIGHTS={str(f['schema_id']):f['weight'] for f in W.FIELDS}
 DEFAULTS={
  '1':{'artist':'all','role':'all','random_seed':''},
  '2':{'field_weights':DEFAULT_FIELD_WEIGHTS,'random_seed':''},
- '3':{'method':'contextual','opening_weights':dict(R.WEIGHTS),'context_weights':dict(C.WEIGHTS),'random_seed':''},
- '4':{'tier_weights':{str(k):v for k,v in F.MULTIPLIERS.items()},'fit_weights':dict(R.WEIGHTS),'random_seed':''},
- '5':{'tier_weights':{str(k):v for k,v in F.MULTIPLIERS.items()},'fit_weights':dict(R.WEIGHTS),'random_seed':''},
+ '3':{'phrase_preferences':{k:P.DEFAULTS[k] for k in ('plain_long_singles','triplets','intervals')},'method':'contextual','opening_weights':dict(R.WEIGHTS),'context_weights':dict(C.WEIGHTS),'random_seed':''},
+ '4':{'phrase_preferences':{k:P.DEFAULTS[k] for k in ('intervals','minor_second')},'tier_weights':{str(k):v for k,v in F.MULTIPLIERS.items()},'fit_weights':dict(R.WEIGHTS),'random_seed':''},
+ '5':{'phrase_preferences':{k:P.DEFAULTS[k] for k in ('intervals','minor_second')},'tier_weights':{str(k):v for k,v in F.MULTIPLIERS.items()},'fit_weights':dict(R.WEIGHTS),'random_seed':''},
  '6':{}}
 
 def seed_of(p):return int(p['random_seed']) if p.get('random_seed') not in ['',None] else secrets.randbits(52)
@@ -42,16 +43,17 @@ def audio(phrases,label):
 def public_phrase(row,notes=None,**extra):
  return {'phrase':int(row['Phrase #']),'start_beats':float(row.get('Start position (beats)',0)),'length_beats':float(row.get('Length (beats)',row.get(B.BEATS,0))),'role':row.get('Phrase role'),'texture':row.get('Dominant texture',row.get('Category - dominant texture')),'notes':copy.deepcopy(notes or []),**extra}
 @contextlib.contextmanager
-def settings(fields=None,fit=None,context=None,tiers=None):
- old=(copy.deepcopy(W.FIELDS),R.WEIGHTS.copy(),C.WEIGHTS.copy(),F.MULTIPLIERS.copy())
+def settings(fields=None,fit=None,context=None,tiers=None,preferences=None):
+ old=(copy.deepcopy(W.FIELDS),R.WEIGHTS.copy(),C.WEIGHTS.copy(),F.MULTIPLIERS.copy(),P.ACTIVE.copy())
  try:
   if fields is not None:
    for f in W.FIELDS:f['weight']=fields[str(f['schema_id'])]
   if fit is not None:R.WEIGHTS=dict(fit)
   if context is not None:C.WEIGHTS=dict(context)
   if tiers is not None:F.MULTIPLIERS={int(k):v for k,v in tiers.items()}
+  if preferences is not None:P.ACTIVE={**{k:1.0 for k in P.DEFAULTS},**preferences}
   yield
- finally:W.FIELDS[:]=old[0];R.WEIGHTS=old[1];C.WEIGHTS=old[2];F.MULTIPLIERS=old[3]
+ finally:W.FIELDS[:]=old[0];R.WEIGHTS=old[1];C.WEIGHTS=old[2];F.MULTIPLIERS=old[3];P.ACTIVE=old[4]
 
 class Engine:
  def __init__(self,csv_path=CSV,timing_path=TIMING):
@@ -89,6 +91,9 @@ class Engine:
    [{'key':'method','label':'Method','type':'select','default':'contextual','options':[{'value':'independent','label':'Independent'},{'value':'contextual','label':'Contextual'}]}]+group('opening_weights',fits,DEFAULTS['3']['opening_weights'])+group('context_weights',context,DEFAULTS['3']['context_weights'])+[rng],
    group('tier_weights',tiers,DEFAULTS['4']['tier_weights'])+group('fit_weights',fits,DEFAULTS['4']['fit_weights'])+[rng],
    group('tier_weights',tiers,DEFAULTS['5']['tier_weights'])+group('fit_weights',fits,DEFAULTS['4']['fit_weights'])+[rng],[]]
+  labels={'plain_long_singles':'Long uniform single notes ×','triplets':'Triplets ×','intervals':'Two-note intervals ×','minor_second':'Minor 2nd extra ×'}
+  for index in (2,3,4):
+   pars[index]=group('phrase_preferences',labels,DEFAULTS[str(index+1)]['phrase_preferences'])+pars[index]
   return {'stages':[{'id':str(i),'title':name,'parameters':pars[i-1],'defaults':copy.deepcopy(DEFAULTS[str(i)])} for i,name in enumerate(TITLES,1)],'defaults':copy.deepcopy(DEFAULTS),'counts':{'riffs':len(self.first),'eligible_seed_riffs':len(self.eligible),'phrases':len(self.pitch.rows)},'engine':'existing-analytical-pipeline','dataset':self.hashes}
  def validate(self,params):
   if not isinstance(params,dict):raise ValueError('Parameters must be an object')
@@ -104,8 +109,11 @@ class Engine:
       if isinstance(v,bool):raise ValueError('Weights must be numbers')
       try:v=float(v)
       except (ValueError,TypeError):raise ValueError('Weights must be numbers')
-      if not math.isfinite(v) or v<0:raise ValueError('Weights must be finite and non-negative')
+      if not math.isfinite(v) or v<0 or (key=='phrase_preferences' and v==0):raise ValueError('Weights must be finite and non-negative; phrase multipliers must be greater than zero')
       clean[k]=v
+     if key=='phrase_preferences':
+      lo=math.prod(min(1,v) for v in clean.values());hi=100*math.prod(max(1,v) for v in clean.values())
+      if lo==0 or not math.isfinite(hi):raise ValueError('Combined phrase multipliers exceed numeric precision; use less extreme values.')
      if not any(clean.values()):raise ValueError('At least one weight must be positive')
      out[step][key]=clean
     elif key=='random_seed':
@@ -157,7 +165,7 @@ class Engine:
  def stage3(self,p,up):
   rid=up[0]['raw']['seed_id'];seed=self.first[rid];blueprint=up[1]['raw']['blueprint'];scores=up[1]['raw']['scores'];rng=seed_of(p)
   candidates=[(r,scores[r],None) for r in sorted(self.rhythm.pool)]
-  with tempfile.TemporaryDirectory(prefix='riff-rhythm-') as tmp,settings(fields=up[1]['details']['field_weights'],fit=p['opening_weights'],context=p['context_weights']):
+  with tempfile.TemporaryDirectory(prefix='riff-rhythm-') as tmp,settings(fields=up[1]['details']['field_weights'],fit=p['opening_weights'],context=p['context_weights'],preferences=p.get('phrase_preferences',DEFAULTS['3']['phrase_preferences'])):
    opening=R.run(seed,candidates,self.csv,self.timing,pathlib.Path(tmp)/'opening',cached=self.source_cache,rng_seed_override=rng)
    if not opening['selection_performed']:return {'summary':{},'phrases':[],'blocker':opening['status'],'details':{k:v for k,v in opening.items() if k not in ['pool']}}
    report=self.rhythm.run(blueprint,opening,p['method'],pathlib.Path(tmp)/'sequence',rng+1)
@@ -165,7 +173,7 @@ class Engine:
   return {'summary':{'Method':p['method'],'Phrases':len(phrases),'Beats':report['total_beats']},'phrases':phrases,'audio':audio(phrases,'Rhythm · E1'),'details':{'random_seed':rng,'opening':{k:v for k,v in opening.items() if k not in ['pool','selected_rhythm','excluded']},'opening_excluded_counts':dict(collections.Counter(x['reason'] for x in opening['excluded'])),'weights':report['weights'],'phrase_selections':[{k:v for k,v in x.items() if k!='notes'} for x in phrases]},'raw':{'report':report,'opening':opening}}
  def stage4(self,p,up):
   rid=up[0]['raw']['seed_id'];rng=seed_of(p);rhythm=up[2]['raw']['report'];opening=up[2]['raw']['opening']
-  with tempfile.TemporaryDirectory(prefix='riff-pitch1-') as tmp,settings(fit=p['fit_weights'],tiers=p['tier_weights']):
+  with tempfile.TemporaryDirectory(prefix='riff-pitch1-') as tmp,settings(fit=p['fit_weights'],tiers=p['tier_weights'],preferences=p.get('phrase_preferences',DEFAULTS['4']['phrase_preferences'])):
    report=self.pitch.run(rid,opening,tmp,rng,similarities=up[1]['raw']['scores'])
   if not report['selection_performed']:return {'summary':{},'phrases':[],'blocker':report['reason'],'details':report}
   assert S.stripped(report['notes'])==rhythm['phrases'][0]['notes'],'Opening pitch selection changed its rhythm'
@@ -177,7 +185,7 @@ class Engine:
   exact=S.exact_roots(rows);scales=None;phrases=[];decisions=[];blocker=None
   def snapshot():
    return {'summary':{'Completed phrases':len(phrases),'Planned phrases':len(rows),'Compatible scale collections':len(scales or ())},'progress':{'completed':len(phrases),'total':len(rows)},'phrases':copy.deepcopy(phrases),'audio':audio(phrases,'Generated pitches' if len(phrases)==len(rows) and not blocker else 'Partial generated pitches'),'details':{'random_seed':rng,'phrase_selections':copy.deepcopy(decisions),'possible_scales':T.public(scales or ()),'scale_policy':'Every generated pitch must fit at least one shared diatonic collection. Chromatic/color notes can stop this version.','rhythms_preserved':True},**({'blocker':blocker} if blocker else {})}
-  with tempfile.TemporaryDirectory(prefix='riff-pitches-') as tmp,settings(fit=p['fit_weights'],tiers=p['tier_weights']):
+  with tempfile.TemporaryDirectory(prefix='riff-pitches-') as tmp,settings(fit=p['fit_weights'],tiers=p['tier_weights'],preferences=p.get('phrase_preferences',DEFAULTS['4']['phrase_preferences'])):
    for idx,row in enumerate(rows,1):
     rhythm=fixed[idx-1]['notes'];before=scales;decision={}
     if idx==1:
@@ -191,7 +199,12 @@ class Engine:
      notes=[];decision={'method':'Preserved silence'}
     else:
      target={'Phrase role':row['Phrase role'],'Category - dominant texture':row['Dominant texture'],'Accent function':row['Accent function']}
-     report=self.pitch.run(rid,{'selection_performed':True,'selected_rhythm':rhythm},pathlib.Path(tmp)/str(idx),rng+idx,target_row=target,current_scales=scales,similarities=up[1]['raw']['scores'])
+     context_notes=[]
+     for previous in phrases:
+      shift=previous['start_beats']-float(row['Start position (beats)'])
+      for note in previous['notes']:
+       if shift+note['end_beats']>0:context_notes.append({'start_beats':shift+note['start_beats'],'duration_beats':note['duration_beats'],'midi_pitch':note['midi_pitch']})
+     report=self.pitch.run(rid,{'selection_performed':True,'selected_rhythm':rhythm},pathlib.Path(tmp)/str(idx),rng+idx,target_row=target,current_scales=scales,similarities=up[1]['raw']['scores'],context_notes=context_notes)
      if not report['selection_performed']:
       blocker='Phrase '+str(idx)+': '+report['reason'];decisions.append({'phrase':idx,'method':'Blocked','reason':report['reason'],'eligible_candidates':report.get('eligible_candidates',0),'excluded_counts':report.get('excluded_counts',{})});break
      notes=report['notes'];sel=report['selected'];decision={'method':'Weighted pitch selection','source_riff':sel['riff_id'],'source_phrase':sel['phrase'],'tier':sel['tier'],'candidate_count':report['eligible_candidates'],'tier_counts':report['eligible_tier_counts'],'selected_score':sel['similarity'],'selected_probability':sel['probability'],'components':sel['components'],'random_seed':rng+idx,'matching_scale_sets':sel['matching_current_scales']};scales=T.from_notes(notes,scales)

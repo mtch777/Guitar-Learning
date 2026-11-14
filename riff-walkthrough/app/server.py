@@ -1,3 +1,4 @@
+from runtime_options import SESSION_COOKIE
 """Local-only HTML/API server. No external calls, arbitrary file access, or writes to source corpus."""
 import argparse,copy,http.cookies,http.server,json,mimetypes,pathlib,secrets,struct,threading,time,urllib.parse,traceback
 import engine as E
@@ -81,7 +82,7 @@ class App:
   c=http.cookies.SimpleCookie()
   try:c.load(cookie or '')
   except http.cookies.CookieError:pass
-  sid=c.get('riff_session');sid=sid.value if sid else None
+  sid=c.get(SESSION_COOKIE);sid=sid.value if sid else None
   with self.lock:
    if sid not in self.sessions:
     s=Session();self.sessions[s.id]=s;return s,True
@@ -92,7 +93,7 @@ def handler_for(app):
   def reply(self,status,body,kind='application/json',cookie=None):
    if not isinstance(body,bytes):body=json.dumps(body,allow_nan=False).encode()
    self.send_response(status);self.send_header('Content-Type',kind);self.send_header('Content-Length',str(len(body)));self.send_header('Cache-Control','no-store');self.send_header('X-Content-Type-Options','nosniff');self.send_header('Referrer-Policy','no-referrer')
-   if cookie:self.send_header('Set-Cookie','riff_session='+cookie+'; HttpOnly; SameSite=Strict; Path=/')
+   if cookie:self.send_header('Set-Cookie',SESSION_COOKIE+'='+cookie+'; HttpOnly; SameSite=Strict; Path=/')
    self.end_headers();self.wfile.write(body)
   def do_GET(self):
    path=urllib.parse.urlsplit(self.path);s,new=app.session(self.headers.get('Cookie'));cookie=s.id if new else None

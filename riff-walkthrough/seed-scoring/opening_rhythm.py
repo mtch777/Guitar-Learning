@@ -2,6 +2,7 @@
 import csv,json,math,random,secrets,pathlib,hashlib
 from fractions import Fraction
 import weighted_scoring as W
+import phrase_preferences as P
 WEIGHTS={'role':3,'texture':3,'accent':2,'source_riff_similarity':1}
 def known(s):return bool(s.strip()) and not W.N.bad(s) and s not in ['none assigned']
 def unresolved_role(row):
@@ -73,7 +74,10 @@ def run(seed,candidates,source_csv,source_data,out,*,cached=None,rng_seed_overri
    if reasons:excluded.append({'riff_id':rid,'phrase':key[1],'reason':'; '.join(reasons)});continue
    result=score(seed,row,pool[rid])
    if result['score'] is None:excluded.append({'riff_id':rid,'phrase':key[1],'reason':'No comparable scoring fields'});continue
-   eligible.append({'riff_id':rid,'phrase':key[1],'artist':row['Artist'],'length_beats':float(required),'role':row['Phrase role'],'texture':row['Category - dominant texture'],'accent_function':accent(row),'source_riff_score':pool[rid],**result,'notes':notes,'source_record':record})
+   eligible.append({'riff_id':rid,'phrase':key[1],'artist':row['Artist'],'length_beats':float(required),'role':row['Phrase role'],'texture':row['Category - dominant texture'],'accent_function':accent(row),'source_riff_score':pool[rid],**result,'notes':notes,'source_record':record,'source_row':row})
+ for candidate in eligible:
+  factor,flags=P.rhythm(candidate['notes'],candidate['source_row'])
+  candidate['base_score']=candidate['score'];candidate['preference_multiplier']=factor;candidate['preference_flags']=flags;candidate['score']*=factor
  eligible.sort(key=lambda r:(r['riff_id'],r['phrase']));total=math.fsum(r['score'] for r in eligible);out=pathlib.Path(out);out.mkdir(parents=True,exist_ok=True)
  report={'stage':'opening phrase rhythm selection only','seed_riff_id':seed['Riff ID'],'seed_phrase':int(seed['Phrase #']),'seed_length_beats':float(required),'source_riff_count':len(pool),'pool_rule':'All completed riffs with known opening role; different known roles and self included; no cap; exact-length reference phrases with unresolved role excluded','source_opening_role_filter':'exclude unknown only','unresolved_reference_phrase_exclusions':unresolved_phrase_exclusions,'unknown_opening_role_riffs_excluded':len(first)-len(expected),'self_excluded':False,'artist_filter':False,'minimum_score_threshold':None,'source_riffs_with_missing_similarity':sum(v is None for v in pool.values()),'unavailable_failed_riff_count':len(unavailable_riffs),'different_length_phrases':other_length_count,'exact_length_candidate_count':len(eligible)+len(excluded),'eligible_candidate_count':len(eligible),'unevaluated_source_candidate_count':len(unprocessed),'excluded':excluded,'field_weights':WEIGHTS,'unknowns_excluded_from_denominator':True,'deduplication':False,'source_data_sha256':hashlib.sha256(pathlib.Path(source_data).read_bytes()).hexdigest() if cached is None else cached['source_hash'],'sum_candidate_scores':total,'pitch_generated_or_copied':False,'other_phrase_rhythms_selected':False,'new_rhythm_pattern_generated':False,'pool':[{'riff_id':r,'score':s} for r,s in pool.items()]}
  if unprocessed:
@@ -107,7 +111,7 @@ def run(seed,candidates,source_csv,source_data,out,*,cached=None,rng_seed_overri
   if a>cursor:rests.append({'start_beats':float(cursor),'end_beats':float(a),'duration_beats':float(a-cursor)})
   cursor=b
  if cursor<required:rests.append({'start_beats':float(cursor),'end_beats':float(required),'duration_beats':float(required-cursor)})
- report.update({'rest_intervals':rests,'complete_silence':not notes,'status':'selected for review','selection_performed':True,'rng_seed':rng_seed,'uniform_draw':u,'selected_riff_id':selected['riff_id'],'selected_phrase':selected['phrase'],'selected_artist':selected['artist'],'selected_score':selected['score'],'selected_probability':selected['probability'],'selected_known_weight':selected['known_weight'],'selected_score_components':selected['components'],'note_slots':len(notes),'selected_rhythm':notes,'carry_in_slots':sum(n['carry_in'] for n in notes),'carry_out_slots':sum(n['carry_out'] for n in notes),'relationship_to_existing_seed':'Rhythm proposal only; not applied to seed notes or other blueprint phrases.'})
+ report.update({'rest_intervals':rests,'complete_silence':not notes,'status':'selected for review','selection_performed':True,'rng_seed':rng_seed,'uniform_draw':u,'selected_riff_id':selected['riff_id'],'selected_phrase':selected['phrase'],'selected_artist':selected['artist'],'selected_score':selected['score'],'selected_base_score':selected['base_score'],'preference_multiplier':selected['preference_multiplier'],'preference_flags':selected['preference_flags'],'selected_probability':selected['probability'],'selected_known_weight':selected['known_weight'],'selected_score_components':selected['components'],'note_slots':len(notes),'selected_rhythm':notes,'carry_in_slots':sum(n['carry_in'] for n in notes),'carry_out_slots':sum(n['carry_out'] for n in notes),'relationship_to_existing_seed':'Rhythm proposal only; not applied to seed notes or other blueprint phrases.'})
  path.write_text(json.dumps(report,indent=2))
  public_fields=['note_slot','start_beats','duration_beats','end_beats','voice','carry_in','carry_out','tie_extended','overlaps_note_slots']
  with (out/'opening_rhythm_notes.csv').open('w',encoding='utf-8-sig',newline='') as f:

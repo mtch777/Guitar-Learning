@@ -72,7 +72,7 @@ class SelectiveEditor:
   frozen=[n for p in phrases if p['phrase'] not in pitch for n in p['notes']]
   scales=T.from_notes(frozen)
   if not scales:raise EditBlocked('Unchanged phrases do not share a compatible scale; no other phrase was altered.')
-  with E.settings(fields=weights,fit=rp['opening_weights'],context=rp['context_weights']):
+  with E.settings(fields=weights,fit=rp['opening_weights'],context=rp['context_weights'],preferences=rp['phrase_preferences']):
    for root in sorted({rhythm[i] for i in timing}):
     members=sorted(i for i in timing if rhythm[i]==root)
     constraints={_signature(phrases[i-1]['notes']) for i in members if i not in pitch}
@@ -91,7 +91,7 @@ class SelectiveEditor:
     else:
      pp={**E.DEFAULTS['4' if root==1 else '5'],**(p4 if root==1 else p5).get('applied',{})}
      target={'Phrase role':row['Phrase role'],'Category - dominant texture':row['Dominant texture'],'Accent function':row['Accent function']}
-     with E.settings(fit=pp['fit_weights'],tiers=pp['tier_weights']):
+     with E.settings(fit=pp['fit_weights'],tiers=pp['tier_weights'],preferences=pp['phrase_preferences']):
       # With no frozen or earlier chosen notes, the opening remains unrestricted.
       prior=None if not frozen and not any(d['kind']=='pitch' and d.get('notes_count',0) for d in decisions) else scales
       report=self.engine.pitch.run(seed,{'selection_performed':True,'selected_rhythm':slots},pathlib.Path(temporary)/str(root),rng+root*2+1,target_row=target,current_scales=prior,similarities=scores)
@@ -154,7 +154,8 @@ class SelectiveEditor:
    if idx==1 or mode=='independent':
     target={'Phrase role':cats['role'],'Category - dominant texture':cats['texture'],'Accent function':cats['accent']};result=R.score(target,c['row'],scores.get(rid));score=result['score']
    else:score,_=C.weighted(vals)
-   audit.append((c,score or 0,vals))
+   factor,flags=E.P.rhythm(c['notes'],c['row'])
+   audit.append((c,(score or 0)*factor,vals))
   total=math.fsum(a[1] for a in audit)
   if total<=0:raise EditBlocked('Phrase '+str(idx)+': no positive-weight exact-length rhythm fits the pitches that must stay unchanged.')
   u=random.Random(rng).random();acc=0;winner=None

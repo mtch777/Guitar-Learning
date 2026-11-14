@@ -1,3 +1,4 @@
+from runtime_options import SESSION_COOKIE
 """Select exact playback phrase windows at each step; no generation or session writes."""
 import copy,csv,hashlib,http.client,http.cookies,json,pathlib,threading
 from fractions import Fraction
@@ -10,10 +11,10 @@ class SelectionManager:
  def donor_windows(self,cookie,riff):
   path=pathlib.Path(E.CSV);stat=path.stat();key=(str(path),stat.st_mtime_ns,stat.st_size,riff)
   with self.lock:
-   parsed=http.cookies.SimpleCookie();parsed.load(cookie);sid=parsed['riff_session'].value
+   parsed=http.cookies.SimpleCookie();parsed.load(cookie);sid=parsed[SESSION_COOKIE].value
    conn=http.client.HTTPConnection('127.0.0.1',self.publisher.source_port,timeout=30)
    try:
-    conn.request('GET','/api/config',headers={'Cookie':'riff_session='+sid});r=conn.getresponse();config=json.loads(r.read())
+    conn.request('GET','/api/config',headers={'Cookie':SESSION_COOKIE+'='+sid});r=conn.getresponse();config=json.loads(r.read())
     if r.status!=200:raise ValueError('Cannot verify reference dataset.')
    finally:conn.close()
    expected=config.get('dataset',{}).get('csv_sha256')

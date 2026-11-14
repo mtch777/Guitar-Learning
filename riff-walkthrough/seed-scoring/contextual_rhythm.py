@@ -3,6 +3,7 @@ import sys,pathlib,csv,json,math,random,collections,hashlib,copy
 from fractions import Fraction as Q
 P=pathlib.Path(__file__).parent;sys.path.insert(0,str(P.parent/'weighted-scoring'))
 import weighted_scoring as W,opening_rhythm as R,length_inheritance as L
+import phrase_preferences as P
 WEIGHTS={'current':40,'previous':25,'history':15,'context':20}
 def ratio(a,b):return 100 if a==b==0 else 100*min(a,b)/max(a,b)
 def sequence(a,b):
@@ -109,7 +110,8 @@ class Engine:
       a={'Phrase role':cats['role'],'Category - dominant texture':cats['texture'],'Accent function':cats['accent']};z=R.score(a,c['row'],scores.get(rid));s=z['score'];den=z['known_weight']
      else:s,den=weighted(vals)
      if s is None:s=0
-     audit.append({'target_phrase':idx,'source_riff':rid,'source_phrase':j,'score':s,'known_weight':den,**vals,'history_pairs':len(aligned),'target_history_phrases':idx-1,'source_history_phrases':j-1,'source_opening_similarity':scores.get(rid)})
+     base_score=s;factor,flags=P.rhythm(c['notes'],c['row']);s*=factor
+     audit.append({'target_phrase':idx,'source_riff':rid,'source_phrase':j,'score':s,'base_score':base_score,'preference_multiplier':factor,'preference_flags':flags,'known_weight':den,**vals,'history_pairs':len(aligned),'target_history_phrases':idx-1,'source_history_phrases':j-1,'source_opening_similarity':scores.get(rid)})
     total=math.fsum(a['score'] for a in audit)
     if total<=0:raise ValueError(f'No positive-score exact-length candidates for phrase{idx}')
     rng_seed=rng_base+idx;u=random.Random(rng_seed).random();threshold=u*total;cum=0;winner=None

@@ -1,3 +1,4 @@
+from runtime_options import SESSION_COOKIE
 """Isolated Kontakt renders of captured playback. Never regenerates source music."""
 import array,concurrent.futures,copy,hashlib,http.cookies,json,math,os,pathlib,struct,subprocess,threading,time,uuid,wave
 from server import midi_bytes
@@ -10,7 +11,7 @@ def owner(cookie):
  parsed=http.cookies.SimpleCookie()
  try:parsed.load(cookie or '')
  except http.cookies.CookieError:pass
- sid=parsed.get('riff_session')
+ sid=parsed.get(SESSION_COOKIE)
  if not sid or not re.fullmatch(r'[A-Za-z0-9_-]{32}',sid.value):raise ValueError('No current generator session.')
  return hashlib.sha256(sid.value.encode()).hexdigest()
 

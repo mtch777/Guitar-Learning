@@ -62,7 +62,7 @@
     const id = idOf(stage); let lastGroup = null;
     const content = (stage.parameters || []).map(p => {
       let heading = '';
-      if (p.group && p.group !== lastGroup) { lastGroup=p.group; heading=`<div class="param-group">${esc(({field_weights:'Field weights',opening_weights:'Opening / independent fit',context_weights:'Contextual fit',tier_weights:'Matching tiers',fit_weights:'Reference fit',details:'Reproducibility'})[p.group]||p.group)}</div>`; }
+      if (p.group && p.group !== lastGroup) { lastGroup=p.group; heading=`<div class="param-group">${esc(({phrase_preferences:'Phrase preferences',field_weights:'Field weights',opening_weights:'Opening / independent fit',context_weights:'Contextual fit',tier_weights:'Matching tiers',fit_weights:'Reference fit',details:'Reproducibility'})[p.group]||p.group)}</div>`; }
       const name = `param-${id}-${p.key}`, value = readPath(drafts[id],p.key) ?? p.default ?? '';
       const disabled = isBusy() ? ' disabled' : '';
       const common = `id="${esc(name)}" data-stage="${esc(id)}" data-key="${esc(p.key)}"${disabled}`;
@@ -117,7 +117,7 @@
   function editorReady(){return !isBusy()&&connected&&stageState('6')?.status==='complete'&&selectedViews['6']!=='previous';}
   function reviewOutput(){return currentEditor()?.output||stageState('6')?.output;}
   async function editorRequest(action,payload){
-    const endpoint=new URL(location.origin);endpoint.port='8769';endpoint.pathname='/editor/'+action;
+    const endpoint=new URL(location.origin);endpoint.port=String(Number(endpoint.port||8768)+1);endpoint.pathname='/editor/'+action;
     const r=await fetch(endpoint.href,{method:'POST',credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const result=await r.json();if(!r.ok)throw Error(result.error||'The edit could not be completed.');return result;
   }
@@ -178,7 +178,7 @@
   function currentSelection(id){if(String(id)==='6')return currentEditor();const entry=stageSelections.get(String(id));return entry?.key===selectionKey(id)?entry:null;}
   function selectionReady(id){return !isBusy()&&connected&&selectedViews[String(id)]!=='previous'&&saveableAudio(String(id),stageState(id));}
   async function selectionRequest(action,payload){
-    const endpoint=new URL(location.origin);endpoint.port='8769';endpoint.pathname='/selection/'+action;
+    const endpoint=new URL(location.origin);endpoint.port=String(Number(endpoint.port||8768)+1);endpoint.pathname='/selection/'+action;
     const response=await fetch(endpoint.href,{method:'POST',credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const result=await response.json();if(!response.ok)throw Error(result.error||'Phrase selection is unavailable.');return result;
   }
@@ -243,7 +243,7 @@
   let kontaktPresets=null,kontaktPresetError=null,kontaktPresetsLoading=false;
   const kontaktSettings=new Map(),kontaktJobs=new Map();
   let kontaktChooser=null;
-  function companionURL(path){const url=new URL(location.origin);url.port='8769';url.pathname=path;url.search='';return url;}
+  function companionURL(path){const url=new URL(location.origin);url.port=String(Number(url.port||8768)+1);url.pathname=path;url.search='';return url;}
   async function kontaktRequest(action,payload){const r=await fetch(companionURL('/render/'+action).href,{method:'POST',credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const result=await r.json();if(!r.ok)throw Error(result.error||'Kontakt render failed.');return result;}
   async function loadKontaktPresets(){
     if(kontaktPresetsLoading)return;kontaktPresetsLoading=true;kontaktPresetError=null;
@@ -528,7 +528,7 @@
     const identity=previous||state?.session_id,key=saveKey(stage,version,identity);if(saveResults.get(key)?.pending)return;
     saveResults.set(key,{pending:true});render();
     try{
-      const endpoint=new URL(location.origin);endpoint.port='8769';endpoint.pathname=previous?'/recover':'/save';
+      const endpoint=new URL(location.origin);endpoint.port=String(Number(endpoint.port||8768)+1);endpoint.pathname=previous?'/recover':'/save';
       const response=await fetch(endpoint.href,{method:'POST',credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(previous?{session_id:previous}:{stage:Number(stage),version:Number(version)})});
       const result=await response.json();if(!response.ok || result.saved!==true)throw Error(result.error||'GitHub save was not confirmed.');
       if(!result.file_url?.startsWith('https://github.com/mtch777/Guitar-Learning/blob/generated-midi/generated-midi/') || result.folder_url!==githubFolder)throw Error('The save destination could not be verified.');

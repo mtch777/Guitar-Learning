@@ -1,3 +1,4 @@
+from runtime_options import SESSION_COOKIE
 """Narrow companion: save current generated MIDI through existing Git credentials.
 Does not load, restart, regenerate, or persist generator sessions.
 """
@@ -29,11 +30,11 @@ class Publisher:
   parsed=http.cookies.SimpleCookie()
   try:parsed.load(cookie or '')
   except http.cookies.CookieError:pass
-  sid=parsed.get('riff_session')
+  sid=parsed.get(SESSION_COOKIE)
   if not sid or not re.fullmatch(r'[A-Za-z0-9_-]{32}',sid.value):raise SaveError('This browser has no generator session. Return to the generator.')
   conn=http.client.HTTPConnection('127.0.0.1',self.source_port,timeout=30)
   try:
-   conn.request('GET','/api/state',headers={'Cookie':'riff_session='+sid.value})
+   conn.request('GET','/api/state',headers={'Cookie':SESSION_COOKIE+'='+sid.value})
    response=conn.getresponse();state=json.loads(response.read())
    if response.status!=200 or state.get('session_id')!=sid.value or state.get('version')!=version or state.get('busy'):raise SaveError('This result changed or is generating. Save the current result.')
   except (OSError,http.client.HTTPException,ValueError) as e:raise SaveError('Cannot read the running generator.') from e
@@ -103,13 +104,13 @@ class Publisher:
   if not isinstance(sid,str) or not re.fullmatch(r'[A-Za-z0-9_-]{32}',sid):raise SaveError('No usable previous session reference was found.')
   conn=http.client.HTTPConnection('127.0.0.1',self.source_port,timeout=30)
   try:
-   conn.request('GET','/api/state',headers={'Cookie':'riff_session='+sid});response=conn.getresponse();state=json.loads(response.read())
+   conn.request('GET','/api/state',headers={'Cookie':SESSION_COOKIE+'='+sid});response=conn.getresponse();state=json.loads(response.read())
    if response.status!=200 or state.get('session_id')!=sid:raise SaveError('The previous session is no longer available.')
    version=state.get('version');final=next((s for s in state.get('stages',[]) if str(s.get('id'))=='6'),{})
    if state.get('busy') or type(version) is not int or version<1 or final.get('status')!='complete' or not (final.get('output') or {}).get('can_export'):raise SaveError('The previous session has no complete current MIDI to save.')
   except (OSError,http.client.HTTPException,ValueError) as e:raise SaveError('The previous session could not be read.') from e
   finally:conn.close()
-  result=self.save('riff_session='+sid,6,version)
+  result=self.save(SESSION_COOKIE+'='+sid,6,version)
   result['previous_session']=True
   return result
 
