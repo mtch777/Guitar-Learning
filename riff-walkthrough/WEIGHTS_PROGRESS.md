@@ -17,3 +17,9 @@ Verification
 -78,628eligible timing phrases,100,000draws/arm, uniform baseline to isolate preference effect (NOT production contextual rates). Exact probability: long-uniform-single1.086127%→0.085850%;triplet3.356311%→6.952473%;interval23.093554%→38.154157%. Same candidate population.
 
 Deployment status: source-only prepared; NOT activated in live server. Original server holds sessions in RAM and must not be restarted without explicit preservation/restart plan. No audible playback or live session mutation performed. Older pitch-only sampling report was superseded by sounding semantics and must not be quoted.
+
+## Parallel activation verified
+Updated app http://192.168.0.12:8878/ and companion8879, configured cookie riff_weights_session. Original8768/8769 processes left running with their original start times. LANHTTP200 and cookie isolation verified: an old-cookie request to new app receives only the new cookie; original private QA state unchanged with both cookies present.
+FullHTTP generation completed all6steps/12phrases. Both verified Kontakt presets available. Generated stage4 audio rendered37seconds and authenticated Range206WAV verified silently. Initial source-stage1 unavailable preview was correctly rejected; no claim that unavailable source audio was fixed.
+Independent MIDI-save checkout configured on generated-midi with dot automation author. No extra QA MIDI published. Browser inventory empty/IAB unavailable: visualUI and physicalAndroid not verified. No firewall/network-security changes, no original restart, no audible playback. Session data remains memory-only in both services; save wanted MIDI before restarting either.
+Source commit0fcf729efa1c3b3b8a5a261320712cdda894f384 verified on riff-walkthrough-ui-20261113; this follow-up documents activation.
