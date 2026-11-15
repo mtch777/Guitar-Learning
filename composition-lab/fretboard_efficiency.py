@@ -161,6 +161,33 @@ def _compatible(previous, grip, held):
     return all(old.get(note_id) == (s, f) for note_id, s, f in grip.assignments if note_id in held)
 
 
+def _with_held_continuation(frames):
+    """Remove only grips with no complete, held-contact-compatible future.
+
+    A greedy choice must not strand a still-ringing note when a later note
+    enters. Backward reachability uses only identical held occurrence/string/
+    fret assignments, never movement, opens, picking, shape, or future cost.
+    Hand shifts have a soft cost, so they do not add a hard transition gate.
+    """
+    viable = list(frames)
+    for index in range(len(viable) - 2, -1, -1):
+        next_tick, next_active, _, next_grips = viable[index + 1]
+        held = {n['id'] for n in next_active if n['start_tick'] < next_tick}
+        if not held:
+            continue
+        # Frames retain the same original occurrence order, so these tuple
+        # projections match even when other notes enter or leave the grip.
+        def signature(grip):
+            return tuple(a for a in grip.assignments if a[0] in held)
+        continuations = {signature(grip) for grip in next_grips}
+        tick, active, new_ids, grips = viable[index]
+        grips = [grip for grip in grips if signature(grip) in continuations]
+        if not grips:
+            raise ValueError(f'No globally compatible fingering at tick {next_tick}; held notes cannot be reassigned or shortened.')
+        viable[index] = (tick, active, new_ids, grips)
+    return viable
+
+
 def _advance(previous, grip, tick, position, pick_order, seconds_per_tick, rapid_rate):
     positive = tuple(sorted((s, f) for s, f in grip.placements if f))
     shift = rapid = contact_changes = 0
@@ -231,7 +258,8 @@ def _result(last, notes, seconds_per_tick, rapid_rate, optimized, states_examine
     return dict(id='optimized' if optimized else 'greedy',
         label='Ordered priorities' if optimized else 'Greedy comparison',
         description=('Whole-sequence minimum under the declared ordered objectives and discrete reach model.' if optimized else
-                     'Each attack independently prefers opens and lower frets, then the nearest reachable hand position.'),
+                     'Each attack prefers opens and lower frets among grips with a feasible held-note continuation, '
+                     'then the nearest reachable hand position. Future costs are not optimized.'),
         assignments=[dict(note_id=n['id'], string_number=assigned[n['id']][0], fret=assigned[n['id']][1]) for n in notes],
         positions=positions,
         metrics=dict(note_count=len(notes), attack_count=len(chain), open_eligible=eligible, open_used=opens,
@@ -246,6 +274,8 @@ def _solve(notes, *, ticks_per_beat=960, tempo_bpm=120, max_fret=24, max_span=4,
            rapid_frets_per_second=8.0, optimized=True):
     source = _validated(notes, ticks_per_beat, tempo_bpm, max_fret, max_span, rapid_frets_per_second)
     frames = _frames(source, max_fret, max_span)
+    if not optimized:
+        frames = _with_held_continuation(frames)
     seconds_per_tick = 60 / (tempo_bpm * ticks_per_beat)
     initial = State((0,0,0,0,0,0), None, None, None, None, (), None, None, -1, (), ())
     states, examined = [initial], 0

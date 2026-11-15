@@ -4,6 +4,7 @@ import {
   EFFICIENCY_LESSON_ID,
   EFFICIENCY_TUNING_LOW_TO_HIGH,
   efficiencySelectionFromSearch,
+  efficiencySourceTick,
   efficiencyPositionAtTick,
   efficiencyFretWindow,
   setupFretboardEfficiencyLesson
@@ -10384,7 +10385,8 @@ function updateEfficiencyViewport(notes) {
   const board = document.querySelector('.physicalFretboard');
   const stage = document.querySelector('.fretboardStage');
   if (!board || !stage) return;
-  const frame = efficiencyPositionAtTick(fretboardEfficiencyVersion, fretboardEfficiencyTick);
+  const sourceTick = efficiencySourceTick(fretboardEfficiencyTick, fretboardEfficiencyFixture?.ticks_per_beat);
+  const frame = efficiencyPositionAtTick(fretboardEfficiencyVersion, sourceTick);
   const fullNeck = document.getElementById('fretboardEfficiencyRange').value === 'full';
   const range = efficiencyFretWindow(frame?.position, notes, fretboardEfficiencyWindow, fullNeck);
   const count = range.last - range.first + 1;
@@ -10721,6 +10723,8 @@ const songPlayerController = setupSongPlayer({
     if (getSelectedLessonType() === EFFICIENCY_LESSON_ID) {
       fretboardEfficiencyTick = Number(tick);
       document.getElementById('fretboardEfficiencyControls').dataset.tick = String(tick);
+      document.getElementById('fretboardEfficiencyControls').dataset.sourceTick =
+        String(efficiencySourceTick(tick, fretboardEfficiencyFixture?.ticks_per_beat));
       return;
     }
     if (getSelectedLessonType()!=='timeSoloChords') return;
@@ -10800,6 +10804,7 @@ if (songPlayerController) {
       controls.dataset.fixtureId = fixture.id;
       controls.dataset.versionId = version.id;
       controls.dataset.tick = '0';
+      controls.dataset.sourceTick = '0';
     }
   });
   if (getSelectedLessonType() === EFFICIENCY_LESSON_ID) fretboardEfficiencyLesson.activate();

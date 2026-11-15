@@ -1,6 +1,23 @@
-# Drop E fretboard efficiency — two-riff pilot
+# Drop E fretboard efficiency
 
-## Current delivery: existing training lesson — 2026-11-15
+## Current delivery: uploaded MIDI rewrite — 2026-11-15
+
+User request: map and push the attached `2026-11-15 midi rewrite.mid` using the same ordered Drop E objectives and existing lesson. This is an addition to the accepted A/B lesson, not a new composition task or player.
+
+- [x] Freeze the exact upload as `tests/fixtures/fretboard-efficiency/2026-11-15_midi_rewrite.mid`; SHA-256 `c5a35486923e3b819d9f7cb7176cb1c39546c26471093862e5e67c27fbe46461`.
+- [x] Independently inspect all 177 notes / 120 attacks, one channel, PPQN 96, 3,072 source ticks, no explicit tempo (120 BPM default), 16 seconds, and 12 attack frames carrying a held note.
+- [x] Map all occurrences without changing notes, velocity, attack/release, or held-string identity; verify all 82 feasible opens and both string MIDI exports against the source.
+- [x] Add C · MIDI rewrite to the existing lesson, including exact native-to-source clock conversion for its 96 PPQN position frames; retain A/B results.
+- [ ] Publish the tested source, mapping data and MIDI exports; verify completed Pages deployment and served bytes.
+- [ ] Verify actual native playback, held dyads, open E1/B1, follow view and final release in the published lesson; leave C ready at the start.
+
+Initial exact optimizer result: 177 notes preserved, 82/82 feasible opens, 19 frets of modeled hand travel, largest shift 7, 2 rapid-shift flags. The original local greedy baseline reaches a held-note dead end at source tick 684. Its new feasibility-only lookahead must reject grips that cannot continue the already ringing notes; it may not shorten holds, move ringing notes or reuse the optimized result as a fake comparison. The native adapter already supports the exact 96→960 PPQN scale; the lesson's hand-position lookup must apply the inverse scale.
+
+Implemented and independently verified: only the greedy comparison receives a backward held-contact feasibility pass, with no future cost optimization. A before-fix failing three-frame counterexample now passes; impossible overlaps still fail and same-tick releases remain available. Existing A/B assignments, positions and metrics are unchanged, and their published JSON objects are preserved exactly. C's optimized result is unchanged by this baseline repair. Feasible greedy→optimized: 36→2 rapid flags, 173→19 frets of travel, largest jump 14→7; both use all 82 feasible opens.
+
+Pre-publication verification: all **146 JavaScript tests pass, zero skips**, all **40 optimizer/shape/held-note Python tests pass**, and the independent raw-source oracle verifies all 3 sources and all 6 string-MIDI exports. Actual pinned alphaTab browser-bundle generation preserves C's 177 occurrences, all 90/74 velocities, held notes, and exact 30,720-native-tick / 16-second duration in both mappings. The 7 selector/viewport tests include C's real source-clock conversion and every attack in all mapping versions; Time's 5,472 native events remain unchanged. Production build and whitespace checks pass. Expected main asset: `main-DYsflLu8.js`; data bundle SHA-256: `8da4dbd1804e39325b5c1d0ecb355f6586459f0239fcb7a066ae57fc7b7da329`. Publication and actual live C playback are the remaining acceptance steps.
+
+## Previous delivery: existing training lesson — 2026-11-15
 
 The user explicitly approved the GitHub upload, then requested a new lesson in the existing lesson/guitar-training HTML UI, conversion of both results to that fretboard, file upload, and actual playback validation before handoff. The previous portable review is supporting evidence; it is not the requested final surface.
 

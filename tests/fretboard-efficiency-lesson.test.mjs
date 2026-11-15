@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {existsSync, readFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
+import {createHash} from 'node:crypto';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
@@ -24,6 +25,18 @@ assert.equal(JSON.parse(readFileSync(resolve(nativeRoot, 'package.json'), 'utf8'
 const at = createRequire(import.meta.url)(nativePath);
 const bundle = JSON.parse(readFileSync(resolve(root, 'public/data/fretboard-efficiency-fixtures.json'), 'utf8'));
 const verifiedBrowserUrl = 'https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js';
+const frozenSources = {
+  cfa029a2: {notes: 164, ppqn: 960, endTick: 61920, durationMs: 32250},
+  da80eca9: {notes: 191, ppqn: 960, endTick: 61920, durationMs: 32250},
+  c5a35486: {notes: 177, ppqn: 96, endTick: 3072, durationMs: 16000,
+    sha256: 'c5a35486923e3b819d9f7cb7176cb1c39546c26471093862e5e67c27fbe46461'},
+};
+const originalFixtureIds = new Set(['cfa029a2', 'da80eca9']);
+const nativeTick = (sourceTick, ppqn) => {
+  const tick = sourceTick * 960 / ppqn;
+  assert.ok(Number.isSafeInteger(tick), 'Source clocks must fit native ticks exactly, without rounding');
+  return tick;
+};
 
 test('Song Player loads the exact tested browser distribution and its required native bridge', () => {
   const source = readFileSync(resolve(root, 'src/song-player.js'), 'utf8');
@@ -46,7 +59,7 @@ function rawMidi(path) {
   const format = bytes.readUInt16BE(8), tracks = bytes.readUInt16BE(10), ppqn = bytes.readUInt16BE(12);
   assert.ok(format < 2 && ppqn > 0 && !(ppqn & 0x8000));
   let cursor = 8 + bytes.readUInt32BE(4), order = 0, endTick = 0;
-  const events = [], tempoEvents = [];
+  const events = [], tempoEvents = [], timeSignatures = [], unsupportedPerformanceEvents = [];
   for (let track = 0; track < tracks; track++) {
     assert.equal(bytes.toString('ascii', cursor, cursor + 4), 'MTrk');
     const end = cursor + 8 + bytes.readUInt32BE(cursor + 4);
@@ -65,14 +78,20 @@ function rawMidi(path) {
       if (status === 255) {
         const type = bytes[cursor++], length = vlq();
         if (type === 81) { assert.equal(length, 3); tempoEvents.push([tick, bytes.readUIntBE(cursor, 3)]); }
+        if (type === 88) {
+          assert.equal(length, 4);
+          timeSignatures.push([tick, bytes[cursor], 2 ** bytes[cursor + 1]]);
+        }
         cursor += length;
       } else if (status === 240 || status === 247) {
+        unsupportedPerformanceEvents.push({tick, status});
         const length = vlq(); cursor += length; running = null;
       } else {
         const kind = status >> 4, channel = status & 15;
         assert.ok(kind >= 8 && kind <= 14);
         const a = bytes[cursor++], b = [12, 13].includes(kind) ? null : bytes[cursor++];
         if (kind === 8 || kind === 9) events.push({tick, order, track, channel, kind, pitch: a, velocity: b});
+        else unsupportedPerformanceEvents.push({tick, kind, channel, a, b});
       }
       endTick = Math.max(endTick, tick); order++;
     }
@@ -95,9 +114,20 @@ function rawMidi(path) {
     }
   }
   assert.ok([...pending.values()].every(notes => notes.length === 0));
-  const tempos = [...new Set(tempoEvents.map(e => e[1]))];
-  assert.deepEqual(tempos, [500000]);
-  return {notes, endTick, ppqn, tempo: 120};
+  // MIDI without a tempo event has an explicit standard default of500000µs/q.
+  // Record performance messages instead of silently discarding a future source
+  // requiring controller, program, bend, SysEx, or changing-tempo support.
+  assert.deepEqual(unsupportedPerformanceEvents, [], 'Unrepresented source performance messages require explicit support');
+  assert.ok(timeSignatures.every(([tick, numerator, denominator]) => tick === 0 && numerator === 4 && denominator === 4),
+    'The native fixture notation currently requires a constant4/4 source');
+  const tempoMap = [...new Map([[0, 500000], ...tempoEvents.sort((a, b) => a[0] - b[0])]).entries()]
+    .sort((a, b) => a[0] - b[0]);
+  const microsecondsPerQuarter = tempoMap[0][1];
+  assert.ok(tempoMap.every(([, value]) => value === microsecondsPerQuarter),
+    'A changing source tempo map must not be replaced by one tempo');
+  return {notes, endTick, ppqn, tempo: 60000000 / microsecondsPerQuarter,
+    durationMs: endTick / ppqn * microsecondsPerQuarter / 1000,
+    microsecondsPerQuarter, tempoEvents, sha256: createHash('sha256').update(bytes).digest('hex')};
 }
 
 const canonical = rows => rows.map(row => JSON.stringify(row)).sort();
@@ -128,21 +158,45 @@ const timeBytes = new Uint8Array(readFileSync(resolve(root, 'public/time.gp')));
 const timeScoreBefore = at.importer.ScoreLoader.loadScoreFromBytes(timeBytes, new at.Settings());
 const timeNativeBefore = canonical(nativeEvents(timeScoreBefore).events.map(n =>
   [n.track, n.startTick, n.endTick, n.pitch, n.velocity, n.channel]));
+const rawSources = new Map(bundle.fixtures.map(fixture => [fixture.id,
+  rawMidi(resolve(root, 'tests/fixtures/fretboard-efficiency', fixture.source_filename))]));
+
+test('the three frozen source fixtures remain present with their original clocks and counts', () => {
+  assert.deepEqual(bundle.fixtures.map(f => f.id).sort(), Object.keys(frozenSources).sort());
+  for (const fixture of bundle.fixtures) {
+    const raw = rawSources.get(fixture.id), frozen = frozenSources[fixture.id];
+    assert.equal(raw.notes.length, frozen.notes);
+    assert.equal(raw.ppqn, frozen.ppqn);
+    assert.equal(raw.endTick, frozen.endTick);
+    assert.equal(raw.durationMs, frozen.durationMs);
+    assert.equal(fixture.source_sha256, raw.sha256);
+    if (frozen.sha256) assert.equal(raw.sha256, frozen.sha256);
+    assert.equal(fixture.ticks_per_beat, raw.ppqn);
+    assert.equal(fixture.tempo_bpm, raw.tempo);
+  }
+});
 
 for (const fixture of bundle.fixtures) {
-  const raw = rawMidi(resolve(root, 'tests/fixtures/fretboard-efficiency', fixture.source_filename));
+  const raw = rawSources.get(fixture.id);
+  const toNative = tick => nativeTick(tick, raw.ppqn);
+  const nativeEnd = toNative(raw.endTick);
   const optimized = fixture.versions.find(v => v.id === 'optimized');
   const contacts = new Map(optimized.assignments.map(a => [a.note_id, a]));
 
   test(`${fixture.id}: actual alphaTab MIDI preserves every raw pitch, velocity, onset, and release`, () => {
     const before = JSON.stringify(fixture);
-    const mapping = toFretboardEfficiencyScore(at, fixture);
-    const played = nativeEvents(mapping.score).events;
-    assert.equal(JSON.stringify(fixture), before, 'Native conversion must not mutate original MIDI or mapping');
-    assert.equal(played.length, raw.notes.length, 'No duplicate collapse, tied reattack, or omitted event');
-    const row = n => [n.startTick, n.endTick, n.pitch, n.velocity];
-    assert.deepEqual(canonical(played.map(row)), canonical(raw.notes.map(row)));
-    assert.equal(raw.notes.length, fixture.id === 'cfa029a2' ? 164 : 191);
+    for (const version of fixture.versions) {
+      const mapping = toFretboardEfficiencyScore(at, fixture, version.id);
+      const {events: played, calls} = nativeEvents(mapping.score);
+      assert.equal(JSON.stringify(fixture), before, 'Native conversion must not mutate original MIDI or mapping');
+      assert.equal(played.length, raw.notes.length, 'No duplicate collapse, tied reattack, or omitted event');
+      assert.deepEqual(canonical(played.map(n => [n.startTick, n.endTick, n.pitch, n.velocity, n.channel])),
+        canonical(raw.notes.map(n => [toNative(n.startTick), toNative(n.endTick), n.pitch, n.velocity, n.channel])));
+      assert.equal(mapping.sourceTicksPerBeat, raw.ppqn);
+      assert.equal(mapping.ticksPerBeat, 960);
+      const tempos = calls.filter(call => call.method === 'addTempo').map(call => call.args[1]);
+      assert.ok(tempos.length > 0 && tempos.every(value => value === raw.tempo));
+    }
   });
 
   test(`${fixture.id}: actual native tablature uses precisely the optimized string contacts`, () => {
@@ -151,50 +205,76 @@ for (const fixture of bundle.fixtures) {
     const heads = nativeAttackHeads(mapping.score);
     const expected = fixture.notes.map(note => {
       const contact = contacts.get(note.id);
-      return [note.start_tick, note.pitch, 9 - contact.string_number, contact.fret];
+      return [toNative(note.start_tick), note.pitch, 9 - contact.string_number, contact.fret];
     });
     assert.deepEqual(canonical(heads.map(n => [n.startTick, n.pitch, n.string, n.fret])), canonical(expected));
     const lowOpen = heads.filter(n => n.pitch === 28);
+    assert.equal(lowOpen.length, raw.notes.filter(note => note.pitch === 28).length);
     assert.ok(lowOpen.length > 0);
     assert.ok(lowOpen.every(n => n.string === 1 && n.fret === 0), 'E1 must reach trainer stringIndex0');
     const highOpen = heads.filter(n => n.pitch === 64);
     assert.ok(highOpen.length > 0);
-    assert.ok(highOpen.every(n => n.string === 8 && n.fret === 0), 'E4 must remain on the highest string');
+    if (originalFixtureIds.has(fixture.id)) {
+      assert.ok(highOpen.every(n => n.string === 8 && n.fret === 0), 'Original A/B E4 remains on the highest open string');
+    }
   });
 
-  test(`${fixture.id}: native score duration is exactly32.25s including the partial final bar`, () => {
+  test(`${fixture.id}: native score preserves the raw end clock, tempo, and any surrounding rests`, () => {
     const mapping = toFretboardEfficiencyScore(at, fixture);
     const played = nativeEvents(mapping.score).events;
     const nativeTicks = mapping.score.masterBars.reduce((sum, bar) => sum + bar.calculateDuration(), 0);
-    assert.equal(raw.ppqn, 960);
-    assert.equal(raw.endTick, 61920);
-    assert.equal(mapping.durationTicks, 61920);
-    assert.equal(mapping.durationMs, 32250);
-    assert.equal(nativeTicks, 61920, 'A full final bar must not pad the score');
-    assert.equal(Math.max(...played.map(n => n.endTick)), 61920);
-    assert.equal(mapping.score.masterBars.at(-1).calculateDuration(), 480);
+    assert.equal(mapping.durationTicks, nativeEnd);
+    assert.equal(mapping.durationMs, raw.durationMs);
+    assert.equal(nativeTicks, nativeEnd, 'Notation must not pad or truncate the source end-of-track');
+    assert.equal(Math.min(...played.map(n => n.startTick)), toNative(Math.min(...raw.notes.map(n => n.startTick))));
+    assert.equal(Math.max(...played.map(n => n.endTick)), toNative(Math.max(...raw.notes.map(n => n.endTick))));
+    assert.equal(mapping.score.masterBars.at(-1).calculateDuration(), nativeEnd % 3840 || 3840);
   });
 
   test(`${fixture.id}: seek queries preserve complete held grips and exact release boundaries`, () => {
     const mapping = toFretboardEfficiencyScore(at, fixture);
-    const endpoints = [...new Set(raw.notes.flatMap(n => [n.startTick, n.endTick]))].sort((a, b) => a - b);
+    const endpoints = [...new Set([0, nativeEnd, ...raw.notes.flatMap(n => [toNative(n.startTick), toNative(n.endTick)])])]
+      .sort((a, b) => a - b);
     const probes = [...endpoints, ...endpoints.slice(1).map((t, i) => (t + endpoints[i]) / 2)];
     for (const tick of probes) {
-      const expected = fixture.notes.filter(n => n.start_tick <= tick && tick < n.end_tick)
+      const expected = fixture.notes.filter(n => toNative(n.start_tick) <= tick && tick < toNative(n.end_tick))
         .map(n => [n.id, n.pitch, 9 - contacts.get(n.id).string_number, contacts.get(n.id).fret]);
       const actual = efficiencyNotesAtTick(mapping, tick)
         .map(n => [n.note_id, n.pitch, n.string, n.fret]);
       assert.deepEqual(canonical(actual), canonical(expected), `Incorrect active occurrences at tick${tick}`);
     }
-    assert.deepEqual(efficiencyNotesAtTick(mapping, 61920), []);
-    const held = efficiencyNotesAtTick(mapping, 5760); //3s, halfway through the2–4s chord.
-    assert.equal(held.length, 4);
-    const duplicate = held.filter(n => n.pitch === 59);
-    assert.equal(duplicate.length, 2);
-    assert.equal(new Set(duplicate.map(n => n.string)).size, 2);
-    assert.equal(new Set(duplicate.map(n => n.note_id)).size, 2);
+    assert.deepEqual(efficiencyNotesAtTick(mapping, nativeEnd), []);
+    if (originalFixtureIds.has(fixture.id)) {
+      const held = efficiencyNotesAtTick(mapping, 5760); //3s, halfway through the2–4s chord.
+      assert.equal(held.length, 4);
+      const duplicate = held.filter(n => n.pitch === 59);
+      assert.equal(duplicate.length, 2);
+      assert.equal(new Set(duplicate.map(n => n.string)).size, 2);
+      assert.equal(new Set(duplicate.map(n => n.note_id)).size, 2);
+    }
   });
 }
+
+test('non-default PPQN preserves leading and trailing rests and refuses a nonrepresentable clock', () => {
+  const fixture = {id: 'rest-clock-test', label: 'Exact rest clock', ticks_per_beat: 96,
+    tempo_bpm: 120, duration_ticks: 192,
+    notes: [{id: 0, pitch: 28, velocity: 74, channel: 0, start_tick: 48, end_tick: 96}],
+    versions: [{id: 'optimized', assignments: [{note_id: 0, string_number: 8, fret: 0}]}]};
+  const mapping = toFretboardEfficiencyScore(at, fixture);
+  assert.equal(mapping.durationTicks, 1920);
+  assert.equal(mapping.durationMs, 1000);
+  assert.deepEqual(nativeEvents(mapping.score).events.map(n => [n.startTick, n.endTick, n.pitch, n.velocity]),
+    [[480, 960, 28, 74]]);
+  for (const tick of [0, 479, 960, 1440, 1920]) assert.deepEqual(efficiencyNotesAtTick(mapping, tick), []);
+  assert.equal(efficiencyNotesAtTick(mapping, 480).length, 1);
+  assert.equal(efficiencyNotesAtTick(mapping, 959).length, 1);
+  const unsupported = structuredClone(fixture);
+  unsupported.ticks_per_beat = 100;
+  unsupported.duration_ticks = 200;
+  unsupported.notes[0].start_tick = 1;
+  unsupported.notes[0].end_tick = 101;
+  assert.throws(() => toFretboardEfficiencyScore(at, unsupported), /exact native tick grid/);
+});
 
 test('existing Time Solo default and0.75× speed option remain in the real lesson HTML', () => {
   const html = readFileSync(resolve(root, 'index.html'), 'utf8');
@@ -204,12 +284,12 @@ test('existing Time Solo default and0.75× speed option remain in the real lesso
 });
 
 test('native efficiency registration preserves every event of the existing Time score', () => {
-  // Explicitly register both lessons even when this individual test is selected.
+  // Explicitly register every lesson even when this individual test is selected.
   for (const fixture of bundle.fixtures) toFretboardEfficiencyScore(at, fixture);
   const timeScoreAfter = at.importer.ScoreLoader.loadScoreFromBytes(timeBytes, new at.Settings());
   const after = canonical(nativeEvents(timeScoreAfter).events.map(n =>
     [n.track, n.startTick, n.endTick, n.pitch, n.velocity, n.channel]));
-  assert.ok(timeNativeBefore.length > 0);
+  assert.equal(timeNativeBefore.length, 5472);
   assert.deepEqual(after, timeNativeBefore,
     'The exact-velocity registration must not change unrelated Time notes or playback clocks');
 });
@@ -312,34 +392,51 @@ function playerHarness({initialLesson = 'efficiency', deferTime = false, deferSc
 }
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
-test('existing Song Player loads both native lessons, seeks held duplicates, and keeps0.75× source time', async () => {
+test('existing Song Player loads every native lesson, seeks source holds, and keeps0.75× source time', async () => {
   const h = playerHarness();
   try {
     for (const fixture of bundle.fixtures) {
+      const raw = rawSources.get(fixture.id);
+      const toNative = tick => nativeTick(tick, raw.ppqn), nativeEnd = toNative(raw.endTick);
+      const contacts = new Map(fixture.versions.find(v => v.id === 'optimized').assignments.map(a => [a.note_id, a]));
+      const attacks = [...new Set(raw.notes.map(n => n.startTick))].sort((a, b) => a - b);
+      const heldAttack = attacks.find(tick => raw.notes.some(n => n.startTick < tick && tick < n.endTick)) ?? attacks[0];
+      const nextBoundary = Math.min(...raw.notes.flatMap(n => [n.startTick, n.endTick]).filter(tick => tick > heldAttack));
+      const seekTick = originalFixtureIds.has(fixture.id) ? 5760 : toNative((heldAttack + nextBoundary) / 2);
+      const expectedHeld = fixture.notes.filter(n => toNative(n.start_tick) <= seekTick && seekTick < toNative(n.end_tick))
+        .map(n => [n.id, n.pitch, 9 - contacts.get(n.id).string_number, contacts.get(n.id).fret]);
       const mapping = await h.player.loadFretboardEfficiency(fixture, 'optimized');
       assert.equal(h.api.score, mapping.score, 'Existing player must receive the actual native score');
       assert.equal(h.loaded.at(-1).fixtureId, fixture.id);
       assert.equal(h.get('PlayPause').disabled, false);
-      assert.deepEqual(h.api.playbackRange, {startTick: 0, endTick: 61920});
-      h.player.seekToTick(5760);
-      assert.equal(h.api.tickPosition, 5760);
-      assert.equal(h.active.at(-1).length, 4);
-      assert.equal(new Set(h.active.at(-1).filter(n => n.pitch === 59).map(n => n.string)).size, 2);
+      assert.deepEqual(h.api.playbackRange, {startTick: 0, endTick: nativeEnd});
+      h.player.seekToTick(seekTick);
+      assert.equal(h.api.tickPosition, seekTick);
+      assert.deepEqual(canonical(h.active.at(-1).map(n => [n.note_id, n.pitch, n.string, n.fret])), canonical(expectedHeld));
+      if (originalFixtureIds.has(fixture.id)) {
+        assert.equal(h.active.at(-1).length, 4);
+        assert.equal(new Set(h.active.at(-1).filter(n => n.pitch === 59).map(n => n.string)).size, 2);
+      }
       h.get('Speed').value = '0.75'; h.get('Speed').fire('change');
       assert.equal(h.api.playbackSpeed, 0.75);
-      assert.equal(h.api.tickPosition, 5760);
-      assert.equal(h.get('CurrentTime').textContent, '0:03');
-      assert.equal(h.positions.at(-1).tick, 5760);
-      assert.ok(Math.abs(h.positions.at(-1).fraction - 3 / 32.25) < 1e-10);
+      assert.equal(h.api.tickPosition, seekTick);
+      const elapsedSeconds = Math.round(seekTick / 960 * raw.microsecondsPerQuarter / 1000000);
+      assert.equal(h.get('CurrentTime').textContent,
+        `${Math.floor(elapsedSeconds / 60)}:${String(elapsedSeconds % 60).padStart(2, '0')}`);
+      assert.equal(h.positions.at(-1).tick, seekTick);
+      assert.ok(Math.abs(h.positions.at(-1).fraction - seekTick / nativeEnd) < 1e-10);
       h.get('PlayPause').fire('click');
-      h.api.emitPosition(8160);
+      const lowPower = raw.notes.find(n => n.pitch === 28 && raw.notes.some(other =>
+        other.pitch === 35 && other.startTick <= n.startTick && n.startTick < other.endTick));
+      assert.ok(lowPower, 'Retain the source low E/B dyad playback check for every fixture');
+      h.api.emitPosition(toNative(lowPower.startTick));
       assert.deepEqual(canonical(h.active.at(-1).map(n => [n.pitch, n.string, n.fret])),
         canonical([[28, 1, 0], [35, 2, 0]]));
-      h.api.emitPosition(61920);
+      h.api.emitPosition(nativeEnd);
       h.api.playerFinished.emit();
       assert.deepEqual(h.active.at(-1), []);
       assert.equal(h.get('Progress').value, '1000');
-      assert.equal(h.positions.at(-1).tick, 61920);
+      assert.equal(h.positions.at(-1).tick, nativeEnd);
       assert.match(h.get('PlayPause').textContent, /Play/);
     }
   } finally { h.restore(); }

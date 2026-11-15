@@ -23,10 +23,19 @@ EXPECTED_SOURCES = {
     "6_review_cfa029a287078971a412e05347b5612f6d9ef8c0ea69a1e9b0b58a82fb71aafd.mid": {
         "sha256": "cfa029a287078971a412e05347b5612f6d9ef8c0ea69a1e9b0b58a82fb71aafd",
         "note_count": 164, "open_eligible": 86, "feasible_opens": 82,
+        "ticks_per_beat": 960, "duration_ticks": 61920,
+        "duplicate_chord_ticks": (3840, 19200, 34560, 49920),
     },
     "6_review_da80eca929e874d93378b26542ed63cb17be1735f2470a387fe0ad284431535a.mid": {
         "sha256": "da80eca929e874d93378b26542ed63cb17be1735f2470a387fe0ad284431535a",
         "note_count": 191, "open_eligible": 77, "feasible_opens": 73,
+        "ticks_per_beat": 960, "duration_ticks": 61920,
+        "duplicate_chord_ticks": (3840, 19200, 34560, 49920),
+    },
+    "2026-11-15_midi_rewrite.mid": {
+        "sha256": "c5a35486923e3b819d9f7cb7176cb1c39546c26471093862e5e67c27fbe46461",
+        "note_count": 177, "open_eligible": 82, "feasible_opens": 82,
+        "ticks_per_beat": 96, "duration_ticks": 3072,
     },
 }
 
@@ -155,8 +164,10 @@ def read_midi_source(path):
     for tick, _, tempo in tempos:
         if tick == 0:
             initial_tempo = tempo
-    return {"notes": notes, "ticks_per_beat": ppqn,
+    return {"notes": notes, "format": fmt, "track_count": track_count,
+            "ticks_per_beat": ppqn, "duration_ticks": end_tick,
             "tempo_bpm": 60_000_000 / initial_tempo,
+            "tempo_events": [(tick, tempo) for tick, _, tempo in tempos],
             "tempo_values": sorted({tempo for _, _, tempo in tempos} or {500000}),
             "duration_seconds": seconds_at(end_tick),
             "sha256": hashlib.sha256(data).hexdigest()}
@@ -187,6 +198,10 @@ def validate_source(fixture, source_path):
     require(expected is not None, "Unexpected source fixture")
     require(raw["sha256"] == expected["sha256"], "Raw MIDI differs from frozen source")
     require(fixture["source_sha256"] == raw["sha256"], "Incorrect source SHA-256")
+    require(fixture["ticks_per_beat"] == raw["ticks_per_beat"] == expected["ticks_per_beat"],
+            "Fixture tick resolution differs from frozen MIDI")
+    require(fixture["duration_ticks"] == raw["duration_ticks"] == expected["duration_ticks"],
+            "Fixture end-of-track duration differs from frozen MIDI")
     notes = fixture["notes"]
     _identity_notes(notes)
     require(Counter(map(_occurrence, notes)) == Counter(map(_occurrence, raw["notes"])),
@@ -206,26 +221,37 @@ def validate_source(fixture, source_path):
 
 
 def maximum_open_attacks(notes, *, max_fret=24, max_span=4):
-    """Exhaustive independent open-count oracle for these non-overlapping grips.
+    """Exhaust every contact choice within each connected overlap component.
 
-    It enumerates only physical string choices within each onset, with no movement
-    scoring or mapper search code. A cross-onset held note makes this bound invalid
-    and is explicitly rejected instead of being quietly ignored.
+    Notes that overlap across onsets keep their assigned string until release.
+    Components separated by a release have independent open-count bounds. This
+    enumerates complete contacts with no movement score, frame search, or mapper
+    code; the frozen sources have components of at most four occurrences.
     """
-    groups = defaultdict(list)
-    for note in notes:
-        groups[note["start_tick"]].append(note)
+    groups, group = [], []
+    group_end = -1
+    for note in sorted(notes, key=lambda n: n["start_tick"]):
+        if group and note["start_tick"] >= group_end:
+            groups.append(group)
+            group = []
+        group.append(note)
+        group_end = max(group_end, note["end_tick"])
+    if group:
+        groups.append(group)
     total = 0
-    for tick, attacks in groups.items():
-        require(not any(n["start_tick"] < tick < n["end_tick"] for n in notes),
-                "Per-grip open oracle cannot certify cross-onset holds")
+    for attacks in groups:
         best = -1
+        chosen = []
 
-        def choose(index, strings, frets, open_count):
+        def choose(index, open_count):
             nonlocal best
             if index == len(attacks):
                 best = max(best, open_count)
                 return
+            active = [(string, fret) for previous, string, fret in chosen
+                      if attacks[previous]["end_tick"] > attacks[index]["start_tick"]]
+            strings = {string for string, _ in active}
+            frets = [fret for _, fret in active if fret > 0]
             pitch = attacks[index]["pitch"]
             for string, open_pitch in enumerate(TUNING_HIGH_TO_LOW, 1):
                 fret = pitch - open_pitch
@@ -234,10 +260,12 @@ def maximum_open_attacks(notes, *, max_fret=24, max_span=4):
                 next_frets = frets + ([fret] if fret > 0 else [])
                 if next_frets and max(next_frets) - min(next_frets) > max_span:
                     continue
-                choose(index + 1, strings | {string}, next_frets, open_count + (fret == 0))
+                chosen.append((index, string, fret))
+                choose(index + 1, open_count + (fret == 0))
+                chosen.pop()
 
-        choose(0, set(), [], 0)
-        require(best >= 0, f"Unplayable attack at tick {tick}")
+        choose(0, 0)
+        require(best >= 0, f"Unplayable overlap component at tick {attacks[0]['start_tick']}")
         total += best
     return total
 
@@ -374,6 +402,8 @@ def validate_string_export(fixture, version, path):
             "String MIDI export changed note occurrences or disagrees with assigned string channels")
     require(exported["ticks_per_beat"] == fixture.get("ticks_per_beat", 960),
             "String MIDI export changed tick resolution")
+    require(exported["duration_ticks"] == fixture["duration_ticks"],
+            "String MIDI export changed end-of-track duration")
     require(len(exported["tempo_values"]) == 1
             and math.isclose(exported["tempo_bpm"], fixture["tempo_bpm"], abs_tol=1e-8),
             "String MIDI export changed tempo")
@@ -390,7 +420,7 @@ def validate_dataset(dataset, source_dir, export_root=None):
     require(dataset["max_fret"] == 24, "Frozen comparison expects a 24-fret guitar")
     fixtures = dataset["fixtures"]
     require(Counter(f["source_filename"] for f in fixtures) == Counter(EXPECTED_SOURCES.keys()),
-            "Dataset must contain exactly both requested raw sources")
+            "Dataset must contain exactly all requested frozen raw sources")
     report = []
     for fixture in fixtures:
         filename = fixture["source_filename"]

@@ -2,14 +2,22 @@
 // Sound, score timing and active contacts remain owned by Song Player.
 export const EFFICIENCY_LESSON_ID = 'fretboardEfficiency';
 export const EFFICIENCY_TUNING_LOW_TO_HIGH = [28, 35, 40, 45, 50, 55, 59, 64];
+const BUILT_IN_FIXTURE_IDS = ['cfa029a2', 'da80eca9', 'c5a35486'];
 
 export function efficiencySelectionFromSearch(search) {
   const params = new URLSearchParams(search);
   return {
     selected: params.get('lesson') === EFFICIENCY_LESSON_ID,
-    fixtureId: params.get('riff') === 'da80eca9' ? 'da80eca9' : 'cfa029a2',
+    fixtureId: BUILT_IN_FIXTURE_IDS.includes(params.get('riff'))
+      ? params.get('riff') : BUILT_IN_FIXTURE_IDS[0],
     versionId: params.get('mapping') === 'greedy' ? 'greedy' : 'optimized'
   };
+}
+
+export function efficiencySourceTick(nativeTick, sourceTicksPerBeat = 960) {
+  // Song Player reports alphaTab's 960 PPQN clock; the optimizer preserves
+  // the original MIDI resolution in each fixture's positions and note events.
+  return Number(nativeTick) * Number(sourceTicksPerBeat) / 960;
 }
 
 export function efficiencyPositionAtTick(version, tick) {
@@ -64,7 +72,7 @@ export function setupFretboardEfficiencyLesson({ player, isSelected, onSelection
   const uploadedFixtures = new Map();
 
   function updateLink() {
-    const builtIn = ['cfa029a2', 'da80eca9'].includes(fixtureSelect.value);
+    const builtIn = BUILT_IN_FIXTURE_IDS.includes(fixtureSelect.value);
     link.hidden = !builtIn;
     if (!builtIn) return;
     const url = new URL(window.location.href);

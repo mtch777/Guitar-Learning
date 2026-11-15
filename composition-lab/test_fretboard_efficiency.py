@@ -1,6 +1,7 @@
 """Adversarial, source-backed tests of the Drop E fingering contract."""
 from __future__ import annotations
 
+from collections import Counter
 from copy import deepcopy
 import importlib
 import json
@@ -62,6 +63,18 @@ class IndependentOracleTests(unittest.TestCase):
         good = artificial_version(notes, [(1, 0), (2, 7)], [1, 3])
         checked = validate_version(notes, good, check_metrics=False)
         self.assertEqual(checked["max_simultaneous_notes"], 2)
+
+    def test_open_oracle_keeps_held_contacts_across_later_attacks(self):
+        # E6 has only the highest string. Its overlap forces the preceding E4
+        # off its open string; counting each onset independently would return1.
+        held = [note("held-e4", 64, 0, 1920), note("later-e6", 88, 960, 1920)]
+        self.assertEqual(maximum_open_attacks(held), 0)
+        released = deepcopy(held)
+        released[0]["end_tick"] = 960
+        self.assertEqual(maximum_open_attacks(released), 1)
+        with self.assertRaisesRegex(ValidationError, "Unplayable overlap"):
+            maximum_open_attacks([note("held-e1", 28, 0, 1920),
+                                  note("later-f1", 29, 960, 1920)])
 
     def test_same_tick_release_and_retrigger_do_not_overlap(self):
         notes = [note(1, 28, 0, 960), note(2, 28, 960, 1920)]
@@ -223,18 +236,74 @@ class SourceFixtureTests(unittest.TestCase):
         if not cls.dataset_path.exists() or not all((cls.source_dir / f).exists() for f in EXPECTED_SOURCES):
             raise unittest.SkipTest("Frozen source fixtures and generated comparison have not arrived")
 
-    def test_both_outputs_against_raw_midi_and_independent_metrics(self):
+    def test_all_outputs_against_raw_midi_and_independent_metrics(self):
         result = validate_dataset(json.loads(self.dataset_path.read_text()), self.source_dir)
         self.assertTrue(result["passed"])
-        self.assertEqual(sum(f["raw_notes_preserved"] for f in result["fixtures"]), 355)
+        self.assertEqual(sum(f["raw_notes_preserved"] for f in result["fixtures"]), 532)
+        self.assertEqual({f["fixture"]: f["raw_notes_preserved"] for f in result["fixtures"]},
+                         {"cfa029a2": 164, "da80eca9": 191, "c5a35486": 177})
 
     def test_duplicate_high_chords_remain_four_occurrences(self):
-        for filename in EXPECTED_SOURCES:
+        for filename, expected in EXPECTED_SOURCES.items():
+            if "duplicate_chord_ticks" not in expected:
+                continue
             with self.subTest(source=filename):
                 raw = read_midi_source(self.source_dir / filename)
-                for tick in (3840, 19200, 34560, 49920):
+                for tick in expected["duplicate_chord_ticks"]:
                     pitches = sorted(n["pitch"] for n in raw["notes"] if n["start_tick"] == tick)
                     self.assertEqual(pitches, [59, 59, 62, 69])
+
+    def test_uploaded_rewrite_frozen_clock_dynamics_and_holds(self):
+        raw = read_midi_source(self.source_dir / "2026-11-15_midi_rewrite.mid")
+        self.assertEqual(raw["sha256"], EXPECTED_SOURCES["2026-11-15_midi_rewrite.mid"]["sha256"])
+        self.assertEqual((raw["format"], raw["track_count"], raw["ticks_per_beat"]), (0, 1, 96))
+        self.assertEqual(raw["tempo_events"], [])
+        self.assertEqual((raw["tempo_bpm"], raw["duration_ticks"], raw["duration_seconds"]),
+                         (120, 3072, 16))
+        notes = raw["notes"]
+        self.assertEqual(len(notes), 177)
+        self.assertEqual(Counter(n["velocity"] for n in notes), Counter({90: 153, 74: 24}))
+        self.assertEqual({n["channel"] for n in notes}, {0})
+        self.assertEqual((min(n["pitch"] for n in notes), max(n["pitch"] for n in notes)), (28, 83))
+        self.assertEqual(max(n["end_tick"] for n in notes), 3072)
+        onsets = sorted({n["start_tick"] for n in notes})
+        self.assertEqual(len(onsets), 120)
+        self.assertEqual(sum(any(n["start_tick"] < t < n["end_tick"] for n in notes)
+                             for t in onsets), 12)
+        self.assertEqual(maximum_open_attacks(notes), 82)
+        self.assertEqual([(n["pitch"], n["start_tick"], n["end_tick"])
+                          for n in notes if n["id"] in (29, 30, 31)],
+                         [(60, 672, 696), (76, 684, 720), (83, 696, 720)])
+
+    def test_uploaded_rewrite_tick_resolution_and_end_of_track_are_locked(self):
+        original = json.loads(self.dataset_path.read_text())
+        for field, value, message in (("ticks_per_beat", 960, "tick resolution"),
+                                      ("duration_ticks", 3071, "end-of-track")):
+            data = deepcopy(original)
+            fixture = next(f for f in data["fixtures"] if f["id"] == "c5a35486")
+            fixture[field] = value
+            with self.subTest(field=field), self.assertRaisesRegex(ValidationError, message):
+                validate_dataset(data, self.source_dir)
+
+    def test_uploaded_rewrite_soft_note_velocity_cannot_be_flattened(self):
+        data = json.loads(self.dataset_path.read_text())
+        fixture = next(f for f in data["fixtures"] if f["id"] == "c5a35486")
+        next(n for n in fixture["notes"] if n["velocity"] == 74)["velocity"] = 90
+        with self.assertRaisesRegex(ValidationError, "raw MIDI occurrence"):
+            validate_dataset(data, self.source_dir)
+
+    def test_uploaded_rewrite_held_overlap_cannot_share_a_string(self):
+        data = json.loads(self.dataset_path.read_text())
+        fixture = next(f for f in data["fixtures"] if f["id"] == "c5a35486")
+        version = next(v for v in fixture["versions"] if v["id"] == "optimized")
+        # Both contacts individually preserve pitch and fret range, but their
+        # actual12-tick overlap makes the common physical string impossible.
+        for assignment in version["assignments"]:
+            if assignment["note_id"] in (29, 30):
+                assignment["string_number"] = 2
+                assignment["fret"] = 1 if assignment["note_id"] == 29 else 17
+        with self.assertRaisesRegex(ValidationError, "Overlapping"):
+            validate_version(fixture["notes"], version, ticks_per_beat=96)
 
     def test_source_clock_tampering_is_detected(self):
         data = json.loads(self.dataset_path.read_text())

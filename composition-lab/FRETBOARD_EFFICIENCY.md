@@ -1,10 +1,12 @@
-# Drop E fretboard efficiency: two fixed MIDI inputs
+# Drop E fretboard efficiency: fixed MIDI inputs
 
 The user-selected `cfa029a2` and `da80eca9` riffs are now regression fixtures for a whole-sequence fingering optimizer. They are frozen copies from the `generated-midi` branch at commit `b86db9f73d1adf8a5552dc81a475437a36b4ae2c`. Their filename hashes are their verified SHA-256 content hashes.
 
+The user-uploaded `2026-11-15 midi rewrite.mid` is fixture C, `c5a35486`, frozen as `2026-11-15_midi_rewrite.mid` with SHA-256 `c5a35486923e3b819d9f7cb7176cb1c39546c26471093862e5e67c27fbe46461`. Its source provenance is the upload rather than the earlier generated-MIDI commit.
+
 ## Review
 
-The primary lesson is now integrated into the existing guitar trainer (`index.html`) as **Fretboard Efficiency**. It uses the same Song Player/alphaTab engine, transport, physical fretboard, keyboard controls and speed selector as existing lessons. Both A/B inputs and optimized/greedy mappings are available. Direct lesson parameters are `?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized` and the same with `riff=da80eca9`.
+The primary lesson is integrated into the existing guitar trainer (`index.html`) as **Fretboard Efficiency**. It uses the same Song Player/alphaTab engine, transport, physical fretboard, keyboard controls and speed selector as existing lessons. A/B/C inputs and optimized/greedy mappings are available. Direct lesson parameters are `?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized`, the same with `riff=da80eca9`, and `riff=c5a35486` for the uploaded rewrite.
 
 The lesson fetches the published `data/fretboard-efficiency-fixtures.json` file and converts its exact assigned occurrences into a native alphaTab score. It never infers new fingerings from pitch alone. The existing Song Player upload accepts the same mapping JSON as well as Guitar Pro files. Default Time Solo selection is preserved when there is no explicit efficiency-lesson URL.
 
@@ -24,7 +26,7 @@ To export the same review as one self-contained offline HTML file:
 python composition-lab/export_fretboard_efficiency_review.py --output /absolute/path/drop-e-efficiency-review.html
 ```
 
-The exported HTML embeds both fixtures and both mappings and makes no automatic network requests. Its source-MIDI button opens the pinned GitHub source only when clicked.
+The exported HTML embeds all fixtures and both mappings and makes no automatic network requests. Its source-MIDI button opens the recorded GitHub source only when clicked.
 
 ## Fixed inputs
 
@@ -32,8 +34,13 @@ The exported HTML embeds both fixtures and both mappings and makes no automatic 
 | --- | --- | ---: | ---: | ---: | --- |
 | A: low response | `6_review_cfa029a2…mid` | 164 | 124 | 32.25 seconds | Open-string priority, low response, eventual climb to a high minor-second dyad |
 | B: high dyads | `6_review_da80eca9…mid` | 191 | 124 | 32.25 seconds | Repeated high dyads interleaved with lower material; rapid longitudinal changes |
+| C: MIDI rewrite | `2026-11-15_midi_rewrite.mid` | 177 | 120 | 16 seconds | Held-note overlaps, softer dyads, and a 96-PPQN source clock |
 
-Both use 120 BPM and 960 ticks per quarter note. The source files live in `tests/fixtures/fretboard-efficiency/`. Each starts with two one-second G1–D2–G2 chords, followed by a sustained high chord. Each includes E1–B1 two-note power chords and separate two-note intervals. The high chords at 2, 10, 18 and 26 seconds contain **two distinct B3 note occurrences**. These are preserved, not deduplicated.
+A/B use 120 BPM and 960 ticks per quarter note. The source files live in `tests/fixtures/fretboard-efficiency/`. A/B each start with two one-second G1–D2–G2 chords, followed by a sustained high chord. Each includes E1–B1 two-note power chords and separate two-note intervals. Their high chords at 2, 10, 18 and 26 seconds contain **two distinct B3 note occurrences**. These are preserved, not deduplicated.
+
+C has 96 ticks per quarter note, no embedded tempo, and therefore uses the MIDI default of 120 BPM. All 3,072 original source ticks map exactly to 30,720 native ticks. The lesson converts the native playhead back to the source clock before looking up hand positions. Twelve attack times contain a previously ringing note; its assigned string/fret stays fixed until its original release. All 153 velocity-90 notes and 24 velocity-74 notes are preserved.
+
+For C, the feasible greedy baseline has 36 rapid-shift flags, 173 frets of hand travel, and a largest position jump of 14. The optimized version has **2 flags, 19 frets of travel, and a largest jump of 7**, while using all **82 feasible open notes**. Picking cost is 604→634 and shape cost 780→784, consistent with their lower priority. A/B data objects are unchanged. C's initial unconstrained local greedy choice stranded a held note; the comparison now removes only grips with no feasible held-note continuation before applying its local preferences. This reachability check does not optimize future costs or change the exact whole-sequence optimizer.
 
 ## Ordered optimization
 
@@ -99,6 +106,8 @@ python composition-lab/run_fretboard_efficiency.py
 python composition-lab/check_fretboard_efficiency.py
 ```
 
+To regenerate C while keeping the already verified A/B mappings unchanged, use `python composition-lab/run_fretboard_efficiency.py --fixture c5a35486`.
+
 Run focused tests from `composition-lab`:
 
 ```bash
@@ -116,9 +125,9 @@ These checks compare actual native MIDI-generation events against a separate raw
 
 The independent checker parses raw MIDI using only the Python standard library; it does not trust the runner's parsed note list or reported scores. It checks hashes, duplicate multiplicity, exact ticks and velocities, physical string occupancy, hand windows, timing metrics, and all four exported MIDI files. The tests include held-string conflicts, same-tick retriggers, range failures, an unavoidable earlier-open sacrifice, a zero-shift high-dyad alternative, and a held-chord timing counterexample. Tampered source clocks, hashes, deleted duplicates, forged metrics and incorrect exported channels are rejected.
 
-Verification completed: **133 JavaScript tests passed with zero skips; 32 focused optimizer/shape tests passed; independent source/export check and production build passed.** Native tests execute the same pinned `alphaTab.js` browser distribution used by the deployed player. The existing trainer DOM harness checks 524 frames with a mocked transport; actual browser playback is separate evidence.
+Automated verification for A/B/C: **146 JavaScript tests passed with zero skips; 40 focused optimizer/shape/held-note tests passed; independent source/export check and production build passed.** Native tests execute the same pinned `alphaTab.js` browser distribution used by the deployed player. Seven selector/viewport tests cover all three fixtures, both mappings and the source-clock conversion. The original trainer DOM harness checked 524 frames with a mocked transport; actual browser playback is separate evidence.
 
-Both optimized riffs were played through in the final published trainer, each finishing at exactly 61,920 ticks / 32.25 seconds with no remaining active contacts. Live checks cover sustained-note seeks, both B3 occurrences, the lowest open E1/B1, the B4/C5 high dyad, Pause, Stop, native 0.75x timing, and full-neck/follow controls. The exact mapping JSON was uploaded through the existing Song Player file chooser and played successfully; the original Time lesson then restored normally. An independent join of the retained live DOM observations against the frozen occurrences/assignments verifies all 23 captured active-contact snapshots. See `fretboard-efficiency-live-validation.json` for the receipt and `../FRETBOARD_EFFICIENCY_PROGRESS.md` for final deployment and CI run identifiers. Desktop rendering was inspected; phone rendering is not claimed.
+Both original A/B optimized riffs were played through in the published trainer, each finishing at exactly 61,920 ticks / 32.25 seconds with no remaining active contacts. Live checks cover sustained-note seeks, both B3 occurrences, the lowest open E1/B1, the B4/C5 high dyad, Pause, Stop, native 0.75x timing, and full-neck/follow controls. The exact mapping JSON was uploaded through the existing Song Player file chooser and played successfully; the original Time lesson then restored normally. An independent join of the retained live DOM observations against the frozen occurrences/assignments verifies all 23 captured active-contact snapshots. See `fretboard-efficiency-live-validation.json` for that receipt and `../FRETBOARD_EFFICIENCY_PROGRESS.md` for current C deployment and playback status. Desktop rendering was inspected; phone rendering is not claimed.
 
 ## Limits and next refinement
 
@@ -126,4 +135,4 @@ This establishes exact optimization within the stated reach/contact/position/pic
 
 Shape support includes drop-power shapes, adjacent-string power shapes, all five major CAGED templates, common E/A/D minor templates, and E/A minor-pentatonic fragments. **Complete 2/3-notes-per-string and arpeggio phrase recognition is not implemented.** These can be added at Tier 5 without overriding higher priorities.
 
-The parser/export pilot handles fixed-tempo note MIDI. It refuses tempo changes and bend/controller messages rather than silently discarding them. These two real fixtures have no notes held across later attacks, so overlapping holds are covered separately by adversarial tests.
+The parser/export pilot handles fixed-tempo note MIDI. It refuses tempo changes and bend/controller messages rather than silently discarding them. A/B have no notes held across later attacks; C supplies real overlap evidence in addition to the authored held-note counterexamples.

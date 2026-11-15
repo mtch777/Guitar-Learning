@@ -1,4 +1,4 @@
-"""Reproduce the two user-selected MIDI fingering comparisons and string exports."""
+"""Reproduce the frozen MIDI fingering comparisons and string exports."""
 from pathlib import Path
 from collections import defaultdict, deque, Counter
 import argparse
@@ -14,6 +14,7 @@ SOURCE_COMMIT = 'b86db9f73d1adf8a5552dc81a475437a36b4ae2c'
 FIXTURES = (
     ('cfa029a2', 'A · Low response', '6_review_cfa029a287078971a412e05347b5612f6d9ef8c0ea69a1e9b0b58a82fb71aafd.mid'),
     ('da80eca9', 'B · High dyads', '6_review_da80eca929e874d93378b26542ed63cb17be1735f2470a387fe0ad284431535a.mid'),
+    ('c5a35486', 'C · MIDI rewrite', '2026-11-15_midi_rewrite.mid'),
 )
 
 
@@ -81,7 +82,17 @@ def write_string_midi(path, notes, version, ticks_per_beat, tempo, duration_tick
     midi.save(path)
 
 
-def build(source_dir, output):
+def build(source_dir, output, fixture_ids=None):
+    selected = None if fixture_ids is None else set(fixture_ids)
+    if selected is not None and not selected <= {item[0] for item in FIXTURES}:
+        raise ValueError('An unregistered source fixture was requested.')
+    # Targeted additions preserve previously verified mappings and their receipts.
+    existing = {}
+    if selected is not None and output.exists():
+        saved = json.loads(output.read_text(encoding='utf-8'))
+        if saved.get('schema') != 'drop-e-fretboard-efficiency/1':
+            raise ValueError('The existing output is not a fretboard mapping bundle.')
+        existing = {fixture['id']: fixture for fixture in saved['fixtures']}
     result = dict(schema='drop-e-fretboard-efficiency/1', tuning_high_to_low=list(DROP_E), max_fret=24,
         source_commit=SOURCE_COMMIT,
         model=dict(priority_order=['Exact-pitch opens', 'Rapid longitudinal shifts', 'Remaining hand/fretting movement',
@@ -100,6 +111,11 @@ def build(source_dir, output):
                    baseline='Physically admitted per-attack open-first, lowest-fret greedy mapping with nearest reachable anchor.'),
         fixtures=[])
     for fixture_id, label, filename in FIXTURES:
+        if selected is not None and fixture_id not in selected:
+            if fixture_id not in existing:
+                raise ValueError(f'Cannot preserve missing fixture {fixture_id}; generate the complete bundle first.')
+            result['fixtures'].append(existing[fixture_id])
+            continue
         source_path = source_dir / filename
         notes, ppqn, tempo, duration_ticks, spt = read_source(source_path)
         source_hash = hashlib.sha256(source_path.read_bytes()).hexdigest()
@@ -111,6 +127,15 @@ def build(source_dir, output):
                       'one copy in each chord must use a fretted string because there is only one open B3 string.',
                       'The source MIDI does not encode an original guitar fingering. Greedy is a comparison algorithm, '
                       'not the original guitarist’s fingering.'])
+        if fixture_id == 'c5a35486':
+            fixture.update(source_kind='user_upload', source_original_filename='2026-11-15 midi rewrite.mid',
+                source_commit=None,
+                source_url=f'https://github.com/mtch777/Guitar-Learning/blob/main/tests/fixtures/fretboard-efficiency/{filename}',
+                tempo_source='MIDI default; the uploaded file has no explicit tempo event',
+                warnings=['No tempo is embedded in this MIDI; playback uses the MIDI default of 120 BPM.',
+                          'Held notes retain their original string and fret until release, including notes entering midway through a hold.',
+                          'Greedy chooses local open/low-fret preferences only among grips with a feasible held-note continuation; '
+                          'it is a comparison algorithm, not an original guitarist fingering.'])
         source_snapshot = json.dumps(notes, sort_keys=True)
         for algorithm in (greedy_fingering, optimize_fingering):
             start = time.monotonic()
@@ -135,5 +160,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--source-dir', type=Path, default=ROOT/'tests'/'fixtures'/'fretboard-efficiency')
     parser.add_argument('--output', type=Path, default=ROOT/'public'/'data'/'fretboard-efficiency-fixtures.json')
+    parser.add_argument('--fixture', action='append', choices=[item[0] for item in FIXTURES],
+                        help='Regenerate only these fixtures, preserving other entries from the existing output.')
     args = parser.parse_args()
-    build(args.source_dir, args.output)
+    build(args.source_dir, args.output, args.fixture)
