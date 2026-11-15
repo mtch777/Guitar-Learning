@@ -6,7 +6,7 @@ import {
   efficiencySelectionFromSearch,
   efficiencySourceTick,
   efficiencyPositionAtTick,
-  efficiencyFretWindow,
+  efficiencyFretRange,
   setupFretboardEfficiencyLesson
 } from "./fretboard-efficiency-lesson.js";
 import {
@@ -519,7 +519,6 @@ let fretboardEfficiencyLesson = null;
 let fretboardEfficiencyFixture = null;
 let fretboardEfficiencyVersion = null;
 let fretboardEfficiencyTick = 0;
-let fretboardEfficiencyWindow = null;
 
 const lessonDefinitions = {
   intervals: {
@@ -9407,7 +9406,6 @@ document
         document.getElementById('scaleSelect').value = 'aeolian';
         syncSingleSelectDisplay('rootDropdown', 'rootSelect');
         syncSingleSelectDisplay('scaleDropdown', 'scaleSelect');
-        fretboardEfficiencyWindow = null;
       } else {
         currentTuning = [
           ...defaultTuning
@@ -10387,18 +10385,15 @@ function updateEfficiencyViewport(notes) {
   if (!board || !stage) return;
   const sourceTick = efficiencySourceTick(fretboardEfficiencyTick, fretboardEfficiencyFixture?.ticks_per_beat);
   const frame = efficiencyPositionAtTick(fretboardEfficiencyVersion, sourceTick);
-  const fullNeck = document.getElementById('fretboardEfficiencyRange').value === 'full';
-  const range = efficiencyFretWindow(frame?.position, notes, fretboardEfficiencyWindow, fullNeck);
+  const range = efficiencyFretRange(fretboardEfficiencyVersion);
   const count = range.last - range.first + 1;
   if (Number(board.dataset.firstFret) !== range.first || Number(board.dataset.lastFret) !== range.last) {
-    fretboardEfficiencyWindow = range;
     board.dataset.firstFret = String(range.first);
     board.dataset.lastFret = String(range.last);
     board.dataset.visibleFretCount = String(count);
     board.style.setProperty('--fret-count', count);
     board.classList.toggle('compact', count >= 20);
     stage.classList.toggle('compact', count >= 20);
-    board.querySelector('.fretboardNut').classList.toggle('croppedNeckBoundary', range.first > 1);
     for (const cell of songPlayerCells.values()) {
       const fret = Number(cell.dataset.fret);
       cell.hidden = fret > 0 && (fret < range.first || fret > range.last);
@@ -10418,8 +10413,8 @@ function updateEfficiencyViewport(notes) {
   const caption = document.getElementById('fretboardEfficiencyWindow');
   if (caption) {
     const shapes = notes.length ? (frame?.shape_labels || []) : [];
-    caption.textContent = `Open strings + frets ${range.first}–${range.last}` +
-      (frame ? ` · Hand position ${frame.position}` : '') +
+    caption.textContent = `Open strings + frets ${range.first}–${range.last} (fixed)` +
+      (Number.isFinite(frame?.position) ? ` · Hand position ${frame.position}` : '') +
       (shapes.length ? ` · ${shapes.join(' · ')}` : '');
   }
 }
@@ -10799,7 +10794,6 @@ if (songPlayerController) {
       fretboardEfficiencyFixture = fixture;
       fretboardEfficiencyVersion = version;
       fretboardEfficiencyTick = 0;
-      fretboardEfficiencyWindow = null;
       const controls = document.getElementById('fretboardEfficiencyControls');
       controls.dataset.fixtureId = fixture.id;
       controls.dataset.versionId = version.id;
@@ -10809,11 +10803,6 @@ if (songPlayerController) {
   });
   if (getSelectedLessonType() === EFFICIENCY_LESSON_ID) fretboardEfficiencyLesson.activate();
 }
-
-document.getElementById('fretboardEfficiencyRange').addEventListener('change', () => {
-  fretboardEfficiencyWindow = null;
-  displaySongPlayerNotes(songPlayerLastNotes);
-});
 
 document.getElementById('timeSoloIntervalType')?.addEventListener('change', () => {
   displaySongPlayerNotes(songPlayerLastNotes);

@@ -38,25 +38,12 @@ export function efficiencyPositionAtTick(version, tick) {
   return result;
 }
 
-export function efficiencyFretWindow(position, notes, previous = null, fullNeck = false) {
-  if (fullNeck) return { first: 1, last: 24 };
-  const frets = (notes || []).map(note => Number(note.fret))
-    .filter(fret => Number.isInteger(fret) && fret > 0 && fret <= 24);
-  const anchor = Math.max(1, Math.min(24, Math.floor(Number(position) || 1)));
-  // Keep a stable frame while the hand and every ringing contact fit. Open
-  // strings have their own column, so they never force a 1–24 view.
-  if (previous && previous.last - previous.first < 12 &&
-      anchor >= previous.first && anchor <= previous.last - 2 &&
-      frets.every(fret => fret >= previous.first && fret <= previous.last)) {
-    return previous;
-  }
-  let first = Math.max(1, Math.min(18, anchor - 1));
-  let last = first + 6;
-  if (frets.length) {
-    first = Math.min(first, ...frets);
-    last = Math.max(last, ...frets);
-  }
-  return { first, last };
+export function efficiencyFretRange(version) {
+  // The complete selected fingering determines the range. Playback time,
+  // hand position and sounding notes never move or resize this view.
+  const highestFret = (version?.assignments || []).reduce(
+    (highest, assignment) => Math.max(highest, Number(assignment.fret) || 0), 1);
+  return { first: 1, last: Math.min(24, highestFret) };
 }
 
 export function setupFretboardEfficiencyLesson({ player, isSelected, onSelection }) {

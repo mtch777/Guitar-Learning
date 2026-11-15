@@ -6,7 +6,7 @@ import {
   efficiencySelectionFromSearch,
   efficiencySourceTick,
   efficiencyPositionAtTick,
-  efficiencyFretWindow
+  efficiencyFretRange
 } from '../src/fretboard-efficiency-lesson.js';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
@@ -202,8 +202,9 @@ test('missing adjacency diagnostics are unavailable rather than zero in the less
   assert.match(harness.fields.fretboardEfficiencyInfo.textContent, /— rapid single-note string skips/);
 });
 
-test('the actual trainer viewport uses source ticks for C and preserves A/B native-clock behavior', () => {
+test('the actual trainer viewport keeps every mapping fixed through playback, seeking and empty states, with source-clock labels', () => {
   assert.ok(data.fixtures.some(fixture => fixture.id === 'c5a35486'), 'C is required for the clock regression');
+  assert.doesNotMatch(html, /id="fretboardEfficiencyRange"/);
   const trainer = readFileSync(new URL('../src/trainer.js', import.meta.url), 'utf8');
   const begin = trainer.indexOf('function updateEfficiencyViewport(');
   const end = trainer.indexOf('function displaySongPlayerNotes(', begin);
@@ -221,46 +222,76 @@ test('the actual trainer viewport uses source ticks for C and preserves A/B nati
         cells.set(`${string}|${fret}`, { dataset: { fret: String(fret) }, style: {}, hidden: false });
       }
     }
-    let lookupTick;
+    let lookupTick, sizingCalls = 0;
     const context = vm.createContext({
       EFFICIENCY_LESSON_ID: 'fretboardEfficiency',
       getSelectedLessonType: () => 'fretboardEfficiency',
       document: {
         querySelector: selector => selector === '.physicalFretboard' ? board : stage,
-        getElementById: id => id === 'fretboardEfficiencyRange' ? { value: 'follow' } : caption
+        getElementById: () => caption
       },
       fretboardEfficiencyFixture: fixture,
       fretboardEfficiencyVersion: null,
       fretboardEfficiencyTick: 0,
-      fretboardEfficiencyWindow: null,
       songPlayerCells: cells,
       currentTuning: [28, 35, 40, 45, 50, 55, 59, 64],
-      efficiencySourceTick, efficiencyFretWindow,
+      efficiencySourceTick, efficiencyFretRange,
       efficiencyPositionAtTick(version, tick) {
         lookupTick = tick;
         return efficiencyPositionAtTick(version, tick);
       },
-      sizeFretboardNotes() {}
+      sizeFretboardNotes() { sizingCalls++; }
     });
     vm.runInContext(trainer.slice(begin, end), context);
     for (const version of fixture.versions) {
       context.fretboardEfficiencyVersion = version;
-      context.fretboardEfficiencyWindow = null;
       const assignments = new Map(version.assignments.map(item => [item.note_id, item]));
-      const nativeTicks = [1000, ...version.positions.map(position => position.tick * 960 / fixture.ticks_per_beat)];
+      const highestFret = Math.max(...version.assignments.map(item => item.fret));
+      const highestAssignment = version.assignments.find(item => item.fret === highestFret);
+      const highestNote = fixture.notes.find(note => note.id === highestAssignment.note_id);
+      const nativeTick = tick => tick * 960 / fixture.ticks_per_beat;
+      const highSeekTick = nativeTick((highestNote.start_tick + highestNote.end_tick) / 2);
+      const nativeTicks = [0, 1000,
+        ...version.positions.map(position => nativeTick(position.tick)),
+        ...fixture.notes.map(note => nativeTick(note.end_tick)),
+        0, highSeekTick, nativeTick(version.positions.at(-1).tick),
+        nativeTick(fixture.duration_ticks), highSeekTick, 0];
+      let fixedGeometry, fixedSizingCalls;
+      const geometry = () => JSON.stringify([...cells].map(([key, cell]) =>
+        [key, cell.hidden, cell.style.left, cell.style.width]));
+      const assertFixed = () => {
+        assert.equal(board.dataset.firstFret, '1');
+        assert.equal(Number(board.dataset.lastFret), highestFret);
+        assert.equal(Number(board.dataset.visibleFretCount), highestFret);
+        assert.equal(geometry(), fixedGeometry);
+        assert.equal(sizingCalls, fixedSizingCalls, 'Playback must not resize the fretboard');
+      };
       for (const nativeTick of nativeTicks) {
         const sourceTick = nativeTick * fixture.ticks_per_beat / 960;
         context.fretboardEfficiencyTick = nativeTick;
         const notes = fixture.notes.filter(note => note.start_tick <= sourceTick && sourceTick < note.end_tick)
           .map(note => ({ string: 9 - assignments.get(note.id).string_number, fret: assignments.get(note.id).fret }));
         context.updateEfficiencyViewport(notes);
+        if (fixedGeometry === undefined) {
+          fixedGeometry = geometry();
+          fixedSizingCalls = sizingCalls;
+        }
+        assertFixed();
         assert.equal(lookupTick, sourceTick, `${fixture.id}: native ${nativeTick} must use source ${sourceTick}`);
         const frame = fixture.versions.find(item => item.id === version.id).positions
           .findLast(position => position.tick <= sourceTick);
-        if (frame) assert.ok(caption.textContent.includes(`Hand position ${frame.position}`));
+        if (Number.isFinite(frame?.position)) assert.ok(caption.textContent.includes(`Hand position ${frame.position}`));
+        else assert.doesNotMatch(caption.textContent, /Hand position/);
         for (const note of notes) assert.equal(cells.get(`${note.string - 1}|${note.fret}`).hidden, false);
         for (let string = 0; string < 8; string++) assert.equal(cells.get(`${string}|0`).hidden, false);
       }
+      context.updateEfficiencyViewport([]);
+      assertFixed();
+      for (const assignment of version.assignments) {
+        assert.equal(cells.get(`${8 - assignment.string_number}|${assignment.fret}`).hidden, false,
+          `${fixture.id}/${version.id}: every assigned contact fits at once`);
+      }
+      if (fixture.id === 'c5a35486' && version.id === 'strumPick') assert.equal(highestFret, 24);
     }
     assert.equal(efficiencySourceTick(1000, fixture.ticks_per_beat), fixture.id === 'c5a35486' ? 100 : 1000);
   }

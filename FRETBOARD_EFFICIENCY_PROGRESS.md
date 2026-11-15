@@ -1,6 +1,19 @@
 # Drop E fretboard efficiency
 
-## Current delivery: separate strum/pick optimizer — 2026-11-15
+## Current delivery: fixed full fret range — 2026-11-15
+
+User correction: the moving fretboard is disorienting. Show open strings through the highest fret used by the selected mapping simultaneously, with one fixed range throughout playback and seeking. This presentation change does not alter the accepted mappings, MIDI, optimizer priorities or playback timing.
+
+- [x] Replace hand-following with a fixed open-to-highest-used-fret range; remove the unnecessary moving-view selector.
+- [x] Verify all nine fixture/version ranges include every assigned contact, stay fixed across low/high/held/rest/end frames, and restore normal layout when leaving this lesson.
+- [ ] Run relevant existing JavaScript checks and production build; publish the exact tested source through the approved GitHub workflow.
+- [ ] Validate the published lesson's fixed viewport during playback/seeking and leave C / Strum + pick ready at zero.
+
+Root owns integration, documentation, publication and live validation. UI agent owns the existing lesson viewport/control change and updates to existing affected checks. Independent reviewer checks the range, lifecycle and screen-fit evidence read-only. The decisive counterexample is C's transition from low/open notes to the held E5/B5 contact at fret 24 and back: the fret bounds must never move. No new musical capability or listening approval is needed for this view correction.
+
+Pre-publication acceptance: existing JavaScript suite **173/173 passed, zero skips**, including the updated existing viewport check across all nine mappings, all attack/release times, high/low seeks and empty states. Independent review reran the selector suite **10/10**, confirmed every contact/open cell fits, geometry and sizing stay unchanged during playback, and other lessons retain their unchanged rebuild path. Production build and whitespace check pass. Fixed highest frets (greedy / optimized / strumPick): A **19 / 19 / 22**, B **19 / 21 / 19**, C **19 / 21 / 24**. The original responsive layout fits the neck to available width; no CSS, auto-scroll, music, optimizer or transport change. Actual phone rendering is not claimed. Fixture data SHA-256 remains `cd018c70c8b1c6fd52651d205658f60f5cf9d38f358290a847fe5f6cdc0988f8`. Expected main asset: `main-OnE3-uyk.js`. Published live acceptance remains below.
+
+## Previous delivery: separate strum/pick optimizer — 2026-11-15
 
 User request: add separate optimization logic with this strict order: (1) exact-pitch opens, (2) fewest skipped strings among notes attacked together, (3) fewest skipped strings between rapid single-note attacks. The existing five-tier hand-movement optimizer and its saved results remain available and unchanged. This is the current scoped task; historical Composition Lab generation requirements do not replace it.
 
