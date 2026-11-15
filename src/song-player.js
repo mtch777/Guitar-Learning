@@ -14,7 +14,9 @@ const ALPHATAB_ROOT =
 
 const ALPHATAB_SCRIPT =
   ALPHATAB_ROOT +
-  'alphaTab.min.js';
+  // Match the existing riff builder: the pinned playback bridges require the
+  // original method names, which this package's minified build renames.
+  'alphaTab.js';
 
 const ALPHATAB_SOUNDFONT =
   ALPHATAB_ROOT +

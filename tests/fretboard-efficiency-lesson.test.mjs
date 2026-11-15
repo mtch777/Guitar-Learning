@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {existsSync, readFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
 import {resolve} from 'node:path';
-import {fileURLToPath, pathToFileURL} from 'node:url';
+import {fileURLToPath} from 'node:url';
+import vm from 'node:vm';
 import {
   toFretboardEfficiencyScore, efficiencyNotesAtTick,
 } from '../src/fretboard-efficiency-score.js';
@@ -13,11 +15,29 @@ import {setupSongPlayer} from '../src/song-player.js';
 // tests/*.test.mjs; an unavailable native player must fail, never silently skip.
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const nativeRoot = resolve(root, '.local/qa/node_modules/@coderline/alphatab');
-const nativePath = resolve(nativeRoot, 'dist/alphaTab.mjs');
+// Exercise the exact browser UMD distribution used by the trainer. The minified
+// distribution removes the private bridge methods even at this same version;
+// checking only the separate .mjs build previously missed that live failure.
+const nativePath = resolve(nativeRoot, 'dist/alphaTab.js');
 assert.ok(existsSync(nativePath), 'Install pinned @coderline/alphatab@1.8.4 in .local/qa before native lesson QA');
 assert.equal(JSON.parse(readFileSync(resolve(nativeRoot, 'package.json'), 'utf8')).version, '1.8.4');
-const at = await import(pathToFileURL(nativePath).href);
+const at = createRequire(import.meta.url)(nativePath);
 const bundle = JSON.parse(readFileSync(resolve(root, 'public/data/fretboard-efficiency-fixtures.json'), 'utf8'));
+const verifiedBrowserUrl = 'https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js';
+
+test('Song Player loads the exact tested browser distribution and its required native bridge', () => {
+  const source = readFileSync(resolve(root, 'src/song-player.js'), 'utf8');
+  const declarations = ['ALPHATAB_VERSION', 'ALPHATAB_ROOT', 'ALPHATAB_SCRIPT'].map(name => {
+    const declaration = source.match(new RegExp(`const\\s+${name}\\s*=\\s*[^;]+;`));
+    assert.ok(declaration, `Locate the actual ${name} loader declaration`);
+    return declaration[0];
+  });
+  const configuredUrl = vm.runInNewContext(`${declarations.join('\n')}\nALPHATAB_SCRIPT`);
+  assert.equal(configuredUrl, verifiedBrowserUrl,
+    'The browser must load the same version and distribution that passed native QA');
+  assert.equal(typeof at.midi.MidiFileGenerator.prototype._generateSlide, 'function');
+  assert.equal(typeof at.midi.MidiFileGenerator._getNoteVelocity, 'function');
+});
 
 /** Independent standard MIDI reader: no adapter or fixture-derived clocks. */
 function rawMidi(path) {
@@ -228,8 +248,9 @@ function playerHarness({initialLesson = 'efficiency', deferTime = false, deferSc
     emit(value) { for (const fn of this.listeners) fn(value); }
   }
   class FakeApi {
-    constructor() {
+    constructor(surface, settings) {
       api = this; this.settings = {importer: {}}; this.calls = []; this.rendered = [];
+      this.initialScriptFile = settings?.core?.scriptFile;
       this._speed = 1; this._tick = 0; this._time = 0;
       for (const name of ['scoreLoaded', 'playerReady', 'playerStateChanged', 'playerPositionChanged',
         'playerFinished', 'activeBeatsChanged', 'error']) this[name] = new Signal();
@@ -279,6 +300,7 @@ function playerHarness({initialLesson = 'efficiency', deferTime = false, deferSc
   });
   return {player, get, active, positions, loaded, tracks,
     get api() { return api; }, get fetches() { return fetches; },
+    get requestedScriptUrl() { return script?.src; },
     setLesson(value) { lesson = value; elements.get('lessonTypeSelect').fire('change'); },
     resolveTime() { fetchResolve(timeResponse); },
     resolveScript() { assert.ok(script); window.alphaTab = alphaTab; script.fire('load'); },
@@ -381,9 +403,11 @@ test('leaving before the native script is ready cancels a pending mapping load',
   const h = playerHarness({deferScript: true});
   try {
     const loading = h.player.loadFretboardEfficiency(bundle.fixtures[0]);
+    assert.equal(h.requestedScriptUrl, verifiedBrowserUrl, 'The dynamically inserted browser script must be the tested bundle');
     h.player.clearFretboardEfficiency();
     h.resolveScript();
     await assert.rejects(loading, /replaced|closed/);
+    assert.equal(h.api.initialScriptFile, verifiedBrowserUrl, 'Native player workers must use the same tested distribution');
     assert.equal(h.api.rendered.length, 0);
     assert.equal(h.loaded.length, 0);
   } finally { h.restore(); }

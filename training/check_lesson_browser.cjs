@@ -14,6 +14,11 @@ const {chromium}=require('playwright');const fs=require('node:fs');
   };
  });
  await page.goto('http://127.0.0.1:5173/Guitar-Learning/');
+ // The recorded acoustic fixture is the lowest open D#1. Select the quiz
+ // explicitly: the default Time score uses Drop E and cannot display MIDI 27.
+ await page.locator('#lessonTypeSummary').click();
+ await page.locator('#lessonTypeDropdown').getByText('Intervals Relative to Low String',{exact:true}).click();
+ await page.waitForFunction(()=>document.querySelector('#lessonTypeSelect').value==='intervals'&&document.querySelector('.fretboardNote[data-string-index="0"][data-fret="0"]')?.dataset.absolutePitch==='27');
  await page.click('#guitarInputButton');await page.waitForFunction(()=>document.querySelector('#guitarInputStatus').textContent.includes('Hybrid + fusion'),null,{timeout:40000});
  const wav=fs.readFileSync('training/data/live_2026-09-30/s1_f00_normal_live.wav').toString('base64');
  await page.evaluate(b=>window.__playWav(b),wav);
