@@ -1,0 +1,1125 @@
+{
+  "applicationSourceCommit": "56a103387d05fc869bcffb8a6a6e2a28d2ac171b",
+  "applicationTree": "1373e266be7c0a0f2b0a829e812c6d35e4239090",
+  "workflowReadinessCommit": "c12971eff4644631048569acbccfd98a6ecb1444",
+  "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick",
+  "mainAsset": "main-C4fhCTZW.js",
+  "bundleSha256": "cd018c70c8b1c6fd52651d205658f60f5cf9d38f358290a847fe5f6cdc0988f8",
+  "observations": [
+    {
+      "label": "C strumPick ready",
+      "observedAt": "2026-11-15T22:21:34.907Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "7",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "64",
+          "fret": "0",
+          "label": "String 1, fret 0, E4",
+          "noteId": "0",
+          "string": "8",
+          "stringIndex": "7"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "C · MIDI rewrite · Drop E 8 string",
+      "summary": "\n          \n            Test riff\n            \n              A · Low response\n              B · High dyads\n              C · MIDI rewrite\n            \n          \n          \n            Fingering\n            \n              Optimized\n              Greedy comparison\n              Strum + pick\n            \n          \n          \n            Fret view\n            \n              Follow hand\n              Full neck\n            \n          \n          Link to this riff\n          Drop E · intervals relative to E · 82 open notes · 0 chord string skips · 32 rapid single-note string skips\n        ",
+      "time": "0:00"
+    },
+    {
+      "label": "C strumPick playing at 1x",
+      "observedAt": "2026-11-15T22:21:51.057Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "7",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "53.5",
+        "tick": "535",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "fret": "0",
+          "label": "String 7, fret 0, B1",
+          "noteId": "3",
+          "string": "2",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "28",
+          "fret": "0",
+          "label": "String 8, fret 0, E1",
+          "noteId": "2",
+          "string": "1",
+          "stringIndex": "0"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "⏸ Pause"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "535",
+        "value": "17",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "C · MIDI rewrite · Drop E 8 string",
+      "summary": "\n          \n            Test riff\n            \n              A · Low response\n              B · High dyads\n              C · MIDI rewrite\n            \n          \n          \n            Fingering\n            \n              Optimized\n              Greedy comparison\n              Strum + pick\n            \n          \n          \n            Fret view\n            \n              Follow hand\n              Full neck\n            \n          \n          Link to this riff\n          Drop E · intervals relative to E · 82 open notes · 0 chord string skips · 32 rapid single-note string skips\n        ",
+      "time": "0:00"
+    },
+    {
+      "label": "C strumPick 1x natural end",
+      "observedAt": "2026-11-15T22:22:14.002Z",
+      "board": {
+        "firstFret": "11",
+        "lastFret": "17",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "3072",
+        "tick": "30720",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [],
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "30720",
+        "value": "1000",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "C · MIDI rewrite · Drop E 8 string",
+      "summary": "\n          \n            Test riff\n            \n              A · Low response\n              B · High dyads\n              C · MIDI rewrite\n            \n          \n          \n            Fingering\n            \n              Optimized\n              Greedy comparison\n              Strum + pick\n            \n          \n          \n            Fret view\n            \n              Follow hand\n              Full neck\n            \n          \n          Link to this riff\n          Drop E · intervals relative to E · 82 open notes · 0 chord string skips · 32 rapid single-note string skips\n        ",
+      "time": "0:16"
+    },
+    {
+      "label": "C held E5 enters at S3 fret21",
+      "observedAt": "2026-11-15T22:22:35.945Z",
+      "board": {
+        "firstFret": "17",
+        "lastFret": "23",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "691.2",
+        "tick": "6912",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "76",
+          "fret": "21",
+          "label": "String 3, fret 21, E5",
+          "noteId": "30",
+          "string": "6",
+          "stringIndex": "5"
+        },
+        {
+          "absolutePitch": "60",
+          "fret": "20",
+          "label": "String 6, fret 20, C4",
+          "noteId": "29",
+          "string": "3",
+          "stringIndex": "2"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "6912",
+        "value": "225",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "C · MIDI rewrite · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 82 open notes · 0 chord string skips · 32 rapid single-note string skips",
+      "time": "0:04"
+    },
+    {
+      "label": "C retained E5 and visible fret24 B5",
+      "observedAt": "2026-11-15T22:22:41.041Z",
+      "board": {
+        "firstFret": "18",
+        "lastFret": "24",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "706.6",
+        "tick": "7066",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "83",
+          "fret": "24",
+          "label": "String 2, fret 24, B5",
+          "noteId": "31",
+          "string": "7",
+          "stringIndex": "6"
+        },
+        {
+          "absolutePitch": "76",
+          "fret": "21",
+          "label": "String 3, fret 21, E5",
+          "noteId": "30",
+          "string": "6",
+          "stringIndex": "5"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "7066",
+        "value": "230",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "C · MIDI rewrite · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 82 open notes · 0 chord string skips · 32 rapid single-note string skips",
+      "time": "0:04"
+    },
+    {
+      "label": "C adjacent E4 B4 coattack",
+      "observedAt": "2026-11-15T22:22:48.956Z",
+      "board": {
+        "firstFret": "11",
+        "lastFret": "17",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "3035.1",
+        "tick": "30351",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "64",
+          "fret": "0",
+          "label": "String 1, fret 0, E4",
+          "noteId": "173",
+          "string": "8",
+          "stringIndex": "7"
+        },
+        {
+          "absolutePitch": "71",
+          "fret": "12",
+          "label": "String 2, fret 12, B4",
+          "noteId": "174",
+          "string": "7",
+          "stringIndex": "6"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "30351",
+        "value": "988",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "C · MIDI rewrite · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 82 open notes · 0 chord string skips · 32 rapid single-note string skips",
+      "time": "0:16"
+    },
+    {
+      "label": "A strumPick selected",
+      "observedAt": "2026-11-15T22:22:55.728Z",
+      "board": {
+        "firstFret": "2",
+        "lastFret": "8",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "cfa029a2",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "43",
+          "fret": "3",
+          "label": "String 6, fret 3, G2",
+          "noteId": "2",
+          "string": "3",
+          "stringIndex": "2"
+        },
+        {
+          "absolutePitch": "38",
+          "fret": "3",
+          "label": "String 7, fret 3, D2",
+          "noteId": "1",
+          "string": "2",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "31",
+          "fret": "3",
+          "label": "String 8, fret 3, G1",
+          "noteId": "0",
+          "string": "1",
+          "stringIndex": "0"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "61920",
+        "fixtureId": "cfa029a2",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "cfa029a2",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "A · Low response · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 82 open notes · 3 chord string skips · 36 rapid single-note string skips",
+      "time": "0:00"
+    },
+    {
+      "label": "A strumPick playing",
+      "observedAt": "2026-11-15T22:22:56.113Z",
+      "board": {
+        "firstFret": "2",
+        "lastFret": "8",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "cfa029a2",
+        "sourceTick": "535",
+        "tick": "535",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "43",
+          "fret": "3",
+          "label": "String 6, fret 3, G2",
+          "noteId": "2",
+          "string": "3",
+          "stringIndex": "2"
+        },
+        {
+          "absolutePitch": "38",
+          "fret": "3",
+          "label": "String 7, fret 3, D2",
+          "noteId": "1",
+          "string": "2",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "31",
+          "fret": "3",
+          "label": "String 8, fret 3, G1",
+          "noteId": "0",
+          "string": "1",
+          "stringIndex": "0"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "⏸ Pause"
+      },
+      "progress": {
+        "durationTicks": "61920",
+        "fixtureId": "cfa029a2",
+        "playing": "true",
+        "ready": "true",
+        "tick": "535",
+        "value": "9",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "cfa029a2",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "A · Low response · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 82 open notes · 3 chord string skips · 36 rapid single-note string skips",
+      "time": "0:00"
+    },
+    {
+      "label": "A strumPick advancing",
+      "observedAt": "2026-11-15T22:23:06.438Z",
+      "board": {
+        "firstFret": "5",
+        "lastFret": "11",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "cfa029a2",
+        "sourceTick": "20330",
+        "tick": "20330",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "59",
+          "fret": "0",
+          "label": "String 2, fret 0, B3",
+          "noteId": "49",
+          "string": "7",
+          "stringIndex": "6"
+        },
+        {
+          "absolutePitch": "69",
+          "fret": "5",
+          "label": "String 1, fret 5, A4",
+          "noteId": "52",
+          "string": "8",
+          "stringIndex": "7"
+        },
+        {
+          "absolutePitch": "62",
+          "fret": "7",
+          "label": "String 3, fret 7, D4",
+          "noteId": "51",
+          "string": "6",
+          "stringIndex": "5"
+        },
+        {
+          "absolutePitch": "59",
+          "fret": "9",
+          "label": "String 4, fret 9, B3",
+          "noteId": "50",
+          "string": "5",
+          "stringIndex": "4"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "⏸ Pause"
+      },
+      "progress": {
+        "durationTicks": "61920",
+        "fixtureId": "cfa029a2",
+        "playing": "true",
+        "ready": "true",
+        "tick": "20330",
+        "value": "328",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "cfa029a2",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "A · Low response · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 82 open notes · 3 chord string skips · 36 rapid single-note string skips",
+      "time": "0:11"
+    },
+    {
+      "label": "A strumPick natural end",
+      "observedAt": "2026-11-15T22:23:51.960Z",
+      "board": {
+        "firstFret": "4",
+        "lastFret": "10",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "cfa029a2",
+        "sourceTick": "61920",
+        "tick": "61920",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [],
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "61920",
+        "fixtureId": "cfa029a2",
+        "playing": "false",
+        "ready": "true",
+        "tick": "61920",
+        "value": "1000",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "cfa029a2",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "A · Low response · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 82 open notes · 3 chord string skips · 36 rapid single-note string skips",
+      "time": "0:32"
+    },
+    {
+      "label": "B strumPick selected",
+      "observedAt": "2026-11-15T22:23:52.215Z",
+      "board": {
+        "firstFret": "2",
+        "lastFret": "8",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "da80eca9",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "43",
+          "fret": "3",
+          "label": "String 6, fret 3, G2",
+          "noteId": "2",
+          "string": "3",
+          "stringIndex": "2"
+        },
+        {
+          "absolutePitch": "38",
+          "fret": "3",
+          "label": "String 7, fret 3, D2",
+          "noteId": "1",
+          "string": "2",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "31",
+          "fret": "3",
+          "label": "String 8, fret 3, G1",
+          "noteId": "0",
+          "string": "1",
+          "stringIndex": "0"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "61920",
+        "fixtureId": "da80eca9",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "da80eca9",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "B · High dyads · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 73 open notes · 15 chord string skips · 18 rapid single-note string skips",
+      "time": "0:00"
+    },
+    {
+      "label": "B strumPick playing",
+      "observedAt": "2026-11-15T22:23:52.578Z",
+      "board": {
+        "firstFret": "2",
+        "lastFret": "8",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "da80eca9",
+        "sourceTick": "535",
+        "tick": "535",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "43",
+          "fret": "3",
+          "label": "String 6, fret 3, G2",
+          "noteId": "2",
+          "string": "3",
+          "stringIndex": "2"
+        },
+        {
+          "absolutePitch": "38",
+          "fret": "3",
+          "label": "String 7, fret 3, D2",
+          "noteId": "1",
+          "string": "2",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "31",
+          "fret": "3",
+          "label": "String 8, fret 3, G1",
+          "noteId": "0",
+          "string": "1",
+          "stringIndex": "0"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "⏸ Pause"
+      },
+      "progress": {
+        "durationTicks": "61920",
+        "fixtureId": "da80eca9",
+        "playing": "true",
+        "ready": "true",
+        "tick": "535",
+        "value": "9",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "da80eca9",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "B · High dyads · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 73 open notes · 15 chord string skips · 18 rapid single-note string skips",
+      "time": "0:00"
+    },
+    {
+      "label": "B strumPick natural end",
+      "observedAt": "2026-11-15T22:24:45.307Z",
+      "board": {
+        "firstFret": "4",
+        "lastFret": "10",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "da80eca9",
+        "sourceTick": "61920",
+        "tick": "61920",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [],
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "61920",
+        "fixtureId": "da80eca9",
+        "playing": "false",
+        "ready": "true",
+        "tick": "61920",
+        "value": "1000",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "da80eca9",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "B · High dyads · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 73 open notes · 15 chord string skips · 18 rapid single-note string skips",
+      "time": "0:32"
+    },
+    {
+      "label": "C strumPick playing at 0.75x",
+      "observedAt": "2026-11-15T22:24:45.915Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "7",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "40.2",
+        "tick": "402",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "40",
+          "fret": "0",
+          "label": "String 6, fret 0, E2",
+          "noteId": "1",
+          "string": "3",
+          "stringIndex": "2"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "⏸ Pause"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "402",
+        "value": "13",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "0.75",
+      "status": "C · MIDI rewrite · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 82 open notes · 0 chord string skips · 32 rapid single-note string skips",
+      "time": "0:00"
+    },
+    {
+      "label": "C strumPick 0.75x playback check",
+      "observedAt": "2026-11-15T22:25:18.678Z",
+      "board": {
+        "firstFret": "11",
+        "lastFret": "17",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "3072",
+        "tick": "30720",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [],
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "30720",
+        "value": "1000",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "0.75",
+      "status": "C · MIDI rewrite · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 82 open notes · 0 chord string skips · 32 rapid single-note string skips",
+      "time": "0:16"
+    },
+    {
+      "label": "C strumPick restarted for Pause check",
+      "observedAt": "2026-11-15T22:25:37.421Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "7",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "53.5",
+        "tick": "535",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "fret": "0",
+          "label": "String 7, fret 0, B1",
+          "noteId": "3",
+          "string": "2",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "28",
+          "fret": "0",
+          "label": "String 8, fret 0, E1",
+          "noteId": "2",
+          "string": "1",
+          "stringIndex": "0"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "⏸ Pause"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "535",
+        "value": "17",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "C · MIDI rewrite · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 82 open notes · 0 chord string skips · 32 rapid single-note string skips",
+      "time": "0:00"
+    },
+    {
+      "label": "C strumPick paused",
+      "observedAt": "2026-11-15T22:25:41.819Z",
+      "board": {
+        "firstFret": "14",
+        "lastFret": "20",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "838.2",
+        "tick": "8382",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [],
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "8382",
+        "value": "273",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "C · MIDI rewrite · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 82 open notes · 0 chord string skips · 32 rapid single-note string skips",
+      "time": "0:04"
+    },
+    {
+      "label": "Original hand optimizer remains selectable",
+      "observedAt": "2026-11-15T22:25:42.073Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "7",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "optimized"
+      },
+      "help": [
+        "Open-string priority, then rapid neck shifts, total movement, picking and familiar shapes. Greedy comparison uses the same original notes and timing; the original MIDI contains no fingering."
+      ],
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "64",
+          "fret": "0",
+          "label": "String 1, fret 0, E4",
+          "noteId": "0",
+          "string": "8",
+          "stringIndex": "7"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "optimized"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "C · MIDI rewrite · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 82 open notes · 2 rapid shifts · 19 frets travelled",
+      "time": "0:00"
+    },
+    {
+      "label": "Final C strumPick ready at zero",
+      "observedAt": "2026-11-15T22:26:04.937Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "7",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "help": [
+        "Priorities: Exact-pitch open strings → Fewest skipped strings in co-attacked chords → Fewest string skips between rapid single attacks. Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results. Rapid pairs use at most 250 ms between source attacks. Playback speed does not recompute the fingering."
+      ],
+      "mapping": "strumPick",
+      "notes": [],
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "speed": "1",
+      "status": "C · MIDI rewrite · Drop E 8 string",
+      "summary": "Test riff A · Low response B · High dyads C · MIDI rewrite Fingering Optimized Greedy comparison Strum + pick Fret view Follow hand Full neck Link to this riff Drop E · intervals relative to E · 82 open notes · 0 chord string skips · 32 rapid single-note string skips",
+      "time": "0:00"
+    }
+  ],
+  "screenshot": "/workspace/shared/fretboard-strum-pick.jpg",
+  "rawCaptureSha256": "fcb96c7326bd4eb92a70d607e89f4713c9fe91a370a71a26d2ec7feb59fb3cc2",
+  "publication": {
+    "ghPagesCommit": "73c6423a4b51a9633ca09f2edcda75a7d34d7b39",
+    "sourceBuildRun": 43768562764,
+    "pagesDeploymentRun": 43768644251,
+    "originalMainPreflightRun": 43768562827,
+    "readinessGuardCommit": "c12971eff4644631048569acbccfd98a6ecb1444",
+    "readinessGuardTree": "f59d0359ed396a2d89323c672e9c7a21119aa69f",
+    "mainPreflightRun": 43769132226,
+    "featurePreflightRun": 43769130370,
+    "allListedRunsConclusion": "success",
+    "servedFileCount": 7,
+    "servedFilesMatchTestedBytes": true
+  },
+  "captureCounts": {
+    "observations": 19,
+    "nonemptyContactFrames": 13,
+    "contacts": 29,
+    "emptyContactStates": 6
+  },
+  "screenshotSha256": "0cd758a7fbcd3c7b1d41a2ac649c1982803e661ebdf03bbb64cf14721d259c48",
+  "independentAudit": {
+    "status": "passed",
+    "rawReceiptSha256": "fcb96c7326bd4eb92a70d607e89f4713c9fe91a370a71a26d2ec7feb59fb3cc2",
+    "publishedFixtureBundleSha256": "cd018c70c8b1c6fd52651d205658f60f5cf9d38f358290a847fe5f6cdc0988f8",
+    "sourcesVerified": 3,
+    "sourceOccurrencesVerified": 532,
+    "observationsVerified": 19,
+    "nonemptyContactFrames": 13,
+    "previewFrames": 7,
+    "playingFrames": 6,
+    "exactActiveContactsVerified": 29,
+    "correctlyEmptyFrames": 6,
+    "naturalEndFrames": 4,
+    "viewportsVerified": 19,
+    "mismatches": 0,
+    "checks": [
+      "Freshly fetched published fixture data matches all frozen raw MIDI sources.",
+      "A/B source ticks equal native ticks; C source ticks equal native ticks divided by 10.",
+      "All recorded active occurrence IDs, pitches, strings and frets equal the selected published mapping.",
+      "C held E5 occurrence 30 remains on conventional string 3, fret 21 at native ticks 6912 and 7066.",
+      "C B5 occurrence 31 uses conventional string 2, fret 24 within the visible 18–24 window.",
+      "C ending E4/B4 occurrences 173/174 use adjacent strings 1/2, open/fret 12.",
+      "A duplicate B3 occurrences 49/50 remain distinct on string 2 open and string 4 fret 9.",
+      "A/B end at native tick 61920; C ends at tick 30720 at recorded 1× and 0.75× settings, all empty.",
+      "Pause and Stop clear active contacts; Stop resets native/source ticks to zero.",
+      "Original hand-movement mapping remains selectable.",
+      "All seven-fret viewports are within frets 1–24 and contain every active fretted contact.",
+      "Final state is C / strumPick / Follow hand / 1×, ready, stopped at tick zero with no active contacts.",
+      "Desktop screenshot visibly matches the adjacent ending chord."
+    ]
+  }
+}
