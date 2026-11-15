@@ -4,6 +4,18 @@ The user-selected `cfa029a2` and `da80eca9` riffs are now regression fixtures fo
 
 ## Review
 
+The primary lesson is now integrated into the existing guitar trainer (`index.html`) as **Fretboard Efficiency**. It uses the same Song Player/alphaTab engine, transport, physical fretboard, keyboard controls and speed selector as existing lessons. Both A/B inputs and optimized/greedy mappings are available. Direct lesson parameters are `?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized` and the same with `riff=da80eca9`.
+
+The lesson fetches the published `data/fretboard-efficiency-fixtures.json` file and converts its exact assigned occurrences into a native alphaTab score. It never infers new fingerings from pitch alone. The existing Song Player upload accepts the same mapping JSON as well as Guitar Pro files. Default Time Solo selection is preserved when there is no explicit efficiency-lesson URL.
+
+Optimizer string 1 is high E4; alphaTab/native string 1 is low E1. The adapter converts this with `native_string = 9 - optimizer_string`. Displayed string numbers for this lesson use the conventional high-to-low numbering. Active intervals are relative to E. The Follow hand view retains the open-string column and follows the current hand position/active notes in a seven-fret window; Full neck remains available.
+
+The synth and display use the same native tick clock. A paused seek previews notes still held at that tick, including both copies of a duplicated pitch. Pause, Stop and natural finish clear active highlights; a delayed player clock callback cannot repopulate a stopped display. Speeds such as 0.75× change real playback speed while source-tick progress and held contacts remain aligned. Lesson switching cancels pending loads and restores the preceding score when applicable.
+
+Native alphaTab 1.8.4 represents written dynamics rather than arbitrary MIDI velocities. A note-scoped registration supplies the exact original velocity for these mapped native notes; unregistered scores retain the original generator behavior. An independent comparison of all 5,472 native events in the existing Time score before/after registration protects that boundary.
+
+The earlier standalone comparison remains available for inspecting optimizer metrics:
+
 Run `npm ci`, then `npm run dev -- --host 127.0.0.1`, and open `riff-builder.html?efficiency=1` under the configured `/Guitar-Learning/` base. The normal riff builder remains available without that query. The review has silent follow/seek controls, fixture and version selection, an interval-labelled cropped fretboard, separate open strings, exact note contacts, hand position, comparison metrics, and note-data export. No sound is played automatically.
 
 To export the same review as one self-contained offline HTML file:
@@ -92,6 +104,15 @@ Run focused tests from `composition-lab`:
 ```bash
 python -m unittest -v test_fretboard_efficiency test_fretboard_efficiency_shapes
 ```
+
+Native lesson checks use the same pinned alphaTab package as the Pages deployment:
+
+```bash
+npm install --prefix .local/qa --no-save @coderline/alphatab@1.8.4
+node --test tests/fretboard-efficiency-lesson.test.mjs
+```
+
+These checks compare actual native MIDI-generation events against a separate raw-MIDI parser and verify exact string contacts, held-note seeks, partial final bars and existing-score preservation. They fail rather than skip when the required native package is missing. The current lesson-delivery status, live browser checks and deployment receipt are recorded in `FRETBOARD_EFFICIENCY_PROGRESS.md`.
 
 The independent checker parses raw MIDI using only the Python standard library; it does not trust the runner's parsed note list or reported scores. It checks hashes, duplicate multiplicity, exact ticks and velocities, physical string occupancy, hand windows, timing metrics, and all four exported MIDI files. The tests include held-string conflicts, same-tick retriggers, range failures, an unavoidable earlier-open sacrifice, a zero-shift high-dyad alternative, and a held-chord timing counterexample. Tampered source clocks, hashes, deleted duplicates, forged metrics and incorrect exported channels are rejected.
 

@@ -6,6 +6,8 @@ on:
     paths:
       - 'src/**'
       - 'public/riff-builder/**'
+      - 'public/data/fretboard-efficiency*.json'
+      - 'public/fretboard-efficiency/**'
       - 'tests/**'
       - 'index.html'
       - 'riff-builder.html'
@@ -44,6 +46,7 @@ jobs:
       - name: Verify rake classifier and tests
         run: |
           node --test tests/*.test.mjs
+          python -B -m unittest discover -s composition-lab -p 'test_fretboard_efficiency*.py'
           python -B -m unittest discover -s composition-lab -p test_riff_browser.py
           python -B -m unittest discover -s composition-lab -p test_riff_pattern_browser.py
           python -B -m unittest discover -s composition-lab -p test_procedural_riff_browser.py

@@ -1,6 +1,14 @@
 import { setupLiveGuitarInput } from "./input/live-guitar.js";
 import { setupSongPlayer } from "./song-player.js";
 import {
+  EFFICIENCY_LESSON_ID,
+  EFFICIENCY_TUNING_LOW_TO_HIGH,
+  efficiencySelectionFromSearch,
+  efficiencyPositionAtTick,
+  efficiencyFretWindow,
+  setupFretboardEfficiencyLesson
+} from "./fretboard-efficiency-lesson.js";
+import {
   TIME_SOLO_DROP_E_TUNING,
   TIME_SOLO_TAB_NOTES,
   TIME_SOLO_SOURCE_EVENTS,
@@ -108,7 +116,13 @@ document
     'lessonTypeSelect'
   )
   .value =
-    'timeSoloChords';
+    efficiencySelectionFromSearch(window.location.search).selected
+      ? EFFICIENCY_LESSON_ID : 'timeSoloChords';
+
+if (document.getElementById('lessonTypeSelect').value === EFFICIENCY_LESSON_ID) {
+  document.getElementById('rootSelect').value = '4';
+  document.getElementById('scaleSelect').value = 'aeolian';
+}
 
 document.getElementById('timeSoloIntervalType').value = 'baseKey';
 
@@ -471,7 +485,8 @@ const defaultTuning = [
   63  // D#4
 ];
 
-let currentTuning = [...defaultTuning];
+let currentTuning = [...(getSelectedLessonType() === EFFICIENCY_LESSON_ID
+  ? EFFICIENCY_TUNING_LOW_TO_HIGH : defaultTuning)];
 
 let questions = [];
 let currentAnswer = null;
@@ -499,6 +514,11 @@ let songPlayerCells = new Map();
 let songPlayerStringOffset = 0;
 let songPlayerActiveCells = new Set();
 let songPlayerBendOverlay = null;
+let fretboardEfficiencyLesson = null;
+let fretboardEfficiencyFixture = null;
+let fretboardEfficiencyVersion = null;
+let fretboardEfficiencyTick = 0;
+let fretboardEfficiencyWindow = null;
 
 const lessonDefinitions = {
   intervals: {
@@ -539,6 +559,7 @@ const lessonDefinitions = {
     hasStartCue: false
   },
   timeSoloChords: {label:'Time Solo (with Chords)',maxFret:24,hasStartCue:false},
+  fretboardEfficiency: {label:'Fretboard Efficiency',maxFret:24,hasStartCue:false},
   songPlayer: {
     label: 'Song Player',
     maxFret: 24,
@@ -1533,6 +1554,7 @@ function sizeFretboardNotes(
   stringTopStart,
   stringTopEnd
 ) {
+  fretCount = Number(fretboard.dataset.visibleFretCount) || fretCount;
   const rect =
     fretboard
       .getBoundingClientRect();
@@ -2415,8 +2437,10 @@ function updateLessonControls() {
   const timeSolo =
     ['timeSolo','timeSoloChords'].includes(lessonType);
 
+  const efficiency = lessonType === EFFICIENCY_LESSON_ID;
+
   const songPlayer =
-    ['songPlayer','timeSoloChords'].includes(lessonType);
+    ['songPlayer','timeSoloChords', EFFICIENCY_LESSON_ID].includes(lessonType);
 
   document
     .getElementById(
@@ -2504,7 +2528,14 @@ function updateLessonControls() {
   if (songPlayerControls) {
     songPlayerControls.hidden =
       !songPlayer;
+    songPlayerControls.classList.toggle('efficiencyLessonControls', efficiency);
+    songPlayerControls.querySelector('.songPlayerFileLabel').hidden = efficiency;
+    songPlayerControls.querySelector('.songPlayerTrackField').hidden = efficiency;
   }
+
+  document.getElementById('fretboardEfficiencyControls').hidden = !efficiency;
+  document.querySelector('.promptSectionTitle').textContent = efficiency ? 'Playing' : 'Quiz';
+  document.querySelector('.trainerShell').classList.toggle('fretboardEfficiencyLesson', efficiency);
 
   const intervalTypeField = document.getElementById('timeSoloIntervalTypeField');
   if (intervalTypeField) intervalTypeField.hidden = lessonType !== 'timeSoloChords';
@@ -2534,13 +2565,13 @@ function updateLessonControls() {
   if (rootDropdown) {
     rootDropdown.inert =
       daily ||
-      timeSolo;
+      timeSolo || efficiency;
   }
 
   if (scaleDropdown) {
     scaleDropdown.inert =
       daily ||
-      timeSolo;
+      timeSolo || efficiency;
   }
 
   const nextLessonButton =
@@ -2664,7 +2695,8 @@ function hideCell(cell) {
     );
 
     cell.innerText =
-      cell.dataset.noteName;
+      getSelectedLessonType() === EFFICIENCY_LESSON_ID
+        ? cell.dataset.scientificPitch : cell.dataset.noteName;
   } else {
     cell.classList.add(
       'unknownInterval'
@@ -2855,6 +2887,14 @@ function createTuningSettings() {
     '<span class="headstockIcon" aria-hidden="true"></span>';
   button.title = 'Tuning settings';
   button.setAttribute('aria-label', 'Tuning settings');
+
+  if (getSelectedLessonType() === EFFICIENCY_LESSON_ID) {
+    button.disabled = true;
+    button.title = 'Drop E locked: E1 B1 E2 A2 D3 G3 B3 E4';
+    button.setAttribute('aria-label', button.title);
+    wrapper.appendChild(button);
+    return wrapper;
+  }
 
   const popover = document.createElement('div');
   popover.className = 'tuningPopover';
@@ -6816,6 +6856,7 @@ function buildTrainer() {
         'identifyModeShape',
         'identifyCagedShape',
         'timeSolo',
+        EFFICIENCY_LESSON_ID,
         'songPlayer'
       ].includes(
         lessonType
@@ -6831,6 +6872,7 @@ function buildTrainer() {
     nextButton.hidden =
       [
         'timeSolo',
+        EFFICIENCY_LESSON_ID,
         'songPlayer'
       ].includes(
         lessonType
@@ -7196,7 +7238,7 @@ function buildTrainer() {
     cell.setAttribute(
       'aria-label',
       'String ' +
-        (stringIndex + 1) +
+        (lessonType === EFFICIENCY_LESSON_ID ? 8 - stringIndex : stringIndex + 1) +
         ', fret ' +
         fret +
         ', ' +
@@ -7204,6 +7246,9 @@ function buildTrainer() {
           absolutePitch
         )
     );
+    if (lessonType === EFFICIENCY_LESSON_ID) {
+      cell.title = cell.getAttribute('aria-label') + ', ' + interval + ' relative to E';
+    }
 
     allCells.push({
       element: cell,
@@ -7263,6 +7308,7 @@ function buildTrainer() {
 
     fretLine.className =
       'fretboardFret';
+    fretLine.dataset.fret = String(fret);
 
     fretLine.style.left =
       (
@@ -7274,6 +7320,15 @@ function buildTrainer() {
     fretboard.appendChild(
       fretLine
     );
+
+    if (lessonType === EFFICIENCY_LESSON_ID) {
+      const label = document.createElement('span');
+      label.className = 'efficiencyFretNumber';
+      label.dataset.fret = String(fret);
+      label.textContent = String(fret);
+      label.setAttribute('aria-hidden', 'true');
+      fretboard.appendChild(label);
+    }
   }
 
 
@@ -7295,6 +7350,7 @@ function buildTrainer() {
       doubleDot
         ? 'fretboardPositionDot doubleDot'
         : 'fretboardPositionDot';
+    dot.dataset.fret = String(fret);
 
     dot.style.left =
       (
@@ -7684,7 +7740,7 @@ function buildTrainer() {
      ======================================================= */
 
   if (
-    ['songPlayer','timeSoloChords'].includes(lessonType)
+    ['songPlayer','timeSoloChords', EFFICIENCY_LESSON_ID].includes(lessonType)
   ) {
     songPlayerCells =
       new Map();
@@ -7729,6 +7785,14 @@ function buildTrainer() {
 
     if (lessonType === 'timeSoloChords') displayTimeSoloLesson(allCells, true);
 
+    if (lessonType === EFFICIENCY_LESSON_ID) {
+      const caption = document.createElement('div');
+      caption.id = 'fretboardEfficiencyWindow';
+      caption.className = 'fretboardEfficiencyWindow';
+      chartDiv.appendChild(caption);
+      updateEfficiencyViewport([]);
+    }
+
     const answerDisplay =
       document.getElementById(
         'answerNote'
@@ -7739,7 +7803,9 @@ function buildTrainer() {
         'songPlayerPrompt';
 
       answerDisplay.textContent =
-        'Load a Guitar Pro file';
+        lessonType === EFFICIENCY_LESSON_ID
+          ? (fretboardEfficiencyFixture?.label || 'Loading test riff…')
+          : 'Load a Guitar Pro file';
     }
 
     return;
@@ -9334,6 +9400,13 @@ document
           'scaleDropdown',
           'scaleSelect'
         );
+      } else if (selectedLesson === EFFICIENCY_LESSON_ID) {
+        currentTuning = [...EFFICIENCY_TUNING_LOW_TO_HIGH];
+        document.getElementById('rootSelect').value = '4';
+        document.getElementById('scaleSelect').value = 'aeolian';
+        syncSingleSelectDisplay('rootDropdown', 'rootSelect');
+        syncSingleSelectDisplay('scaleDropdown', 'scaleSelect');
+        fretboardEfficiencyWindow = null;
       } else {
         currentTuning = [
           ...defaultTuning
@@ -9342,6 +9415,8 @@ document
 
       updateLessonControls();
       buildTrainer();
+      if (selectedLesson === EFFICIENCY_LESSON_ID) fretboardEfficiencyLesson?.activate();
+      else fretboardEfficiencyLesson?.deactivate();
     }
   );
 
@@ -10304,12 +10379,55 @@ function updateTimeSoloChordCandidates() {
   }
 }
 
+function updateEfficiencyViewport(notes) {
+  if (getSelectedLessonType() !== EFFICIENCY_LESSON_ID) return;
+  const board = document.querySelector('.physicalFretboard');
+  const stage = document.querySelector('.fretboardStage');
+  if (!board || !stage) return;
+  const frame = efficiencyPositionAtTick(fretboardEfficiencyVersion, fretboardEfficiencyTick);
+  const fullNeck = document.getElementById('fretboardEfficiencyRange').value === 'full';
+  const range = efficiencyFretWindow(frame?.position, notes, fretboardEfficiencyWindow, fullNeck);
+  const count = range.last - range.first + 1;
+  if (Number(board.dataset.firstFret) !== range.first || Number(board.dataset.lastFret) !== range.last) {
+    fretboardEfficiencyWindow = range;
+    board.dataset.firstFret = String(range.first);
+    board.dataset.lastFret = String(range.last);
+    board.dataset.visibleFretCount = String(count);
+    board.style.setProperty('--fret-count', count);
+    board.classList.toggle('compact', count >= 20);
+    stage.classList.toggle('compact', count >= 20);
+    board.querySelector('.fretboardNut').classList.toggle('croppedNeckBoundary', range.first > 1);
+    for (const cell of songPlayerCells.values()) {
+      const fret = Number(cell.dataset.fret);
+      cell.hidden = fret > 0 && (fret < range.first || fret > range.last);
+      if (fret > 0 && !cell.hidden) {
+        cell.style.left = `${100 * (fret - range.first) / count}%`;
+        cell.style.width = `${100 / count}%`;
+      }
+    }
+    board.querySelectorAll('.fretboardFret, .fretboardPositionDot, .efficiencyFretNumber').forEach(item => {
+      const fret = Number(item.dataset.fret);
+      item.hidden = fret < range.first || fret > range.last;
+      const offset = item.classList.contains('fretboardFret') ? 1 : 0.5;
+      item.style.left = `${100 * (fret - range.first + offset) / count}%`;
+    });
+    sizeFretboardNotes(stage, board, currentTuning.length, count, 7, 93);
+  }
+  const caption = document.getElementById('fretboardEfficiencyWindow');
+  if (caption) {
+    const shapes = notes.length ? (frame?.shape_labels || []) : [];
+    caption.textContent = `Open strings + frets ${range.first}–${range.last}` +
+      (frame ? ` · Hand position ${frame.position}` : '') +
+      (shapes.length ? ` · ${shapes.join(' · ')}` : '');
+  }
+}
+
 function displaySongPlayerNotes(
   notes
 ) {
   songPlayerLastNotes = notes || [];
   if (
-    !['songPlayer','timeSoloChords'].includes(getSelectedLessonType())
+    !['songPlayer','timeSoloChords', EFFICIENCY_LESSON_ID].includes(getSelectedLessonType())
   ) {
     return;
   }
@@ -10317,6 +10435,7 @@ function displaySongPlayerNotes(
   songPlayerActiveCells
     .forEach(
       cell => {
+        delete cell.dataset.noteId;
         cell.classList.remove(
           'songPlayerBending'
         );
@@ -10373,7 +10492,9 @@ function displaySongPlayerNotes(
       const chord = getSelectedLessonType() === 'timeSoloChords' &&
         document.getElementById('timeSoloIntervalType')?.value === 'currentChord'
         ? currentTimeSoloSection() : null;
-      const interval = getSelectedLessonType() === 'timeSoloChords' ? getIntervalForPitch(
+      const interval = getSelectedLessonType() === EFFICIENCY_LESSON_ID
+        ? getIntervalForPitch(midiToPitchClass(Number(cell.dataset.absolutePitch)), 4, 'aeolian')
+        : getSelectedLessonType() === 'timeSoloChords' ? getIntervalForPitch(
         midiToPitchClass(Number(cell.dataset.absolutePitch)),
         chord ? chord.root : Number(document.getElementById('rootSelect').value),
         chord ? (chord.quality === 'major' ? 'ionian' : 'aeolian') :
@@ -10382,6 +10503,7 @@ function displaySongPlayerNotes(
       revealCell(cell, interval);
       cell.classList.remove('timeSoloGrayNote', 'timeSoloCandidateNote');
       cell.classList.add('timeSoloSelectedNote');
+      if (note.note_id !== undefined) cell.dataset.noteId = String(note.note_id);
 
       songPlayerActiveCells.add(
         cell
@@ -10422,15 +10544,9 @@ function displaySongPlayerNotes(
         );
       }
 
-      activeLabels.push(
-        'S' +
-        (
-          stringIndex +
-          1
-        ) +
-        ':' +
-        fret
-      );
+      activeLabels.push(getSelectedLessonType() === EFFICIENCY_LESSON_ID
+        ? `${cell.dataset.scientificPitch} ${interval} (S${8 - stringIndex}:${fret})`
+        : 'S' + (stringIndex + 1) + ':' + fret);
     }
   );
 
@@ -10442,6 +10558,7 @@ function displaySongPlayerNotes(
   // Candidate state is derived from the currently selected chord, not
   // accumulated from previously played/chosen chord sections.
   if (getSelectedLessonType() === 'timeSoloChords') updateTimeSoloChordCandidates();
+  if (getSelectedLessonType() === EFFICIENCY_LESSON_ID) updateEfficiencyViewport(notes || []);
 
   if (answerDisplay) {
     answerDisplay.className =
@@ -10573,7 +10690,7 @@ function applySongPlayerTrack({
   }
 
   if (
-    ['songPlayer','timeSoloChords'].includes(getSelectedLessonType())
+    ['songPlayer','timeSoloChords', EFFICIENCY_LESSON_ID].includes(getSelectedLessonType())
   ) {
     buildTrainer();
     if (timeProfile && typeof setTimeSoloCagedShape === 'function') setTimeSoloCagedShape();
@@ -10595,11 +10712,17 @@ function applySongPlayerTrack({
   }
 }
 
-songPlayerSeekToTick = setupSongPlayer({
+const songPlayerController = setupSongPlayer({
   isTimeSoloChordsLesson: () => getSelectedLessonType() === 'timeSoloChords',
+  isFretboardEfficiencyLesson: () => getSelectedLessonType() === EFFICIENCY_LESSON_ID,
   timeScoreUrl: import.meta.env.BASE_URL + 'time.gp',
   onActiveNotes: displaySongPlayerNotes,
   onPositionChanged: ({tick}) => {
+    if (getSelectedLessonType() === EFFICIENCY_LESSON_ID) {
+      fretboardEfficiencyTick = Number(tick);
+      document.getElementById('fretboardEfficiencyControls').dataset.tick = String(tick);
+      return;
+    }
     if (getSelectedLessonType()!=='timeSoloChords') return;
     const track=document.querySelector('.timeSoloTimelineTrack');
     if(!track)return;
@@ -10630,8 +10753,15 @@ songPlayerSeekToTick = setupSongPlayer({
   onScoreLoaded:
     ({
       title,
-      artist
+      artist,
+      efficiencyProfile,
+      fixture,
+      versionId
     }) => {
+      if (efficiencyProfile && getSelectedLessonType() === EFFICIENCY_LESSON_ID) {
+        fretboardEfficiencyLesson?.syncSelection(fixture, versionId);
+        updateEfficiencyViewport(songPlayerLastNotes);
+      }
       const answerDisplay =
         document.getElementById(
           'answerNote'
@@ -10654,7 +10784,31 @@ songPlayerSeekToTick = setupSongPlayer({
             .join(' · ');
       }
     }
-})?.seekToTick;
+});
+songPlayerSeekToTick = songPlayerController?.seekToTick;
+
+if (songPlayerController) {
+  fretboardEfficiencyLesson = setupFretboardEfficiencyLesson({
+    player: songPlayerController,
+    isSelected: () => getSelectedLessonType() === EFFICIENCY_LESSON_ID,
+    onSelection: (fixture, version) => {
+      fretboardEfficiencyFixture = fixture;
+      fretboardEfficiencyVersion = version;
+      fretboardEfficiencyTick = 0;
+      fretboardEfficiencyWindow = null;
+      const controls = document.getElementById('fretboardEfficiencyControls');
+      controls.dataset.fixtureId = fixture.id;
+      controls.dataset.versionId = version.id;
+      controls.dataset.tick = '0';
+    }
+  });
+  if (getSelectedLessonType() === EFFICIENCY_LESSON_ID) fretboardEfficiencyLesson.activate();
+}
+
+document.getElementById('fretboardEfficiencyRange').addEventListener('change', () => {
+  fretboardEfficiencyWindow = null;
+  displaySongPlayerNotes(songPlayerLastNotes);
+});
 
 document.getElementById('timeSoloIntervalType')?.addEventListener('change', () => {
   displaySongPlayerNotes(songPlayerLastNotes);

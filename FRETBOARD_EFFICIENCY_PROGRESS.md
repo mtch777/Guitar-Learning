@@ -1,5 +1,21 @@
 # Drop E fretboard efficiency — two-riff pilot
 
+## Current delivery: existing training lesson — 2026-11-15
+
+The user explicitly approved the GitHub upload, then requested a new lesson in the existing lesson/guitar-training HTML UI, conversion of both results to that fretboard, file upload, and actual playback validation before handoff. The previous portable review is supporting evidence; it is not the requested final surface.
+
+- [x] Publish the approved optimizer, original fixtures and mappings on `codex/drop-e-fretboard-efficiency`. GitHub checkpoint `f30b088a0c8a20cf358053c32481134b16ecea21`; tree `9867b54b5ffe5d8b73b2efba5e0dc16793fc5ec4`.
+- [x] Convert both mappings into the existing native player format with exact source occurrences, pitches, timing and string/fret contacts.
+- [x] Add Fretboard Efficiency to `index.html` / the existing trainer; use existing fretboard and transport with A/B selection and direct lesson URLs.
+- [x] Verify native playback clocks and the low/high string conversion, duplicate B3, sustained-note seek, stop/pause/end, and 0.75 speed in native/unit integration checks; live browser checks remain below.
+- [x] Verify relevant existing lesson regressions and production build with pinned native alphaTab installed, without skips caused by its absence.
+- [ ] Publish the lesson files and app through the existing Pages deployment, verifying served bytes and completed deployment.
+- [ ] Exercise the live fretboard/player for both riffs, inspect the responsive view, and hand off the verified lesson URL only after these checks pass.
+
+The terminal had no GitHub credential after approval. The connected GitHub API published the approved Git tree and updated the branch with a guarded fast-forward. This is a completed upload, not an unresolved authorization issue. Pinned native alphaTab 1.8.4 is installed at `.local/qa` for exact playback verification. Root owns integration/deployment/browser evidence; independent agents own the lesson UI, native adapter, and independent playback tests respectively.
+
+Pre-publication verification: all 131 JavaScript tests pass, zero skipped; all 32 optimizer/shape Python tests pass; the three existing Python Pages checks pass (6/7 with one pre-existing optional fixture skip, 9/9, 4/4). Build passes. Full trainer DOM harness checks 524 frames and exact active contacts with a silent mocked transport; this is separate from actual native conversion and from pending live browser playback. Native conversion preserves all 164/191 source occurrences, 61,920 ticks and 32.25 seconds. All 5,472 Time score events remain unchanged after mapped-note velocity registration. A delayed callback could previously restore paused highlights; a targeted counterexample now verifies the explicit seek-preview state and stopped-display guard.
+
 ## Current user contract
 
 Use the user-selected `cfa029a2` and `da80eca9` generated MIDI files as the frozen inputs and tests. Source branch commit: `b86db9f73d1adf8a5552dc81a475437a36b4ae2c`. Preserve note occurrences, pitches, octave, velocity and exact onset/release ticks, including duplicated unisons. Assign to 8-string Drop E (high-to-low MIDI 64,59,55,50,45,40,35,28), 24 frets.

@@ -32,6 +32,7 @@
             <label class="singleOption"><input type="radio" name="lessonType" value="identifyCagedShape"><span>Identify Pentatonic CAGED by Shape</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="timeSolo"><span>Time Guitar Solo</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="timeSoloChords" checked><span>Time Solo (with Chords)</span></label>
+            <label class="singleOption"><input type="radio" name="lessonType" value="fretboardEfficiency"><span>Fretboard Efficiency</span></label>
             <label class="singleOption"><input type="radio" name="lessonType" value="songPlayer"><span>Song Player (MVP)</span></label>
           </div>
         </details>
@@ -47,6 +48,7 @@
           <option value="identifyCagedShape">Identify Pentatonic CAGED by Shape</option>
           <option value="timeSolo">Time Guitar Solo</option>
           <option value="timeSoloChords" selected>Time Solo (with Chords)</option>
+          <option value="fretboardEfficiency">Fretboard Efficiency</option>
           <option value="songPlayer">Song Player (MVP)</option>
         </select></span>
         </div>
@@ -110,9 +112,34 @@
         </div>
 
       <div id="songPlayerControls" class="lessonControls songPlayerControls" hidden>
+        <div id="fretboardEfficiencyControls" class="fretboardEfficiencyControls" hidden>
+          <label class="controlField">
+            <span class="fieldLabel">Test riff</span>
+            <select id="fretboardEfficiencyRiff" aria-label="Fretboard efficiency test riff">
+              <option value="cfa029a2">A · Low response</option>
+              <option value="da80eca9">B · High dyads</option>
+            </select>
+          </label>
+          <label class="controlField">
+            <span class="fieldLabel">Fingering</span>
+            <select id="fretboardEfficiencyMapping" aria-label="Fretboard mapping">
+              <option value="optimized" selected>Optimized</option>
+              <option value="greedy">Greedy comparison</option>
+            </select>
+          </label>
+          <label class="controlField">
+            <span class="fieldLabel">Fret view</span>
+            <select id="fretboardEfficiencyRange" aria-label="Visible fret range">
+              <option value="follow" selected>Follow hand</option>
+              <option value="full">Full neck</option>
+            </select>
+          </label>
+          <a id="fretboardEfficiencyLink" class="fretboardEfficiencyLink" href="?lesson=fretboardEfficiency">Link to this riff</a>
+          <span id="fretboardEfficiencyInfo" class="fretboardEfficiencyInfo">Drop E · intervals relative to E</span>
+        </div>
         <label class="songPlayerFileLabel">
-          <span class="fieldLabel">Upload Guitar Pro (.gp)</span>
-          <input id="songPlayerFile" type="file" aria-label="Upload Guitar Pro file">
+          <span class="fieldLabel">Upload Guitar Pro or saved mapping</span>
+          <input id="songPlayerFile" type="file" accept=".gp,.gp3,.gp4,.gp5,.gpx,.json" aria-label="Upload Guitar Pro file or saved fretboard mapping JSON">
         </label>
         <label class="controlField songPlayerTrackField">
           <span class="fieldLabel">Track</span>

@@ -1941,3 +1941,85 @@ button.uiButton:disabled {
 .physicalFretboard[data-time-caged-shape="high-e"] .timeCagedRegion[data-shape="high-e"] {
   opacity: 1;
 }
+
+/* The efficiency lesson shares the trainer board and Song Player transport. */
+.fretboardEfficiencyLesson [hidden] {
+  display: none !important;
+}
+
+.fretboardEfficiencyLesson .setupPanel,
+.fretboardEfficiencyLesson .lessonSettingsSection,
+.lessonControls.efficiencyLessonControls:not([hidden]) {
+  width: 100%;
+  max-width: 100%;
+}
+
+.fretboardEfficiencyLesson .lessonSettingsSection {
+  flex: 1 1 100%;
+}
+
+.fretboardEfficiencyControls:not([hidden]) {
+  display: flex;
+  flex: 1 1 100%;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px 14px;
+  min-width: 0;
+}
+
+.fretboardEfficiencyControls select {
+  max-width: 100%;
+}
+
+.fretboardEfficiencyLink {
+  color: inherit;
+  font-size: 13px;
+  text-underline-offset: 3px;
+}
+
+.fretboardEfficiencyInfo {
+  flex: 1 1 100%;
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: .78;
+}
+
+.fretboardEfficiencyLesson .songPlayerStatus {
+  white-space: normal;
+}
+
+.fretboardEfficiencyLesson .promptSection,
+.fretboardEfficiencyLesson .quizContentRow {
+  width: 100%;
+}
+
+.fretboardEfficiencyLesson #answerNote {
+  flex: 1 1 auto;
+  white-space: normal;
+  line-height: 1.6;
+}
+
+.fretboardEfficiencyLesson .exercisePanel {
+  padding-top: 30px;
+}
+
+.efficiencyFretNumber {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  color: var(--text-color);
+  font: 600 12px/1 Arial, sans-serif;
+  pointer-events: none;
+}
+
+.fretboardNut.croppedNeckBoundary {
+  width: 3px;
+  background: repeating-linear-gradient(to bottom, #96816a 0 5px, transparent 5px 9px);
+  box-shadow: none;
+}
+
+.fretboardEfficiencyWindow {
+  margin: 12px 0 6px var(--open-string-gutter);
+  font-size: 12px;
+  line-height: 1.5;
+}

@@ -20,6 +20,7 @@ test('Interval Type relabels the sounding E relative to F# minor or E major',()=
     classList:{remove(){},add(){},contains(){return false;}},
     style:{removeProperty(){}}};
   const ctx=vm.createContext({
+    EFFICIENCY_LESSON_ID:'fretboardEfficiency',
     songPlayerActiveCells:new Set(),songPlayerCells:new Map([['0:0',cell]]),
     songPlayerStringOffset:0,songPlayerLastNotes:[],
     getSelectedLessonType:()=> 'timeSoloChords',

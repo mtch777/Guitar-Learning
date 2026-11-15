@@ -5,12 +5,16 @@ import test from 'node:test';
 
 // Exercise the actual track-change and display callbacks, with DOM drawing stubbed.
 const source = readFileSync(process.env.TRAINER_SOURCE || new URL('../src/trainer.js', import.meta.url), 'utf8');
-const callbacks = source.slice(source.indexOf('function displaySongPlayerNotes('), source.indexOf('songPlayerSeekToTick = setupSongPlayer({'));
+const begin = source.indexOf('function displaySongPlayerNotes(');
+const end = source.indexOf('const songPlayerController = setupSongPlayer({', begin);
+assert.ok(begin >= 0 && end > begin, 'Locate the actual display/track callback section');
+const callbacks = source.slice(begin, end);
 
 test('track tuning and active notes agree for 6, 7, and 8 strings, including track switches', () => {
   const shown = [];
   const fields = { rootSelect: {value:"3"}, scaleSelect: {value:"dorian"} };
   const context = vm.createContext({
+    EFFICIENCY_LESSON_ID: 'fretboardEfficiency',
     songPlayerStringOffset: 0,
     currentTuning: [28, 35, 40, 45, 50, 55, 59, 64],
     songPlayerActiveCells: new Set(),
@@ -27,7 +31,7 @@ test('track tuning and active notes agree for 6, 7, and 8 strings, including tra
   for (let s = 0; s < 8; s++) {
     for (let f = 0; f <= 24; f++) {
       context.songPlayerCells.set(`${s}:${f}`, {
-        stringIndex: s, fret: f,
+        stringIndex: s, fret: f, dataset: {},
         classList: { add() {}, remove() {}, contains() { return false; } }, style: { removeProperty() {} },
       });
     }

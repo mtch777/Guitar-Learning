@@ -1,6 +1,7 @@
 import { isTimeFile, applySongPitch, timeNotePosition } from './song-profile.js';
 import { TIME_SOLO_DROP_E_TUNING } from './data/time-solo.js';
 import { createTimeSoloWindow } from './time-solo-transport.js';
+import { toFretboardEfficiencyScore, efficiencyNotesAtTick, readFretboardEfficiencyFile } from './fretboard-efficiency-score.js';
 
 const ALPHATAB_VERSION =
   '1.8.4';
@@ -110,6 +111,7 @@ export function setupSongPlayer({
   onActiveNotes,
   onPositionChanged,
   isTimeSoloChordsLesson,
+  isFretboardEfficiencyLesson,
   onTrackChanged,
   onScoreLoaded,
   timeScoreUrl = null
@@ -192,6 +194,13 @@ export function setupSongPlayer({
   let currentTick = 0;
   let activeNotes = [];
   let bendAnimationFrame = null;
+  let efficiencyMapping = null;
+  let efficiencyFixture = null;
+  let precedingScore = null;
+  let loadGeneration = 0;
+  let pendingEfficiencyLoad = null;
+  let pendingEfficiencyGeneration = 0;
+  let efficiencyPreviewEnabled = false;
 
   function applyPlaybackSpeed() {
     if (!alphaTabApi) return;
@@ -401,6 +410,11 @@ export function setupSongPlayer({
     tick =
       currentTick
   ) {
+    if (efficiencyMapping) {
+      activeNotes = playing || efficiencyPreviewEnabled ? efficiencyNotesAtTick(efficiencyMapping, tick) : [];
+      onActiveNotes?.(activeNotes);
+      return;
+    }
     onActiveNotes?.(
       activeNotes.map(
         item => ({
@@ -446,7 +460,7 @@ export function setupSongPlayer({
         currentTick =
           Number(
             alphaTabApi
-              .tickPosition ||
+              .tickPosition ??
             currentTick
           );
 
@@ -478,6 +492,20 @@ export function setupSongPlayer({
     };
 
   function updateTransport() {
+    if (progress.dataset) {
+      progress.dataset.playing = String(playing);
+      progress.dataset.ready = String(playerReady);
+      progress.dataset.tick = String(currentTick);
+      if (efficiencyMapping) {
+        progress.dataset.fixtureId = String(efficiencyMapping.fixtureId);
+        progress.dataset.versionId = String(efficiencyMapping.versionId);
+        progress.dataset.durationTicks = String(efficiencyMapping.durationTicks);
+      } else {
+        delete progress.dataset.fixtureId;
+        delete progress.dataset.versionId;
+        delete progress.dataset.durationTicks;
+      }
+    }
     const needsSoloWindow = timeProfile && isTimeSoloChordsLesson?.();
     const canPlay =
       Boolean(
@@ -556,6 +584,24 @@ export function setupSongPlayer({
 
   function seekToMs(targetMs) {
     if (!alphaTabApi) return;
+    if (efficiencyMapping) {
+      const milliseconds = Math.max(0, Math.min(efficiencyMapping.durationMs, Number(targetMs)));
+      if (!Number.isFinite(milliseconds)) return;
+      // An explicit seek previews the selected hold even while paused. Ordinary
+      // delayed clock callbacks after pause/stop must not revive old contacts.
+      efficiencyPreviewEnabled = true;
+      currentTick = Math.max(0, Math.min(efficiencyMapping.durationTicks,
+        Math.round(milliseconds / efficiencyMapping.durationMs * efficiencyMapping.durationTicks)));
+      lastPositionMs = currentTick / efficiencyMapping.durationTicks * efficiencyMapping.durationMs;
+      endTimeMs = efficiencyMapping.durationMs;
+      alphaTabApi.tickPosition = currentTick;
+      onPositionChanged?.({fraction: currentTick / efficiencyMapping.durationTicks, tick: currentTick});
+      emitActiveNotes(currentTick);
+      currentTime.textContent = formatTime(lastPositionMs);
+      progress.value = String(Math.round(currentTick / efficiencyMapping.durationTicks * 1000));
+      updateTransport();
+      return;
+    }
     const absoluteMs = soloWindow
       ? Math.max(soloWindow.startMs, Math.min(soloWindow.endMs, targetMs))
       : Math.max(0, Math.min(endTimeMs, targetMs));
@@ -576,6 +622,10 @@ export function setupSongPlayer({
   }
 
   function seekToTick(tick) {
+    if (efficiencyMapping && Number.isFinite(Number(tick))) {
+      seekToMs(Number(tick) / efficiencyMapping.durationTicks * efficiencyMapping.durationMs);
+      return;
+    }
     syncSoloPlayback();
     if (!soloWindow || !Number.isFinite(Number(tick))) return;
     seekToMs(soloWindow.tickToMs(Math.max(soloWindow.startTick,
@@ -592,6 +642,7 @@ export function setupSongPlayer({
       if (soloWindow && lastPositionMs >= soloWindow.endMs - 100) {
         seekToMs(soloWindow.startMs);
       }
+      if (efficiencyMapping && currentTick >= efficiencyMapping.durationTicks) seekToMs(0);
       alphaTabApi.play();
     }
   }
@@ -823,12 +874,15 @@ export function setupSongPlayer({
 
     onTrackChanged?.({
       timeProfile,
+      efficiencyProfile: Boolean(efficiencyMapping),
+      fixtureId: efficiencyMapping?.fixtureId,
+      versionId: efficiencyMapping?.versionId,
       index:
         track.index,
       name:
         track.name,
-      placeholderPositions: collectTrackPositions(track),
-      chordSections: collectTimedHarmony(track),
+      placeholderPositions: efficiencyMapping ? efficiencyMapping.notes.map(({string, fret}) => ({string, fret})) : collectTrackPositions(track),
+      chordSections: efficiencyMapping ? [] : collectTimedHarmony(track),
       cagedShapeTicks: timeProfile ? [93,104,110,126].map(barIndex => {
         const bar = track.staves?.[0]?.bars?.[barIndex];
         const beats = (bar?.voices || []).flatMap(voice => voice.beats || []);
@@ -856,6 +910,8 @@ export function setupSongPlayer({
 
     const alphaTab =
       await loadAlphaTab();
+    // Concurrent fixture clicks can await the same script load.
+    if (alphaTabApi) return alphaTabApi;
 
     alphaTabApi =
       new alphaTab.AlphaTabApi(
@@ -893,6 +949,8 @@ export function setupSongPlayer({
 
     alphaTabApi.error.on(
       error => {
+        pendingEfficiencyLoad?.reject(error instanceof Error ? error : new Error(error?.message || String(error)));
+        pendingEfficiencyLoad = null;
         console.error(
           'alphaTab error:',
           error
@@ -910,6 +968,10 @@ export function setupSongPlayer({
 
     alphaTabApi.scoreLoaded.on(
       loadedScore => {
+        if (efficiencyMapping && loadedScore !== efficiencyMapping.score) {
+          efficiencyMapping = null;
+          efficiencyFixture = null;
+        }
         playerReady = false;
         soloWindow = null;
         score =
@@ -997,6 +1059,10 @@ export function setupSongPlayer({
         }
 
         onScoreLoaded?.({
+          efficiencyProfile: Boolean(efficiencyMapping),
+          fixtureId: efficiencyMapping?.fixtureId,
+          versionId: efficiencyMapping?.versionId,
+          fixture: efficiencyFixture,
           title:
             loadedScore.title ||
             '',
@@ -1011,6 +1077,10 @@ export function setupSongPlayer({
 
         applyPlaybackSpeed();
         updateTransport();
+        if (pendingEfficiencyLoad?.score === loadedScore) {
+          pendingEfficiencyLoad.resolve(efficiencyMapping);
+          pendingEfficiencyLoad = null;
+        }
       }
     );
 
@@ -1021,6 +1091,12 @@ export function setupSongPlayer({
         if (score) applySongPitch(alphaTabApi, score, timeProfile);
         applyPlaybackSpeed();
         syncSoloPlayback();
+        if (efficiencyMapping) {
+          endTimeMs = efficiencyMapping.durationMs;
+          duration.textContent = formatTime(endTimeMs);
+          alphaTabApi.playbackRange = {startTick: 0, endTick: efficiencyMapping.durationTicks};
+          seekToMs(0);
+        }
         updateTransport();
 
         const track =
@@ -1036,6 +1112,7 @@ export function setupSongPlayer({
 
     alphaTabApi.playerStateChanged.on(
       args => {
+        if (efficiencyMapping && !playerReady && args.state === 1) return;
         playing =
           args.state === 1;
 
@@ -1043,6 +1120,11 @@ export function setupSongPlayer({
           startBendAnimation();
         } else {
           stopBendAnimation();
+          if (efficiencyMapping) {
+            efficiencyPreviewEnabled = false;
+            activeNotes = [];
+            clearActiveNotes();
+          }
         }
 
         updateTransport();
@@ -1051,18 +1133,23 @@ export function setupSongPlayer({
 
     alphaTabApi.playerPositionChanged.on(
       args => {
+        if (efficiencyMapping && (!playerReady || (!playing && !efficiencyPreviewEnabled))) return;
+        if (efficiencyMapping && !playing && Number(args.currentTick ?? currentTick) !== currentTick) return;
         if (timeProfile && isTimeSoloChordsLesson?.() && !soloWindow) return;
-        endTimeMs = soloWindow
+        endTimeMs = efficiencyMapping ? efficiencyMapping.durationMs : soloWindow
           ? soloWindow.durationMs
           : Math.max(0, Number(args.endTime || 0));
 
         currentTick = Number(args.currentTick ?? currentTick);
+        if (efficiencyMapping) currentTick = Math.max(0, Math.min(efficiencyMapping.durationTicks, currentTick));
 
         const absoluteMs = Math.max(0, Number(args.currentTime || 0));
-        const nowMs = soloWindow
+        const nowMs = efficiencyMapping
+          ? currentTick / efficiencyMapping.durationTicks * efficiencyMapping.durationMs
+          : soloWindow
           ? Math.max(0, Math.min(endTimeMs, soloWindow.tickToMs(currentTick) - soloWindow.startMs))
           : absoluteMs;
-        lastPositionMs = soloWindow ? soloWindow.startMs + nowMs : absoluteMs;
+        lastPositionMs = efficiencyMapping ? nowMs : soloWindow ? soloWindow.startMs + nowMs : absoluteMs;
         onPositionChanged?.({fraction: endTimeMs > 0 ? nowMs / endTimeMs : 0, tick: currentTick});
 
         emitActiveNotes(
@@ -1105,9 +1192,18 @@ export function setupSongPlayer({
 
     alphaTabApi.playerFinished.on(
       () => {
+        if (efficiencyMapping && !playerReady) return;
         playing =
           false;
         if (soloWindow) lastPositionMs = soloWindow.endMs;
+        if (efficiencyMapping) {
+          efficiencyPreviewEnabled = false;
+          currentTick = efficiencyMapping.durationTicks;
+          lastPositionMs = efficiencyMapping.durationMs;
+          progress.value = '1000';
+          currentTime.textContent = formatTime(lastPositionMs);
+          onPositionChanged?.({fraction: 1, tick: currentTick});
+        }
 
         stopBendAnimation();
         activeNotes = [];
@@ -1118,6 +1214,9 @@ export function setupSongPlayer({
 
     alphaTabApi.activeBeatsChanged.on(
       args => {
+        // Native position events and tickPosition drive the exact source holds.
+        // Beat subdivisions must not reattack or discard duplicated unisons.
+        if (efficiencyMapping) return;
         if (
           selectedTrackIndex ===
             null
@@ -1182,7 +1281,17 @@ export function setupSongPlayer({
   }
 
   async function loadScore(buffer, name) {
+    const generation = ++loadGeneration;
+    pendingEfficiencyGeneration = 0;
     const api = await ensureApi();
+    if (generation !== loadGeneration) return;
+    pendingEfficiencyLoad?.reject(new Error('The previous mapping load was replaced.'));
+    pendingEfficiencyLoad = null;
+    api.stop();
+    api.playbackRange = null;
+    efficiencyMapping = null;
+    efficiencyFixture = null;
+    precedingScore = null;
     setStatus('Loading ' + name + '…');
     stopBendAnimation();
     activeNotes = [];
@@ -1192,6 +1301,87 @@ export function setupSongPlayer({
     api.updateSettings();
     timeProfile = isTimeFile(name);
     api.load(buffer);
+  }
+
+  async function loadFretboardEfficiency(fixture, versionId = 'optimized') {
+    const generation = ++loadGeneration;
+    pendingEfficiencyGeneration = generation;
+    try {
+      const api = await ensureApi();
+      if (generation !== loadGeneration) throw new Error('The previous mapping load was replaced.');
+      // Validate and convert before replacing a working score.
+      const mapping = toFretboardEfficiencyScore(window.alphaTab, fixture, versionId);
+      pendingEfficiencyLoad?.reject(new Error('The previous mapping load was replaced.'));
+      pendingEfficiencyLoad = null;
+      if (!efficiencyMapping && score) precedingScore = {score, timeProfile};
+      api.stop();
+      api.playbackRange = null;
+      stopBendAnimation();
+      activeNotes = [];
+      clearActiveNotes();
+      playing = false;
+      playerReady = false;
+      soloWindow = null;
+      currentTick = 0;
+      timeProfile = false;
+      efficiencyMapping = mapping;
+      efficiencyFixture = fixture;
+      efficiencyPreviewEnabled = false;
+      resetProgress();
+      setStatus('Loading ' + mapping.label + '…');
+      updateTransport();
+      // renderScore accepts a native model and triggers the same score/MIDI/player
+      // pipeline as GP uploads. A JSON display timer is never a playback source.
+      return await new Promise((resolve, reject) => {
+        pendingEfficiencyLoad = {score: mapping.score, resolve, reject};
+        try {
+          api.renderScore(mapping.score, [0]);
+        } catch (error) {
+          pendingEfficiencyLoad = null;
+          reject(error);
+        }
+      });
+    } finally {
+      if (pendingEfficiencyGeneration === generation) pendingEfficiencyGeneration = 0;
+    }
+  }
+
+  function clearFretboardEfficiency() {
+    if (!efficiencyMapping && !pendingEfficiencyLoad && !pendingEfficiencyGeneration) return;
+    ++loadGeneration;
+    pendingEfficiencyGeneration = 0;
+    pendingEfficiencyLoad?.reject(new Error('The mapping lesson was closed.'));
+    pendingEfficiencyLoad = null;
+    if (!efficiencyMapping) return;
+    alphaTabApi?.stop();
+    if (alphaTabApi) alphaTabApi.playbackRange = null;
+    stopBendAnimation();
+    activeNotes = [];
+    clearActiveNotes();
+    efficiencyMapping = null;
+    efficiencyFixture = null;
+    efficiencyPreviewEnabled = false;
+    timeProfile = false;
+    playing = false;
+    playerReady = false;
+    selectedTrackIndex = null;
+    soloWindow = null;
+    currentTick = 0;
+    score = null;
+    resetProgress();
+    const restore = precedingScore;
+    precedingScore = null;
+    if (restore && alphaTabApi) {
+      timeProfile = restore.timeProfile;
+      alphaTabApi.renderScore(restore.score);
+    } else {
+      trackSelect.innerHTML = '';
+      trackSelect.disabled = true;
+      // A JSON upload must not prevent the bundled Time lesson from loading.
+      if (/\.json$/i.test(fileInput.files?.[0]?.name || '')) fileInput.value = '';
+      setStatus('Choose a score or a saved fretboard mapping.');
+    }
+    updateTransport();
   }
 
   async function loadBundledTimeScore() {
@@ -1222,7 +1412,10 @@ export function setupSongPlayer({
       try {
         const buffer =
           await file.arrayBuffer();
-        await loadScore(buffer, file.name);
+        if (/\.json$/i.test(file.name)) {
+          const fixture = readFretboardEfficiencyFile(JSON.parse(new TextDecoder().decode(buffer)), efficiencyMapping?.fixtureId);
+          await loadFretboardEfficiency(fixture);
+        } else await loadScore(buffer, file.name);
       } catch (error) {
         console.error(
           'Song Player load error:',
@@ -1287,8 +1480,16 @@ export function setupSongPlayer({
   stopButton.addEventListener(
     'click',
     () => {
+      if (efficiencyMapping) efficiencyPreviewEnabled = false;
       alphaTabApi?.stop();
       if (soloWindow) seekToMs(soloWindow.startMs);
+      if (efficiencyMapping) {
+        currentTick = 0;
+        lastPositionMs = 0;
+        progress.value = '0';
+        currentTime.textContent = '0:00';
+        onPositionChanged?.({fraction: 0, tick: 0});
+      }
       stopBendAnimation();
       activeNotes = [];
       clearActiveNotes();
@@ -1374,6 +1575,7 @@ export function setupSongPlayer({
   }, true);
 
   document.getElementById('lessonTypeSelect')?.addEventListener('change', () => {
+    if (!isFretboardEfficiencyLesson?.()) clearFretboardEfficiency();
     syncSoloPlayback();
     updateTransport();
     loadBundledTimeScore();
@@ -1382,5 +1584,5 @@ export function setupSongPlayer({
   resetProgress();
   updateTransport();
   loadBundledTimeScore();
-  return { seekToTick };
+  return { seekToTick, loadFretboardEfficiency, clearFretboardEfficiency };
 }
