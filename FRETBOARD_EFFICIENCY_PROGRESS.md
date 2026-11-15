@@ -9,8 +9,8 @@ The user explicitly approved the GitHub upload, then requested a new lesson in t
 - [x] Add Fretboard Efficiency to `index.html` / the existing trainer; use existing fretboard and transport with A/B selection and direct lesson URLs.
 - [x] Verify native playback clocks and the low/high string conversion, duplicate B3, sustained-note seek, stop/pause/end, and 0.75 speed in native/unit integration checks; live browser checks remain below.
 - [x] Verify relevant existing lesson regressions and production build with pinned native alphaTab installed, without skips caused by its absence.
-- [x] Publish the lesson files and app through the existing Pages deployment, verifying served bytes and completed deployment. The live runtime correction below still requires a second publication and playback pass.
-- [ ] Exercise the live fretboard/player for both riffs, inspect the responsive view, and hand off the verified lesson URL only after these checks pass.
+- [x] Publish the lesson files and app through the existing Pages deployment, verifying served bytes and completed deployment.
+- [x] Exercise the live fretboard/player for both riffs, inspect the deployed desktop view, upload the mapping through the existing file chooser, and leave the verified lesson ready at its start.
 
 The terminal had no GitHub credential after approval. The connected GitHub API published the approved Git tree and updated the branch with a guarded fast-forward. This is a completed upload, not an unresolved authorization issue. Pinned native alphaTab 1.8.4 is installed at `.local/qa` for exact playback verification. Root owns integration/deployment/browser evidence; independent agents own the lesson UI, native adapter, and independent playback tests respectively.
 
@@ -25,6 +25,14 @@ Corrected-distribution verification: the complete JavaScript suite passes 132 te
 Live verification of `f640c21b1a9df6ad6581ff9bed4f212f5d52bf7d`: Pages source run `43756330292` and deployment `43756390770` succeeded; public index, `main-xrin7cvB.js`, and fixture bytes match the local build. Both optimized riffs completed native playback at tick 61,920 with zero active contacts (A at 0.75x, B at 1x). Actual UI seeks at tick 6,192 show both B3 occurrences and all four sustained chord contacts; tick 8,173 shows only the lowest open E1/B1; B tick 12,694 shows S4 fret 21 / B4 and S3 fret 17 / C5 in a seven-fret window. Pause and Stop clear active occurrence markers, and Stop resets tick zero. Full neck and comparison controls work. The existing decorative `timeSoloSelectedNote` class can remain on empty cells; actual sounding contacts are identified by `data-note-id`, and the paused screenshot confirms no note markers.
 
 The corrected main microphone preflight `43756330356` passed, but its identical-SHA feature-branch run exposed a genuine race: bundled Time checked the selected lesson before waiting for the player script, then loaded after the user had switched to Intervals. A new deferred-script regression fails before the fix and passes after it. Only bundled Time now rechecks lesson/score/upload state after `ensureApi()`; explicit uploads remain unchanged. The preflight path filter now includes Song Player and this regression so the corrected head gets a real browser check. All 133 JavaScript tests pass with zero skips; production build passes with `main-BR2GQeSp.js`. This final lifecycle correction still needs publication and live confirmation. Composition run `43755042025` also completed successfully for the initial lesson integration.
+
+### Final acceptance — completed
+
+Final application source: `c49a261a148e06a78ed6d6469bb09892a0baafe9`. Published gh-pages commit: `7dced718ff7bb9994f3c047f12ee00389c0ddaaa`. Pages source build `43757011718`, deployment `43757069742`, main live preflight `43757011705`, and feature live preflight `43757009448` all succeeded. The live index, `main-BR2GQeSp.js`, and fixture JSON match local bytes exactly. The source bundle SHA-256 is `0eeb3880c0d30fcdbbf8f5ff97aeda7da2b947a79e369e94e3f21863ebbe5bfe`; fixture SHA-256 is `94a2fbfd849692ac40ed122cf889c18be673182f74a511e231e45de36686f076`.
+
+Actual final-deployment browser verification completed full native playback of both A and B, each ending at 61,920 ticks / 32.25 seconds with no active contacts. A separate full A run at 0.75x also finished correctly; two live playing samples measured approximately 0.751x source-time advancement. The existing Song Player file chooser accepted the exact 384,330-byte mapping bundle and played it with advancing native ticks and matching contacts. Switching from that uploaded score back to Time loaded its original solo track and enabled its transport. Returning to the new lesson restored Drop E, E-relative intervals, and the selected optimized mapping.
+
+The retained browser receipt is `composition-lab/fretboard-efficiency-live-validation.json`: 33 observations, including 23 exact active-contact snapshots independently joined against source occurrence IDs and assignments, 20 checks that active contacts fit the visible fret range, and 8 empty-contact states. Both duplicated B3 occurrences, the lowest open E1/B1 power chord, and B's S4:21 / S3:17 high dyad are verified in the real fretboard. Pause/Stop/end, seeking, speed, comparison selection, and full-neck/follow controls passed. The final handoff tab is A / Optimized / Follow hand at tick zero, ready to play. Desktop rendering was inspected; phone rendering is not claimed.
 
 ## Current user contract
 
@@ -43,7 +51,7 @@ This is a new, isolated task. Earlier composition generation, classifier and lis
 - [x] Compare to a physically valid greedy baseline using the same notes and declared constraints.
 - [x] Independently verify geometry, overlap, note preservation, open counts, and meaningful adversarial examples.
 - [x] Reuse the existing riff-builder surface for both fixtures and both mapping versions; verify all 496 attack states in a DOM harness, without sound.
-- [ ] Inspect actual desktop and phone rendering. Blocked in this environment: local Chromium cannot start through Playwright, native text entry lacks an accessibility provider, and cloud browser cannot reach the local server. DOM verification is not a visual-render claim.
+- [x] Inspect the actual published desktop trainer and playback. This supersedes the earlier local-preview browser limitation. Phone rendering remains outside the verified scope.
 - [x] Produce the portable offline review, reporting actual metrics and model limitations; source is ready for an isolated branch checkpoint.
 
 ## Model boundaries
@@ -61,4 +69,4 @@ Positive-fret span is at most four, with at most four fretting contacts; open st
 
 ## Next useful refinement
 
-Review the actual assigned contacts on the user's guitar, especially the remaining high-dyad transitions in fixture B. Calibrate the provisional transition allowance and reach model from that feedback. Complete phrase-level 2/3-NPS and arpeggio recognition remains a Tier 5 extension. Actual phone/desktop rendering needs a browser that can reach the preview; this has not been silently counted as passed.
+Review the actual assigned contacts on the user's guitar, especially the remaining high-dyad transitions in fixture B. Calibrate the provisional transition allowance and reach model from that feedback. Complete phrase-level 2/3-NPS and arpeggio recognition remains a Tier 5 extension. The deployed desktop UI and native playback are verified; a dedicated phone-rendering check remains a separate future refinement.

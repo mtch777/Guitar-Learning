@@ -1,0 +1,1347 @@
+{
+  "schema": "fretboard-efficiency-live-qa/1",
+  "source_commit": "c49a261a148e06a78ed6d6469bb09892a0baafe9",
+  "asset": "main-BR2GQeSp.js",
+  "environment": "Actual published GitHub Pages in cloud Chromium; native alphaTab playback, UI controls and file chooser. Earlier observations identify the immediately preceding browser-distribution fix; final-prefixed observations use this source commit.",
+  "scope": "Both optimized riffs, native clock progression, 0.75x timing, exact duplicated-pitch holds, open E power chord, high dyad, pause, stop, natural end, comparison/full-neck controls, real JSON upload and Time lesson restoration. Desktop observed; phone rendering not claimed.",
+  "verification": {
+    "exact_contact_snapshots": 23,
+    "visible_contact_snapshots": 20,
+    "empty_contact_snapshots": 8,
+    "total_observations": 33,
+    "duration_ticks": 61920,
+    "duration_seconds": 32.25,
+    "javascript_tests_passed": 133,
+    "javascript_tests_skipped": 0,
+    "optimizer_python_tests_passed": 32
+  },
+  "successful_workflow_runs": {
+    "pages_build": 43757011718,
+    "pages_deployment": 43757069742,
+    "main_live_preflight": 43757011705,
+    "feature_live_preflight": 43757009448
+  },
+  "normalization": "Active sounding occurrences use data-note-id. The old timeSoloSelectedNote class may remain on visually empty cells; such cells are counted separately and are not sounding notes.",
+  "observations": [
+    {
+      "check": "A ready after corrected deployment",
+      "state": {
+        "board": {
+          "firstFret": "2",
+          "lastFret": "8",
+          "visibleFretCount": "7"
+        },
+        "fixture": "cfa029a2",
+        "notes": [
+          {
+            "fret": "3",
+            "id": "2",
+            "label": "String 6, fret 3, G2",
+            "pitch": "43",
+            "row": "2"
+          },
+          {
+            "fret": "3",
+            "id": "1",
+            "label": "String 7, fret 3, D2",
+            "pitch": "38",
+            "row": "1"
+          },
+          {
+            "fret": "3",
+            "id": "0",
+            "label": "String 8, fret 3, G1",
+            "pitch": "31",
+            "row": "0"
+          }
+        ],
+        "observedAt": 1794773437294,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "false",
+          "ready": "true",
+          "tick": "0",
+          "value": "0",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "time": "0:00",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "A native playback started",
+      "state": {
+        "board": {
+          "firstFret": "2",
+          "lastFret": "8",
+          "visibleFretCount": "7"
+        },
+        "fixture": "cfa029a2",
+        "notes": [
+          {
+            "fret": "3",
+            "id": "2",
+            "label": "String 6, fret 3, G2",
+            "pitch": "43",
+            "row": "2"
+          },
+          {
+            "fret": "3",
+            "id": "1",
+            "label": "String 7, fret 3, D2",
+            "pitch": "38",
+            "row": "1"
+          },
+          {
+            "fret": "3",
+            "id": "0",
+            "label": "String 8, fret 3, G1",
+            "pitch": "31",
+            "row": "0"
+          }
+        ],
+        "observedAt": 1794773441009,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "true",
+          "ready": "true",
+          "tick": "535",
+          "value": "9",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "time": "0:00",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "A native clock and contacts advance",
+      "state": {
+        "board": {
+          "firstFret": "4",
+          "lastFret": "10",
+          "visibleFretCount": "7"
+        },
+        "fixture": "cfa029a2",
+        "notes": [
+          {
+            "fret": "0",
+            "id": "6",
+            "label": "String 2, fret 0, B3",
+            "pitch": "59",
+            "row": "6"
+          },
+          {
+            "fret": "5",
+            "id": "9",
+            "label": "String 1, fret 5, A4",
+            "pitch": "69",
+            "row": "7"
+          },
+          {
+            "fret": "7",
+            "id": "8",
+            "label": "String 3, fret 7, D4",
+            "pitch": "62",
+            "row": "5"
+          },
+          {
+            "fret": "9",
+            "id": "7",
+            "label": "String 4, fret 9, B3",
+            "pitch": "59",
+            "row": "4"
+          }
+        ],
+        "observedAt": 1794773444469,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "true",
+          "ready": "true",
+          "tick": "7134",
+          "value": "115",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "time": "0:04",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized",
+        "version": "optimized",
+        "inactive_selected_class_cells": 3
+      }
+    },
+    {
+      "check": "A pause clears highlights",
+      "state": {
+        "board": {
+          "firstFret": "4",
+          "lastFret": "10",
+          "visibleFretCount": "7"
+        },
+        "fixture": "cfa029a2",
+        "notes": [],
+        "observedAt": 1794773444942,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "false",
+          "ready": "true",
+          "tick": "7847",
+          "value": "127",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "time": "0:04",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized",
+        "version": "optimized",
+        "inactive_selected_class_cells": 8
+      }
+    },
+    {
+      "check": "A paused display remains cleared; active occurrence markers only",
+      "state": {
+        "board": {
+          "firstFret": "4",
+          "lastFret": "10",
+          "visibleFretCount": "7"
+        },
+        "fixture": "cfa029a2",
+        "notes": [],
+        "observedAt": 1794773478656,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "false",
+          "ready": "true",
+          "tick": "7847",
+          "value": "127",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "time": "0:04",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "A paused seek into sustained duplicated-B3 chord",
+      "state": {
+        "board": {
+          "firstFret": "4",
+          "lastFret": "10",
+          "visibleFretCount": "7"
+        },
+        "fixture": "cfa029a2",
+        "notes": [
+          {
+            "fret": "0",
+            "id": "6",
+            "label": "String 2, fret 0, B3",
+            "pitch": "59",
+            "row": "6"
+          },
+          {
+            "fret": "5",
+            "id": "9",
+            "label": "String 1, fret 5, A4",
+            "pitch": "69",
+            "row": "7"
+          },
+          {
+            "fret": "7",
+            "id": "8",
+            "label": "String 3, fret 7, D4",
+            "pitch": "62",
+            "row": "5"
+          },
+          {
+            "fret": "9",
+            "id": "7",
+            "label": "String 4, fret 9, B3",
+            "pitch": "59",
+            "row": "4"
+          }
+        ],
+        "observedAt": 1794773478785,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "false",
+          "ready": "true",
+          "tick": "6192",
+          "value": "100",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "time": "0:03",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "A paused seek to open E1-B1 power chord",
+      "state": {
+        "board": {
+          "firstFret": "4",
+          "lastFret": "10",
+          "visibleFretCount": "7"
+        },
+        "fixture": "cfa029a2",
+        "notes": [
+          {
+            "fret": "0",
+            "id": "13",
+            "label": "String 7, fret 0, B1",
+            "pitch": "35",
+            "row": "1"
+          },
+          {
+            "fret": "0",
+            "id": "12",
+            "label": "String 8, fret 0, E1",
+            "pitch": "28",
+            "row": "0"
+          }
+        ],
+        "observedAt": 1794773482224,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "false",
+          "ready": "true",
+          "tick": "8173",
+          "value": "132",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "time": "0:04",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "A stop resets tick and clears notes",
+      "state": {
+        "board": {
+          "firstFret": "2",
+          "lastFret": "8",
+          "visibleFretCount": "7"
+        },
+        "fixture": "cfa029a2",
+        "notes": [],
+        "observedAt": 1794773492233,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "false",
+          "ready": "true",
+          "tick": "0",
+          "value": "0",
+          "versionId": "optimized"
+        },
+        "speed": "0.75",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "time": "0:00",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "A full playback at 0.75x start",
+      "state": {
+        "board": {
+          "firstFret": "2",
+          "lastFret": "8",
+          "visibleFretCount": "7"
+        },
+        "fixture": "cfa029a2",
+        "notes": [],
+        "observedAt": 1794773493419,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "true",
+          "ready": "true",
+          "tick": "0",
+          "value": "0",
+          "versionId": "optimized"
+        },
+        "speed": "0.75",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "time": "0:00",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "A slower playback native clock sample 1",
+      "state": {
+        "board": {
+          "firstFret": "4",
+          "lastFret": "10",
+          "visibleFretCount": "7"
+        },
+        "fixture": "cfa029a2",
+        "notes": [
+          {
+            "fret": "8",
+            "id": "33",
+            "label": "String 1, fret 8, C5",
+            "pitch": "72",
+            "row": "7"
+          }
+        ],
+        "observedAt": 1794773503344,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "true",
+          "ready": "true",
+          "tick": "14311",
+          "value": "231",
+          "versionId": "optimized"
+        },
+        "speed": "0.75",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "time": "0:07",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "A slower playback native clock sample 2",
+      "state": {
+        "board": {
+          "firstFret": "14",
+          "lastFret": "20",
+          "visibleFretCount": "7"
+        },
+        "fixture": "cfa029a2",
+        "notes": [],
+        "observedAt": 1794773542444,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "false",
+          "ready": "true",
+          "tick": "61920",
+          "value": "1000",
+          "versionId": "optimized"
+        },
+        "speed": "0.75",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "time": "0:32",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "A measured 0.75x while both samples were playing",
+      "measuredSpeed": 0.750997061293031,
+      "note": "The later endpoint sample is clipped at natural completion and is not a speed measurement."
+    },
+    {
+      "check": "B selected through existing lesson UI",
+      "state": {
+        "board": {
+          "firstFret": "2",
+          "lastFret": "8",
+          "visibleFretCount": "7"
+        },
+        "fixture": "da80eca9",
+        "notes": [
+          {
+            "fret": "3",
+            "id": "2",
+            "label": "String 6, fret 3, G2",
+            "pitch": "43",
+            "row": "2"
+          },
+          {
+            "fret": "3",
+            "id": "1",
+            "label": "String 7, fret 3, D2",
+            "pitch": "38",
+            "row": "1"
+          },
+          {
+            "fret": "3",
+            "id": "0",
+            "label": "String 8, fret 3, G1",
+            "pitch": "31",
+            "row": "0"
+          }
+        ],
+        "observedAt": 1794773574193,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "da80eca9",
+          "playing": "false",
+          "ready": "true",
+          "tick": "0",
+          "value": "0",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "B \u00b7 High dyads \u00b7 Drop E 8 string",
+        "time": "0:00",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=da80eca9&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "B sustained chord exact duplicated B3",
+      "state": {
+        "board": {
+          "firstFret": "4",
+          "lastFret": "10",
+          "visibleFretCount": "7"
+        },
+        "fixture": "da80eca9",
+        "notes": [
+          {
+            "fret": "0",
+            "id": "6",
+            "label": "String 2, fret 0, B3",
+            "pitch": "59",
+            "row": "6"
+          },
+          {
+            "fret": "5",
+            "id": "9",
+            "label": "String 1, fret 5, A4",
+            "pitch": "69",
+            "row": "7"
+          },
+          {
+            "fret": "7",
+            "id": "8",
+            "label": "String 3, fret 7, D4",
+            "pitch": "62",
+            "row": "5"
+          },
+          {
+            "fret": "9",
+            "id": "7",
+            "label": "String 4, fret 9, B3",
+            "pitch": "59",
+            "row": "4"
+          }
+        ],
+        "observedAt": 1794773583055,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "da80eca9",
+          "playing": "false",
+          "ready": "true",
+          "tick": "6192",
+          "value": "100",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "B \u00b7 High dyads \u00b7 Drop E 8 string",
+        "time": "0:03",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=da80eca9&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "B open E1-B1 power chord",
+      "state": {
+        "board": {
+          "firstFret": "4",
+          "lastFret": "10",
+          "visibleFretCount": "7"
+        },
+        "fixture": "da80eca9",
+        "notes": [
+          {
+            "fret": "0",
+            "id": "13",
+            "label": "String 7, fret 0, B1",
+            "pitch": "35",
+            "row": "1"
+          },
+          {
+            "fret": "0",
+            "id": "12",
+            "label": "String 8, fret 0, E1",
+            "pitch": "28",
+            "row": "0"
+          }
+        ],
+        "observedAt": 1794773585405,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "da80eca9",
+          "playing": "false",
+          "ready": "true",
+          "tick": "8173",
+          "value": "132",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "B \u00b7 High dyads \u00b7 Drop E 8 string",
+        "time": "0:04",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=da80eca9&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "B high B4-C5 dyad with following fret window",
+      "state": {
+        "board": {
+          "firstFret": "16",
+          "lastFret": "22",
+          "visibleFretCount": "7"
+        },
+        "fixture": "da80eca9",
+        "notes": [
+          {
+            "fret": "17",
+            "id": "31",
+            "label": "String 3, fret 17, C5",
+            "pitch": "72",
+            "row": "5"
+          },
+          {
+            "fret": "21",
+            "id": "30",
+            "label": "String 4, fret 21, B4",
+            "pitch": "71",
+            "row": "4"
+          }
+        ],
+        "observedAt": 1794773588152,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "da80eca9",
+          "playing": "false",
+          "ready": "true",
+          "tick": "12694",
+          "value": "205",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "B \u00b7 High dyads \u00b7 Drop E 8 string",
+        "time": "0:07",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=da80eca9&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "B full native playback at 1x start",
+      "state": {
+        "board": {
+          "firstFret": "2",
+          "lastFret": "8",
+          "visibleFretCount": "7"
+        },
+        "fixture": "da80eca9",
+        "notes": [
+          {
+            "fret": "3",
+            "id": "2",
+            "label": "String 6, fret 3, G2",
+            "pitch": "43",
+            "row": "2"
+          },
+          {
+            "fret": "3",
+            "id": "1",
+            "label": "String 7, fret 3, D2",
+            "pitch": "38",
+            "row": "1"
+          },
+          {
+            "fret": "3",
+            "id": "0",
+            "label": "String 8, fret 3, G1",
+            "pitch": "31",
+            "row": "0"
+          }
+        ],
+        "observedAt": 1794773595347,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "da80eca9",
+          "playing": "true",
+          "ready": "true",
+          "tick": "535",
+          "value": "9",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "B \u00b7 High dyads \u00b7 Drop E 8 string",
+        "time": "0:00",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=da80eca9&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "B native clock and assigned contacts advance",
+      "state": {
+        "board": {
+          "firstFret": "4",
+          "lastFret": "10",
+          "visibleFretCount": "7"
+        },
+        "fixture": "da80eca9",
+        "notes": [
+          {
+            "fret": "0",
+            "id": "58",
+            "label": "String 2, fret 0, B3",
+            "pitch": "59",
+            "row": "6"
+          },
+          {
+            "fret": "5",
+            "id": "61",
+            "label": "String 1, fret 5, A4",
+            "pitch": "69",
+            "row": "7"
+          },
+          {
+            "fret": "7",
+            "id": "60",
+            "label": "String 3, fret 7, D4",
+            "pitch": "62",
+            "row": "5"
+          },
+          {
+            "fret": "9",
+            "id": "59",
+            "label": "String 4, fret 9, B3",
+            "pitch": "59",
+            "row": "4"
+          }
+        ],
+        "observedAt": 1794773606998,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "da80eca9",
+          "playing": "true",
+          "ready": "true",
+          "tick": "22827",
+          "value": "369",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "B \u00b7 High dyads \u00b7 Drop E 8 string",
+        "time": "0:12",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=da80eca9&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "B natural completion at exact source end",
+      "state": {
+        "board": {
+          "firstFret": "14",
+          "lastFret": "20",
+          "visibleFretCount": "7"
+        },
+        "fixture": "da80eca9",
+        "notes": [],
+        "observedAt": 1794773631299,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "da80eca9",
+          "playing": "false",
+          "ready": "true",
+          "tick": "61920",
+          "value": "1000",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "B \u00b7 High dyads \u00b7 Drop E 8 string",
+        "time": "0:32",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=da80eca9&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "B comparison selection updates native score and metrics",
+      "state": {
+        "board": {
+          "firstFret": "2",
+          "lastFret": "8",
+          "visibleFretCount": "7"
+        },
+        "fixture": "da80eca9",
+        "notes": [
+          {
+            "fret": "3",
+            "id": "2",
+            "label": "String 6, fret 3, G2",
+            "pitch": "43",
+            "row": "2"
+          },
+          {
+            "fret": "3",
+            "id": "1",
+            "label": "String 7, fret 3, D2",
+            "pitch": "38",
+            "row": "1"
+          },
+          {
+            "fret": "3",
+            "id": "0",
+            "label": "String 8, fret 3, G1",
+            "pitch": "31",
+            "row": "0"
+          }
+        ],
+        "observedAt": 1794773641673,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "da80eca9",
+          "playing": "false",
+          "ready": "true",
+          "tick": "0",
+          "value": "0",
+          "versionId": "greedy"
+        },
+        "speed": "1",
+        "status": "B \u00b7 High dyads \u00b7 Drop E 8 string",
+        "time": "0:00",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=da80eca9&mapping=greedy",
+        "version": "greedy"
+      }
+    },
+    {
+      "check": "Full neck view spans frets 1-24",
+      "state": {
+        "board": {
+          "firstFret": "1",
+          "lastFret": "24",
+          "visibleFretCount": "24"
+        },
+        "fixture": "da80eca9",
+        "notes": [
+          {
+            "fret": "3",
+            "id": "2",
+            "label": "String 6, fret 3, G2",
+            "pitch": "43",
+            "row": "2"
+          },
+          {
+            "fret": "3",
+            "id": "1",
+            "label": "String 7, fret 3, D2",
+            "pitch": "38",
+            "row": "1"
+          },
+          {
+            "fret": "3",
+            "id": "0",
+            "label": "String 8, fret 3, G1",
+            "pitch": "31",
+            "row": "0"
+          }
+        ],
+        "observedAt": 1794773641828,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "da80eca9",
+          "playing": "false",
+          "ready": "true",
+          "tick": "0",
+          "value": "0",
+          "versionId": "greedy"
+        },
+        "speed": "1",
+        "status": "B \u00b7 High dyads \u00b7 Drop E 8 string",
+        "time": "0:00",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=da80eca9&mapping=greedy",
+        "version": "greedy"
+      }
+    },
+    {
+      "check": "Final lifecycle-fixed asset A ready",
+      "state": {
+        "board": {
+          "firstFret": "2",
+          "lastFret": "8",
+          "visibleFretCount": "7"
+        },
+        "fixture": "cfa029a2",
+        "notes": [
+          {
+            "fret": "3",
+            "id": "2",
+            "pitch": "43",
+            "row": "2"
+          },
+          {
+            "fret": "3",
+            "id": "1",
+            "pitch": "38",
+            "row": "1"
+          },
+          {
+            "fret": "3",
+            "id": "0",
+            "pitch": "31",
+            "row": "0"
+          }
+        ],
+        "observedAt": 1794775947802,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "false",
+          "ready": "true",
+          "tick": "0",
+          "value": "0",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "Final A native playback starts",
+      "state": {
+        "board": {
+          "firstFret": "2",
+          "lastFret": "8",
+          "visibleFretCount": "7"
+        },
+        "fixture": "cfa029a2",
+        "notes": [
+          {
+            "fret": "3",
+            "id": "2",
+            "pitch": "43",
+            "row": "2"
+          },
+          {
+            "fret": "3",
+            "id": "1",
+            "pitch": "38",
+            "row": "1"
+          },
+          {
+            "fret": "3",
+            "id": "0",
+            "pitch": "31",
+            "row": "0"
+          }
+        ],
+        "observedAt": 1794775948195,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "true",
+          "ready": "true",
+          "tick": "535",
+          "value": "9",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "Final asset A native playback completes",
+      "state": {
+        "board": {
+          "firstFret": "14",
+          "lastFret": "20",
+          "visibleFretCount": "7"
+        },
+        "fixture": "cfa029a2",
+        "notes": [],
+        "observedAt": 1794775981924,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "false",
+          "ready": "true",
+          "tick": "61920",
+          "value": "1000",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "Final file chooser upload loads exact published mapping bundle",
+      "state": {
+        "board": {},
+        "fixture": "cfa029a2",
+        "notes": [
+          {
+            "fret": "3",
+            "id": "2",
+            "pitch": "43",
+            "row": "2"
+          },
+          {
+            "fret": "3",
+            "id": "1",
+            "pitch": "38",
+            "row": "1"
+          },
+          {
+            "fret": "3",
+            "id": "0",
+            "pitch": "31",
+            "row": "0"
+          }
+        ],
+        "observedAt": 1794775996577,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "false",
+          "ready": "true",
+          "tick": "0",
+          "value": "0",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "url": "https://mtch777.github.io/Guitar-Learning/",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "Uploaded mapping starts native playback through existing Song Player",
+      "state": {
+        "board": {},
+        "fixture": "cfa029a2",
+        "notes": [
+          {
+            "fret": "3",
+            "id": "2",
+            "pitch": "43",
+            "row": "2"
+          },
+          {
+            "fret": "3",
+            "id": "1",
+            "pitch": "38",
+            "row": "1"
+          },
+          {
+            "fret": "3",
+            "id": "0",
+            "pitch": "31",
+            "row": "0"
+          }
+        ],
+        "observedAt": 1794776004034,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "true",
+          "ready": "true",
+          "tick": "714",
+          "value": "12",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "url": "https://mtch777.github.io/Guitar-Learning/",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "Uploaded mapping native clock advances with chord contacts",
+      "state": {
+        "board": {},
+        "fixture": "cfa029a2",
+        "notes": [
+          {
+            "fret": "5",
+            "id": "115",
+            "pitch": "69",
+            "row": "7"
+          }
+        ],
+        "observedAt": 1794776026577,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "true",
+          "ready": "true",
+          "tick": "44048",
+          "value": "711",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "url": "https://mtch777.github.io/Guitar-Learning/",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "Existing Time lesson restored after JSON upload",
+      "state": {
+        "lesson": "timeSoloChords",
+        "playEnabled": true,
+        "progress": {
+          "playing": "false",
+          "ready": "true",
+          "tick": "357121"
+        },
+        "status": "David Gilmour | Fender \"The Black Strat\" Stratocaster | Guitar Solo - Distortion Guitar",
+        "track": "David Gilmour | Fender \"The Black Strat\" Stratocaster | Guitar Solo - Distortion Guitar"
+      }
+    },
+    {
+      "check": "Final asset B ready after existing Time lesson",
+      "state": {
+        "board": {
+          "firstFret": "2",
+          "lastFret": "8",
+          "visibleFretCount": "7"
+        },
+        "fixture": "da80eca9",
+        "notes": [
+          {
+            "fret": "3",
+            "id": "2",
+            "pitch": "43",
+            "row": "2"
+          },
+          {
+            "fret": "3",
+            "id": "1",
+            "pitch": "38",
+            "row": "1"
+          },
+          {
+            "fret": "3",
+            "id": "0",
+            "pitch": "31",
+            "row": "0"
+          }
+        ],
+        "observedAt": 1794776067079,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "da80eca9",
+          "playing": "false",
+          "ready": "true",
+          "tick": "0",
+          "value": "0",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "B \u00b7 High dyads \u00b7 Drop E 8 string",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=da80eca9&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "Final B native playback starts",
+      "state": {
+        "board": {
+          "firstFret": "2",
+          "lastFret": "8",
+          "visibleFretCount": "7"
+        },
+        "fixture": "da80eca9",
+        "notes": [
+          {
+            "fret": "3",
+            "id": "2",
+            "pitch": "43",
+            "row": "2"
+          },
+          {
+            "fret": "3",
+            "id": "1",
+            "pitch": "38",
+            "row": "1"
+          },
+          {
+            "fret": "3",
+            "id": "0",
+            "pitch": "31",
+            "row": "0"
+          }
+        ],
+        "observedAt": 1794776067425,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "da80eca9",
+          "playing": "true",
+          "ready": "true",
+          "tick": "535",
+          "value": "9",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "B \u00b7 High dyads \u00b7 Drop E 8 string",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=da80eca9&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "Final asset B native playback completes",
+      "state": {
+        "board": {
+          "firstFret": "14",
+          "lastFret": "20",
+          "visibleFretCount": "7"
+        },
+        "fixture": "da80eca9",
+        "notes": [],
+        "observedAt": 1794776109642,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "da80eca9",
+          "playing": "false",
+          "ready": "true",
+          "tick": "61920",
+          "value": "1000",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "B \u00b7 High dyads \u00b7 Drop E 8 string",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=da80eca9&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "Final B high-dyad seek and follow view",
+      "state": {
+        "board": {
+          "firstFret": "16",
+          "lastFret": "22",
+          "visibleFretCount": "7"
+        },
+        "fixture": "da80eca9",
+        "notes": [
+          {
+            "fret": "17",
+            "id": "31",
+            "pitch": "72",
+            "row": "5"
+          },
+          {
+            "fret": "21",
+            "id": "30",
+            "pitch": "71",
+            "row": "4"
+          }
+        ],
+        "observedAt": 1794776134994,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "da80eca9",
+          "playing": "false",
+          "ready": "true",
+          "tick": "12694",
+          "value": "205",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "B \u00b7 High dyads \u00b7 Drop E 8 string",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=da80eca9&mapping=optimized",
+        "version": "optimized"
+      }
+    },
+    {
+      "check": "Final handoff A optimized ready at start",
+      "state": {
+        "board": {
+          "firstFret": "2",
+          "lastFret": "8",
+          "visibleFretCount": "7"
+        },
+        "fixture": "cfa029a2",
+        "notes": [
+          {
+            "fret": "3",
+            "id": "2",
+            "pitch": "43",
+            "row": "2"
+          },
+          {
+            "fret": "3",
+            "id": "1",
+            "pitch": "38",
+            "row": "1"
+          },
+          {
+            "fret": "3",
+            "id": "0",
+            "pitch": "31",
+            "row": "0"
+          }
+        ],
+        "observedAt": 1794776143722,
+        "playDisabled": false,
+        "progress": {
+          "durationTicks": "61920",
+          "fixtureId": "cfa029a2",
+          "playing": "false",
+          "ready": "true",
+          "tick": "0",
+          "value": "0",
+          "versionId": "optimized"
+        },
+        "speed": "1",
+        "status": "A \u00b7 Low response \u00b7 Drop E 8 string",
+        "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=cfa029a2&mapping=optimized",
+        "version": "optimized"
+      }
+    }
+  ]
+}
