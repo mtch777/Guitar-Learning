@@ -1,0 +1,950 @@
+{
+  "fixtureId": "c5a35486",
+  "sourceCommit": "264b0dda0eb7ed649c3616ba8c5d5a0496ee15e7",
+  "sourceTree": "6c2cd8d2ea5373510769876f068beffa51d740e7",
+  "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=optimized",
+  "mainAsset": "main-DYsflLu8.js",
+  "observations": [
+    {
+      "label": "C optimized ready",
+      "observedAt": "2026-11-15T21:52:34.330Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "7",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "64",
+          "displayInterval": "R",
+          "feedbackInterval": "R",
+          "fret": "0",
+          "interval": "R",
+          "label": "String 1, fret 0, E4",
+          "noteId": "0",
+          "noteName": "E",
+          "octave": "4",
+          "openString": "true",
+          "scientificPitch": "E4",
+          "string": "8",
+          "stringIndex": "7",
+          "target": "R|4"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "optimized"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-DYsflLu8.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "status": "C \u00b7 MIDI rewrite \u00b7 Drop E 8 string",
+      "time": "0:00"
+    },
+    {
+      "label": "C optimized playing at 1x",
+      "observedAt": "2026-11-15T21:52:40.506Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "7",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "53.5",
+        "tick": "535",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "displayInterval": "5",
+          "feedbackInterval": "5",
+          "fret": "0",
+          "interval": "5",
+          "label": "String 7, fret 0, B1",
+          "noteId": "3",
+          "noteName": "B",
+          "octave": "1",
+          "openString": "true",
+          "scientificPitch": "B1",
+          "string": "2",
+          "stringIndex": "1",
+          "target": "5|1"
+        },
+        {
+          "absolutePitch": "28",
+          "displayInterval": "R",
+          "feedbackInterval": "R",
+          "fret": "0",
+          "interval": "R",
+          "label": "String 8, fret 0, E1",
+          "noteId": "2",
+          "noteName": "E",
+          "octave": "1",
+          "openString": "true",
+          "scientificPitch": "E1",
+          "string": "1",
+          "stringIndex": "0",
+          "target": "R|1"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "\u23f8 Pause"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "535",
+        "value": "17",
+        "versionId": "optimized"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-DYsflLu8.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "status": "C \u00b7 MIDI rewrite \u00b7 Drop E 8 string",
+      "time": "0:00"
+    },
+    {
+      "label": "C optimized advancing",
+      "observedAt": "2026-11-15T21:52:48.360Z",
+      "board": {
+        "firstFret": "16",
+        "lastFret": "22",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "1569.3",
+        "tick": "15693",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "displayInterval": "5",
+          "feedbackInterval": "5",
+          "fret": "0",
+          "interval": "5",
+          "label": "String 7, fret 0, B1",
+          "noteId": "72",
+          "noteName": "B",
+          "octave": "1",
+          "openString": "true",
+          "scientificPitch": "B1",
+          "string": "2",
+          "stringIndex": "1",
+          "target": "5|1"
+        },
+        {
+          "absolutePitch": "28",
+          "displayInterval": "R",
+          "feedbackInterval": "R",
+          "fret": "0",
+          "interval": "R",
+          "label": "String 8, fret 0, E1",
+          "noteId": "71",
+          "noteName": "E",
+          "octave": "1",
+          "openString": "true",
+          "scientificPitch": "E1",
+          "string": "1",
+          "stringIndex": "0",
+          "target": "R|1"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "\u23f8 Pause"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "15693",
+        "value": "511",
+        "versionId": "optimized"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-DYsflLu8.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "status": "C \u00b7 MIDI rewrite \u00b7 Drop E 8 string",
+      "time": "0:08"
+    },
+    {
+      "label": "C optimized natural playback end",
+      "observedAt": "2026-11-15T21:53:03.063Z",
+      "board": {
+        "firstFret": "16",
+        "lastFret": "22",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "3072",
+        "tick": "30720",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [],
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "30720",
+        "value": "1000",
+        "versionId": "optimized"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-DYsflLu8.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "status": "C \u00b7 MIDI rewrite \u00b7 Drop E 8 string",
+      "time": "0:16"
+    },
+    {
+      "label": "C open E1 B1 power chord",
+      "observedAt": "2026-11-15T21:53:07.210Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "7",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "61.4",
+        "tick": "614",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "displayInterval": "5",
+          "feedbackInterval": "5",
+          "fret": "0",
+          "interval": "5",
+          "label": "String 7, fret 0, B1",
+          "noteId": "3",
+          "noteName": "B",
+          "octave": "1",
+          "openString": "true",
+          "scientificPitch": "B1",
+          "string": "2",
+          "stringIndex": "1",
+          "target": "5|1"
+        },
+        {
+          "absolutePitch": "28",
+          "displayInterval": "R",
+          "feedbackInterval": "R",
+          "fret": "0",
+          "interval": "R",
+          "label": "String 8, fret 0, E1",
+          "noteId": "2",
+          "noteName": "E",
+          "octave": "1",
+          "openString": "true",
+          "scientificPitch": "E1",
+          "string": "1",
+          "stringIndex": "0",
+          "target": "R|1"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "614",
+        "value": "20",
+        "versionId": "optimized"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-DYsflLu8.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "status": "C \u00b7 MIDI rewrite \u00b7 Drop E 8 string",
+      "time": "0:00"
+    },
+    {
+      "label": "C held E5 enters above C4",
+      "observedAt": "2026-11-15T21:53:09.457Z",
+      "board": {
+        "firstFret": "14",
+        "lastFret": "20",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "691.2",
+        "tick": "6912",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "76",
+          "displayInterval": "R",
+          "feedbackInterval": "R",
+          "fret": "17",
+          "interval": "R",
+          "label": "String 2, fret 17, E5",
+          "noteId": "30",
+          "noteName": "E",
+          "octave": "5",
+          "openString": "false",
+          "scientificPitch": "E5",
+          "string": "7",
+          "stringIndex": "6",
+          "target": "R|5"
+        },
+        {
+          "absolutePitch": "60",
+          "displayInterval": "b6",
+          "feedbackInterval": "b6",
+          "fret": "15",
+          "interval": "b6",
+          "label": "String 5, fret 15, C4",
+          "noteId": "29",
+          "noteName": "C",
+          "octave": "4",
+          "openString": "false",
+          "scientificPitch": "C4",
+          "string": "4",
+          "stringIndex": "3",
+          "target": "b6|4"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "6912",
+        "value": "225",
+        "versionId": "optimized"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-DYsflLu8.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "status": "C \u00b7 MIDI rewrite \u00b7 Drop E 8 string",
+      "time": "0:04"
+    },
+    {
+      "label": "C E5 retained while B5 enters",
+      "observedAt": "2026-11-15T21:53:12.299Z",
+      "board": {
+        "firstFret": "14",
+        "lastFret": "20",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "706.6",
+        "tick": "7066",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "83",
+          "displayInterval": "5",
+          "feedbackInterval": "5",
+          "fret": "19",
+          "interval": "5",
+          "label": "String 1, fret 19, B5",
+          "noteId": "31",
+          "noteName": "B",
+          "octave": "5",
+          "openString": "false",
+          "scientificPitch": "B5",
+          "string": "8",
+          "stringIndex": "7",
+          "target": "5|5"
+        },
+        {
+          "absolutePitch": "76",
+          "displayInterval": "R",
+          "feedbackInterval": "R",
+          "fret": "17",
+          "interval": "R",
+          "label": "String 2, fret 17, E5",
+          "noteId": "30",
+          "noteName": "E",
+          "octave": "5",
+          "openString": "false",
+          "scientificPitch": "E5",
+          "string": "7",
+          "stringIndex": "6",
+          "target": "R|5"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "7066",
+        "value": "230",
+        "versionId": "optimized"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-DYsflLu8.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "status": "C \u00b7 MIDI rewrite \u00b7 Drop E 8 string",
+      "time": "0:04"
+    },
+    {
+      "label": "C greedy selected",
+      "observedAt": "2026-11-15T21:53:35.621Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "7",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [
+        {
+          "absolutePitch": "64",
+          "displayInterval": "R",
+          "feedbackInterval": "R",
+          "fret": "0",
+          "interval": "R",
+          "label": "String 1, fret 0, E4",
+          "noteId": "0",
+          "noteName": "E",
+          "octave": "4",
+          "openString": "true",
+          "scientificPitch": "E4",
+          "string": "8",
+          "stringIndex": "7",
+          "target": "R|4"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "greedy"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-DYsflLu8.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "status": "C \u00b7 MIDI rewrite \u00b7 Drop E 8 string",
+      "time": "0:00"
+    },
+    {
+      "label": "C greedy playback",
+      "observedAt": "2026-11-15T21:53:38.080Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "7",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "53.5",
+        "tick": "535",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "displayInterval": "5",
+          "feedbackInterval": "5",
+          "fret": "0",
+          "interval": "5",
+          "label": "String 7, fret 0, B1",
+          "noteId": "3",
+          "noteName": "B",
+          "octave": "1",
+          "openString": "true",
+          "scientificPitch": "B1",
+          "string": "2",
+          "stringIndex": "1",
+          "target": "5|1"
+        },
+        {
+          "absolutePitch": "28",
+          "displayInterval": "R",
+          "feedbackInterval": "R",
+          "fret": "0",
+          "interval": "R",
+          "label": "String 8, fret 0, E1",
+          "noteId": "2",
+          "noteName": "E",
+          "octave": "1",
+          "openString": "true",
+          "scientificPitch": "E1",
+          "string": "1",
+          "stringIndex": "0",
+          "target": "R|1"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "\u23f8 Pause"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "535",
+        "value": "17",
+        "versionId": "greedy"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-DYsflLu8.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "status": "C \u00b7 MIDI rewrite \u00b7 Drop E 8 string",
+      "time": "0:00"
+    },
+    {
+      "label": "C greedy paused",
+      "observedAt": "2026-11-15T21:53:41.390Z",
+      "board": {
+        "firstFret": "10",
+        "lastFret": "16",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "677.7",
+        "tick": "6777",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [],
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "6777",
+        "value": "221",
+        "versionId": "greedy"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-DYsflLu8.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "status": "C \u00b7 MIDI rewrite \u00b7 Drop E 8 string",
+      "time": "0:04"
+    },
+    {
+      "label": "C greedy stopped at zero",
+      "observedAt": "2026-11-15T21:53:42.411Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "7",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [],
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "greedy"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-DYsflLu8.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "status": "C \u00b7 MIDI rewrite \u00b7 Drop E 8 string",
+      "time": "0:00"
+    },
+    {
+      "label": "C optimized playing at 0.75x",
+      "observedAt": "2026-11-15T21:53:47.788Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "7",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "64",
+          "displayInterval": "R",
+          "feedbackInterval": "R",
+          "fret": "0",
+          "interval": "R",
+          "label": "String 1, fret 0, E4",
+          "noteId": "0",
+          "noteName": "E",
+          "octave": "4",
+          "openString": "true",
+          "scientificPitch": "E4",
+          "string": "8",
+          "stringIndex": "7",
+          "target": "R|4"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "\u23f8 Pause"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "optimized"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-DYsflLu8.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "status": "C \u00b7 MIDI rewrite \u00b7 Drop E 8 string",
+      "time": "0:00"
+    },
+    {
+      "label": "C optimized 0.75x advancing",
+      "observedAt": "2026-11-15T21:54:07.711Z",
+      "board": {
+        "firstFret": "16",
+        "lastFret": "22",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "2862.2",
+        "tick": "28622",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "displayInterval": "5",
+          "feedbackInterval": "5",
+          "fret": "0",
+          "interval": "5",
+          "label": "String 7, fret 0, B1",
+          "noteId": "162",
+          "noteName": "B",
+          "octave": "1",
+          "openString": "true",
+          "scientificPitch": "B1",
+          "string": "2",
+          "stringIndex": "1",
+          "target": "5|1"
+        },
+        {
+          "absolutePitch": "28",
+          "displayInterval": "R",
+          "feedbackInterval": "R",
+          "fret": "0",
+          "interval": "R",
+          "label": "String 8, fret 0, E1",
+          "noteId": "161",
+          "noteName": "E",
+          "octave": "1",
+          "openString": "true",
+          "scientificPitch": "E1",
+          "string": "1",
+          "stringIndex": "0",
+          "target": "R|1"
+        }
+      ],
+      "play": {
+        "disabled": false,
+        "text": "\u23f8 Pause"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "28622",
+        "value": "932",
+        "versionId": "optimized"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-DYsflLu8.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "status": "C \u00b7 MIDI rewrite \u00b7 Drop E 8 string",
+      "time": "0:15"
+    },
+    {
+      "label": "C optimized 0.75x natural end",
+      "observedAt": "2026-11-15T21:54:15.986Z",
+      "board": {
+        "firstFret": "16",
+        "lastFret": "22",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "3072",
+        "tick": "30720",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [],
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "30720",
+        "value": "1000",
+        "versionId": "optimized"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-DYsflLu8.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "status": "C \u00b7 MIDI rewrite \u00b7 Drop E 8 string",
+      "time": "0:16"
+    },
+    {
+      "label": "C optimized final ready at zero",
+      "observedAt": "2026-11-15T21:54:17.162Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "7",
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [],
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "optimized"
+      },
+      "range": "follow",
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-DYsflLu8.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "status": "C \u00b7 MIDI rewrite \u00b7 Drop E 8 string",
+      "time": "0:00"
+    }
+  ],
+  "screenshot": {
+    "filename": "fretboard-efficiency-midi-rewrite.jpg",
+    "sha256": "ed0fdf9a931ea645fbb7af7fc290c6557abe6200e93ee603ae550acee2940654",
+    "format": "JPEG",
+    "width": 1348,
+    "height": 926
+  },
+  "sourceMidiSha256": "c5a35486923e3b819d9f7cb7176cb1c39546c26471093862e5e67c27fbe46461",
+  "publishedFixtureBundleSha256": "8da4dbd1804e39325b5c1d0ecb355f6586459f0239fcb7a066ae57fc7b7da329",
+  "deployment": {
+    "ghPagesCommit": "69c233d6435097a1062859edc63b3d8ca4602866",
+    "pagesSourceBuild": 43765819646,
+    "pagesDeployment": 43765894000,
+    "mainLivePreflight": 43765819528,
+    "featureLivePreflight": 43765817823,
+    "allListedRuns": "success",
+    "servedBytesMatch": [
+      "index.html",
+      "assets/main-DYsflLu8.js",
+      "data/fretboard-efficiency-fixtures.json",
+      "fretboard-efficiency/c5a35486_greedy_strings.mid",
+      "fretboard-efficiency/c5a35486_optimized_strings.mid"
+    ]
+  },
+  "independentAudit": {
+    "passed": true,
+    "audited_at_utc": "2026-11-15T21:56:13.028026+00:00",
+    "fixture_id": "c5a35486",
+    "source_commit": "264b0dda0eb7ed649c3616ba8c5d5a0496ee15e7",
+    "source_sha256": "c5a35486923e3b819d9f7cb7176cb1c39546c26471093862e5e67c27fbe46461",
+    "receipt_sha256": "8eadb84e132c466b2fa41e0ea72517e47cbb7e3f921aa5a35f05b07014d0c5f0",
+    "published_fixture_bundle_sha256": "8da4dbd1804e39325b5c1d0ecb355f6586459f0239fcb7a066ae57fc7b7da329",
+    "observations_checked": 15,
+    "preview_or_playing_frames_checked": 10,
+    "active_contacts_checked": 17,
+    "empty_pause_stop_end_frames_checked": 5,
+    "source_ppqn": 96,
+    "native_ppqn": 960,
+    "duration_source_ticks": 3072,
+    "duration_native_ticks": 30720,
+    "duration_seconds": 16,
+    "visible_windows": [
+      [
+        1,
+        7
+      ],
+      [
+        10,
+        16
+      ],
+      [
+        14,
+        20
+      ],
+      [
+        16,
+        22
+      ]
+    ],
+    "held_e5": {
+      "note_id": 30,
+      "source_string_number": 2,
+      "fret": 17,
+      "native_checkpoints": [
+        6912,
+        7066
+      ]
+    },
+    "natural_end_ticks": {
+      "1x": 30720,
+      "0.75x": 30720
+    },
+    "observed_clock_rates": {
+      "1x": 1.005194,
+      "0.75x": 0.748245
+    },
+    "final_state": {
+      "fixture_id": "c5a35486",
+      "version": "optimized",
+      "ready": true,
+      "playing": false,
+      "tick": 0,
+      "active_contacts": 0
+    },
+    "screenshot_sha256": "ed0fdf9a931ea645fbb7af7fc290c6557abe6200e93ee603ae550acee2940654",
+    "screenshot_review": "Shows C optimized, visible frets14\u201320, held E5 on string2/fret17 and B5 on string1/fret19, both inside the board.",
+    "scope": "Independent source/mapping audit of supplied live browser observations and published fixture bytes; not a new browser execution.",
+    "receipt_sha256_scope": "Original exported browser receipt before publication metadata and this audit were added; observations are unchanged."
+  }
+}
