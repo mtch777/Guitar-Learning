@@ -6,12 +6,20 @@ User correction: the moving fretboard is disorienting. Show open strings through
 
 - [x] Replace hand-following with a fixed open-to-highest-used-fret range; remove the unnecessary moving-view selector.
 - [x] Verify all nine fixture/version ranges include every assigned contact, stay fixed across low/high/held/rest/end frames, and restore normal layout when leaving this lesson.
-- [ ] Run relevant existing JavaScript checks and production build; publish the exact tested source through the approved GitHub workflow.
-- [ ] Validate the published lesson's fixed viewport during playback/seeking and leave C / Strum + pick ready at zero.
+- [x] Run relevant existing JavaScript checks and production build; publish the exact tested source through the approved GitHub workflow.
+- [x] Validate the published lesson's fixed viewport during playback/seeking and leave C / Strum + pick ready at zero.
 
 Root owns integration, documentation, publication and live validation. UI agent owns the existing lesson viewport/control change and updates to existing affected checks. Independent reviewer checks the range, lifecycle and screen-fit evidence read-only. The decisive counterexample is C's transition from low/open notes to the held E5/B5 contact at fret 24 and back: the fret bounds must never move. No new musical capability or listening approval is needed for this view correction.
 
 Pre-publication acceptance: existing JavaScript suite **173/173 passed, zero skips**, including the updated existing viewport check across all nine mappings, all attack/release times, high/low seeks and empty states. Independent review reran the selector suite **10/10**, confirmed every contact/open cell fits, geometry and sizing stay unchanged during playback, and other lessons retain their unchanged rebuild path. Production build and whitespace check pass. Fixed highest frets (greedy / optimized / strumPick): A **19 / 19 / 22**, B **19 / 21 / 19**, C **19 / 21 / 24**. The original responsive layout fits the neck to available width; no CSS, auto-scroll, music, optimizer or transport change. Actual phone rendering is not claimed. Fixture data SHA-256 remains `cd018c70c8b1c6fd52651d205658f60f5cf9d38f358290a847fe5f6cdc0988f8`. Expected main asset: `main-OnE3-uyk.js`. Published live acceptance remains below.
+
+### Fixed-range final acceptance — completed
+
+Published source `735a20d5f4952592239e621ee5003b57a7970b1b` has the exact tested tree `12b321e83ae4ba41779176a60756d0d0199b9377`; gh-pages commit is `18439cca32de54799c5bbee052a32fcd015633be`. Pages source `43770693050`, Pages deployment `43770754857`, main live preflight `43770692980` and feature live preflight `43770691746` all succeeded. Served index, `main-OnE3-uyk.js` and fixture data returned HTTP 200 and exactly matched tested local bytes. Main asset SHA-256: `825423495d80f6731e465f66f3b72b16e2ab6252cd8b86516462ad37a993cd55`.
+
+Live C / Strum + pick playback completed at native tick 30,720 with an empty board while retaining frets 1–24. Seeking to the held E5/B5 at native tick 7,066 shows string 3 fret 21 and string 2 fret 24 without panning; returning to the opening, Pause and Stop keep the same geometry. Selecting B uses its entire 1–19 range, and returning to C restores 1–24. Time Solo restores its normal board and enabled transport. Final handoff is C / Strum + pick / 1×, stopped at tick zero, all eight opens and frets 1–24 visible.
+
+The receipt `composition-lab/fretboard-fixed-range-live-validation.json` retains nine ready-state observations from the new deployment, plus the old baseline and initial loading state. Source/assignment joins verify all nine displayed contacts. All eight C snapshots have exactly the same board/stage rectangles and fret-column positions; all ready snapshots show all eight open cells and the complete assigned fret range, with zero horizontal overflow or scroll. The desktop screenshot [fretboard-fixed-range.jpg](composition-lab/fretboard-fixed-range.jpg) shows the high dyad and complete neck; SHA-256 `71f0f048973b0c2a14b546e31da09ac6ecf1d37d797a04b6446ee783b819b2cb`. Phone rendering was not exercised. The verified handoff URL is <https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick>.
 
 ## Previous delivery: separate strum/pick optimizer — 2026-11-15
 

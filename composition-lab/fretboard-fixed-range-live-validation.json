@@ -1,0 +1,2492 @@
+{
+  "sourceCommit": "735a20d5f4952592239e621ee5003b57a7970b1b",
+  "sourceTree": "12b321e83ae4ba41779176a60756d0d0199b9377",
+  "ghPagesCommit": "18439cca32de54799c5bbee052a32fcd015633be",
+  "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick",
+  "mainAsset": "main-OnE3-uyk.js",
+  "mainAssetSha256": "825423495d80f6731e465f66f3b72b16e2ab6252cd8b86516462ad37a993cd55",
+  "fixtureBundleSha256": "cd018c70c8b1c6fd52651d205658f60f5cf9d38f358290a847fe5f6cdc0988f8",
+  "observations": [
+    {
+      "label": "Before deployment: moving range at zero",
+      "observedAt": "2026-11-15T22:42:25.380Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "7",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "7"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [],
+      "openCells": [
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 14.609375,
+            "y": 447.21875
+          },
+          "stringIndex": "7"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 14.5,
+            "y": 498.828125
+          },
+          "stringIndex": "6"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 14.328125,
+            "y": 550.421875
+          },
+          "stringIndex": "5"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 14.234375,
+            "y": 602.015625
+          },
+          "stringIndex": "4"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 13.328125,
+            "y": 653.625
+          },
+          "stringIndex": "3"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 12.859375,
+            "y": 705.21875
+          },
+          "stringIndex": "2"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 12.453125,
+            "y": 756.828125
+          },
+          "stringIndex": "1"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 12.0625,
+            "y": 808.421875
+          },
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "rangeCaption": "Open strings + frets 1–7 · Hand position null",
+      "rangeControlPresent": true,
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-C4fhCTZW.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "time": "0:00",
+      "viewportWidth": 1348,
+      "visibleFrets": [
+        {
+          "fret": 1,
+          "left": "7.14286%"
+        },
+        {
+          "fret": 2,
+          "left": "21.4286%"
+        },
+        {
+          "fret": 3,
+          "left": "35.7143%"
+        },
+        {
+          "fret": 4,
+          "left": "50%"
+        },
+        {
+          "fret": 5,
+          "left": "64.2857%"
+        },
+        {
+          "fret": 6,
+          "left": "78.5714%"
+        },
+        {
+          "fret": 7,
+          "left": "92.8571%"
+        }
+      ]
+    },
+    {
+      "label": "Published C loading native player before ready",
+      "observedAt": "2026-11-15T22:44:43.877Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "1",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "1"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [],
+      "openCells": [
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 14.609375,
+            "y": 447.21875
+          },
+          "stringIndex": "7"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 14.5,
+            "y": 498.828125
+          },
+          "stringIndex": "6"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 14.328125,
+            "y": 550.421875
+          },
+          "stringIndex": "5"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 14.234375,
+            "y": 602.015625
+          },
+          "stringIndex": "4"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 13.328125,
+            "y": 653.625
+          },
+          "stringIndex": "3"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 12.859375,
+            "y": 705.21875
+          },
+          "stringIndex": "2"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 12.453125,
+            "y": 756.828125
+          },
+          "stringIndex": "1"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 12.0625,
+            "y": 808.421875
+          },
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": true,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "playing": "false",
+        "ready": "false",
+        "tick": "0",
+        "value": "0"
+      },
+      "rangeCaption": "Open strings + frets 1–1 (fixed)",
+      "rangeControlPresent": false,
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "time": "0:00",
+      "viewportWidth": 1348,
+      "visibleFrets": [
+        {
+          "fret": 1,
+          "left": "50%"
+        }
+      ]
+    },
+    {
+      "label": "C ready before playback, full range visible",
+      "observedAt": "2026-11-15T22:45:05.663Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "64",
+          "fret": "0",
+          "label": "String 1, fret 0, E4",
+          "noteId": "0",
+          "stringIndex": "7"
+        }
+      ],
+      "openCells": [
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.609375,
+            "y": 451.21875
+          },
+          "stringIndex": "7"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.5,
+            "y": 502.828125
+          },
+          "stringIndex": "6"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.328125,
+            "y": 554.421875
+          },
+          "stringIndex": "5"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.234375,
+            "y": 606.015625
+          },
+          "stringIndex": "4"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 21.328125,
+            "y": 657.625
+          },
+          "stringIndex": "3"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.859375,
+            "y": 709.21875
+          },
+          "stringIndex": "2"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.453125,
+            "y": 760.828125
+          },
+          "stringIndex": "1"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.0625,
+            "y": 812.421875
+          },
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "rangeCaption": "Open strings + frets 1–24 (fixed)",
+      "rangeControlPresent": false,
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "time": "0:00",
+      "viewportWidth": 1348,
+      "visibleFrets": [
+        {
+          "fret": 1,
+          "left": "2.08333%"
+        },
+        {
+          "fret": 2,
+          "left": "6.25%"
+        },
+        {
+          "fret": 3,
+          "left": "10.4167%"
+        },
+        {
+          "fret": 4,
+          "left": "14.5833%"
+        },
+        {
+          "fret": 5,
+          "left": "18.75%"
+        },
+        {
+          "fret": 6,
+          "left": "22.9167%"
+        },
+        {
+          "fret": 7,
+          "left": "27.0833%"
+        },
+        {
+          "fret": 8,
+          "left": "31.25%"
+        },
+        {
+          "fret": 9,
+          "left": "35.4167%"
+        },
+        {
+          "fret": 10,
+          "left": "39.5833%"
+        },
+        {
+          "fret": 11,
+          "left": "43.75%"
+        },
+        {
+          "fret": 12,
+          "left": "47.9167%"
+        },
+        {
+          "fret": 13,
+          "left": "52.0833%"
+        },
+        {
+          "fret": 14,
+          "left": "56.25%"
+        },
+        {
+          "fret": 15,
+          "left": "60.4167%"
+        },
+        {
+          "fret": 16,
+          "left": "64.5833%"
+        },
+        {
+          "fret": 17,
+          "left": "68.75%"
+        },
+        {
+          "fret": 18,
+          "left": "72.9167%"
+        },
+        {
+          "fret": 19,
+          "left": "77.0833%"
+        },
+        {
+          "fret": 20,
+          "left": "81.25%"
+        },
+        {
+          "fret": 21,
+          "left": "85.4167%"
+        },
+        {
+          "fret": 22,
+          "left": "89.5833%"
+        },
+        {
+          "fret": 23,
+          "left": "93.75%"
+        },
+        {
+          "fret": 24,
+          "left": "97.9167%"
+        }
+      ]
+    },
+    {
+      "label": "C playing at 1x with fixed full range",
+      "observedAt": "2026-11-15T22:45:06.075Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "71.4",
+        "tick": "714",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "fret": "0",
+          "label": "String 7, fret 0, B1",
+          "noteId": "3",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "28",
+          "fret": "0",
+          "label": "String 8, fret 0, E1",
+          "noteId": "2",
+          "stringIndex": "0"
+        }
+      ],
+      "openCells": [
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.609375,
+            "y": 451.21875
+          },
+          "stringIndex": "7"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.5,
+            "y": 502.828125
+          },
+          "stringIndex": "6"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.328125,
+            "y": 554.421875
+          },
+          "stringIndex": "5"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.234375,
+            "y": 606.015625
+          },
+          "stringIndex": "4"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 21.328125,
+            "y": 657.625
+          },
+          "stringIndex": "3"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.859375,
+            "y": 709.21875
+          },
+          "stringIndex": "2"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.453125,
+            "y": 760.828125
+          },
+          "stringIndex": "1"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.0625,
+            "y": 812.421875
+          },
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "⏸ Pause"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "714",
+        "value": "23",
+        "versionId": "strumPick"
+      },
+      "rangeCaption": "Open strings + frets 1–24 (fixed) · Drop E open power chord",
+      "rangeControlPresent": false,
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "time": "0:00",
+      "viewportWidth": 1348,
+      "visibleFrets": [
+        {
+          "fret": 1,
+          "left": "2.08333%"
+        },
+        {
+          "fret": 2,
+          "left": "6.25%"
+        },
+        {
+          "fret": 3,
+          "left": "10.4167%"
+        },
+        {
+          "fret": 4,
+          "left": "14.5833%"
+        },
+        {
+          "fret": 5,
+          "left": "18.75%"
+        },
+        {
+          "fret": 6,
+          "left": "22.9167%"
+        },
+        {
+          "fret": 7,
+          "left": "27.0833%"
+        },
+        {
+          "fret": 8,
+          "left": "31.25%"
+        },
+        {
+          "fret": 9,
+          "left": "35.4167%"
+        },
+        {
+          "fret": 10,
+          "left": "39.5833%"
+        },
+        {
+          "fret": 11,
+          "left": "43.75%"
+        },
+        {
+          "fret": 12,
+          "left": "47.9167%"
+        },
+        {
+          "fret": 13,
+          "left": "52.0833%"
+        },
+        {
+          "fret": 14,
+          "left": "56.25%"
+        },
+        {
+          "fret": 15,
+          "left": "60.4167%"
+        },
+        {
+          "fret": 16,
+          "left": "64.5833%"
+        },
+        {
+          "fret": 17,
+          "left": "68.75%"
+        },
+        {
+          "fret": 18,
+          "left": "72.9167%"
+        },
+        {
+          "fret": 19,
+          "left": "77.0833%"
+        },
+        {
+          "fret": 20,
+          "left": "81.25%"
+        },
+        {
+          "fret": 21,
+          "left": "85.4167%"
+        },
+        {
+          "fret": 22,
+          "left": "89.5833%"
+        },
+        {
+          "fret": 23,
+          "left": "93.75%"
+        },
+        {
+          "fret": 24,
+          "left": "97.9167%"
+        }
+      ]
+    },
+    {
+      "label": "C 1x playback reaches natural end",
+      "observedAt": "2026-11-15T22:45:27.420Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "3072",
+        "tick": "30720",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [],
+      "openCells": [
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.609375,
+            "y": 451.21875
+          },
+          "stringIndex": "7"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.5,
+            "y": 502.828125
+          },
+          "stringIndex": "6"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.328125,
+            "y": 554.421875
+          },
+          "stringIndex": "5"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.234375,
+            "y": 606.015625
+          },
+          "stringIndex": "4"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 21.328125,
+            "y": 657.625
+          },
+          "stringIndex": "3"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.859375,
+            "y": 709.21875
+          },
+          "stringIndex": "2"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.453125,
+            "y": 760.828125
+          },
+          "stringIndex": "1"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.0625,
+            "y": 812.421875
+          },
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "30720",
+        "value": "1000",
+        "versionId": "strumPick"
+      },
+      "rangeCaption": "Open strings + frets 1–24 (fixed) · Hand position 12",
+      "rangeControlPresent": false,
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "time": "0:16",
+      "viewportWidth": 1348,
+      "visibleFrets": [
+        {
+          "fret": 1,
+          "left": "2.08333%"
+        },
+        {
+          "fret": 2,
+          "left": "6.25%"
+        },
+        {
+          "fret": 3,
+          "left": "10.4167%"
+        },
+        {
+          "fret": 4,
+          "left": "14.5833%"
+        },
+        {
+          "fret": 5,
+          "left": "18.75%"
+        },
+        {
+          "fret": 6,
+          "left": "22.9167%"
+        },
+        {
+          "fret": 7,
+          "left": "27.0833%"
+        },
+        {
+          "fret": 8,
+          "left": "31.25%"
+        },
+        {
+          "fret": 9,
+          "left": "35.4167%"
+        },
+        {
+          "fret": 10,
+          "left": "39.5833%"
+        },
+        {
+          "fret": 11,
+          "left": "43.75%"
+        },
+        {
+          "fret": 12,
+          "left": "47.9167%"
+        },
+        {
+          "fret": 13,
+          "left": "52.0833%"
+        },
+        {
+          "fret": 14,
+          "left": "56.25%"
+        },
+        {
+          "fret": 15,
+          "left": "60.4167%"
+        },
+        {
+          "fret": 16,
+          "left": "64.5833%"
+        },
+        {
+          "fret": 17,
+          "left": "68.75%"
+        },
+        {
+          "fret": 18,
+          "left": "72.9167%"
+        },
+        {
+          "fret": 19,
+          "left": "77.0833%"
+        },
+        {
+          "fret": 20,
+          "left": "81.25%"
+        },
+        {
+          "fret": 21,
+          "left": "85.4167%"
+        },
+        {
+          "fret": 22,
+          "left": "89.5833%"
+        },
+        {
+          "fret": 23,
+          "left": "93.75%"
+        },
+        {
+          "fret": 24,
+          "left": "97.9167%"
+        }
+      ]
+    },
+    {
+      "label": "C seek to held E5 and fret24 B5",
+      "observedAt": "2026-11-15T22:45:30.773Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "706.6",
+        "tick": "7066",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "83",
+          "fret": "24",
+          "label": "String 2, fret 24, B5",
+          "noteId": "31",
+          "stringIndex": "6"
+        },
+        {
+          "absolutePitch": "76",
+          "fret": "21",
+          "label": "String 3, fret 21, E5",
+          "noteId": "30",
+          "stringIndex": "5"
+        }
+      ],
+      "openCells": [
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.609375,
+            "y": 451.21875
+          },
+          "stringIndex": "7"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.5,
+            "y": 502.828125
+          },
+          "stringIndex": "6"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.328125,
+            "y": 554.421875
+          },
+          "stringIndex": "5"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.234375,
+            "y": 606.015625
+          },
+          "stringIndex": "4"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 21.328125,
+            "y": 657.625
+          },
+          "stringIndex": "3"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.859375,
+            "y": 709.21875
+          },
+          "stringIndex": "2"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.453125,
+            "y": 760.828125
+          },
+          "stringIndex": "1"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.0625,
+            "y": 812.421875
+          },
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "7066",
+        "value": "230",
+        "versionId": "strumPick"
+      },
+      "rangeCaption": "Open strings + frets 1–24 (fixed) · Hand position 20 · Adjacent-string power-chord shape",
+      "rangeControlPresent": false,
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "time": "0:04",
+      "viewportWidth": 1348,
+      "visibleFrets": [
+        {
+          "fret": 1,
+          "left": "2.08333%"
+        },
+        {
+          "fret": 2,
+          "left": "6.25%"
+        },
+        {
+          "fret": 3,
+          "left": "10.4167%"
+        },
+        {
+          "fret": 4,
+          "left": "14.5833%"
+        },
+        {
+          "fret": 5,
+          "left": "18.75%"
+        },
+        {
+          "fret": 6,
+          "left": "22.9167%"
+        },
+        {
+          "fret": 7,
+          "left": "27.0833%"
+        },
+        {
+          "fret": 8,
+          "left": "31.25%"
+        },
+        {
+          "fret": 9,
+          "left": "35.4167%"
+        },
+        {
+          "fret": 10,
+          "left": "39.5833%"
+        },
+        {
+          "fret": 11,
+          "left": "43.75%"
+        },
+        {
+          "fret": 12,
+          "left": "47.9167%"
+        },
+        {
+          "fret": 13,
+          "left": "52.0833%"
+        },
+        {
+          "fret": 14,
+          "left": "56.25%"
+        },
+        {
+          "fret": 15,
+          "left": "60.4167%"
+        },
+        {
+          "fret": 16,
+          "left": "64.5833%"
+        },
+        {
+          "fret": 17,
+          "left": "68.75%"
+        },
+        {
+          "fret": 18,
+          "left": "72.9167%"
+        },
+        {
+          "fret": 19,
+          "left": "77.0833%"
+        },
+        {
+          "fret": 20,
+          "left": "81.25%"
+        },
+        {
+          "fret": 21,
+          "left": "85.4167%"
+        },
+        {
+          "fret": 22,
+          "left": "89.5833%"
+        },
+        {
+          "fret": 23,
+          "left": "93.75%"
+        },
+        {
+          "fret": 24,
+          "left": "97.9167%"
+        }
+      ]
+    },
+    {
+      "label": "C seek back from fret24 to open note",
+      "observedAt": "2026-11-15T22:45:57.892Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "64",
+          "fret": "0",
+          "label": "String 1, fret 0, E4",
+          "noteId": "0",
+          "stringIndex": "7"
+        }
+      ],
+      "openCells": [
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.609375,
+            "y": 451.21875
+          },
+          "stringIndex": "7"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.5,
+            "y": 502.828125
+          },
+          "stringIndex": "6"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.328125,
+            "y": 554.421875
+          },
+          "stringIndex": "5"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.234375,
+            "y": 606.015625
+          },
+          "stringIndex": "4"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 21.328125,
+            "y": 657.625
+          },
+          "stringIndex": "3"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.859375,
+            "y": 709.21875
+          },
+          "stringIndex": "2"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.453125,
+            "y": 760.828125
+          },
+          "stringIndex": "1"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.0625,
+            "y": 812.421875
+          },
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "rangeCaption": "Open strings + frets 1–24 (fixed)",
+      "rangeControlPresent": false,
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "time": "0:00",
+      "viewportWidth": 1348,
+      "visibleFrets": [
+        {
+          "fret": 1,
+          "left": "2.08333%"
+        },
+        {
+          "fret": 2,
+          "left": "6.25%"
+        },
+        {
+          "fret": 3,
+          "left": "10.4167%"
+        },
+        {
+          "fret": 4,
+          "left": "14.5833%"
+        },
+        {
+          "fret": 5,
+          "left": "18.75%"
+        },
+        {
+          "fret": 6,
+          "left": "22.9167%"
+        },
+        {
+          "fret": 7,
+          "left": "27.0833%"
+        },
+        {
+          "fret": 8,
+          "left": "31.25%"
+        },
+        {
+          "fret": 9,
+          "left": "35.4167%"
+        },
+        {
+          "fret": 10,
+          "left": "39.5833%"
+        },
+        {
+          "fret": 11,
+          "left": "43.75%"
+        },
+        {
+          "fret": 12,
+          "left": "47.9167%"
+        },
+        {
+          "fret": 13,
+          "left": "52.0833%"
+        },
+        {
+          "fret": 14,
+          "left": "56.25%"
+        },
+        {
+          "fret": 15,
+          "left": "60.4167%"
+        },
+        {
+          "fret": 16,
+          "left": "64.5833%"
+        },
+        {
+          "fret": 17,
+          "left": "68.75%"
+        },
+        {
+          "fret": 18,
+          "left": "72.9167%"
+        },
+        {
+          "fret": 19,
+          "left": "77.0833%"
+        },
+        {
+          "fret": 20,
+          "left": "81.25%"
+        },
+        {
+          "fret": 21,
+          "left": "85.4167%"
+        },
+        {
+          "fret": 22,
+          "left": "89.5833%"
+        },
+        {
+          "fret": 23,
+          "left": "93.75%"
+        },
+        {
+          "fret": 24,
+          "left": "97.9167%"
+        }
+      ]
+    },
+    {
+      "label": "C paused with fixed range",
+      "observedAt": "2026-11-15T22:46:08.043Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "1854.7",
+        "tick": "18547",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [],
+      "openCells": [
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.609375,
+            "y": 451.21875
+          },
+          "stringIndex": "7"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.5,
+            "y": 502.828125
+          },
+          "stringIndex": "6"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.328125,
+            "y": 554.421875
+          },
+          "stringIndex": "5"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.234375,
+            "y": 606.015625
+          },
+          "stringIndex": "4"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 21.328125,
+            "y": 657.625
+          },
+          "stringIndex": "3"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.859375,
+            "y": 709.21875
+          },
+          "stringIndex": "2"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.453125,
+            "y": 760.828125
+          },
+          "stringIndex": "1"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.0625,
+            "y": 812.421875
+          },
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "18547",
+        "value": "604",
+        "versionId": "strumPick"
+      },
+      "rangeCaption": "Open strings + frets 1–24 (fixed) · Hand position 12",
+      "rangeControlPresent": false,
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "time": "0:10",
+      "viewportWidth": 1348,
+      "visibleFrets": [
+        {
+          "fret": 1,
+          "left": "2.08333%"
+        },
+        {
+          "fret": 2,
+          "left": "6.25%"
+        },
+        {
+          "fret": 3,
+          "left": "10.4167%"
+        },
+        {
+          "fret": 4,
+          "left": "14.5833%"
+        },
+        {
+          "fret": 5,
+          "left": "18.75%"
+        },
+        {
+          "fret": 6,
+          "left": "22.9167%"
+        },
+        {
+          "fret": 7,
+          "left": "27.0833%"
+        },
+        {
+          "fret": 8,
+          "left": "31.25%"
+        },
+        {
+          "fret": 9,
+          "left": "35.4167%"
+        },
+        {
+          "fret": 10,
+          "left": "39.5833%"
+        },
+        {
+          "fret": 11,
+          "left": "43.75%"
+        },
+        {
+          "fret": 12,
+          "left": "47.9167%"
+        },
+        {
+          "fret": 13,
+          "left": "52.0833%"
+        },
+        {
+          "fret": 14,
+          "left": "56.25%"
+        },
+        {
+          "fret": 15,
+          "left": "60.4167%"
+        },
+        {
+          "fret": 16,
+          "left": "64.5833%"
+        },
+        {
+          "fret": 17,
+          "left": "68.75%"
+        },
+        {
+          "fret": 18,
+          "left": "72.9167%"
+        },
+        {
+          "fret": 19,
+          "left": "77.0833%"
+        },
+        {
+          "fret": 20,
+          "left": "81.25%"
+        },
+        {
+          "fret": 21,
+          "left": "85.4167%"
+        },
+        {
+          "fret": 22,
+          "left": "89.5833%"
+        },
+        {
+          "fret": 23,
+          "left": "93.75%"
+        },
+        {
+          "fret": 24,
+          "left": "97.9167%"
+        }
+      ]
+    },
+    {
+      "label": "C stopped at zero with fixed range",
+      "observedAt": "2026-11-15T22:46:08.448Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [],
+      "openCells": [
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.609375,
+            "y": 451.21875
+          },
+          "stringIndex": "7"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.5,
+            "y": 502.828125
+          },
+          "stringIndex": "6"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.328125,
+            "y": 554.421875
+          },
+          "stringIndex": "5"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.234375,
+            "y": 606.015625
+          },
+          "stringIndex": "4"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 21.328125,
+            "y": 657.625
+          },
+          "stringIndex": "3"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.859375,
+            "y": 709.21875
+          },
+          "stringIndex": "2"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.453125,
+            "y": 760.828125
+          },
+          "stringIndex": "1"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.0625,
+            "y": 812.421875
+          },
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "rangeCaption": "Open strings + frets 1–24 (fixed)",
+      "rangeControlPresent": false,
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "time": "0:00",
+      "viewportWidth": 1348,
+      "visibleFrets": [
+        {
+          "fret": 1,
+          "left": "2.08333%"
+        },
+        {
+          "fret": 2,
+          "left": "6.25%"
+        },
+        {
+          "fret": 3,
+          "left": "10.4167%"
+        },
+        {
+          "fret": 4,
+          "left": "14.5833%"
+        },
+        {
+          "fret": 5,
+          "left": "18.75%"
+        },
+        {
+          "fret": 6,
+          "left": "22.9167%"
+        },
+        {
+          "fret": 7,
+          "left": "27.0833%"
+        },
+        {
+          "fret": 8,
+          "left": "31.25%"
+        },
+        {
+          "fret": 9,
+          "left": "35.4167%"
+        },
+        {
+          "fret": 10,
+          "left": "39.5833%"
+        },
+        {
+          "fret": 11,
+          "left": "43.75%"
+        },
+        {
+          "fret": 12,
+          "left": "47.9167%"
+        },
+        {
+          "fret": 13,
+          "left": "52.0833%"
+        },
+        {
+          "fret": 14,
+          "left": "56.25%"
+        },
+        {
+          "fret": 15,
+          "left": "60.4167%"
+        },
+        {
+          "fret": 16,
+          "left": "64.5833%"
+        },
+        {
+          "fret": 17,
+          "left": "68.75%"
+        },
+        {
+          "fret": 18,
+          "left": "72.9167%"
+        },
+        {
+          "fret": 19,
+          "left": "77.0833%"
+        },
+        {
+          "fret": 20,
+          "left": "81.25%"
+        },
+        {
+          "fret": 21,
+          "left": "85.4167%"
+        },
+        {
+          "fret": 22,
+          "left": "89.5833%"
+        },
+        {
+          "fret": 23,
+          "left": "93.75%"
+        },
+        {
+          "fret": 24,
+          "left": "97.9167%"
+        }
+      ]
+    },
+    {
+      "label": "B strumPick switches to its complete range",
+      "observedAt": "2026-11-15T22:46:08.757Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "19"
+      },
+      "controls": {
+        "fixtureId": "da80eca9",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "43",
+          "fret": "3",
+          "label": "String 6, fret 3, G2",
+          "noteId": "2",
+          "stringIndex": "2"
+        },
+        {
+          "absolutePitch": "38",
+          "fret": "3",
+          "label": "String 7, fret 3, D2",
+          "noteId": "1",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "31",
+          "fret": "3",
+          "label": "String 8, fret 3, G1",
+          "noteId": "0",
+          "stringIndex": "0"
+        }
+      ],
+      "openCells": [
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 14.609375,
+            "y": 447.21875
+          },
+          "stringIndex": "7"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 14.5,
+            "y": 498.828125
+          },
+          "stringIndex": "6"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 14.328125,
+            "y": 550.421875
+          },
+          "stringIndex": "5"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 14.234375,
+            "y": 602.015625
+          },
+          "stringIndex": "4"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 13.328125,
+            "y": 653.625
+          },
+          "stringIndex": "3"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 12.859375,
+            "y": 705.21875
+          },
+          "stringIndex": "2"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 12.453125,
+            "y": 756.828125
+          },
+          "stringIndex": "1"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 38,
+            "width": 38,
+            "x": 12.0625,
+            "y": 808.421875
+          },
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "61920",
+        "fixtureId": "da80eca9",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "rangeCaption": "Open strings + frets 1–19 (fixed) · Hand position 3 · Drop E power-chord barre",
+      "rangeControlPresent": false,
+      "riff": "da80eca9",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "time": "0:00",
+      "viewportWidth": 1348,
+      "visibleFrets": [
+        {
+          "fret": 1,
+          "left": "2.63158%"
+        },
+        {
+          "fret": 2,
+          "left": "7.89474%"
+        },
+        {
+          "fret": 3,
+          "left": "13.1579%"
+        },
+        {
+          "fret": 4,
+          "left": "18.4211%"
+        },
+        {
+          "fret": 5,
+          "left": "23.6842%"
+        },
+        {
+          "fret": 6,
+          "left": "28.9474%"
+        },
+        {
+          "fret": 7,
+          "left": "34.2105%"
+        },
+        {
+          "fret": 8,
+          "left": "39.4737%"
+        },
+        {
+          "fret": 9,
+          "left": "44.7368%"
+        },
+        {
+          "fret": 10,
+          "left": "50%"
+        },
+        {
+          "fret": 11,
+          "left": "55.2632%"
+        },
+        {
+          "fret": 12,
+          "left": "60.5263%"
+        },
+        {
+          "fret": 13,
+          "left": "65.7895%"
+        },
+        {
+          "fret": 14,
+          "left": "71.0526%"
+        },
+        {
+          "fret": 15,
+          "left": "76.3158%"
+        },
+        {
+          "fret": 16,
+          "left": "81.5789%"
+        },
+        {
+          "fret": 17,
+          "left": "86.8421%"
+        },
+        {
+          "fret": 18,
+          "left": "92.1053%"
+        },
+        {
+          "fret": 19,
+          "left": "97.3684%"
+        }
+      ]
+    },
+    {
+      "label": "Final C strumPick ready at zero, fixed open-to-24 range",
+      "observedAt": "2026-11-15T22:47:02.730Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [],
+      "openCells": [
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.609375,
+            "y": 451.21875
+          },
+          "stringIndex": "7"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.5,
+            "y": 502.828125
+          },
+          "stringIndex": "6"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.328125,
+            "y": 554.421875
+          },
+          "stringIndex": "5"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 22.234375,
+            "y": 606.015625
+          },
+          "stringIndex": "4"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 21.328125,
+            "y": 657.625
+          },
+          "stringIndex": "3"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.859375,
+            "y": 709.21875
+          },
+          "stringIndex": "2"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.453125,
+            "y": 760.828125
+          },
+          "stringIndex": "1"
+        },
+        {
+          "hidden": false,
+          "rect": {
+            "height": 30,
+            "width": 30,
+            "x": 20.0625,
+            "y": 812.421875
+          },
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "▶ Play"
+      },
+      "progress": {
+        "durationTicks": "30720",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "rangeCaption": "Open strings + frets 1–24 (fixed)",
+      "rangeControlPresent": false,
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "time": "0:00",
+      "viewportWidth": 1348,
+      "visibleFrets": [
+        {
+          "fret": 1,
+          "left": "2.08333%"
+        },
+        {
+          "fret": 2,
+          "left": "6.25%"
+        },
+        {
+          "fret": 3,
+          "left": "10.4167%"
+        },
+        {
+          "fret": 4,
+          "left": "14.5833%"
+        },
+        {
+          "fret": 5,
+          "left": "18.75%"
+        },
+        {
+          "fret": 6,
+          "left": "22.9167%"
+        },
+        {
+          "fret": 7,
+          "left": "27.0833%"
+        },
+        {
+          "fret": 8,
+          "left": "31.25%"
+        },
+        {
+          "fret": 9,
+          "left": "35.4167%"
+        },
+        {
+          "fret": 10,
+          "left": "39.5833%"
+        },
+        {
+          "fret": 11,
+          "left": "43.75%"
+        },
+        {
+          "fret": 12,
+          "left": "47.9167%"
+        },
+        {
+          "fret": 13,
+          "left": "52.0833%"
+        },
+        {
+          "fret": 14,
+          "left": "56.25%"
+        },
+        {
+          "fret": 15,
+          "left": "60.4167%"
+        },
+        {
+          "fret": 16,
+          "left": "64.5833%"
+        },
+        {
+          "fret": 17,
+          "left": "68.75%"
+        },
+        {
+          "fret": 18,
+          "left": "72.9167%"
+        },
+        {
+          "fret": 19,
+          "left": "77.0833%"
+        },
+        {
+          "fret": 20,
+          "left": "81.25%"
+        },
+        {
+          "fret": 21,
+          "left": "85.4167%"
+        },
+        {
+          "fret": 22,
+          "left": "89.5833%"
+        },
+        {
+          "fret": 23,
+          "left": "93.75%"
+        },
+        {
+          "fret": 24,
+          "left": "97.9167%"
+        }
+      ]
+    }
+  ],
+  "otherLessonRestoration": {
+    "board": {
+      "timeCagedShape": "low-e"
+    },
+    "efficiencyClass": false,
+    "efficiencyControlsHidden": true,
+    "lesson": "Time Solo (with Chords)",
+    "playDisabled": false,
+    "status": "David Gilmour | Fender \"The Black Strat\" Stratocaster | Guitar Solo - Distortion Guitar"
+  },
+  "screenshot": "/workspace/shared/fretboard-fixed-range.jpg",
+  "rawCaptureSha256": "ba25fb21d58310054bbb88dceda8518a3fa379b50302bbf9ddd2c7ba94c2ad34",
+  "audit": {
+    "status": "passed",
+    "readyPublishedObservations": 9,
+    "exactContactsVerified": 9,
+    "CReadyObservations": 8,
+    "fixedGeometryWithinEachMapping": true,
+    "allEightOpensVisible": true,
+    "allAssignedFretsVisible": true,
+    "horizontalOverflowOrScroll": false,
+    "otherLessonRestored": true,
+    "finalState": "C / strumPick, stopped at zero, opens and frets 1–24 visible",
+    "contextObservations": "The first two records retain the old deployed baseline and the new page before its mapping/player was ready."
+  },
+  "successfulRuns": {
+    "pagesSource": 43770693050,
+    "pagesDeployment": 43770754857,
+    "mainPreflight": 43770692980,
+    "featurePreflight": 43770691746
+  },
+  "screenshotSha256": "71f0f048973b0c2a14b546e31da09ac6ecf1d37d797a04b6446ee783b819b2cb",
+  "repositoryScreenshot": "composition-lab/fretboard-fixed-range.jpg"
+}
