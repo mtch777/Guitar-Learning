@@ -37,4 +37,8 @@ export function toNativeScore(at, source, title = 'Drop E riff') {
 
 import {mountBuilder} from "./riff-builder-view.js";
 export {mountBuilder};
-if(typeof document!=="undefined")mountBuilder();
+if(typeof document!=="undefined") {
+  if (new URLSearchParams(window.location.search).get('efficiency') === '1') {
+    import('./fretboard-efficiency-view.js').then(({mountEfficiencyReview}) => mountEfficiencyReview());
+  } else mountBuilder();
+}
