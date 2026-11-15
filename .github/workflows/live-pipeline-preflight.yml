@@ -9,6 +9,8 @@ name: Full pipeline live trial browser preflight
       - "src/input/lesson-worker.js"
       - "src/audio/lesson-microphone.js"
       - "index.html"
+      - "src/song-player.js"
+      - "tests/fretboard-efficiency-lesson.test.mjs"
       - "training/check_lesson*"
       - "src/input/live-pipeline-test.js"
       - "live-pipeline-test.html"

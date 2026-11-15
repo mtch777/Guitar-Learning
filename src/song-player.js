@@ -1282,11 +1282,15 @@ export function setupSongPlayer({
     return alphaTabApi;
   }
 
-  async function loadScore(buffer, name) {
+  async function loadScore(buffer, name, {bundledTime = false} = {}) {
     const generation = ++loadGeneration;
     pendingEfficiencyGeneration = 0;
     const api = await ensureApi();
     if (generation !== loadGeneration) return;
+    // The Time download can finish before alphaTab's script. Recheck the
+    // lesson after that wait, before a late score can replace quiz tuning.
+    // Explicit uploads are independent of the bundled lesson's lifecycle.
+    if (bundledTime && (!isTimeSoloChordsLesson?.() || score || fileInput.files?.length)) return;
     pendingEfficiencyLoad?.reject(new Error('The previous mapping load was replaced.'));
     pendingEfficiencyLoad = null;
     api.stop();
@@ -1394,7 +1398,7 @@ export function setupSongPlayer({
       if (!response.ok) throw new Error('HTTP ' + response.status);
       const buffer = await response.arrayBuffer();
       if (!isTimeSoloChordsLesson?.() || score || fileInput.files?.length) return;
-      await loadScore(buffer, 'time.gp');
+      await loadScore(buffer, 'time.gp', {bundledTime: true});
     } catch (error) {
       console.error('Bundled Time score load error:', error);
       setStatus('Time score unavailable: ' + (error?.message || String(error)));

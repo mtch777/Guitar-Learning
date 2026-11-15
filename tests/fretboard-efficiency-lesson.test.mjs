@@ -224,7 +224,8 @@ test('ordinary native MF dynamics remain79 after exact-velocity lesson registrat
 
 // The real native score/MIDI path is tested above. This controllable UI boundary
 // deliberately exercises asynchronous event ordering without producing audio.
-function playerHarness({initialLesson = 'efficiency', deferTime = false, deferScript = false} = {}) {
+function playerHarness({initialLesson = 'efficiency', deferTime = false, deferScript = false,
+  setupPlayer = setupSongPlayer} = {}) {
   const saved = new Map(['document', 'window', 'fetch', 'requestAnimationFrame', 'cancelAnimationFrame']
     .map(name => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
   const elements = new Map(), active = [], positions = [], loaded = [], tracks = [];
@@ -291,7 +292,7 @@ function playerHarness({initialLesson = 'efficiency', deferTime = false, deferSc
     assert.equal(url, '/Guitar-Learning/time.gp'); fetches++;
     return deferTime ? deferredFetch : timeResponse;
   };
-  const player = setupSongPlayer({
+  const player = setupPlayer({
     isTimeSoloChordsLesson: () => lesson === 'time',
     isFretboardEfficiencyLesson: () => lesson === 'efficiency',
     timeScoreUrl: '/Guitar-Learning/time.gp',
@@ -374,6 +375,32 @@ test('a delayed bundled Time response cannot replace the newly selected native m
     assert.equal(h.api.score, mapping.score);
     assert.equal(h.loaded.at(-1).fixtureId, 'da80eca9');
     assert.equal(h.api.rendered.length, 1, 'An obsolete fetch must not render another score');
+  } finally { h.restore(); }
+});
+
+test('leaving Time while the native script loads cannot overwrite another lesson tuning', async () => {
+  // A separate module instance gives this real loader its own pending script.
+  // The score download has already finished; this is the later async boundary
+  // that the fetch-only cancellation regression cannot exercise.
+  const isolated = await import('../src/song-player.js?qa-deferred-time-script');
+  const h = playerHarness({initialLesson: 'time', deferScript: true,
+    setupPlayer: isolated.setupSongPlayer});
+  try {
+    await flush();
+    assert.equal(h.fetches, 1);
+    assert.equal(h.requestedScriptUrl, verifiedBrowserUrl);
+    assert.equal(h.api, undefined, 'Hold the native script after Time has downloaded');
+    h.setLesson('intervals');
+    h.resolveScript(); await flush();
+    assert.equal(h.api.rendered.length, 0, 'An obsolete Time load must not render after leaving its lesson');
+    assert.equal(h.tracks.length, 0, 'Late Time tuning must not overwrite the active quiz tuning');
+    assert.equal(h.loaded.length, 0);
+
+    h.setLesson('time'); await flush();
+    assert.equal(h.api.score.title, 'Time', 'Returning must still load the actual Time score');
+    assert.equal(h.api.rendered.length, 1);
+    assert.equal(h.fetches, 2);
+    assert.ok(h.api.playbackRange.startTick > 0);
   } finally { h.restore(); }
 });
 
