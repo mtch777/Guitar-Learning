@@ -76,14 +76,14 @@ export async function mountEfficiencyReview({data: providedData} = {}) {
   document.body.classList.add('efficiency-review');
   document.title = 'Drop E Fingering · Guitar Learning';
   document.querySelector('h1').textContent = 'Drop E fingering';
-  document.querySelector('.subtitle').textContent = 'Two saved riffs · Open strings first · Intervals relative to E';
+  document.querySelector('.subtitle').textContent = 'Saved riffs · Open strings first · Intervals relative to E';
   document.querySelector('.badge').textContent = 'Fingering study';
   document.querySelector('[aria-label="Generate a riff"]').hidden = true;
   $('result').hidden = false;
   $('result').setAttribute('aria-label', 'Compare guitar fingerings');
   const status = $('status');
   $('result').prepend(status);
-  status.textContent = 'Loading both mappings…';
+  status.textContent = 'Loading mappings…';
   $('download-mpe').hidden = true;
   $('download-midi').textContent = 'Source MIDI';
   $('download-midi').title = 'Open the unchanged source MIDI on GitHub';
@@ -237,9 +237,16 @@ export async function mountEfficiencyReview({data: providedData} = {}) {
   function showMetrics() {
     const m = version.metrics || {};
     const baseline = fixture.versions.find(v => v.id === 'greedy')?.metrics || {};
+    const optimized = fixture.versions.find(v => v.id === 'optimized')?.metrics || {};
     metrics.replaceChildren();
-    const values = [
-      ['Open notes', `${number(m.open_used)} / ${number(m.open_eligible)}`, `${number(m.open_exceptions)} exceptions`],
+    const openNotes = ['Open notes', `${number(m.open_used)} / ${number(m.open_eligible)}`, `${number(m.open_exceptions)} exceptions`];
+    const values = version.id === 'strumPick' ? [
+      openNotes,
+      ['Chord string skips', number(m.chord_skipped_strings), `${number(m.contiguous_chord_count)} / ${number(m.chord_attack_count)} chord attacks adjacent`],
+      ['Rapid single-note string skips', number(m.rapid_single_skipped_strings), `${number(m.rapid_single_skip_transition_count)} / ${number(m.rapid_single_pair_count)} pairs skip strings · ≤ ${number(version.objective?.rapid_max_gap_seconds * 1000)} ms`],
+      ['Hand travel', `${number(m.hand_travel_frets)} frets`, `Optimized: ${number(optimized.hand_travel_frets)} frets`]
+    ] : [
+      openNotes,
       ['Rapid shifts', number(m.rapid_shift_count), `Greedy: ${number(baseline.rapid_shift_count)}`],
       ['Hand travel', `${number(m.hand_travel_frets)} frets`, `Greedy: ${number(baseline.hand_travel_frets)} frets`],
       ['Largest shift', `${number(m.max_shift_frets)} frets`, `Greedy: ${number(baseline.max_shift_frets)} frets`]
@@ -267,11 +274,37 @@ export async function mountEfficiencyReview({data: providedData} = {}) {
 
   function showDetails() {
     const details = $('pattern-details'); details.replaceChildren();
-    details.append(element('p', 'small', 'Both versions preserve every source note, including simultaneous duplicates, and keep the original pitch, octave, onset and release. The comparison is a greedy fingering, not the original guitarist’s fingering.'));
+    details.append(element('p', 'small', 'All mappings preserve every source note, including simultaneous duplicates, and keep the original pitch, octave, onset and release. Greedy comparison assigns fingering attack by attack. The source MIDI contains no original guitar fingering.'));
     for (const warning of fixture.warnings || []) details.append(element('p', 'eff-warning', warning));
-    if (bundle.model) {
-      const model = element('details'); model.append(element('summary', '', 'Movement and reach model'));
-      const pre = element('pre', 'eff-model', JSON.stringify(bundle.model, null, 2)); model.append(pre); details.append(model);
+    const selectedModel = version.objective || bundle.model;
+    if (selectedModel) {
+      const model = element('details');
+      model.append(element('summary', '', version.objective ? 'Selected mapping priorities' : 'Movement and reach model'));
+      if (version.objective) {
+        const priorities = element('ol', 'small');
+        for (const label of selectedModel.priority_labels || selectedModel.priority_order || []) {
+          priorities.append(element('li', '', label));
+        }
+        model.append(priorities);
+        const rapidGap = number(selectedModel.rapid_max_gap_seconds * 1000) + ' ms';
+        model.append(element('p', 'small', `Rapid pairs use the source timing, at most ${rapidGap} between attacks. Playback speed does not recompute the fingering.`));
+        for (const definition of [selectedModel.chord_skip_definition, selectedModel.rapid_skip_definition]) {
+          if (definition) model.append(element('p', 'small', definition.replaceAll('rapid_max_gap_seconds', rapidGap)));
+        }
+        const tieLabels = {
+          rapid_run_direction_reversals: 'Fewer picking direction reversals',
+          rapid_shift_cost: 'Fewer rapid neck shifts',
+          hand_travel_frets: 'Less hand travel',
+          fretting_effort: 'Less fretting effort'
+        };
+        if (selectedModel.tie_break_order?.length) {
+          model.append(element('p', 'small', 'When the first three priorities tie: ' +
+            selectedModel.tie_break_order.map(key => tieLabels[key] || key.replaceAll('_', ' ')).join(' → ') + '.'));
+        }
+      } else {
+        model.append(element('pre', 'eff-model', JSON.stringify(selectedModel, null, 2)));
+      }
+      details.append(model);
     }
     sourceLink.href = fixture.source_url; details.append(sourceLink);
   }
@@ -280,7 +313,7 @@ export async function mountEfficiencyReview({data: providedData} = {}) {
     version = fixture.versions.find(v => v.id === id) || fixture.versions.find(v => v.id === 'optimized');
     for (const button of versionButtons.children) button.setAttribute('aria-pressed', String(button.dataset.version === version.id));
     status.textContent = version.description || 'Only the fingering changes; the music stays the same.';
-    boardKey = ''; showMetrics(); draw();
+    boardKey = ''; showMetrics(); showDetails(); draw();
   }
 
   function chooseFixture(id) {
@@ -292,11 +325,13 @@ export async function mountEfficiencyReview({data: providedData} = {}) {
     $('seek').max = String(fixture.duration_seconds);
     versionButtons.replaceChildren();
     for (const v of [...fixture.versions].sort((a, b) => Number(b.id === 'optimized') - Number(a.id === 'optimized'))) {
-      const button = element('button', '', v.id === 'optimized' ? 'Efficient mapping' : 'Greedy comparison');
+      const label = v.id === 'optimized' ? 'Efficient mapping' :
+        v.id === 'greedy' ? 'Greedy comparison' : (v.label || v.id);
+      const button = element('button', '', label);
       button.type = 'button'; button.dataset.version = v.id;
       button.addEventListener('click', () => chooseVersion(v.id)); versionButtons.append(button);
     }
-    showJumpButtons(); showDetails(); chooseVersion('optimized');
+    showJumpButtons(); chooseVersion('optimized');
   }
 
   try {
@@ -314,6 +349,7 @@ export async function mountEfficiencyReview({data: providedData} = {}) {
         JSON.stringify(bundle.tuning_high_to_low) !== JSON.stringify(DROP_E)) throw new Error('The mapping file does not declare the expected Drop E tuning.');
     fixtures = bundle.fixtures.map(prepareFixture);
     if (!fixtures.length) throw new Error('No test riffs are available.');
+    document.querySelector('.subtitle').textContent = `${fixtures.length} saved ${fixtures.length === 1 ? 'riff' : 'riffs'} · Open strings first · Intervals relative to E`;
     for (const f of fixtures) {const option = element('option', '', f.label);option.value = f.id;select.append(option);}
     select.addEventListener('change', () => chooseFixture(select.value));
     previous.addEventListener('click', () => step(-1)); next.addEventListener('click', () => step(1));

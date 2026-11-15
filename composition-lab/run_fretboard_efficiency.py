@@ -8,6 +8,7 @@ import time
 
 import mido
 from fretboard_efficiency import optimize_fingering, greedy_fingering, DROP_E
+from fretboard_strum_efficiency import optimize_strum_fingering
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_COMMIT = 'b86db9f73d1adf8a5552dc81a475437a36b4ae2c'
@@ -15,6 +16,11 @@ FIXTURES = (
     ('cfa029a2', 'A · Low response', '6_review_cfa029a287078971a412e05347b5612f6d9ef8c0ea69a1e9b0b58a82fb71aafd.mid'),
     ('da80eca9', 'B · High dyads', '6_review_da80eca929e874d93378b26542ed63cb17be1735f2470a387fe0ad284431535a.mid'),
     ('c5a35486', 'C · MIDI rewrite', '2026-11-15_midi_rewrite.mid'),
+)
+STRATEGIES = (
+    ('greedy', greedy_fingering),
+    ('optimized', optimize_fingering),
+    ('strumPick', optimize_strum_fingering),
 )
 
 
@@ -82,13 +88,16 @@ def write_string_midi(path, notes, version, ticks_per_beat, tempo, duration_tick
     midi.save(path)
 
 
-def build(source_dir, output, fixture_ids=None):
+def build(source_dir, output, fixture_ids=None, strategy_ids=None, *, rapid_max_gap_seconds=0.25):
     selected = None if fixture_ids is None else set(fixture_ids)
+    selected_strategies = None if strategy_ids is None else set(strategy_ids)
     if selected is not None and not selected <= {item[0] for item in FIXTURES}:
         raise ValueError('An unregistered source fixture was requested.')
+    if selected_strategies is not None and not selected_strategies <= {item[0] for item in STRATEGIES}:
+        raise ValueError('An unregistered fingering strategy was requested.')
     # Targeted additions preserve previously verified mappings and their receipts.
     existing = {}
-    if selected is not None and output.exists():
+    if (selected is not None or selected_strategies is not None) and output.exists():
         saved = json.loads(output.read_text(encoding='utf-8'))
         if saved.get('schema') != 'drop-e-fretboard-efficiency/1':
             raise ValueError('The existing output is not a fretboard mapping bundle.')
@@ -136,10 +145,34 @@ def build(source_dir, output, fixture_ids=None):
                           'Held notes retain their original string and fret until release, including notes entering midway through a hold.',
                           'Greedy chooses local open/low-fret preferences only among grips with a feasible held-note continuation; '
                           'it is a comparison algorithm, not an original guitarist fingering.'])
+        previous_versions = {}
+        if selected_strategies is not None:
+            previous = existing.get(fixture_id)
+            if previous is None:
+                raise ValueError(f'Cannot preserve missing fixture {fixture_id}; generate the complete bundle first.')
+            for field in ('source_sha256', 'ticks_per_beat', 'tempo_bpm', 'duration_ticks', 'notes'):
+                if previous.get(field) != fixture[field]:
+                    raise ValueError(f'Cannot preserve mappings for changed source {fixture_id}: {field} differs.')
+            # Keep source provenance, warnings and all unselected version objects
+            # exactly as accepted; adding a strategy does not rerun the old ones.
+            fixture = dict(previous)
+            fixture['versions'] = []
+            previous_versions = {version['id']: version for version in previous['versions']}
         source_snapshot = json.dumps(notes, sort_keys=True)
-        for algorithm in (greedy_fingering, optimize_fingering):
+        for strategy_id, algorithm in STRATEGIES:
+            if selected_strategies is not None and strategy_id not in selected_strategies:
+                if strategy_id in previous_versions:
+                    fixture['versions'].append(previous_versions[strategy_id])
+                elif strategy_id in ('greedy', 'optimized'):
+                    raise ValueError(f'Cannot preserve missing {strategy_id} mapping for {fixture_id}.')
+                continue
             start = time.monotonic()
-            version = algorithm(notes, ticks_per_beat=ppqn, tempo_bpm=fixture['tempo_bpm'])
+            options = dict(ticks_per_beat=ppqn, tempo_bpm=fixture['tempo_bpm'])
+            if strategy_id == 'strumPick':
+                options['rapid_max_gap_seconds'] = rapid_max_gap_seconds
+            version = algorithm(notes, **options)
+            if version['id'] != strategy_id:
+                raise AssertionError(f'Unexpected strategy identity: {version["id"]}.')
             version['runtime_seconds'] = round(time.monotonic()-start, 4)
             export_name = f'{fixture_id}_{version["id"]}_strings.mid'
             export_path = ROOT / 'public' / 'fretboard-efficiency' / export_name
@@ -148,6 +181,9 @@ def build(source_dir, output, fixture_ids=None):
             fixture['versions'].append(version)
             print(json.dumps(dict(fixture=fixture_id, version=version['id'], runtime_seconds=version['runtime_seconds'],
                                   metrics=version['metrics'])), flush=True)
+        for strategy_id, version in previous_versions.items():
+            if strategy_id not in {item[0] for item in STRATEGIES}:
+                fixture['versions'].append(version)
         if json.dumps(notes, sort_keys=True) != source_snapshot:
             raise AssertionError('An optimizer mutated original note evidence.')
         result['fixtures'].append(fixture)
@@ -162,5 +198,10 @@ if __name__ == '__main__':
     parser.add_argument('--output', type=Path, default=ROOT/'public'/'data'/'fretboard-efficiency-fixtures.json')
     parser.add_argument('--fixture', action='append', choices=[item[0] for item in FIXTURES],
                         help='Regenerate only these fixtures, preserving other entries from the existing output.')
+    parser.add_argument('--strategy', action='append', choices=[item[0] for item in STRATEGIES],
+                        help='Regenerate only these strategies, preserving other version objects exactly.')
+    parser.add_argument('--rapid-max-gap-seconds', type=float, default=0.25,
+                        help='Largest source onset gap counted as rapid by Strum + pick (default: 0.25).')
     args = parser.parse_args()
-    build(args.source_dir, args.output, args.fixture)
+    build(args.source_dir, args.output, args.fixture, args.strategy,
+          rapid_max_gap_seconds=args.rapid_max_gap_seconds)

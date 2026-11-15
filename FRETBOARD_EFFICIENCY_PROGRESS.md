@@ -1,6 +1,28 @@
 # Drop E fretboard efficiency
 
-## Current delivery: uploaded MIDI rewrite — 2026-11-15
+## Current delivery: separate strum/pick optimizer — 2026-11-15
+
+User request: add separate optimization logic with this strict order: (1) exact-pitch opens, (2) fewest skipped strings among notes attacked together, (3) fewest skipped strings between rapid single-note attacks. The existing five-tier hand-movement optimizer and its saved results remain available and unchanged. This is the current scoped task; historical Composition Lab generation requirements do not replace it.
+
+Useful change: the user can select a mapping that favors strumming and crossing adjacent strings, even when that requires more movement along the neck. On the frozen C source, the existing hand optimizer uses 2 chord-string gaps and 82 rapid-single skipped strings; the valid greedy baseline already demonstrates 0 chord gaps and 33 rapid-single skipped strings while retaining all 82 opens. These are independent measurements at the declared 250 ms cutoff, not promised results for the new solver.
+
+Definitions: chord cost is the number of unplayed strings between the lowest and highest attacked string; held-but-unattacked notes do not add a pick attack. Rapid cost applies only to adjacent attack groups containing one newly attacked note each, with original onset spacing at most `rapid_max_gap_seconds` (default 0.25). A chord or longer gap breaks the run. Same-string repetitions and adjacent-string crossings both have zero skipped strings. Notes, exact ticks, velocities and ringing contacts remain fixed. Playability retains the existing Drop E / 24-fret / four-fret-span / four-contact model.
+
+The primary cost is exactly `(open_misses, chord_skipped_strings, rapid_single_skipped_strings)`, compared lexicographically. Only ties across all three use `(rapid_run_direction_reversals, rapid_shift_cost, hand_travel_frets, fretting_effort)` and deterministic ordering. Same-string repetitions retain the last crossing direction; chords and long gaps reset it. The rapid cutoff and direction preference are disclosed engineering choices, not measured player comfort or recovered original pick strokes.
+
+- [x] Inspect current source and instructions; independently define costs and retain a counterexample where reducing a rapid-single skip would worsen chord adjacency.
+- [x] Implement an independent optimizer module and meaningful priority/hold/direction counterexamples; do not modify the original search.
+- [x] Generate `strumPick` for all three frozen sources, retaining existing version objects exactly; export the three new string MIDI files.
+- [x] Independently verify exact source notes, valid geometry/held assignments, all open counts, skip metrics, strict cost ordering and new exports.
+- [x] Add a distinct **Strum + pick** choice and accurate objective/metrics in the existing lesson and review; keep legacy uploads and current defaults.
+- [ ] Validate native playback conversion and relevant UI regressions; build and publish the exact tested tree under the existing authorized lesson workflow.
+- [ ] Verify the served lesson, actual fretboard/player behavior and publication evidence; leave the new C mapping ready for the user.
+
+Ownership: core reviewer owns only the new solver and its unit tests; independent reviewer owns raw-source validation, independent priority counterexamples and native tests; UI owner owns selectors/review presentation and focused UI tests. Root owns runner, documentation, integration, publication and live validation. No classifier, FFT/STFT, song generation or unrelated lesson changes are in scope.
+
+Pre-publication result: independent full-source primary minima match A `(4,3,36)`, B `(4,15,18)`, C `(0,0,32)`; feasible opens remain 82/73/82. Chord skips improve 9→3, 33→15, 2→0 and rapid-single skipped strings 84→36, 72→18, 82→32 versus the original hand optimizer. Neck travel increases 12→246, 84→168, 19→123 frets, as disclosed. Root verified all six original version objects and all six existing MIDI exports are unchanged. All **173 JavaScript tests pass with zero skips**, all **73 fingering Python tests pass**, and all 9 string exports pass the independent raw-source check. The existing 20 browser-analysis Python checks also pass (one pre-existing optional-fixture skip). Production build and whitespace checks pass. New native coverage exercises every strategy and all attack/release boundaries while retaining Time’s 5,472 events. Expected main asset `main-C4fhCTZW.js`, review asset `fretboard-efficiency-view-CfeHa2lv.js`, bundle SHA-256 `cd018c70c8b1c6fd52651d205658f60f5cf9d38f358290a847fe5f6cdc0988f8`. Publication and live new-profile acceptance remain below.
+
+## Previous delivery: uploaded MIDI rewrite — 2026-11-15
 
 User request: map and push the attached `2026-11-15 midi rewrite.mid` using the same ordered Drop E objectives and existing lesson. This is an addition to the accepted A/B lesson, not a new composition task or player.
 

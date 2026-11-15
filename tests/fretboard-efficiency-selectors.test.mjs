@@ -30,7 +30,7 @@ function selectFromHtml(id) {
   };
 }
 
-function mount(search) {
+function mount(search, bundle = data) {
   const fields = {
     fretboardEfficiencyRiff: selectFromHtml('fretboardEfficiencyRiff'),
     fretboardEfficiencyMapping: selectFromHtml('fretboardEfficiencyMapping'),
@@ -43,7 +43,7 @@ function mount(search) {
     Option: function (label, value) { this.textContent = label; this.value = value; },
     window: { location, history: { replaceState(_state, _title, url) { location.href = String(url); } } },
     document: { getElementById: id => fields[id] },
-    fetch: async url => { requests.push(url); return { ok: true, json: async () => data }; }
+    fetch: async url => { requests.push(url); return { ok: true, json: async () => bundle }; }
   });
   vm.runInContext(source, context);
   const lesson = context.setupFretboardEfficiencyLesson({
@@ -67,8 +67,8 @@ test('the real lesson selector corresponds to every published built-in fixture, 
 });
 
 for (const fixtureId of ['cfa029a2', 'da80eca9', 'c5a35486']) {
-  test(`${fixtureId}: direct optimized and greedy URLs load that exact fixture and retain shareable selection`, async () => {
-    for (const versionId of ['optimized', 'greedy']) {
+  test(`${fixtureId}: all three mapping URLs load that exact fixture and retain shareable selection`, async () => {
+    for (const versionId of ['optimized', 'greedy', 'strumPick']) {
       const harness = mount(`?lesson=fretboardEfficiency&riff=${fixtureId}&mapping=${versionId}`);
       await harness.lesson.activate();
       assert.equal(harness.fields.fretboardEfficiencyRiff.value, fixtureId);
@@ -77,6 +77,10 @@ for (const fixtureId of ['cfa029a2', 'da80eca9', 'c5a35486']) {
       assert.equal(harness.loads[0].fixture, data.fixtures.find(fixture => fixture.id === fixtureId));
       assert.equal(harness.loads[0].versionId, versionId);
       assert.equal(harness.selections[0].version.id, versionId);
+      if (versionId === 'strumPick') {
+        assert.ok(harness.fields.fretboardEfficiencyInfo.title.includes(
+          harness.selections[0].version.objective.priority_labels.join(' → ')));
+      }
       assert.equal(harness.fields.fretboardEfficiencyLink.hidden, false);
       const link = new URL(harness.fields.fretboardEfficiencyLink.href);
       assert.equal(link.pathname, '/Guitar-Learning/');
@@ -116,6 +120,86 @@ test('uploaded fixture selection still loads its supplied data and stays distinc
   assert.equal(harness.loads.at(-1).fixture.id, 'c5a35486');
   assert.equal(harness.fields.fretboardEfficiencyLink.hidden, false);
   assert.equal(new URL(harness.fields.fretboardEfficiencyLink.href).searchParams.get('riff'), 'c5a35486');
+});
+
+function syntheticProfileBundle() {
+  const bundle = structuredClone(data);
+  for (const fixture of bundle.fixtures) {
+    fixture.versions = fixture.versions.filter(version => version.id !== 'strumPick');
+    const profile = structuredClone(fixture.versions.find(version => version.id === 'optimized'));
+    Object.assign(profile, {
+      id: 'strumPick', label: 'Strum + pick',
+      description: 'Open strings first, then adjacent co-attacked chord strings, then adjacent rapid single-note strings.',
+      objective: {
+        priority_order: ['open_misses', 'chord_skipped_strings', 'rapid_single_skipped_strings'],
+        priority_labels: ['Exact-pitch open strings', 'Adjacent co-attacked chord strings', 'Adjacent rapid single-note strings'],
+        rapid_max_gap_seconds: 0.25,
+        chord_skip_definition: 'Unplayed strings between notes attacked together.',
+        rapid_skip_definition: 'Unplayed strings between consecutive rapid single-note attacks.',
+        tie_break_order: ['rapid_run_direction_reversals', 'rapid_shift_cost', 'hand_travel_frets', 'fretting_effort']
+      }
+    });
+    Object.assign(profile.metrics, {
+      chord_skipped_strings: 7, chord_attack_count: 12, contiguous_chord_count: 8,
+      rapid_single_skipped_strings: 9, rapid_single_pair_count: 24,
+      rapid_single_skip_transition_count: 6, rapid_run_direction_reversals: 3,
+      priority_cost: [profile.metrics.open_exceptions, 7, 9], tie_break_cost: [3, 12, 4, 1]
+    });
+    fixture.versions.push(profile);
+  }
+  return bundle;
+}
+
+test('a supplied third profile uses its own picking metrics and objective without replacing the original defaults', async () => {
+  const bundle = syntheticProfileBundle();
+  const harness = mount('?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick', bundle);
+  await harness.lesson.activate();
+  assert.equal(harness.loads.at(-1).versionId, 'strumPick');
+  assert.equal(harness.fields.fretboardEfficiencyMapping.options.find(option => option.value === 'strumPick').textContent, 'Strum + pick');
+  assert.match(harness.fields.fretboardEfficiencyInfo.textContent, /7 chord string skips/);
+  assert.match(harness.fields.fretboardEfficiencyInfo.textContent, /9 rapid single-note string skips/);
+  assert.match(harness.fields.fretboardEfficiencyInfo.title, /adjacent co-attacked chord strings/);
+  assert.doesNotMatch(harness.fields.fretboardEfficiencyInfo.title, /then rapid neck shifts/);
+  assert.doesNotMatch(harness.fields.fretboardEfficiencyInfo.title, /open_misses|chord_skipped_strings/);
+  assert.equal(harness.fields.fretboardEfficiencyMapping.options.find(option => option.value === 'strumPick').disabled, false);
+  harness.fields.fretboardEfficiencyMapping.value = 'optimized';
+  await harness.lesson.activate();
+  assert.equal(harness.loads.at(-1).versionId, 'optimized');
+  assert.match(harness.fields.fretboardEfficiencyInfo.title, /then rapid neck shifts/);
+  assert.match(harness.fields.fretboardEfficiencyInfo.textContent, /rapid shifts/);
+});
+
+test('legacy uploads disable the absent profile and never load optimized under a strumPick selection', async () => {
+  const bundle = syntheticProfileBundle();
+  const harness = mount('?lesson=fretboardEfficiency&riff=cfa029a2&mapping=strumPick', bundle);
+  await harness.lesson.activate();
+  const legacy = structuredClone(bundle.fixtures[0]);
+  legacy.id = 'legacy-upload';
+  legacy.versions = legacy.versions.filter(version => version.id !== 'strumPick');
+  harness.lesson.syncSelection(legacy, 'optimized');
+  assert.equal(harness.fields.fretboardEfficiencyMapping.value, 'optimized');
+  assert.equal(harness.fields.fretboardEfficiencyMapping.options.find(option => option.value === 'strumPick').disabled, true);
+  assert.equal(harness.fields.fretboardEfficiencyMapping.options.find(option => option.value === 'greedy').disabled, false);
+  const previousLoads = harness.loads.length;
+  harness.fields.fretboardEfficiencyMapping.value = 'strumPick';
+  await harness.lesson.activate();
+  assert.equal(harness.loads.length, previousLoads);
+  assert.match(harness.fields.songPlayerStatus.textContent, /unavailable/);
+  harness.fields.fretboardEfficiencyRiff.value = 'cfa029a2';
+  await harness.lesson.activate();
+  assert.equal(harness.loads.at(-1).versionId, 'strumPick');
+  assert.equal(harness.fields.fretboardEfficiencyMapping.options.find(option => option.value === 'strumPick').disabled, false);
+});
+
+test('missing adjacency diagnostics are unavailable rather than zero in the lesson', async () => {
+  const bundle = syntheticProfileBundle();
+  const version = bundle.fixtures[0].versions.find(item => item.id === 'strumPick');
+  delete version.metrics.chord_skipped_strings;
+  delete version.metrics.rapid_single_skipped_strings;
+  const harness = mount('?lesson=fretboardEfficiency&riff=cfa029a2&mapping=strumPick', bundle);
+  await harness.lesson.activate();
+  assert.match(harness.fields.fretboardEfficiencyInfo.textContent, /— chord string skips/);
+  assert.match(harness.fields.fretboardEfficiencyInfo.textContent, /— rapid single-note string skips/);
 });
 
 test('the actual trainer viewport uses source ticks for C and preserves A/B native-clock behavior', () => {

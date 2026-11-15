@@ -19,6 +19,9 @@ import struct
 
 ROOT = Path(__file__).resolve().parents[1]
 TUNING_HIGH_TO_LOW = (64, 59, 55, 50, 45, 40, 35, 28)
+STRUM_PRIORITY_ORDER = ("open_misses", "chord_skipped_strings", "rapid_single_skipped_strings")
+STRUM_TIE_ORDER = ("rapid_run_direction_reversals", "rapid_shift_cost",
+                   "hand_travel_frets", "fretting_effort")
 EXPECTED_SOURCES = {
     "6_review_cfa029a287078971a412e05347b5612f6d9ef8c0ea69a1e9b0b58a82fb71aafd.mid": {
         "sha256": "cfa029a287078971a412e05347b5612f6d9ef8c0ea69a1e9b0b58a82fb71aafd",
@@ -270,6 +273,87 @@ def maximum_open_attacks(notes, *, max_fret=24, max_span=4):
     return total
 
 
+def minimum_fretting_contacts(placements):
+    """Count required barre regions without using the mapper's cover search.
+
+    At each positive fret height, a contact can cross only a contiguous run of
+    active strings whose required frets are at least that height. Each such run
+    containing that exact height requires and admits one contact. Open, lower,
+    and inactive strings split runs; higher frets can override a lower barre.
+    """
+    required = dict(placements)
+    require(len(required) == len(placements), "Duplicate physical string in contact oracle")
+    count = 0
+    for height in set(required.values()) - {0}:
+        contains_exact_height = False
+        for string in range(1, 10):
+            fret = required.get(string, -1)
+            if fret >= height:
+                contains_exact_height |= fret == height
+            else:
+                count += contains_exact_height
+                contains_exact_height = False
+    return count
+
+
+def strum_pick_metrics(notes, assignments, *, ticks_per_beat=960, tempo_bpm=120,
+                       rapid_max_gap_seconds=0.25):
+    """Measure source co-attacks and consecutive rapid singleton attacks.
+
+    This has no optimizer dependency. A held note is never silently promoted to
+    a new attack. Chords and long onset gaps break the single-note direction run;
+    repeating a string retains the previous nonzero crossing direction.
+    """
+    by_id = _identity_notes(notes)
+    require(ticks_per_beat > 0 and math.isfinite(tempo_bpm) and tempo_bpm > 0,
+            "Invalid picking-metric source clock")
+    require(math.isfinite(rapid_max_gap_seconds) and rapid_max_gap_seconds > 0,
+            "Invalid rapid single-note cutoff")
+    contacts = {a["note_id"]: a for a in assignments}
+    require(len(contacts) == len(assignments) and set(contacts) == set(by_id),
+            "Picking metrics require every original occurrence exactly once")
+    groups = defaultdict(list)
+    for note in notes:
+        groups[note["start_tick"]].append(note["id"])
+    frames = sorted(groups.items())
+    chord_count = contiguous = chord_skips = 0
+    for _, ids in frames:
+        if len(ids) < 2:
+            continue
+        strings = sorted(contacts[n]["string_number"] for n in ids)
+        require(len(set(strings)) == len(strings), "Co-attacked notes share a string")
+        # Count each absent interior string explicitly, rather than importing
+        # the optimizer's span expression or pick-order enumeration.
+        missing = sum(string not in strings for string in range(strings[0], strings[-1] + 1))
+        chord_count += 1
+        contiguous += missing == 0
+        chord_skips += missing
+    pairs = skips = skip_transitions = reversals = 0
+    direction = 0
+    for (first_tick, first), (second_tick, second) in zip(frames, frames[1:]):
+        elapsed = (second_tick - first_tick) * 60 / (ticks_per_beat * tempo_bpm)
+        if len(first) != 1 or len(second) != 1 or elapsed > rapid_max_gap_seconds + 1e-9:
+            direction = 0
+            continue
+        pairs += 1
+        a, b = (contacts[ids[0]]["string_number"] for ids in (first, second))
+        skipped = len(range(min(a, b) + 1, max(a, b)))
+        skips += skipped
+        skip_transitions += skipped > 0
+        crossing = (b > a) - (b < a)
+        if crossing:
+            reversals += bool(direction and crossing != direction)
+            direction = crossing
+    open_misses = sum(n["pitch"] in TUNING_HIGH_TO_LOW for n in notes) - sum(
+        a["fret"] == 0 for a in assignments)
+    return {"open_misses": open_misses, "chord_skipped_strings": chord_skips,
+            "chord_attack_count": chord_count, "contiguous_chord_count": contiguous,
+            "rapid_single_skipped_strings": skips, "rapid_single_pair_count": pairs,
+            "rapid_single_skip_transition_count": skip_transitions,
+            "rapid_run_direction_reversals": reversals,
+            "priority_cost": [open_misses, chord_skips, skips]}
+
+
 def validate_version(notes, version, *, ticks_per_beat=960, tempo_bpm=120,
                      max_fret=24, max_span=4, rapid_frets_per_second=8.0,
                      check_metrics=True):
@@ -306,6 +390,8 @@ def validate_version(notes, version, *, ticks_per_beat=960, tempo_bpm=120,
     travel = rapid_count = rapid_cost = maximum_jump = shift_count = 0
     maximum_speed = 0.0
     maximum_span = maximum_simultaneous = 0
+    fretting_effort = 0
+    prior_positive_contacts = None
     for tick, frame in zip(ticks, frames):
         seconds = tick / ticks_per_beat * 60 / tempo_bpm
         require(math.isclose(frame["time_seconds"], seconds, abs_tol=1e-8),
@@ -317,6 +403,15 @@ def validate_version(notes, version, *, ticks_per_beat=960, tempo_bpm=120,
                 f"Incorrect held/active note IDs at tick {tick}")
         maximum_simultaneous = max(maximum_simultaneous, len(active))
         frets = [mapped[n]["fret"] for n in active if mapped[n]["fret"] > 0]
+        placements = [(mapped[n]["string_number"], mapped[n]["fret"]) for n in active]
+        contact_count = minimum_fretting_contacts(placements)
+        require(contact_count <= 4, f"More than four fretting contacts at tick {tick}")
+        positive_contacts = {(s, f) for s, f in placements if f > 0}
+        span = max(frets) - min(frets) if frets else 0
+        changes = len(positive_contacts ^ prior_positive_contacts) if positive_contacts and prior_positive_contacts is not None else 0
+        fretting_effort += 4 * contact_count + 8 * max(0, span - 3) + changes
+        if positive_contacts:
+            prior_positive_contacts = positive_contacts
         position = frame["position"]
         if position is None:
             require(not frets and last_fretted is None and last_frame_position is None,
@@ -366,6 +461,7 @@ def validate_version(notes, version, *, ticks_per_beat=960, tempo_bpm=120,
         "max_shift_frets_per_second": maximum_speed,
         "max_fretted_span": maximum_span,
         "max_simultaneous_notes": maximum_simultaneous,
+        "fretting_effort": fretting_effort,
     }
     if check_metrics:
         declared = version["metrics"]
@@ -387,6 +483,32 @@ def validate_version(notes, version, *, ticks_per_beat=960, tempo_bpm=120,
         for key in aliases.keys() & declared.keys():
             require(math.isclose(declared[key], aliases[key], abs_tol=1e-6),
                     f"Incorrect declared metric {key}")
+    if version.get("id") == "strumPick":
+        objective = version.get("objective", {})
+        cutoff = objective.get("rapid_max_gap_seconds", 0.25)
+        picking = strum_pick_metrics(notes, assignments, ticks_per_beat=ticks_per_beat,
+                                     tempo_bpm=tempo_bpm, rapid_max_gap_seconds=cutoff)
+        if check_metrics:
+            require(tuple(objective.get("priority_order", ())) == STRUM_PRIORITY_ORDER,
+                    "Incorrect Strum + pick priority order")
+            require(tuple(objective.get("tie_break_order", ())) == STRUM_TIE_ORDER,
+                    "Incorrect Strum + pick tie-break order")
+            for key, expected in picking.items():
+                if key == "open_misses" and key not in version["metrics"]:
+                    continue  # Already checked by open_exceptions and priority_cost[0].
+                require(version["metrics"].get(key) == expected, f"Incorrect independent picking metric {key}")
+            require(version["metrics"].get("tier_cost") == picking["priority_cost"],
+                    "Strum + pick tier_cost must declare its three actual priorities")
+            tie = [picking["rapid_run_direction_reversals"], rapid_cost, travel, fretting_effort]
+            require(version["metrics"].get("tie_break_cost") == tie,
+                    "Incorrect independently recomputed picking tie-break cost")
+        result.update(picking)
+    elif check_metrics and version.get("id") in ("greedy", "optimized"):
+        declared = version["metrics"]
+        expected_tiers = [result["open_eligible_note_count"] - result["open_note_count"], rapid_cost,
+                          [travel, fretting_effort], declared.get("picking_cost"), declared.get("shape_cost")]
+        require(declared.get("tier_cost") == expected_tiers,
+                "Legacy five-tier diagnostic schema changed")
     return result
 
 
@@ -413,7 +535,7 @@ def validate_string_export(fixture, version, path):
             "sha256": exported["sha256"], "string_channels_verified": True}
 
 
-def validate_dataset(dataset, source_dir, export_root=None):
+def validate_dataset(dataset, source_dir, export_root=None, *, allow_legacy_versions=False):
     export_root = Path(export_root or ROOT / "public").resolve()
     require(tuple(dataset["tuning_high_to_low"]) == TUNING_HIGH_TO_LOW,
             "Dataset tuning is not exact 8-string Drop E")
@@ -421,6 +543,9 @@ def validate_dataset(dataset, source_dir, export_root=None):
     fixtures = dataset["fixtures"]
     require(Counter(f["source_filename"] for f in fixtures) == Counter(EXPECTED_SOURCES.keys()),
             "Dataset must contain exactly all requested frozen raw sources")
+    required_versions = {"greedy", "optimized", "strumPick"}
+    if allow_legacy_versions and all({v["id"] for v in f["versions"]} == {"greedy", "optimized"} for f in fixtures):
+        required_versions = {"greedy", "optimized"}
     report = []
     for fixture in fixtures:
         filename = fixture["source_filename"]
@@ -428,11 +553,16 @@ def validate_dataset(dataset, source_dir, export_root=None):
         expected = EXPECTED_SOURCES[filename]
         require(maximum_open_attacks(fixture["notes"]) == expected["feasible_opens"],
                 "Frozen open-count feasibility changed")
-        require(Counter(v["id"] for v in fixture["versions"]) == Counter({"greedy": 1, "optimized": 1}),
-                "Both greedy and optimized versions must be independently checked")
+        require(Counter(v["id"] for v in fixture["versions"]) == Counter({v: 1 for v in required_versions}),
+                "All requested versions must be independently checked; legacy bundles require explicit opt-in")
         metrics = {}
         exports = {}
+        picking_comparison = {}
         for version in fixture["versions"]:
+            if version["id"] == "strumPick":
+                require(math.isclose(version.get("objective", {}).get("rapid_max_gap_seconds", -1),
+                                     0.25, abs_tol=1e-12),
+                        "Published picking comparison requires the disclosed 0.25-second cutoff")
             checked = validate_version(fixture["notes"], version,
                                        ticks_per_beat=raw["ticks_per_beat"],
                                        tempo_bpm=fixture["tempo_bpm"])
@@ -441,14 +571,23 @@ def validate_dataset(dataset, source_dir, export_root=None):
             require(checked["open_note_count"] == expected["feasible_opens"],
                     "Tier 1 failed to achieve all physically available open notes")
             metrics[version["id"]] = checked
+            picking_comparison[version["id"]] = strum_pick_metrics(
+                fixture["notes"], version["assignments"], ticks_per_beat=raw["ticks_per_beat"],
+                tempo_bpm=fixture["tempo_bpm"])
             export_path = (export_root / version["midi_path"]).resolve()
             require(export_path.is_relative_to(export_root), "Export path leaves its declared root")
             exports[version["id"]] = validate_string_export(fixture, version, export_path)
         require(metrics["optimized"]["rapid_shift_cost"] <= metrics["greedy"]["rapid_shift_cost"],
                 "Optimized timing-proxy cost is worse than the valid greedy baseline")
+        if "strumPick" in picking_comparison:
+            for baseline in ("greedy", "optimized"):
+                require(tuple(picking_comparison["strumPick"]["priority_cost"]) <=
+                        tuple(picking_comparison[baseline]["priority_cost"]),
+                        "New picking objective is worse than an existing feasible version")
         report.append({"fixture": fixture["id"], "source_sha256": raw["sha256"],
                        "raw_notes_preserved": len(raw["notes"]), "versions": metrics,
-                       "string_midi_exports": exports})
+                       "string_midi_exports": exports,
+                       "strum_objective_comparison": picking_comparison})
     return {"passed": True, "fixtures": report,
             "scope": "Raw-occurrence preservation, geometric playability, open priority, and declared timing proxy; human comfort is unverified."}
 
@@ -460,8 +599,11 @@ def main():
     parser.add_argument("--source-dir", type=Path,
                         default=ROOT / "tests/fixtures/fretboard-efficiency")
     parser.add_argument("--export-root", type=Path, default=ROOT / "public")
+    parser.add_argument("--allow-legacy-versions", action="store_true",
+                        help="Explicitly validate an unchanged bundle containing only the original two versions")
     args = parser.parse_args()
-    report = validate_dataset(json.loads(args.fixtures.read_text()), args.source_dir, args.export_root)
+    report = validate_dataset(json.loads(args.fixtures.read_text()), args.source_dir, args.export_root,
+                              allow_legacy_versions=args.allow_legacy_versions)
     print(json.dumps(report, indent=2))
 
 

@@ -43,10 +43,13 @@ jobs:
       - name: Install pinned native player for playback regression checks
         run: npm install --prefix .local/qa --no-save @coderline/alphatab@1.8.4
 
+      - name: Install frozen MIDI parser for fingering checks
+        run: python -m pip install -r composition-lab/requirements-fretboard-efficiency.txt
+
       - name: Verify rake classifier and tests
         run: |
           node --test tests/*.test.mjs
-          python -B -m unittest discover -s composition-lab -p 'test_fretboard_efficiency*.py'
+          python -B -m unittest discover -s composition-lab -p 'test_fretboard_*.py'
           python -B -m unittest discover -s composition-lab -p test_riff_browser.py
           python -B -m unittest discover -s composition-lab -p test_riff_pattern_browser.py
           python -B -m unittest discover -s composition-lab -p test_procedural_riff_browser.py
