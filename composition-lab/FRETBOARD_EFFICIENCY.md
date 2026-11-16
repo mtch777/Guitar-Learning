@@ -2,7 +2,7 @@
 
 The user-selected `cfa029a2` and `da80eca9` riffs are now regression fixtures for a whole-sequence fingering optimizer. They are frozen copies from the `generated-midi` branch at commit `b86db9f73d1adf8a5552dc81a475437a36b4ae2c`. Their filename hashes are their verified SHA-256 content hashes.
 
-The user-uploaded `2026-11-15 midi rewrite.mid` is fixture C, `c5a35486`, frozen as `2026-11-15_midi_rewrite.mid` with SHA-256 `c5a35486923e3b819d9f7cb7176cb1c39546c26471093862e5e67c27fbe46461`. Its source provenance is the upload rather than the earlier generated-MIDI commit.
+Fixture C uses the latest user upload, `2026-11-15 midi rewrite(2).mid`, frozen as `2026-11-15_midi_rewrite_2.mid` with SHA-256 `5fa3e52d30a27b3568c7303f47011cb5aaa9777ac2a584ea31e7f797d522ca77`. Its stable lesson identifier remains `c5a35486`, so existing lesson links load the revised MIDI. The identifier records the first revision; `source_sha256` identifies the current bytes. The prior `2026-11-15_midi_rewrite.mid` remains as historical source evidence. C's source provenance is the user upload rather than the earlier generated-MIDI commit.
 
 ## Review
 
@@ -34,13 +34,13 @@ The exported HTML embeds all fixtures and their available mappings and makes no 
 | --- | --- | ---: | ---: | ---: | --- |
 | A: low response | `6_review_cfa029a2…mid` | 164 | 124 | 32.25 seconds | Open-string priority, low response, eventual climb to a high minor-second dyad |
 | B: high dyads | `6_review_da80eca9…mid` | 191 | 124 | 32.25 seconds | Repeated high dyads interleaved with lower material; rapid longitudinal changes |
-| C: MIDI rewrite | `2026-11-15_midi_rewrite.mid` | 177 | 120 | 16 seconds | Held-note overlaps, softer dyads, and a 96-PPQN source clock |
+| C: MIDI rewrite (2) | `2026-11-15_midi_rewrite_2.mid` | 241 | 172 | 24 seconds | Revised opening, extended middle, held-note overlaps, new ending and a 96-PPQN source clock |
 
 A/B use 120 BPM and 960 ticks per quarter note. The source files live in `tests/fixtures/fretboard-efficiency/`. A/B each start with two one-second G1–D2–G2 chords, followed by a sustained high chord. Each includes E1–B1 two-note power chords and separate two-note intervals. Their high chords at 2, 10, 18 and 26 seconds contain **two distinct B3 note occurrences**. These are preserved, not deduplicated.
 
-C has 96 ticks per quarter note, no embedded tempo, and therefore uses the MIDI default of 120 BPM. All 3,072 original source ticks map exactly to 30,720 native ticks. The lesson converts the native playhead back to the source clock before looking up hand positions. Twelve attack times contain a previously ringing note; its assigned string/fret stays fixed until its original release. All 153 velocity-90 notes and 24 velocity-74 notes are preserved.
+C has 96 ticks per quarter note, no embedded tempo, and therefore uses the MIDI default of 120 BPM. All 4,608 source ticks map exactly to 46,080 native ticks. The lesson converts the native playhead back to the source clock before looking up hand positions. Fourteen attack times contain a previously ringing note; its assigned string/fret stays fixed until its original release. All 217 velocity-90 notes and 24 velocity-74 notes are preserved. The edited file is 24 seconds long, compared with the prior revision's 16 seconds.
 
-For C, the feasible greedy baseline has 36 rapid-shift flags, 173 frets of hand travel, and a largest position jump of 14. The original hand optimizer has **2 flags, 19 frets of travel, and a largest jump of 7**, while using all **82 feasible open notes**. Picking cost is 604→634 and shape cost 780→784, consistent with their lower priority. Adding C left A/B unchanged; adding the separate strum/pick profile retains all six accepted original version objects exactly. C's initial unconstrained local greedy choice stranded a held note; the comparison now removes only grips with no feasible held-note continuation before applying its local preferences. This reachability check does not optimize future costs or change the exact whole-sequence optimizer.
+For edited C, the feasible greedy baseline has 39 rapid-shift flags, 228 frets of hand travel, and a largest position jump of 14. The original hand optimizer has **0 flags and 0 frets of modeled hand-position travel**, while using all **132 feasible open notes**. Picking cost is 872→1024 and shape cost 1052→1064, consistent with their lower priority. All three C versions were regenerated from the replacement MIDI; both complete A/B fixture objects and all six A/B MIDI exports remain unchanged. C's first revision exposed a local greedy choice that stranded a held note; the existing comparison removes only grips with no feasible held-note continuation before applying its local preferences. That reachability check and all optimizer policies are unchanged by this source update.
 
 ## Original hand-movement optimizer
 
@@ -128,17 +128,17 @@ These costs are independently recomputed from the original MIDI attacks. A secon
 | --- | ---: | ---: | ---: | ---: |
 | A · Low response | 82 | 9 → **3** | 84 → **36** | 12 → 246 frets |
 | B · High dyads | 73 | 33 → **15** | 72 → **18** | 84 → 168 frets |
-| C · MIDI rewrite | 82 | 2 → **0** | 82 → **32** | 19 → 123 frets |
+| C · MIDI rewrite (2) | 132 | 0 → **0** | 165 → **54** | 0 → 213 frets |
 
-The independent minimum primary tuples are **A `(4, 3, 36)`**, **B `(4, 15, 18)`**, **C `(0, 0, 32)`**. The first components in A/B are the four unavoidable duplicate-open exceptions described above. Compared with the valid greedy baseline, chord skips tie at 3/15/0 and rapid-single skipped strings improve 53→36, 23→18, and 33→32.
+The independent minimum primary tuples are **A `(4, 3, 36)`**, **B `(4, 15, 18)`**, **C `(0, 0, 54)`**. The first components in A/B are the four unavoidable duplicate-open exceptions described above. Compared with the valid greedy baseline, chord skips tie at 3/15/0 and rapid-single skipped strings improve 53→36, 23→18, and 59→54.
 
-The new mappings have **27/30, 42/57 and 57/57 contiguous chord attacks** for A/B/C. Rapid pairs are fixed by the source and cutoff: 83/53/43; only 15/9/11 of those pairs skip any string. The skipped-string totals count every intervening string, not merely the number of affected transitions. All note occurrences, timing, velocities, duplicate pitches and held assignments are preserved, and all nine string exports pass the independent raw-MIDI checker.
+The mappings have **27/30, 42/57 and 69/69 contiguous chord attacks** for A/B/C. Rapid pairs are fixed by the source and cutoff: 83/53/75; only 15/9/17 of those pairs skip any string. The skipped-string totals count every intervening string, not merely the number of affected transitions. All note occurrences, timing, velocities, duplicate pitches and held assignments are preserved, and all nine string exports pass the independent raw-MIDI checker.
 
 This is a distinct picking preference, not a claim of globally easier guitar technique. The substantial increase in neck travel is the consequence of putting adjacency and run direction ahead of hand movement. The original hand-movement optimizer remains selectable and unchanged.
 
 ## Output files
 
-- `public/data/fretboard-efficiency-fixtures.json`: unchanged source occurrences, parameters, assignments, hand positions, shape labels, picking orders, and measured scores for all three strategies. Appending `strumPick` preserves the accepted `optimized` and `greedy` version objects exactly.
+- `public/data/fretboard-efficiency-fixtures.json`: exact current source occurrences, parameters, assignments, hand positions, shape labels, picking orders, and measured scores for all three strategies. Adding a strategy to an unchanged source preserves its other accepted versions. Replacing C's source regenerates all three C versions together while retaining A/B.
 - `public/fretboard-efficiency/*_strings.mid`: nine standard MIDI exports, one per fixture and strategy. MIDI channels 1–8 correspond to guitar strings 1–8, high to low. Pitches, note-on velocity, onset, release and source duration are preserved; source channel routing is intentionally replaced by string routing. These are ordinary MIDI files, not MPE or a specific virtual-instrument articulation preset.
 
 ## Reproduce and verify

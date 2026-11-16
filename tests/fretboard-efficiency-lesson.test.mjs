@@ -28,8 +28,8 @@ const verifiedBrowserUrl = 'https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8
 const frozenSources = {
   cfa029a2: {notes: 164, ppqn: 960, endTick: 61920, durationMs: 32250},
   da80eca9: {notes: 191, ppqn: 960, endTick: 61920, durationMs: 32250},
-  c5a35486: {notes: 177, ppqn: 96, endTick: 3072, durationMs: 16000,
-    sha256: 'c5a35486923e3b819d9f7cb7176cb1c39546c26471093862e5e67c27fbe46461'},
+  c5a35486: {notes: 241, ppqn: 96, endTick: 4608, durationMs: 24000,
+    sha256: '5fa3e52d30a27b3568c7303f47011cb5aaa9777ac2a584ea31e7f797d522ca77'},
 };
 const originalFixtureIds = new Set(['cfa029a2', 'da80eca9']);
 const nativeTick = (sourceTick, ppqn) => {

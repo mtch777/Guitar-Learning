@@ -239,9 +239,9 @@ class SourceFixtureTests(unittest.TestCase):
     def test_all_outputs_against_raw_midi_and_independent_metrics(self):
         result = validate_dataset(json.loads(self.dataset_path.read_text()), self.source_dir)
         self.assertTrue(result["passed"])
-        self.assertEqual(sum(f["raw_notes_preserved"] for f in result["fixtures"]), 532)
+        self.assertEqual(sum(f["raw_notes_preserved"] for f in result["fixtures"]), 596)
         self.assertEqual({f["fixture"]: f["raw_notes_preserved"] for f in result["fixtures"]},
-                         {"cfa029a2": 164, "da80eca9": 191, "c5a35486": 177})
+                         {"cfa029a2": 164, "da80eca9": 191, "c5a35486": 241})
 
     def test_duplicate_high_chords_remain_four_occurrences(self):
         for filename, expected in EXPECTED_SOURCES.items():
@@ -254,31 +254,43 @@ class SourceFixtureTests(unittest.TestCase):
                     self.assertEqual(pitches, [59, 59, 62, 69])
 
     def test_uploaded_rewrite_frozen_clock_dynamics_and_holds(self):
-        raw = read_midi_source(self.source_dir / "2026-11-15_midi_rewrite.mid")
-        self.assertEqual(raw["sha256"], EXPECTED_SOURCES["2026-11-15_midi_rewrite.mid"]["sha256"])
+        # The lesson keeps its stable C ID while adopting the user's replacement.
+        # The original source remains byte-identical as historical evidence.
+        historical = read_midi_source(self.source_dir / "2026-11-15_midi_rewrite.mid")
+        self.assertEqual(historical["sha256"],
+                         "c5a35486923e3b819d9f7cb7176cb1c39546c26471093862e5e67c27fbe46461")
+        raw = read_midi_source(self.source_dir / "2026-11-15_midi_rewrite_2.mid")
+        self.assertEqual(raw["sha256"], EXPECTED_SOURCES["2026-11-15_midi_rewrite_2.mid"]["sha256"])
         self.assertEqual((raw["format"], raw["track_count"], raw["ticks_per_beat"]), (0, 1, 96))
         self.assertEqual(raw["tempo_events"], [])
         self.assertEqual((raw["tempo_bpm"], raw["duration_ticks"], raw["duration_seconds"]),
-                         (120, 3072, 16))
+                         (120, 4608, 24))
         notes = raw["notes"]
-        self.assertEqual(len(notes), 177)
-        self.assertEqual(Counter(n["velocity"] for n in notes), Counter({90: 153, 74: 24}))
+        self.assertEqual(len(notes), 241)
+        self.assertEqual(Counter(n["velocity"] for n in notes), Counter({90: 217, 74: 24}))
         self.assertEqual({n["channel"] for n in notes}, {0})
         self.assertEqual((min(n["pitch"] for n in notes), max(n["pitch"] for n in notes)), (28, 83))
-        self.assertEqual(max(n["end_tick"] for n in notes), 3072)
+        self.assertEqual(max(n["end_tick"] for n in notes), 4608)
         onsets = sorted({n["start_tick"] for n in notes})
-        self.assertEqual(len(onsets), 120)
+        self.assertEqual(len(onsets), 172)
         self.assertEqual(sum(any(n["start_tick"] < t < n["end_tick"] for n in notes)
-                             for t in onsets), 12)
-        self.assertEqual(maximum_open_attacks(notes), 82)
+                             for t in onsets), 14)
+        self.assertEqual(maximum_open_attacks(notes), 132)
+        self.assertEqual([(n["pitch"], n["start_tick"], n["end_tick"])
+                          for n in notes[2:6]],
+                         [(28, 48, 120), (35, 48, 120), (28, 120, 144), (35, 120, 144)])
         self.assertEqual([(n["pitch"], n["start_tick"], n["end_tick"])
                           for n in notes if n["id"] in (29, 30, 31)],
                          [(60, 672, 696), (76, 684, 720), (83, 696, 720)])
+        self.assertEqual([(n["pitch"], n["start_tick"], n["end_tick"])
+                          for n in notes[-6:]],
+                         [(60, 4512, 4524), (69, 4524, 4536), (83, 4536, 4560),
+                          (60, 4560, 4572), (69, 4572, 4584), (83, 4584, 4608)])
 
     def test_uploaded_rewrite_tick_resolution_and_end_of_track_are_locked(self):
         original = json.loads(self.dataset_path.read_text())
         for field, value, message in (("ticks_per_beat", 960, "tick resolution"),
-                                      ("duration_ticks", 3071, "end-of-track")):
+                                      ("duration_ticks", 4607, "end-of-track")):
             data = deepcopy(original)
             fixture = next(f for f in data["fixtures"] if f["id"] == "c5a35486")
             fixture[field] = value

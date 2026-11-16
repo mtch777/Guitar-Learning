@@ -15,7 +15,7 @@ SOURCE_COMMIT = 'b86db9f73d1adf8a5552dc81a475437a36b4ae2c'
 FIXTURES = (
     ('cfa029a2', 'A · Low response', '6_review_cfa029a287078971a412e05347b5612f6d9ef8c0ea69a1e9b0b58a82fb71aafd.mid'),
     ('da80eca9', 'B · High dyads', '6_review_da80eca929e874d93378b26542ed63cb17be1735f2470a387fe0ad284431535a.mid'),
-    ('c5a35486', 'C · MIDI rewrite', '2026-11-15_midi_rewrite.mid'),
+    ('c5a35486', 'C · MIDI rewrite', '2026-11-15_midi_rewrite_2.mid'),
 )
 STRATEGIES = (
     ('greedy', greedy_fingering),
@@ -137,7 +137,7 @@ def build(source_dir, output, fixture_ids=None, strategy_ids=None, *, rapid_max_
                       'The source MIDI does not encode an original guitar fingering. Greedy is a comparison algorithm, '
                       'not the original guitarist’s fingering.'])
         if fixture_id == 'c5a35486':
-            fixture.update(source_kind='user_upload', source_original_filename='2026-11-15 midi rewrite.mid',
+            fixture.update(source_kind='user_upload', source_original_filename='2026-11-15 midi rewrite(2).mid',
                 source_commit=None,
                 source_url=f'https://github.com/mtch777/Guitar-Learning/blob/main/tests/fixtures/fretboard-efficiency/{filename}',
                 tempo_source='MIDI default; the uploaded file has no explicit tempo event',

@@ -62,8 +62,8 @@ test('the real lesson selector corresponds to every published built-in fixture, 
   }
   const rewrite = data.fixtures.find(fixture => fixture.id === 'c5a35486');
   assert.ok(rewrite, 'C is present in the actual published data');
-  assert.equal(rewrite.source_filename, '2026-11-15_midi_rewrite.mid');
-  assert.equal(rewrite.source_sha256, 'c5a35486923e3b819d9f7cb7176cb1c39546c26471093862e5e67c27fbe46461');
+  assert.equal(rewrite.source_filename, '2026-11-15_midi_rewrite_2.mid');
+  assert.equal(rewrite.source_sha256, '5fa3e52d30a27b3568c7303f47011cb5aaa9777ac2a584ea31e7f797d522ca77');
 });
 
 for (const fixtureId of ['cfa029a2', 'da80eca9', 'c5a35486']) {

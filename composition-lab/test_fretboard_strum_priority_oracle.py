@@ -235,18 +235,17 @@ class PickingOptimizerIndependentTests(unittest.TestCase):
         self.assertEqual(metrics["priority_cost"][0], 1)
 
 
+# A/B retain their original hand-optimizer versions. C intentionally uses the
+# replacement MIDI and is checked against its new raw source and optimum below.
 LEGACY_DIGESTS = {
     ("cfa029a2", "greedy"): "f747ffc330cac8722acb6c0555c1649c8477149fa902314026284717944a3d4d",
     ("cfa029a2", "optimized"): "2e1fd41b989455a5402e8a24e8ac8c17c780a7ad424f6da14050d0d8132e4c8c",
     ("da80eca9", "greedy"): "841aa40db82392b29fc9a197efd1af43c92d07f4187f23567d12d692d8ef2531",
     ("da80eca9", "optimized"): "1e9cb51065f4ef9f115286ecc4ce97fa5fc6b9cc18488638f3ff36ea22c70a37",
-    ("c5a35486", "greedy"): "f8ecacd2250919e705725f4911e75bbfe9b604c489e37e37e3b2a1f150bce2e8",
-    ("c5a35486", "optimized"): "8defd364be6644ac652c7aa9dcfca02056707e807589b073098334d5bda31265",
 }
 LEGACY_PICKING_COSTS = {
     ("cfa029a2", "greedy"): [4, 3, 53], ("cfa029a2", "optimized"): [4, 9, 84],
     ("da80eca9", "greedy"): [4, 15, 23], ("da80eca9", "optimized"): [4, 33, 72],
-    ("c5a35486", "greedy"): [0, 0, 33], ("c5a35486", "optimized"): [0, 2, 82],
 }
 
 
@@ -272,7 +271,7 @@ class FrozenPickingFixtureTests(unittest.TestCase):
                 actual = next(v for v in fixture["versions"] if v["id"] == "strumPick")
                 self.assertEqual(tuple(actual["metrics"]["priority_cost"]), proof["primary_cost"])
 
-    def test_existing_version_objects_are_unchanged(self):
+    def test_existing_ab_hand_version_objects_are_unchanged(self):
         seen = set()
         for fixture in self.data["fixtures"]:
             for version in fixture["versions"]:
@@ -283,7 +282,7 @@ class FrozenPickingFixtureTests(unittest.TestCase):
                     seen.add(key)
         self.assertEqual(seen, set(LEGACY_DIGESTS))
 
-    def test_old_version_picking_measurements_come_from_source_attacks(self):
+    def test_old_ab_version_picking_measurements_come_from_source_attacks(self):
         for fixture in self.data["fixtures"]:
             for version in fixture["versions"]:
                 key = fixture["id"], version["id"]

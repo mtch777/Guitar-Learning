@@ -1,6 +1,23 @@
 # Drop E fretboard efficiency
 
-## Current delivery: fixed full fret range — 2026-11-15
+## Current delivery: edited MIDI rewrite (2) — 2026-11-15
+
+User request: update the existing fingering versions to use the attached `2026-11-15 midi rewrite(2).mid`. Replace C's active source and regenerate its greedy, optimized and strumPick results under the existing `c5a35486` lesson identifier and link. The identifier is stable across revisions; `source_sha256` identifies the actual current MIDI. Preserve A/B exactly and retain the accepted fixed full fret range.
+
+- [x] Freeze the new upload as `tests/fixtures/fretboard-efficiency/2026-11-15_midi_rewrite_2.mid`; SHA-256 `5fa3e52d30a27b3568c7303f47011cb5aaa9777ac2a584ea31e7f797d522ca77`. Retain the prior source as historical evidence.
+- [x] Independently compare the MIDI edits and regenerate all three C profiles and string exports without changing pitches, timings, velocities or ringing contacts.
+- [x] Verify source preservation, valid geometry, current objectives, native clocks/playback conversion, fixed view and unchanged A/B results using the existing checks.
+- [ ] Publish the tested source/data/exports, verify deployment and served bytes, exercise the edited MIDI in the live lesson and leave C / Strum + pick ready at zero.
+
+Root owns source registration, generation, integration, documentation, publication and live validation. Independent reviewer owns source-specific Python expectations and raw-MIDI/oracle checks. Native/UI reviewer owns source-specific expectations in the existing JavaScript lesson/selector checks. Optimizer policies, physical constraints, audio detector/FFT/STFT and unrelated lessons stay outside this data update.
+
+Independent raw-MIDI and native parsers agree: **241 notes / 172 attacks / 96 PPQN / 4,608 source ticks / 46,080 native ticks / 24 seconds**, one channel, default 120 BPM, velocities 90×217 and 74×24, fourteen attack times carrying held notes, maximum polyphony two. The prior source was 177 notes and 16 seconds. The edited opening changes paired low-note durations from 48+48 to 72+24 ticks, changes the low note at tick 720 to open B1, extends the middle with a revised opening repeat, and ends with C4/A4/B5 twice. Exact current source facts are frozen in the existing tests.
+
+All C profiles retain **132/132 feasible opens**. Greedy / optimized / strumPick hand travel is **228 / 0 / 213** modeled frets; maximum assigned frets remain **19 / 21 / 24**. All 69 chord attacks are contiguous in every C profile. Rapid-single skipped-string totals are **59 / 165 / 54**, over 75 rapid pairs. An independent source-only search proves the strumPick minimum **(0,0,54)**. Both full A/B fixture objects and all six A/B exports are unchanged, and the original C source remains byte-identical as history.
+
+Pre-publication gates pass: **173 JavaScript tests, zero skips; 73 fingering Python tests; all nine exports and all 596 current source occurrences independently verified; production build and whitespace check**. No algorithm, player or view change was necessary. The application remains `main-OnE3-uyk.js` (SHA-256 `825423495d80f6731e465f66f3b72b16e2ab6252cd8b86516462ad37a993cd55`); the new 908,248-byte fixture bundle is SHA-256 `f35cb3b5134322e5ae0ec9742bd4a797163a5947b471ca20ef13301277779790`. Publication and actual revised-source playback are the remaining gate.
+
+## Previous delivery: fixed full fret range — 2026-11-15
 
 User correction: the moving fretboard is disorienting. Show open strings through the highest fret used by the selected mapping simultaneously, with one fixed range throughout playback and seeking. This presentation change does not alter the accepted mappings, MIDI, optimizer priorities or playback timing.
 

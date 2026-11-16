@@ -35,10 +35,10 @@ EXPECTED_SOURCES = {
         "ticks_per_beat": 960, "duration_ticks": 61920,
         "duplicate_chord_ticks": (3840, 19200, 34560, 49920),
     },
-    "2026-11-15_midi_rewrite.mid": {
-        "sha256": "c5a35486923e3b819d9f7cb7176cb1c39546c26471093862e5e67c27fbe46461",
-        "note_count": 177, "open_eligible": 82, "feasible_opens": 82,
-        "ticks_per_beat": 96, "duration_ticks": 3072,
+    "2026-11-15_midi_rewrite_2.mid": {
+        "sha256": "5fa3e52d30a27b3568c7303f47011cb5aaa9777ac2a584ea31e7f797d522ca77",
+        "note_count": 241, "open_eligible": 132, "feasible_opens": 132,
+        "ticks_per_beat": 96, "duration_ticks": 4608,
     },
 }
 
