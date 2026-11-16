@@ -1,0 +1,3882 @@
+{
+  "capturedAt": "2026-11-16T05:53:30.024Z",
+  "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick",
+  "scope": "Published C fixture; three fingerings, held dyad and open-string seeks, Static roundtrip, real cloud-browser playback, Pause, resume to natural end, Time lesson cleanup, final Stop.",
+  "observations": [
+    {
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "view": "playback",
+        "visibleFretCount": "24"
+      },
+      "cells": [
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 64
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 59
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 40
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "1:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 35
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "0:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 28
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:3",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:5",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:1",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:7",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:8",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:10",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:13",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:24",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 57
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:11",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "3:15",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:20",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        }
+      ],
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "scripts": [
+        "https://mtch777.github.io/Guitar-Learning/assets/main-C5V5tK1e.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "summary": "\u2014",
+      "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick",
+      "view": "playback",
+      "viewport": {
+        "height": 936,
+        "scrollWidth": 1348,
+        "width": 1363
+      },
+      "label": "strumPick stopped",
+      "expectedMode": "empty",
+      "expectedActiveIds": [],
+      "failures": []
+    },
+    {
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "view": "playback",
+        "visibleFretCount": "24"
+      },
+      "cells": [
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 64
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 59
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 40
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "1:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 35
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "0:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 28
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:3",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:5",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:1",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:7",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:8",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:10",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:13",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:24",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 57
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:11",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(52, 168, 83)",
+          "gray": false,
+          "key": "5:21",
+          "noteId": "30",
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "3:15",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(68, 68, 68)",
+          "fill": "rgb(249, 202, 156)",
+          "gray": false,
+          "key": "2:20",
+          "noteId": "29",
+          "open": false,
+          "pitch": 60
+        }
+      ],
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "691.2",
+        "tick": "6912",
+        "versionId": "strumPick"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "6912",
+        "versionId": "strumPick"
+      },
+      "scripts": [
+        "https://mtch777.github.io/Guitar-Learning/assets/main-C5V5tK1e.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "summary": "C4 b6 (S6:20) \u00b7 E5 R (S3:21)",
+      "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick",
+      "view": "playback",
+      "viewport": {
+        "height": 936,
+        "scrollWidth": 1348,
+        "width": 1363
+      },
+      "label": "high dyad onset",
+      "expectedMode": "active",
+      "expectedActiveIds": [
+        29,
+        30
+      ],
+      "failures": []
+    },
+    {
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "view": "playback",
+        "visibleFretCount": "24"
+      },
+      "cells": [
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 64
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 59
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 40
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "1:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 35
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "0:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 28
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:3",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:5",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:1",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:7",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:8",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:10",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:13",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(255, 0, 0)",
+          "gray": false,
+          "key": "6:24",
+          "noteId": "31",
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 57
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:11",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(52, 168, 83)",
+          "gray": false,
+          "key": "5:21",
+          "noteId": "30",
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "3:15",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:20",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        }
+      ],
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "705",
+        "tick": "7050",
+        "versionId": "strumPick"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "7050",
+        "versionId": "strumPick"
+      },
+      "scripts": [
+        "https://mtch777.github.io/Guitar-Learning/assets/main-C5V5tK1e.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "summary": "E5 R (S3:21) \u00b7 B5 5 (S2:24)",
+      "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick",
+      "view": "playback",
+      "viewport": {
+        "height": 936,
+        "scrollWidth": 1348,
+        "width": 1363
+      },
+      "label": "held E5 and next B5",
+      "expectedMode": "active",
+      "expectedActiveIds": [
+        30,
+        31
+      ],
+      "failures": []
+    },
+    {
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "view": "playback",
+        "visibleFretCount": "24"
+      },
+      "cells": [
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 64
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 59
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 40
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(255, 0, 0)",
+          "gray": false,
+          "key": "1:0",
+          "noteId": "141",
+          "open": true,
+          "pitch": 35
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(52, 168, 83)",
+          "gray": false,
+          "key": "0:0",
+          "noteId": "140",
+          "open": true,
+          "pitch": 28
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:3",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:5",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:1",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:7",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:8",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:10",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:13",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:24",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 57
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:11",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "3:15",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:20",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        }
+      ],
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "3073.5",
+        "tick": "30735",
+        "versionId": "strumPick"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "30735",
+        "versionId": "strumPick"
+      },
+      "scripts": [
+        "https://mtch777.github.io/Guitar-Learning/assets/main-C5V5tK1e.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "summary": "E1 R (S8:0) \u00b7 B1 5 (S7:0)",
+      "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick",
+      "view": "playback",
+      "viewport": {
+        "height": 936,
+        "scrollWidth": 1348,
+        "width": 1363
+      },
+      "label": "open E1 B1 colored",
+      "expectedMode": "active",
+      "expectedActiveIds": [
+        140,
+        141
+      ],
+      "failures": []
+    },
+    {
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "view": "static",
+        "visibleFretCount": "24"
+      },
+      "cells": [
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(52, 168, 83)",
+          "gray": false,
+          "key": "7:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 64
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(255, 0, 0)",
+          "gray": false,
+          "key": "6:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 59
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(52, 168, 83)",
+          "gray": false,
+          "key": "2:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 40
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(255, 0, 0)",
+          "gray": false,
+          "key": "1:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 35
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(52, 168, 83)",
+          "gray": false,
+          "key": "0:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 28
+        },
+        {
+          "color": "rgb(255, 153, 0)",
+          "fill": "rgb(255, 255, 0)",
+          "gray": false,
+          "key": "7:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(180, 167, 213)",
+          "fill": "rgb(249, 202, 156)",
+          "gray": false,
+          "key": "7:3",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(68, 68, 68)",
+          "fill": "rgb(180, 167, 213)",
+          "gray": false,
+          "key": "7:5",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(52, 168, 83)",
+          "gray": false,
+          "key": "7:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(255, 0, 0)",
+          "gray": false,
+          "key": "7:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(68, 68, 68)",
+          "fill": "rgb(249, 202, 156)",
+          "gray": false,
+          "key": "6:1",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(255, 153, 0)",
+          "fill": "rgb(255, 255, 0)",
+          "gray": false,
+          "key": "6:7",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(180, 167, 213)",
+          "fill": "rgb(249, 202, 156)",
+          "gray": false,
+          "key": "6:8",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(68, 68, 68)",
+          "fill": "rgb(180, 167, 213)",
+          "gray": false,
+          "key": "6:10",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(255, 0, 0)",
+          "gray": false,
+          "key": "6:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(68, 68, 68)",
+          "fill": "rgb(249, 202, 156)",
+          "gray": false,
+          "key": "6:13",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(52, 168, 83)",
+          "gray": false,
+          "key": "6:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(255, 0, 0)",
+          "gray": false,
+          "key": "6:24",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(68, 68, 68)",
+          "fill": "rgb(180, 167, 213)",
+          "gray": false,
+          "key": "5:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 57
+        },
+        {
+          "color": "rgb(255, 153, 0)",
+          "fill": "rgb(255, 255, 0)",
+          "gray": false,
+          "key": "5:11",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(180, 167, 213)",
+          "fill": "rgb(249, 202, 156)",
+          "gray": false,
+          "key": "5:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(255, 0, 0)",
+          "gray": false,
+          "key": "5:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(68, 68, 68)",
+          "fill": "rgb(249, 202, 156)",
+          "gray": false,
+          "key": "5:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(52, 168, 83)",
+          "gray": false,
+          "key": "5:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(255, 153, 0)",
+          "fill": "rgb(255, 255, 0)",
+          "gray": false,
+          "key": "4:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(68, 68, 68)",
+          "fill": "rgb(180, 167, 213)",
+          "gray": false,
+          "key": "4:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(255, 0, 0)",
+          "gray": false,
+          "key": "4:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(68, 68, 68)",
+          "fill": "rgb(249, 202, 156)",
+          "gray": false,
+          "key": "3:15",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(68, 68, 68)",
+          "fill": "rgb(249, 202, 156)",
+          "gray": false,
+          "key": "2:20",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        }
+      ],
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "3073.5",
+        "tick": "30735",
+        "versionId": "strumPick"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "30735",
+        "versionId": "strumPick"
+      },
+      "scripts": [
+        "https://mtch777.github.io/Guitar-Learning/assets/main-C5V5tK1e.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "summary": "29 positions across the whole riff",
+      "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick&view=static",
+      "view": "static",
+      "viewport": {
+        "height": 936,
+        "scrollWidth": 1348,
+        "width": 1363
+      },
+      "label": "static remains all colored",
+      "expectedMode": "static",
+      "expectedActiveIds": [],
+      "failures": []
+    },
+    {
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "view": "playback",
+        "visibleFretCount": "24"
+      },
+      "cells": [
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 64
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 59
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 40
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(255, 0, 0)",
+          "gray": false,
+          "key": "1:0",
+          "noteId": "141",
+          "open": true,
+          "pitch": 35
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(52, 168, 83)",
+          "gray": false,
+          "key": "0:0",
+          "noteId": "140",
+          "open": true,
+          "pitch": 28
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:3",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:5",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:1",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:7",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:8",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:10",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:13",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:24",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 57
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:11",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "3:15",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:20",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        }
+      ],
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "3073.5",
+        "tick": "30735",
+        "versionId": "strumPick"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "30735",
+        "versionId": "strumPick"
+      },
+      "scripts": [
+        "https://mtch777.github.io/Guitar-Learning/assets/main-C5V5tK1e.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "summary": "E1 R (S8:0) \u00b7 B1 5 (S7:0)",
+      "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick",
+      "view": "playback",
+      "viewport": {
+        "height": 936,
+        "scrollWidth": 1348,
+        "width": 1363
+      },
+      "label": "return to playback restores active subset",
+      "expectedMode": "active",
+      "expectedActiveIds": [
+        140,
+        141
+      ],
+      "failures": []
+    },
+    {
+      "board": {
+        "firstFret": "1",
+        "lastFret": "21",
+        "view": "playback",
+        "visibleFretCount": "21"
+      },
+      "cells": [
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 64
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 59
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 40
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "1:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 35
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "0:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 28
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "3:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 57
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:20",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        }
+      ],
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "optimized"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "versionId": "optimized"
+      },
+      "scripts": [
+        "https://mtch777.github.io/Guitar-Learning/assets/main-C5V5tK1e.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "summary": "\u2014",
+      "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=optimized",
+      "view": "playback",
+      "viewport": {
+        "height": 936,
+        "scrollWidth": 1348,
+        "width": 1363
+      },
+      "label": "optimized stopped",
+      "expectedMode": "empty",
+      "expectedActiveIds": [],
+      "failures": []
+    },
+    {
+      "board": {
+        "firstFret": "1",
+        "lastFret": "21",
+        "view": "playback",
+        "visibleFretCount": "21"
+      },
+      "cells": [
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 64
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 59
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 40
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "1:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 35
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "0:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 28
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(255, 0, 0)",
+          "gray": false,
+          "key": "7:19",
+          "noteId": "31",
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(52, 168, 83)",
+          "gray": false,
+          "key": "6:17",
+          "noteId": "30",
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "3:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 57
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:20",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        }
+      ],
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "705",
+        "tick": "7050",
+        "versionId": "optimized"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "7050",
+        "versionId": "optimized"
+      },
+      "scripts": [
+        "https://mtch777.github.io/Guitar-Learning/assets/main-C5V5tK1e.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "summary": "E5 R (S2:17) \u00b7 B5 5 (S1:19)",
+      "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=optimized",
+      "view": "playback",
+      "viewport": {
+        "height": 936,
+        "scrollWidth": 1348,
+        "width": 1363
+      },
+      "label": "optimized held dyad",
+      "expectedMode": "active",
+      "expectedActiveIds": [
+        30,
+        31
+      ],
+      "failures": []
+    },
+    {
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "view": "playback",
+        "visibleFretCount": "19"
+      },
+      "cells": [
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 64
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 59
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 40
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "1:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 35
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "0:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 28
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:3",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:5",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:7",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:8",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:1",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:7",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 57
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "3:15",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        }
+      ],
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "greedy"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "versionId": "greedy"
+      },
+      "scripts": [
+        "https://mtch777.github.io/Guitar-Learning/assets/main-C5V5tK1e.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "summary": "\u2014",
+      "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=greedy",
+      "view": "playback",
+      "viewport": {
+        "height": 936,
+        "scrollWidth": 1348,
+        "width": 1363
+      },
+      "label": "greedy stopped",
+      "expectedMode": "empty",
+      "expectedActiveIds": [],
+      "failures": []
+    },
+    {
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "view": "playback",
+        "visibleFretCount": "19"
+      },
+      "cells": [
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 64
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 59
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 40
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "1:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 35
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "0:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 28
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:3",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:5",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:7",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:8",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(255, 0, 0)",
+          "gray": false,
+          "key": "7:19",
+          "noteId": "31",
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:1",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:7",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(52, 168, 83)",
+          "gray": false,
+          "key": "6:17",
+          "noteId": "30",
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 57
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "3:15",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        }
+      ],
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "705",
+        "tick": "7050",
+        "versionId": "greedy"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "7050",
+        "versionId": "greedy"
+      },
+      "scripts": [
+        "https://mtch777.github.io/Guitar-Learning/assets/main-C5V5tK1e.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "summary": "E5 R (S2:17) \u00b7 B5 5 (S1:19)",
+      "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=greedy",
+      "view": "playback",
+      "viewport": {
+        "height": 936,
+        "scrollWidth": 1348,
+        "width": 1363
+      },
+      "label": "greedy held dyad",
+      "expectedMode": "active",
+      "expectedActiveIds": [
+        30,
+        31
+      ],
+      "failures": []
+    },
+    {
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "view": "playback",
+        "visibleFretCount": "24"
+      },
+      "cells": [
+        {
+          "color": "rgb(0, 0, 0)",
+          "fill": "rgb(52, 168, 83)",
+          "gray": false,
+          "key": "7:0",
+          "noteId": "104",
+          "open": true,
+          "pitch": 64
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 59
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 40
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "1:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 35
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "0:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 28
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:3",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:5",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:1",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:7",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:8",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:10",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:13",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:24",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 57
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:11",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "3:15",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:20",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        }
+      ],
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "2318.3",
+        "tick": "23183",
+        "versionId": "strumPick"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "23183",
+        "versionId": "strumPick"
+      },
+      "scripts": [
+        "https://mtch777.github.io/Guitar-Learning/assets/main-C5V5tK1e.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "summary": "E4 R (S1:0)",
+      "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick",
+      "view": "playback",
+      "viewport": {
+        "height": 936,
+        "scrollWidth": 1348,
+        "width": 1363
+      },
+      "label": "live playback sample",
+      "expectedMode": "active",
+      "expectedActiveIds": [
+        104
+      ],
+      "failures": []
+    },
+    {
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "view": "playback",
+        "visibleFretCount": "24"
+      },
+      "cells": [
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 64
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 59
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 40
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "1:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 35
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "0:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 28
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:3",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:5",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:1",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:7",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:8",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:10",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:13",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:24",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 57
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:11",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "3:15",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:20",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        }
+      ],
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "3780.6",
+        "tick": "37806",
+        "versionId": "strumPick"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "37806",
+        "versionId": "strumPick"
+      },
+      "scripts": [
+        "https://mtch777.github.io/Guitar-Learning/assets/main-C5V5tK1e.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "summary": "\u2014",
+      "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick",
+      "view": "playback",
+      "viewport": {
+        "height": 936,
+        "scrollWidth": 1348,
+        "width": 1363
+      },
+      "label": "paused preserves gray overview",
+      "expectedMode": "empty",
+      "expectedActiveIds": [],
+      "failures": []
+    },
+    {
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "view": "playback",
+        "visibleFretCount": "24"
+      },
+      "cells": [
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 64
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 59
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 40
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "1:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 35
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "0:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 28
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:3",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:5",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:1",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:7",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:8",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:10",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:13",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:24",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 57
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:11",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "3:15",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:20",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        }
+      ],
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4608",
+        "tick": "46080",
+        "versionId": "strumPick"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "46080",
+        "versionId": "strumPick"
+      },
+      "scripts": [
+        "https://mtch777.github.io/Guitar-Learning/assets/main-C5V5tK1e.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "summary": "\u2014",
+      "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick",
+      "view": "playback",
+      "viewport": {
+        "height": 936,
+        "scrollWidth": 1348,
+        "width": 1363
+      },
+      "label": "natural end keeps full gray overview",
+      "expectedMode": "empty",
+      "expectedActiveIds": [],
+      "failures": []
+    },
+    {
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "view": "playback",
+        "visibleFretCount": "24"
+      },
+      "cells": [
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 64
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 59
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 40
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "1:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 35
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "0:0",
+          "noteId": null,
+          "open": true,
+          "pitch": 28
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:3",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:5",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "7:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:1",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:7",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:8",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:10",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:13",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "6:24",
+          "noteId": null,
+          "open": false,
+          "pitch": 83
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:2",
+          "noteId": null,
+          "open": false,
+          "pitch": 57
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:11",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:12",
+          "noteId": null,
+          "open": false,
+          "pitch": 67
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:17",
+          "noteId": null,
+          "open": false,
+          "pitch": 72
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "5:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 76
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:16",
+          "noteId": null,
+          "open": false,
+          "pitch": 66
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:19",
+          "noteId": null,
+          "open": false,
+          "pitch": 69
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "4:21",
+          "noteId": null,
+          "open": false,
+          "pitch": 71
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "3:15",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "fill": "rgb(191, 195, 202)",
+          "gray": true,
+          "key": "2:20",
+          "noteId": null,
+          "open": false,
+          "pitch": 60
+        }
+      ],
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "scripts": [
+        "https://mtch777.github.io/Guitar-Learning/assets/main-C5V5tK1e.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "summary": "\u2014",
+      "url": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick",
+      "view": "playback",
+      "viewport": {
+        "height": 936,
+        "scrollWidth": 1348,
+        "width": 1363
+      },
+      "label": "final handoff stopped at zero",
+      "expectedMode": "empty",
+      "expectedActiveIds": [],
+      "failures": []
+    }
+  ],
+  "timeLessonExit": {
+    "grayCount": 0,
+    "lesson": "timeSoloChords",
+    "title": "Quiz"
+  },
+  "finalGeometry": {
+    "board": {
+      "height": 420,
+      "width": 1270,
+      "x": 66,
+      "y": 436.828125
+    },
+    "openStrings": 8,
+    "scrollWidth": 1348,
+    "viewportWidth": 1363
+  },
+  "screenshot": {
+    "path": "composition-lab/fretboard-gray-playback.jpg",
+    "frame": "held E5 and next B5",
+    "nativeTick": 7050,
+    "bytes": 137233,
+    "sha256": "4eda19707b88c8e4b422e49a2083ae09873d03c2e99387f2cea67c7333b71b43"
+  },
+  "publication": {
+    "sourceCommit": "ddc4b8c6738b55883c12187a879ecb5631fa7f81",
+    "testedLocalCommit": "e0be0d986c74b136be2a018e4ef07e7ced7f81ea",
+    "testedTree": "7aa7a7fc0b5e5ae6043c6262daeda715134d63ee",
+    "ghPagesCommit": "2a32a71bf9c8bb6d66291459a7d6efbd07b3a0c8",
+    "workflows": [
+      {
+        "id": 43812391012,
+        "name": "Pages source",
+        "conclusion": "success"
+      },
+      {
+        "id": 43812483820,
+        "name": "Pages deployment",
+        "conclusion": "success"
+      }
+    ],
+    "servedBytesMatchLocal": true,
+    "main": {
+      "name": "main-C5V5tK1e.js",
+      "bytes": 139865,
+      "sha256": "060d2bc59d16face81b344af3cedd369c7913e65226586367ec9e1046ad420b1"
+    },
+    "index": {
+      "bytes": 19235,
+      "sha256": "0e2a8684de80f85d86611ad628c3c56629aed1fefb4e7c5bf5c02c90a82c5f2a"
+    },
+    "fixtureData": {
+      "bytes": 908248,
+      "sha256": "f35cb3b5134322e5ae0ec9742bd4a797163a5947b471ca20ef13301277779790"
+    },
+    "microphonePreflight": "Not triggered by the changed paths; no dispatch needed for the scoped renderer change."
+  },
+  "verification": {
+    "javascriptTests": {
+      "passed": 173,
+      "skipped": 0
+    },
+    "focusedSelectorTests": {
+      "passed": 10,
+      "skipped": 0
+    },
+    "productionBuild": "pass",
+    "diffWhitespace": "pass",
+    "limitations": "Desktop presentation and timed contact behavior checked; no phone rendering or musical listening acceptance claimed."
+  },
+  "independentAudit": {
+    "result": "pass",
+    "observations": 14,
+    "cellStateChecks": 356,
+    "discrepancies": 0,
+    "sourceAndAllNineAssignmentsMatchRepo": true,
+    "verified": [
+      "exact used-position union",
+      "pitch/string/fret join",
+      "active occurrence IDs",
+      "gray classes",
+      "computed interval/gray fill and text colors",
+      "held-note release and open dyad",
+      "Static roundtrip",
+      "mapping-specific fixed bounds",
+      "Pause and natural endpoint 46080",
+      "final stopped zero",
+      "Time lesson cleanup",
+      "desktop viewport fit and eight open cells",
+      "screenshot high dyad at native tick 7050"
+    ]
+  }
+}
