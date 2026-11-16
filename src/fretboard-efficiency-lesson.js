@@ -11,7 +11,8 @@ export function efficiencySelectionFromSearch(search) {
     selected: params.get('lesson') === EFFICIENCY_LESSON_ID,
     fixtureId: BUILT_IN_FIXTURE_IDS.includes(params.get('riff'))
       ? params.get('riff') : BUILT_IN_FIXTURE_IDS[0],
-    versionId: MAPPING_IDS.includes(params.get('mapping')) ? params.get('mapping') : 'optimized'
+    versionId: MAPPING_IDS.includes(params.get('mapping')) ? params.get('mapping') : 'optimized',
+    view: params.get('view') === 'static' ? 'static' : 'playback'
   };
 }
 
@@ -46,15 +47,28 @@ export function efficiencyFretRange(version) {
   return { first: 1, last: Math.min(24, highestFret) };
 }
 
-export function setupFretboardEfficiencyLesson({ player, isSelected, onSelection }) {
+export function efficiencyStaticNotes(version) {
+  const contacts = new Map();
+  for (const assignment of version?.assignments || []) {
+    const key = `${assignment.string_number}|${assignment.fret}`;
+    if (!contacts.has(key)) {
+      contacts.set(key, { string: 9 - assignment.string_number, fret: assignment.fret });
+    }
+  }
+  return [...contacts.values()];
+}
+
+export function setupFretboardEfficiencyLesson({ player, isSelected, onSelection, onViewChange }) {
   const initial = efficiencySelectionFromSearch(window.location.search);
   const fixtureSelect = document.getElementById('fretboardEfficiencyRiff');
   const versionSelect = document.getElementById('fretboardEfficiencyMapping');
+  const viewSelect = document.getElementById('fretboardEfficiencyView');
   const status = document.getElementById('songPlayerStatus');
   const info = document.getElementById('fretboardEfficiencyInfo');
   const link = document.getElementById('fretboardEfficiencyLink');
   fixtureSelect.value = initial.fixtureId;
   versionSelect.value = initial.versionId;
+  viewSelect.value = initial.view;
   let request = 0;
   let dataPromise;
   const uploadedFixtures = new Map();
@@ -67,6 +81,8 @@ export function setupFretboardEfficiencyLesson({ player, isSelected, onSelection
     url.searchParams.set('lesson', EFFICIENCY_LESSON_ID);
     url.searchParams.set('riff', fixtureSelect.value);
     url.searchParams.set('mapping', versionSelect.value);
+    if (viewSelect.value === 'static') url.searchParams.set('view', 'static');
+    else url.searchParams.delete('view');
     link.href = url.href;
     if (isSelected()) window.history.replaceState(null, '', url);
   }
@@ -143,6 +159,10 @@ export function setupFretboardEfficiencyLesson({ player, isSelected, onSelection
 
   fixtureSelect.addEventListener('change', activate);
   versionSelect.addEventListener('change', activate);
+  viewSelect.addEventListener('change', () => {
+    updateLink();
+    if (isSelected()) onViewChange?.();
+  });
   updateLink();
   return {
     activate,
@@ -166,7 +186,7 @@ export function setupFretboardEfficiencyLesson({ player, isSelected, onSelection
       versionSelect.disabled = false;
       const url = new URL(window.location.href);
       if (url.searchParams.get('lesson') === EFFICIENCY_LESSON_ID) {
-        ['lesson', 'riff', 'mapping'].forEach(key => url.searchParams.delete(key));
+        ['lesson', 'riff', 'mapping', 'view'].forEach(key => url.searchParams.delete(key));
         window.history.replaceState(null, '', url);
       }
     },

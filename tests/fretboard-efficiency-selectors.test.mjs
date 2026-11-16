@@ -6,7 +6,8 @@ import {
   efficiencySelectionFromSearch,
   efficiencySourceTick,
   efficiencyPositionAtTick,
-  efficiencyFretRange
+  efficiencyFretRange,
+  efficiencyStaticNotes
 } from '../src/fretboard-efficiency-lesson.js';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
@@ -21,12 +22,14 @@ function selectFromHtml(id) {
   const options = [...content.matchAll(/<option value="([^"]+)"[^>]*>([^<]+)<\/option>/g)]
     .map(([, value, label]) => ({ value, textContent: label }));
   let selected = options[0]?.value || '';
+  const listeners = new Map();
   return {
     options, disabled: false,
     get value() { return selected; },
     set value(value) { selected = options.some(option => option.value === value) ? value : ''; },
     add(option) { options.push(option); },
-    addEventListener() {}
+    addEventListener(name, callback) { listeners.set(name, callback); },
+    fire(name) { listeners.get(name)?.(); }
   };
 }
 
@@ -34,10 +37,11 @@ function mount(search, bundle = data) {
   const fields = {
     fretboardEfficiencyRiff: selectFromHtml('fretboardEfficiencyRiff'),
     fretboardEfficiencyMapping: selectFromHtml('fretboardEfficiencyMapping'),
+    fretboardEfficiencyView: selectFromHtml('fretboardEfficiencyView'),
     songPlayerStatus: {}, fretboardEfficiencyInfo: {}, fretboardEfficiencyLink: {}
   };
   const location = new URL('https://example.test/Guitar-Learning/' + search);
-  const loads = [], selections = [], requests = [];
+  const loads = [], selections = [], requests = [], viewChanges = [];
   const context = vm.createContext({
     URL, URLSearchParams,
     Option: function (label, value) { this.textContent = label; this.value = value; },
@@ -49,9 +53,10 @@ function mount(search, bundle = data) {
   const lesson = context.setupFretboardEfficiencyLesson({
     isSelected: () => true,
     onSelection: (fixture, version) => selections.push({ fixture, version }),
+    onViewChange: () => viewChanges.push(fields.fretboardEfficiencyView.value),
     player: { loadFretboardEfficiency: async (fixture, versionId) => { loads.push({ fixture, versionId }); } }
   });
-  return { lesson, fields, loads, selections, requests, location };
+  return { lesson, fields, loads, selections, requests, viewChanges, location };
 }
 
 test('the real lesson selector corresponds to every published built-in fixture, including MIDI rewrite', () => {
@@ -91,16 +96,32 @@ for (const fixtureId of ['cfa029a2', 'da80eca9', 'c5a35486']) {
       assert.deepEqual(harness.requests, ['/Guitar-Learning/data/fretboard-efficiency-fixtures.json']);
       assert.equal(harness.fields.fretboardEfficiencyRiff.disabled, false);
       assert.equal(harness.fields.fretboardEfficiencyMapping.disabled, false);
+      assert.equal(harness.fields.fretboardEfficiencyView.value, 'playback');
+      harness.fields.fretboardEfficiencyView.value = 'static';
+      harness.fields.fretboardEfficiencyView.fire('change');
+      assert.equal(new URL(harness.fields.fretboardEfficiencyLink.href).searchParams.get('view'), 'static');
+      assert.deepEqual(harness.viewChanges, ['static']);
+      assert.equal(harness.loads.length, 1, 'Changing the view must not reload the score');
+      const shared = mount(new URL(harness.fields.fretboardEfficiencyLink.href).search);
+      await shared.lesson.activate();
+      assert.equal(shared.fields.fretboardEfficiencyView.value, 'static');
+      assert.equal(shared.loads[0].versionId, versionId);
+      harness.fields.fretboardEfficiencyView.value = 'playback';
+      harness.fields.fretboardEfficiencyView.fire('change');
+      assert.equal(new URL(harness.fields.fretboardEfficiencyLink.href).searchParams.has('view'), false);
+      assert.equal(harness.loads.length, 1);
+      shared.lesson.deactivate();
+      assert.equal(shared.location.searchParams.has('view'), false);
     }
   });
 }
 
 test('default Time lesson and A/optimized fallback remain unchanged', () => {
   assert.deepEqual(efficiencySelectionFromSearch(''), {
-    selected: false, fixtureId: 'cfa029a2', versionId: 'optimized'
+    selected: false, fixtureId: 'cfa029a2', versionId: 'optimized', view: 'playback'
   });
   assert.deepEqual(efficiencySelectionFromSearch('?lesson=fretboardEfficiency&riff=missing&mapping=missing'), {
-    selected: true, fixtureId: 'cfa029a2', versionId: 'optimized'
+    selected: true, fixtureId: 'cfa029a2', versionId: 'optimized', view: 'playback'
   });
   assert.match(html, /<option value="timeSoloChords" selected>/);
 });
@@ -202,12 +223,12 @@ test('missing adjacency diagnostics are unavailable rather than zero in the less
   assert.match(harness.fields.fretboardEfficiencyInfo.textContent, /— rapid single-note string skips/);
 });
 
-test('the actual trainer viewport keeps every mapping fixed through playback, seeking and empty states, with source-clock labels', () => {
+test('the actual trainer keeps fixed bounds and the selected static union through playback, seeking and empty states', () => {
   assert.ok(data.fixtures.some(fixture => fixture.id === 'c5a35486'), 'C is required for the clock regression');
   assert.doesNotMatch(html, /id="fretboardEfficiencyRange"/);
   const trainer = readFileSync(new URL('../src/trainer.js', import.meta.url), 'utf8');
   const begin = trainer.indexOf('function updateEfficiencyViewport(');
-  const end = trainer.indexOf('function displaySongPlayerNotes(', begin);
+  const end = trainer.indexOf('function renderTimedTimeSoloSections(', begin);
   assert.ok(begin >= 0 && end > begin);
   for (const fixture of data.fixtures) {
     const board = {
@@ -215,27 +236,41 @@ test('the actual trainer viewport keeps every mapping fixed through playback, se
       querySelector: () => ({ classList: { toggle() {} } }), querySelectorAll: () => []
     };
     const stage = { classList: { toggle() {} } };
-    const caption = {};
+    const caption = {}, heading = {}, answer = {}, view = { value: 'playback' };
     const cells = new Map();
     for (let string = 0; string < 8; string++) {
       for (let fret = 0; fret <= 24; fret++) {
-        cells.set(`${string}|${fret}`, { dataset: { fret: String(fret) }, style: {}, hidden: false });
+        const pitch = [28, 35, 40, 45, 50, 55, 59, 64][string] + fret;
+        cells.set(`${string}|${fret}`, {
+          dataset: { fret: String(fret), absolutePitch: String(pitch), scientificPitch: String(pitch) },
+          classList: { add() {}, remove() {}, contains() { return false; } },
+          style: { removeProperty() {} }, hidden: false, revealed: false
+        });
       }
     }
-    let lookupTick, sizingCalls = 0;
+    let lookupTick, sizingCalls = 0, selectedLesson = 'fretboardEfficiency';
     const context = vm.createContext({
       EFFICIENCY_LESSON_ID: 'fretboardEfficiency',
-      getSelectedLessonType: () => 'fretboardEfficiency',
+      getSelectedLessonType: () => selectedLesson,
       document: {
-        querySelector: selector => selector === '.physicalFretboard' ? board : stage,
-        getElementById: () => caption
+        querySelector: selector => selector === '.physicalFretboard' ? board :
+          selector === '.fretboardStage' ? stage : heading,
+        getElementById: id => ({ fretboardEfficiencyView: view,
+          fretboardEfficiencyWindow: caption, answerNote: answer })[id]
       },
       fretboardEfficiencyFixture: fixture,
       fretboardEfficiencyVersion: null,
       fretboardEfficiencyTick: 0,
       songPlayerCells: cells,
+      songPlayerActiveCells: new Set(), songPlayerLastNotes: [], songPlayerStringOffset: 0,
+      makeCellKey: (string, fret) => `${string}|${fret}`,
+      clearSongPlayerBendVisuals() {},
+      hideCell(cell) { cell.revealed = false; },
+      revealCell(cell, interval) { cell.revealed = true; cell.interval = interval; },
+      midiToPitchClass: pitch => pitch % 12,
+      getIntervalForPitch: (pitch, root) => String((pitch - root + 12) % 12),
       currentTuning: [28, 35, 40, 45, 50, 55, 59, 64],
-      efficiencySourceTick, efficiencyFretRange,
+      efficiencySourceTick, efficiencyFretRange, efficiencyStaticNotes,
       efficiencyPositionAtTick(version, tick) {
         lookupTick = tick;
         return efficiencyPositionAtTick(version, tick);
@@ -244,6 +279,7 @@ test('the actual trainer viewport keeps every mapping fixed through playback, se
     });
     vm.runInContext(trainer.slice(begin, end), context);
     for (const version of fixture.versions) {
+      view.value = 'playback';
       context.fretboardEfficiencyVersion = version;
       const assignments = new Map(version.assignments.map(item => [item.note_id, item]));
       const highestFret = Math.max(...version.assignments.map(item => item.fret));
@@ -270,8 +306,8 @@ test('the actual trainer viewport keeps every mapping fixed through playback, se
         const sourceTick = nativeTick * fixture.ticks_per_beat / 960;
         context.fretboardEfficiencyTick = nativeTick;
         const notes = fixture.notes.filter(note => note.start_tick <= sourceTick && sourceTick < note.end_tick)
-          .map(note => ({ string: 9 - assignments.get(note.id).string_number, fret: assignments.get(note.id).fret }));
-        context.updateEfficiencyViewport(notes);
+          .map(note => ({ note_id: note.id, string: 9 - assignments.get(note.id).string_number, fret: assignments.get(note.id).fret }));
+        context.displaySongPlayerNotes(notes);
         if (fixedGeometry === undefined) {
           fixedGeometry = geometry();
           fixedSizingCalls = sizingCalls;
@@ -291,6 +327,43 @@ test('the actual trainer viewport keeps every mapping fixed through playback, se
         assert.equal(cells.get(`${8 - assignment.string_number}|${assignment.fret}`).hidden, false,
           `${fixture.id}/${version.id}: every assigned contact fits at once`);
       }
+      const displayedKeys = () => [...cells].filter(([, cell]) => cell.revealed).map(([key]) => key).sort();
+      const expectedUnion = [...new Set(version.assignments.map(item => `${8 - item.string_number}|${item.fret}`))].sort();
+      const lastTransportFrame = context.songPlayerLastNotes;
+      view.value = 'static';
+      context.displaySongPlayerNotes(context.songPlayerLastNotes);
+      assert.equal(context.songPlayerLastNotes, lastTransportFrame, 'Static rendering must not replace the transport frame');
+      assert.deepEqual(displayedKeys(), expectedUnion);
+      assert.equal(answer.textContent, `${expectedUnion.length} positions across the whole riff`);
+      assert.equal(heading.textContent, 'Static');
+      assert.doesNotMatch(caption.textContent, /Hand position/);
+      for (const tick of [highSeekTick, nativeTick(fixture.duration_ticks), 0]) {
+        context.fretboardEfficiencyTick = tick;
+        const notes = fixture.notes.filter(note => nativeTick(note.start_tick) <= tick && tick < nativeTick(note.end_tick))
+          .map(note => ({ note_id: note.id, string: 9 - assignments.get(note.id).string_number, fret: assignments.get(note.id).fret }));
+        context.displaySongPlayerNotes(notes);
+        assert.equal(context.songPlayerLastNotes, notes);
+        assert.deepEqual(displayedKeys(), expectedUnion);
+        assertFixed();
+      }
+      context.displaySongPlayerNotes([]);
+      assert.deepEqual(displayedKeys(), expectedUnion, 'Pause/stop callbacks must retain the static union');
+      assertFixed();
+      view.value = 'playback';
+      context.displaySongPlayerNotes(context.songPlayerLastNotes);
+      assert.deepEqual(displayedKeys(), []);
+      assert.equal(heading.textContent, 'Playing');
+      const playing = [{ string: 9 - highestAssignment.string_number, fret: highestFret }];
+      context.displaySongPlayerNotes(playing);
+      assert.deepEqual(displayedKeys(), [`${8 - highestAssignment.string_number}|${highestFret}`]);
+      view.value = 'static';
+      context.displaySongPlayerNotes(context.songPlayerLastNotes);
+      assert.deepEqual(displayedKeys(), expectedUnion);
+      selectedLesson = 'songPlayer';
+      context.displaySongPlayerNotes(playing);
+      assert.deepEqual(displayedKeys(), [`${8 - highestAssignment.string_number}|${highestFret}`],
+        'Static preference must not change other lessons');
+      selectedLesson = 'fretboardEfficiency';
       if (fixture.id === 'c5a35486' && version.id === 'strumPick') assert.equal(highestFret, 24);
     }
     assert.equal(efficiencySourceTick(1000, fixture.ticks_per_beat), fixture.id === 'c5a35486' ? 100 : 1000);

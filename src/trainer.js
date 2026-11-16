@@ -7,6 +7,7 @@ import {
   efficiencySourceTick,
   efficiencyPositionAtTick,
   efficiencyFretRange,
+  efficiencyStaticNotes,
   setupFretboardEfficiencyLesson
 } from "./fretboard-efficiency-lesson.js";
 import {
@@ -10384,7 +10385,10 @@ function updateEfficiencyViewport(notes) {
   const stage = document.querySelector('.fretboardStage');
   if (!board || !stage) return;
   const sourceTick = efficiencySourceTick(fretboardEfficiencyTick, fretboardEfficiencyFixture?.ticks_per_beat);
-  const frame = efficiencyPositionAtTick(fretboardEfficiencyVersion, sourceTick);
+  const staticView = document.getElementById('fretboardEfficiencyView')?.value === 'static';
+  const frame = staticView ? null : efficiencyPositionAtTick(fretboardEfficiencyVersion, sourceTick);
+  board.dataset.view = staticView ? 'static' : 'playback';
+  document.querySelector('.promptSectionTitle').textContent = staticView ? 'Static' : 'Playing';
   const range = efficiencyFretRange(fretboardEfficiencyVersion);
   const count = range.last - range.first + 1;
   if (Number(board.dataset.firstFret) !== range.first || Number(board.dataset.lastFret) !== range.last) {
@@ -10429,6 +10433,10 @@ function displaySongPlayerNotes(
     return;
   }
 
+  const staticView = getSelectedLessonType() === EFFICIENCY_LESSON_ID &&
+    document.getElementById('fretboardEfficiencyView')?.value === 'static';
+  const displayNotes = staticView ? efficiencyStaticNotes(fretboardEfficiencyVersion) : (notes || []);
+
   songPlayerActiveCells
     .forEach(
       cell => {
@@ -10458,16 +10466,13 @@ function displaySongPlayerNotes(
   const activeLabels =
     [];
 
-  (
-    notes ||
-    []
-  ).forEach(
+  displayNotes.forEach(
     note => {
       // Both alphaTab and the trainer number strings lowest to highest.
       // Align notes with the same upper strings used by applySongPlayerTrack.
       // Six/seven-string tracks skip the extra two/one bass strings.
       const stringIndex =
-        songPlayerStringOffset + Number(note.string) - 1;
+        (staticView ? 0 : songPlayerStringOffset) + Number(note.string) - 1;
 
       const fret =
         Number(
@@ -10561,8 +10566,9 @@ function displaySongPlayerNotes(
     answerDisplay.className =
       'songPlayerPrompt';
 
-    if (getSelectedLessonType()!=='timeSoloChords') answerDisplay.textContent =
-      activeLabels.length ? activeLabels.join(' · ') : '—';
+    if (getSelectedLessonType()!=='timeSoloChords') answerDisplay.textContent = staticView
+      ? `${displayNotes.length} positions across the whole riff`
+      : (activeLabels.length ? activeLabels.join(' · ') : '—');
   }
 }
 
@@ -10706,6 +10712,7 @@ function applySongPlayerTrack({
         name ||
         'Ready';
     }
+    if (getSelectedLessonType() === EFFICIENCY_LESSON_ID) displaySongPlayerNotes(songPlayerLastNotes);
   }
 }
 
@@ -10790,6 +10797,7 @@ if (songPlayerController) {
   fretboardEfficiencyLesson = setupFretboardEfficiencyLesson({
     player: songPlayerController,
     isSelected: () => getSelectedLessonType() === EFFICIENCY_LESSON_ID,
+    onViewChange: () => displaySongPlayerNotes(songPlayerLastNotes),
     onSelection: (fixture, version) => {
       fretboardEfficiencyFixture = fixture;
       fretboardEfficiencyVersion = version;
@@ -10799,6 +10807,9 @@ if (songPlayerController) {
       controls.dataset.versionId = version.id;
       controls.dataset.tick = '0';
       controls.dataset.sourceTick = '0';
+      if (document.getElementById('fretboardEfficiencyView').value === 'static') {
+        displaySongPlayerNotes(songPlayerLastNotes);
+      }
     }
   });
   if (getSelectedLessonType() === EFFICIENCY_LESSON_ID) fretboardEfficiencyLesson.activate();

@@ -1,6 +1,19 @@
 # Drop E fretboard efficiency
 
-## Current delivery: edited MIDI rewrite (2) — 2026-11-15
+## Current delivery: Static whole-riff view — 2026-11-15
+
+User request: show every note played anywhere in the riff at once, labelled **Static**, so the complete fretboard pattern is visible. Add a Playback / Static view choice to the existing Fretboard Efficiency lesson. Static uses the selected fingering's actual assigned string/fret positions, with repeated occurrences at one position shown once. The fixed full fret range and interval labels remain in use. The original three mappings and MIDI events are the source of the view, not new optimization work.
+
+- [x] Inspect the existing renderer, current published revision and actual assignment unions. C has 18 / 15 / 29 unique positions for greedy / optimized / strumPick, including five open-string positions in each.
+- [x] Add the Static view, preserve it in the lesson link, and update it on riff/fingering changes without stale markers.
+- [x] Verify existing relevant controls/rendering/native checks and production build; confirm the frozen mapping data and exports are unchanged.
+- [ ] Publish and verify the served lesson; inspect Static, toggle back to Playback, seek/stop, and hand off a checked Static screenshot and link.
+
+Root owns the progress record, independent assignment counts, integration/review, publication and live verification. UI owner owns the existing selector and rendering code plus necessary updates to existing expectations. The decisive counterexamples are repeated notes at one contact, multiple assigned positions for the same pitch, stale cells after changing fingering, and player callbacks clearing the overview. Static must show exactly the union of actual assignments, retain it during transport changes, and restore normal behavior in Playback and other lessons. This presentation request does not reopen historical Composition Lab generation work or require musical listening acceptance.
+
+The existing renderer now uses a contact union only for Static; its saved transport frame remains separate. Changing the view repaints and updates the share link without reloading the score or resetting the playhead. The Static header reports the number of positions, while time-specific hand/shape labels are omitted from the overview. Source inspection and independent contact counts agree for all nine mappings. Existing JavaScript release checks pass **173/173, zero skips**, including exact rendered unions, view/URL switching, empty callbacks and restoration of normal rendering. Production build and whitespace checks pass. Frozen source MIDI, mapping data and exports are unchanged. Main asset: `main-NiOTlDa3.js`, SHA-256 `bea9e4692810c634ba0b52a4e31eb1689d2bc66c3ed031756a270726447a69fa`. Live deployment verification remains the final gate.
+
+## Previous delivery: edited MIDI rewrite (2) — 2026-11-15
 
 User request: update the existing fingering versions to use the attached `2026-11-15 midi rewrite(2).mid`. Replace C's active source and regenerate its greedy, optimized and strumPick results under the existing `c5a35486` lesson identifier and link. The identifier is stable across revisions; `source_sha256` identifies the actual current MIDI. Preserve A/B exactly and retain the accepted fixed full fret range.
 
