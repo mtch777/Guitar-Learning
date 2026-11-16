@@ -1,0 +1,4182 @@
+{
+  "schema": "fretboard-static-view-live-validation/v1",
+  "sourceCommit": "02fcb2c28c5752b5abfd0cc5ddeac3fc3a1e7c12",
+  "lessonUrl": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick&view=static",
+  "observations": [
+    {
+      "label": "C-strumPick-static-loaded",
+      "observedAt": "2026-11-16T04:55:57.752Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "view": "static",
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "heading": "Static",
+      "lesson": "fretboardEfficiency",
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R4",
+          "pitch": 64,
+          "stringIndex": 7
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "53",
+          "pitch": 59,
+          "stringIndex": 6
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R2",
+          "pitch": 40,
+          "stringIndex": 2
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "51",
+          "pitch": 35,
+          "stringIndex": 1
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R1",
+          "pitch": 28,
+          "stringIndex": 0
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 7
+        },
+        {
+          "fret": 3,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 7
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 7
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 7
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 7
+        },
+        {
+          "fret": 1,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 6
+        },
+        {
+          "fret": 7,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 6
+        },
+        {
+          "fret": 8,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 6
+        },
+        {
+          "fret": 10,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 6
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 6
+        },
+        {
+          "fret": 13,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 6
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 6
+        },
+        {
+          "fret": 24,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 6
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "43",
+          "pitch": 57,
+          "stringIndex": 5
+        },
+        {
+          "fret": 11,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 5
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 5
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 5
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 4
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 4
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 4
+        },
+        {
+          "fret": 15,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 3
+        },
+        {
+          "fret": 20,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 2
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "playDisabled": false,
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-NiOTlDa3.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "29 positions across the whole riff",
+      "view": "static",
+      "viewportWidth": 1348,
+      "exactUnionVerified": true
+    },
+    {
+      "label": "C-strumPick-static-seek",
+      "observedAt": "2026-11-16T04:55:58.099Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "view": "static",
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "705",
+        "tick": "7050",
+        "versionId": "strumPick"
+      },
+      "heading": "Static",
+      "lesson": "fretboardEfficiency",
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R4",
+          "pitch": 64,
+          "stringIndex": 7
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "53",
+          "pitch": 59,
+          "stringIndex": 6
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R2",
+          "pitch": 40,
+          "stringIndex": 2
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "51",
+          "pitch": 35,
+          "stringIndex": 1
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R1",
+          "pitch": 28,
+          "stringIndex": 0
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 7
+        },
+        {
+          "fret": 3,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 7
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 7
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 7
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 7
+        },
+        {
+          "fret": 1,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 6
+        },
+        {
+          "fret": 7,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 6
+        },
+        {
+          "fret": 8,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 6
+        },
+        {
+          "fret": 10,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 6
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 6
+        },
+        {
+          "fret": 13,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 6
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 6
+        },
+        {
+          "fret": 24,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 6
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "43",
+          "pitch": 57,
+          "stringIndex": 5
+        },
+        {
+          "fret": 11,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 5
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 5
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 5
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 4
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 4
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 4
+        },
+        {
+          "fret": 15,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 3
+        },
+        {
+          "fret": 20,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 2
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "playDisabled": false,
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "7050",
+        "value": "153",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-NiOTlDa3.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "29 positions across the whole riff",
+      "view": "static",
+      "viewportWidth": 1348,
+      "exactUnionVerified": true
+    },
+    {
+      "label": "C-strumPick-playback-same-tick",
+      "observedAt": "2026-11-16T04:55:58.350Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "view": "playback",
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed) \u00b7 Hand position 20 \u00b7 Adjacent-string power-chord shape",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "705",
+        "tick": "7050",
+        "versionId": "strumPick"
+      },
+      "heading": "Playing",
+      "lesson": "fretboardEfficiency",
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "fret": 24,
+          "hidden": false,
+          "interval": "55",
+          "noteId": "31",
+          "pitch": 83,
+          "stringIndex": 6
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "R5",
+          "noteId": "30",
+          "pitch": 76,
+          "stringIndex": 5
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "playDisabled": false,
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "7050",
+        "value": "153",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-NiOTlDa3.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "E5 R (S3:21) \u00b7 B5 5 (S2:24)",
+      "view": "playback",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "C-static-restored-same-tick",
+      "observedAt": "2026-11-16T04:56:21.169Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "view": "static",
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "705",
+        "tick": "7050",
+        "versionId": "strumPick"
+      },
+      "heading": "Static",
+      "lesson": "fretboardEfficiency",
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R4",
+          "pitch": 64,
+          "stringIndex": 7
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "53",
+          "pitch": 59,
+          "stringIndex": 6
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R2",
+          "pitch": 40,
+          "stringIndex": 2
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "51",
+          "pitch": 35,
+          "stringIndex": 1
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R1",
+          "pitch": 28,
+          "stringIndex": 0
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 7
+        },
+        {
+          "fret": 3,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 7
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 7
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 7
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 7
+        },
+        {
+          "fret": 1,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 6
+        },
+        {
+          "fret": 7,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 6
+        },
+        {
+          "fret": 8,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 6
+        },
+        {
+          "fret": 10,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 6
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 6
+        },
+        {
+          "fret": 13,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 6
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 6
+        },
+        {
+          "fret": 24,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 6
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "43",
+          "pitch": 57,
+          "stringIndex": 5
+        },
+        {
+          "fret": 11,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 5
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 5
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 5
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 4
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 4
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 4
+        },
+        {
+          "fret": 15,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 3
+        },
+        {
+          "fret": 20,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 2
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "playDisabled": false,
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "7050",
+        "value": "153",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-NiOTlDa3.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "29 positions across the whole riff",
+      "view": "static",
+      "viewportWidth": 1348,
+      "exactUnionVerified": true
+    },
+    {
+      "label": "C-static-retained-on-stop",
+      "observedAt": "2026-11-16T04:56:21.615Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "view": "static",
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "heading": "Static",
+      "lesson": "fretboardEfficiency",
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R4",
+          "pitch": 64,
+          "stringIndex": 7
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "53",
+          "pitch": 59,
+          "stringIndex": 6
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R2",
+          "pitch": 40,
+          "stringIndex": 2
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "51",
+          "pitch": 35,
+          "stringIndex": 1
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R1",
+          "pitch": 28,
+          "stringIndex": 0
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 7
+        },
+        {
+          "fret": 3,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 7
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 7
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 7
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 7
+        },
+        {
+          "fret": 1,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 6
+        },
+        {
+          "fret": 7,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 6
+        },
+        {
+          "fret": 8,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 6
+        },
+        {
+          "fret": 10,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 6
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 6
+        },
+        {
+          "fret": 13,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 6
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 6
+        },
+        {
+          "fret": 24,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 6
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "43",
+          "pitch": 57,
+          "stringIndex": 5
+        },
+        {
+          "fret": 11,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 5
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 5
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 5
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 4
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 4
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 4
+        },
+        {
+          "fret": 15,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 3
+        },
+        {
+          "fret": 20,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 2
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "playDisabled": false,
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-NiOTlDa3.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "29 positions across the whole riff",
+      "view": "static",
+      "viewportWidth": 1348,
+      "exactUnionVerified": true
+    },
+    {
+      "label": "C-optimized-static",
+      "observedAt": "2026-11-16T04:56:21.985Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "21",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "view": "static",
+        "visibleFretCount": "21"
+      },
+      "caption": "Open strings + frets 1\u201321 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "optimized"
+      },
+      "heading": "Static",
+      "lesson": "fretboardEfficiency",
+      "mapping": "optimized",
+      "notes": [
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R4",
+          "pitch": 64,
+          "stringIndex": 7
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "53",
+          "pitch": 59,
+          "stringIndex": 6
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R2",
+          "pitch": 40,
+          "stringIndex": 2
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "51",
+          "pitch": 35,
+          "stringIndex": 1
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R1",
+          "pitch": 28,
+          "stringIndex": 0
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 7
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 6
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 5
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 5
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 4
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 4
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 4
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 3
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "43",
+          "pitch": 57,
+          "stringIndex": 2
+        },
+        {
+          "fret": 20,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 2
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "playDisabled": false,
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "optimized"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-NiOTlDa3.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "15 positions across the whole riff",
+      "view": "static",
+      "viewportWidth": 1348,
+      "exactUnionVerified": true
+    },
+    {
+      "label": "C-greedy-static",
+      "observedAt": "2026-11-16T04:56:22.306Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "view": "static",
+        "visibleFretCount": "19"
+      },
+      "caption": "Open strings + frets 1\u201319 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "greedy"
+      },
+      "heading": "Static",
+      "lesson": "fretboardEfficiency",
+      "mapping": "greedy",
+      "notes": [
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R4",
+          "pitch": 64,
+          "stringIndex": 7
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "53",
+          "pitch": 59,
+          "stringIndex": 6
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R2",
+          "pitch": 40,
+          "stringIndex": 2
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "51",
+          "pitch": 35,
+          "stringIndex": 1
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R1",
+          "pitch": 28,
+          "stringIndex": 0
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 7
+        },
+        {
+          "fret": 3,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 7
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 7
+        },
+        {
+          "fret": 7,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 7
+        },
+        {
+          "fret": 8,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 7
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 7
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 7
+        },
+        {
+          "fret": 1,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 6
+        },
+        {
+          "fret": 7,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 6
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 6
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 6
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "43",
+          "pitch": 57,
+          "stringIndex": 5
+        },
+        {
+          "fret": 15,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 3
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "playDisabled": false,
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "greedy"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-NiOTlDa3.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "18 positions across the whole riff",
+      "view": "static",
+      "viewportWidth": 1348,
+      "exactUnionVerified": true
+    },
+    {
+      "label": "B-optimized-largest-static-union",
+      "observedAt": "2026-11-16T04:56:22.977Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "21",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "view": "static",
+        "visibleFretCount": "21"
+      },
+      "caption": "Open strings + frets 1\u201321 (fixed)",
+      "controls": {
+        "fixtureId": "da80eca9",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "optimized"
+      },
+      "heading": "Static",
+      "lesson": "fretboardEfficiency",
+      "mapping": "optimized",
+      "notes": [
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R4",
+          "pitch": 64,
+          "stringIndex": 7
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "53",
+          "pitch": 59,
+          "stringIndex": 6
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "42",
+          "pitch": 45,
+          "stringIndex": 3
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R2",
+          "pitch": 40,
+          "stringIndex": 2
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "51",
+          "pitch": 35,
+          "stringIndex": 1
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R1",
+          "pitch": 28,
+          "stringIndex": 0
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 7
+        },
+        {
+          "fret": 8,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 7
+        },
+        {
+          "fret": 10,
+          "hidden": false,
+          "interval": "b75",
+          "pitch": 74,
+          "stringIndex": 7
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 7
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 7
+        },
+        {
+          "fret": 8,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 6
+        },
+        {
+          "fret": 10,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 6
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 6
+        },
+        {
+          "fret": 13,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 6
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 6
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 5
+        },
+        {
+          "fret": 7,
+          "hidden": false,
+          "interval": "b74",
+          "pitch": 62,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 5
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 5
+        },
+        {
+          "fret": 7,
+          "hidden": false,
+          "interval": "43",
+          "pitch": 57,
+          "stringIndex": 4
+        },
+        {
+          "fret": 9,
+          "hidden": false,
+          "interval": "53",
+          "pitch": 59,
+          "stringIndex": 4
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "b74",
+          "pitch": 62,
+          "stringIndex": 4
+        },
+        {
+          "fret": 15,
+          "hidden": false,
+          "interval": "b24",
+          "pitch": 65,
+          "stringIndex": 4
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 4
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 4
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "43",
+          "pitch": 57,
+          "stringIndex": 3
+        },
+        {
+          "fret": 15,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 3
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "b74",
+          "pitch": 62,
+          "stringIndex": 3
+        },
+        {
+          "fret": 3,
+          "hidden": false,
+          "interval": "m32",
+          "pitch": 43,
+          "stringIndex": 2
+        },
+        {
+          "fret": 8,
+          "hidden": false,
+          "interval": "b63",
+          "pitch": 48,
+          "stringIndex": 2
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "43",
+          "pitch": 57,
+          "stringIndex": 2
+        },
+        {
+          "fret": 3,
+          "hidden": false,
+          "interval": "b72",
+          "pitch": 38,
+          "stringIndex": 1
+        },
+        {
+          "fret": 6,
+          "hidden": false,
+          "interval": "b22",
+          "pitch": 41,
+          "stringIndex": 1
+        },
+        {
+          "fret": 3,
+          "hidden": false,
+          "interval": "m31",
+          "pitch": 31,
+          "stringIndex": 0
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "41",
+          "pitch": 33,
+          "stringIndex": 0
+        },
+        {
+          "fret": 10,
+          "hidden": false,
+          "interval": "b72",
+          "pitch": 38,
+          "stringIndex": 0
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "playDisabled": false,
+      "progress": {
+        "durationTicks": "61920",
+        "fixtureId": "da80eca9",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "optimized"
+      },
+      "riff": "da80eca9",
+      "scripts": [
+        "/Guitar-Learning/assets/main-NiOTlDa3.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "37 positions across the whole riff",
+      "view": "static",
+      "viewportWidth": 1348,
+      "exactUnionVerified": true
+    },
+    {
+      "label": "C-strumPick-restored-after-switches",
+      "observedAt": "2026-11-16T04:56:23.655Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "view": "static",
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "heading": "Static",
+      "lesson": "fretboardEfficiency",
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R4",
+          "pitch": 64,
+          "stringIndex": 7
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "53",
+          "pitch": 59,
+          "stringIndex": 6
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R2",
+          "pitch": 40,
+          "stringIndex": 2
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "51",
+          "pitch": 35,
+          "stringIndex": 1
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R1",
+          "pitch": 28,
+          "stringIndex": 0
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 7
+        },
+        {
+          "fret": 3,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 7
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 7
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 7
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 7
+        },
+        {
+          "fret": 1,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 6
+        },
+        {
+          "fret": 7,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 6
+        },
+        {
+          "fret": 8,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 6
+        },
+        {
+          "fret": 10,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 6
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 6
+        },
+        {
+          "fret": 13,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 6
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 6
+        },
+        {
+          "fret": 24,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 6
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "43",
+          "pitch": 57,
+          "stringIndex": 5
+        },
+        {
+          "fret": 11,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 5
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 5
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 5
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 4
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 4
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 4
+        },
+        {
+          "fret": 15,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 3
+        },
+        {
+          "fret": 20,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 2
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "playDisabled": false,
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-NiOTlDa3.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "29 positions across the whole riff",
+      "view": "static",
+      "viewportWidth": 1348,
+      "exactUnionVerified": true
+    },
+    {
+      "label": "Time-lesson-restored",
+      "observedAt": "2026-11-16T04:56:40.259Z",
+      "board": {
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 374.4375
+        },
+        "timeCagedShape": "low-e"
+      },
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "heading": "Quiz",
+      "lesson": "timeSoloChords",
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "",
+          "pitch": 66,
+          "stringIndex": 7
+        },
+        {
+          "fret": 3,
+          "hidden": false,
+          "interval": "",
+          "pitch": 67,
+          "stringIndex": 7
+        },
+        {
+          "fret": 4,
+          "hidden": false,
+          "interval": "",
+          "pitch": 68,
+          "stringIndex": 7
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "",
+          "pitch": 69,
+          "stringIndex": 7
+        },
+        {
+          "fret": 7,
+          "hidden": false,
+          "interval": "",
+          "pitch": 71,
+          "stringIndex": 7
+        },
+        {
+          "fret": 9,
+          "hidden": false,
+          "interval": "",
+          "pitch": 73,
+          "stringIndex": 7
+        },
+        {
+          "fret": 14,
+          "hidden": false,
+          "interval": "",
+          "pitch": 78,
+          "stringIndex": 7
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "",
+          "pitch": 80,
+          "stringIndex": 7
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "",
+          "pitch": 81,
+          "stringIndex": 7
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "",
+          "pitch": 83,
+          "stringIndex": 7
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "",
+          "pitch": 61,
+          "stringIndex": 6
+        },
+        {
+          "fret": 3,
+          "hidden": false,
+          "interval": "",
+          "pitch": 62,
+          "stringIndex": 6
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "",
+          "pitch": 64,
+          "stringIndex": 6
+        },
+        {
+          "fret": 9,
+          "hidden": false,
+          "interval": "",
+          "pitch": 68,
+          "stringIndex": 6
+        },
+        {
+          "fret": 10,
+          "hidden": false,
+          "interval": "",
+          "pitch": 69,
+          "stringIndex": 6
+        },
+        {
+          "fret": 14,
+          "hidden": false,
+          "interval": "",
+          "pitch": 73,
+          "stringIndex": 6
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "",
+          "pitch": 76,
+          "stringIndex": 6
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "",
+          "pitch": 57,
+          "stringIndex": 5
+        },
+        {
+          "fret": 4,
+          "hidden": false,
+          "interval": "",
+          "pitch": 59,
+          "stringIndex": 5
+        },
+        {
+          "fret": 9,
+          "hidden": false,
+          "interval": "",
+          "pitch": 64,
+          "stringIndex": 5
+        },
+        {
+          "fret": 11,
+          "hidden": false,
+          "interval": "",
+          "pitch": 66,
+          "stringIndex": 5
+        },
+        {
+          "fret": 13,
+          "hidden": false,
+          "interval": "",
+          "pitch": 68,
+          "stringIndex": 5
+        },
+        {
+          "fret": 14,
+          "hidden": false,
+          "interval": "",
+          "pitch": 69,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "",
+          "pitch": 71,
+          "stringIndex": 5
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "",
+          "pitch": 52,
+          "stringIndex": 4
+        },
+        {
+          "fret": 4,
+          "hidden": false,
+          "interval": "",
+          "pitch": 54,
+          "stringIndex": 4
+        },
+        {
+          "fret": 6,
+          "hidden": false,
+          "interval": "",
+          "pitch": 56,
+          "stringIndex": 4
+        },
+        {
+          "fret": 9,
+          "hidden": false,
+          "interval": "",
+          "pitch": 59,
+          "stringIndex": 4
+        },
+        {
+          "fret": 11,
+          "hidden": false,
+          "interval": "",
+          "pitch": 61,
+          "stringIndex": 4
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "",
+          "pitch": 66,
+          "stringIndex": 4
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "",
+          "pitch": 50,
+          "stringIndex": 3
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "",
+          "pitch": 42,
+          "stringIndex": 2
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "",
+          "pitch": 45,
+          "stringIndex": 2
+        },
+        {
+          "fret": 10,
+          "hidden": false,
+          "interval": "",
+          "pitch": 50,
+          "stringIndex": 2
+        },
+        {
+          "fret": 15,
+          "hidden": false,
+          "interval": "",
+          "pitch": 55,
+          "stringIndex": 2
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "",
+          "pitch": 40,
+          "stringIndex": 1
+        },
+        {
+          "fret": 10,
+          "hidden": false,
+          "interval": "",
+          "pitch": 45,
+          "stringIndex": 1
+        },
+        {
+          "fret": 15,
+          "hidden": false,
+          "interval": "",
+          "pitch": 50,
+          "stringIndex": 1
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "",
+          "pitch": 40,
+          "stringIndex": 0
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "",
+          "pitch": 45,
+          "stringIndex": 0
+        }
+      ],
+      "pageScrollWidth": 2218,
+      "playDisabled": false,
+      "progress": {
+        "playing": "false",
+        "ready": "true",
+        "tick": "357121",
+        "value": "0"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-NiOTlDa3.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 374.4375
+      },
+      "summary": "\u266dVII \u00b7 score-timed chord",
+      "view": "static",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "C-static-restored-after-other-lesson",
+      "observedAt": "2026-11-16T04:56:41.605Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "view": "static",
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "heading": "Static",
+      "lesson": "fretboardEfficiency",
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R4",
+          "pitch": 64,
+          "stringIndex": 7
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "53",
+          "pitch": 59,
+          "stringIndex": 6
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R2",
+          "pitch": 40,
+          "stringIndex": 2
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "51",
+          "pitch": 35,
+          "stringIndex": 1
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R1",
+          "pitch": 28,
+          "stringIndex": 0
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 7
+        },
+        {
+          "fret": 3,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 7
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 7
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 7
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 7
+        },
+        {
+          "fret": 1,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 6
+        },
+        {
+          "fret": 7,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 6
+        },
+        {
+          "fret": 8,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 6
+        },
+        {
+          "fret": 10,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 6
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 6
+        },
+        {
+          "fret": 13,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 6
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 6
+        },
+        {
+          "fret": 24,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 6
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "43",
+          "pitch": 57,
+          "stringIndex": 5
+        },
+        {
+          "fret": 11,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 5
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 5
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 5
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 4
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 4
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 4
+        },
+        {
+          "fret": 15,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 3
+        },
+        {
+          "fret": 20,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 2
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "playDisabled": false,
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-NiOTlDa3.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "29 positions across the whole riff",
+      "view": "static",
+      "viewportWidth": 1348,
+      "exactUnionVerified": true
+    },
+    {
+      "label": "static-link-reload",
+      "observedAt": "2026-11-16T04:56:42.055Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "view": "static",
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "heading": "Static",
+      "lesson": "fretboardEfficiency",
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R4",
+          "pitch": 64,
+          "stringIndex": 7
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "53",
+          "pitch": 59,
+          "stringIndex": 6
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R2",
+          "pitch": 40,
+          "stringIndex": 2
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "51",
+          "pitch": 35,
+          "stringIndex": 1
+        },
+        {
+          "fret": 0,
+          "hidden": false,
+          "interval": "R1",
+          "pitch": 28,
+          "stringIndex": 0
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 7
+        },
+        {
+          "fret": 3,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 7
+        },
+        {
+          "fret": 5,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 7
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 7
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 7
+        },
+        {
+          "fret": 1,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 6
+        },
+        {
+          "fret": 7,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 6
+        },
+        {
+          "fret": 8,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 6
+        },
+        {
+          "fret": 10,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 6
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 6
+        },
+        {
+          "fret": 13,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 6
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 6
+        },
+        {
+          "fret": 24,
+          "hidden": false,
+          "interval": "55",
+          "pitch": 83,
+          "stringIndex": 6
+        },
+        {
+          "fret": 2,
+          "hidden": false,
+          "interval": "43",
+          "pitch": 57,
+          "stringIndex": 5
+        },
+        {
+          "fret": 11,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 5
+        },
+        {
+          "fret": 12,
+          "hidden": false,
+          "interval": "m34",
+          "pitch": 67,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 5
+        },
+        {
+          "fret": 17,
+          "hidden": false,
+          "interval": "b65",
+          "pitch": 72,
+          "stringIndex": 5
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "R5",
+          "pitch": 76,
+          "stringIndex": 5
+        },
+        {
+          "fret": 16,
+          "hidden": false,
+          "interval": "24",
+          "pitch": 66,
+          "stringIndex": 4
+        },
+        {
+          "fret": 19,
+          "hidden": false,
+          "interval": "44",
+          "pitch": 69,
+          "stringIndex": 4
+        },
+        {
+          "fret": 21,
+          "hidden": false,
+          "interval": "54",
+          "pitch": 71,
+          "stringIndex": 4
+        },
+        {
+          "fret": 15,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 3
+        },
+        {
+          "fret": 20,
+          "hidden": false,
+          "interval": "b64",
+          "pitch": 60,
+          "stringIndex": 2
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "playDisabled": false,
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-NiOTlDa3.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "29 positions across the whole riff",
+      "view": "static",
+      "viewportWidth": 1348,
+      "exactUnionVerified": true
+    }
+  ],
+  "expectedContactUnions": {
+    "cfa029a2": {
+      "greedy": [
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 0
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 1
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 3
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 5
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 7
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 8
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 10
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 12
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 19
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 0
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 1
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 3
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 2
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 5
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 7
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 9
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 0
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 3
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 0
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 1
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 3
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 0
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 3
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 0
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 3
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 5
+        }
+      ],
+      "optimized": [
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 0
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 5
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 7
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 8
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 10
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 12
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 19
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 0
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 8
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 10
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 5
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 7
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 16
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 7
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 9
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 15
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 17
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 0
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 15
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 17
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 0
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 3
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 8
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 0
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 3
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 6
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 8
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 0
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 3
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 5
+        }
+      ],
+      "strumPick": [
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 0
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 1
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 5
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 10
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 12
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 19
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 0
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 1
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 3
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 8
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 10
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 12
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 13
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 2
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 5
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 7
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 14
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 16
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 9
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 12
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 22
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 0
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 3
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 14
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 0
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 1
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 3
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 8
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 0
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 3
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 6
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 0
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 3
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 5
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 13
+        }
+      ]
+    },
+    "da80eca9": {
+      "greedy": [
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 0
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 1
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 3
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 5
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 7
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 8
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 10
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 12
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 19
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 0
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 1
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 3
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 12
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 17
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 2
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 5
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 7
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 9
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 0
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 3
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 0
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 1
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 3
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 0
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 3
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 0
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 3
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 5
+        }
+      ],
+      "optimized": [
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 0
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 5
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 8
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 10
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 12
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 19
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 0
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 8
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 10
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 12
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 13
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 17
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 5
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 7
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 16
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 17
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 7
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 9
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 12
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 15
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 17
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 21
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 0
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 12
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 15
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 17
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 0
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 3
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 8
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 17
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 0
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 3
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 6
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 0
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 3
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 5
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 10
+        }
+      ],
+      "strumPick": [
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 0
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 1
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 5
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 7
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 8
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 10
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 12
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 19
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 0
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 1
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 3
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 6
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 8
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 12
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 13
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 17
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 2
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 5
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 7
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 14
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 16
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 9
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 12
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 0
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 14
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 0
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 3
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 8
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 0
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 3
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 6
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 0
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 3
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 5
+        }
+      ]
+    },
+    "c5a35486": {
+      "greedy": [
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 0
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 2
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 3
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 5
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 7
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 8
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 12
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 19
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 0
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 1
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 7
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 12
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 17
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 2
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 15
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 0
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 0
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 0
+        }
+      ],
+      "optimized": [
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 0
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 19
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 0
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 17
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 17
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 21
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 17
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 19
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 21
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 21
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 0
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 17
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 20
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 0
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 0
+        }
+      ],
+      "strumPick": [
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 0
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 2
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 3
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 5
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 12
+        },
+        {
+          "string": 1,
+          "stringIndex": 7,
+          "fret": 19
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 0
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 1
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 7
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 8
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 10
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 12
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 13
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 17
+        },
+        {
+          "string": 2,
+          "stringIndex": 6,
+          "fret": 24
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 2
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 11
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 12
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 16
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 17
+        },
+        {
+          "string": 3,
+          "stringIndex": 5,
+          "fret": 21
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 16
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 19
+        },
+        {
+          "string": 4,
+          "stringIndex": 4,
+          "fret": 21
+        },
+        {
+          "string": 5,
+          "stringIndex": 3,
+          "fret": 15
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 0
+        },
+        {
+          "string": 6,
+          "stringIndex": 2,
+          "fret": 20
+        },
+        {
+          "string": 7,
+          "stringIndex": 1,
+          "fret": 0
+        },
+        {
+          "string": 8,
+          "stringIndex": 0,
+          "fret": 0
+        }
+      ]
+    }
+  },
+  "screenshot": "fretboard-static-view.jpg",
+  "verification": "Silent live UI checks: exact Static contact unions, seek/stop retention, Playback restoration at native tick7050, fingering/fixture replacement, other lesson restoration, and Static share-link reload. No audible playback started.",
+  "publication": {
+    "testedTree": "cf075e648ebac0bfe1074b2cf70267ed131b2654",
+    "ghPagesCommit": "850d5ad8a785142d6a98476cefc501f82710affa",
+    "successfulRuns": {
+      "pagesSource": 43806699632,
+      "pagesDeployment": 43806777609,
+      "mainPreflight": 43806699638,
+      "featurePreflight": 43806697896
+    },
+    "mainAsset": "main-NiOTlDa3.js",
+    "mainAssetSha256": "bea9e4692810c634ba0b52a4e31eb1689d2bc66c3ed031756a270726447a69fa",
+    "mappingBundleSha256": "f35cb3b5134322e5ae0ec9742bd4a797163a5947b471ca20ef13301277779790",
+    "servedIndexMainAndBundleMatchTestedBytes": true
+  },
+  "validation": {
+    "javascriptTestsPassed": 173,
+    "javascriptSkipped": 0,
+    "build": "passed",
+    "staticSnapshotsVerified": 10,
+    "staticContactsVerified": 273,
+    "fixedFullRangesAndZeroHorizontalOverflow": true,
+    "playbackRestoredAtSameTick": true,
+    "screenshotSha256": "ca549407c29c193085254d0e59f1cffdfaae9320bc914fe45b8ec6926d2a2907",
+    "screenshotPixels": [
+      1348,
+      926
+    ],
+    "scope": "Desktop, silent UI validation. Phone rendering not exercised."
+  }
+}
