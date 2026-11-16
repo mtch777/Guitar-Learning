@@ -1,6 +1,19 @@
 # Drop E fretboard efficiency
 
-## Current delivery: Static whole-riff view — 2026-11-15
+## Current delivery: gray overview behind Playback — 2026-11-15
+
+User request: the versions that play should show every used position in gray, with currently playing notes in their existing interval colors. Scope is Playback in the Fretboard Efficiency lesson across all saved fingerings. Retain interval/octave labels, the fixed full range, and the colored Static overview.
+
+- [x] Inspect the actual renderer and selected-mapping unions; keep inactive overview contacts separate from timed note IDs and labels.
+- [x] Render the union in gray beneath active colors, return released notes to gray, and clear stale contacts when changing mapping/view/lesson.
+- [x] Verify the existing renderer/selector regressions and build; preserve source, mapping, timing and player data.
+- [ ] Publish, inspect the live gray/colored states and transport cleanup, and provide a screenshot and working lesson link.
+
+Root owns renderer, documentation, release and live verification; UI reviewer owns only necessary changes to the existing renderer test. Counterexamples: a released note retaining color, an inactive open string retaining its old interval fill, gray positions leaking across fingering changes or into Static/Time, and an overview marker acquiring a sounding-note ID. The existing render-cleanup set includes overview cells just as it already does in Static; only active transport notes receive note IDs. This is a presentation change, with no new musical or audio-processing behavior.
+
+Implementation paints the selected contact union with gray fill `#bfc3ca` and dark gray interval/octave labels, then applies the unchanged interval styling to current transport notes. The same inline styling handles open and fretted markers without CSS overrides. Selecting a new mapping clears the previous colored contacts before rendering its union. Independent review and the existing focused renderer suite pass; the complete JavaScript release suite passes **173/173, zero skips**, and production build/whitespace checks pass. Source MIDI, mapping bundle, string exports and native player remain unchanged. Main asset: `main-C5V5tK1e.js` (139,865 bytes), SHA-256 `060d2bc59d16face81b344af3cedd369c7913e65226586367ec9e1046ad420b1`. Live publication remains to be verified.
+
+## Previous delivery: Static whole-riff view — 2026-11-15
 
 User request: show every note played anywhere in the riff at once, labelled **Static**, so the complete fretboard pattern is visible. Add a Playback / Static view choice to the existing Fretboard Efficiency lesson. Static uses the selected fingering's actual assigned string/fret positions, with repeated occurrences at one position shown once. The fixed full fret range and interval labels remain in use. The original three mappings and MIDI events are the source of the view, not new optimization work.
 

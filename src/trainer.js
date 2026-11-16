@@ -10433,16 +10433,18 @@ function displaySongPlayerNotes(
     return;
   }
 
-  const staticView = getSelectedLessonType() === EFFICIENCY_LESSON_ID &&
+  const efficiency = getSelectedLessonType() === EFFICIENCY_LESSON_ID;
+  const staticView = efficiency &&
     document.getElementById('fretboardEfficiencyView')?.value === 'static';
-  const displayNotes = staticView ? efficiencyStaticNotes(fretboardEfficiencyVersion) : (notes || []);
+  const overviewNotes = efficiency ? efficiencyStaticNotes(fretboardEfficiencyVersion) : [];
+  const displayNotes = staticView ? overviewNotes : (notes || []);
 
   songPlayerActiveCells
     .forEach(
       cell => {
         delete cell.dataset.noteId;
         cell.classList.remove(
-          'songPlayerBending'
+          'songPlayerBending', 'efficiencyGrayNote'
         );
 
         cell.style.removeProperty(
@@ -10462,6 +10464,23 @@ function displaySongPlayerNotes(
     new Set();
 
   clearSongPlayerBendVisuals();
+
+  if (efficiency && !staticView) {
+    // Keep the complete assigned pattern behind the current transport notes.
+    // Track these cells for the same cleanup used by Static and active notes.
+    for (const note of overviewNotes) {
+      const cell = songPlayerCells.get(makeCellKey(note.string - 1, Number(note.fret)));
+      if (!cell) continue;
+      const interval = getIntervalForPitch(midiToPitchClass(Number(cell.dataset.absolutePitch)), 4, 'aeolian');
+      revealCell(cell, interval);
+      cell.classList.remove('timeSoloSelectedNote', 'timeSoloGrayNote', 'timeSoloCandidateNote');
+      cell.classList.add('efficiencyGrayNote');
+      cell.style.setProperty('--note-feedback-bg', '#bfc3ca');
+      if (cell.dataset.openString === 'true') cell.style.backgroundColor = '#bfc3ca';
+      cell.style.color = '#4b5563';
+      songPlayerActiveCells.add(cell);
+    }
+  }
 
   const activeLabels =
     [];
@@ -10503,7 +10522,7 @@ function displaySongPlayerNotes(
           document.getElementById('scaleSelect').value
       ) : null;
       revealCell(cell, interval);
-      cell.classList.remove('timeSoloGrayNote', 'timeSoloCandidateNote');
+      cell.classList.remove('timeSoloGrayNote', 'timeSoloCandidateNote', 'efficiencyGrayNote');
       cell.classList.add('timeSoloSelectedNote');
       if (note.note_id !== undefined) cell.dataset.noteId = String(note.note_id);
 
@@ -10807,9 +10826,7 @@ if (songPlayerController) {
       controls.dataset.versionId = version.id;
       controls.dataset.tick = '0';
       controls.dataset.sourceTick = '0';
-      if (document.getElementById('fretboardEfficiencyView').value === 'static') {
-        displaySongPlayerNotes(songPlayerLastNotes);
-      }
+      displaySongPlayerNotes([]);
     }
   });
   if (getSelectedLessonType() === EFFICIENCY_LESSON_ID) fretboardEfficiencyLesson.activate();

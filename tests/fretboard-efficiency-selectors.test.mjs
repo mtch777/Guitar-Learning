@@ -223,7 +223,7 @@ test('missing adjacency diagnostics are unavailable rather than zero in the less
   assert.match(harness.fields.fretboardEfficiencyInfo.textContent, /— rapid single-note string skips/);
 });
 
-test('the actual trainer keeps fixed bounds and the selected static union through playback, seeking and empty states', () => {
+test('the actual trainer keeps fixed bounds and used positions, coloring only playback notes or the full static union', () => {
   assert.ok(data.fixtures.some(fixture => fixture.id === 'c5a35486'), 'C is required for the clock regression');
   assert.doesNotMatch(html, /id="fretboardEfficiencyRange"/);
   const trainer = readFileSync(new URL('../src/trainer.js', import.meta.url), 'utf8');
@@ -241,10 +241,15 @@ test('the actual trainer keeps fixed bounds and the selected static union throug
     for (let string = 0; string < 8; string++) {
       for (let fret = 0; fret <= 24; fret++) {
         const pitch = [28, 35, 40, 45, 50, 55, 59, 64][string] + fret;
+        const classes = new Set();
         cells.set(`${string}|${fret}`, {
           dataset: { fret: String(fret), absolutePitch: String(pitch), scientificPitch: String(pitch) },
-          classList: { add() {}, remove() {}, contains() { return false; } },
-          style: { removeProperty() {} }, hidden: false, revealed: false
+          classList: {
+            add(...names) { names.forEach(name => classes.add(name)); },
+            remove(...names) { names.forEach(name => classes.delete(name)); },
+            contains(name) { return classes.has(name); }
+          },
+          style: { setProperty() {}, removeProperty() {} }, hidden: false, revealed: false
         });
       }
     }
@@ -256,7 +261,8 @@ test('the actual trainer keeps fixed bounds and the selected static union throug
         querySelector: selector => selector === '.physicalFretboard' ? board :
           selector === '.fretboardStage' ? stage : heading,
         getElementById: id => ({ fretboardEfficiencyView: view,
-          fretboardEfficiencyWindow: caption, answerNote: answer })[id]
+          fretboardEfficiencyWindow: caption, answerNote: answer,
+          rootSelect: { value: '4' }, scaleSelect: { value: 'aeolian' } })[id]
       },
       fretboardEfficiencyFixture: fixture,
       fretboardEfficiencyVersion: null,
@@ -265,6 +271,7 @@ test('the actual trainer keeps fixed bounds and the selected static union throug
       songPlayerActiveCells: new Set(), songPlayerLastNotes: [], songPlayerStringOffset: 0,
       makeCellKey: (string, fret) => `${string}|${fret}`,
       clearSongPlayerBendVisuals() {},
+      updateTimeSoloChordCandidates() {},
       hideCell(cell) { cell.revealed = false; },
       revealCell(cell, interval) { cell.revealed = true; cell.interval = interval; },
       midiToPitchClass: pitch => pitch % 12,
@@ -292,6 +299,28 @@ test('the actual trainer keeps fixed bounds and the selected static union throug
         ...fixture.notes.map(note => nativeTick(note.end_tick)),
         0, highSeekTick, nativeTick(version.positions.at(-1).tick),
         nativeTick(fixture.duration_ticks), highSeekTick, 0];
+      const displayedKeys = () => [...cells].filter(([, cell]) => cell.revealed).map(([key]) => key).sort();
+      const grayKeys = () => [...cells].filter(([, cell]) => cell.classList.contains('efficiencyGrayNote'))
+        .map(([key]) => key).sort();
+      const coloredKeys = () => [...cells].filter(([, cell]) => cell.revealed &&
+        !cell.classList.contains('efficiencyGrayNote')).map(([key]) => key).sort();
+      const expectedUnion = [...new Set(version.assignments.map(item => `${8 - item.string_number}|${item.fret}`))].sort();
+      const assertPlayback = notes => {
+        const active = new Map(notes.map(note => [`${note.string - 1}|${note.fret}`, String(note.note_id)]));
+        assert.deepEqual(displayedKeys(), expectedUnion, 'Playback must show every used position');
+        assert.deepEqual(coloredKeys(), [...active.keys()].sort(), 'Only current notes may retain interval colors');
+        assert.deepEqual(grayKeys(), expectedUnion.filter(key => !active.has(key)),
+          'Released and unused-in-this-frame positions must be gray');
+        for (const [key, cell] of cells) {
+          assert.equal(cell.dataset.noteId, active.get(key), `${fixture.id}/${version.id}: note identity at ${key}`);
+        }
+      };
+      const assertStatic = () => {
+        assert.deepEqual(displayedKeys(), expectedUnion);
+        assert.deepEqual(coloredKeys(), expectedUnion, 'Static must color the full used-position union');
+        assert.deepEqual(grayKeys(), [], 'Playback gray styles must not leak into Static');
+        for (const cell of cells.values()) assert.equal(cell.dataset.noteId, undefined);
+      };
       let fixedGeometry, fixedSizingCalls;
       const geometry = () => JSON.stringify([...cells].map(([key, cell]) =>
         [key, cell.hidden, cell.style.left, cell.style.width]));
@@ -313,6 +342,8 @@ test('the actual trainer keeps fixed bounds and the selected static union throug
           fixedSizingCalls = sizingCalls;
         }
         assertFixed();
+        assertPlayback(notes);
+        assert.equal(context.songPlayerLastNotes, notes, 'Gray context must not replace the transport frame');
         assert.equal(lookupTick, sourceTick, `${fixture.id}: native ${nativeTick} must use source ${sourceTick}`);
         const frame = fixture.versions.find(item => item.id === version.id).positions
           .findLast(position => position.tick <= sourceTick);
@@ -327,13 +358,11 @@ test('the actual trainer keeps fixed bounds and the selected static union throug
         assert.equal(cells.get(`${8 - assignment.string_number}|${assignment.fret}`).hidden, false,
           `${fixture.id}/${version.id}: every assigned contact fits at once`);
       }
-      const displayedKeys = () => [...cells].filter(([, cell]) => cell.revealed).map(([key]) => key).sort();
-      const expectedUnion = [...new Set(version.assignments.map(item => `${8 - item.string_number}|${item.fret}`))].sort();
       const lastTransportFrame = context.songPlayerLastNotes;
       view.value = 'static';
       context.displaySongPlayerNotes(context.songPlayerLastNotes);
       assert.equal(context.songPlayerLastNotes, lastTransportFrame, 'Static rendering must not replace the transport frame');
-      assert.deepEqual(displayedKeys(), expectedUnion);
+      assertStatic();
       assert.equal(answer.textContent, `${expectedUnion.length} positions across the whole riff`);
       assert.equal(heading.textContent, 'Static');
       assert.doesNotMatch(caption.textContent, /Hand position/);
@@ -343,26 +372,34 @@ test('the actual trainer keeps fixed bounds and the selected static union throug
           .map(note => ({ note_id: note.id, string: 9 - assignments.get(note.id).string_number, fret: assignments.get(note.id).fret }));
         context.displaySongPlayerNotes(notes);
         assert.equal(context.songPlayerLastNotes, notes);
-        assert.deepEqual(displayedKeys(), expectedUnion);
+        assertStatic();
         assertFixed();
       }
       context.displaySongPlayerNotes([]);
-      assert.deepEqual(displayedKeys(), expectedUnion, 'Pause/stop callbacks must retain the static union');
+      assertStatic();
       assertFixed();
       view.value = 'playback';
       context.displaySongPlayerNotes(context.songPlayerLastNotes);
-      assert.deepEqual(displayedKeys(), []);
+      assertPlayback([]);
       assert.equal(heading.textContent, 'Playing');
-      const playing = [{ string: 9 - highestAssignment.string_number, fret: highestFret }];
+      const playing = [{ note_id: highestAssignment.note_id, string: 9 - highestAssignment.string_number, fret: highestFret }];
       context.displaySongPlayerNotes(playing);
-      assert.deepEqual(displayedKeys(), [`${8 - highestAssignment.string_number}|${highestFret}`]);
+      assertPlayback(playing);
       view.value = 'static';
       context.displaySongPlayerNotes(context.songPlayerLastNotes);
-      assert.deepEqual(displayedKeys(), expectedUnion);
-      selectedLesson = 'songPlayer';
-      context.displaySongPlayerNotes(playing);
-      assert.deepEqual(displayedKeys(), [`${8 - highestAssignment.string_number}|${highestFret}`],
-        'Static preference must not change other lessons');
+      assertStatic();
+      for (const lesson of ['songPlayer', 'timeSoloChords']) {
+        selectedLesson = 'fretboardEfficiency';
+        view.value = 'playback';
+        context.displaySongPlayerNotes([]);
+        assertPlayback([]);
+        selectedLesson = lesson;
+        view.value = 'static';
+        context.displaySongPlayerNotes(playing);
+        assert.deepEqual(displayedKeys(), [`${8 - highestAssignment.string_number}|${highestFret}`],
+          'Efficiency views must not change other lessons');
+        assert.deepEqual(grayKeys(), [], 'Gray context must be removed when leaving the efficiency lesson');
+      }
       selectedLesson = 'fretboardEfficiency';
       if (fixture.id === 'c5a35486' && version.id === 'strumPick') assert.equal(highestFret, 24);
     }
