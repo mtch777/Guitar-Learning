@@ -1,0 +1,2474 @@
+{
+  "schema": "fretboard-live-validation/v1",
+  "sourceCommit": "efbbeaf40e752917e7906bd382b1710f063c1770",
+  "sourceMidi": "2026-11-15 midi rewrite(2).mid",
+  "sourceSha256": "5fa3e52d30a27b3568c7303f47011cb5aaa9777ac2a584ea31e7f797d522ca77",
+  "lessonUrl": "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=c5a35486&mapping=strumPick",
+  "screenshot": "fretboard-midi-rewrite-2.jpg",
+  "observations": [
+    {
+      "label": "strumPick-ready",
+      "observedAt": "2026-11-16T03:33:44.815Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "64",
+          "fret": "0",
+          "label": "String 1, fret 0, E4",
+          "noteId": "0",
+          "stringIndex": "7"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "strumPick-full-run-start",
+      "observedAt": "2026-11-16T03:33:45.273Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed) \u00b7 Drop E open power chord",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "71.4",
+        "tick": "714",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "fret": "0",
+          "label": "String 7, fret 0, B1",
+          "noteId": "3",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "28",
+          "fret": "0",
+          "label": "String 8, fret 0, E1",
+          "noteId": "2",
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u23f8 Pause"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "714",
+        "value": "15",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "strumPick-full-run-progress",
+      "observedAt": "2026-11-16T03:33:47.432Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed) \u00b7 Hand position 1 \u00b7 Drop E open power chord",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "481.5",
+        "tick": "4815",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "fret": "0",
+          "label": "String 7, fret 0, B1",
+          "noteId": "20",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "28",
+          "fret": "0",
+          "label": "String 8, fret 0, E1",
+          "noteId": "19",
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u23f8 Pause"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "4815",
+        "value": "104",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "strumPick-full-run-progress-2",
+      "observedAt": "2026-11-16T03:33:53.612Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed) \u00b7 Hand position 13 \u00b7 Drop E open power chord",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "1676.3",
+        "tick": "16763",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "fret": "0",
+          "label": "String 7, fret 0, B1",
+          "noteId": "74",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "28",
+          "fret": "0",
+          "label": "String 8, fret 0, E1",
+          "noteId": "73",
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u23f8 Pause"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "16763",
+        "value": "364",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "strumPick-full-run-natural-end",
+      "observedAt": "2026-11-16T03:34:16.369Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed) \u00b7 Hand position 20",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4608",
+        "tick": "46080",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "46080",
+        "value": "1000",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "strumPick-held-before-release",
+      "observedAt": "2026-11-16T03:34:31.076Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed) \u00b7 Hand position 18",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "691.2",
+        "tick": "6912",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "76",
+          "fret": "21",
+          "label": "String 3, fret 21, E5",
+          "noteId": "30",
+          "stringIndex": "5"
+        },
+        {
+          "absolutePitch": "60",
+          "fret": "20",
+          "label": "String 6, fret 20, C4",
+          "noteId": "29",
+          "stringIndex": "2"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "6912",
+        "value": "150",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "strumPick-held-after-release",
+      "observedAt": "2026-11-16T03:34:31.379Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed) \u00b7 Hand position 20 \u00b7 Adjacent-string power-chord shape",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "705",
+        "tick": "7050",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "83",
+          "fret": "24",
+          "label": "String 2, fret 24, B5",
+          "noteId": "31",
+          "stringIndex": "6"
+        },
+        {
+          "absolutePitch": "76",
+          "fret": "21",
+          "label": "String 3, fret 21, E5",
+          "noteId": "30",
+          "stringIndex": "5"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "7050",
+        "value": "153",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "strumPick-old-endpoint-now-continues",
+      "observedAt": "2026-11-16T03:34:44.121Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed) \u00b7 Hand position 13 \u00b7 Drop E open power chord",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "3073.5",
+        "tick": "30735",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "fret": "0",
+          "label": "String 7, fret 0, B1",
+          "noteId": "141",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "28",
+          "fret": "0",
+          "label": "String 8, fret 0, E1",
+          "noteId": "140",
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "30735",
+        "value": "667",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "strumPick-new-ending-C4",
+      "observedAt": "2026-11-16T03:34:44.404Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed) \u00b7 Hand position 1",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4515.8",
+        "tick": "45158",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "60",
+          "fret": "1",
+          "label": "String 2, fret 1, C4",
+          "noteId": "235",
+          "stringIndex": "6"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "45158",
+        "value": "980",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "strumPick-new-ending-A4",
+      "observedAt": "2026-11-16T03:34:44.674Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed) \u00b7 Hand position 10",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4529.7",
+        "tick": "45297",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "69",
+          "fret": "10",
+          "label": "String 2, fret 10, A4",
+          "noteId": "236",
+          "stringIndex": "6"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "45297",
+        "value": "983",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "strumPick-new-ending-B5",
+      "observedAt": "2026-11-16T03:34:44.946Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed) \u00b7 Hand position 20",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4548.1",
+        "tick": "45481",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "83",
+          "fret": "24",
+          "label": "String 2, fret 24, B5",
+          "noteId": "237",
+          "stringIndex": "6"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "45481",
+        "value": "987",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "strumPick-final-note",
+      "observedAt": "2026-11-16T03:34:45.217Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed) \u00b7 Hand position 20",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4594.2",
+        "tick": "45942",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "83",
+          "fret": "24",
+          "label": "String 2, fret 24, B5",
+          "noteId": "240",
+          "stringIndex": "6"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "45942",
+        "value": "997",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "optimized-ready-zero",
+      "observedAt": "2026-11-16T03:34:46.395Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "21",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "21"
+      },
+      "caption": "Open strings + frets 1\u201321 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "optimized"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 rapid shifts \u00b7 0 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "optimized-full-run-start",
+      "observedAt": "2026-11-16T03:34:47.104Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "21",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "21"
+      },
+      "caption": "Open strings + frets 1\u201321 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u23f8 Pause"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "optimized"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 rapid shifts \u00b7 0 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "optimized-full-run-progress",
+      "observedAt": "2026-11-16T03:35:00.558Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "21",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "21"
+      },
+      "caption": "Open strings + frets 1\u201321 (fixed) \u00b7 Hand position 17 \u00b7 Drop E open power chord",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "2585.8",
+        "tick": "25858",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "fret": "0",
+          "label": "String 7, fret 0, B1",
+          "noteId": "115",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "28",
+          "fret": "0",
+          "label": "String 8, fret 0, E1",
+          "noteId": "114",
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u23f8 Pause"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "25858",
+        "value": "561",
+        "versionId": "optimized"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 rapid shifts \u00b7 0 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "optimized-full-run-natural-end",
+      "observedAt": "2026-11-16T03:35:12.750Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "21",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "21"
+      },
+      "caption": "Open strings + frets 1\u201321 (fixed) \u00b7 Hand position 17",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4608",
+        "tick": "46080",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "46080",
+        "value": "1000",
+        "versionId": "optimized"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 rapid shifts \u00b7 0 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "optimized-held-before-release",
+      "observedAt": "2026-11-16T03:35:21.497Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "21",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "21"
+      },
+      "caption": "Open strings + frets 1\u201321 (fixed) \u00b7 Hand position 17 \u00b7 E-shape minor-pentatonic fragment",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "691.2",
+        "tick": "6912",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "76",
+          "fret": "17",
+          "label": "String 2, fret 17, E5",
+          "noteId": "30",
+          "stringIndex": "6"
+        },
+        {
+          "absolutePitch": "60",
+          "fret": "20",
+          "label": "String 6, fret 20, C4",
+          "noteId": "29",
+          "stringIndex": "2"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "6912",
+        "value": "150",
+        "versionId": "optimized"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 rapid shifts \u00b7 0 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "optimized-held-after-release",
+      "observedAt": "2026-11-16T03:35:21.752Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "21",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "21"
+      },
+      "caption": "Open strings + frets 1\u201321 (fixed) \u00b7 Hand position 17 \u00b7 Adjacent-string power-chord shape",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "705",
+        "tick": "7050",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "83",
+          "fret": "19",
+          "label": "String 1, fret 19, B5",
+          "noteId": "31",
+          "stringIndex": "7"
+        },
+        {
+          "absolutePitch": "76",
+          "fret": "17",
+          "label": "String 2, fret 17, E5",
+          "noteId": "30",
+          "stringIndex": "6"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "7050",
+        "value": "153",
+        "versionId": "optimized"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 rapid shifts \u00b7 0 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "optimized-old-endpoint-now-continues",
+      "observedAt": "2026-11-16T03:35:22.020Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "21",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "21"
+      },
+      "caption": "Open strings + frets 1\u201321 (fixed) \u00b7 Hand position 17 \u00b7 Drop E open power chord",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "3073.5",
+        "tick": "30735",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "fret": "0",
+          "label": "String 7, fret 0, B1",
+          "noteId": "141",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "28",
+          "fret": "0",
+          "label": "String 8, fret 0, E1",
+          "noteId": "140",
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "30735",
+        "value": "667",
+        "versionId": "optimized"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 rapid shifts \u00b7 0 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "optimized-new-ending-C4",
+      "observedAt": "2026-11-16T03:35:22.284Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "21",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "21"
+      },
+      "caption": "Open strings + frets 1\u201321 (fixed) \u00b7 Hand position 17 \u00b7 A-shape minor-pentatonic fragment \u00b7 E-shape minor-pentatonic fragment",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4515.8",
+        "tick": "45158",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "60",
+          "fret": "20",
+          "label": "String 6, fret 20, C4",
+          "noteId": "235",
+          "stringIndex": "2"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "45158",
+        "value": "980",
+        "versionId": "optimized"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 rapid shifts \u00b7 0 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "optimized-new-ending-A4",
+      "observedAt": "2026-11-16T03:35:22.541Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "21",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "21"
+      },
+      "caption": "Open strings + frets 1\u201321 (fixed) \u00b7 Hand position 17 \u00b7 A-shape minor-pentatonic fragment \u00b7 E-shape minor-pentatonic fragment",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4529.7",
+        "tick": "45297",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "69",
+          "fret": "19",
+          "label": "String 4, fret 19, A4",
+          "noteId": "236",
+          "stringIndex": "4"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "45297",
+        "value": "983",
+        "versionId": "optimized"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 rapid shifts \u00b7 0 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "optimized-new-ending-B5",
+      "observedAt": "2026-11-16T03:35:22.790Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "21",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "21"
+      },
+      "caption": "Open strings + frets 1\u201321 (fixed) \u00b7 Hand position 17 \u00b7 A-shape minor-pentatonic fragment \u00b7 E-shape minor-pentatonic fragment",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4548.1",
+        "tick": "45481",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "83",
+          "fret": "19",
+          "label": "String 1, fret 19, B5",
+          "noteId": "237",
+          "stringIndex": "7"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "45481",
+        "value": "987",
+        "versionId": "optimized"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 rapid shifts \u00b7 0 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "optimized-final-note",
+      "observedAt": "2026-11-16T03:35:23.048Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "21",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "21"
+      },
+      "caption": "Open strings + frets 1\u201321 (fixed) \u00b7 Hand position 17 \u00b7 A-shape minor-pentatonic fragment \u00b7 E-shape minor-pentatonic fragment",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4594.2",
+        "tick": "45942",
+        "versionId": "optimized"
+      },
+      "mapping": "optimized",
+      "notes": [
+        {
+          "absolutePitch": "83",
+          "fret": "19",
+          "label": "String 1, fret 19, B5",
+          "noteId": "240",
+          "stringIndex": "7"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "45942",
+        "value": "997",
+        "versionId": "optimized"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 rapid shifts \u00b7 0 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "greedy-ready-zero",
+      "observedAt": "2026-11-16T03:35:24.262Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "19"
+      },
+      "caption": "Open strings + frets 1\u201319 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "greedy"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 39 rapid shifts \u00b7 228 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "greedy-full-run-start",
+      "observedAt": "2026-11-16T03:35:24.967Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "19"
+      },
+      "caption": "Open strings + frets 1\u201319 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u23f8 Pause"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "greedy"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 39 rapid shifts \u00b7 228 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "greedy-full-run-progress",
+      "observedAt": "2026-11-16T03:35:28.812Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "19"
+      },
+      "caption": "Open strings + frets 1\u201319 (fixed) \u00b7 Hand position 15",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "731.2",
+        "tick": "7312",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "fret": "0",
+          "label": "String 7, fret 0, B1",
+          "noteId": "32",
+          "stringIndex": "1"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u23f8 Pause"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "7312",
+        "value": "159",
+        "versionId": "greedy"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 39 rapid shifts \u00b7 228 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "greedy-full-run-late-progress",
+      "observedAt": "2026-11-16T03:35:41.734Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "19"
+      },
+      "caption": "Open strings + frets 1\u201319 (fixed) \u00b7 Hand position 8 \u00b7 Drop E open power chord",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "3227.8",
+        "tick": "32278",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "fret": "0",
+          "label": "String 7, fret 0, B1",
+          "noteId": "147",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "28",
+          "fret": "0",
+          "label": "String 8, fret 0, E1",
+          "noteId": "146",
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u23f8 Pause"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "32278",
+        "value": "700",
+        "versionId": "greedy"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 39 rapid shifts \u00b7 228 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "greedy-full-run-natural-end",
+      "observedAt": "2026-11-16T03:35:51.998Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "19"
+      },
+      "caption": "Open strings + frets 1\u201319 (fixed) \u00b7 Hand position 15",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4608",
+        "tick": "46080",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "46080",
+        "value": "1000",
+        "versionId": "greedy"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 39 rapid shifts \u00b7 228 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "greedy-held-before-release",
+      "observedAt": "2026-11-16T03:35:52.245Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "19"
+      },
+      "caption": "Open strings + frets 1\u201319 (fixed) \u00b7 Hand position 13",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "691.2",
+        "tick": "6912",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [
+        {
+          "absolutePitch": "76",
+          "fret": "17",
+          "label": "String 2, fret 17, E5",
+          "noteId": "30",
+          "stringIndex": "6"
+        },
+        {
+          "absolutePitch": "60",
+          "fret": "15",
+          "label": "String 5, fret 15, C4",
+          "noteId": "29",
+          "stringIndex": "3"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "6912",
+        "value": "150",
+        "versionId": "greedy"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 39 rapid shifts \u00b7 228 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "greedy-held-after-release",
+      "observedAt": "2026-11-16T03:35:52.505Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "19"
+      },
+      "caption": "Open strings + frets 1\u201319 (fixed) \u00b7 Hand position 15 \u00b7 Adjacent-string power-chord shape",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "705",
+        "tick": "7050",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [
+        {
+          "absolutePitch": "83",
+          "fret": "19",
+          "label": "String 1, fret 19, B5",
+          "noteId": "31",
+          "stringIndex": "7"
+        },
+        {
+          "absolutePitch": "76",
+          "fret": "17",
+          "label": "String 2, fret 17, E5",
+          "noteId": "30",
+          "stringIndex": "6"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "7050",
+        "value": "153",
+        "versionId": "greedy"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 39 rapid shifts \u00b7 228 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "greedy-old-endpoint-now-continues",
+      "observedAt": "2026-11-16T03:35:52.771Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "19"
+      },
+      "caption": "Open strings + frets 1\u201319 (fixed) \u00b7 Hand position 8 \u00b7 Drop E open power chord",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "3073.5",
+        "tick": "30735",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [
+        {
+          "absolutePitch": "35",
+          "fret": "0",
+          "label": "String 7, fret 0, B1",
+          "noteId": "141",
+          "stringIndex": "1"
+        },
+        {
+          "absolutePitch": "28",
+          "fret": "0",
+          "label": "String 8, fret 0, E1",
+          "noteId": "140",
+          "stringIndex": "0"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "30735",
+        "value": "667",
+        "versionId": "greedy"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 39 rapid shifts \u00b7 228 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "greedy-new-ending-C4",
+      "observedAt": "2026-11-16T03:35:53.033Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "19"
+      },
+      "caption": "Open strings + frets 1\u201319 (fixed) \u00b7 Hand position 1",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4515.8",
+        "tick": "45158",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [
+        {
+          "absolutePitch": "60",
+          "fret": "1",
+          "label": "String 2, fret 1, C4",
+          "noteId": "235",
+          "stringIndex": "6"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "45158",
+        "value": "980",
+        "versionId": "greedy"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 39 rapid shifts \u00b7 228 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "greedy-new-ending-A4",
+      "observedAt": "2026-11-16T03:35:53.279Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "19"
+      },
+      "caption": "Open strings + frets 1\u201319 (fixed) \u00b7 Hand position 1",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4529.7",
+        "tick": "45297",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [
+        {
+          "absolutePitch": "69",
+          "fret": "5",
+          "label": "String 1, fret 5, A4",
+          "noteId": "236",
+          "stringIndex": "7"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "45297",
+        "value": "983",
+        "versionId": "greedy"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 39 rapid shifts \u00b7 228 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "greedy-new-ending-B5",
+      "observedAt": "2026-11-16T03:35:53.522Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "19"
+      },
+      "caption": "Open strings + frets 1\u201319 (fixed) \u00b7 Hand position 15",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4548.1",
+        "tick": "45481",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [
+        {
+          "absolutePitch": "83",
+          "fret": "19",
+          "label": "String 1, fret 19, B5",
+          "noteId": "237",
+          "stringIndex": "7"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "45481",
+        "value": "987",
+        "versionId": "greedy"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 39 rapid shifts \u00b7 228 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "greedy-final-note",
+      "observedAt": "2026-11-16T03:35:53.768Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "19",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "19"
+      },
+      "caption": "Open strings + frets 1\u201319 (fixed) \u00b7 Hand position 15",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "4594.2",
+        "tick": "45942",
+        "versionId": "greedy"
+      },
+      "mapping": "greedy",
+      "notes": [
+        {
+          "absolutePitch": "83",
+          "fret": "19",
+          "label": "String 1, fret 19, B5",
+          "noteId": "240",
+          "stringIndex": "7"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "45942",
+        "value": "997",
+        "versionId": "greedy"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 39 rapid shifts \u00b7 228 frets travelled",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "strumPick-pause-test-playing",
+      "observedAt": "2026-11-16T03:36:06.422Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u23f8 Pause"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "strumPick-before-pause",
+      "observedAt": "2026-11-16T03:36:13.350Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed) \u00b7 Hand position 1 \u00b7 A-shape minor-pentatonic fragment",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "1337.5",
+        "tick": "13375",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [
+        {
+          "absolutePitch": "60",
+          "fret": "1",
+          "label": "String 2, fret 1, C4",
+          "noteId": "59",
+          "stringIndex": "6"
+        }
+      ],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u23f8 Pause"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "true",
+        "ready": "true",
+        "tick": "13375",
+        "value": "290",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "strumPick-paused-cleared",
+      "observedAt": "2026-11-16T03:36:13.826Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed) \u00b7 Hand position 1",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "1355.4",
+        "tick": "13554",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "13554",
+        "value": "294",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    },
+    {
+      "label": "handoff-strumPick-stopped-zero",
+      "observedAt": "2026-11-16T03:36:14.294Z",
+      "board": {
+        "firstFret": "1",
+        "lastFret": "24",
+        "rect": {
+          "height": 420,
+          "width": 1270,
+          "x": 66,
+          "y": 436.828125
+        },
+        "visibleFretCount": "24"
+      },
+      "caption": "Open strings + frets 1\u201324 (fixed)",
+      "controls": {
+        "fixtureId": "c5a35486",
+        "sourceTick": "0",
+        "tick": "0",
+        "versionId": "strumPick"
+      },
+      "mapping": "strumPick",
+      "notes": [],
+      "pageScrollWidth": 1348,
+      "play": {
+        "disabled": false,
+        "text": "\u25b6 Play"
+      },
+      "progress": {
+        "durationTicks": "46080",
+        "fixtureId": "c5a35486",
+        "playing": "false",
+        "ready": "true",
+        "tick": "0",
+        "value": "0",
+        "versionId": "strumPick"
+      },
+      "riff": "c5a35486",
+      "scripts": [
+        "/Guitar-Learning/assets/main-OnE3-uyk.js",
+        "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/alphaTab.js"
+      ],
+      "scrollLeft": 0,
+      "speed": "1",
+      "stage": {
+        "height": 420,
+        "width": 1324,
+        "x": 12,
+        "y": 436.828125
+      },
+      "summary": "Drop E \u00b7 intervals relative to E \u00b7 132 open notes \u00b7 0 chord string skips \u00b7 54 rapid single-note string skips",
+      "viewportWidth": 1348
+    }
+  ],
+  "publication": {
+    "testedTree": "6e905e5cee1c1cce36786ec13607cec9a055944f",
+    "sourceCommit": "efbbeaf40e752917e7906bd382b1710f063c1770",
+    "ghPagesCommit": "310beda1d098b6284ee644fe89d94b2c55f97f35",
+    "successfulRuns": {
+      "pagesSource": 43798619039,
+      "pagesDeployment": 43798704120,
+      "mainPreflight": 43798619051,
+      "featurePreflight": 43798615872
+    },
+    "servedBytesVerified": [
+      "index.html",
+      "assets/main-OnE3-uyk.js",
+      "data/fretboard-efficiency-fixtures.json",
+      "fretboard-efficiency/c5a35486_greedy_strings.mid",
+      "fretboard-efficiency/c5a35486_optimized_strings.mid",
+      "fretboard-efficiency/c5a35486_strumPick_strings.mid"
+    ],
+    "fixtureBundleSha256": "f35cb3b5134322e5ae0ec9742bd4a797163a5947b471ca20ef13301277779790",
+    "mainAssetSha256": "825423495d80f6731e465f66f3b72b16e2ab6252cd8b86516462ad37a993cd55",
+    "uploadedSourceMatchesExactPublishedCommit": true
+  },
+  "localValidation": {
+    "javascriptTestsPassed": 173,
+    "javascriptSkipped": 0,
+    "fingeringPythonTestsPassed": 73,
+    "productionBuild": "passed",
+    "sourceOccurrencesVerified": 596,
+    "midiExportsVerified": 9,
+    "unchangedFixtures": [
+      "A",
+      "B"
+    ]
+  },
+  "observationScope": "All three versions were played from zero to natural end at 1x. Paused seeking verifies held-note transitions, the old 16-second endpoint, new ending notes and final occurrence. Empty initial play-start frames at tick zero precede the first rendered player callback; explicit Stop, Pause and natural-end states intentionally clear contacts. Desktop rendering inspected; phone rendering not exercised.",
+  "screenshotSha256": "39768441263de8172af943937d30c57c2d93b856f55d31c9577c192f4b27f80f",
+  "independentObservationAudit": {
+    "result": "passed",
+    "rawReceiptSha256": "26fa93f30f5973dfbda05f96b154acf86fec1d84f4dad9917fd84508cc92a69c",
+    "observations": 39,
+    "activeNoteFrames": 29,
+    "exactContacts": 43,
+    "activePlaybackFrames": 7,
+    "activePreviewFrames": 22,
+    "intentionalEmptyFrames": 10,
+    "naturalEndpoints": 3,
+    "heldNoteTransitions": 3,
+    "editedEndingPreviews": 12,
+    "horizontalOverflowObservations": 0,
+    "sourceNativeClockRatio": 10,
+    "fixedBoundsByMapping": {
+      "greedy": [
+        1,
+        19
+      ],
+      "optimized": [
+        1,
+        21
+      ],
+      "strumPick": [
+        1,
+        24
+      ]
+    },
+    "boardAndStageRectanglesUnchanged": true,
+    "finalStoppedZero": true
+  }
+}
