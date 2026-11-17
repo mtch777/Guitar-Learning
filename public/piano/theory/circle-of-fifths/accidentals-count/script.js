@@ -19,7 +19,8 @@ const ANSWER_PITCH_CLASS = {
   3: 2, // D
   4: 3, // D#
   5: 4, // E
-  6: 5  // F
+  6: 5, // F
+  7: 6  // F#
 };
 
 const GREY = "#D6D9DF";
@@ -248,9 +249,7 @@ function nextQuestion() {
     currentPrompt() +
       " · Question " +
       questionNumber +
-      " of " +
-      remaining.length +
-      " remaining",
+      " of 11",
     ""
   );
 }
