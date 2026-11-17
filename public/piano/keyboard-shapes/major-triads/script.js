@@ -252,11 +252,7 @@ function handleTriadNote(noteNumber) {
     );
 
     window.setTimeout(() => {
-      if (window.PracticeMIDI) {
-  window.PracticeMIDI.watchButton(midiButton);
-}
-
-chooseRandomRoot();
+      chooseRandomRoot();
     }, 700);
 
     return;
@@ -344,6 +340,10 @@ midiButton.addEventListener("click", async () => {
 });
 
 newTriadButton.addEventListener("click", chooseRandomRoot);
+
+if (window.PracticeMIDI) {
+  window.PracticeMIDI.watchButton(midiButton);
+}
 
 chooseRandomRoot();
 
