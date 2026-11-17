@@ -247,9 +247,6 @@ function handleTriadNote(noteNumber) {
     window.setTimeout(() => {
       chooseRandomRoot();
 
-if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
-  connectMidi();
-}
     }, 700);
 
     return;
@@ -339,6 +336,6 @@ newTriadButton.addEventListener("click", chooseRandomRoot);
 
 chooseRandomRoot();
 
-
-
-
+if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
+  connectMidi();
+}
