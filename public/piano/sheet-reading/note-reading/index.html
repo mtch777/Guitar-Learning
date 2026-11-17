@@ -80,11 +80,11 @@
       <button
         id="midiConnection"
         class="midi-connection"
-        ng-class="{ connected: connectedInputCount > 0 }"
+        ng-class="{ connected: midiConnected }"
         type="button"
         ng-click="enableMIDI()"
       >
-        {{ connectedInputCount > 0 ? "🟢 MIDI connected" : "🔴 Enable MIDI" }}
+        {{ midiConnected ? "🟢 MIDI connected" : "🔴 Enable MIDI" }}
       </button>
 
       <div class="status" ng-class="statusType" aria-live="polite">
