@@ -39,7 +39,6 @@ const WRONG = "#E53935";
 
 const svg = document.getElementById("circleSvg");
 const midiButton = document.getElementById("midiButton");
-const midiConnection = document.getElementById("midiConnection");
 const restartButton = document.getElementById("restartButton");
 const statusElement = document.getElementById("status");
 const sequenceProgress = document.getElementById("sequenceProgress");
@@ -179,13 +178,11 @@ function setStatus(text, type) {
 }
 
 function setMidiConnection(connected) {
-  if (!midiConnection) return;
-
-  midiConnection.textContent = connected
+  midiButton.textContent = connected
     ? "🟢 MIDI connected"
     : "🔴 Enable MIDI";
-
-  midiConnection.classList.toggle("connected", connected);
+  midiButton.classList.toggle("connected", connected);
+  midiButton.disabled = connected;
 }
 
 function getSequencesForKey(key) {
@@ -444,37 +441,21 @@ midiButton.addEventListener("click", async () => {
     if (!attachMidiInputs()) {
       return;
     }
-
-    if (window.PracticeMIDI) {
-      window.PracticeMIDI.setEnabled(true);
-      window.PracticeMIDI.syncButton(midiButton);
-    } else {
-      midiButton.textContent = "MIDI enabled";
-      midiButton.disabled = true;
-    }
+    setMidiConnection(true);
 
     resetLesson();
   } catch (error) {
-    setStatus("Waiting for keyboard input…", "");
+    midiAccess = null;
+    setMidiConnection(false);
+    setStatus("MIDI access failed", "error");
   }
 });
 
 restartButton.addEventListener("click", resetLesson);
 
-if (midiConnection) {
-  midiConnection.addEventListener("click", () => {
-    if (typeof connectMidi === "function") {
-      connectMidi(true);
-    } else if (midiButton) {
-      midiButton.click();
-    }
-  });
-}
 
-if (window.PracticeMIDI) {
-  window.PracticeMIDI.watchButton(midiButton);
-}
 
+setMidiConnection(false);
 drawCircle();
 
 
