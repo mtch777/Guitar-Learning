@@ -5,7 +5,7 @@ const keys = [
   { label: "A", accidental: "♯♯♯", color: "#FDD835" },
   { label: "E", accidental: "♯♯♯♯", color: "#FFB300" },
   { label: "B", accidental: "♯♯♯♯♯", color: "#FB8C00" },
-  { label: "F♯ / G♭", accidental: "6♯ / 6♭", color: "#EA4335" },
+  { label: "F♯ / G♭", accidental: "♯♯♯♯♯♯ / ♭♭♭♭♭♭", color: "#EA4335" },
   { label: "D♭", accidental: "♭♭♭♭♭", color: "#7E57C2" },
   { label: "A♭", accidental: "♭♭♭♭", color: "#5C6BC0" },
   { label: "E♭", accidental: "♭♭♭", color: "#42A5F5" },
