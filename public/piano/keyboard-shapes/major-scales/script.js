@@ -174,7 +174,7 @@ function renderKeyboard(from, to) {
 
     keyboard.appendChild(key);
     keyElements.set(midi, key);
-  });
+  }
 
   correctNotes.forEach((midi) => {
     const key = keyElements.get(midi);
