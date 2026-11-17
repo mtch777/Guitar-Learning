@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Note Reading · Practice</title>
-  <link rel="stylesheet" href="./style.css?v=c004cc3fb32e">
-  <meta name="build-version" content="c004cc3fb32e">
+  <link rel="stylesheet" href="./style.css?v=0c9a7242bbed">
+  <meta name="build-version" content="0c9a7242bbed">
 </head>
 <body ng-app="myApp">
   <div class="lesson-shell">
     <nav class="lesson-nav">
-      <a href="../?v=c004cc3fb32e">← Sheet Reading</a>
-      <a href="../../?v=c004cc3fb32e">Practice home</a>
+      <a href="../?v=0c9a7242bbed">← Sheet Reading</a>
+      <a href="../../?v=0c9a7242bbed">Practice home</a>
     </nav>
 
     <div class="trainer" ng-controller="MyRngCtrl">
@@ -85,7 +85,7 @@
         type="button"
         ng-click="enableMIDI()"
       >
-        {{ connectedInputCount > 0 ? "🟢 Keyboard connected" : "🔴 Waiting for keyboard input" }}
+        {{ connectedInputCount > 0 ? "🟢 MIDI connected" : "🔴 Enable MIDI" }}
       </button>
 
       <div class="status" ng-class="statusType" aria-live="polite">
@@ -96,8 +96,8 @@
     </div>
   </div>
 
-  <script src="../../shared/tracker.js?v=c004cc3fb32e"></script>
-  <script src="../../shared/midi.js?v=c004cc3fb32e"></script>
+  <script src="../../shared/tracker.js?v=0c9a7242bbed"></script>
+  <script src="../../shared/midi.js?v=0c9a7242bbed"></script>
   <script>
     if (window.PracticeTracker) {
       window.PracticeTracker.recordOpen("sheet-reading-note-reading");
@@ -105,6 +105,6 @@
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vexflow/1.2.93/vexflow-min.js"></script>
-  <script src="./script.js?v=c004cc3fb32e"></script>
+  <script src="./script.js?v=0c9a7242bbed"></script>
 </body>
 </html>

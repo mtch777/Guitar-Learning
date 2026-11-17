@@ -40,8 +40,8 @@ function setMidiConnection(connected) {
   if (!midiConnection) return;
 
   midiConnection.textContent = connected
-    ? "🟢 Keyboard connected"
-    : "🔴 Waiting for keyboard input";
+    ? "🟢 MIDI connected"
+    : "🔴 Enable MIDI";
 
   midiConnection.classList.toggle("connected", connected);
 }
