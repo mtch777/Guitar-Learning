@@ -252,7 +252,11 @@ function handleTriadNote(noteNumber) {
     );
 
     window.setTimeout(() => {
-      chooseRandomRoot();
+      if (window.PracticeMIDI) {
+  window.PracticeMIDI.watchButton(midiButton);
+}
+
+chooseRandomRoot();
     }, 700);
 
     return;
@@ -322,8 +326,13 @@ midiButton.addEventListener("click", async () => {
       return;
     }
 
-    midiButton.textContent = "MIDI enabled";
-    midiButton.disabled = true;
+    if (window.PracticeMIDI) {
+      window.PracticeMIDI.setEnabled(true);
+      window.PracticeMIDI.syncButton(midiButton);
+    } else {
+      midiButton.textContent = "MIDI enabled";
+      midiButton.disabled = true;
+    }
 
     setStatus(
       "Play " + NOTE_NAMES[targetPitchClass] + " in any octave to start",
@@ -337,3 +346,10 @@ midiButton.addEventListener("click", async () => {
 newTriadButton.addEventListener("click", chooseRandomRoot);
 
 chooseRandomRoot();
+
+if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
+  window.setTimeout(() => {
+    midiButton.disabled = false;
+    midiButton.click();
+  }, 0);
+}
