@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Sheet Music Practice - Automated MIDI</title>
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <html>
+  <body ng-app="myApp">
+    <div class="trainer" ng-controller="MyRngCtrl">
+      <div class="filters">
+        <label>
+          <span>Clef</span>
+
+          <select
+            ng-model="clefFilter"
+            ng-change="applyFilters()"
+          >
+            <option value="treble">Treble</option>
+            <option value="bass">Bass</option>
+            <option value="both">Both</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Notes</span>
+
+          <select
+            ng-model="noteFilter"
+            ng-change="applyFilters()"
+          >
+            <option value="natural">Natural</option>
+            <option value="accidental">Accidental</option>
+            <option value="both">Both</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="range-section">
+        <div class="range-header">
+          <span>Range</span>
+
+          <strong>
+            {{ rangeMinLabel }} – {{ rangeMaxLabel }}
+          </strong>
+        </div>
+
+        <div class="dual-range">
+          <div class="range-track"></div>
+
+          <div
+            class="range-selection"
+            ng-style="rangeSelectionStyle"
+          ></div>
+
+          <input
+            id="rangeMin"
+            class="range-input"
+            type="range"
+            min="{{ absoluteMidiMin }}"
+            max="{{ absoluteMidiMax }}"
+            step="1"
+            ng-model="rangeMin"
+            ng-change="onRangeMinChange()"
+            aria-label="Lowest possible note"
+          >
+
+          <input
+            id="rangeMax"
+            class="range-input"
+            type="range"
+            min="{{ absoluteMidiMin }}"
+            max="{{ absoluteMidiMax }}"
+            step="1"
+            ng-model="rangeMax"
+            ng-change="onRangeMaxChange()"
+            aria-label="Highest possible note"
+          >
+        </div>
+
+        <div class="range-endpoints">
+          <span>{{ absoluteMinLabel }}</span>
+          <span>{{ absoluteMaxLabel }}</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        ng-click="enableMIDI()"
+        ng-disabled="midiAccessGranted"
+      >
+        {{ midiAccessGranted ? "MIDI enabled" : "Enable MIDI" }}
+      </button>
+
+      <div
+        class="status"
+        ng-class="statusType"
+        aria-live="polite"
+      >
+        {{ status }}
+      </div>
+
+      <div id="staff"></div>
+    </div>
+  </body>
+</html>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/vexflow/1.2.93/vexflow-min.js'></script><script  src="./script.js"></script>
+
+  </body>
+  
+</html>
