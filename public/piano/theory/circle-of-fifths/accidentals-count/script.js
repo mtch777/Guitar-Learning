@@ -14,13 +14,13 @@ const keys = [
 ];
 
 const ANSWER_PITCH_CLASS = {
-  1: 0, // C
-  2: 1, // C#
-  3: 2, // D
-  4: 3, // D#
-  5: 4, // E
-  6: 5, // F
-  7: 6  // F#
+  0: 0,  // C
+  1: 2,  // D
+  2: 4,  // E
+  3: 5,  // F
+  4: 7,  // G
+  5: 9,  // A
+  6: 11  // B
 };
 
 const GREY = "#D6D9DF";
@@ -161,11 +161,7 @@ function setStatus(text, type) {
 }
 
 function resetLesson() {
-  // C major has 0 accidentals, and the requested MIDI answer
-  // mapping starts at C = 1, so C is not quizzed here.
-  remaining = keys
-    .map((_, index) => index)
-    .filter((index) => keys[index].count > 0);
+  remaining = keys.map((_, index) => index);
 
   solved = new Set();
   locked = false;
@@ -249,7 +245,7 @@ function nextQuestion() {
     currentPrompt() +
       " · Question " +
       questionNumber +
-      " of 11",
+      " of 12",
     ""
   );
 }
@@ -395,11 +391,13 @@ midiButton.addEventListener(
         return;
       }
 
-      midiButton.textContent =
-        "MIDI enabled";
-
-      midiButton.disabled =
-        true;
+      if (window.PracticeMIDI) {
+        window.PracticeMIDI.setEnabled(true);
+        window.PracticeMIDI.syncButton(midiButton);
+      } else {
+        midiButton.textContent = "MIDI enabled";
+        midiButton.disabled = true;
+      }
 
       resetLesson();
     } catch (error) {
@@ -416,5 +414,16 @@ restartButton.addEventListener(
   resetLesson
 );
 
+if (window.PracticeMIDI) {
+  window.PracticeMIDI.watchButton(midiButton);
+}
+
 drawCircle();
 resetLesson();
+
+if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
+  window.setTimeout(() => {
+    midiButton.disabled = false;
+    midiButton.click();
+  }, 0);
+}
