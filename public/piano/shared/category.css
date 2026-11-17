@@ -1,0 +1,130 @@
+:root {
+  font-family: Inter, ui-rounded, "SF Pro Rounded", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #172033;
+  background: #f7f7fb;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top right, rgba(220, 232, 255, 0.8), transparent 38%),
+    #f7f7fb;
+}
+
+.page {
+  width: min(760px, calc(100% - 24px));
+  margin: 0 auto;
+  padding: 26px 0 48px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #626b7a;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.category-hero {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 14px 0 28px;
+}
+
+.category-icon {
+  display: grid;
+  place-items: center;
+  width: 82px;
+  height: 82px;
+  flex: 0 0 auto;
+  border-radius: 24px;
+  background: white;
+  box-shadow: 0 10px 24px rgba(51, 57, 75, 0.08);
+  font-size: 46px;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(32px, 7vw, 48px);
+  letter-spacing: -0.035em;
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: #6f7787;
+}
+
+.lesson-list {
+  display: grid;
+  gap: 12px;
+}
+
+.lesson-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid rgba(79, 88, 112, 0.12);
+  border-radius: 20px;
+  background: white;
+}
+
+.lesson-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: #f1f3f8;
+  font-size: 30px;
+}
+
+.lesson-copy strong,
+.lesson-copy span {
+  display: block;
+}
+
+.lesson-copy strong {
+  font-size: 18px;
+}
+
+.lesson-copy span {
+  margin-top: 4px;
+  color: #71798a;
+  font-size: 13px;
+}
+
+.lesson-count {
+  color: #687184;
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.empty-state {
+  padding: 28px 20px;
+  border: 1px dashed #cfd4dd;
+  border-radius: 20px;
+  background: rgba(255,255,255,.64);
+  color: #747c8c;
+  text-align: center;
+}
+
+@media (max-width: 520px) {
+  .lesson-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .lesson-count {
+    grid-column: 2;
+    white-space: normal;
+  }
+}
