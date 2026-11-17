@@ -132,3 +132,28 @@ h1 {
   line-height: 1.2;
   letter-spacing: -0.01em;
 }
+/* Dark theme */
+:root {
+  color-scheme: dark;
+  color: #e5e7eb;
+  background: #0b0f14;
+}
+body {
+  background:
+    radial-gradient(circle at top right, rgba(30, 64, 175, 0.18), transparent 38%),
+    #0b0f14;
+}
+.back { color: #a7b0be; }
+.category-icon,
+.lesson-card {
+  border-color: #2a3340;
+  background: #141a22;
+  box-shadow: 0 10px 24px rgba(0,0,0,.28);
+}
+.lesson-icon { background: #1b2330; }
+.lesson-copy span { color: #9aa4b2; }
+.empty-state {
+  border-color: #3a4554;
+  background: rgba(20,26,34,.72);
+  color: #9aa4b2;
+}
