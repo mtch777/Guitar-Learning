@@ -54,10 +54,6 @@ h1 {
   letter-spacing: -0.035em;
 }
 
-.subtitle {
-  margin: 6px 0 0;
-  color: #6f7787;
-}
 
 .lesson-list {
   display: grid;
@@ -66,7 +62,7 @@ h1 {
 
 .lesson-card {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 14px;
   padding: 16px;
@@ -102,12 +98,6 @@ h1 {
   font-size: 13px;
 }
 
-.lesson-count {
-  color: #687184;
-  font-size: 12px;
-  font-weight: 750;
-  white-space: nowrap;
-}
 
 .empty-state {
   padding: 28px 20px;
@@ -121,10 +111,5 @@ h1 {
 @media (max-width: 520px) {
   .lesson-card {
     grid-template-columns: auto minmax(0, 1fr);
-  }
-
-  .lesson-count {
-    grid-column: 2;
-    white-space: normal;
   }
 }
