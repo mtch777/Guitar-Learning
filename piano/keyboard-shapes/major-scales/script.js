@@ -385,8 +385,4 @@ if (window.PracticeMIDI) {
   window.PracticeMIDI.watchButton(midiButton);
 }
 
-if (typeof connectMidi === "function") {
-  connectMidi(false);
-} else {
-  window.setTimeout(() => midiButton.click(), 0);
-}
+
