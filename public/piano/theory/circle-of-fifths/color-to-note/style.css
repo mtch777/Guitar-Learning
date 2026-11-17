@@ -147,3 +147,21 @@ button:disabled {
     text-align: center;
   }
 }
+
+.midi-connection {
+  min-height: 36px;
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #b91c1c;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.midi-connection.connected {
+  color: #15803d;
+  cursor: default;
+}
