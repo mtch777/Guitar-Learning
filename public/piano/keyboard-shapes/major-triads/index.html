@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Major Triads · Practice</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="lesson-shell">
+    <nav class="lesson-nav">
+      <a href="../">← Keyboard Shapes</a>
+      <a href="../../">Practice home</a>
+    </nav>
+
+    <section class="lesson-card">
+      <div class="top-row">
+        <div class="prompt">
+          <span class="prompt-label">Play</span>
+          <strong id="rootName">—</strong>
+          <span>major triad</span>
+        </div>
+
+        <button id="midiButton" type="button">Enable MIDI</button>
+      </div>
+
+      <div id="status" class="status" aria-live="polite">
+        Enable MIDI to start
+      </div>
+
+      <div class="keyboard-shell">
+        <div id="keyboard" class="keyboard" aria-label="Virtual piano keyboard"></div>
+      </div>
+
+      <div class="progress-row">
+        <span id="progressText">0 / 3</span>
+        <button id="newTriadButton" type="button">New triad</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="../../shared/tracker.js"></script>
+  <script>
+    if (window.PracticeTracker) {
+      window.PracticeTracker.recordOpen("keyboard-shapes-major-triads");
+    }
+  </script>
+  <script src="./script.js"></script>
+</body>
+</html>
