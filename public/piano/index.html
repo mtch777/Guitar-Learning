@@ -1,116 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>Sheet Music Practice - Automated MIDI</title>
-    <link rel="stylesheet" href="./style.css">
-
-  </head>
-    
-  <body>
-  <html>
-  <body ng-app="myApp">
-    <div class="trainer" ng-controller="MyRngCtrl">
-      <div class="filters">
-        <label>
-          <span>Clef</span>
-
-          <select
-            ng-model="clefFilter"
-            ng-change="applyFilters()"
-          >
-            <option value="treble">Treble</option>
-            <option value="bass">Bass</option>
-            <option value="both">Both</option>
-          </select>
-        </label>
-
-        <label>
-          <span>Notes</span>
-
-          <select
-            ng-model="noteFilter"
-            ng-change="applyFilters()"
-          >
-            <option value="natural">Natural</option>
-            <option value="accidental">Accidental</option>
-            <option value="both">Both</option>
-          </select>
-        </label>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Practice</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Music practice</p>
+        <h1>Practice</h1>
+        <p class="intro">Pick a category and jump straight into a lesson.</p>
       </div>
 
-      <div class="range-section">
-        <div class="range-header">
-          <span>Range</span>
-
-          <strong>
-            {{ rangeMinLabel }} – {{ rangeMaxLabel }}
-          </strong>
+      <div class="weekly-card" aria-label="Lesson opens in the last seven days">
+        <span class="weekly-icon">🔥</span>
+        <div>
+          <strong data-total-count>0 lesson opens</strong>
+          <span>in the last 7 days</span>
         </div>
+      </div>
+    </header>
 
-        <div class="dual-range">
-          <div class="range-track"></div>
+    <section class="category-grid" aria-label="Practice categories">
+      <a class="category-card" href="./theory/">
+        <span class="category-icon">🧠</span>
+        <span class="category-name">Theory</span>
+        <span class="category-action">Open category →</span>
+      </a>
 
-          <div
-            class="range-selection"
-            ng-style="rangeSelectionStyle"
-          ></div>
+      <a class="category-card" href="./sheet-reading/">
+        <span class="category-icon">📖</span>
+        <span class="category-name">Sheet Reading</span>
+        <span class="category-action">Open category →</span>
+      </a>
 
-          <input
-            id="rangeMin"
-            class="range-input"
-            type="range"
-            min="{{ absoluteMidiMin }}"
-            max="{{ absoluteMidiMax }}"
-            step="1"
-            ng-model="rangeMin"
-            ng-change="onRangeMinChange()"
-            aria-label="Lowest possible note"
-          >
+      <a class="category-card" href="./keyboard-shapes/">
+        <span class="category-icon">🎹</span>
+        <span class="category-name">Keyboard Shapes</span>
+        <span class="category-action">Open category →</span>
+      </a>
 
-          <input
-            id="rangeMax"
-            class="range-input"
-            type="range"
-            min="{{ absoluteMidiMin }}"
-            max="{{ absoluteMidiMax }}"
-            step="1"
-            ng-model="rangeMax"
-            ng-change="onRangeMaxChange()"
-            aria-label="Highest possible note"
-          >
-        </div>
+      <a class="category-card" href="./learning-songs/">
+        <span class="category-icon">🎵</span>
+        <span class="category-name">Learning Songs</span>
+        <span class="category-action">Open category →</span>
+      </a>
 
-        <div class="range-endpoints">
-          <span>{{ absoluteMinLabel }}</span>
-          <span>{{ absoluteMaxLabel }}</span>
+      <a class="category-card" href="./improvisation/">
+        <span class="category-icon">✨</span>
+        <span class="category-name">Improvisation</span>
+        <span class="category-action">Open category →</span>
+      </a>
+    </section>
+
+    <section class="recent-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Available now</p>
+          <h2>Lessons</h2>
         </div>
       </div>
 
-      <button
-        type="button"
-        ng-click="enableMIDI()"
-        ng-disabled="midiAccessGranted"
-      >
-        {{ midiAccessGranted ? "MIDI enabled" : "Enable MIDI" }}
-      </button>
+      <a class="lesson-card" href="./sheet-reading/note-reading/">
+        <span class="lesson-icon">🎼</span>
+        <span class="lesson-copy">
+          <strong>Note Reading</strong>
+          <span>Sheet Reading · MIDI keyboard</span>
+        </span>
+        <span class="lesson-count" data-lesson-count="sheet-reading-note-reading">
+          0 opens · last 7 days
+        </span>
+      </a>
+    </section>
 
-      <div
-        class="status"
-        ng-class="statusType"
-        aria-live="polite"
-      >
-        {{ status }}
-      </div>
+    <p class="storage-note">Practice counts are stored on this device.</p>
+  </main>
 
-      <div id="staff"></div>
-    </div>
-  </body>
-</html>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js'></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/vexflow/1.2.93/vexflow-min.js'></script><script  src="./script.js"></script>
-
-  </body>
-  
+  <script src="./shared/tracker.js"></script>
+  <script src="./script.js"></script>
+</body>
 </html>
