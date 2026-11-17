@@ -120,3 +120,15 @@ h1 {
   opacity: 0.55;
   cursor: default;
 }
+
+
+.lesson-section + .lesson-section {
+  margin-top: 24px;
+}
+
+.lesson-section-title {
+  margin: 0 0 10px;
+  font-size: 18px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}

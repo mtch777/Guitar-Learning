@@ -18,6 +18,7 @@ const WRONG = "#E53935";
 
 const svg = document.getElementById("circleSvg");
 const midiButton = document.getElementById("midiButton");
+const midiConnection = document.getElementById("midiConnection");
 const restartButton = document.getElementById("restartButton");
 const statusElement = document.getElementById("status");
 
@@ -135,6 +136,16 @@ function setStatus(text, type) {
   statusElement.className = "status" + (type ? " " + type : "");
 }
 
+function setMidiConnection(connected) {
+  if (!midiConnection) return;
+
+  midiConnection.textContent = connected
+    ? "🟢 Keyboard connected"
+    : "🔴 Waiting for keyboard input";
+
+  midiConnection.classList.toggle("connected", connected);
+}
+
 function resetLesson() {
   remaining = keys.map((_, index) => index);
   solved = new Set();
@@ -154,7 +165,7 @@ function resetLesson() {
   if (midiAccess) {
     nextQuestion();
   } else {
-    setStatus("Enable MIDI to start", "");
+    setStatus("Waiting for keyboard input…", "");
   }
 }
 
@@ -202,9 +213,11 @@ function attachMidiInputs() {
 
   if (inputs.length === 0) {
     setStatus("No MIDI keyboard connected", "error");
+    setMidiConnection(false);
     return false;
   }
 
+  setMidiConnection(true);
   return true;
 }
 
@@ -282,7 +295,7 @@ midiButton.addEventListener("click", async () => {
   }
 
   try {
-    setStatus("Connecting MIDI…", "");
+    setStatus("Waiting for keyboard input…", "");
 
     midiAccess = await navigator.requestMIDIAccess({
       sysex: false
@@ -306,14 +319,19 @@ midiButton.addEventListener("click", async () => {
 
     resetLesson();
   } catch (error) {
-    setStatus(
-      "MIDI access failed",
-      "error"
-    );
+    setStatus("Waiting for keyboard input…", "");
   }
 });
 
 restartButton.addEventListener("click", resetLesson);
+
+midiConnection.addEventListener("click", () => {
+  if (typeof connectMidi === "function") {
+    connectMidi(true);
+  } else {
+    midiButton.click();
+  }
+});
 
 if (window.PracticeMIDI) {
   window.PracticeMIDI.watchButton(midiButton);
@@ -321,10 +339,9 @@ if (window.PracticeMIDI) {
 
 drawCircle();
 
-if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
-  window.setTimeout(() => {
-    midiButton.disabled = false;
-    midiButton.click();
-  }, 0);
+if (typeof connectMidi === "function") {
+  connectMidi(false);
+} else {
+  window.setTimeout(() => midiButton.click(), 0);
 }
 resetLesson();

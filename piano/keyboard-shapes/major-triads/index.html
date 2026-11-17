@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Major Triads · Practice</title>
-  <link rel="stylesheet" href="./style.css?v=20261117-4">
+  <link rel="stylesheet" href="./style.css?v=20261117-6">
 </head>
 <body>
   <main class="lesson-shell">
@@ -21,7 +21,8 @@
           <span>major triad</span>
         </div>
 
-        <button id="midiButton" type="button">Enable MIDI</button>
+        <button id="midiButton" type="button" hidden aria-hidden="true" tabindex="-1">Enable MIDI</button>
+        <button id="midiConnection" class="midi-connection" type="button">🔴 Waiting for keyboard input</button>
       </div>
 
       <div id="status" class="status" aria-live="polite">
@@ -40,12 +41,12 @@
   </main>
 
   <script src="../../shared/tracker.js"></script>
-  <script src="../../shared/midi.js"></script>
+  <script src="../../shared/midi.js?v=20261117-6"></script>
   <script>
     if (window.PracticeTracker) {
       window.PracticeTracker.recordOpen("keyboard-shapes-major-triads");
     }
   </script>
-  <script src="./script.js?v=20261117-3"></script>
+  <script src="./script.js?v=20261117-6"></script>
 </body>
 </html>

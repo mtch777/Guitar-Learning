@@ -20,7 +20,7 @@
 
     const enabled = isEnabled();
     button.textContent = enabled ? "MIDI enabled" : "Enable MIDI";
-    button.disabled = enabled;
+    button.disabled = false;
   }
 
   function watchButton(button) {

@@ -41,6 +41,7 @@ app.controller("MyRngCtrl", function ($scope, $timeout) {
 
   var midiAccess = null;
   var connectedInputCount = 0;
+  $scope.connectedInputCount = 0;
 
   var feedbackLocked = false;
   var feedbackTimer = null;
@@ -75,7 +76,7 @@ $scope.rangeMax = 72; // C5
 
   $scope.midiAccessGranted = false;
   $scope.status =
-    "Enable MIDI, then play the displayed note.";
+    "Waiting for keyboard input…";
 
   $scope.statusType = "";
 
@@ -145,7 +146,7 @@ $scope.rangeMax = 72; // C5
       $scope.statusType = "error";
     } else {
       $scope.status =
-        "Enable MIDI, then play the displayed note.";
+        "Waiting for keyboard input…";
 
       $scope.statusType = "";
     }
@@ -261,7 +262,7 @@ $scope.rangeMax = 72; // C5
       return;
     }
 
-    $scope.status = "Requesting MIDI access...";
+    $scope.status = "Waiting for keyboard input…";
     $scope.statusType = "";
 
     navigator
@@ -312,12 +313,14 @@ $scope.rangeMax = 72; // C5
     );
 
     connectedInputCount = 0;
+    $scope.connectedInputCount = 0;
 
     inputs.forEach(function (input) {
       input.onmidimessage = handleMidiMessage;
 
       if (input.state !== "disconnected") {
         connectedInputCount++;
+        $scope.connectedInputCount = connectedInputCount;
       }
     });
 
@@ -680,9 +683,7 @@ $scope.rangeMax = 72; // C5
   updateRangeDisplay();
   selectNewNote();
 
-  if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
-    $timeout(function () {
-      $scope.enableMIDI();
-    }, 0);
-  }
+  $timeout(function () {
+    $scope.enableMIDI();
+  }, 0);
 });
