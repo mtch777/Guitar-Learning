@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Color → Note · Circle of Fifths</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="lesson-shell">
+    <nav class="lesson-nav">
+      <a href="../">← Circle of Fifths</a>
+      <a href="../../../">Practice home</a>
+    </nav>
+
+    <section class="quiz-card">
+      <div class="quiz-toolbar">
+        <button id="midiButton" type="button">Enable MIDI</button>
+        <span id="status" class="status" aria-live="polite">
+          Enable MIDI to start
+        </span>
+      </div>
+
+      <div class="chart-wrap">
+        <svg
+          id="circleSvg"
+          viewBox="0 0 600 600"
+          aria-label="Circle of fifths color to note quiz"
+          role="img"
+        ></svg>
+      </div>
+
+      <button id="restartButton" class="restart-button" type="button" hidden>
+        Restart
+      </button>
+    </section>
+  </main>
+
+  <script src="../../../shared/tracker.js"></script>
+  <script>
+    if (window.PracticeTracker) {
+      window.PracticeTracker.recordOpen("theory-circle-of-fifths-color-to-note");
+    }
+  </script>
+  <script src="./script.js"></script>
+</body>
+</html>
