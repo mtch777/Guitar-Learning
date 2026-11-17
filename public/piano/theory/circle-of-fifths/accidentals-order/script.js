@@ -461,13 +461,15 @@ midiButton.addEventListener("click", async () => {
 
 restartButton.addEventListener("click", resetLesson);
 
-midiConnection.addEventListener("click", () => {
-  if (typeof connectMidi === "function") {
-    connectMidi(true);
-  } else {
-    midiButton.click();
-  }
-});
+if (midiConnection) {
+  midiConnection.addEventListener("click", () => {
+    if (typeof connectMidi === "function") {
+      connectMidi(true);
+    } else if (midiButton) {
+      midiButton.click();
+    }
+  });
+}
 
 if (window.PracticeMIDI) {
   window.PracticeMIDI.watchButton(midiButton);
