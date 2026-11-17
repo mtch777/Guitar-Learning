@@ -26,7 +26,7 @@ let expectedSequence = [];
 let nextIndex = 0;
 let correctNotes = new Set();
 let keyElements = new Map();
-let wrongTimer = null;
+let wrongTimers = new Map();
 let lastRootPitchClass = null;
 let finished = false;
 
@@ -306,17 +306,24 @@ function flashWrong(midi) {
   visibleKey.classList.remove("correct");
   visibleKey.classList.add("wrong");
 
-  if (wrongTimer) {
-    window.clearTimeout(wrongTimer);
+  const existingTimer = wrongTimers.get(midi);
+  if (existingTimer) {
+    window.clearTimeout(existingTimer);
   }
 
-  wrongTimer = window.setTimeout(() => {
+  const timer = window.setTimeout(() => {
     visibleKey.classList.remove("wrong");
 
     if (wasCorrect) {
       visibleKey.classList.add("correct");
+    } else {
+      visibleKey.classList.remove("correct");
     }
+
+    wrongTimers.delete(midi);
   }, 320);
+
+  wrongTimers.set(midi, timer);
 }
 
 async function connectMidi() {
