@@ -195,7 +195,7 @@ function resetLesson() {
   if (midiAccess) {
     nextQuestion();
   } else {
-    setStatus("Enable MIDI to start", "");
+    setStatus("Waiting for keyboard input…", "");
   }
 }
 
@@ -414,10 +414,7 @@ midiButton.addEventListener(
 
       resetLesson();
     } catch (error) {
-      setStatus(
-        "MIDI access failed",
-        "error"
-      );
+      setStatus("Waiting for keyboard input…", "");
     }
   }
 );
