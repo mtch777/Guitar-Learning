@@ -4,33 +4,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Circle of Fifths · Practice</title>
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="../../shared/category.css">
 </head>
 <body>
-  <main class="lesson-shell">
-    <nav class="lesson-nav">
-      <a href="../">← Theory</a>
-      <a href="../../">Practice home</a>
-    </nav>
+  <main class="page">
+    <a class="back" href="../">← Theory</a>
 
-    <section class="chart-card">
-      <div class="chart-wrap">
-        <svg
-          id="circleSvg"
-          viewBox="0 0 600 600"
-          aria-label="Circle of fifths chart"
-          role="img"
-        ></svg>
+    <header class="category-hero">
+      <span class="category-icon">⭕</span>
+      <div>
+        <h1>Circle of Fifths</h1>
+      </div>
+    </header>
+
+    <section class="lesson-list">
+      <a class="lesson-card" href="./color-to-note/">
+        <span class="lesson-icon">🎨</span>
+        <span class="lesson-copy">
+          <strong>Color → Note</strong>
+        </span>
+      </a>
+
+      <div class="lesson-card lesson-placeholder" aria-disabled="true">
+        <span class="lesson-icon">2️⃣</span>
+        <span class="lesson-copy">
+          <strong>Lesson 2</strong>
+        </span>
+      </div>
+
+      <div class="lesson-card lesson-placeholder" aria-disabled="true">
+        <span class="lesson-icon">3️⃣</span>
+        <span class="lesson-copy">
+          <strong>Lesson 3</strong>
+        </span>
       </div>
     </section>
   </main>
-
-  <script src="../../shared/tracker.js"></script>
-  <script>
-    if (window.PracticeTracker) {
-      window.PracticeTracker.recordOpen("theory-circle-of-fifths");
-    }
-  </script>
-  <script src="./script.js"></script>
 </body>
 </html>
