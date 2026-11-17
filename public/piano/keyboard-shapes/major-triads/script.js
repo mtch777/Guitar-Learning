@@ -12,6 +12,7 @@ const MAX_START_MIDI = MIDI_MAX - 7;
 const rootName = document.getElementById("rootName");
 const statusElement = document.getElementById("status");
 const midiButton = document.getElementById("midiButton");
+const midiConnection = document.getElementById("midiConnection");
 const newTriadButton = document.getElementById("newTriadButton");
 const keyboard = document.getElementById("keyboard");
 const progressText = document.getElementById("progressText");
@@ -30,6 +31,16 @@ let finished = false;
 function setStatus(text, type) {
   statusElement.textContent = text;
   statusElement.className = "status" + (type ? " " + type : "");
+}
+
+function setMidiConnection(connected) {
+  if (!midiConnection) return;
+
+  midiConnection.textContent = connected
+    ? "🟢 Keyboard connected"
+    : "🔴 Waiting for keyboard input";
+
+  midiConnection.classList.toggle("connected", connected);
 }
 
 function chooseRandomRoot() {
@@ -162,9 +173,11 @@ function attachMidiInputs() {
 
   if (inputs.length === 0) {
     setStatus("No MIDI keyboard connected", "error");
+    setMidiConnection(false);
     return false;
   }
 
+  setMidiConnection(true);
   return true;
 }
 
@@ -328,12 +341,22 @@ midiButton.addEventListener("click", () => {
 
 newTriadButton.addEventListener("click", chooseRandomRoot);
 
+midiConnection.addEventListener("click", () => {
+  if (typeof connectMidi === "function") {
+    connectMidi(true);
+  } else {
+    midiButton.click();
+  }
+});
+
 if (window.PracticeMIDI) {
   window.PracticeMIDI.watchButton(midiButton);
 }
 
 chooseRandomRoot();
 
-if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
+if (typeof connectMidi === "function") {
   connectMidi(false);
+} else {
+  window.setTimeout(() => midiButton.click(), 0);
 }
