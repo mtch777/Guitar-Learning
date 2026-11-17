@@ -52,11 +52,6 @@ h1 {
   letter-spacing: -0.045em;
 }
 
-.intro {
-  margin: 12px 0 0;
-  color: #5b6474;
-  font-size: 18px;
-}
 
 
 /* =========================
@@ -65,7 +60,7 @@ h1 {
 
 .activity-card {
   width: min(100%, 360px);
-  padding: 15px 16px 14px;
+  padding: 16px;
   border: 1px solid rgba(92, 98, 120, 0.12);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.82);
@@ -73,54 +68,6 @@ h1 {
   backdrop-filter: blur(12px);
 }
 
-.activity-heading {
-  display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.activity-heading strong,
-.activity-heading span {
-  display: block;
-}
-
-.activity-heading strong {
-  font-size: 16px;
-}
-
-.activity-heading > div:first-child > span {
-  margin-top: 2px;
-  color: #747c8b;
-  font-size: 12px;
-}
-
-.activity-legend {
-  display: grid;
-  grid-template-columns: auto auto auto auto;
-  align-items: center;
-  gap: 4px;
-  color: #7a8291;
-  font-size: 10px;
-  white-space: nowrap;
-}
-
-.legend-swatch {
-  width: 10px;
-  height: 10px;
-  border: 1px solid #cfd5df;
-  border-radius: 3px;
-}
-
-.legend-swatch.inactive {
-  background: #ffffff;
-}
-
-.legend-swatch.active {
-  border-color: #23a455;
-  background: #23a455;
-}
 
 .activity-timeline {
   display: grid;
@@ -164,13 +111,13 @@ h1 {
 }
 
 .category-card {
-  min-height: 190px;
+  min-height: 165px;
   padding: 20px 16px 18px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
+  justify-content: flex-start;
+  gap: 18px;
   text-decoration: none;
   border: 1px solid rgba(79, 88, 112, 0.12);
   border-radius: 24px;
@@ -199,11 +146,6 @@ h1 {
   line-height: 1.08;
 }
 
-.category-action {
-  color: #747c8d;
-  font-size: 12px;
-  font-weight: 700;
-}
 
 .storage-note {
   margin: 16px 2px 0;
@@ -237,11 +179,6 @@ h1 {
   .app-shell {
     width: min(100% - 20px, 980px);
     padding-top: 22px;
-  }
-
-  .activity-heading {
-    align-items: start;
-    flex-direction: column;
   }
 
   .activity-timeline {
