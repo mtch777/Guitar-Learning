@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deployment Status</title>
+  <style>
+    :root {
+      font-family: Inter, ui-rounded, "SF Pro Rounded", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #172033;
+      background: #f7f7fb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: start center;
+      background:
+        radial-gradient(circle at top right, rgba(220,232,255,.85), transparent 38%),
+        #f7f7fb;
+    }
+
+    main {
+      width: min(680px, calc(100% - 24px));
+      margin: 28px auto;
+    }
+
+    .card {
+      padding: 22px;
+      border: 1px solid rgba(79,88,112,.12);
+      border-radius: 24px;
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 12px 28px rgba(52,57,78,.08);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: #737b8a;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .status-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      background: #9ca3af;
+    }
+
+    .dot.queued { background: #f59e0b; }
+    .dot.in-progress { background: #3b82f6; }
+    .dot.success { background: #22c55e; }
+    .dot.failure { background: #ef4444; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 8vw, 48px);
+      line-height: 1;
+      letter-spacing: -.035em;
+    }
+
+    .change {
+      margin: 18px 0;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: #f3f5f8;
+      font-weight: 750;
+      line-height: 1.35;
+    }
+
+    dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px 16px;
+      margin: 0;
+      font-size: 15px;
+    }
+
+    dt {
+      color: #737b8a;
+      font-weight: 750;
+    }
+
+    dd {
+      margin: 0;
+      font-weight: 700;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    button, a.button {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 14px;
+      border: 1px solid #cfd5df;
+      border-radius: 12px;
+      background: white;
+      color: #172033;
+      font: inherit;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .error {
+      color: #b91c1c;
+      font-weight: 700;
+    }
+
+    @media (max-width: 520px) {
+      main {
+        width: min(100% - 18px, 680px);
+        margin-top: 12px;
+      }
+
+      .card {
+        padding: 17px;
+        border-radius: 20px;
+      }
+
+      dl {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+
+      dd {
+        margin-bottom: 9px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card">
+      <p class="eyebrow">Guitar-Learning deployment</p>
+
+      <div class="status-line">
+        <span id="dot" class="dot"></span>
+        <h1 id="status">Loading…</h1>
+      </div>
+
+      <div id="change" class="change">Checking latest deployment…</div>
+
+      <dl>
+        <dt>Started</dt>
+        <dd id="started">—</dd>
+
+        <dt>Completed</dt>
+        <dd id="completed">—</dd>
+
+        <dt>Run</dt>
+        <dd id="runNumber">—</dd>
+      </dl>
+
+      <p id="error" class="error" hidden></p>
+
+      <div class="actions">
+        <button id="refresh" type="button">Refresh status</button>
+        <a id="githubRun" class="button" href="#" target="_blank" rel="noopener">Open GitHub run</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API =
+      "https://api.github.com/repos/mtch777/Guitar-Learning/actions/workflows/deploy-pages.yml/runs?branch=main&per_page=1";
+
+    const statusEl = document.getElementById("status");
+    const dotEl = document.getElementById("dot");
+    const changeEl = document.getElementById("change");
+    const startedEl = document.getElementById("started");
+    const completedEl = document.getElementById("completed");
+    const runNumberEl = document.getElementById("runNumber");
+    const githubRunEl = document.getElementById("githubRun");
+    const errorEl = document.getElementById("error");
+    const refreshEl = document.getElementById("refresh");
+
+    function formatDate(value) {
+      if (!value) return "—";
+
+      return new Intl.DateTimeFormat(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }).format(new Date(value));
+    }
+
+    function normalizedStatus(run) {
+      if (run.status === "queued" || run.status === "pending") {
+        return { label: "Queued", className: "queued" };
+      }
+
+      if (run.status === "in_progress") {
+        return { label: "In progress", className: "in-progress" };
+      }
+
+      if (run.status === "completed") {
+        if (run.conclusion === "success") {
+          return { label: "Success", className: "success" };
+        }
+
+        return {
+          label: run.conclusion
+            ? run.conclusion.charAt(0).toUpperCase() + run.conclusion.slice(1)
+            : "Completed",
+          className: "failure"
+        };
+      }
+
+      return { label: run.status || "Unknown", className: "" };
+    }
+
+    async function loadStatus() {
+      refreshEl.disabled = true;
+      errorEl.hidden = true;
+
+      try {
+        const response = await fetch(API, {
+          headers: { "Accept": "application/vnd.github+json" },
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          throw new Error("GitHub returned " + response.status);
+        }
+
+        const data = await response.json();
+        const run = data.workflow_runs && data.workflow_runs[0];
+
+        if (!run) {
+          throw new Error("No deployment run found");
+        }
+
+        const state = normalizedStatus(run);
+
+        statusEl.textContent = state.label;
+        dotEl.className = "dot" + (state.className ? " " + state.className : "");
+        changeEl.textContent = run.display_title || run.name || "Deployment";
+        startedEl.textContent = formatDate(run.run_started_at || run.created_at);
+        completedEl.textContent =
+          run.status === "completed"
+            ? formatDate(run.updated_at)
+            : "Not completed yet";
+        runNumberEl.textContent = "#" + run.run_number;
+        githubRunEl.href = run.html_url;
+      } catch (error) {
+        statusEl.textContent = "Status unavailable";
+        dotEl.className = "dot failure";
+        errorEl.hidden = false;
+        errorEl.textContent = error.message;
+      } finally {
+        refreshEl.disabled = false;
+      }
+    }
+
+    refreshEl.addEventListener("click", loadStatus);
+
+    loadStatus();
+
+    window.setInterval(loadStatus, 15000);
+  </script>
+</body>
+</html>
