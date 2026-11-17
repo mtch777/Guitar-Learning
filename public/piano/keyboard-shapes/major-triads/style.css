@@ -119,19 +119,20 @@ button:disabled {
 
 .key {
   position: absolute;
-  bottom: 0;
   border: 1px solid #aeb5c0;
   transition: background-color 80ms linear, border-color 80ms linear;
 }
 
 .key.white {
-  height: 100%;
+  top: 0;
+  bottom: 0;
   background: #fff;
   border-radius: 0 0 7px 7px;
   z-index: 1;
 }
 
 .key.black {
+  top: 0;
   height: 62%;
   background: #232933;
   border-color: #111720;
