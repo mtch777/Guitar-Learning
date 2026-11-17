@@ -60,6 +60,78 @@ jobs:
       - name: Build current site
         run: npm run build
 
+
+      - name: Stamp piano pages with commit cache version
+        env:
+          CACHE_VERSION: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import os
+          import re
+          from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
+
+          root = Path("dist/piano")
+          version = os.environ["CACHE_VERSION"][:12]
+
+          attr_re = re.compile(r'(?P<prefix>\b(?:href|src)=["\'])(?P<url>[^"\']+)(?P<suffix>["\'])')
+
+          def version_url(url):
+              if url.startswith(("http://", "https://", "//", "#", "mailto:", "tel:", "data:", "javascript:")):
+                  return url
+
+              parts = urlsplit(url)
+              path = parts.path
+
+              should_version = (
+                  path.endswith((".js", ".css", ".html"))
+                  or path.endswith("/")
+                  or path in (".", "..")
+              )
+
+              if not should_version:
+                  return url
+
+              query = dict(parse_qsl(parts.query, keep_blank_values=True))
+              query["v"] = version
+
+              return urlunsplit((
+                  parts.scheme,
+                  parts.netloc,
+                  path,
+                  urlencode(query),
+                  parts.fragment,
+              ))
+
+          changed = 0
+
+          for html in root.rglob("*.html"):
+              text = html.read_text(encoding="utf-8")
+
+              def replace(match):
+                  stamped = version_url(match.group("url"))
+                  return match.group("prefix") + stamped + match.group("suffix")
+
+              updated = attr_re.sub(replace, text)
+
+              marker = f'<meta name="build-version" content="{version}">'
+              if '<meta name="build-version"' in updated:
+                  updated = re.sub(
+                      r'<meta name="build-version" content="[^"]*">',
+                      marker,
+                      updated,
+                      count=1,
+                  )
+              elif "</head>" in updated:
+                  updated = updated.replace("</head>", f"  {marker}\n</head>", 1)
+
+              if updated != text:
+                  html.write_text(updated, encoding="utf-8")
+                  changed += 1
+
+          print(f"Stamped {changed} piano HTML files with cache version {version}")
+          PY
+
       - name: Publish current site without deleting historical previews
         uses: peaceiris/actions-gh-pages@v4
         with:
