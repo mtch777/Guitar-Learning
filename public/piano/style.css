@@ -185,3 +185,28 @@ a {
     font-size: 16px;
   }
 }
+/* Dark theme */
+:root {
+  color-scheme: dark;
+  color: #e5e7eb;
+  background: #0b0f14;
+}
+body {
+  background:
+    radial-gradient(circle at top left, rgba(88, 28, 135, 0.18), transparent 34%),
+    radial-gradient(circle at top right, rgba(30, 64, 175, 0.18), transparent 36%),
+    #0b0f14;
+}
+.activity-card,
+.category-card {
+  border-color: #2a3340;
+  background: rgba(20, 26, 34, 0.94);
+  box-shadow: 0 12px 28px rgba(0,0,0,.28);
+}
+.activity-square {
+  border-color: #3a4554;
+  background: #141a22;
+}
+.activity-label { color: #9aa4b2; }
+.category-icon { background: #1b2330; }
+.category-name { color: #f3f4f6; }
