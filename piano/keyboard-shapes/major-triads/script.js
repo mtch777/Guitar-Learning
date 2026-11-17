@@ -77,25 +77,8 @@ function buildTriad(start) {
   return MAJOR_TRIAD_INTERVALS.map((interval) => start + interval);
 }
 
-function getDisplayRangeForStart(start) {
-  const octaveC = start - (start % 12);
-
-  return {
-    from: Math.max(MIDI_MIN, octaveC),
-    to: Math.min(MIDI_MAX, octaveC + 11)
-  };
-}
-
-function getPreviewRange() {
-  return { from: 48, to: 83 };
-}
-
 function renderPreviewKeyboard() {
-  const range = startMidi === null
-    ? getPreviewRange()
-    : getDisplayRangeForStart(startMidi);
-
-  renderKeyboard(range.from, range.to);
+  renderKeyboard(MIDI_MIN, MIDI_MAX);
 }
 
 function renderKeyboard(from, to) {
@@ -273,15 +256,6 @@ function markCorrect(midi) {
 function flashWrong(midi) {
   const key = keyElements.get(midi);
 
-  if (!key && startMidi === null) {
-    const c = midi - (midi % 12);
-
-    renderKeyboard(
-      Math.max(MIDI_MIN, c),
-      Math.min(MIDI_MAX, c + 11)
-    );
-  }
-
   const visibleKey = keyElements.get(midi);
   if (!visibleKey) return;
 
@@ -303,10 +277,10 @@ function flashWrong(midi) {
   }, 320);
 }
 
-midiButton.addEventListener("click", async () => {
+async function connectMidi(markGlobalEnabled) {
   if (!navigator.requestMIDIAccess) {
     setStatus("Web MIDI is not supported in this browser", "error");
-    return;
+    return false;
   }
 
   try {
@@ -319,21 +293,47 @@ midiButton.addEventListener("click", async () => {
     midiAccess.onstatechange = attachMidiInputs;
 
     if (!attachMidiInputs()) {
-      return;
+      return false;
     }
 
-    midiButton.textContent = "MIDI enabled";
-    midiButton.disabled = true;
+    if (markGlobalEnabled && window.PracticeMIDI) {
+      window.PracticeMIDI.setEnabled(true);
+    }
 
-    setStatus(
-      "Play " + NOTE_NAMES[targetPitchClass] + " in any octave to start",
-      ""
-    );
+    if (window.PracticeMIDI) {
+      window.PracticeMIDI.syncButton(midiButton);
+    } else {
+      midiButton.textContent = "MIDI enabled";
+      midiButton.disabled = true;
+    }
+
+    setStatus("Play " + NOTE_NAMES[targetPitchClass] + " in any octave to start", "");
+    return true;
   } catch (error) {
-    setStatus("MIDI access failed", "error");
+    midiAccess = null;
+
+    if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
+      window.PracticeMIDI.setEnabled(false);
+      window.PracticeMIDI.syncButton(midiButton);
+    }
+
+    setStatus("MIDI access failed — tap Enable MIDI", "error");
+    return false;
   }
+}
+
+midiButton.addEventListener("click", () => {
+  connectMidi(true);
 });
 
 newTriadButton.addEventListener("click", chooseRandomRoot);
 
+if (window.PracticeMIDI) {
+  window.PracticeMIDI.watchButton(midiButton);
+}
+
 chooseRandomRoot();
+
+if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
+  connectMidi(false);
+}

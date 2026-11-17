@@ -276,6 +276,10 @@ $scope.rangeMax = 72; // C5
 
         refreshMidiInputs();
 
+        if (window.PracticeMIDI) {
+          window.PracticeMIDI.setEnabled(true);
+        }
+
         $scope.$evalAsync(function () {
           $scope.midiAccessGranted = true;
         });
@@ -675,4 +679,10 @@ $scope.rangeMax = 72; // C5
 
   updateRangeDisplay();
   selectNewNote();
+
+  if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
+    $timeout(function () {
+      $scope.enableMIDI();
+    }, 0);
+  }
 });

@@ -296,8 +296,13 @@ midiButton.addEventListener("click", async () => {
       return;
     }
 
-    midiButton.textContent = "MIDI enabled";
-    midiButton.disabled = true;
+    if (window.PracticeMIDI) {
+      window.PracticeMIDI.setEnabled(true);
+      window.PracticeMIDI.syncButton(midiButton);
+    } else {
+      midiButton.textContent = "MIDI enabled";
+      midiButton.disabled = true;
+    }
 
     resetLesson();
   } catch (error) {
@@ -310,5 +315,16 @@ midiButton.addEventListener("click", async () => {
 
 restartButton.addEventListener("click", resetLesson);
 
+if (window.PracticeMIDI) {
+  window.PracticeMIDI.watchButton(midiButton);
+}
+
 drawCircle();
+
+if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
+  window.setTimeout(() => {
+    midiButton.disabled = false;
+    midiButton.click();
+  }, 0);
+}
 resetLesson();
