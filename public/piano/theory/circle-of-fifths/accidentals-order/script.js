@@ -253,7 +253,7 @@ function resetLesson() {
   if (midiAccess) {
     nextQuestion();
   } else {
-    setStatus("Enable MIDI to start", "");
+    setStatus("Waiting for keyboard input…", "");
     sequenceProgress.textContent = "";
   }
 }
@@ -431,7 +431,7 @@ midiButton.addEventListener("click", async () => {
   }
 
   try {
-    setStatus("Connecting MIDI…", "");
+    setStatus("Waiting for keyboard input…", "");
 
     midiAccess = await navigator.requestMIDIAccess({
       sysex: false
@@ -455,7 +455,7 @@ midiButton.addEventListener("click", async () => {
 
     resetLesson();
   } catch (error) {
-    setStatus("MIDI access failed", "error");
+    setStatus("Waiting for keyboard input…", "");
   }
 });
 
