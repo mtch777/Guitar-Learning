@@ -12,7 +12,6 @@ const MAX_START_MIDI = MIDI_MAX - 7;
 const rootName = document.getElementById("rootName");
 const statusElement = document.getElementById("status");
 const midiButton = document.getElementById("midiButton");
-const midiConnection = document.getElementById("midiConnection");
 const newTriadButton = document.getElementById("newTriadButton");
 const keyboard = document.getElementById("keyboard");
 const progressText = document.getElementById("progressText");
@@ -34,13 +33,11 @@ function setStatus(text, type) {
 }
 
 function setMidiConnection(connected) {
-  if (!midiConnection) return;
-
-  midiConnection.textContent = connected
+  midiButton.textContent = connected
     ? "🟢 MIDI connected"
     : "🔴 Enable MIDI";
-
-  midiConnection.classList.toggle("connected", connected);
+  midiButton.classList.toggle("connected", connected);
+  midiButton.disabled = connected;
 }
 
 function chooseRandomRoot() {
@@ -248,7 +245,8 @@ function handleTriadNote(noteNumber) {
     );
 
     window.setTimeout(() => {
-      chooseRandomRoot();
+      setMidiConnection(false);
+chooseRandomRoot();
     }, 700);
 
     return;
@@ -290,7 +288,7 @@ function flashWrong(midi) {
   }, 320);
 }
 
-async function connectMidi(markGlobalEnabled) {
+async function connectMidi() {
   if (!navigator.requestMIDIAccess) {
     setStatus("Web MIDI is not supported in this browser", "error");
     return false;
@@ -308,53 +306,26 @@ async function connectMidi(markGlobalEnabled) {
     if (!attachMidiInputs()) {
       return false;
     }
-
-    if (markGlobalEnabled && window.PracticeMIDI) {
-      window.PracticeMIDI.setEnabled(true);
-    }
-
-    if (window.PracticeMIDI) {
-      window.PracticeMIDI.syncButton(midiButton);
-    } else {
-      midiButton.textContent = "MIDI enabled";
-      midiButton.disabled = true;
-    }
+    setMidiConnection(true);
 
     setStatus("Play " + NOTE_NAMES[targetPitchClass] + " in any octave to start", "");
     return true;
   } catch (error) {
     midiAccess = null;
-
-    if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
-      window.PracticeMIDI.setEnabled(false);
-      window.PracticeMIDI.syncButton(midiButton);
-    }
-
-    setStatus("Waiting for keyboard input…", "");
+    setMidiConnection(false);
+    setStatus("MIDI access failed", "error");
     return false;
   }
 }
 
 midiButton.addEventListener("click", () => {
-  connectMidi(true);
+  connectMidi();
 });
 
 newTriadButton.addEventListener("click", chooseRandomRoot);
 
 chooseRandomRoot();
 
-if (midiConnection) {
-  midiConnection.addEventListener("click", () => {
-    if (typeof connectMidi === "function") {
-      connectMidi(true);
-    } else if (midiButton) {
-      midiButton.click();
-    }
-  });
-}
 
-if (window.PracticeMIDI) {
-  window.PracticeMIDI.watchButton(midiButton);
-}
 
 

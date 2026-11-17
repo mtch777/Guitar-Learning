@@ -262,7 +262,7 @@ $scope.rangeMax = 72; // C5
       return;
     }
 
-    $scope.status = "Waiting for keyboard input…";
+    $scope.status = "Connecting MIDI…";
     $scope.statusType = "";
 
     navigator
@@ -277,24 +277,13 @@ $scope.rangeMax = 72; // C5
 
         refreshMidiInputs();
 
-        if (window.PracticeMIDI) {
-          window.PracticeMIDI.setEnabled(true);
-        }
-
         $scope.$evalAsync(function () {
           $scope.midiAccessGranted = true;
         });
       })
       .catch(function (error) {
         $scope.$evalAsync(function () {
-          $scope.status =
-            "MIDI access failed: " +
-            (
-              error && error.message
-                ? error.message
-                : error
-            );
-
+          $scope.status = "MIDI access failed";
           $scope.statusType = "error";
         });
       });
