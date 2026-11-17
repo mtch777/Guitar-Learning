@@ -252,11 +252,7 @@ function handleScaleNote(noteNumber) {
     setStatus(NOTE_NAMES[targetPitchClass] + " major complete ✓", "success");
 
     window.setTimeout(() => {
-      if (window.PracticeMIDI) {
-  window.PracticeMIDI.watchButton(midiButton);
-}
-
-chooseRandomRoot();
+      chooseRandomRoot();
     }, 700);
 
     return;
@@ -346,6 +342,10 @@ midiButton.addEventListener("click", async () => {
 });
 
 newScaleButton.addEventListener("click", chooseRandomRoot);
+
+if (window.PracticeMIDI) {
+  window.PracticeMIDI.watchButton(midiButton);
+}
 
 chooseRandomRoot();
 
