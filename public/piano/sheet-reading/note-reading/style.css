@@ -277,29 +277,3 @@ button:disabled {
 }
 
 
-.midi-debug {
-  margin: 14px auto 4px;
-  max-width: 560px;
-  text-align: left;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  background: #f8fafc;
-}
-
-.midi-debug summary {
-  padding: 10px 12px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.midi-debug pre {
-  margin: 0;
-  padding: 10px 12px 12px;
-  max-height: 280px;
-  overflow: auto;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  border-top: 1px solid #e2e8f0;
-  font-size: 12px;
-  line-height: 1.4;
-}
