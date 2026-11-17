@@ -431,8 +431,3 @@ if (window.PracticeMIDI) {
 drawCircle();
 resetLesson();
 
-if (typeof connectMidi === "function") {
-  connectMidi(false);
-} else {
-  window.setTimeout(() => midiButton.click(), 0);
-}
