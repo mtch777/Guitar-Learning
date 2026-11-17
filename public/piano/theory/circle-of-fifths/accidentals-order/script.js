@@ -205,16 +205,33 @@ function resetAnswerProgress() {
 }
 
 function renderSequenceProgress() {
+  sequenceProgress.innerHTML = "";
+
   if (currentIndex === null) {
-    sequenceProgress.textContent = "";
     return;
   }
 
   const targetCount = keys[currentIndex].count;
-  const completed = answerPosition;
+  const sequence =
+    activeSequences[0] ||
+    acceptedSequences[0] ||
+    getSequencesForKey(keys[currentIndex])[0] ||
+    [];
 
-  sequenceProgress.textContent =
-    completed + " / " + targetCount + " accidentals";
+  for (let index = 0; index < targetCount; index++) {
+    const box = document.createElement("div");
+    box.className = "sequence-box";
+
+    if (index < answerPosition) {
+      box.classList.add("correct");
+      box.textContent = sequence[index] ? sequence[index].name : "";
+    } else if (index === answerPosition) {
+      box.classList.add("active");
+      box.textContent = "";
+    }
+
+    sequenceProgress.appendChild(box);
+  }
 }
 
 function getVisualIndexForQuestion(index) {
