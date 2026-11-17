@@ -29,10 +29,10 @@ a {
 }
 
 .hero {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 28px;
   margin-bottom: 30px;
 }
 
@@ -58,36 +58,103 @@ h1 {
   font-size: 18px;
 }
 
-.weekly-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 220px;
-  padding: 14px 16px;
+
+/* =========================
+   7-DAY PRACTICE TRACKER
+   ========================= */
+
+.activity-card {
+  width: min(100%, 360px);
+  padding: 15px 16px 14px;
   border: 1px solid rgba(92, 98, 120, 0.12);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.82);
   box-shadow: 0 12px 28px rgba(52, 57, 78, 0.08);
   backdrop-filter: blur(12px);
 }
 
-.weekly-icon {
-  font-size: 30px;
+.activity-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-.weekly-card strong,
-.weekly-card span {
+.activity-heading strong,
+.activity-heading span {
   display: block;
 }
 
-.weekly-card strong {
-  font-size: 18px;
+.activity-heading strong {
+  font-size: 16px;
 }
 
-.weekly-card div > span {
+.activity-heading > div:first-child > span {
   margin-top: 2px;
-  color: #697080;
-  font-size: 13px;
+  color: #747c8b;
+  font-size: 12px;
+}
+
+.activity-legend {
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  align-items: center;
+  gap: 4px;
+  color: #7a8291;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border: 1px solid #cfd5df;
+  border-radius: 3px;
+}
+
+.legend-swatch.inactive {
+  background: #ffffff;
+}
+
+.legend-swatch.active {
+  border-color: #23a455;
+  background: #23a455;
+}
+
+.activity-timeline {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.activity-day {
+  min-width: 0;
+  text-align: center;
+}
+
+.activity-square {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid #cfd5df;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.activity-square.active {
+  border-color: #23a455;
+  background: #23a455;
+}
+
+.activity-label {
+  display: block;
+  margin-top: 5px;
+  overflow: hidden;
+  color: #7a8291;
+  font-size: 10px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .category-grid {
@@ -138,70 +205,6 @@ h1 {
   font-weight: 700;
 }
 
-.recent-section {
-  margin-top: 34px;
-}
-
-.section-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-h2 {
-  margin: 0;
-  font-size: 24px;
-}
-
-.lesson-card {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
-  text-decoration: none;
-  border: 1px solid rgba(79, 88, 112, 0.12);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.88);
-}
-
-.lesson-icon {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 15px;
-  background: #f1f3f8;
-  font-size: 28px;
-}
-
-.lesson-copy {
-  min-width: 0;
-}
-
-.lesson-copy strong,
-.lesson-copy span {
-  display: block;
-}
-
-.lesson-copy strong {
-  font-size: 17px;
-}
-
-.lesson-copy span {
-  margin-top: 3px;
-  color: #72798a;
-  font-size: 13px;
-}
-
-.lesson-count {
-  color: #687184;
-  font-size: 12px;
-  font-weight: 750;
-  white-space: nowrap;
-}
-
 .storage-note {
   margin: 16px 2px 0;
   color: #8a90a0;
@@ -209,8 +212,7 @@ h2 {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .category-card:hover,
-  .lesson-card:hover {
+  .category-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 16px 34px rgba(51, 57, 75, 0.11);
   }
@@ -218,12 +220,12 @@ h2 {
 
 @media (max-width: 820px) {
   .hero {
+    grid-template-columns: 1fr;
     align-items: stretch;
-    flex-direction: column;
   }
 
-  .weekly-card {
-    min-width: 0;
+  .activity-card {
+    width: 100%;
   }
 
   .category-grid {
@@ -235,6 +237,19 @@ h2 {
   .app-shell {
     width: min(100% - 20px, 980px);
     padding-top: 22px;
+  }
+
+  .activity-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .activity-timeline {
+    gap: 5px;
+  }
+
+  .activity-square {
+    border-radius: 6px;
   }
 
   .category-grid {
@@ -256,14 +271,5 @@ h2 {
 
   .category-name {
     font-size: 16px;
-  }
-
-  .lesson-card {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-
-  .lesson-count {
-    grid-column: 2;
-    white-space: normal;
   }
 }

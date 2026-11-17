@@ -15,13 +15,27 @@
         <p class="intro">Pick a category and jump straight into a lesson.</p>
       </div>
 
-      <div class="weekly-card" aria-label="Lesson opens in the last seven days">
-        <span class="weekly-icon">🔥</span>
-        <div>
-          <strong data-total-count>0 lesson opens</strong>
-          <span>in the last 7 days</span>
+      <section class="activity-card" aria-labelledby="activityTitle">
+        <div class="activity-heading">
+          <div>
+            <strong id="activityTitle">Last 7 days</strong>
+            <span>Practice activity</span>
+          </div>
+
+          <div class="activity-legend" aria-label="Activity legend">
+            <span class="legend-swatch inactive" aria-hidden="true"></span>
+            <span>None</span>
+            <span class="legend-swatch active" aria-hidden="true"></span>
+            <span>Practiced</span>
+          </div>
         </div>
-      </div>
+
+        <div
+          id="activityTimeline"
+          class="activity-timeline"
+          aria-label="Practice activity for the last seven days"
+        ></div>
+      </section>
     </header>
 
     <section class="category-grid" aria-label="Practice categories">
@@ -56,27 +70,7 @@
       </a>
     </section>
 
-    <section class="recent-section">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Available now</p>
-          <h2>Lessons</h2>
-        </div>
-      </div>
-
-      <a class="lesson-card" href="./sheet-reading/note-reading/">
-        <span class="lesson-icon">🎼</span>
-        <span class="lesson-copy">
-          <strong>Note Reading</strong>
-          <span>Sheet Reading · MIDI keyboard</span>
-        </span>
-        <span class="lesson-count" data-lesson-count="sheet-reading-note-reading">
-          0 opens · last 7 days
-        </span>
-      </a>
-    </section>
-
-    <p class="storage-note">Practice counts are stored on this device.</p>
+    <p class="storage-note">Practice history is stored on this device.</p>
   </main>
 
   <script src="./shared/tracker.js"></script>
