@@ -41,6 +41,7 @@ app.controller("MyRngCtrl", function ($scope, $timeout) {
 
   var midiAccess = null;
   var connectedInputCount = 0;
+  $scope.connectedInputCount = 0;
 
   var feedbackLocked = false;
   var feedbackTimer = null;
@@ -312,12 +313,14 @@ $scope.rangeMax = 72; // C5
     );
 
     connectedInputCount = 0;
+    $scope.connectedInputCount = 0;
 
     inputs.forEach(function (input) {
       input.onmidimessage = handleMidiMessage;
 
       if (input.state !== "disconnected") {
         connectedInputCount++;
+        $scope.connectedInputCount = connectedInputCount;
       }
     });
 
@@ -680,9 +683,7 @@ $scope.rangeMax = 72; // C5
   updateRangeDisplay();
   selectNewNote();
 
-  if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
-    $timeout(function () {
-      $scope.enableMIDI();
-    }, 0);
-  }
+  $timeout(function () {
+    $scope.enableMIDI();
+  }, 0);
 });
