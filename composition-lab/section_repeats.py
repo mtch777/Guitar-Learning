@@ -111,16 +111,17 @@ def compare_bars(a,b,weights=None):
                 exact_observed_match=all(a[k]==b[k] for k in ('rhythm','pitch','arrangement','length_q')) and not a.get('unknown_pitch_mass',0) and not b.get('unknown_pitch_mass',0),confidence=None)
 
 
-def analyze_repeats(features,weights=None,threshold=.82,bar_floor=.55,max_weak_gap=1,min_bars=1):
+def analyze_repeats(features,weights=None,threshold=.82,bar_floor=.55,max_weak_gap=1,min_bars=1,comparison=None):
     """Maximal nonoverlapping diagonal matches with auditable configurable thresholds.
     min_bars=1 retains motifs; no fixed maximum/4/8-bar length or riff restriction.
     Internal loops and weak boundaries remain explicit; no inferred song form.
     """
     if not 0<=bar_floor<=threshold<=1 or type(max_weak_gap)is not int or max_weak_gap<0 or type(min_bars)is not int or min_bars<1:
         raise ValueError('invalid match parameters')
+    if comparison is not None and not callable(comparison):raise ValueError('comparison must be callable')
     n=len(features); matrix={}
     for i in range(n):
-        for j in range(i+1,n): matrix[i,j]=compare_bars(features[i],features[j],weights)
+        for j in range(i+1,n): matrix[i,j]=(comparison or compare_bars)(features[i],features[j],weights)
     def value(i,j):
         if i==j:return 1. if features[i]['observed'] else None
         return matrix[min(i,j),max(i,j)]['score']
