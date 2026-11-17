@@ -90,3 +90,27 @@ body {
     border-radius: 20px;
   }
 }
+/* Dark theme */
+:root {
+  color-scheme: dark;
+  color: #e5e7eb;
+  background: #0b0f14;
+}
+body {
+  background:
+    radial-gradient(circle at top left, rgba(88,28,135,.18), transparent 34%),
+    radial-gradient(circle at top right, rgba(30,64,175,.18), transparent 36%),
+    #0b0f14;
+}
+.lesson-nav a { color: #a7b0be; }
+.chart-card {
+  border-color: #2a3340;
+  background: rgba(20,26,34,.96);
+  box-shadow: 0 12px 28px rgba(0,0,0,.28);
+}
+.wedge { stroke: rgba(255,255,255,.18); }
+.center-disc {
+  fill: #141a22;
+  stroke: rgba(255,255,255,.10);
+}
+.key-label { fill: #f3f4f6; }

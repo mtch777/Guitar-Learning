@@ -79,36 +79,6 @@ $scope.rangeMax = 72; // C5
     "Enable MIDI, then play the displayed note.";
 
   $scope.statusType = "";
-  $scope.midiDebug = "";
-
-  function debugLog(message, data) {
-    var timestamp = new Date().toLocaleTimeString();
-    var line = "[" + timestamp + "] " + message;
-
-    if (data !== undefined) {
-      try {
-        line += "\n" + JSON.stringify(data, null, 2);
-      } catch (error) {
-        line += "\n" + String(data);
-      }
-    }
-
-    $scope.midiDebug =
-      ($scope.midiDebug ? $scope.midiDebug + "\n\n" : "") +
-      line;
-
-    if ($scope.midiDebug.length > 8000) {
-      $scope.midiDebug =
-        $scope.midiDebug.slice(-8000);
-    }
-  }
-
-  debugLog("Page initialized", {
-    secureContext: window.isSecureContext,
-    userAgent: navigator.userAgent,
-    requestMIDIAccessAvailable:
-      typeof navigator.requestMIDIAccess === "function"
-  });
 
   /*
    * The lower slider cannot move above the upper slider.
@@ -295,40 +265,17 @@ $scope.rangeMax = 72; // C5
     $scope.status = "Requesting MIDI access...";
     $scope.statusType = "";
 
-    debugLog("Enable MIDI clicked", {
-      secureContext: window.isSecureContext,
-      requestMIDIAccessAvailable:
-        typeof navigator.requestMIDIAccess === "function"
-    });
-
-    debugLog("Calling navigator.requestMIDIAccess", {
-      sysex: false
-    });
 
     navigator
       .requestMIDIAccess({
         sysex: false
       })
       .then(function (access) {
-        debugLog("requestMIDIAccess resolved");
 
         midiAccess = access;
 
         midiAccess.onstatechange =
-          function (event) {
-            debugLog("MIDI statechange", {
-              port: event && event.port ? {
-                id: event.port.id,
-                name: event.port.name,
-                manufacturer: event.port.manufacturer,
-                state: event.port.state,
-                connection: event.port.connection,
-                type: event.port.type
-              } : null
-            });
-
-            refreshMidiInputs();
-          };
+          refreshMidiInputs;
 
         refreshMidiInputs();
 
@@ -337,11 +284,6 @@ $scope.rangeMax = 72; // C5
         });
       })
       .catch(function (error) {
-        debugLog("requestMIDIAccess rejected", {
-          name: error && error.name,
-          message: error && error.message,
-          stack: error && error.stack
-        });
 
         $scope.$evalAsync(function () {
           $scope.midiConnected = false;
@@ -372,19 +314,6 @@ $scope.rangeMax = 72; // C5
       midiAccess.inputs.values()
     );
 
-    debugLog("Refreshing MIDI inputs", {
-      count: inputs.length,
-      inputs: inputs.map(function (input) {
-        return {
-          id: input.id,
-          name: input.name,
-          manufacturer: input.manufacturer,
-          state: input.state,
-          connection: input.connection,
-          type: input.type
-        };
-      })
-    });
 
     connectedInputCount = 0;
 
@@ -431,12 +360,6 @@ $scope.rangeMax = 72; // C5
 
     var command = statusByte & 0xf0;
 
-    debugLog("MIDI message", {
-      statusByte: statusByte,
-      command: command,
-      note: playedMidiNote,
-      velocity: velocity
-    });
 
     /*
      * Accept note-on messages only.
