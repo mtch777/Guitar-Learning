@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Note Reading · Practice</title>
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?v=20261117-6">
 </head>
 <body ng-app="myApp">
   <div class="lesson-shell">
@@ -80,6 +80,7 @@
       <button
         id="midiConnection"
         class="midi-connection"
+        ng-class="{ connected: connectedInputCount > 0 }"
         type="button"
         ng-click="enableMIDI()"
       >
@@ -95,7 +96,7 @@
   </div>
 
   <script src="../../shared/tracker.js"></script>
-  <script src="../../shared/midi.js"></script>
+  <script src="../../shared/midi.js?v=20261117-6"></script>
   <script>
     if (window.PracticeTracker) {
       window.PracticeTracker.recordOpen("sheet-reading-note-reading");
@@ -103,6 +104,6 @@
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vexflow/1.2.93/vexflow-min.js"></script>
-  <script src="./script.js"></script>
+  <script src="./script.js?v=20261117-6"></script>
 </body>
 </html>
