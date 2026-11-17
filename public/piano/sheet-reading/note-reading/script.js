@@ -41,7 +41,7 @@ app.controller("MyRngCtrl", function ($scope, $timeout) {
 
   var midiAccess = null;
   var connectedInputCount = 0;
-  $scope.connectedInputCount = 0;
+  $scope.midiConnected = false;
 
   var feedbackLocked = false;
   var feedbackTimer = null;
@@ -76,7 +76,7 @@ $scope.rangeMax = 72; // C5
 
   $scope.midiAccessGranted = false;
   $scope.status =
-    "Waiting for keyboard input…";
+    "Enable MIDI, then play the displayed note.";
 
   $scope.statusType = "";
 
@@ -146,7 +146,7 @@ $scope.rangeMax = 72; // C5
       $scope.statusType = "error";
     } else {
       $scope.status =
-        "Waiting for keyboard input…";
+        "Enable MIDI, then play the displayed note.";
 
       $scope.statusType = "";
     }
@@ -262,7 +262,7 @@ $scope.rangeMax = 72; // C5
       return;
     }
 
-    $scope.status = "Connecting MIDI…";
+    $scope.status = "Requesting MIDI access...";
     $scope.statusType = "";
 
     navigator
@@ -283,7 +283,17 @@ $scope.rangeMax = 72; // C5
       })
       .catch(function (error) {
         $scope.$evalAsync(function () {
-          $scope.status = "MIDI access failed";
+          $scope.midiConnected = false;
+          $scope.midiAccessGranted = false;
+
+          $scope.status =
+            "MIDI access failed: " +
+            (
+              error && error.message
+                ? error.message
+                : error
+            );
+
           $scope.statusType = "error";
         });
       });
@@ -302,19 +312,18 @@ $scope.rangeMax = 72; // C5
     );
 
     connectedInputCount = 0;
-    $scope.connectedInputCount = 0;
 
     inputs.forEach(function (input) {
       input.onmidimessage = handleMidiMessage;
 
       if (input.state !== "disconnected") {
         connectedInputCount++;
-        $scope.connectedInputCount = connectedInputCount;
       }
     });
 
     $scope.$evalAsync(function () {
       $scope.midiAccessGranted = true;
+      $scope.midiConnected = connectedInputCount > 0;
 
       if (connectedInputCount > 0) {
         $scope.status =
@@ -671,6 +680,4 @@ $scope.rangeMax = 72; // C5
 
   updateRangeDisplay();
   selectNewNote();
-
-
 });
