@@ -5,7 +5,8 @@ const keys = [
   { label: "A", count: 3, type: "sharp", color: "#FDD835" },
   { label: "E", count: 4, type: "sharp", color: "#FFB300" },
   { label: "B", count: 5, type: "sharp", color: "#FB8C00" },
-  { label: "F#/Gb", count: 6, type: "either", color: "#EA4335" },
+  { label: "F#/Gb", count: 6, type: "sharp", color: "#EA4335", variant: "F#" },
+  { label: "F#/Gb", count: 6, type: "flat", color: "#EA4335", variant: "Gb" },
   { label: "Db", count: 5, type: "flat", color: "#7E57C2" },
   { label: "Ab", count: 4, type: "flat", color: "#5C6BC0" },
   { label: "Eb", count: 3, type: "flat", color: "#42A5F5" },
@@ -47,7 +48,22 @@ const CX = SIZE / 2;
 const CY = SIZE / 2;
 const OUTER_R = 250;
 const INNER_R = 145;
-const ANGLE_PER = 360 / keys.length;
+const visualKeys = [
+  { label: "C", color: "#34A853" },
+  { label: "G", color: "#7CB342" },
+  { label: "D", color: "#C0CA33" },
+  { label: "A", color: "#FDD835" },
+  { label: "E", color: "#FFB300" },
+  { label: "B", color: "#FB8C00" },
+  { label: "F#/Gb", color: "#EA4335" },
+  { label: "Db", color: "#7E57C2" },
+  { label: "Ab", color: "#5C6BC0" },
+  { label: "Eb", color: "#42A5F5" },
+  { label: "Bb", color: "#26A69A" },
+  { label: "F", color: "#5BBE7A" }
+];
+
+const ANGLE_PER = 360 / visualKeys.length;
 
 let midiAccess = null;
 let currentIndex = null;
@@ -101,7 +117,7 @@ function drawCircle() {
   labels = [];
   checkMarks = [];
 
-  keys.forEach((key, index) => {
+  visualKeys.forEach((key, index) => {
     const centerAngle = index * ANGLE_PER;
     const startAngle = centerAngle - ANGLE_PER / 2;
     const endAngle = centerAngle + ANGLE_PER / 2;
@@ -170,13 +186,6 @@ function getSequencesForKey(key) {
     return [FLAT_ORDER.slice(0, key.count)];
   }
 
-  if (key.type === "either") {
-    return [
-      SHARP_ORDER.slice(0, key.count),
-      FLAT_ORDER.slice(0, key.count)
-    ];
-  }
-
   return [];
 }
 
@@ -198,6 +207,20 @@ function renderSequenceProgress() {
 
   sequenceProgress.textContent =
     completed + " / " + targetCount + " accidentals";
+}
+
+function getVisualIndexForQuestion(index) {
+  const key = keys[index];
+
+  if (key.variant === "F#" || key.variant === "Gb") {
+    return 6;
+  }
+
+  if (index <= 5) {
+    return index;
+  }
+
+  return index - 1;
 }
 
 function resetLesson() {
@@ -233,14 +256,18 @@ function currentPrompt() {
   const key = keys[currentIndex];
 
   if (key.type === "sharp") {
-    return "Play the sharps in order";
+    return key.variant === "F#"
+      ? "F# · Play the sharps in order"
+      : "Play the sharps in order";
   }
 
   if (key.type === "flat") {
-    return "Play the flats in order";
+    return key.variant === "Gb"
+      ? "Gb · Play the flats in order"
+      : "Play the flats in order";
   }
 
-  return "Play the sharps or flats in order";
+  return "";
 }
 
 function nextQuestion() {
@@ -257,25 +284,27 @@ function nextQuestion() {
   questionNumber += 1;
   locked = false;
 
-  wedgePaths.forEach((path, index) => {
-    if (!solved.has(index)) {
+  wedgePaths.forEach((path, visualIndex) => {
+    if (checkMarks[visualIndex].style.display === "none") {
       path.setAttribute("fill", GREY);
     }
   });
 
-  labels.forEach((label, index) => {
-    if (!solved.has(index)) {
+  labels.forEach((label, visualIndex) => {
+    if (checkMarks[visualIndex].style.display === "none") {
       label.style.display = "none";
     }
   });
 
-  wedgePaths[currentIndex].setAttribute("fill", keys[currentIndex].color);
-  labels[currentIndex].style.display = "block";
+  const visualIndex = getVisualIndexForQuestion(currentIndex);
+
+  wedgePaths[visualIndex].setAttribute("fill", keys[currentIndex].color);
+  labels[visualIndex].style.display = "block";
 
   resetAnswerProgress();
 
   setStatus(
-    currentPrompt() + " · Question " + questionNumber + " of 11",
+    currentPrompt() + " · Question " + questionNumber + " of 12",
     ""
   );
 }
@@ -336,7 +365,8 @@ function handleMidiMessage(event) {
 function handleWrong() {
   locked = true;
 
-  const path = wedgePaths[currentIndex];
+  const visualIndex = getVisualIndexForQuestion(currentIndex);
+  const path = wedgePaths[visualIndex];
   const originalColor = keys[currentIndex].color;
 
   path.setAttribute("fill", WRONG);
@@ -354,16 +384,25 @@ function handleCorrect() {
   locked = true;
 
   const solvedIndex = currentIndex;
+  const visualIndex = getVisualIndexForQuestion(solvedIndex);
 
-  wedgePaths[solvedIndex].setAttribute("fill", GREY);
-  labels[solvedIndex].style.display = "none";
-  checkMarks[solvedIndex].style.display = "block";
+  wedgePaths[visualIndex].setAttribute("fill", GREY);
+  labels[visualIndex].style.display = "none";
 
   solved.add(solvedIndex);
 
   remaining = remaining.filter(
     (index) => index !== solvedIndex
   );
+
+  const isSharedCenter = visualIndex === 6;
+  const otherSharedQuestionRemaining =
+    isSharedCenter &&
+    remaining.some((index) => getVisualIndexForQuestion(index) === 6);
+
+  if (!otherSharedQuestionRemaining) {
+    checkMarks[visualIndex].style.display = "block";
+  }
 
   setStatus("Correct ✓", "success");
 
