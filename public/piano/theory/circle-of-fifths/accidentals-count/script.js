@@ -28,6 +28,7 @@ const WRONG = "#E53935";
 
 const svg = document.getElementById("circleSvg");
 const midiButton = document.getElementById("midiButton");
+const midiConnection = document.getElementById("midiConnection");
 const restartButton = document.getElementById("restartButton");
 const statusElement = document.getElementById("status");
 
@@ -160,6 +161,16 @@ function setStatus(text, type) {
     "status" + (type ? " " + type : "");
 }
 
+function setMidiConnection(connected) {
+  if (!midiConnection) return;
+
+  midiConnection.textContent = connected
+    ? "🟢 Keyboard connected"
+    : "🔴 Waiting for keyboard input";
+
+  midiConnection.classList.toggle("connected", connected);
+}
+
 function resetLesson() {
   remaining = keys.map((_, index) => index);
 
@@ -263,9 +274,11 @@ function attachMidiInputs() {
       "No MIDI keyboard connected",
       "error"
     );
+    setMidiConnection(false);
     return false;
   }
 
+  setMidiConnection(true);
   return true;
 }
 
@@ -421,9 +434,8 @@ if (window.PracticeMIDI) {
 drawCircle();
 resetLesson();
 
-if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
-  window.setTimeout(() => {
-    midiButton.disabled = false;
-    midiButton.click();
-  }, 0);
+if (typeof connectMidi === "function") {
+  connectMidi(false);
+} else {
+  window.setTimeout(() => midiButton.click(), 0);
 }
