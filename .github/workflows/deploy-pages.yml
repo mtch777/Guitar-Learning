@@ -6,6 +6,7 @@ on:
     paths:
       - 'src/**'
       - 'public/riff-builder/**'
+      - 'public/piano/**'
       - 'public/data/fretboard-efficiency*.json'
       - 'public/fretboard-efficiency/**'
       - 'tests/**'
