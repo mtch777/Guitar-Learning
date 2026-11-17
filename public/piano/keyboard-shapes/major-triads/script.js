@@ -341,19 +341,21 @@ midiButton.addEventListener("click", () => {
 
 newTriadButton.addEventListener("click", chooseRandomRoot);
 
-midiConnection.addEventListener("click", () => {
-  if (typeof connectMidi === "function") {
-    connectMidi(true);
-  } else {
-    midiButton.click();
-  }
-});
+chooseRandomRoot();
+
+if (midiConnection) {
+  midiConnection.addEventListener("click", () => {
+    if (typeof connectMidi === "function") {
+      connectMidi(true);
+    } else if (midiButton) {
+      midiButton.click();
+    }
+  });
+}
 
 if (window.PracticeMIDI) {
   window.PracticeMIDI.watchButton(midiButton);
 }
-
-chooseRandomRoot();
 
 if (typeof connectMidi === "function") {
   connectMidi(false);
