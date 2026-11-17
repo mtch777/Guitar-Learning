@@ -1,3 +1,6 @@
 if (window.PracticeTracker) {
-  window.PracticeTracker.renderCounts(document);
+  window.PracticeTracker.renderActivityTimeline(
+    document.getElementById("activityTimeline"),
+    7
+  );
 }
