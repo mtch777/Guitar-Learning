@@ -262,8 +262,11 @@ function handleScaleNote(noteNumber) {
     setStatus(NOTE_NAMES[targetPitchClass] + " major complete ✓", "success");
 
     window.setTimeout(() => {
-      setMidiConnection(false);
-chooseRandomRoot();
+      chooseRandomRoot();
+
+if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
+  connectMidi();
+}
     }, 700);
 
     return;
@@ -335,6 +338,9 @@ async function connectMidi() {
       return false;
     }
     setMidiConnection(true);
+    if (window.PracticeMIDI) {
+      window.PracticeMIDI.setEnabled(true);
+    }
 
     setStatus("Play " + NOTE_NAMES[targetPitchClass] + " in any octave to start", "");
     return true;
