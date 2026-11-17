@@ -76,7 +76,7 @@ $scope.rangeMax = 72; // C5
 
   $scope.midiAccessGranted = false;
   $scope.status =
-    "Enable MIDI, then play the displayed note.";
+    "Waiting for keyboard input…";
 
   $scope.statusType = "";
 
@@ -146,7 +146,7 @@ $scope.rangeMax = 72; // C5
       $scope.statusType = "error";
     } else {
       $scope.status =
-        "Enable MIDI, then play the displayed note.";
+        "Waiting for keyboard input…";
 
       $scope.statusType = "";
     }
@@ -262,7 +262,7 @@ $scope.rangeMax = 72; // C5
       return;
     }
 
-    $scope.status = "Requesting MIDI access...";
+    $scope.status = "Waiting for keyboard input…";
     $scope.statusType = "";
 
     navigator
