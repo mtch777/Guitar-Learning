@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Accidentals Count · Circle of Fifths</title>
-  <link rel="stylesheet" href="./style.css?v=20261117-3">
+  <link rel="stylesheet" href="./style.css?v=20261117-5">
 </head>
 <body>
   <main class="lesson-shell">
@@ -15,7 +15,8 @@
 
     <section class="quiz-card">
       <div class="quiz-toolbar">
-        <button id="midiButton" type="button">Enable MIDI</button>
+        <button id="midiButton" type="button" hidden aria-hidden="true" tabindex="-1">Enable MIDI</button>
+        <button id="midiConnection" class="midi-connection" type="button">🔴 Waiting for keyboard input</button>
         <span id="status" class="status" aria-live="polite">
           Enable MIDI to start
         </span>
@@ -53,6 +54,6 @@
       window.PracticeTracker.recordOpen("theory-circle-of-fifths-accidentals-count");
     }
   </script>
-  <script src="./script.js?v=20261117-3"></script>
+  <script src="./script.js?v=20261117-5"></script>
 </body>
 </html>
