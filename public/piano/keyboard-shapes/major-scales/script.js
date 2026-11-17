@@ -264,9 +264,6 @@ function handleScaleNote(noteNumber) {
     window.setTimeout(() => {
       chooseRandomRoot();
 
-if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
-  connectMidi();
-}
     }, 700);
 
     return;
@@ -367,6 +364,6 @@ newScaleButton.addEventListener("click", chooseRandomRoot);
 
 chooseRandomRoot();
 
-
-
-
+if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
+  connectMidi();
+}
