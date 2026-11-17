@@ -421,7 +421,7 @@ function handleCorrect() {
   }, 450);
 }
 
-midiButton.addEventListener("click", async () => {
+async function connectMidi() {
   if (!navigator.requestMIDIAccess) {
     setStatus("Web MIDI is not supported in this browser", "error");
     return;
@@ -442,6 +442,9 @@ midiButton.addEventListener("click", async () => {
       return;
     }
     setMidiConnection(true);
+    if (window.PracticeMIDI) {
+      window.PracticeMIDI.setEnabled(true);
+    }
 
     resetLesson();
   } catch (error) {
@@ -449,7 +452,9 @@ midiButton.addEventListener("click", async () => {
     setMidiConnection(false);
     setStatus("MIDI access failed", "error");
   }
-});
+}
+
+midiButton.addEventListener("click", connectMidi);
 
 restartButton.addEventListener("click", resetLesson);
 
@@ -460,3 +465,8 @@ drawCircle();
 
 
 resetLesson();
+
+
+if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
+  connectMidi();
+}

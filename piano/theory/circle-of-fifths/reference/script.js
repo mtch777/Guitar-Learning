@@ -1,5 +1,5 @@
 const keys = [
-  { label: "C", accidental: "0", color: "#34A853" },
+  { label: "C", accidental: "", color: "#34A853" },
   { label: "G", accidental: "♯", color: "#7CB342" },
   { label: "D", accidental: "♯♯", color: "#C0CA33" },
   { label: "A", accidental: "♯♯♯", color: "#FDD835" },
