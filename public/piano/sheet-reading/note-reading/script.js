@@ -683,7 +683,5 @@ $scope.rangeMax = 72; // C5
   updateRangeDisplay();
   selectNewNote();
 
-  $timeout(function () {
-    $scope.enableMIDI();
-  }, 0);
+
 });
