@@ -33,7 +33,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 14px 0 28px;
+  margin: 8px 0 10px;
 }
 
 .category-icon {
