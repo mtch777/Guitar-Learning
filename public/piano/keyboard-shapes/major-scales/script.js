@@ -70,7 +70,7 @@ function chooseRandomRoot() {
   if (midiAccess) {
     setStatus("Play " + NOTE_NAMES[targetPitchClass] + " in any octave to start", "");
   } else {
-    setStatus("Enable MIDI to start", "");
+    setStatus("Waiting for keyboard input…", "");
   }
 }
 
@@ -325,7 +325,7 @@ async function connectMidi(markGlobalEnabled) {
   }
 
   try {
-    setStatus("Connecting MIDI…", "");
+    setStatus("Waiting for keyboard input…", "");
 
     midiAccess = await navigator.requestMIDIAccess({
       sysex: false
@@ -358,7 +358,7 @@ async function connectMidi(markGlobalEnabled) {
       window.PracticeMIDI.syncButton(midiButton);
     }
 
-    setStatus("MIDI access failed — tap Enable MIDI", "error");
+    setStatus("Waiting for keyboard input…", "");
     return false;
   }
 }
