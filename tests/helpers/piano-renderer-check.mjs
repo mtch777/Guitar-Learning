@@ -11,12 +11,26 @@ process.on('uncaughtException', error => { console.error(error.message); process
 
 const dependencies = createRequire(resolve(process.argv[2] || 'package.json'));
 const {JSDOM} = dependencies('jsdom');
-const {createCanvas} = dependencies('@napi-rs/canvas');
+const {createCanvas, Path2D} = dependencies('@napi-rs/canvas');
 const root = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const dom = new JSDOM('<!doctype html><div id="viewport"><div id="score"></div></div>', {
   pretendToBeVisual: true, runScripts: 'outside-only', url: 'http://localhost/',
 });
 const {window} = dom;
+const braceBounds = svg => [...svg.querySelectorAll('.vf-brace path')]
+  .map(path => new Path2D(path.getAttribute('d')).computeTightBounds());
+const measuredBraceLeft = [];
+// jsdom omits getBBox. Exercise the browser-only negative-origin case with
+// tight bounds calculated from the ACTUAL OSMD brace paths, not an assumed
+// overhang. The viewBox conservatively contains all other notation here.
+window.SVGSVGElement.prototype.getBBox = function() {
+  const [, , width, height] = this.getAttribute('viewBox').split(/\s+/).map(Number);
+  const bounds = braceBounds(this);
+  const left = Math.min(0, ...bounds.map(box => box[0]));
+  const right = Math.max(width, ...bounds.map(box => box[2]));
+  if (bounds.length) measuredBraceLeft.push(Math.min(...bounds.map(box => box[0])));
+  return {x:left,y:0,width:right-left,height};
+};
 const canvases = new WeakMap();
 window.HTMLCanvasElement.prototype.getContext = function(type) {
   if (!canvases.has(this)) canvases.set(this, createCanvas(this.width || 300, this.height || 150));
@@ -143,6 +157,7 @@ for (const width of [390, 320, 280, 1348]) {
   for (const svg of window.document.querySelectorAll('svg')) {
     assert.ok(Number(svg.getAttribute('width')) <= width + .5, 'Actual SVG surface fits its available width.');
     assert.ok(Number(svg.getAttribute('viewBox').split(/\s+/)[2]) * renderer.osmd.Zoom <= width + .5);
+    assert.ok(braceBounds(svg).every(box => box[0] >= 0), 'Native left gutter contains every actual brace path without clipping.');
   }
   const measures = renderer.osmd.GraphicSheet.MusicPages.flatMap(page => page.MusicSystems.flatMap(system => system.GraphicalMeasures.flat().filter(Boolean)));
   assert.ok(measures.every(measure => measure.minimumStaffEntriesWidth <= 0 || measure.staffEntriesScaleFactor >= .999), 'Dense measures are not compressed below the renderer\'s non-overlapping width.');
@@ -195,6 +210,8 @@ assert.equal(renderer.visibleSystem, 0, 'Restart returns to the first two system
 availableHeight = 300;
 renderer.resize();
 assert.ok(Math.abs(renderer.osmd.Zoom - fullHeightZoom) < 1e-8, 'Restoring height restores the original two-row engraving scale.');
+assert.ok(measuredBraceLeft.some(left => left < 0), 'The real uncorrected brace geometry exercises negative SVG bounds.');
+assert.ok(measuredBraceLeft.at(-1) >= 0, 'Re-engraving resolves the negative origin instead of repeatedly shrinking it.');
 console.log(JSON.stringify({responsivePhoebe:fitChecks, observerWidthAndHeight:true, finalSingleSystem:true, colorsAndCursorPreserved:true}));
 renderer.destroy();
 assert.equal(observers[0].disconnected, true);

@@ -332,3 +332,13 @@ Local verification:
   branch absent from jsdom. Do not treat that release as accepted. A temporary
   failure-only console diagnostic records native and browser bounds per pass
   to determine the mismatch before correcting it.
+- Diagnostic release `c3500c28c16ae0ebffff28f61af8652309a2eb62` confirmed the
+  actual piano brace begins at SVG x=-2. The computed width remained 1346.06px
+  for a 1345px viewport after eight passes, despite height fitting at 279.04px.
+  Independent vendor-geometry and actual-path checks identified the same cause.
+- Correction adds measured left/right overhang to native engraving margins and
+  re-engraves at the same Zoom before applying strict width/height checks.
+  No tolerance is relaxed; the temporary diagnostic is removed.
+- Updated renderer helper computes tight bounds from actual OSMD brace paths,
+  reproduces the previous failure and passes with every final brace inside the
+  SVG. The complete renderer/row/height-resize/atomic-load checks still pass.
