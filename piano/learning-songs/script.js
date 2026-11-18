@@ -68,6 +68,7 @@ function controls() {
   $('song-select').disabled = busy || libraryLoading;
   $('refresh-library').disabled = busy || libraryLoading;
   $('upload-button').disabled = uploading;
+  $('url-button').disabled = uploading;
   $('delete-song').disabled = busy || libraryLoading || deleting || uploading || !songChoice(selectedId) || !!songChoice(selectedId)?.pendingPublication;
   $('tempo').disabled = busy || playing;
   const limits = sourceModel ? transposeLimits(sourceModel) : {min:0, max:0};
@@ -554,6 +555,8 @@ function fillCredential(dialog) {
   const saved = githubCredentials.get();
   $(`${dialog}-token`).value = saved;
   $(`${dialog}-remember`).checked = !!saved;
+  const section = $(`${dialog}-credentials`);
+  if (section) section.open = !saved;
 }
 function commitCredential(dialog, token) {
   if ($(`${dialog}-remember`).checked) {
@@ -562,11 +565,34 @@ function commitCredential(dialog, token) {
 }
 document.querySelectorAll('.credential-forget').forEach(button => button.addEventListener('click', () => {
   githubCredentials.forget();
-  for (const dialog of ['upload', 'delete']) {
+  for (const dialog of ['upload', 'url', 'delete']) {
     $(`${dialog}-token`).value = '';
     $(`${dialog}-remember`).checked = false;
+    const section = $(`${dialog}-credentials`);
+    if (section) section.open = true;
   }
 }));
+async function saveScore(file, dialog, reportStatus) {
+  reportStatus('Checking score…');
+  const xml = await readScoreFile(file);
+  const parsed = parseMusicXML(xml);
+  reportStatus('Saving original file to GitHub…');
+  const token = $(`${dialog}-token`).value;
+  const uploaded = await uploadScoreToGitHub(file, token);
+  commitCredential(dialog, token);
+  $(`${dialog}-token`).value = '';
+  savePendingUpload(uploaded.digest);
+  $(`${dialog}-dialog`).close();
+  const pendingSong = {
+    id:`pending-${uploaded.digest}`, title:parsed.title || file.name,
+    composer:parsed.composer || '', sourceFilename:file.name, sourceSha256:uploaded.digest,
+    xml, repositorySaved:false, pendingPublication:true,
+  };
+  songs.set(pendingSong.id, pendingSong);
+  await refreshLibrary();
+  await selectSong(pendingSong, {preparedModel:parsed});
+  watchPublishedUpload(uploaded.digest);
+}
 function closeUploadDialog() {
   if (uploading) return;
   $('upload-token').value = '';
@@ -597,26 +623,8 @@ $('upload-form').addEventListener('submit', async event => {
   $('upload-close').disabled = true;
   controls();
   try {
-    uploadStatus('Checking score…');
-    const xml = await readScoreFile(file);
-    const parsed = parseMusicXML(xml);
-    uploadStatus('Saving original file to GitHub…');
-    const token = $('upload-token').value;
-    const uploaded = await uploadScoreToGitHub(file, token);
-    commitCredential('upload', token);
-    $('upload-token').value = '';
+    await saveScore(file, 'upload', uploadStatus);
     $('upload-file').value = '';
-    savePendingUpload(uploaded.digest);
-    $('upload-dialog').close();
-    const pendingSong = {
-      id:`pending-${uploaded.digest}`, title:parsed.title || file.name,
-      composer:parsed.composer || '', sourceFilename:file.name, sourceSha256:uploaded.digest,
-      xml, repositorySaved:false, pendingPublication:true,
-    };
-    songs.set(pendingSong.id, pendingSong);
-    await refreshLibrary();
-    await selectSong(pendingSong, {preparedModel:parsed});
-    watchPublishedUpload(uploaded.digest);
   } catch (error) {
     uploadStatus(error.message || 'Upload failed.', true);
   } finally {
@@ -624,6 +632,60 @@ $('upload-form').addEventListener('submit', async event => {
     $('upload-submit').disabled = false;
     $('upload-cancel').disabled = false;
     $('upload-close').disabled = false;
+    controls();
+  }
+});
+const urlStatus = (message = '', error = false) => {
+  $('url-status').textContent = message;
+  $('url-status').classList.toggle('error', error);
+};
+function closeUrlDialog() {
+  if (uploading) return;
+  $('url-token').value = '';
+  $('url-dialog').close();
+}
+$('url-button').addEventListener('click', () => {
+  if (playing || starting) pause();
+  urlStatus();
+  fillCredential('url');
+  $('url-dialog').showModal();
+});
+$('url-close').addEventListener('click', closeUrlDialog);
+$('url-cancel').addEventListener('click', closeUrlDialog);
+$('url-dialog').addEventListener('cancel', event => {
+  if (uploading) event.preventDefault();
+  else $('url-token').value = '';
+});
+$('url-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  if (uploading) return;
+  let url;
+  try { url = new URL($('score-url').value.trim()); }
+  catch (_) { return urlStatus('Enter a valid score URL.', true); }
+  if (url.protocol !== 'https:') return urlStatus('Use an HTTPS score URL.', true);
+  if (/(^|\.)musescore\.com$/i.test(url.hostname)) {
+    return urlStatus('MuseScore page links cannot be imported directly. Download MusicXML from MuseScore, then use Upload.', true);
+  }
+  const extension = url.pathname.match(/\.(musicxml|xml|mxl)$/i)?.[1]?.toLowerCase();
+  if (!extension) return urlStatus('The URL must point directly to a .musicxml, .xml or .mxl file.', true);
+  uploading = true;
+  for (const id of ['url-submit', 'url-close', 'url-cancel']) $(id).disabled = true;
+  controls();
+  try {
+    urlStatus('Downloading score…');
+    const response = await fetch(url.href, {credentials:'omit', cache:'no-store'});
+    if (!response.ok) throw new Error(`The score server returned HTTP ${response.status}.`);
+    if (Number(response.headers.get('content-length')) > 20 * 1024 * 1024) throw new Error('The score exceeds 20 MB.');
+    const blob = await response.blob();
+    if (!blob.size || blob.size > 20 * 1024 * 1024) throw new Error('The score must be between 1 byte and 20 MB.');
+    const file = new File([blob], decodeURIComponent(url.pathname.split('/').pop()), {type:blob.type});
+    await saveScore(file, 'url', urlStatus);
+    $('score-url').value = '';
+  } catch (error) {
+    urlStatus(error instanceof TypeError ? 'The source blocked direct downloading. Download the file there, then use Upload.' : error.message || 'Import failed.', true);
+  } finally {
+    uploading = false;
+    for (const id of ['url-submit', 'url-close', 'url-cancel']) $(id).disabled = false;
     controls();
   }
 });
@@ -658,9 +720,7 @@ $('delete-song').addEventListener('click', () => {
     ? `Delete “${label}” from this device?`
     : `Delete “${label}” from the song list?`;
   fillCredential('delete');
-  $('delete-token').hidden = !!song.localOnly;
-  $('delete-token').previousElementSibling.hidden = !!song.localOnly;
-  $('delete-remember').closest('.credential-options').hidden = !!song.localOnly;
+  $('delete-credentials').hidden = !!song.localOnly;
   $('delete-token').required = !song.localOnly;
   deleteStatus();
   $('delete-dialog').showModal();

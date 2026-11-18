@@ -5,21 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Learning Songs · Practice</title>
   <meta name="theme-color" content="#0b0f14">
-  <link rel="stylesheet" href="./style.css?v=80b04d25885c">
-  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=80b04d25885c"></script>
-  <script defer src="./vendor/fflate-0.8.3.min.js?v=80b04d25885c"></script>
-  <script defer src="../shared/tracker.js?v=80b04d25885c"></script>
-  <script defer src="../shared/midi.js?v=80b04d25885c"></script>
-  <script type="module" src="./script.js?v=80b04d25885c"></script>
-  <meta name="build-version" content="80b04d25885c">
+  <link rel="stylesheet" href="./style.css?v=572f6a78eb57">
+  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=572f6a78eb57"></script>
+  <script defer src="./vendor/fflate-0.8.3.min.js?v=572f6a78eb57"></script>
+  <script defer src="../shared/tracker.js?v=572f6a78eb57"></script>
+  <script defer src="../shared/midi.js?v=572f6a78eb57"></script>
+  <script type="module" src="./script.js?v=572f6a78eb57"></script>
+  <meta name="build-version" content="572f6a78eb57">
 </head>
 <body>
   <main class="lesson-shell">
     <section class="song-library card" aria-labelledby="library-heading">
-      <a class="practice-link" href="../?v=80b04d25885c">← Practice</a>
+      <a class="practice-link" href="../?v=572f6a78eb57">← Practice</a>
       <div class="song-picker"><label id="library-heading" class="sr-only" for="song-select">Song</label><select id="song-select"><option>Loading songs…</option></select></div>
       <button id="delete-song" type="button" class="button secondary" aria-label="Delete song" title="Delete song" disabled>🗑️</button>
-      <button id="upload-button" type="button" class="button secondary">Upload <span>(.musicxml, .xml, .mxl)</span></button>
+      <button id="upload-button" type="button" class="button secondary">Upload</button>
+      <button id="url-button" type="button" class="button secondary">URL</button>
       <button id="refresh-library" type="button" class="button secondary" aria-label="Refresh songs">Refresh</button>
       <p id="library-message" class="library-message" role="status" hidden></p>
       <div id="local-recovery" class="local-recovery" hidden><span>Device-only copy</span><button id="download-local-score" type="button" class="small-button">Download score</button></div>
@@ -55,22 +56,41 @@
       <label for="upload-file">Score file</label>
       <input id="upload-file" type="file" accept=".musicxml,.xml,.mxl" required>
       <p class="upload-help">Playable uploads: .musicxml, .xml, .mxl. The original file is saved in GitHub and appears in the song list after publishing.</p>
-      <label for="upload-token">GitHub fine-grained token</label>
-      <input id="upload-token" type="password" autocomplete="off" spellcheck="false" required placeholder="Contents: read and write">
-      <div class="credential-options"><label><input id="upload-remember" type="checkbox"> Remember on this device</label><button class="credential-forget" type="button">Forget credentials</button></div>
-      <p class="upload-help">Required because this site is hosted on GitHub Pages. <a href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener noreferrer">Create a token</a> limited to this repository, with Contents: read and write. Remembering saves it in this browser until you forget it or clear site data.</p>
+      <details id="upload-credentials" class="credential-details" open><summary>GitHub credentials</summary>
+        <label for="upload-token">Fine-grained token</label>
+        <input id="upload-token" type="password" autocomplete="off" spellcheck="false" required placeholder="Contents: read and write">
+        <div class="credential-options"><label><input id="upload-remember" type="checkbox"> Remember on this device</label><button class="credential-forget" type="button">Forget credentials</button></div>
+        <p class="upload-help"><a href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener noreferrer">Create a token</a> with Contents: read and write for this repository.</p>
+      </details>
       <details class="upload-formats"><summary>Other formats converted in our earlier tests</summary><p>These were converted with separate desktop/server tools; direct lesson import is still limited to the three formats above. Convert these to MusicXML first:</p><p>.mscx, .mscz, .mei, .abc, .krn, .md (MuseData), .nwc, .nwctxt, .cap, .capx, .ove, .scw, .enc, .mus, .musx, .dorico, .gtp, .gp3, .gp4, .gp5, .gpx, .gp, .tg, .ptb, .tef. MIDI (.mid/.midi) was also converted for the default song.</p><p>.sib, .ovex, .notion and .stf did not have successful conversions in that test set.</p></details>
       <p id="upload-status" role="status" aria-live="polite"></p>
       <div class="upload-actions"><button id="upload-cancel" type="button" class="button secondary">Cancel</button><button id="upload-submit" type="submit" class="button primary">Save to GitHub</button></div>
+    </form>
+  </dialog>
+  <dialog id="url-dialog" aria-labelledby="url-title">
+    <form id="url-form">
+      <div class="upload-heading"><h2 id="url-title">Import score from URL</h2><button id="url-close" type="button" class="small-button" aria-label="Close URL import">✕</button></div>
+      <label for="score-url">Score URL</label>
+      <input id="score-url" type="url" placeholder="https://…/score.musicxml" required>
+      <p class="upload-help">Direct MusicXML links (.musicxml, .xml, .mxl) work when the host allows downloads. MuseScore page links require downloading the score through MuseScore first.</p>
+      <details id="url-credentials" class="credential-details" open><summary>GitHub credentials</summary>
+        <label for="url-token">Fine-grained token</label>
+        <input id="url-token" type="password" autocomplete="off" spellcheck="false" required placeholder="Contents: read and write">
+        <div class="credential-options"><label><input id="url-remember" type="checkbox"> Remember on this device</label><button class="credential-forget" type="button">Forget credentials</button></div>
+      </details>
+      <p id="url-status" role="status" aria-live="polite"></p>
+      <div class="upload-actions"><button id="url-cancel" type="button" class="button secondary">Cancel</button><button id="url-submit" type="submit" class="button primary">Import</button></div>
     </form>
   </dialog>
   <dialog id="delete-dialog" aria-labelledby="delete-title">
     <form id="delete-form">
       <h2 id="delete-title">Delete song?</h2>
       <p id="delete-description"></p>
-      <label for="delete-token">GitHub token</label>
-      <input id="delete-token" type="password" autocomplete="off" spellcheck="false" required placeholder="Contents: read and write">
-      <div class="credential-options"><label><input id="delete-remember" type="checkbox"> Remember on this device</label><button class="credential-forget" type="button">Forget credentials</button></div>
+      <details id="delete-credentials" class="credential-details" open><summary>GitHub credentials</summary>
+        <label for="delete-token">Fine-grained token</label>
+        <input id="delete-token" type="password" autocomplete="off" spellcheck="false" required placeholder="Contents: read and write">
+        <div class="credential-options"><label><input id="delete-remember" type="checkbox"> Remember on this device</label><button class="credential-forget" type="button">Forget credentials</button></div>
+      </details>
       <p id="delete-status" role="status" aria-live="polite"></p>
       <div class="upload-actions"><button id="delete-cancel" type="button" class="button secondary">Cancel</button><button id="delete-confirm" type="submit" class="button primary">Delete song</button></div>
     </form>
