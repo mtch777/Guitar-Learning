@@ -325,3 +325,10 @@ Local verification:
   bounds and actual viewport fit remain the final deployment checks.
 - Live baseline at 1348×936: page height 1380px, score height 660px, keyboard
   bottom 1338.6px and MIDI button bottom 1159.6px, both beyond the viewport.
+- First source release `0be815445271514212637e71cc7c3079cee45665` passed build/
+  regression run 44228988973 and Pages deployment 44229086112, but the live
+  renderer rejected its fit after eight passes. The actual 1345×300 score budget
+  and whole-page layout fit correctly; the failure is in the browser SVG-bounds
+  branch absent from jsdom. Do not treat that release as accepted. A temporary
+  failure-only console diagnostic records native and browser bounds per pass
+  to determine the mismatch before correcting it.
