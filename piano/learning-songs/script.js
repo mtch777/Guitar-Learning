@@ -1,8 +1,8 @@
 const buildVersion = document.querySelector('meta[name="build-version"]')?.content
   || new URL(import.meta.url).searchParams.get('v') || 'dev';
 const loadModule = name => import(new URL(`./${name}?v=${encodeURIComponent(buildVersion)}`, import.meta.url).href);
-const [scoreModule, engineModule, renderModule, storageModule, repositoryModule, audioModule] = await Promise.all(
-  ['score-model.js', 'lesson-engine.js', 'score-renderer.js', 'song-storage.js', 'github-song-storage.js', 'piano-audio.js'].map(loadModule)
+const [scoreModule, engineModule, renderModule, storageModule, repositoryModule, audioModule, keyboardModule] = await Promise.all(
+  ['score-model.js', 'lesson-engine.js', 'score-renderer.js', 'song-storage.js', 'github-song-storage.js', 'piano-audio.js', 'keyboard-model.js'].map(loadModule)
 );
 const {parseMusicXML, secondsAtBeat, beatAtSeconds} = scoreModule;
 const {LessonEngine} = engineModule;
@@ -10,6 +10,7 @@ const {ScoreRenderer} = renderModule;
 const {SongStorage} = storageModule;
 const {SONG_LIBRARY, loadSongLibrary, loadSongScore, visibleSongChoices} = repositoryModule;
 const {PianoAudio} = audioModule;
+const {keyboardLayout, playingPitchesAt} = keyboardModule;
 if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, {once:true}));
 
 const $ = id => document.getElementById(id);
@@ -32,6 +33,7 @@ let librarySource = 'bundled', waitingForUpload = false;
 let libraryNoticeTimer;
 let starting = false, startGeneration = 0;
 let octave = 4, midiAccess = null;
+let keyboardVisible = preferences.keyboardVisible !== false, lastKeyboardPaint = '';
 const pressed = new Map();
 const noteNames = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
 const shortcuts = ['a','w','s','e','d','f','t','g','y','h','u','j','k'];
@@ -47,7 +49,7 @@ function notice(message = '', error = false) {
   $('import-message').hidden = !message;
   $('import-message').classList.toggle('error', error);
 }
-function savePreferences() { storage.savePreferences({mode, speed, sound:audio.enabled}); }
+function savePreferences() { storage.savePreferences({mode, speed, sound:audio.enabled, keyboardVisible}); }
 function controls() {
   $('play-button').disabled = busy || !engine || starting;
   $('restart-button').disabled = busy || !engine;
@@ -158,6 +160,8 @@ function paint(force = false) {
     $('progress-fill').style.width = `${state.total ? (state.hits + state.misses) / state.total * 100 : 0}%`;
   }
   renderer.cursorAtBeat(Math.min(beat, model.duration));
+  // Releases can fall between score onsets, so keyboard feedback updates every frame.
+  highlightKeys(state);
 }
 function completionText() {
   const state = engine.snapshot();
@@ -287,6 +291,7 @@ async function selectSong(song, {preparedModel = null, remember = true} = {}) {
       const rendered = await renderer.load(candidate);
       model = candidate;
       configureEngine();
+      drawKeyboard();
       $('song-description').textContent = song.description || '';
       $('song-description').hidden = !song.description;
       $('local-recovery').hidden = !song.localOnly;
@@ -316,7 +321,7 @@ async function selectSong(song, {preparedModel = null, remember = true} = {}) {
     notice(scoreErrorMessage(error), true);
     setStatus(engine ? 'Previous score kept' : 'Score unavailable');
     return false;
-  } finally { busy = false; controls(); }
+  } finally { busy = false; controls(); highlightKeys(); }
 }
 
 function downloadLocalScore() {
@@ -351,23 +356,36 @@ function strike(midi, source, sound = false) {
   }
 }
 function release(source) { pressed.delete(source); highlightKeys(); }
-function highlightKeys() {
+function highlightKeys(state = engine?.snapshot()) {
   const down = new Set(pressed.values());
-  $('keyboard').querySelectorAll('[data-midi]').forEach(key => key.classList.toggle('active', down.has(Number(key.dataset.midi))));
+  const sounding = playing && mode === 'timed' && !busy ? playingPitchesAt(audioNotes, elapsed) : new Set();
+  const targets = mode === 'wait' && !busy ? new Set(state?.requiredPitches || []) : new Set();
+  const signature = `${[...down].sort().join(',')}|${[...sounding].sort().join(',')}|${[...targets].sort().join(',')}`;
+  if (signature === lastKeyboardPaint) return;
+  lastKeyboardPaint = signature;
+  $('keyboard').querySelectorAll('[data-midi]').forEach(key => {
+    const midi = Number(key.dataset.midi);
+    key.classList.toggle('active', down.has(midi));
+    key.classList.toggle('playing', sounding.has(midi));
+    key.classList.toggle('current', targets.has(midi));
+  });
 }
 function drawKeyboard() {
   $('keyboard').replaceChildren();
-  const base = (octave + 1) * 12;
-  const white = [0,2,4,5,7,9,11,12];
-  const black = new Map([[1,1],[3,2],[6,4],[8,5],[10,6]]);
-  for (let semitone = 0; semitone <= 12; semitone++) {
-    const midi = base + semitone;
+  const layout = keyboardLayout(model?.attacks);
+  $('keyboard').style.setProperty('--keyboard-units', layout.units || 1);
+  $('keyboard').dataset.whiteCount = layout.whiteCount;
+  $('keyboard').classList.toggle('dense', layout.whiteCount > 21);
+  for (const {midi, black, left, width} of layout.keys) {
     const key = document.createElement('button');
-    key.type = 'button'; key.className = `piano-key ${white.includes(semitone) ? 'white' : 'black'}`;
+    key.type = 'button'; key.className = `piano-key ${black ? 'black' : 'white'}`;
     key.dataset.midi = midi; key.setAttribute('aria-label', `Play ${midiName(midi)}`);
-    if (black.has(semitone)) key.style.left = `${black.get(semitone) / 8 * 100}%`;
+    key.style.left = `${left * 100}%`;
+    key.style.width = `${width * 100}%`;
     const label = document.createElement('span'); label.className = 'note-name'; label.textContent = midiName(midi);
-    const shortcut = document.createElement('span'); shortcut.className = 'shortcut'; shortcut.textContent = shortcuts[semitone].toUpperCase();
+    label.classList.toggle('octave-label', midi % 12 === 0);
+    label.classList.toggle('range-label', midi === layout.min || midi === layout.max);
+    const shortcut = document.createElement('span'); shortcut.className = 'shortcut';
     key.append(label, shortcut);
     key.addEventListener('pointerdown', event => {
       event.preventDefault(); key.setPointerCapture?.(event.pointerId);
@@ -383,11 +401,32 @@ function drawKeyboard() {
     });
     $('keyboard').append(key);
   }
-  $('keyboard-range').textContent = `${midiName(base)} – ${midiName(base + 12)}`;
-  $('octave-down').disabled = octave <= 0; $('octave-up').disabled = octave >= 8;
+  $('keyboard-range').textContent = layout.min === null ? '' : layout.min === layout.max ? midiName(layout.min) : `${midiName(layout.min)} – ${midiName(layout.max)}`;
+  updateComputerKeyboard();
+  lastKeyboardPaint = '';
   highlightKeys();
 }
-function changeOctave(delta) { octave = Math.max(0, Math.min(8, octave + delta)); drawKeyboard(); }
+function updateComputerKeyboard() {
+  const base = (octave + 1) * 12;
+  $('input-octave').textContent = `${midiName(base)} – ${midiName(base + 12)}`;
+  $('octave-down').disabled = octave <= 0; $('octave-up').disabled = octave >= 8;
+  $('keyboard').querySelectorAll('[data-midi]').forEach(key => {
+    const midi = Number(key.dataset.midi);
+    const shortcut = shortcuts[midi - base]?.toUpperCase() || '';
+    const label = key.querySelector('.shortcut');
+    label.textContent = shortcut;
+    label.hidden = !shortcut;
+    key.title = `${midiName(midi)}${shortcut ? ` (${shortcut})` : ''}`;
+  });
+}
+function changeOctave(delta) { octave = Math.max(0, Math.min(8, octave + delta)); updateComputerKeyboard(); }
+function showKeyboard(visible) {
+  keyboardVisible = visible;
+  $('keyboard-panel').hidden = !visible;
+  $('keyboard-toggle').textContent = visible ? 'Hide keyboard' : 'Show keyboard';
+  $('keyboard-toggle').setAttribute('aria-expanded', String(visible));
+  if (visible) highlightKeys();
+}
 async function connectMidi() {
   if (!navigator.requestMIDIAccess) {
     $('midi-status').textContent = 'MIDI unavailable in this browser.';
@@ -440,6 +479,7 @@ $('restart-button').addEventListener('click', () => { const resume = playing; re
 $('midi-button').addEventListener('click', connectMidi);
 $('octave-down').addEventListener('click', () => changeOctave(-1));
 $('octave-up').addEventListener('click', () => changeOctave(1));
+$('keyboard-toggle').addEventListener('click', () => { showKeyboard(!keyboardVisible); savePreferences(); });
 $('lesson-modes').addEventListener('change', event => {
   if (event.target.name !== 'lesson-mode') return;
   pause(); mode = event.target.value;
@@ -463,12 +503,11 @@ document.addEventListener('keydown', event => {
 document.addEventListener('keyup', event => release(`key-${event.code}`));
 window.addEventListener('blur', () => { pressed.clear(); highlightKeys(); if (playing || starting) pause('Paused — window inactive'); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && (playing || starting)) pause('Paused — page hidden'); });
-let resizeTimer;
-window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { if (model) { renderer.resize(); paint(true); } }, 180); });
 
 document.querySelector(`input[name="lesson-mode"][value="${mode}"]`).checked = true;
 $('tempo').value = Math.round(speed * 100); $('tempo-label').textContent = `${Math.round(speed * 100)}%`;
 $('sound-enabled').checked = preferences.sound !== false; audio.setEnabled($('sound-enabled').checked);
+showKeyboard(keyboardVisible);
 let localRecoveryFailed = false;
 try {
   for (const song of await storage.list()) if (song.id && typeof song.xml === 'string') {
@@ -489,7 +528,7 @@ try { if (window.PracticeMIDI?.isEnabled()) connectMidi(); } catch (_) {}
 
 // A read-only snapshot makes regressions inspectable without synthesizing MIDI.
 window.PianoSongLesson = Object.freeze({
-  getSnapshot: () => ({selectedId, mode, playing, elapsed, speed,
+  getSnapshot: () => ({selectedId, mode, playing, elapsed, speed, keyboardVisible,
     songCount:songChoices.length, storagePersistent:storage.persistent, librarySource,
     model:model ? {title:model.title, parts:model.parts.length, notes:model.notes.length, attacks:model.attacks.length, duration:model.duration, warnings:[...model.warnings]} : null,
     lesson:engine ? {...engine.snapshot(), statuses:Object.fromEntries(engine.statuses)} : null})

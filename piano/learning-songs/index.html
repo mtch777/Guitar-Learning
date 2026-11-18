@@ -5,17 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Learning Songs · Practice</title>
   <meta name="theme-color" content="#0b0f14">
-  <link rel="stylesheet" href="./style.css?v=91a99a037db8">
-  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=91a99a037db8"></script>
-  <script defer src="./vendor/fflate-0.8.3.min.js?v=91a99a037db8"></script>
-  <script defer src="../shared/tracker.js?v=91a99a037db8"></script>
-  <script defer src="../shared/midi.js?v=91a99a037db8"></script>
-  <script type="module" src="./script.js?v=91a99a037db8"></script>
-  <meta name="build-version" content="91a99a037db8">
+  <link rel="stylesheet" href="./style.css?v=ec67ab24a7e9">
+  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=ec67ab24a7e9"></script>
+  <script defer src="./vendor/fflate-0.8.3.min.js?v=ec67ab24a7e9"></script>
+  <script defer src="../shared/tracker.js?v=ec67ab24a7e9"></script>
+  <script defer src="../shared/midi.js?v=ec67ab24a7e9"></script>
+  <script type="module" src="./script.js?v=ec67ab24a7e9"></script>
+  <meta name="build-version" content="ec67ab24a7e9">
 </head>
 <body>
   <main class="lesson-shell">
-    <header class="page-heading"><h1>Learning songs</h1><a href="../?v=91a99a037db8">← Practice</a></header>
+    <header class="page-heading"><h1>Learning songs</h1><a href="../?v=ec67ab24a7e9">← Practice</a></header>
     <section class="song-library card" aria-labelledby="library-heading">
       <div class="song-picker"><label id="library-heading" for="song-select">Song</label><select id="song-select"><option>Loading songs…</option></select></div>
       <a id="upload-button" class="button secondary" href="https://github.com/mtch777/Guitar-Learning/upload/main/public/piano/learning-songs/uploads" target="_blank" rel="noopener noreferrer">Upload <span>(.musicxml, .xml, .mxl)</span></a>
@@ -43,9 +43,11 @@
       <footer class="score-footer"><div class="legend"><span><i class="legend-dot current"></i> Current</span><span><i class="legend-dot hit"></i> Hit</span><span><i class="legend-dot miss"></i> Missed</span></div></footer>
       <details id="song-details" class="song-details"><summary>Details</summary><p id="song-description" hidden></p><p id="grading-note"></p><p id="score-warnings" hidden></p></details>
     </section>
-    <section class="input-card card" aria-labelledby="input-heading"><div class="input-heading"><div><h2 id="input-heading">Keyboard</h2><p id="midi-status" class="muted">MIDI not enabled</p></div><button id="midi-button" type="button" class="button secondary"><span id="midi-dot" class="connection-dot"></span> Enable MIDI</button></div>
-      <div class="keyboard-tools"><button id="octave-down" type="button" class="small-button" aria-label="Keyboard one octave lower" title="Lower octave (Z)">− Octave</button><span id="keyboard-range"></span><button id="octave-up" type="button" class="small-button" aria-label="Keyboard one octave higher" title="Higher octave (X)">+ Octave</button></div>
-      <div id="keyboard" class="keyboard" aria-label="On-screen piano keyboard"></div>
+    <section class="input-card card" aria-labelledby="input-heading"><div class="input-heading"><div><h2 id="input-heading">Keyboard</h2><p id="midi-status" class="muted">MIDI not enabled</p></div><div class="input-actions"><button id="keyboard-toggle" type="button" class="button secondary" aria-expanded="true" aria-controls="keyboard-panel">Hide keyboard</button><button id="midi-button" type="button" class="button secondary"><span id="midi-dot" class="connection-dot"></span> Enable MIDI</button></div></div>
+      <div id="keyboard-panel">
+        <div class="keyboard-tools"><span id="keyboard-range" aria-label="Song note range"></span><div class="computer-octave" role="group" aria-label="Computer keyboard octave"><span>Computer keys</span><button id="octave-down" type="button" class="small-button" aria-label="Computer keyboard one octave lower" title="Lower input octave (Z)">−</button><span id="input-octave"></span><button id="octave-up" type="button" class="small-button" aria-label="Computer keyboard one octave higher" title="Higher input octave (X)">+</button></div></div>
+        <div id="keyboard" class="keyboard" aria-label="On-screen piano keyboard"></div>
+      </div>
     </section>
   </main>
 </body>
