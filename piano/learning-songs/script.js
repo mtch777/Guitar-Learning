@@ -1,8 +1,8 @@
 const buildVersion = document.querySelector('meta[name="build-version"]')?.content
   || new URL(import.meta.url).searchParams.get('v') || 'dev';
 const loadModule = name => import(new URL(`./${name}?v=${encodeURIComponent(buildVersion)}`, import.meta.url).href);
-const [scoreModule, engineModule, renderModule, storageModule, repositoryModule, audioModule, keyboardModule, transposeModule, uploadModule, scoreUploadModule] = await Promise.all(
-  ['score-model.js', 'lesson-engine.js', 'score-renderer.js', 'song-storage.js', 'github-song-storage.js', 'piano-audio.js', 'keyboard-model.js', 'score-transpose.js', 'github-song-upload.js', 'score-upload.js'].map(loadModule)
+const [scoreModule, engineModule, renderModule, storageModule, repositoryModule, audioModule, keyboardModule, transposeModule, uploadModule, scoreUploadModule, deleteModule] = await Promise.all(
+  ['score-model.js', 'lesson-engine.js', 'score-renderer.js', 'song-storage.js', 'github-song-storage.js', 'piano-audio.js', 'keyboard-model.js', 'score-transpose.js', 'github-song-upload.js', 'score-upload.js', 'github-song-delete.js'].map(loadModule)
 );
 const {parseMusicXML, secondsAtBeat, beatAtSeconds} = scoreModule;
 const {LessonEngine} = engineModule;
@@ -14,15 +14,13 @@ const {keyboardLayout, playingPitchesAt} = keyboardModule;
 const {transposeScore, transposeLimits} = transposeModule;
 const {uploadScoreToGitHub} = uploadModule;
 const {readScoreFile} = scoreUploadModule;
+const {deleteSongFromGitHub} = deleteModule;
 if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, {once:true}));
 
 const $ = id => document.getElementById(id);
 const DEFAULT_ID = 'phoebe-bridgers-i-know-the-end';
-const builtIns = [
-  {id:DEFAULT_ID, title:'I Know the End', composer:'Phoebe Bridgers', url:new URL('./scores/phoebe-bridgers-i-know-the-end.musicxml', document.baseURI).href, repositorySaved:true, description:'Piano arrangement by Edgar Roock'}
-];
-const songs = new Map(builtIns.map(song => [song.id, song]));
-let songChoices = builtIns, songAliases = new Map();
+const songs = new Map();
+let songChoices = [], songAliases = new Map();
 const storage = await new SongStorage().open();
 const audio = new PianoAudio();
 const renderer = new ScoreRenderer($('score'), $('score-viewport'));
@@ -34,6 +32,16 @@ let sourceModel = null, transposeOffset = 0;
 let playing = false, elapsed = 0, anchor = 0, animation = 0, nextAudio = 0, totalSeconds = 0;
 let busy = false, libraryLoading = false, countIn = 0, lastPaint = '', lastStatus = '';
 let librarySource = 'bundled', uploading = false, pendingUploadTimer;
+let deleting = false;
+const pendingDeleteTimers = new Map();
+const PENDING_DELETE_KEY = 'piano-pending-github-deletions-v1';
+const pendingDeletes = new Set((() => {
+  try { const value = JSON.parse(sessionStorage.getItem(PENDING_DELETE_KEY) || '[]'); return Array.isArray(value) ? value.filter(id => typeof id === 'string') : []; }
+  catch (_) { return []; }
+})());
+function rememberPendingDeletes() {
+  try { sessionStorage.setItem(PENDING_DELETE_KEY, JSON.stringify([...pendingDeletes])); } catch (_) {}
+}
 let libraryNoticeTimer;
 let starting = false, startGeneration = 0;
 let midiAccess = null;
@@ -59,6 +67,7 @@ function controls() {
   $('song-select').disabled = busy || libraryLoading;
   $('refresh-library').disabled = busy || libraryLoading;
   $('upload-button').disabled = uploading;
+  $('delete-song').disabled = busy || libraryLoading || deleting || uploading || !songChoice(selectedId);
   $('tempo').disabled = busy || playing;
   const limits = sourceModel ? transposeLimits(sourceModel) : {min:0, max:0};
   $('transpose-down').disabled = busy || libraryLoading || !sourceModel || transposeOffset <= limits.min;
@@ -102,7 +111,26 @@ async function refreshLibrary() {
       $('local-recovery').hidden = !selected.localOnly;
     }
     $('song-select').value = selectedId;
+  } else if (!songChoices.length) {
+    selectedId = null;
+    $('song-select').replaceChildren(new Option('No songs', ''));
   }
+}
+function showEmptyLibrary() {
+  pause('No songs');
+  model = sourceModel = engine = null;
+  selectedId = null;
+  renderer.osmd?.dispose?.();
+  renderer.osmd = null;
+  renderer.container.replaceChildren();
+  renderer.systems = [];
+  $('score').hidden = true;
+  $('empty-score').hidden = false;
+  $('empty-title').textContent = 'No songs';
+  $('empty-description').textContent = 'Upload a score to start.';
+  $('hit-count').textContent = '0'; $('miss-count').textContent = '0'; $('progress-count').textContent = '0 / 0';
+  $('progress-fill').style.width = '0%';
+  drawKeyboard(); controls();
 }
 function libraryNotice(message = '', error = false, {temporary = false} = {}) {
   clearTimeout(libraryNoticeTimer);
@@ -119,14 +147,13 @@ async function refreshSharedLibrary({announce = false} = {}) {
     const localSongs = [...songs.values()].filter(song => song.localOnly);
     const previousSong = songs.get(selectedId);
     songs.clear();
-    for (const song of catalog.songs) songs.set(song.id, song);
+    for (const song of catalog.songs) if (!pendingDeletes.has(song.id)) songs.set(song.id, song);
     for (const song of localSongs) songs.set(song.id, song);
-    if (previousSong && !songs.has(previousSong.id)) songs.set(previousSong.id, previousSong);
+    if (previousSong && !pendingDeletes.has(previousSong.id) && !songs.has(previousSong.id)) songs.set(previousSong.id, previousSong);
     librarySource = catalog.source;
     await refreshLibrary();
-    if (selectedId && !songChoice(selectedId)) {
-      await selectSong(songChoice(DEFAULT_ID) || songChoices[0]);
-    }
+    if (selectedId && !songChoice(selectedId)) await selectSong(songChoice(catalog.defaultSongId) || songChoices[0]);
+    if (!songChoices.length) showEmptyLibrary();
     if (catalog.importErrors?.length) {
       console.warn('Song upload errors:', catalog.importErrors);
       const filenames = catalog.importErrors.slice(0, 3).map(issue => issue.sourceFilename).join(', ');
@@ -566,6 +593,84 @@ $('upload-form').addEventListener('submit', async event => {
     controls();
   }
 });
+const deleteStatus = (message = '', error = false) => {
+  $('delete-status').textContent = message;
+  $('delete-status').classList.toggle('error', error);
+};
+function watchPublishedDeletion(id, attempts = 0) {
+  clearTimeout(pendingDeleteTimers.get(id));
+  pendingDeleteTimers.set(id, setTimeout(async () => {
+    if (busy || libraryLoading || deleting) return watchPublishedDeletion(id, attempts);
+    try {
+      const catalog = await loadSongLibrary({deployedCatalogUrl:new URL('./song-library.json', document.baseURI).href});
+      if (!catalog.songs.some(song => song.id === id)) {
+        pendingDeletes.delete(id);
+        rememberPendingDeletes();
+        libraryNotice('Song deleted.', false, {temporary:true});
+        await refreshSharedLibrary();
+        return;
+      }
+    } catch (_) { /* The publish may still be in progress. */ }
+    if (attempts >= 29) return libraryNotice('Deleted in GitHub. The song list is still publishing; refresh later.');
+    watchPublishedDeletion(id, attempts + 1);
+  }, 10000));
+}
+$('delete-song').addEventListener('click', () => {
+  const song = songChoice(selectedId);
+  if (!song || busy || deleting) return;
+  if (playing || starting) pause();
+  const label = [...$('song-select').options].find(option => option.value === song.id)?.textContent || song.title;
+  $('delete-description').textContent = song.localOnly
+    ? `Delete “${label}” from this device?`
+    : `Delete “${label}” from the song list?`;
+  $('delete-token').hidden = !!song.localOnly;
+  $('delete-token').previousElementSibling.hidden = !!song.localOnly;
+  $('delete-token').required = !song.localOnly;
+  $('delete-token').value = '';
+  deleteStatus();
+  $('delete-dialog').showModal();
+});
+$('delete-cancel').addEventListener('click', () => {
+  if (deleting) return;
+  $('delete-token').value = '';
+  $('delete-dialog').close();
+});
+$('delete-dialog').addEventListener('cancel', event => {
+  if (deleting) event.preventDefault();
+  else $('delete-token').value = '';
+});
+$('delete-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  if (deleting) return;
+  const song = songChoice(selectedId);
+  if (!song) return deleteStatus('Select a song first.', true);
+  deleting = true;
+  $('delete-confirm').disabled = $('delete-cancel').disabled = true;
+  controls();
+  try {
+    deleteStatus('Deleting…');
+    if (song.localOnly) await storage.delete(song.legacyId);
+    else await deleteSongFromGitHub(song, $('delete-token').value);
+    $('delete-token').value = '';
+    $('delete-dialog').close();
+    if (!song.localOnly) { pendingDeletes.add(song.id); rememberPendingDeletes(); }
+    songs.delete(song.id);
+    await refreshLibrary();
+    if (selectedId === song.id) {
+      const replacement = songChoices[0];
+      if (replacement) await selectSong(replacement);
+      else showEmptyLibrary();
+    }
+    libraryNotice(song.localOnly ? 'Song deleted.' : 'Deleted in GitHub. Updating song list…');
+    if (!song.localOnly) watchPublishedDeletion(song.id);
+  } catch (error) {
+    deleteStatus(error.message || 'Deletion failed.', true);
+  } finally {
+    deleting = false;
+    $('delete-confirm').disabled = $('delete-cancel').disabled = false;
+    controls();
+  }
+});
 $('refresh-library').addEventListener('click', () => refreshSharedLibrary({announce:true}));
 $('download-local-score').addEventListener('click', downloadLocalScore);
 $('song-select').addEventListener('change', event => selectSong(songChoice(event.target.value)));
@@ -608,7 +713,9 @@ await refreshSharedLibrary();
 await refreshLibrary(); drawKeyboard();
 const remembered = storage.lastSelection();
 await selectSong(songChoice(remembered) || songChoice(`local-${remembered}`) || songChoice(DEFAULT_ID) || songChoices[0]);
+if (!songChoices.length) showEmptyLibrary();
 if (pendingUpload()) watchPublishedUpload(pendingUpload());
+for (const id of pendingDeletes) watchPublishedDeletion(id);
 if (localRecoveryFailed && $('import-message').hidden) notice('Device-only scores could not be read.', true);
 try { window.PracticeTracker?.recordOpen('learning-songs'); } catch (_) {}
 try { if (window.PracticeMIDI?.isEnabled()) connectMidi(); } catch (_) {}

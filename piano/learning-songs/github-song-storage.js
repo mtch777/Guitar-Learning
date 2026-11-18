@@ -86,7 +86,7 @@ function boundedText(value, name, {required = false} = {}) {
 
 /** Reject malformed paths instead of treating catalog entries as arbitrary URLs. */
 export function validateSongCatalog(value) {
-  if (!value || value.version !== 1 || !Array.isArray(value.songs) || !value.songs.length || value.songs.length > 5000) {
+  if (!value || value.version !== 1 || !Array.isArray(value.songs) || value.songs.length > 5000) {
     throw new Error('The published song catalog has an unsupported or empty format.');
   }
   const ids = new Set();
@@ -124,7 +124,7 @@ export function validateSongCatalog(value) {
     }
     return song;
   });
-  if (typeof value.defaultSongId !== 'string' || !ids.has(value.defaultSongId)) {
+  if (value.songs.length ? (typeof value.defaultSongId !== 'string' || !ids.has(value.defaultSongId)) : value.defaultSongId !== null) {
     throw new Error('The song catalog does not contain its default song.');
   }
   const importErrors = [];
