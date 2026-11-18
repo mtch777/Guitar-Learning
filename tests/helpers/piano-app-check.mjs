@@ -7,6 +7,7 @@ import {createRequire} from 'node:module';
 import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
+import {parseMusicXML} from '../../public/piano/learning-songs/score-model.js';
 
 const dependencies = createRequire(resolve(process.argv[2] || 'package.json'));
 const {JSDOM} = dependencies('jsdom');
@@ -48,6 +49,7 @@ async function boot({resume = 'running', legacySongs = []} = {}) {
   const frames = new Map();
   const sounds = [];
   const audioControl = {resumeCalls: 0, pending: [], context: null};
+  const renderControl = {loads: [], error: null};
   let frameId = 0;
   const canvases = new WeakMap();
   window.HTMLCanvasElement.prototype.getContext = function(type) {
@@ -126,6 +128,16 @@ async function boot({resume = 'running', legacySongs = []} = {}) {
   window.addEventListener('error', event => errors.push(event.error || event.message));
   window.eval(readFileSync(resolve(app, 'vendor/opensheetmusicdisplay-2.3.1.min.js'), 'utf8'));
   window.eval(readFileSync(resolve(app, 'vendor/fflate-0.8.3.min.js'), 'utf8'));
+  const nativeLoad = window.opensheetmusicdisplay.OpenSheetMusicDisplay.prototype.load;
+  window.opensheetmusicdisplay.OpenSheetMusicDisplay.prototype.load = async function(xml, ...args) {
+    renderControl.loads.push(xml);
+    if (renderControl.error) {
+      const error = renderControl.error;
+      renderControl.error = null;
+      throw error;
+    }
+    return nativeLoad.call(this, xml, ...args);
+  };
   globalThis.fflate = window.fflate;
   await import(pathToFileURL(resolve(app, 'script.js')).href + `?v=app-check-${++generation}`);
   const $ = id => window.document.getElementById(id);
@@ -153,7 +165,12 @@ async function boot({resume = 'running', legacySongs = []} = {}) {
     await settle(() => snapshot().selectedId === id && !$('song-select').disabled, `select ${id}`);
   };
 
-  return {dom, window, $, clock, frames, sounds, audioControl, snapshot, keyPitches, click, midi, strike, advance, mode, select};
+  const renderedModel = () => parseMusicXML(renderControl.loads.at(-1), {DOMParser:window.DOMParser, XMLSerializer:window.XMLSerializer});
+  const transpose = async direction => {
+    await click(direction > 0 ? 'transpose-up' : 'transpose-down');
+    await settle(() => !$('song-select').disabled, 'finish transpose');
+  };
+  return {dom, window, $, clock, frames, sounds, audioControl, renderControl, renderedModel, snapshot, keyPitches, click, midi, strike, advance, mode, select, transpose};
 }
 
 async function run() {
@@ -304,9 +321,79 @@ async function run() {
   ui.mode('wait');
   checks.push('actual MIDI and timed playback advance the same current/next row pair without changing scroll offsets; restart restores rows 1–2');
 
+  const originalXML = ui.renderControl.loads.at(-1);
+  const originalPitches = ui.renderedModel().notes.filter(note => !note.isRest).map(note => note.midi);
+  const beforeTransposeFetches = fetchRequests.length;
+  ui.$('transpose-up').click();
+  assert.equal(ui.snapshot().transpose, 0, 'The new offset is not committed before engraving succeeds.');
+  assert.ok(ui.$('transpose-up').disabled && ui.$('transpose-down').disabled && ui.$('song-select').disabled);
+  ui.$('transpose-up').dispatchEvent(new ui.window.MouseEvent('click', {bubbles:true}));
+  await settle(() => !ui.$('song-select').disabled, 'first transposition');
+  assert.equal(ui.snapshot().transpose, 1, 'Repeated input while busy cannot queue an accidental extra semitone.');
+  assert.equal(ui.$('transpose-value').value, '+1');
+  assert.deepEqual(ui.renderedModel().notes.filter(note => !note.isRest).map(note => note.midi), originalPitches.map(pitch => pitch + 1));
+  assert.equal(new ui.window.DOMParser().parseFromString(ui.renderControl.loads.at(-1), 'application/xml').querySelector('key > fifths').textContent, '2',
+    'The score actually engraved by OSMD changes from D-flat to D major.');
+  assert.deepEqual(ui.keyPitches(), phoebeKeys.map(pitch => pitch + 1));
+  assert.deepEqual(ui.snapshot().lesson.requiredPitches, [62, 86]);
+  assert.equal(ui.$('score').querySelector('.lesson-score-window').dataset.visibleSystemCount, '2');
+  assert.equal(ui.$('practice-status').textContent, 'Ready');
+  await ui.click('play-button');
+  ui.strike(61);
+  assert.equal(ui.snapshot().lesson.hits, 0, 'The old key is wrong after a semitone shift.');
+  assert.equal(ui.snapshot().lesson.wrong, 1);
+  ui.strike(62); ui.strike(86);
+  assert.equal(ui.snapshot().lesson.hits, 2, 'The shifted pitches grade against the shifted notation.');
+  ui.mode('timed');
+  ui.sounds.length = 0;
+  await ui.click('play-button');
+  ui.advance(-ui.snapshot().elapsed);
+  const frequency = midi => 440 * Math.pow(2, (midi - 69) / 12);
+  for (const pitch of [62, 86]) assert.ok(ui.sounds.some(sound => Math.abs(sound.frequency - frequency(pitch)) < 1e-8));
+  assert.ok(!ui.sounds.some(sound => Math.abs(sound.frequency - frequency(61)) < 1e-8));
+  assert.deepEqual(ui.keyPitches('playing'), [62, 86]);
+  ui.midi(62);
+  await ui.transpose(-1);
+  assert.equal(ui.snapshot().playing, false, 'Changing pitch pauses playback.');
+  assert.equal(ui.snapshot().elapsed, 0);
+  assert.equal(ui.snapshot().lesson.hits, 0);
+  assert.equal(ui.snapshot().lesson.misses, 0);
+  assert.deepEqual(ui.keyPitches('active'), [], 'Held input is cleared when the keyboard changes pitch.');
+  assert.deepEqual(ui.keyPitches('playing'), []);
+  assert.equal(ui.snapshot().transpose, 0);
+  assert.equal(ui.$('transpose-value').value, '0');
+  assert.equal(ui.renderControl.loads.at(-1), originalXML, 'Returning to 0 restores the exact original normalized score.');
+  assert.deepEqual(ui.keyPitches(), phoebeKeys);
+  ui.mode('wait');
+  await ui.transpose(-1);
+  assert.equal(ui.snapshot().transpose, -1);
+  assert.deepEqual(ui.renderedModel().notes.filter(note => !note.isRest).map(note => note.midi), originalPitches.map(pitch => pitch - 1));
+  assert.equal(new ui.window.DOMParser().parseFromString(ui.renderControl.loads.at(-1), 'application/xml').querySelector('key > fifths').textContent, '0');
+  assert.deepEqual(ui.keyPitches(), phoebeKeys.map(pitch => pitch - 1));
+  assert.deepEqual(ui.snapshot().lesson.requiredPitches, [60, 84]);
+  assert.equal(fetchRequests.length, beforeTransposeFetches, 'Pitch changes neither reload nor alter repository songs.');
+  checks.push('semitone arrows synchronize real engraved pitches/key signatures, grading, silent audio and full-range keyboard; 0 restores original notation');
+  checks.push('pitch change cancels playback, clears the attempt and held keys, keeps two rows, and ignores duplicate busy input');
+
+  const retainedSvg = ui.$('score').querySelector('svg');
+  const retainedFrame = ui.$('score').querySelector('.lesson-score-window');
+  ui.renderControl.error = new Error('Synthetic engraving refusal');
+  await ui.transpose(1);
+  assert.equal(ui.snapshot().transpose, -1);
+  assert.equal(ui.$('transpose-value').value, '-1');
+  assert.equal(ui.$('score').querySelector('svg'), retainedSvg);
+  assert.equal(ui.$('score').querySelector('.lesson-score-window'), retainedFrame);
+  assert.deepEqual(ui.snapshot().lesson.requiredPitches, [60, 84]);
+  assert.deepEqual(ui.keyPitches(), phoebeKeys.map(pitch => pitch - 1));
+  assert.equal(ui.$('practice-status').textContent, 'Synthetic engraving refusal');
+  assert.equal(ui.$('play-button').disabled, false);
+  assert.equal(ui.$('import-message').hidden, true, 'A transpose failure uses the existing status without adding height.');
+  checks.push('failed transpose retains previous offset, playable model, keyboard and actual SVG without an extra status row');
+
   await ui.select(practiceId);
   await settle(() => ui.snapshot().model && !ui.$('song-select').disabled, 'render NWC score');
   assert.equal(ui.snapshot().model.notes, 20);
+  assert.equal(ui.snapshot().transpose, 0, 'Selecting another song starts at its original pitch.');
   assert.notDeepEqual(ui.keyPitches(), phoebeKeys, 'Selecting a different song updates the keyboard range.');
   assert.ok(ui.$('score').querySelector('svg'));
   assert.equal(ui.snapshot().storagePersistent, true);
@@ -469,6 +556,20 @@ async function run() {
   assert.equal(ui.snapshot().elapsed, 0);
   assert.equal(ui.frames.size, 0);
   checks.push('delayed audio resume disables double Play; changing mode cancels the pending start');
+
+  ui.dom.window.close();
+  ui = await boot({resume:'deferred'});
+  await ui.click('play-button');
+  assert.ok(ui.$('play-button').disabled);
+  await ui.transpose(1);
+  assert.equal(ui.snapshot().transpose, 1);
+  for (const resolve of ui.audioControl.pending.splice(0)) resolve();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(ui.snapshot().playing, false, 'An old audio resume cannot start a transposed/reset attempt.');
+  assert.equal(ui.snapshot().elapsed, 0);
+  assert.equal(ui.frames.size, 0);
+  assert.equal(ui.sounds.length, 0);
+  checks.push('transpose cancels a pending audio unlock and leaves the shifted score Ready');
 
   ui.dom.window.close();
   ui = await boot({resume: 'rejected'});

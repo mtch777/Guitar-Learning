@@ -1,8 +1,8 @@
 const buildVersion = document.querySelector('meta[name="build-version"]')?.content
   || new URL(import.meta.url).searchParams.get('v') || 'dev';
 const loadModule = name => import(new URL(`./${name}?v=${encodeURIComponent(buildVersion)}`, import.meta.url).href);
-const [scoreModule, engineModule, renderModule, storageModule, repositoryModule, audioModule, keyboardModule] = await Promise.all(
-  ['score-model.js', 'lesson-engine.js', 'score-renderer.js', 'song-storage.js', 'github-song-storage.js', 'piano-audio.js', 'keyboard-model.js'].map(loadModule)
+const [scoreModule, engineModule, renderModule, storageModule, repositoryModule, audioModule, keyboardModule, transposeModule] = await Promise.all(
+  ['score-model.js', 'lesson-engine.js', 'score-renderer.js', 'song-storage.js', 'github-song-storage.js', 'piano-audio.js', 'keyboard-model.js', 'score-transpose.js'].map(loadModule)
 );
 const {parseMusicXML, secondsAtBeat, beatAtSeconds} = scoreModule;
 const {LessonEngine} = engineModule;
@@ -11,6 +11,7 @@ const {SongStorage} = storageModule;
 const {SONG_LIBRARY, loadSongLibrary, loadSongScore, visibleSongChoices} = repositoryModule;
 const {PianoAudio} = audioModule;
 const {keyboardLayout, playingPitchesAt} = keyboardModule;
+const {transposeScore, transposeLimits} = transposeModule;
 if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, {once:true}));
 
 const $ = id => document.getElementById(id);
@@ -27,6 +28,7 @@ const preferences = storage.preferences();
 let mode = preferences.mode === 'timed' ? 'timed' : 'wait';
 let speed = Math.max(.25, Math.min(1.5, Number(preferences.speed) || 1));
 let selectedId = null, model = null, engine = null, timedGroups = [], audioNotes = [];
+let sourceModel = null, transposeOffset = 0;
 let playing = false, elapsed = 0, anchor = 0, animation = 0, nextAudio = 0, totalSeconds = 0;
 let busy = false, libraryLoading = false, countIn = 0, lastPaint = '', lastStatus = '';
 let librarySource = 'bundled', waitingForUpload = false;
@@ -55,8 +57,19 @@ function controls() {
   $('song-select').disabled = busy || libraryLoading;
   $('refresh-library').disabled = busy || libraryLoading;
   $('tempo').disabled = busy || playing;
+  const limits = sourceModel ? transposeLimits(sourceModel) : {min:0, max:0};
+  $('transpose-down').disabled = busy || libraryLoading || !sourceModel || transposeOffset <= limits.min;
+  $('transpose-up').disabled = busy || libraryLoading || !sourceModel || transposeOffset >= limits.max;
+  const offsetLabel = `${transposeOffset > 0 ? '+' : ''}${transposeOffset}`;
+  $('transpose-value').value = offsetLabel;
+  $('transpose-value').title = `${offsetLabel} semitones`;
+  $('transpose-value').setAttribute('aria-label', `Transpose: ${offsetLabel} semitones`);
   const finished = engine?.complete && (mode === 'wait' || elapsed >= totalSeconds + .2);
-  $('play-button').textContent = starting ? 'Starting…' : playing ? 'Ⅱ Pause' : finished ? '▶ Play again' : '▶ Play';
+  const playLabel = starting ? 'Starting…' : playing ? 'Pause' : finished ? 'Play again' : 'Play';
+  const playIcon = starting ? '…' : playing ? 'Ⅱ' : '▶';
+  $('play-button').innerHTML = `<span class="button-icon" aria-hidden="true">${playIcon}</span><span class="button-label">${playLabel}</span>`;
+  $('play-button').setAttribute('aria-label', playLabel);
+  $('play-button').title = playLabel;
 }
 function songChoice(id) {
   return songChoices.find(song => song.id === (songAliases.get(id) || id));
@@ -259,7 +272,7 @@ function scoreErrorMessage(error) {
 async function selectSong(song, {preparedModel = null, remember = true} = {}) {
   if (!song || busy) return false;
   busy = true;
-  const previous = {model, engine, selectedId};
+  const previous = {model, sourceModel, transposeOffset, engine, selectedId};
   pause('Loading score…'); controls(); notice();
   try {
     {
@@ -272,6 +285,9 @@ async function selectSong(song, {preparedModel = null, remember = true} = {}) {
       $('score').hidden = false; $('empty-score').hidden = true;
       const rendered = await renderer.load(candidate);
       model = candidate;
+      sourceModel = candidate;
+      transposeOffset = 0;
+      pressed.clear();
       configureEngine();
       drawKeyboard();
       $('local-recovery').hidden = !song.localOnly;
@@ -285,7 +301,8 @@ async function selectSong(song, {preparedModel = null, remember = true} = {}) {
     return true;
   } catch (error) {
     console.warn('Score selection failed:', error);
-    model = previous.model; engine = previous.engine; selectedId = previous.selectedId;
+    model = previous.model; sourceModel = previous.sourceModel; transposeOffset = previous.transposeOffset;
+    engine = previous.engine; selectedId = previous.selectedId;
     if (model) {
       try { await renderer.load(model); paint(true); } catch (_) { engine = null; }
     } else {
@@ -298,6 +315,35 @@ async function selectSong(song, {preparedModel = null, remember = true} = {}) {
     setStatus(engine ? 'Previous score kept' : 'Score unavailable');
     return false;
   } finally { busy = false; controls(); highlightKeys(); }
+}
+
+async function transposeBy(semitones) {
+  if (busy || libraryLoading || !sourceModel || !engine) return false;
+  const nextOffset = transposeOffset + semitones;
+  const limits = transposeLimits(sourceModel);
+  if (!Number.isInteger(nextOffset) || nextOffset < limits.min || nextOffset > limits.max) return false;
+  busy = true;
+  pause('Changing pitch…'); controls(); notice();
+  try {
+    // Always derive from the original score, so repeated arrows never accumulate
+    // altered spellings or modify the repository/local-recovery source.
+    const candidate = transposeScore(sourceModel, nextOffset);
+    const rendered = await renderer.load(candidate);
+    model = candidate;
+    transposeOffset = nextOffset;
+    pressed.clear();
+    configureEngine();
+    drawKeyboard();
+    resetSession();
+    if (rendered.warnings?.length) console.warn('Score rendering details:', rendered.warnings);
+    return true;
+  } catch (error) {
+    console.warn('Score transposition failed:', error);
+    // Renderer.load keeps its previous score intact when the candidate cannot
+    // be engraved. The offset/model are committed only after that succeeds.
+    setStatus(error.message || 'Pitch could not be changed');
+    return false;
+  } finally { busy = false; controls(); paint(true); }
 }
 
 function downloadLocalScore() {
@@ -319,7 +365,11 @@ function strike(midi, source, sound = false) {
   highlightKeys();
   if (sound && audio.enabled) {
     // Grade the input immediately; resuming an audio device must not add latency.
-    audio.unlock().then(() => audio.note(midi)).catch(() => {});
+    const generation = startGeneration;
+    const requestedModel = model;
+    audio.unlock().then(() => {
+      if (generation === startGeneration && requestedModel === model) audio.note(midi);
+    }).catch(() => {});
   }
   if (!playing || !engine || busy) return;
   const position = mode === 'timed' ? audio.time - anchor : 0;
@@ -439,6 +489,8 @@ window.addEventListener('focus', () => {
 $('song-select').addEventListener('change', event => selectSong(songChoice(event.target.value)));
 $('play-button').addEventListener('click', () => playing ? pause() : start());
 $('restart-button').addEventListener('click', () => { const resume = playing; resetSession(); if (resume) start(); });
+$('transpose-down').addEventListener('click', () => transposeBy(-1));
+$('transpose-up').addEventListener('click', () => transposeBy(1));
 $('midi-button').addEventListener('click', connectMidi);
 $('keyboard-toggle').addEventListener('click', () => { showKeyboard(!keyboardVisible); savePreferences(); });
 $('lesson-modes').addEventListener('change', event => {
@@ -480,7 +532,7 @@ try { if (window.PracticeMIDI?.isEnabled()) connectMidi(); } catch (_) {}
 
 // A read-only snapshot makes regressions inspectable without synthesizing MIDI.
 window.PianoSongLesson = Object.freeze({
-  getSnapshot: () => ({selectedId, mode, playing, elapsed, speed, keyboardVisible,
+  getSnapshot: () => ({selectedId, mode, playing, elapsed, speed, keyboardVisible, transpose:transposeOffset,
     songCount:songChoices.length, storagePersistent:storage.persistent, librarySource,
     model:model ? {title:model.title, parts:model.parts.length, notes:model.notes.length, attacks:model.attacks.length, duration:model.duration, warnings:[...model.warnings]} : null,
     lesson:engine ? {...engine.snapshot(), statuses:Object.fromEntries(engine.statuses)} : null})

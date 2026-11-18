@@ -364,3 +364,57 @@ Local verification:
   restarted to Ready with systems 1–2, and left the keyboard shown and Sound off.
   Captured the complete compact lesson view for the final reply. Physical MIDI
   hardware and listening acceptance were not exercised; no UI blocker remains.
+
+## Semitone arrows without added height — 2026-11-17
+
+User request: add semitone down/up arrows to Learning Songs without adding UI
+height. Scope includes functional, synchronized transposition of the sheet music,
+audio, keyboard range/highlights and required MIDI notes.
+
+- [ ] Add a compact down/offset/up group within the existing transport row;
+  preserve toolbar height and row count on desktop and narrow screens.
+- [x] Derive transposed notation and lesson pitches from the immutable original
+  score, preserving timing, ties, identities, rhythms and source uploads.
+- [x] Commit a new pitch offset only after successful engraving; pause and reset
+  the current attempt safely, preserve the previous usable score on failure.
+- [ ] Verify +/- semitone behavior, source roundtrip, grading/audio/keyboard
+  agreement and no added layout height; publish and inspect the live release.
+
+Counterexamples: shifting the renderer alone leaves MIDI grading wrong; changing
+each already-transposed score causes spelling drift; a failed render must not
+change the selected offset; an added control must not push playback onto another
+toolbar row. Bounds cover all written pitches, including grace/cue/hidden notes.
+Offset starts at zero and resets for a newly selected song; no new preference or
+extra instructional block. Root owns layout/release, with separate model/app
+ownership and independent scope review. Silent QA only.
+
+Local verification and baseline:
+
+- Added an inline down/offset/up group with accessible names. Play/Restart keep
+  full accessible names and use compact icons at narrow widths, including the
+  621–880px one-row toolbar range; existing flex bases/height budgets stay intact.
+- The new transposer changes actual MusicXML pitches, conventional key signatures
+  and chord root/bass symbols, retains source IDs/ties/tempo/rhythm, and derives
+  every offset from the original normalized source. Zero returns that original.
+  MIDI bounds include grace/cue/hidden notes as well as played attacks. Unsupported
+  pitch-dependent annotations report an error without altering the source.
+- `node --test tests/piano-*.test.mjs`: 111/111 pass, including 12 transposition
+  cases covering actual Phoebe notation, all written pitches, clocks/IDs, octave
+  boundaries, ties through key changes, per-staff/mid-measure signatures with
+  backup, stacked/slash chords, excluded notes, implicit keys and namespaced XML.
+- Actual app/OSMD helper: 22 checks across 8 fresh boots pass silently. Phoebe's
+  first pitches 61/85 become 62/86 at +1 (D major) and 60/84 at -1 (C major).
+  Written notes, MIDI grading, timed audio frequencies and keyboard range agree;
+  zero restores exact normalized XML. Busy clicks, playback/pending-audio reset
+  and failed-engraving rollback preserve the intended state. Source files remain
+  unchanged. One new pending-audio harness initially reused an already-resumed
+  context; a fresh deferred boot corrected that test, with no production defect.
+- Independent arithmetic check: 15 conventional signatures × 12 pitch classes
+  at ±1 verifies 360 pitched occurrences, exact MIDI deltas, key equivalence and
+  immutable source IDs/timing. Scoped source review found no blocker.
+- `npm run build` and `git diff --check` pass.
+- Live baseline build `79053f578c14`: at 1363×936 toolbar/transport heights are
+  46/34px; at 681×468 they are 36/30px; at 545×374 and 340×234 they are 70/30px.
+  The 340×234 baseline is already too short for the score; that extreme zoom is
+  a height comparison only, not evidence that the whole interface fits 234px.
+  Browser zoom is restored to 100%; post-release comparison remains pending.
