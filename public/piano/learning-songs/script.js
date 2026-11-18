@@ -68,7 +68,7 @@ function controls() {
   $('song-select').disabled = busy || libraryLoading;
   $('refresh-library').disabled = busy || libraryLoading;
   $('upload-button').disabled = uploading;
-  $('delete-song').disabled = busy || libraryLoading || deleting || uploading || !songChoice(selectedId);
+  $('delete-song').disabled = busy || libraryLoading || deleting || uploading || !songChoice(selectedId) || !!songChoice(selectedId)?.pendingPublication;
   $('tempo').disabled = busy || playing;
   const limits = sourceModel ? transposeLimits(sourceModel) : {min:0, max:0};
   $('transpose-down').disabled = busy || libraryLoading || !sourceModel || transposeOffset <= limits.min;
@@ -100,7 +100,7 @@ async function refreshLibrary() {
     option.value = song.id;
     const baseLabel = labelFor(song);
     const filename = labelCounts.get(baseLabel) > 1 ? ` · ${song.id === DEFAULT_ID ? 'Piano arrangement' : (song.sourceFilename || song.id)}` : '';
-    option.textContent = `${baseLabel}${filename}${song.localOnly ? ' · Device-only copy' : ''}`;
+    option.textContent = `${baseLabel}${filename}${song.pendingPublication ? ' · Publishing…' : song.localOnly ? ' · Device-only copy' : ''}`;
     $('song-select').append(option);
   }
   const selected = songChoice(selectedId);
@@ -145,7 +145,7 @@ async function refreshSharedLibrary({announce = false} = {}) {
   libraryLoading = true; controls();
   try {
     const catalog = await loadSongLibrary({deployedCatalogUrl:new URL('./song-library.json', document.baseURI).href});
-    const localSongs = [...songs.values()].filter(song => song.localOnly);
+    const localSongs = [...songs.values()].filter(song => song.localOnly || song.pendingPublication);
     const previousSong = songs.get(selectedId);
     songs.clear();
     for (const song of catalog.songs) if (!pendingDeletes.has(song.id)) songs.set(song.id, song);
@@ -530,6 +530,8 @@ function watchPublishedUpload(digest, attempts = 0) {
     const published = songChoices.find(song => song.repositorySaved && song.sourceSha256 === digest);
     if (published) {
       savePendingUpload(null);
+      songs.delete(`pending-${digest}`);
+      await refreshLibrary();
       libraryNotice('Upload ready.', false, {temporary:true});
       await selectSong(published);
       return;
@@ -594,7 +596,7 @@ $('upload-form').addEventListener('submit', async event => {
   try {
     uploadStatus('Checking score…');
     const xml = await readScoreFile(file);
-    parseMusicXML(xml);
+    const parsed = parseMusicXML(xml);
     uploadStatus('Saving original file to GitHub…');
     const token = $('upload-token').value;
     const uploaded = await uploadScoreToGitHub(file, token);
@@ -603,6 +605,14 @@ $('upload-form').addEventListener('submit', async event => {
     $('upload-file').value = '';
     savePendingUpload(uploaded.digest);
     $('upload-dialog').close();
+    const pendingSong = {
+      id:`pending-${uploaded.digest}`, title:parsed.title || file.name,
+      composer:parsed.composer || '', sourceFilename:file.name, sourceSha256:uploaded.digest,
+      xml, repositorySaved:false, pendingPublication:true,
+    };
+    songs.set(pendingSong.id, pendingSong);
+    await refreshLibrary();
+    await selectSong(pendingSong, {preparedModel:parsed});
     watchPublishedUpload(uploaded.digest);
   } catch (error) {
     uploadStatus(error.message || 'Upload failed.', true);
@@ -638,7 +648,7 @@ function watchPublishedDeletion(id, attempts = 0) {
 }
 $('delete-song').addEventListener('click', () => {
   const song = songChoice(selectedId);
-  if (!song || busy || deleting) return;
+  if (!song || busy || deleting || song.pendingPublication) return;
   if (playing || starting) pause();
   const label = [...$('song-select').options].find(option => option.value === song.id)?.textContent || song.title;
   $('delete-description').textContent = song.localOnly
