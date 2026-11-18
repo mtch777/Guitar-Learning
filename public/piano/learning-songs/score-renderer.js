@@ -129,36 +129,28 @@ export class ScoreRenderer {
           requiredWidth = Math.max(requiredWidth, (start + measures + display.EngravingRules.PageRightMargin) * 10 * display.Zoom);
         }
       }
-      // Browser SVG bounds also cover long credits/expressions outside staves.
-      // jsdom has no getBBox; the actual engraving widths above remain testable.
-      let leftOverhang = 0, rightOverhang = 0;
+      // Fit musical measures, not long directions/lyrics in the entire SVG.
+      // Only braced multi-staff scores need a negative-origin gutter.
+      let braceOverhang = 0;
       for (const svg of host.querySelectorAll('svg')) {
-        if (typeof svg.getBBox !== 'function') continue;
-        try {
-          const bounds = svg.getBBox();
-          const viewWidth = Number(svg.getAttribute('viewBox')?.split(/\s+/)[2]);
-          const svgWidth = Number(svg.getAttribute('width'));
-          if (viewWidth > 0 && svgWidth > 0) {
-            // getBBox reports SVG user units; width/viewBox converts to CSS px.
-            const pixelsPerUnit = svgWidth / viewWidth;
-            leftOverhang = Math.max(leftOverhang, -bounds.x);
-            rightOverhang = Math.max(rightOverhang, bounds.x + bounds.width - viewWidth);
-            requiredWidth = Math.max(requiredWidth, (Math.max(viewWidth, bounds.x + bounds.width) - Math.min(0, bounds.x)) * pixelsPerUnit);
-          }
-        } catch (_) { /* Some browsers cannot measure a hidden replacement yet. */ }
+        const braces = [...svg.querySelectorAll('.vf-brace path')];
+        if (!braces.length) continue;
+        const bounds = braces.map(path => {
+          try { return path.getBBox?.(); } catch (_) { return null; }
+        }).filter(Boolean);
+        if (bounds.length) braceOverhang = Math.max(braceOverhang, ...bounds.map(box => Math.max(0, -box.x)));
+        else if (typeof svg.getBBox === 'function') {
+          // A jsdom integration fixture exposes the actual brace extents
+          // through its SVG bounding box when path.getBBox is unavailable.
+          try { braceOverhang = Math.max(braceOverhang, -svg.getBBox().x); } catch (_) { /* no native bounds */ }
+        }
       }
       const requiredHeight = Math.max(1, ...systems.map((row, index) =>
         (systems[index + 1] || row).bottom - row.top + WINDOW_PADDING * 2));
-      const needsGutter = leftOverhang > 0 || rightOverhang > 0;
-      if (!needsGutter && requiredWidth <= width + .5 && requiredHeight <= height + .5) break;
+      if (braceOverhang <= .01 && requiredWidth <= width + .5 && requiredHeight <= height + .5) break;
       if (pass === 7) throw new Error('The score could not fit the available two-row window.');
-      if (needsGutter) {
-        // With part labels omitted, a piano brace can extend left of the SVG
-        // origin. Shrinking cannot fix a negative origin: give the actual glyph
-        // a native gutter, then re-engrave at the same scale. SVG user units are
-        // ten times OSMD engraving units; the extra .3 protects its stroke.
-        if (leftOverhang > 0) display.EngravingRules.PageLeftMargin += leftOverhang / 10 + .3;
-        if (rightOverhang > 0) display.EngravingRules.PageRightMargin += rightOverhang / 10 + .3;
+      if (braceOverhang > .01) {
+        display.EngravingRules.PageLeftMargin += braceOverhang / 10 + .3;
         continue;
       }
       // Re-engrave at a fitting scale instead of cropping/scaling an

@@ -500,3 +500,10 @@ Release and live acceptance:
 - [x] Add coverage for stale score recovery and failure visibility.
 - [ ] Verify Android-browser outcome on the user's device; native mobile exception and network timings are not available in desktop logs.
 - [ ] Verify release CI, Pages deployment and real phone selection following publication.
+
+### 2026-11-18 — Confirmed Pixel rendering refusal
+
+- [x] User provided exact phone failure: `I_Know_the_End.musicxml did not load: This score could not fit the sheet music window on this screen.` The download was successful; `ScoreRenderer.renderToViewport` rejected a native browser layout.
+- [x] Replace the whole-page SVG `getBBox()` fit/gutter check with a brace-specific left gutter for multi-staff scores. Whole-page bounds include long lyrics/direction text unrelated to musical measure widths; on a narrow screen the old algorithm repeatedly added gutters without making the music fit. Keep engraving-derived measure width and two-row height calculations. Existing real-brace clipping regression also passes.
+- [x] Add a real uploaded-file regression with simulated enormous SVG text overhang at 390px width, alongside six narrow-size combinations. The previous algorithm would exhaust its eight passes on this case.
+- [ ] Verify fixed build, release and device playback after deployment.
