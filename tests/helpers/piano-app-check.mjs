@@ -1,7 +1,7 @@
 // Optional silent integration check:
 // node tests/helpers/piano-app-check.mjs /path/to/render/package.json
 // Exercises the real app/renderer/MIDI adapter, public GitHub catalog and local recovery.
-// Native GitHub authentication/commit is not simulated here; verify it separately.
+// GitHub write authentication/commit is verified with a separate API-contract test.
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {readFileSync} from 'node:fs';
@@ -45,6 +45,8 @@ async function settle(predicate, label) {
 async function boot({resume = 'running', legacySongs = []} = {}) {
   const dom = new JSDOM(html, {pretendToBeVisual: true, runScripts: 'outside-only', url: 'http://localhost/piano/learning-songs/'});
   const {window} = dom;
+  window.HTMLDialogElement.prototype.showModal = function() { this.setAttribute('open', ''); };
+  window.HTMLDialogElement.prototype.close = function() { this.removeAttribute('open'); };
   const clock = {seconds: 0};
   const frames = new Map();
   const sounds = [];
@@ -181,6 +183,10 @@ async function run() {
   const practiceXML = sourceXML.replaceAll('Cuthbert NWC Test', 'Practice phrase');
   remoteScores.set(practicePath, practiceXML);
   remoteCatalog.songs.push({id:practiceId, title:'Practice phrase', composer:'Integration test', scorePath:practicePath});
+  const duplicatePath = 'scores/integration-duplicate.musicxml';
+  remoteScores.set(duplicatePath, practiceXML);
+  remoteCatalog.songs.push({id:'integration-duplicate-phoebe', title:'I Know the End', composer:'Phoebe Bridgers',
+    scorePath:duplicatePath, sourceFilename:'I_Know_the_End.musicxml'});
   const legacyXML = sourceXML.replaceAll('Cuthbert NWC Test', 'Legacy recovery score');
   const hiddenTest = remoteCatalog.songs.find(song => song.sourceFilename === 'MusicXML-upload-test.mxl');
   const hiddenTestXML = readFileSync(resolve(app, hiddenTest.scorePath), 'utf8');
@@ -223,21 +229,26 @@ async function run() {
   }
   checks.push('song-range keyboard includes both black endpoints and every intervening pitch without computer-key or range controls');
   const initialOptions = [...ui.$('song-select').options].map(option => option.value);
+  const phoebeLabels = [...ui.$('song-select').options].filter(option => /Phoebe Bridgers — I Know the End/.test(option.textContent)).map(option => option.textContent);
+  assert.equal(phoebeLabels.length, 2);
+  assert.ok(phoebeLabels.some(label => /Piano arrangement/.test(label)));
+  assert.ok(phoebeLabels.some(label => /I_Know_the_End\.musicxml/.test(label)), 'The uploaded version is distinguishable from the default.');
   for (const test of remoteCatalog.songs.filter(song => song.testScore)) assert.ok(!initialOptions.includes(test.id));
   assert.ok(!initialOptions.includes('local-old-test-copy'), 'An exact local test copy is hidden.');
   assert.ok(initialOptions.includes('local-real-same-title-upload'), 'A genuine same-title upload remains available.');
-  const uploadLink = ui.$('upload-button');
-  assert.equal(uploadLink.tagName, 'A');
-  assert.equal(uploadLink.href, 'https://github.com/mtch777/Guitar-Learning/upload/main/public/piano/learning-songs/uploads');
-  assert.match(uploadLink.textContent, /\.musicxml.*\.xml.*\.mxl/);
-  assert.equal(ui.$('song-upload'), null, 'Native GitHub upload replaces browser-only file picker.');
+  const uploadButton = ui.$('upload-button');
+  assert.equal(uploadButton.tagName, 'BUTTON');
+  assert.match(uploadButton.textContent, /\.musicxml.*\.xml.*\.mxl/);
+  assert.equal(ui.$('upload-file').accept, '.musicxml,.xml,.mxl');
   assert.equal(ui.$('library-note'), null);
   const beforeNativeUpload = ui.snapshot().songCount;
-  uploadLink.addEventListener('click', event => event.preventDefault(), {once: true});
   await ui.click('upload-button');
   assert.equal(ui.snapshot().songCount, beforeNativeUpload);
-  assert.match(ui.$('library-message').textContent, /commit on GitHub/);
-  assert.ok(!/uploaded successfully|saved successfully/i.test(ui.$('library-message').textContent));
+  assert.ok(ui.$('upload-dialog').open, 'Upload opens an in-page dialog.');
+  assert.match(ui.$('upload-form').textContent, /other formats converted in our earlier tests/i);
+  assert.match(ui.$('upload-form').textContent, /\.mscx.*\.gp.*\.tef/i);
+  await ui.click('upload-cancel');
+  assert.ok(!ui.$('upload-dialog').open, 'Cancel closes without changing the song library.');
   const legacyOption = [...ui.$('song-select').options].find(option => option.textContent.includes('Legacy recovery score'));
   assert.ok(legacyOption && legacyOption.value.startsWith('local-'), 'A local Phoebe-ID recovery file cannot replace the repository default.');
   await ui.select(legacyOption.value);
@@ -245,7 +256,7 @@ async function run() {
   assert.match(ui.$('local-recovery').textContent, /Device-only copy/);
   assert.ok(ui.$('download-local-score'), 'Legacy local files can be downloaded for GitHub migration.');
   checks.push('actual Phoebe renders; compact UI without Details or legend; exact test copies hidden while genuine local uploads survive');
-  checks.push('native GitHub upload link; isolated legacy recovery and migration control');
+  checks.push('in-page GitHub upload picker and accurate conversion coverage; isolated legacy recovery');
 
   await ui.select('phoebe-bridgers-i-know-the-end');
   await ui.click('midi-button');

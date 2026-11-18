@@ -11,10 +11,20 @@ conversion decisions and validation evidence are committed under `scores/`.
 See [the score notes](./scores/phoebe-score-README.md) for attribution, small
 notation timing adjustments and reproducible conversion commands.
 
-**Upload (.musicxml, .xml, .mxl)** opens the repository's authenticated
-upload page. Choose files, commit them to `main`, and return to the lesson after
-publishing finishes. **Refresh songs** retrieves the published shared catalog.
-No GitHub token is embedded in the site or requested by the lesson.
+**Upload (.musicxml, .xml, .mxl)** opens an in-page file picker. The browser
+validates the score, then saves the unchanged original directly to this
+repository's `main` branch through GitHub's Contents API. Since GitHub Pages is
+static, the user supplies a fine-grained GitHub token with Contents: read and
+write access limited to this repository. The token is used for that request,
+cleared from the input after success or dismissal, and never persisted. The
+lesson polls for the resulting Pages publication, then adds and selects the song.
+If publication is delayed, **Refresh** retrieves the latest shared catalog.
+
+The earlier conversion experiment produced 28 nonempty MusicXML outputs from
+other note-data formats, but those conversions ran in separate desktop/server
+tools. The lesson does not yet execute them in the browser. The Upload dialog
+lists the tested source extensions separately so an offline conversion is not
+mistaken for direct import support.
 
 Original uploads are stored unchanged in `public/piano/learning-songs/uploads`
 on `main`. `npm run build` first runs `scripts/piano/build-song-library.mjs`,
@@ -83,7 +93,8 @@ Ornaments and techniques remain visible; playback uses written pitches.
 | `piano-audio.js` | Web Audio synthesis scheduled on the lesson clock |
 | `github-song-storage.js` | Shared public catalog and score loading/hash checks |
 | `song-storage.js` | Local preferences and recovery of previous device-only scores |
-| `score-upload.js` | XML/MXL reading used by the build's upload indexer |
+| `score-upload.js` | XML/MXL reading used by upload validation and the build indexer |
+| `github-song-upload.js` | Authenticated direct upload of unchanged originals |
 | `script.js` | Controls, selection, MIDI/manual input and integration |
 
 Dependencies are pinned and served locally; see [vendor/README.md](./vendor/README.md).

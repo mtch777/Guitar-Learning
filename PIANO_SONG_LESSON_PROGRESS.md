@@ -439,3 +439,41 @@ Release and live acceptance:
   keyboard shown and Sound off. Captured the complete lesson and controls for
   the final reply. Physical MIDI hardware and listening acceptance were not
   exercised; simulated MIDI/audio checks and silent live grading passed.
+
+## Direct upload and conversion-format clarity — 2026-11-18
+
+User reports that Upload leaves the lesson for GitHub, only advertises XML
+extensions despite the earlier 28-format conversion experiment, and a committed
+upload did not appear immediately after Refresh.
+
+- [x] Identify the actual upload and determine whether it reached the published catalog.
+- [x] Replace the GitHub navigation with an in-page, authenticated file upload.
+- [x] Show which formats the lesson can import immediately and which were only
+  converted in the separate research lab.
+- [x] Report publishing progress and automatically discover the saved song.
+- [ ] Verify upload validation, GitHub persistence, lesson behavior and deploy.
+
+Diagnosis: `I_Know_the_End.musicxml` was committed to `main` at
+`764315c78751c52884f5b7b6739d8136fea633ac`. Pages build
+44330404374 completed successfully; the published `song-library.json` has five
+entries, including the new source, with zero import errors. Refresh had no
+pending-publication tracking and could return the older catalog until the build
+finished. The uploaded song also shares the default song's title/composer, so
+the previous selector rendered two indistinguishable labels. Duplicates now
+show arrangement/source filenames. Browser import is currently MusicXML/XML/MXL only; the research lab's
+28 conversions depended on offline tools and do not establish browser support.
+
+The new in-page dialog uses GitHub's official Contents API with a transient
+fine-grained token limited to this repository. The original bytes are committed
+under a digest-qualified filename in `uploads/`; no token is persisted. A
+session-local SHA-256 marker polls the published catalog and selects the new
+entry when ready. Before upload, the same XML/MXL reader and MusicXML parser
+as the build validate the score. All tested offline source extensions are
+listed separately, rather than offered as non-working browser imports.
+
+Local acceptance: 114/114 piano tests pass, including original-byte GitHub PUT,
+missing-token/unsupported-format refusal and credential-safe API errors.
+The actual lesson/renderer helper passes 22 silent checks across eight fresh
+boots, including the new dialog and distinguishable duplicate Phoebe labels.
+`npm run build`, syntax checks and `git diff --check` pass. Remote CI, deployment
+and live browser confirmation remain pending.
