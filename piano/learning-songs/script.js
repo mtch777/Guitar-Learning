@@ -1,8 +1,8 @@
 const buildVersion = document.querySelector('meta[name="build-version"]')?.content
   || new URL(import.meta.url).searchParams.get('v') || 'dev';
 const loadModule = name => import(new URL(`./${name}?v=${encodeURIComponent(buildVersion)}`, import.meta.url).href);
-const [scoreModule, engineModule, renderModule, storageModule, repositoryModule, audioModule, keyboardModule, transposeModule] = await Promise.all(
-  ['score-model.js', 'lesson-engine.js', 'score-renderer.js', 'song-storage.js', 'github-song-storage.js', 'piano-audio.js', 'keyboard-model.js', 'score-transpose.js'].map(loadModule)
+const [scoreModule, engineModule, renderModule, storageModule, repositoryModule, audioModule, keyboardModule, transposeModule, uploadModule, scoreUploadModule] = await Promise.all(
+  ['score-model.js', 'lesson-engine.js', 'score-renderer.js', 'song-storage.js', 'github-song-storage.js', 'piano-audio.js', 'keyboard-model.js', 'score-transpose.js', 'github-song-upload.js', 'score-upload.js'].map(loadModule)
 );
 const {parseMusicXML, secondsAtBeat, beatAtSeconds} = scoreModule;
 const {LessonEngine} = engineModule;
@@ -12,6 +12,8 @@ const {SONG_LIBRARY, loadSongLibrary, loadSongScore, visibleSongChoices} = repos
 const {PianoAudio} = audioModule;
 const {keyboardLayout, playingPitchesAt} = keyboardModule;
 const {transposeScore, transposeLimits} = transposeModule;
+const {uploadScoreToGitHub} = uploadModule;
+const {readScoreFile} = scoreUploadModule;
 if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, {once:true}));
 
 const $ = id => document.getElementById(id);
@@ -31,7 +33,7 @@ let selectedId = null, model = null, engine = null, timedGroups = [], audioNotes
 let sourceModel = null, transposeOffset = 0;
 let playing = false, elapsed = 0, anchor = 0, animation = 0, nextAudio = 0, totalSeconds = 0;
 let busy = false, libraryLoading = false, countIn = 0, lastPaint = '', lastStatus = '';
-let librarySource = 'bundled', waitingForUpload = false;
+let librarySource = 'bundled', uploading = false, pendingUploadTimer;
 let libraryNoticeTimer;
 let starting = false, startGeneration = 0;
 let midiAccess = null;
@@ -56,6 +58,7 @@ function controls() {
   $('restart-button').disabled = busy || !engine;
   $('song-select').disabled = busy || libraryLoading;
   $('refresh-library').disabled = busy || libraryLoading;
+  $('upload-button').disabled = uploading;
   $('tempo').disabled = busy || playing;
   const limits = sourceModel ? transposeLimits(sourceModel) : {min:0, max:0};
   $('transpose-down').disabled = busy || libraryLoading || !sourceModel || transposeOffset <= limits.min;
@@ -79,10 +82,15 @@ async function refreshLibrary() {
   songChoices = choices.songs;
   songAliases = choices.aliases;
   $('song-select').replaceChildren();
+  const labelFor = song => `${song.composer ? song.composer + ' — ' : ''}${song.title}`;
+  const labelCounts = new Map();
+  for (const song of songChoices) labelCounts.set(labelFor(song), (labelCounts.get(labelFor(song)) || 0) + 1);
   for (const song of songChoices) {
     const option = document.createElement('option');
     option.value = song.id;
-    option.textContent = `${song.composer ? song.composer + ' — ' : ''}${song.title}${song.localOnly ? ' · Device-only copy' : ''}`;
+    const baseLabel = labelFor(song);
+    const filename = labelCounts.get(baseLabel) > 1 ? ` · ${song.id === DEFAULT_ID ? 'Piano arrangement' : (song.sourceFilename || song.id)}` : '';
+    option.textContent = `${baseLabel}${filename}${song.localOnly ? ' · Device-only copy' : ''}`;
     $('song-select').append(option);
   }
   const selected = songChoice(selectedId);
@@ -473,19 +481,85 @@ function refreshMidi() {
   if (devices.length) { try { window.PracticeMIDI?.setEnabled(true); } catch (_) {} }
 }
 
+const PENDING_UPLOAD_KEY = 'piano-pending-github-upload-v1';
+function pendingUpload() { try { return sessionStorage.getItem(PENDING_UPLOAD_KEY); } catch (_) { return null; } }
+function savePendingUpload(digest) { try { if (digest) sessionStorage.setItem(PENDING_UPLOAD_KEY, digest); else sessionStorage.removeItem(PENDING_UPLOAD_KEY); } catch (_) {} }
+function watchPublishedUpload(digest, attempts = 0) {
+  clearTimeout(pendingUploadTimer);
+  if (!digest) return;
+  libraryNotice('Saved to GitHub. Publishing to the song list…');
+  pendingUploadTimer = setTimeout(async () => {
+    if (busy || libraryLoading) return watchPublishedUpload(digest, attempts);
+    await refreshSharedLibrary();
+    const published = songChoices.find(song => song.repositorySaved && song.sourceSha256 === digest);
+    if (published) {
+      savePendingUpload(null);
+      libraryNotice('Upload ready.', false, {temporary:true});
+      await selectSong(published);
+      return;
+    }
+    if (attempts >= 23) {
+      libraryNotice('Saved to GitHub. Publishing is taking longer than expected; use Refresh later.');
+      return;
+    }
+    watchPublishedUpload(digest, attempts + 1);
+  }, 10000);
+}
+function uploadStatus(message = '', error = false) {
+  $('upload-status').textContent = message;
+  $('upload-status').classList.toggle('error', error);
+}
+function closeUploadDialog() {
+  if (uploading) return;
+  $('upload-token').value = '';
+  $('upload-dialog').close();
+}
 for (const id of ['upload-button', 'empty-upload']) {
-  $(id).href = SONG_LIBRARY.uploadUrl;
   $(id).addEventListener('click', () => {
-    waitingForUpload = true;
     if (playing || starting) pause();
-    libraryNotice('Choose files and commit on GitHub, then refresh after publishing.');
+    uploadStatus();
+    $('upload-dialog').showModal();
   });
 }
+$('upload-close').addEventListener('click', closeUploadDialog);
+$('upload-cancel').addEventListener('click', closeUploadDialog);
+$('upload-dialog').addEventListener('cancel', event => {
+  if (uploading) event.preventDefault();
+  else $('upload-token').value = '';
+});
+$('upload-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  if (uploading) return;
+  const file = $('upload-file').files?.[0];
+  if (!file) return uploadStatus('Choose a score file.', true);
+  uploading = true;
+  $('upload-submit').disabled = true;
+  $('upload-cancel').disabled = true;
+  $('upload-close').disabled = true;
+  controls();
+  try {
+    uploadStatus('Checking score…');
+    const xml = await readScoreFile(file);
+    parseMusicXML(xml);
+    uploadStatus('Saving original file to GitHub…');
+    const uploaded = await uploadScoreToGitHub(file, $('upload-token').value);
+    $('upload-token').value = '';
+    $('upload-file').value = '';
+    savePendingUpload(uploaded.digest);
+    $('upload-dialog').close();
+    watchPublishedUpload(uploaded.digest);
+  } catch (error) {
+    uploadStatus(error.message || 'Upload failed.', true);
+  } finally {
+    uploading = false;
+    $('upload-submit').disabled = false;
+    $('upload-cancel').disabled = false;
+    $('upload-close').disabled = false;
+    controls();
+  }
+});
 $('refresh-library').addEventListener('click', () => refreshSharedLibrary({announce:true}));
 $('download-local-score').addEventListener('click', downloadLocalScore);
-window.addEventListener('focus', () => {
-  if (waitingForUpload && !busy && !playing) { waitingForUpload = false; refreshSharedLibrary({announce:true}); }
-});
 $('song-select').addEventListener('change', event => selectSong(songChoice(event.target.value)));
 $('play-button').addEventListener('click', () => playing ? pause() : start());
 $('restart-button').addEventListener('click', () => { const resume = playing; resetSession(); if (resume) start(); });
@@ -526,6 +600,7 @@ await refreshSharedLibrary();
 await refreshLibrary(); drawKeyboard();
 const remembered = storage.lastSelection();
 await selectSong(songChoice(remembered) || songChoice(`local-${remembered}`) || songChoice(DEFAULT_ID) || songChoices[0]);
+if (pendingUpload()) watchPublishedUpload(pendingUpload());
 if (localRecoveryFailed && $('import-message').hidden) notice('Device-only scores could not be read.', true);
 try { window.PracticeTracker?.recordOpen('learning-songs'); } catch (_) {}
 try { if (window.PracticeMIDI?.isEnabled()) connectMidi(); } catch (_) {}

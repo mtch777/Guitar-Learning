@@ -5,20 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Learning Songs · Practice</title>
   <meta name="theme-color" content="#0b0f14">
-  <link rel="stylesheet" href="./style.css?v=764315c78751">
-  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=764315c78751"></script>
-  <script defer src="./vendor/fflate-0.8.3.min.js?v=764315c78751"></script>
-  <script defer src="../shared/tracker.js?v=764315c78751"></script>
-  <script defer src="../shared/midi.js?v=764315c78751"></script>
-  <script type="module" src="./script.js?v=764315c78751"></script>
-  <meta name="build-version" content="764315c78751">
+  <link rel="stylesheet" href="./style.css?v=5904d03178e7">
+  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=5904d03178e7"></script>
+  <script defer src="./vendor/fflate-0.8.3.min.js?v=5904d03178e7"></script>
+  <script defer src="../shared/tracker.js?v=5904d03178e7"></script>
+  <script defer src="../shared/midi.js?v=5904d03178e7"></script>
+  <script type="module" src="./script.js?v=5904d03178e7"></script>
+  <meta name="build-version" content="5904d03178e7">
 </head>
 <body>
   <main class="lesson-shell">
     <section class="song-library card" aria-labelledby="library-heading">
-      <a class="practice-link" href="../?v=764315c78751">← Practice</a>
+      <a class="practice-link" href="../?v=5904d03178e7">← Practice</a>
       <div class="song-picker"><label id="library-heading" class="sr-only" for="song-select">Song</label><select id="song-select"><option>Loading songs…</option></select></div>
-      <a id="upload-button" class="button secondary" href="https://github.com/mtch777/Guitar-Learning/upload/main/public/piano/learning-songs/uploads" target="_blank" rel="noopener noreferrer">Upload <span>(.musicxml, .xml, .mxl)</span></a>
+      <button id="upload-button" type="button" class="button secondary">Upload <span>(.musicxml, .xml, .mxl)</span></button>
       <button id="refresh-library" type="button" class="button secondary" aria-label="Refresh songs">Refresh</button>
       <p id="library-message" class="library-message" role="status" hidden></p>
       <div id="local-recovery" class="local-recovery" hidden><span>Device-only copy</span><button id="download-local-score" type="button" class="small-button">Download score</button></div>
@@ -39,7 +39,7 @@
       <div class="progress-track"><div id="progress-fill"></div></div>
       <div id="import-message" class="notice" role="status" hidden></div>
       <div class="score-viewport" id="score-viewport">
-        <div id="empty-score" class="empty-score" hidden><h3 id="empty-title"></h3><p id="empty-description"></p><a id="empty-upload" class="button primary" href="https://github.com/mtch777/Guitar-Learning/upload/main/public/piano/learning-songs/uploads" target="_blank" rel="noopener noreferrer">Upload</a></div>
+        <div id="empty-score" class="empty-score" hidden><h3 id="empty-title"></h3><p id="empty-description"></p><button id="empty-upload" type="button" class="button primary">Upload</button></div>
         <div id="score" aria-label="Interactive sheet music"></div>
       </div>
       <div id="keyboard-panel">
@@ -48,5 +48,19 @@
       <footer class="input-footer"><p id="midi-status" class="muted">MIDI not enabled</p><div class="input-actions"><button id="midi-button" type="button" class="button secondary"><span id="midi-dot" class="connection-dot"></span> Enable MIDI</button><button id="keyboard-toggle" type="button" class="button secondary" aria-expanded="true" aria-controls="keyboard-panel">Hide keyboard</button></div></footer>
     </section>
   </main>
+  <dialog id="upload-dialog" aria-labelledby="upload-title">
+    <form id="upload-form">
+      <div class="upload-heading"><h2 id="upload-title">Upload score</h2><button id="upload-close" type="button" class="small-button" aria-label="Close upload">✕</button></div>
+      <label for="upload-file">Score file</label>
+      <input id="upload-file" type="file" accept=".musicxml,.xml,.mxl" required>
+      <p class="upload-help">Playable uploads: .musicxml, .xml, .mxl. The original file is saved in GitHub and appears in the song list after publishing.</p>
+      <label for="upload-token">GitHub fine-grained token</label>
+      <input id="upload-token" type="password" autocomplete="off" spellcheck="false" required placeholder="Contents: read and write">
+      <p class="upload-help">Required because this site is hosted on GitHub Pages. <a href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener noreferrer">Create a token</a> limited to this repository, with Contents: read and write. It is used for this upload only and never saved.</p>
+      <details class="upload-formats"><summary>Other formats converted in our earlier tests</summary><p>These were converted with separate desktop/server tools; direct lesson import is still limited to the three formats above. Convert these to MusicXML first:</p><p>.mscx, .mscz, .mei, .abc, .krn, .md (MuseData), .nwc, .nwctxt, .cap, .capx, .ove, .scw, .enc, .mus, .musx, .dorico, .gtp, .gp3, .gp4, .gp5, .gpx, .gp, .tg, .ptb, .tef. MIDI (.mid/.midi) was also converted for the default song.</p><p>.sib, .ovex, .notion and .stf did not have successful conversions in that test set.</p></details>
+      <p id="upload-status" role="status" aria-live="polite"></p>
+      <div class="upload-actions"><button id="upload-cancel" type="button" class="button secondary">Cancel</button><button id="upload-submit" type="submit" class="button primary">Save to GitHub</button></div>
+    </form>
+  </dialog>
 </body>
 </html>
