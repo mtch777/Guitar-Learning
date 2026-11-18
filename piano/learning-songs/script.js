@@ -1,8 +1,8 @@
 const buildVersion = document.querySelector('meta[name="build-version"]')?.content
   || new URL(import.meta.url).searchParams.get('v') || 'dev';
 const loadModule = name => import(new URL(`./${name}?v=${encodeURIComponent(buildVersion)}`, import.meta.url).href);
-const [scoreModule, engineModule, renderModule, storageModule, repositoryModule, audioModule, keyboardModule, transposeModule, uploadModule, scoreUploadModule, deleteModule] = await Promise.all(
-  ['score-model.js', 'lesson-engine.js', 'score-renderer.js', 'song-storage.js', 'github-song-storage.js', 'piano-audio.js', 'keyboard-model.js', 'score-transpose.js', 'github-song-upload.js', 'score-upload.js', 'github-song-delete.js'].map(loadModule)
+const [scoreModule, engineModule, renderModule, storageModule, repositoryModule, audioModule, keyboardModule, transposeModule, uploadModule, scoreUploadModule, deleteModule, credentialModule] = await Promise.all(
+  ['score-model.js', 'lesson-engine.js', 'score-renderer.js', 'song-storage.js', 'github-song-storage.js', 'piano-audio.js', 'keyboard-model.js', 'score-transpose.js', 'github-song-upload.js', 'score-upload.js', 'github-song-delete.js', 'github-credentials.js'].map(loadModule)
 );
 const {parseMusicXML, secondsAtBeat, beatAtSeconds} = scoreModule;
 const {LessonEngine} = engineModule;
@@ -15,6 +15,7 @@ const {transposeScore, transposeLimits} = transposeModule;
 const {uploadScoreToGitHub} = uploadModule;
 const {readScoreFile} = scoreUploadModule;
 const {deleteSongFromGitHub} = deleteModule;
+const {githubCredentials} = credentialModule;
 if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, {once:true}));
 
 const $ = id => document.getElementById(id);
@@ -544,6 +545,23 @@ function uploadStatus(message = '', error = false) {
   $('upload-status').textContent = message;
   $('upload-status').classList.toggle('error', error);
 }
+function fillCredential(dialog) {
+  const saved = githubCredentials.get();
+  $(`${dialog}-token`).value = saved;
+  $(`${dialog}-remember`).checked = !!saved;
+}
+function commitCredential(dialog, token) {
+  if ($(`${dialog}-remember`).checked) {
+    if (!githubCredentials.save(token)) libraryNotice('Could not remember credentials on this device.', true);
+  } else githubCredentials.forget();
+}
+document.querySelectorAll('.credential-forget').forEach(button => button.addEventListener('click', () => {
+  githubCredentials.forget();
+  for (const dialog of ['upload', 'delete']) {
+    $(`${dialog}-token`).value = '';
+    $(`${dialog}-remember`).checked = false;
+  }
+}));
 function closeUploadDialog() {
   if (uploading) return;
   $('upload-token').value = '';
@@ -553,6 +571,7 @@ for (const id of ['upload-button', 'empty-upload']) {
   $(id).addEventListener('click', () => {
     if (playing || starting) pause();
     uploadStatus();
+    fillCredential('upload');
     $('upload-dialog').showModal();
   });
 }
@@ -577,7 +596,9 @@ $('upload-form').addEventListener('submit', async event => {
     const xml = await readScoreFile(file);
     parseMusicXML(xml);
     uploadStatus('Saving original file to GitHub…');
-    const uploaded = await uploadScoreToGitHub(file, $('upload-token').value);
+    const token = $('upload-token').value;
+    const uploaded = await uploadScoreToGitHub(file, token);
+    commitCredential('upload', token);
     $('upload-token').value = '';
     $('upload-file').value = '';
     savePendingUpload(uploaded.digest);
@@ -623,10 +644,11 @@ $('delete-song').addEventListener('click', () => {
   $('delete-description').textContent = song.localOnly
     ? `Delete “${label}” from this device?`
     : `Delete “${label}” from the song list?`;
+  fillCredential('delete');
   $('delete-token').hidden = !!song.localOnly;
   $('delete-token').previousElementSibling.hidden = !!song.localOnly;
+  $('delete-remember').closest('.credential-options').hidden = !!song.localOnly;
   $('delete-token').required = !song.localOnly;
-  $('delete-token').value = '';
   deleteStatus();
   $('delete-dialog').showModal();
 });
@@ -650,7 +672,11 @@ $('delete-form').addEventListener('submit', async event => {
   try {
     deleteStatus('Deleting…');
     if (song.localOnly) await storage.delete(song.legacyId);
-    else await deleteSongFromGitHub(song, $('delete-token').value);
+    else {
+      const token = $('delete-token').value;
+      await deleteSongFromGitHub(song, token);
+      commitCredential('delete', token);
+    }
     $('delete-token').value = '';
     $('delete-dialog').close();
     if (!song.localOnly) { pendingDeletes.add(song.id); rememberPendingDeletes(); }

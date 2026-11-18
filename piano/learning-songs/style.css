@@ -43,6 +43,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 #delete-form { display: flex; flex-direction: column; gap: 12px; }
 #delete-form h2, #delete-form p { margin: 0; }
 #delete-form input { padding: 9px; border: 1px solid #465369; border-radius: 6px; background: #0d131c; color: #f1f4f8; }
+.credential-options { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 11px; color: #c8d3e3; }
+.credential-options label { display: inline-flex; align-items: center; gap: 5px; }
+.credential-options label input { width: auto !important; margin: 0; padding: 0 !important; accent-color: var(--accent); }
+.credential-forget { padding: 2px 0; border: 0; background: transparent; color: #c4b5fd; font-size: 11px; }
 #delete-status.error { color: var(--red); }
 #upload-dialog::backdrop { background: #05080dc9; }
 #upload-form { display: flex; flex-direction: column; gap: 8px; }

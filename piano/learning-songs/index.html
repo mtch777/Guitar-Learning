@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Learning Songs · Practice</title>
   <meta name="theme-color" content="#0b0f14">
-  <link rel="stylesheet" href="./style.css?v=d6a0109f2a7a">
-  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=d6a0109f2a7a"></script>
-  <script defer src="./vendor/fflate-0.8.3.min.js?v=d6a0109f2a7a"></script>
-  <script defer src="../shared/tracker.js?v=d6a0109f2a7a"></script>
-  <script defer src="../shared/midi.js?v=d6a0109f2a7a"></script>
-  <script type="module" src="./script.js?v=d6a0109f2a7a"></script>
-  <meta name="build-version" content="d6a0109f2a7a">
+  <link rel="stylesheet" href="./style.css?v=8700d9364508">
+  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=8700d9364508"></script>
+  <script defer src="./vendor/fflate-0.8.3.min.js?v=8700d9364508"></script>
+  <script defer src="../shared/tracker.js?v=8700d9364508"></script>
+  <script defer src="../shared/midi.js?v=8700d9364508"></script>
+  <script type="module" src="./script.js?v=8700d9364508"></script>
+  <meta name="build-version" content="8700d9364508">
 </head>
 <body>
   <main class="lesson-shell">
     <section class="song-library card" aria-labelledby="library-heading">
-      <a class="practice-link" href="../?v=d6a0109f2a7a">← Practice</a>
+      <a class="practice-link" href="../?v=8700d9364508">← Practice</a>
       <div class="song-picker"><label id="library-heading" class="sr-only" for="song-select">Song</label><select id="song-select"><option>Loading songs…</option></select></div>
       <button id="delete-song" type="button" class="button secondary" aria-label="Delete song" title="Delete song" disabled>🗑️</button>
       <button id="upload-button" type="button" class="button secondary">Upload <span>(.musicxml, .xml, .mxl)</span></button>
@@ -57,7 +57,8 @@
       <p class="upload-help">Playable uploads: .musicxml, .xml, .mxl. The original file is saved in GitHub and appears in the song list after publishing.</p>
       <label for="upload-token">GitHub fine-grained token</label>
       <input id="upload-token" type="password" autocomplete="off" spellcheck="false" required placeholder="Contents: read and write">
-      <p class="upload-help">Required because this site is hosted on GitHub Pages. <a href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener noreferrer">Create a token</a> limited to this repository, with Contents: read and write. It is used for this upload only and never saved.</p>
+      <div class="credential-options"><label><input id="upload-remember" type="checkbox"> Remember on this device</label><button class="credential-forget" type="button">Forget credentials</button></div>
+      <p class="upload-help">Required because this site is hosted on GitHub Pages. <a href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener noreferrer">Create a token</a> limited to this repository, with Contents: read and write. Remembering saves it in this browser until you forget it or clear site data.</p>
       <details class="upload-formats"><summary>Other formats converted in our earlier tests</summary><p>These were converted with separate desktop/server tools; direct lesson import is still limited to the three formats above. Convert these to MusicXML first:</p><p>.mscx, .mscz, .mei, .abc, .krn, .md (MuseData), .nwc, .nwctxt, .cap, .capx, .ove, .scw, .enc, .mus, .musx, .dorico, .gtp, .gp3, .gp4, .gp5, .gpx, .gp, .tg, .ptb, .tef. MIDI (.mid/.midi) was also converted for the default song.</p><p>.sib, .ovex, .notion and .stf did not have successful conversions in that test set.</p></details>
       <p id="upload-status" role="status" aria-live="polite"></p>
       <div class="upload-actions"><button id="upload-cancel" type="button" class="button secondary">Cancel</button><button id="upload-submit" type="submit" class="button primary">Save to GitHub</button></div>
@@ -69,6 +70,7 @@
       <p id="delete-description"></p>
       <label for="delete-token">GitHub token</label>
       <input id="delete-token" type="password" autocomplete="off" spellcheck="false" required placeholder="Contents: read and write">
+      <div class="credential-options"><label><input id="delete-remember" type="checkbox"> Remember on this device</label><button class="credential-forget" type="button">Forget credentials</button></div>
       <p id="delete-status" role="status" aria-live="polite"></p>
       <div class="upload-actions"><button id="delete-cancel" type="button" class="button secondary">Cancel</button><button id="delete-confirm" type="submit" class="button primary">Delete song</button></div>
     </form>
