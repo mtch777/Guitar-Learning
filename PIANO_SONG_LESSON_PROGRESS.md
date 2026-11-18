@@ -523,3 +523,11 @@ Release and live acceptance:
 - [x] Hide deleted songs immediately and across same-session refreshes while GitHub Pages publishes the updated catalog.
 - [x] Add API contract tests for uploaded, seeded, last-song and refusal paths; add confirmation/cancellation UI regression.
 - [ ] Publish code, confirm build and Pages deployment. Destructive production deletion itself remains user-controlled via token + confirmation.
+
+### 2026-11-18 — Remember GitHub credentials on trusted tablet
+
+- [x] Add explicit opt-in Remember on this device to both Upload and Delete dialogs.
+- [x] Reuse one credential across both operations and remember it only after a successful authenticated GitHub write.
+- [x] Add Forget credentials in both dialogs; browser storage alone holds any saved token, never source files or commits.
+- [x] Keep credentials unremembered by default and handle unavailable browser storage safely.
+- [ ] Verify unit, silent UI integration, build, GitHub CI and Pages deployment. Personal token must be entered by the user, never by an automated test on the live site.
