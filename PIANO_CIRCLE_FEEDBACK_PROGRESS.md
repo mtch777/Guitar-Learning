@@ -10,7 +10,7 @@ Scope: the existing Color → Key, Accidentals Count and Accidentals Order quizz
   sector's prior appearance after the flash.
 - [x] Preserve solved checks, prompt colors, count/sequence grading, MIDI state
   and reset behavior; verify shared enharmonic positions and delayed callbacks.
-- [ ] Build, publish through the existing Pages workflow and inspect live output
+- [x] Build, publish through the existing Pages workflow and inspect live output
   silently. Record deployed commit and actual evidence below.
 
 Counterexamples: F#/Gb shares one visual sector despite two order questions;
@@ -36,5 +36,18 @@ No audio is required or permitted during assistant QA.
   velocity; corrected the harness wrapper. No corresponding production defect.
 - `node --check` passes for all three scripts; `git diff --check` passes.
 - `npm run build`: passes. Independent source/CSS review reports no blocker.
-- Live baseline: old build `ec67ab24a7e9` has fill `#D6D9DF`, white 30px checks
-  and low-contrast translucent borders. Publication/live inspection pending.
+- Live baseline: old build `ec67ab24a7e9` had fill `#D6D9DF`, white 30px checks
+  and low-contrast translucent borders.
+- Source release `a85edec5646f085199f33dcfefa01acba8c4aa25` is on main.
+  Build/regression/publish run 44226766439 and Pages deployment 44226853447 both
+  succeeded. Published branch commit: `683a95580d449bd8d348555ddd24787523348865`.
+- Live browser confirmed build `a85edec5646f` on all three quizzes. Each has
+  12 dark sectors, border `rgb(102, 112, 133)`, check fill `rgb(74, 222, 128)`,
+  check font size 40px and dark check stroke `rgb(16, 38, 26)`.
+- Color → Key at a 337px CSS viewport has a 295px-wide circle and no horizontal
+  page overflow. The 40px SVG check size scales to about 19.7px at that width.
+  Narrow inspection used normal browser zoom at 400%; zoom restored to 100%.
+  Live screenshot captured and the Color → Key tab retained for review.
+- Browser verified deployed appearance/CSS; wrong-input and solved-state behavior
+  was verified through actual page scripts with simulated MIDI. No physical
+  MIDI device or audio was used. No remaining blocker for the requested changes.
