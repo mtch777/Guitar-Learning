@@ -207,7 +207,7 @@ export async function loadSongLibrary({
 }
 
 /** Retrieve a score and verify the catalog digest when Web Crypto is available. */
-export async function loadSongScore(song, {fetchImpl = globalThis.fetch, timeoutMs = 12000} = {}) {
+export async function loadSongScore(song, {fetchImpl = globalThis.fetch, timeoutMs = 30000} = {}) {
   if (!song?.url) throw new Error('This song has no published score.');
   const urls = [...new Set([song.url, song.fallbackUrl].filter(Boolean))];
   const errors = [];
@@ -217,6 +217,20 @@ export async function loadSongScore(song, {fetchImpl = globalThis.fetch, timeout
       if (song.sha256 && globalThis.crypto?.subtle) {
         const digest = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(xml));
         const actual = hexDigest(digest);
+        if (actual !== song.sha256) throw new Error('The score does not yet match the published catalog.');
+      }
+      return {xml, warning: ''};
+    } catch (error) {
+      errors.push(error.name === 'AbortError' ? 'request timed out' : error.message);
+    }
+  }
+  // Pages and raw GitHub can briefly serve different revisions after a deploy.
+  // Give the primary endpoint one fresh attempt after both have failed.
+  if (urls.length > 1) {
+    try {
+      const xml = await fetchText(urls[0], {fetchImpl, timeoutMs, maxBytes: MAX_SCORE_BYTES, cacheKey: Date.now()});
+      if (song.sha256 && globalThis.crypto?.subtle) {
+        const actual = hexDigest(await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(xml)));
         if (actual !== song.sha256) throw new Error('The score does not yet match the published catalog.');
       }
       return {xml, warning: ''};
