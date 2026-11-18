@@ -47,6 +47,10 @@ these files, so a genuine upload is not hidden because of its title or filename.
   Correct note starts turn green and missed starts turn red; chord notes receive
   independent feedback. The onset window is ±180 ms. Hold duration is not graded.
 - Play/pause, restart, playback speed and sound controls are provided.
+- The inline ↓/↑ controls transpose the score one semitone at a time. Notation,
+  playback, required MIDI notes and keyboard range change together. A pitch
+  change pauses and resets the attempt; selecting another song restores its
+  original pitch. Source uploads remain unchanged.
 - Use a MIDI keyboard or the on-screen piano. The existing global MIDI preference
   is reused. Enable MIDI and Show/Hide are beneath the keyboard.
 - The keyboard spans the selected song's lowest through highest playable pitch.
@@ -64,7 +68,8 @@ these files, so a genuine upload is not hidden because of its title or filename.
 Arranger attribution and conversion evidence remain in the linked score notes.
 Repeat/navigation notation remains visible,
 but practice follows written order once. Grace/cue notes are visible but excluded from grading.
-Microtonal, unpitched and nonzero-transposing scores are rejected clearly.
+Microtonal and unpitched scores are rejected clearly. Scores encoded for
+transposing instruments must first be exported at concert pitch.
 Ornaments and techniques remain visible; playback uses written pitches.
 
 ## Implementation
@@ -72,6 +77,7 @@ Ornaments and techniques remain visible; playback uses written pitches.
 | File | Responsibility |
 | --- | --- |
 | `score-model.js` | MusicXML notes, exact musical time, ties, chords and tempo |
+| `score-transpose.js` | Semitone transposition of a copy of the original notation |
 | `score-renderer.js` | Actual OSMD engraving, SVG note mapping, cursor and colors |
 | `lesson-engine.js` | Pure pitch/onset grading and lesson state |
 | `piano-audio.js` | Web Audio synthesis scheduled on the lesson clock |

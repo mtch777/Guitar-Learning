@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Learning Songs · Practice</title>
   <meta name="theme-color" content="#0b0f14">
-  <link rel="stylesheet" href="./style.css?v=79053f578c14">
-  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=79053f578c14"></script>
-  <script defer src="./vendor/fflate-0.8.3.min.js?v=79053f578c14"></script>
-  <script defer src="../shared/tracker.js?v=79053f578c14"></script>
-  <script defer src="../shared/midi.js?v=79053f578c14"></script>
-  <script type="module" src="./script.js?v=79053f578c14"></script>
-  <meta name="build-version" content="79053f578c14">
+  <link rel="stylesheet" href="./style.css?v=782741a623b9">
+  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=782741a623b9"></script>
+  <script defer src="./vendor/fflate-0.8.3.min.js?v=782741a623b9"></script>
+  <script defer src="../shared/tracker.js?v=782741a623b9"></script>
+  <script defer src="../shared/midi.js?v=782741a623b9"></script>
+  <script type="module" src="./script.js?v=782741a623b9"></script>
+  <meta name="build-version" content="782741a623b9">
 </head>
 <body>
   <main class="lesson-shell">
     <section class="song-library card" aria-labelledby="library-heading">
-      <a class="practice-link" href="../?v=79053f578c14">← Practice</a>
+      <a class="practice-link" href="../?v=782741a623b9">← Practice</a>
       <div class="song-picker"><label id="library-heading" class="sr-only" for="song-select">Song</label><select id="song-select"><option>Loading songs…</option></select></div>
       <a id="upload-button" class="button secondary" href="https://github.com/mtch777/Guitar-Learning/upload/main/public/piano/learning-songs/uploads" target="_blank" rel="noopener noreferrer">Upload <span>(.musicxml, .xml, .mxl)</span></a>
       <button id="refresh-library" type="button" class="button secondary" aria-label="Refresh songs">Refresh</button>
@@ -31,7 +31,7 @@
           <label class="mode-card"><input type="radio" name="lesson-mode" value="timed"><strong>Continuous playback</strong></label>
         </fieldset>
         <div class="transport">
-        <div class="transport-primary"><button id="play-button" class="button primary" type="button" disabled><span aria-hidden="true">▶</span> Play</button><button id="restart-button" class="button secondary" type="button" disabled><span aria-hidden="true">↺</span> Restart</button></div>
+        <div class="transport-primary"><button id="play-button" class="button primary" type="button" aria-label="Play" title="Play" disabled><span class="button-icon" aria-hidden="true">▶</span><span class="button-label">Play</span></button><button id="restart-button" class="button secondary" type="button" aria-label="Restart" title="Restart" disabled><span class="button-icon" aria-hidden="true">↺</span><span class="button-label">Restart</span></button><div class="transpose-control" role="group" aria-label="Transpose in semitones"><button id="transpose-down" class="button secondary" type="button" aria-label="Transpose down one semitone" title="Transpose down one semitone" disabled>↓</button><output id="transpose-value" aria-label="Transpose: 0 semitones" title="Transpose: 0 semitones" aria-live="polite">0</output><button id="transpose-up" class="button secondary" type="button" aria-label="Transpose up one semitone" title="Transpose up one semitone" disabled>↑</button></div></div>
         <div class="transport-options"><label class="tempo-control" for="tempo"><span>Speed <output id="tempo-label" for="tempo">100%</output></span><input id="tempo" type="range" min="25" max="150" step="5" value="100"></label><label class="sound-control"><input id="sound-enabled" type="checkbox" checked> Sound</label></div>
         </div>
       </div>
