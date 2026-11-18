@@ -15,6 +15,14 @@ const noteKey = note => JSON.stringify([
   timeKey(note.measureOnset), note.midi, Boolean(note.isGrace),
 ]);
 
+// OSMD 2.3.1 drops the first measure's graphical notes when a sound-only
+// tempo direction immediately follows the opening attributes. The original
+// MusicXML remains untouched for timing, playback and uploaded storage.
+const engravingXML = xml => xml.replace(
+  /(<measure\b[^>]*>[\s\S]*?<\/attributes>\s*)<direction>\s*<sound\b[^>]*\/>\s*<\/direction>/,
+  '$1',
+);
+
 /** Original notation, with attack results painted onto its actual SVG noteheads. */
 export class ScoreRenderer {
   constructor(container, viewport = container) {
@@ -187,7 +195,7 @@ export class ScoreRenderer {
     let positions;
     let layout;
     try {
-      await display.load(model.xml);
+      await display.load(engravingXML(model.xml));
       if (version !== this.loadVersion) throw new Error('This score load was replaced by a newer selection.');
       layout = this.renderToViewport(display, host);
       mapping = this.indexNotes(display, model);
