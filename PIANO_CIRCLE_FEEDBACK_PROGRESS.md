@@ -69,7 +69,7 @@ asks what its failure logs say.
   preserve a bounded local failure history without a debug panel or telemetry.
 - [x] Prevent unavailable preference storage from breaking a successful MIDI
   connection or stopping a page at startup.
-- [ ] Run scoped silent regression checks/build, publish and verify the deployed
+- [x] Run scoped silent regression checks/build, publish and verify the deployed
   release; distinguish simulated input evidence from physical hardware testing.
 
 Initial diagnosis at `2155bafd6ded442972636711e99b81a51862c423`:
@@ -117,3 +117,24 @@ Implementation and local verification:
 - `npm run build` and `git diff --check` passed. Independent source review found
   no blocking issue. All checks were silent and used simulated MIDI; the user's
   current physical-device failure is not diagnosed by those simulations.
+
+Publication and live verification:
+
+- Source release `79053f578c145d73b2365419941b369661783644` is on main.
+  Build/regression/publish run 44232681302 and Pages deployment 44232801484
+  succeeded. Published branch commit:
+  `a93e3c4744c3ccc541f7efc6e91b89245bb44a37`.
+- Live browser confirmed build `79053f578c14` on Count, Color → Key and Order.
+  All retain 12 dark sectors and green completion-check styling. Count loads
+  seven numbered tiles, the new red/green feedback CSS and versioned shared MIDI
+  helper/page script. Feedback behavior itself is covered by actual-script
+  simulated MIDI tests; no physical keyboard was available to this browser.
+- A live request in the cloud test browser displayed
+  `MIDI access failed: NotAllowedError — Permission to use Web MIDI API was not granted.`
+  The browser console also emitted the new MIDI failure record. This demonstrates
+  actual failure reporting in that test browser; it does not identify the user's
+  earlier device failure. A subsequent pending request was ended by navigation;
+  Count was left ready with no pending request and captured for the final reply.
+- No audio was played. The requested feedback correction and the proven
+  preference-storage/error-reporting defects are complete. Identifying any
+  remaining failure on the user's device requires its new full status text.
