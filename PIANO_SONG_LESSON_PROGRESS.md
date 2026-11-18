@@ -22,13 +22,13 @@ the placeholder decision. Convert the existing MIDI note events, retain the
 unaltered original, and disclose notation timing adjustments.
 
 - [x] Convert the complete Phoebe MIDI; compare all source pitches and attacks.
-- [ ] Publish the original, MusicXML and conversion provenance in the repository.
+- [x] Publish the original, MusicXML and conversion provenance in the repository.
 - [x] Load Phoebe on a fresh visit; keep the last selected song on later visits (integration verified).
 - [x] Read the shared song catalog from the deployed repository on every device (fresh-device integration verified).
 - [x] Route uploads through GitHub's authenticated file upload page.
 - [x] Regenerate the catalog and normalized MusicXML automatically during publish (prebuild verified).
 - [x] Preserve previous device-only scores with a download/migration route.
-- [ ] Verify genuine XML/MXL indexing, bad-file isolation, shared-library reload,
+- [x] Verify genuine XML/MXL indexing, bad-file isolation, shared-library reload,
       full Phoebe rendering, and both lesson modes; then verify live deployment.
 
 Original uploads are committed to main under `public/piano/learning-songs/uploads`.
@@ -163,4 +163,19 @@ after engraving. Reserving its gutter before rendering keeps that width stable.
   both automatically; the shared dropdown contains four songs.
 - The upload page requires GitHub sign-in and its Commit changes step. Opening
   the link alone never claims an upload succeeded. No page token or secret exists.
-- Live deployment and real browser verification of this correction are pending.
+- Source release `072a8a1b0c5095300f9e447943a97a4c8f2ab617` is on main.
+  Build/regression/publish run 44215057246 and Pages deployment 44215183143 both
+  succeeded. Published catalog independently shows all four shared songs, zero
+  import errors and the verified Phoebe score hash.
+- Live browser shows build `072a8a1b0c50`, full Phoebe notation and 1,396 attacks.
+  Wrong C4 leaves the first chord in place; C-sharp4 then C-sharp6 turn two heads
+  green and advance. Continuous mode advances and marks missed notes red
+  (49 misses/49 red heads observed). Sound remained off throughout QA.
+- Refresh reports four songs saved on GitHub. Reload restores Phoebe and saved
+  preferences. Older browser copies remain explicitly marked device-only for
+  recovery. The opening score has no horizontal overflow at the tested width.
+  The live tab is left on Phoebe, Wait for me, reset and ready to practice.
+- Original-file GitHub writes were performed and verified through the authorized
+  connector. The native upload destination is in the live UI; the browser did
+  not simulate or claim an authenticated GitHub commit. Future uploads require
+  the normal GitHub Commit changes step, then automatic publishing.
