@@ -34,7 +34,7 @@ const FLAT_ORDER = [
   { name: "Fb", pitchClass: 4 }
 ];
 
-const GREY = "#D6D9DF";
+const NEUTRAL = "#202833";
 const WRONG = "#E53935";
 
 const svg = document.getElementById("circleSvg");
@@ -49,18 +49,18 @@ const CY = SIZE / 2;
 const OUTER_R = 250;
 const INNER_R = 145;
 const visualKeys = [
-  { label: "C", color: "#34A853" },
-  { label: "G", color: "#7CB342" },
-  { label: "D", color: "#C0CA33" },
-  { label: "A", color: "#FDD835" },
-  { label: "E", color: "#FFB300" },
-  { label: "B", color: "#FB8C00" },
-  { label: "F#/Gb", color: "#EA4335" },
-  { label: "Db", color: "#7E57C2" },
-  { label: "Ab", color: "#5C6BC0" },
-  { label: "Eb", color: "#42A5F5" },
-  { label: "Bb", color: "#26A69A" },
-  { label: "F", color: "#5BBE7A" }
+  { label: "C", pitchClass: 0, color: "#34A853" },
+  { label: "G", pitchClass: 7, color: "#7CB342" },
+  { label: "D", pitchClass: 2, color: "#C0CA33" },
+  { label: "A", pitchClass: 9, color: "#FDD835" },
+  { label: "E", pitchClass: 4, color: "#FFB300" },
+  { label: "B", pitchClass: 11, color: "#FB8C00" },
+  { label: "F#/Gb", pitchClass: 6, color: "#EA4335" },
+  { label: "Db", pitchClass: 1, color: "#7E57C2" },
+  { label: "Ab", pitchClass: 8, color: "#5C6BC0" },
+  { label: "Eb", pitchClass: 3, color: "#42A5F5" },
+  { label: "Bb", pitchClass: 10, color: "#26A69A" },
+  { label: "F", pitchClass: 5, color: "#5BBE7A" }
 ];
 
 const ANGLE_PER = 360 / visualKeys.length;
@@ -70,6 +70,7 @@ let currentIndex = null;
 let remaining = [];
 let solved = new Set();
 let locked = false;
+let feedbackTimer = null;
 let questionNumber = 0;
 let answerPosition = 0;
 let acceptedSequences = [];
@@ -124,7 +125,7 @@ function drawCircle() {
 
     const path = makeSvg("path", {
       d: ringSlicePath(CX, CY, OUTER_R, INNER_R, startAngle, endAngle),
-      fill: GREY,
+      fill: NEUTRAL,
       class: "wedge"
     });
 
@@ -249,6 +250,8 @@ function getVisualIndexForQuestion(index) {
 }
 
 function resetLesson() {
+  window.clearTimeout(feedbackTimer);
+  feedbackTimer = null;
   remaining = keys
     .map((_, index) => index)
     .filter((index) => keys[index].count > 0);
@@ -260,7 +263,7 @@ function resetLesson() {
   answerPosition = 0;
   restartButton.hidden = true;
 
-  wedgePaths.forEach((path) => path.setAttribute("fill", GREY));
+  wedgePaths.forEach((path) => path.setAttribute("fill", NEUTRAL));
   labels.forEach((label) => (label.style.display = "none"));
   checkMarks.forEach((check) => (check.style.display = "none"));
 
@@ -311,7 +314,7 @@ function nextQuestion() {
 
   wedgePaths.forEach((path, visualIndex) => {
     if (checkMarks[visualIndex].style.display === "none") {
-      path.setAttribute("fill", GREY);
+      path.setAttribute("fill", NEUTRAL);
     }
   });
 
@@ -375,7 +378,7 @@ function handleMidiMessage(event) {
   );
 
   if (activeSequences.length === 0) {
-    handleWrong();
+    handleWrong(playedPitchClass);
     return;
   }
 
@@ -389,17 +392,18 @@ function handleMidiMessage(event) {
   }
 }
 
-function handleWrong() {
+function handleWrong(playedPitchClass) {
   locked = true;
 
-  const visualIndex = getVisualIndexForQuestion(currentIndex);
-  const path = wedgePaths[visualIndex];
-  const originalColor = keys[currentIndex].color;
+  const playedIndex = visualKeys.findIndex((key) => key.pitchClass === playedPitchClass);
+  const path = wedgePaths[playedIndex];
+  const originalColor = path.getAttribute("fill");
 
   path.setAttribute("fill", WRONG);
   setStatus("Wrong · start the sequence again", "error");
 
-  window.setTimeout(() => {
+  feedbackTimer = window.setTimeout(() => {
+    feedbackTimer = null;
     path.setAttribute("fill", originalColor);
     resetAnswerProgress();
     setStatus(currentPrompt(), "");
@@ -413,7 +417,7 @@ function handleCorrect() {
   const solvedIndex = currentIndex;
   const visualIndex = getVisualIndexForQuestion(solvedIndex);
 
-  wedgePaths[visualIndex].setAttribute("fill", GREY);
+  wedgePaths[visualIndex].setAttribute("fill", NEUTRAL);
   labels[visualIndex].style.display = "none";
 
   solved.add(solvedIndex);
@@ -433,7 +437,8 @@ function handleCorrect() {
 
   setStatus("Correct ✓", "success");
 
-  window.setTimeout(() => {
+  feedbackTimer = window.setTimeout(() => {
+    feedbackTimer = null;
     nextQuestion();
   }, 450);
 }

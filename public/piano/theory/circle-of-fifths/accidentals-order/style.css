@@ -119,7 +119,7 @@ button:disabled {
 }
 
 .check {
-  font-size: 30px;
+  font-size: 40px;
 }
 
 .center-disc {
@@ -273,13 +273,18 @@ button {
   background: #1b2330;
   color: #f3f4f6;
 }
-.wedge { stroke: rgba(255,255,255,.18); }
+.wedge { stroke: #667085; }
 .center-disc {
   fill: #141a22;
   stroke: rgba(255,255,255,.10);
 }
-.key-label,
-.check { fill: #f3f4f6; }
+.key-label { fill: #f3f4f6; }
+.check {
+  fill: #4ade80;
+  stroke: #10261a;
+  stroke-width: 2px;
+  paint-order: stroke fill;
+}
 .sequence-box {
   border-color: #465160;
   background: #1b2330;
