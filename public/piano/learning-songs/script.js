@@ -275,13 +275,18 @@ function scoreErrorMessage(error) {
   if (['UNMATCHED_TIE', 'AMBIGUOUS_TIE', 'UNFINISHED_TIE'].includes(error.code)) return 'This score has incomplete or ambiguous ties. Try another MusicXML export.';
   if (error.code === 'PITCH_RANGE') return 'This score includes notes outside the MIDI range.';
   if (error.code) return 'This score could not be read. Try another MusicXML export.';
-  return 'The score could not be opened. Refresh or choose another score.';
+  if (error.message?.includes('could not fit')) return 'This score could not fit the sheet music window on this screen.';
+  if (error.message?.includes('Cannot match')) return 'This score has notes the display could not match.';
+  if (error.cause?.some?.(reason => /timed out/i.test(reason))) return 'The score download timed out. Check your connection and try selecting it again.';
+  if (error.cause?.some?.(reason => /does not yet match/i.test(reason))) return 'The uploaded score is still publishing. Refresh the song list in a moment.';
+  if (error.message?.includes('renderer has not loaded')) return 'The sheet music renderer did not load. Reload this page.';
+  return 'The score could not be opened. Try selecting it again.';
 }
 async function selectSong(song, {preparedModel = null, remember = true} = {}) {
   if (!song || busy) return false;
   busy = true;
   const previous = {model, sourceModel, transposeOffset, engine, selectedId};
-  pause('Loading score…'); controls(); notice();
+  pause('Loading score…'); controls(); notice(); libraryNotice();
   try {
     {
       let xml = song.xml;
@@ -319,7 +324,10 @@ async function selectSong(song, {preparedModel = null, remember = true} = {}) {
       $('empty-description').textContent = 'Refresh or choose another song.';
     }
     if (selectedId) $('song-select').value = selectedId;
-    notice(scoreErrorMessage(error), true);
+    const message = scoreErrorMessage(error);
+    const attempted = song.sourceFilename || song.title || 'Selected song';
+    libraryNotice(`${attempted} did not load: ${message}${engine ? ' The previous score is still displayed.' : ''}`, true);
+    notice(message, true);
     setStatus(engine ? 'Previous score kept' : 'Score unavailable');
     return false;
   } finally { busy = false; controls(); highlightKeys(); }

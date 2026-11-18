@@ -528,7 +528,10 @@ async function run() {
   assert.equal(ui.$('play-button').disabled, false);
   assert.equal(ui.$('practice-status').textContent, 'Previous score kept');
   assert.ok(!/HTTP|endpoint|sha256/i.test(ui.$('import-message').textContent));
-  checks.push('failed score selection restores playable previous score and selector with a concise error');
+  assert.match(ui.$('library-message').textContent, /Broken upload did not load/);
+  assert.match(ui.$('library-message').textContent, /previous score is still displayed/i);
+  assert.equal(ui.$('library-message').hidden, false);
+  checks.push('failed score selection preserves previous score and visibly names the failed upload');
 
   const speedInput = ui.$('tempo');
   speedInput.value = '75';

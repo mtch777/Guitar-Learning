@@ -491,3 +491,12 @@ Release and live acceptance:
 - Screen capture saved for review. No actual fine-grained token was entered;
   a live authenticated PUT was not performed. Its request bytes/path, errors
   and no-token behavior were covered by isolated API-contract tests.
+### 2026-11-18 — Uploaded score jumps back on selection (mobile report)
+
+- [x] Reproduce the current desktop selection path against the deployed catalog: switching from the 1,396-attack built-in arrangement to the 990-attack `I_Know_the_End.musicxml` succeeds. This does **not** reproduce or dismiss the reported mobile failure.
+- [x] Confirm source score renders in six narrow-window test layouts (340–900 px) without mapping loss.
+- [x] Identify fallback behavior: any score download, parsing or OSMD rendering exception resets the dropdown to the previously selected song; the original error was hidden behind a generic notice.
+- [x] Add a bounded fresh-fetch recovery after deployed/raw endpoints fail, a longer per-request download timeout, and a persistent visible failed-song explanation that distinguishes timeout, catalog mismatch, renderer fit and note mapping.
+- [x] Add coverage for stale score recovery and failure visibility.
+- [ ] Verify Android-browser outcome on the user's device; native mobile exception and network timings are not available in desktop logs.
+- [ ] Verify release CI, Pages deployment and real phone selection following publication.

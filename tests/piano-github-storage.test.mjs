@@ -116,6 +116,18 @@ test('bad score bytes are never accepted against the catalog checksum', async ()
   });
 });
 
+test('stale publication retries primary URL with a fresh cache key after both endpoints fail', async () => {
+  const song = {...fixture().songs[0], url: 'https://mtch777.github.io/score.musicxml', fallbackUrl: 'https://raw.githubusercontent.com/mtch777/Guitar-Learning/gh-pages/score.musicxml'};
+  const requests = [];
+  const result = await loadSongScore(song, {fetchImpl: async url => {
+    requests.push(url);
+    return response(requests.length === 3 ? scoreXml : '<stale/>');
+  }});
+  assert.equal(result.xml, scoreXml);
+  assert.equal(requests.length, 3);
+  assert.match(requests[2], /library-refresh=/);
+});
+
 test('source filenames are metadata; binary and Unicode originals keep their original identity', () => {
   const catalog = fixture();
   Object.assign(catalog.songs[0], {sourcePath: 'uploads/Piano étude № 1 (original).mxl', sourceFilename: 'Piano étude № 1 (original).mxl', sourceSha256: 'b'.repeat(64)});
