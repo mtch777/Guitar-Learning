@@ -26,21 +26,44 @@ window.HTMLCanvasElement.prototype.toDataURL = function() {
   return canvases.get(this)?.toDataURL() || createCanvas(1, 1).toDataURL();
 };
 let availableWidth = 900;
+let availableHeight = 300;
 Object.defineProperty(window.HTMLElement.prototype, 'clientWidth', {get() { return availableWidth; }});
 Object.defineProperty(window.HTMLElement.prototype, 'offsetWidth', {get() { return availableWidth; }});
+Object.defineProperty(window.HTMLElement.prototype, 'clientHeight', {get() { return this.id === 'viewport' ? availableHeight : 0; }});
 const observers = [];
 window.ResizeObserver = class {
   constructor(callback) { this.callback = callback; observers.push(this); }
-  observe(target) { this.target = target; }
+  observe(target) { (this.targets ||= []).push(target); }
   disconnect() { this.disconnected = true; }
 };
 window.eval(readFileSync(resolve(root, 'public/piano/learning-songs/vendor/opensheetmusicdisplay-2.3.1.min.js'), 'utf8'));
 const xml = readFileSync(resolve(root, 'public/piano/learning-songs/scores/conversion-test.musicxml'), 'utf8');
 const model = parseMusicXML(xml, {DOMParser: window.DOMParser, XMLSerializer: window.XMLSerializer});
 const renderer = new ScoreRenderer(window.document.getElementById('score'), window.document.getElementById('viewport'));
+const checkSystemWindow = (model, index) => {
+  const row = renderer.systems[index];
+  const next = renderer.systems[index + 1];
+  const last = next || row;
+  const measure = model.measures[row.measures[0]];
+  renderer.cursorAtBeat(measure.onset);
+  assert.equal(renderer.visibleSystem, index, 'Measure membership selects its actual engraved system.');
+  assert.equal(renderer.frame.dataset.visibleSystemCount, next ? '2' : '1');
+  const top = -parseFloat(renderer.host.style.top);
+  const height = parseFloat(renderer.frame.style.height);
+  const bottom = top + height;
+  assert.ok(top <= row.top + .01, 'The current system is complete at the top.');
+  assert.ok(bottom >= last.bottom - .01, 'The next system is complete at the bottom.');
+  assert.ok(height <= availableHeight + .5, 'Two whole systems fit the allocated viewport height.');
+  if (index > 0) assert.ok(top >= renderer.systems[index - 1].bottom - .01, 'No previous system is visible.');
+  if (index + 2 < renderer.systems.length) assert.ok(bottom <= renderer.systems[index + 2].top + .01, 'No third system is visible.');
+  assert.equal(renderer.viewport.scrollTop, 0);
+  assert.equal(renderer.viewport.scrollLeft, 0);
+};
 const report = await renderer.load(model);
 assert.equal(report.mappedNotes, model.notes.length);
 assert.ok(window.document.querySelector('svg'));
+assert.equal(window.document.querySelectorAll('.osmd-title, .osmd-subtitle, .osmd-composer, .osmd-lyricist').length, 0, 'Printed titles and credits do not consume the practice window.');
+for (let index = 0; index < renderer.systems.length; index++) checkSystemWindow(model, index);
 const first = model.attacks[0], second = model.attacks[1], third = model.attacks[2];
 const statuses = new Map([[first.id, 'hit'], [second.id, 'miss']]);
 renderer.color(statuses, [third.id]);
@@ -124,16 +147,55 @@ for (const width of [390, 320, 280, 1348]) {
   const measures = renderer.osmd.GraphicSheet.MusicPages.flatMap(page => page.MusicSystems.flatMap(system => system.GraphicalMeasures.flat().filter(Boolean)));
   assert.ok(measures.every(measure => measure.minimumStaffEntriesWidth <= 0 || measure.staffEntriesScaleFactor >= .999), 'Dense measures are not compressed below the renderer\'s non-overlapping width.');
   const heads = [...renderer.noteMap.values()].filter(({note}) => !note.isRest && !note.isHidden);
-  for (const {graphical} of heads) {
+  for (const {graphical, note} of heads) {
     const vexNote = graphical.vfnote?.[0];
     assert.ok(vexNote.getNoteHeadBeginX() * renderer.osmd.Zoom >= -.5, 'No pitched head is clipped on the left.');
     assert.ok(vexNote.getNoteHeadEndX() * renderer.osmd.Zoom <= width + .5, 'No pitched head is clipped on the right.');
+    const row = renderer.systems[renderer.systemForMeasure.get(note.measureIndex)];
+    const ys = vexNote.getYs();
+    assert.ok(Math.min(...ys) * renderer.osmd.Zoom >= row.top - .5, 'High ledger note centers remain inside their actual system.');
+    assert.ok(Math.max(...ys) * renderer.osmd.Zoom <= row.bottom + .5, 'Low ledger note centers remain inside their actual system.');
+    if (vexNote.hasStem()) {
+      const stem = vexNote.getStemExtents();
+      assert.ok(Math.min(stem.topY, stem.baseY) * renderer.osmd.Zoom >= row.top - .5, 'Stem tops remain inside system bounds.');
+      assert.ok(Math.max(stem.topY, stem.baseY) * renderer.osmd.Zoom <= row.bottom + .5, 'Stem bottoms remain inside system bounds.');
+    }
   }
-  fitChecks.push({width, zoom:renderer.osmd.Zoom, mapped:renderer.noteMap.size, systems:renderer.osmd.GraphicSheet.MusicPages.reduce((sum,page) => sum + page.MusicSystems.length, 0)});
+  for (let index = 0; index < renderer.systems.length; index++) checkSystemWindow(phoebe, index);
+  renderer.cursorAtBeat(123);
+  fitChecks.push({width, height:availableHeight, zoom:renderer.osmd.Zoom, mapped:renderer.noteMap.size, systems:renderer.systems.length,
+    maxPairHeight:Math.max(...renderer.systems.map((row,index) => (renderer.systems[index+1] || row).bottom - row.top + 8))});
 }
-assert.equal(renderer.osmd.Zoom, 1, 'Expanding back to desktop restores normal notation size.');
-assert.equal(observers[0].target, renderer.container, 'Observe the actual score container, not only window events.');
-console.log(JSON.stringify({responsivePhoebe:fitChecks, observerResize:true, colorsAndCursorPreserved:true}));
+assert.ok(observers[0].targets.includes(renderer.container), 'Observe the actual score container.');
+assert.ok(observers[0].targets.includes(renderer.viewport), 'Observe height-only changes in the allocated viewport.');
+const fullHeightZoom = renderer.osmd.Zoom;
+availableWidth = 844;
+availableHeight = 175;
+renderer.resize();
+for (let index = 0; index < renderer.systems.length; index++) checkSystemWindow(phoebe, index);
+fitChecks.push({width:availableWidth,height:availableHeight,zoom:renderer.osmd.Zoom,mapped:renderer.noteMap.size,systems:renderer.systems.length});
+availableWidth = 1348;
+availableHeight = 300;
+renderer.resize();
+renderer.cursorAtBeat(123);
+availableHeight = 140;
+observers[0].callback();
+await new Promise(resolve => setTimeout(resolve, 150));
+assert.equal(renderer.renderedHeight, 140, 'Height-only changes re-engrave the two-row window.');
+assert.equal(renderer.beat, 123);
+assert.ok(renderer.osmd.Zoom < fullHeightZoom, 'A shallow landscape window uses a fitting native scale.');
+for (let index = 0; index < renderer.systems.length; index++) checkSystemWindow(phoebe, index);
+for (const id of hit.noteIds) assert.equal(renderer.appliedColors.get(id), '#16875d');
+for (const id of missed.noteIds) assert.equal(renderer.appliedColors.get(id), '#d63349');
+const lastIndex = renderer.systems.length - 1;
+checkSystemWindow(phoebe, lastIndex);
+assert.equal(renderer.frame.dataset.visibleSystemCount, '1', 'The final row never pulls a previous row back in.');
+renderer.cursorAtBeat(0);
+assert.equal(renderer.visibleSystem, 0, 'Restart returns to the first two systems.');
+availableHeight = 300;
+renderer.resize();
+assert.ok(Math.abs(renderer.osmd.Zoom - fullHeightZoom) < 1e-8, 'Restoring height restores the original two-row engraving scale.');
+console.log(JSON.stringify({responsivePhoebe:fitChecks, observerWidthAndHeight:true, finalSingleSystem:true, colorsAndCursorPreserved:true}));
 renderer.destroy();
 assert.equal(observers[0].disconnected, true);
 dom.window.close();

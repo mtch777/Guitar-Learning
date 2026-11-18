@@ -280,3 +280,48 @@ Local verification:
 - Independent review found no blocking issue; all 14 tracked score/provenance/
   original-upload files retain their prior contents. Physical MIDI hardware and
   listening acceptance were not exercised. No remaining blocker for this UI task.
+
+## Compact two-row playing view — 2026-11-17
+
+User request: show only the current and next sheet-music rows in a shallow
+window, remove titles/legend/Details, put the keyboard directly underneath,
+move MIDI/Show-Hide buttons below it, remove computer-key/range/octave controls,
+and keep the complete playing interface on screen without scrolling.
+
+- [x] Window the actual engraved current+next systems, advancing at row boundaries
+  and showing only the final system at the end; remove printed titles/credits.
+- [x] Fit notation to both available width and height while preserving complete
+  staves, ledger notes, ties, cursor and individual grading colors.
+- [x] Make the screen layout compact with a height budget, immediate score/keyboard
+  adjacency, bottom MIDI/Show-Hide controls and no removed-UI remnants.
+- [x] Preserve shared uploads/selection, both lesson modes, MIDI/touch grading,
+  full song-range keyboard, sustained highlights and remembered visibility.
+- [ ] Verify renderer/application behavior and realistic portrait/landscape
+  geometry silently, build/publish and inspect the actual live release.
+
+Counterexamples: a partial third system or clipped high ledger note does not
+satisfy two rows; hiding overflow does not prove that bottom controls fit;
+height-only resize and hiding the keyboard must refit the score; reset returns
+the first pair; a failed replacement retains the previous playable score.
+Root owns layout/integration, with separate renderer and application ownership
+and independent scope review. Source notation and previous lessons stay intact.
+
+Local verification:
+
+- `node --test tests/piano-*.test.mjs`: 89/89 pass.
+- Actual renderer helper passes with all 1,622 Phoebe notation items at widths
+  390/320/280/1348 and a 300px height budget, plus 844px width/175px height.
+  Every system boundary is visited: full current+next bounds, no previous/third
+  row, final single row, restart, pitched heads/stem bounds and zero scrolling.
+  Height-only resize 300→140 preserves beat 123 and hit/miss colors; source
+  title/credits are absent. Existing failed-load/chord/tie/unison checks pass.
+- Final application helper: 18 checks across seven fresh boots pass using actual
+  OSMD and simulated MIDI/audio. Both real MIDI-handler input and timed playback
+  move the actual Phoebe window from rows 1–2 to 2–3; restart restores 1–2.
+  Score/document scroll offsets stay zero. Existing shared-library, recovery,
+  both modes, sustained highlights, hidden-keyboard grading and preferences pass.
+- `npm run build`, script syntax checks and `git diff --check` pass.
+- Independent layout and renderer reviews found no blocker. Live cursor pixel
+  bounds and actual viewport fit remain the final deployment checks.
+- Live baseline at 1348×936: page height 1380px, score height 660px, keyboard
+  bottom 1338.6px and MIDI button bottom 1159.6px, both beyond the viewport.

@@ -47,18 +47,22 @@ these files, so a genuine upload is not hidden because of its title or filename.
   Correct note starts turn green and missed starts turn red; chord notes receive
   independent feedback. The onset window is ±180 ms. Hold duration is not graded.
 - Play/pause, restart, playback speed and sound controls are provided.
-- Use a MIDI keyboard, the on-screen piano or computer keys A–K / W E T Y U.
-  Z/X changes the computer input octave without shifting the displayed keyboard.
-  The existing global MIDI preference is reused.
+- Use a MIDI keyboard or the on-screen piano. The existing global MIDI preference
+  is reused. Enable MIDI and Show/Hide are beneath the keyboard.
 - The keyboard spans the selected song's lowest through highest playable pitch.
   Continuous playback highlights each sounding pitch for its full duration;
   wait mode highlights the remaining required keys. Pressed keys are green.
   Show/Hide defaults to shown and remembers the user's setting.
-- The score reflows to the available screen width. Dense measures use a smaller
-  engraving scale when necessary to fit without cutting notes or overlapping them.
+- The score shows only the current and next system (row of staves), advancing
+  the pair as practice reaches the next row. The keyboard sits immediately below.
+  Titles, credits, the legend, Details and computer-key/range controls are omitted
+  from the playing view. The original score and its metadata remain unchanged.
+- The score reflows to the available screen width and compact window height.
+  Dense measures use a smaller engraving scale when needed to preserve complete
+  notation in the visible rows.
 
-The collapsed **Details** section contains arranger attribution, grading limits
-and applicable score limitations. Repeat/navigation notation remains visible,
+Arranger attribution and conversion evidence remain in the linked score notes.
+Repeat/navigation notation remains visible,
 but practice follows written order once. Grace/cue notes are visible but excluded from grading.
 Microtonal, unpitched and nonzero-transposing scores are rejected clearly.
 Ornaments and techniques remain visible; playback uses written pitches.

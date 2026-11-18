@@ -59,6 +59,7 @@ async function boot({resume = 'running', legacySongs = []} = {}) {
   };
   Object.defineProperty(window.HTMLElement.prototype, 'clientWidth', {get() { return 900; }});
   Object.defineProperty(window.HTMLElement.prototype, 'offsetWidth', {get() { return 900; }});
+  Object.defineProperty(window.HTMLElement.prototype, 'clientHeight', {get() { return this.id === 'score-viewport' ? 300 : 0; }});
   const parameter = () => ({value: 0, setTargetAtTime() {}, setValueAtTime() {}, exponentialRampToValueAtTime() {}, cancelScheduledValues() {}});
   const node = () => ({connect() {}, disconnect() {}, gain: parameter()});
   class SilentAudioContext {
@@ -176,13 +177,24 @@ async function run() {
   assert.equal(ui.snapshot().model?.notes, 1622, 'Every pitched segment and rest reaches the actual renderer.');
   assert.ok(!ui.$('play-button').disabled);
   assert.ok(ui.$('score').querySelector('svg'));
+  assert.equal(ui.$('score').querySelector('.lesson-score-window').dataset.visibleSystemStart, '1');
+  assert.equal(ui.$('score').querySelector('.lesson-score-window').dataset.visibleSystemCount, '2',
+    'The actual Phoebe score starts with only the first two systems in its window.');
   assert.equal(ui.$('song-title'), null, 'No redundant outer score title.');
   assert.equal(ui.$('test-score-button'), null, 'No test-song CTA.');
-  assert.equal(ui.$('song-details').open, false, 'Source and grading details start collapsed.');
-  assert.match(ui.$('song-description').textContent, /Edgar Roock/);
-  assert.match(ui.$('grading-note').textContent, /Note lengths are not graded/);
+  for (const id of ['song-details', 'song-description', 'grading-note', 'score-warnings',
+    'keyboard-range', 'input-octave', 'octave-down', 'octave-up']) {
+    assert.equal(ui.$(id), null, `${id} is removed from the compact playing view.`);
+  }
+  assert.equal(ui.window.document.querySelector('.legend'), null);
+  assert.equal(ui.$('keyboard').querySelector('.shortcut'), null, 'No computer-key hints occupy the piano keys.');
   assert.equal(ui.$('keyboard-panel').hidden, false, 'Keyboard is shown by default.');
   assert.equal(ui.$('keyboard-toggle').getAttribute('aria-expanded'), 'true');
+  for (const id of ['keyboard-toggle', 'midi-button']) {
+    assert.equal(ui.$(id).closest('#keyboard-panel'), null, `${id} remains accessible when the keyboard is hidden.`);
+    assert.ok(ui.$('keyboard').compareDocumentPosition(ui.$(id)) & ui.window.Node.DOCUMENT_POSITION_FOLLOWING,
+      `${id} follows the keyboard in the playing view.`);
+  }
   const phoebeKeys = Array.from({length:52}, (_, index) => 46 + index);
   assert.deepEqual(ui.keyPitches(), phoebeKeys, 'All chromatic keys from the real song minimum to maximum appear at once.');
   assert.ok(ui.$('keyboard').querySelector('[data-midi="46"]').classList.contains('black'));
@@ -192,11 +204,7 @@ async function run() {
     // CSSOM serializes percentages to fewer digits than the layout arithmetic.
     assert.ok(parseFloat(key.style.left) + parseFloat(key.style.width) <= 100 + 1e-4, 'Both black endpoints are fully inside the keyboard.');
   }
-  await ui.click('octave-up');
-  assert.deepEqual(ui.keyPitches(), phoebeKeys, 'Computer input octave does not move the displayed song range.');
-  assert.match(ui.$('input-octave').textContent, /C5.*C6/);
-  await ui.click('octave-down');
-  checks.push('song-range keyboard includes both black endpoints and every intervening pitch; computer octave leaves the view fixed');
+  checks.push('song-range keyboard includes both black endpoints and every intervening pitch without computer-key or range controls');
   const initialOptions = [...ui.$('song-select').options].map(option => option.value);
   for (const test of remoteCatalog.songs.filter(song => song.testScore)) assert.ok(!initialOptions.includes(test.id));
   assert.ok(!initialOptions.includes('local-old-test-copy'), 'An exact local test copy is hidden.');
@@ -219,7 +227,7 @@ async function run() {
   assert.ok(!ui.$('local-recovery').hidden, 'Legacy local score is visibly marked as device-only.');
   assert.match(ui.$('local-recovery').textContent, /Device-only copy/);
   assert.ok(ui.$('download-local-score'), 'Legacy local files can be downloaded for GitHub migration.');
-  checks.push('actual Phoebe renders; compact UI and collapsed details; exact test copies hidden while genuine local uploads survive');
+  checks.push('actual Phoebe renders; compact UI without Details or legend; exact test copies hidden while genuine local uploads survive');
   checks.push('native GitHub upload link; isolated legacy recovery and migration control');
 
   await ui.select('phoebe-bridgers-i-know-the-end');
@@ -234,6 +242,7 @@ async function run() {
   await ui.click('keyboard-toggle');
   assert.equal(ui.$('keyboard-panel').hidden, true);
   assert.equal(ui.$('keyboard-toggle').getAttribute('aria-expanded'), 'false');
+  assert.equal(ui.$('keyboard-toggle').closest('[hidden]'), null, 'Show keyboard remains available after hiding the keys.');
   assert.equal(ui.snapshot().playing, true, 'Hiding the visual keyboard does not stop practice.');
   for (const pitch of phoebeFirst.requiredPitches) ui.strike(pitch);
   assert.equal(ui.snapshot().lesson.hits, 2);
@@ -266,6 +275,34 @@ async function run() {
   ui.mode('wait');
   checks.push('actual Phoebe first chord blocks wrong input, advances only when complete, and grades separate timed hit/miss heads');
   checks.push('keyboard wait targets, timed onsets/releases/sustains, pause/resume/restart, and hidden MIDI grading agree with the actual score');
+
+  const rowFrame = ui.$('score').querySelector('.lesson-score-window');
+  assert.ok(Number(rowFrame.dataset.systemCount) > 2);
+  await ui.click('play-button');
+  for (let attempts = 0; rowFrame.dataset.visibleSystemStart === '1' && attempts < 512; attempts++) {
+    const pitches = ui.snapshot().lesson.requiredPitches;
+    assert.ok(pitches.length, 'A current score attack remains playable at the row boundary.');
+    for (const pitch of pitches) ui.strike(pitch);
+  }
+  assert.equal(rowFrame.dataset.visibleSystemStart, '2', 'Correct MIDI input advances to the next pair of rows.');
+  assert.equal(rowFrame.dataset.visibleSystemCount, '2');
+  const secondRowTime = ui.snapshot().lesson.currentGroup.time;
+  assert.equal(ui.$('score-viewport').scrollTop, 0);
+  assert.equal(ui.window.document.documentElement.scrollTop, 0);
+  await ui.click('play-button');
+  await ui.click('restart-button');
+  assert.equal(rowFrame.dataset.visibleSystemStart, '1', 'Restart returns to the first pair.');
+  ui.mode('timed');
+  await ui.click('play-button');
+  ui.advance(-ui.snapshot().elapsed + secondRowTime);
+  assert.equal(rowFrame.dataset.visibleSystemStart, '2', 'Timed playback reaches the same pair at the same score onset.');
+  assert.equal(rowFrame.dataset.visibleSystemCount, '2');
+  assert.equal(ui.$('score-viewport').scrollTop, 0);
+  assert.equal(ui.window.document.documentElement.scrollTop, 0);
+  await ui.click('play-button');
+  await ui.click('restart-button');
+  ui.mode('wait');
+  checks.push('actual MIDI and timed playback advance the same current/next row pair without changing scroll offsets; restart restores rows 1–2');
 
   await ui.select(practiceId);
   await settle(() => ui.snapshot().model && !ui.$('song-select').disabled, 'render NWC score');
