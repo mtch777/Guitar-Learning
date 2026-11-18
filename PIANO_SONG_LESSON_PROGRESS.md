@@ -108,3 +108,10 @@ included in OSMD's initial width measurement. The follow-up removes that padding
 normal engraving margins remain. Browser sizing controls did not provide a
 narrower viewport, so mobile geometry is not claimed as visually verified.
 Physical MIDI hardware and audible musical quality remain separate user checks.
+
+The follow-up source `9912b4dfad22` also passed build and Pages deployment.
+Actual browser file-chooser tests opened a genuine `.mxl` and the converted
+Bach BWV939 `.musicxml` together. Both entered the library. Reload restored the
+Bach score, selection, timed mode and muted sound preference without re-upload.
+Longer scores reveal a second width dependency: the vertical scrollbar appears
+after engraving. Reserving its gutter before rendering keeps that width stable.
