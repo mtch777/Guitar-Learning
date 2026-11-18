@@ -22,7 +22,7 @@ def _unit(value):
     return max(0., min(1., value))
 
 
-def analyze_functions(features, repeats=None, lead_channels=(), weights=None):
+def analyze_functions(features, repeats=None, lead_channels=(), weights=None, lyric_evidence=None):
     """Return hypotheses for existing repeated groups, plus one row per bar.
 
     lead_channels are caller-confirmed vocal/melodic foreground channel IDs, not
@@ -129,7 +129,7 @@ def analyze_functions(features, repeats=None, lead_channels=(), weights=None):
                          candidate_group_ids=ids, label='unknown',
                          reason='ambiguous_function' if ids else 'no_repeat_candidate',
                          observed=feature['observed']))
-    return dict(schema='bar-section-functions/1', bar_count=n,
+    result = dict(schema='bar-section-functions/1', bar_count=n,
                 parameters={'weights': weights, 'confirmed_lead_channels': sorted(leads)},
                 hypotheses=hypotheses, bars=bars,
                 limitations=[
@@ -139,3 +139,6 @@ def analyze_functions(features, repeats=None, lead_channels=(), weights=None):
                     'Repeated group proposals can overlap; not a final song partition.',
                     'Nonrepeating verse/chorus is not proposed by this repeat-anchored pilot.',
                     'No intro/outro, bridge, breakdown or solo classification in this pass.'])
+
+    from lyric_refrain_evidence import attach_lyric_evidence, feature_fingerprint
+    return attach_lyric_evidence(result, lyric_evidence, feature_fingerprint(features) if lyric_evidence is not None else None)
