@@ -371,13 +371,13 @@ User request: add semitone down/up arrows to Learning Songs without adding UI
 height. Scope includes functional, synchronized transposition of the sheet music,
 audio, keyboard range/highlights and required MIDI notes.
 
-- [ ] Add a compact down/offset/up group within the existing transport row;
+- [x] Add a compact down/offset/up group within the existing transport row;
   preserve toolbar height and row count on desktop and narrow screens.
 - [x] Derive transposed notation and lesson pitches from the immutable original
   score, preserving timing, ties, identities, rhythms and source uploads.
 - [x] Commit a new pitch offset only after successful engraving; pause and reset
   the current attempt safely, preserve the previous usable score on failure.
-- [ ] Verify +/- semitone behavior, source roundtrip, grading/audio/keyboard
+- [x] Verify +/- semitone behavior, source roundtrip, grading/audio/keyboard
   agreement and no added layout height; publish and inspect the live release.
 
 Counterexamples: shifting the renderer alone leaves MIDI grading wrong; changing
@@ -417,4 +417,25 @@ Local verification and baseline:
   46/34px; at 681×468 they are 36/30px; at 545×374 and 340×234 they are 70/30px.
   The 340×234 baseline is already too short for the score; that extreme zoom is
   a height comparison only, not evidence that the whole interface fits 234px.
-  Browser zoom is restored to 100%; post-release comparison remains pending.
+  Browser zoom was restored to 100% before deployment.
+
+Release and live acceptance:
+
+- Source release `782741a623b9feb7115449d6240f1202cfac30bb` passed
+  build/regression/publish run 44240823130 and Pages deployment 44240921984.
+  Published branch commit: `a70816de5c18e85f368a145bfabc6f904d0c12d9`.
+  Live browser confirmed build `782741a623b9` with the new controls enabled.
+- Silent live +1 changes the opening highlights from MIDI 61/85 to 62/86 and
+  visibly engraves D major with two sharps. During Wait mode, the old C-sharp
+  pitch produces Wrong note and no progress; D4/D6 produce two hits and advance
+  to 2/1396. Changing the offset while playing resets to Ready with zero hits.
+  Minus one shows pitches 60/84; returning to zero restores 61/85 and two rows.
+- Before/after measurements confirm unchanged toolbar/transport/card heights:
+  1363×936: 46/34/505px; 681×468: 36/30/421px; 545×374:
+  70/30/293.8px; 340×234: 70/30/153px. Every transport control remains within
+  the row with no overlap or horizontal overflow. The extreme 234px-high case
+  retains its pre-existing insufficient score height, as noted above.
+- Restored browser zoom and speed to 100%, Wait mode, offset zero, Ready,
+  keyboard shown and Sound off. Captured the complete lesson and controls for
+  the final reply. Physical MIDI hardware and listening acceptance were not
+  exercised; simulated MIDI/audio checks and silent live grading passed.
