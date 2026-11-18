@@ -11,14 +11,20 @@ conversion decisions and validation evidence are committed under `scores/`.
 See [the score notes](./scores/phoebe-score-README.md) for attribution, small
 notation timing adjustments and reproducible conversion commands.
 
-**Upload (.musicxml, .xml, .mxl)** opens an in-page file picker. The browser
+**Upload** opens an in-page file picker for `.musicxml`, `.xml` and `.mxl`. The browser
 validates the score, then saves the unchanged original directly to this
 repository's `main` branch through GitHub's Contents API. Since GitHub Pages is
 static, the user supplies a fine-grained GitHub token with Contents: read and
-write access limited to this repository. The token is used for that request,
-cleared from the input after success or dismissal, and never persisted. The
-lesson polls for the resulting Pages publication, then adds and selects the song.
+write access limited to this repository. The token is cleared from the input
+after success or dismissal; **Remember on this device** stores it in localStorage.
+The credential fields collapse when saved credentials are present. The lesson
+adds the uploaded song immediately, then polls for the Pages publication.
 If publication is delayed, **Refresh** retrieves the latest shared catalog.
+
+**URL** imports direct `.musicxml`, `.xml` or `.mxl` file links when the source
+allows cross-origin browser downloads. The same GitHub save and publish flow is
+used. MuseScore.com *score page* URLs cannot be converted from the static site;
+download a permitted MusicXML file from MuseScore and use Upload.
 
 The earlier conversion experiment produced 28 nonempty MusicXML outputs from
 other note-data formats, but those conversions ran in separate desktop/server
