@@ -179,3 +179,39 @@ after engraving. Reserving its gutter before rendering keeps that width stable.
   connector. The native upload destination is in the live UI; the browser did
   not simulate or claim an authenticated GitHub commit. Future uploads require
   the normal GitHub Commit changes step, then automatic publishing.
+
+## Approved lesson cleanup — 2026-11-17
+
+Scope: apply the user's confirmed eight-category clutter inventory to the existing
+learning-songs page. Ultimate Guitar Chords v2 remains deferred while its chart is
+unavailable. This task does not change score contents or grading behavior.
+
+- [x] Remove slogans, decorative symbols, repeated headings, and excess spacing.
+      Keep the song selector, upload formats, sheet music and functional controls.
+- [x] Replace repeated playback/storage coaching with brief states and actionable
+      errors. Move attribution and meaningful grading limits into collapsed details.
+- [x] Hide only known test fixtures and duplicate local copies from the normal
+      song selector; preserve source files and genuine device-only uploads.
+- [x] Verify actual score rendering, both lesson modes, retained controls,
+      remembered selection and failed-load recovery with silent checks.
+- [ ] Build, publish to the existing GitHub Pages URL, and verify live content.
+
+Acceptance counterexamples: removed DOM elements must not break startup; a real
+upload must remain available even when its title resembles a test; a remembered
+hidden test must fall back to Phoebe; failed refresh/score load must preserve the
+previous playable score. No audible playback during assistant QA.
+
+Local verification:
+
+- `node --test tests/piano-*.test.mjs`: 69/69 pass, including exact-content hiding,
+  offline fixture filtering and preservation of genuine same-title uploads.
+- `node tests/helpers/piano-app-check.mjs` with the existing render dependencies:
+  15 checks across seven fresh app boots pass. Actual Phoebe chord waiting,
+  timed colors, pause/restart, failed load/refresh recovery, remembered hidden
+  test fallback and local-to-shared duplicate selection are covered silently.
+- `npm run build`: passes. Four catalog records and original files remain;
+  only Phoebe appears in the normal selector because three records are tests.
+- Independent diff/DOM review passes. All 14 tracked score/provenance/original
+  upload files match their preceding Git blob hashes. Parser, renderer, lesson
+  engine, audio and upload parsing are unchanged.
+- Publication and live browser inspection remain pending below.

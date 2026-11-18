@@ -8,18 +8,17 @@ const {parseMusicXML, secondsAtBeat, beatAtSeconds} = scoreModule;
 const {LessonEngine} = engineModule;
 const {ScoreRenderer} = renderModule;
 const {SongStorage} = storageModule;
-const {SONG_LIBRARY, loadSongLibrary, loadSongScore} = repositoryModule;
+const {SONG_LIBRARY, loadSongLibrary, loadSongScore, visibleSongChoices} = repositoryModule;
 const {PianoAudio} = audioModule;
 if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, {once:true}));
 
 const $ = id => document.getElementById(id);
 const DEFAULT_ID = 'phoebe-bridgers-i-know-the-end';
-const TEST_ID = 'conversion-test-nwc';
 const builtIns = [
-  {id:DEFAULT_ID, title:'I Know the End', composer:'Phoebe Bridgers', url:new URL('./scores/phoebe-bridgers-i-know-the-end.musicxml', document.baseURI).href, repositorySaved:true, description:'Piano arrangement by Edgar Roock · converted from MIDI'},
-  {id:TEST_ID, title:'Conversion test · 20 notes', composer:'Michael Cuthbert', url:new URL('./scores/conversion-test.musicxml', document.baseURI).href, testScore:true, repositorySaved:true}
+  {id:DEFAULT_ID, title:'I Know the End', composer:'Phoebe Bridgers', url:new URL('./scores/phoebe-bridgers-i-know-the-end.musicxml', document.baseURI).href, repositorySaved:true, description:'Piano arrangement by Edgar Roock'}
 ];
 const songs = new Map(builtIns.map(song => [song.id, song]));
+let songChoices = builtIns, songAliases = new Map();
 const storage = await new SongStorage().open();
 const audio = new PianoAudio();
 const renderer = new ScoreRenderer($('score'), $('score-viewport'));
@@ -30,6 +29,7 @@ let selectedId = null, model = null, engine = null, timedGroups = [], audioNotes
 let playing = false, elapsed = 0, anchor = 0, animation = 0, nextAudio = 0, totalSeconds = 0;
 let busy = false, libraryLoading = false, countIn = 0, lastPaint = '', lastStatus = '';
 let librarySource = 'bundled', waitingForUpload = false;
+let libraryNoticeTimer;
 let starting = false, startGeneration = 0;
 let octave = 4, midiAccess = null;
 const pressed = new Map();
@@ -51,27 +51,45 @@ function savePreferences() { storage.savePreferences({mode, speed, sound:audio.e
 function controls() {
   $('play-button').disabled = busy || !engine || starting;
   $('restart-button').disabled = busy || !engine;
-  $('song-select').disabled = busy;
+  $('song-select').disabled = busy || libraryLoading;
   $('refresh-library').disabled = busy || libraryLoading;
-  $('test-score-button').disabled = busy;
   $('tempo').disabled = busy || playing;
   const finished = engine?.complete && (mode === 'wait' || elapsed >= totalSeconds + .2);
   $('play-button').textContent = starting ? 'Starting…' : playing ? 'Ⅱ Pause' : finished ? '▶ Play again' : '▶ Play';
 }
-function refreshLibrary() {
+function songChoice(id) {
+  return songChoices.find(song => song.id === (songAliases.get(id) || id));
+}
+async function refreshLibrary() {
+  const choices = await visibleSongChoices(songs.values());
+  songChoices = choices.songs;
+  songAliases = choices.aliases;
   $('song-select').replaceChildren();
-  for (const song of songs.values()) {
+  for (const song of songChoices) {
     const option = document.createElement('option');
     option.value = song.id;
-    option.textContent = `${song.composer ? song.composer + ' — ' : ''}${song.title}${song.localOnly ? ' · only on this device' : ''}`;
+    option.textContent = `${song.composer ? song.composer + ' — ' : ''}${song.title}${song.localOnly ? ' · Device-only copy' : ''}`;
     $('song-select').append(option);
   }
-  if (selectedId) $('song-select').value = selectedId;
+  const selected = songChoice(selectedId);
+  if (selected) {
+    // A newly published copy replaces its local selector entry without resetting practice.
+    if (selected.id !== selectedId) {
+      selectedId = selected.id;
+      storage.select(selectedId);
+      $('local-recovery').hidden = !selected.localOnly;
+      $('song-description').textContent = selected.description || '';
+      $('song-description').hidden = !selected.description;
+    }
+    $('song-select').value = selectedId;
+  }
 }
-function libraryNotice(message = '', error = false) {
+function libraryNotice(message = '', error = false, {temporary = false} = {}) {
+  clearTimeout(libraryNoticeTimer);
   $('library-message').textContent = message;
   $('library-message').hidden = !message;
   $('library-message').classList.toggle('error', error);
+  if (temporary && message) libraryNoticeTimer = setTimeout(() => libraryNotice(), 2500);
 }
 async function refreshSharedLibrary({announce = false} = {}) {
   if (libraryLoading || busy) return false;
@@ -85,15 +103,20 @@ async function refreshSharedLibrary({announce = false} = {}) {
     for (const song of localSongs) songs.set(song.id, song);
     if (previousSong && !songs.has(previousSong.id)) songs.set(previousSong.id, previousSong);
     librarySource = catalog.source;
-    refreshLibrary();
-    const messages = [];
-    if (catalog.warning) messages.push(catalog.warning);
-    if (announce) messages.push(`Song list refreshed · ${catalog.songs.length} songs saved on GitHub. A new upload appears after publishing finishes.`);
-    for (const issue of catalog.importErrors || []) messages.push(`${issue.sourceFilename}: ${issue.message}`);
-    libraryNotice(messages.join(' '), !!catalog.importErrors?.length);
+    await refreshLibrary();
+    if (selectedId && !songChoice(selectedId)) {
+      await selectSong(songChoice(DEFAULT_ID) || songChoices[0]);
+    }
+    if (catalog.importErrors?.length) {
+      console.warn('Song upload errors:', catalog.importErrors);
+      const filenames = catalog.importErrors.slice(0, 3).map(issue => issue.sourceFilename).join(', ');
+      const remaining = catalog.importErrors.length > 3 ? ` and ${catalog.importErrors.length - 3} more` : '';
+      libraryNotice(`Could not import ${filenames}${remaining}. Check the files and try again.`, true);
+    } else libraryNotice(announce ? 'Refreshed.' : '', false, {temporary:announce});
     return true;
   } catch (error) {
-    libraryNotice(error.message, true);
+    console.warn('Song library refresh failed:', error);
+    libraryNotice('Songs could not be refreshed. Check your connection and try again.', true);
     return false;
   } finally { libraryLoading = false; controls(); }
 }
@@ -108,7 +131,7 @@ function configureEngine() {
   })).sort((a,b) => a.time - b.time);
   totalSeconds = secondsAtBeat(model, model.duration, speed);
   elapsed = 0; nextAudio = 0; lastPaint = '';
-  $('grading-note').textContent = mode === 'timed' ? 'Pitch + onset · ±180 ms · holds are not graded' : 'Hit every highlighted pitch · holds are not graded';
+  $('grading-note').textContent = mode === 'timed' ? 'Timing window: ±180 ms. Note lengths are not graded.' : 'Note lengths are not graded.';
 }
 function currentVisualGroup(beat) {
   if (mode === 'wait') return engine?.snapshot().currentGroup;
@@ -138,9 +161,9 @@ function paint(force = false) {
 }
 function completionText() {
   const state = engine.snapshot();
-  return `Finished · ${state.hits} hit${state.misses ? `, ${state.misses} missed` : ''}${state.wrong ? `, ${state.wrong} extra key strike${state.wrong === 1 ? '' : 's'}` : ''}. Restart to try again.`;
+  return `Finished${state.wrong ? ` · ${state.wrong} extra note${state.wrong === 1 ? '' : 's'}` : ''}`;
 }
-function pause(message = 'Paused. Press Play to continue.') {
+function pause(message = 'Paused') {
   startGeneration++;
   starting = false;
   if (playing && mode === 'timed') {
@@ -162,7 +185,7 @@ function resetSession() {
   $('score-viewport').scrollTop = 0;
   $('score-viewport').scrollLeft = 0;
   paint(true); controls();
-  setStatus(mode === 'wait' ? 'Ready. Press Play, then play the highlighted notes.' : 'Ready. Press Play for a two-beat count-in.');
+  setStatus('Ready');
 }
 function scheduleAudio() {
   while (nextAudio < audioNotes.length && audioNotes[nextAudio].time <= elapsed + .12) {
@@ -179,12 +202,12 @@ function tick() {
   paint();
   if (elapsed < 0) {
     const remaining = Math.max(1, Math.ceil(-elapsed / (countIn / 2)));
-    setStatus(`Get ready… ${remaining}`);
+    setStatus(String(remaining));
   } else if (elapsed >= totalSeconds + .2) {
     pause(completionText());
     return;
   } else {
-    setStatus('Keep playing with the score. Green = hit · red = missed.');
+    setStatus('Playing');
   }
   animation = requestAnimationFrame(tick);
 }
@@ -196,7 +219,10 @@ async function start() {
   const requestedEngine = engine;
   starting = true;
   controls();
-  try { await audio.unlock(); } catch (error) { notice(error.message); }
+  try { await audio.unlock(); } catch (error) {
+    console.warn('Piano audio could not start:', error);
+    notice('Sound unavailable. Practice can continue silently.');
+  }
   if (generation !== startGeneration || requestedEngine !== engine) return;
   starting = false;
   if (mode === 'timed') {
@@ -216,12 +242,34 @@ async function start() {
   } else {
     engine.start(0);
     playing = true;
-    setStatus('Play the highlighted notes. The score will wait for you.');
+    setStatus('Playing');
     paint();
   }
   controls();
 }
 
+function scoreNotices(warnings) {
+  const concise = new Map([
+    ['A tempo instruction has no exact numeric playback tempo; the previous tempo continues.', 'Tempo text does not change playback speed.'],
+    ['Grace notes remain visible in the score; this lesson does not play or score their unspecified timing.', 'Grace notes are not played or graded.'],
+    ['Cue notes remain visible in the score and are excluded from practice.', 'Cue notes are excluded from practice.'],
+    ['Notes hidden by the source file are preserved in score data and excluded from practice.', 'Hidden notes are excluded from practice.'],
+    ['Repeats, endings and navigation are shown as written. Playback and both practice modes follow each written measure once; repeat jumps are not performed.', 'Each written measure plays once; repeat and navigation jumps are skipped.'],
+    ['Ornaments and performance techniques remain visible; playback and practice use the written note pitches.', 'Ornaments use the written pitches.'],
+    ['No initial numeric tempo is specified. Playback starts at 120 BPM; change the tempo control if needed.', 'Starting tempo: 120 BPM (not specified in the score).'],
+  ]);
+  return warnings.map(warning => concise.get(warning) || warning);
+}
+function scoreErrorMessage(error) {
+  if (error.code === 'TRANSPOSED_INSTRUMENT') return 'Export this score at concert pitch and try again.';
+  if (error.code === 'UNPITCHED_SCORE') return 'Choose a piano or melody part with pitched notes.';
+  if (error.code === 'MICROTONAL_SCORE') return 'This score uses pitches a standard piano cannot play.';
+  if (error.code === 'EMPTY_SCORE') return 'This score has no playable notes.';
+  if (['UNMATCHED_TIE', 'AMBIGUOUS_TIE', 'UNFINISHED_TIE'].includes(error.code)) return 'This score has incomplete or ambiguous ties. Try another MusicXML export.';
+  if (error.code === 'PITCH_RANGE') return 'This score includes notes outside the MIDI range.';
+  if (error.code) return 'This score could not be read. Try another MusicXML export.';
+  return 'The score could not be opened. Refresh or choose another score.';
+}
 async function selectSong(song, {preparedModel = null, remember = true} = {}) {
   if (!song || busy) return false;
   busy = true;
@@ -233,24 +281,21 @@ async function selectSong(song, {preparedModel = null, remember = true} = {}) {
       if (!xml) {
         const loaded = await loadSongScore(song);
         xml = loaded.xml;
-        if (loaded.warning) notice(loaded.warning);
       }
       const candidate = preparedModel || parseMusicXML(xml);
       $('score').hidden = false; $('empty-score').hidden = true;
       const rendered = await renderer.load(candidate);
       model = candidate;
       configureEngine();
-      $('song-title').textContent = song.title;
-      $('song-composer').textContent = song.composer || candidate.composer || '';
-      $('song-detail').textContent = `${candidate.parts.length} part${candidate.parts.length === 1 ? '' : 's'} · ${candidate.attacks.length} attacks${song.testScore ? ' · NoteWorthy → MusicXML' : ''}`;
       $('song-description').textContent = song.description || '';
       $('song-description').hidden = !song.description;
       $('local-recovery').hidden = !song.localOnly;
-      const warnings = [...candidate.warnings, ...(rendered.warnings || [])];
+      if (rendered.warnings?.length) console.warn('Score rendering details:', rendered.warnings);
+      const warnings = scoreNotices(candidate.warnings);
       $('score-warnings').textContent = warnings.join(' ');
       $('score-warnings').hidden = !warnings.length;
       paint(true);
-      setStatus(mode === 'wait' ? 'Ready. Press Play, then play the highlighted notes.' : 'Ready. Press Play for a two-beat count-in.');
+      setStatus('Ready');
     }
     selectedId = song.id;
     $('song-select').value = selectedId;
@@ -258,17 +303,18 @@ async function selectSong(song, {preparedModel = null, remember = true} = {}) {
     $('score-viewport').scrollTop = 0;
     return true;
   } catch (error) {
+    console.warn('Score selection failed:', error);
     model = previous.model; engine = previous.engine; selectedId = previous.selectedId;
     if (model) {
       try { await renderer.load(model); paint(true); } catch (_) { engine = null; }
     } else {
       $('score').hidden = true; $('empty-score').hidden = false;
-      $('empty-title').textContent = 'The score could not be loaded';
-      $('empty-description').textContent = 'Refresh the song list and try again, or select another song.';
+      $('empty-title').textContent = 'Score unavailable';
+      $('empty-description').textContent = 'Refresh or choose another song.';
     }
     if (selectedId) $('song-select').value = selectedId;
-    notice(error.message || 'This score could not be opened.', true);
-    setStatus(engine ? 'The previous score is still available. Press Play to continue.' : 'Choose another score to continue.');
+    notice(scoreErrorMessage(error), true);
+    setStatus(engine ? 'Previous score kept' : 'Score unavailable');
     return false;
   } finally { busy = false; controls(); }
 }
@@ -283,7 +329,7 @@ function downloadLocalScore() {
   link.download = `${song.title.replace(/[^\p{L}\p{N}._ -]/gu, '').trim() || 'recovered-score'}.musicxml`;
   document.body.append(link); link.click(); link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  libraryNotice('Downloaded this device-only score. Use Upload to GitHub to add it to your shared song library.');
+  libraryNotice('Downloaded.', false, {temporary:true});
 }
 
 function strike(midi, source, sound = false) {
@@ -300,8 +346,8 @@ function strike(midi, source, sound = false) {
   paint();
   if (mode === 'wait') {
     if (result.complete) pause(completionText());
-    else if (result.outcome === 'wrong') setStatus('That pitch does not match. Try the highlighted notes.');
-    else if (result.outcome === 'hit') setStatus(result.advanced ? 'Correct. Play the next highlighted notes.' : 'Good. Play the other highlighted notes in this chord.');
+    else if (result.outcome === 'wrong') setStatus('Wrong note');
+    else if (result.outcome === 'hit') setStatus(result.advanced ? 'Playing' : 'Complete the chord');
   }
 }
 function release(source) { pressed.delete(source); highlightKeys(); }
@@ -344,7 +390,7 @@ function drawKeyboard() {
 function changeOctave(delta) { octave = Math.max(0, Math.min(8, octave + delta)); drawKeyboard(); }
 async function connectMidi() {
   if (!navigator.requestMIDIAccess) {
-    $('midi-status').textContent = 'Web MIDI is unavailable in this browser. Use the on-screen keys, or open this page in a Web MIDI browser.';
+    $('midi-status').textContent = 'MIDI unavailable in this browser.';
     return;
   }
   try {
@@ -352,7 +398,10 @@ async function connectMidi() {
     midiAccess = await navigator.requestMIDIAccess({sysex:false});
     midiAccess.onstatechange = refreshMidi;
     refreshMidi();
-  } catch (error) { $('midi-status').textContent = `MIDI access was not granted. You can still use the on-screen keys. ${error.message || ''}`; }
+  } catch (error) {
+    console.warn('MIDI connection failed:', error);
+    $('midi-status').textContent = 'MIDI access denied. Check browser permissions.';
+  }
 }
 function refreshMidi() {
   const devices = [...midiAccess.inputs.values()].filter(input => input.state !== 'disconnected');
@@ -368,7 +417,7 @@ function refreshMidi() {
     };
   }
   $('midi-dot').classList.toggle('connected', devices.length > 0);
-  $('midi-status').textContent = devices.length ? `Connected: ${devices.map(device => device.name || 'MIDI keyboard').join(', ')}` : 'MIDI access enabled. Connect your keyboard to begin.';
+  $('midi-status').textContent = devices.length ? `Connected: ${devices.map(device => device.name || 'MIDI keyboard').join(', ')}` : 'No MIDI keyboard connected.';
   if (devices.length) { try { window.PracticeMIDI?.setEnabled(true); } catch (_) {} }
 }
 
@@ -377,7 +426,7 @@ for (const id of ['upload-button', 'empty-upload']) {
   $(id).addEventListener('click', () => {
     waitingForUpload = true;
     if (playing || starting) pause();
-    libraryNotice('On GitHub, choose your score files and commit the changes to main. Return here and refresh songs after publishing finishes.');
+    libraryNotice('Choose files and commit on GitHub, then refresh after publishing.');
   });
 }
 $('refresh-library').addEventListener('click', () => refreshSharedLibrary({announce:true}));
@@ -385,8 +434,7 @@ $('download-local-score').addEventListener('click', downloadLocalScore);
 window.addEventListener('focus', () => {
   if (waitingForUpload && !busy && !playing) { waitingForUpload = false; refreshSharedLibrary({announce:true}); }
 });
-$('song-select').addEventListener('change', event => selectSong(songs.get(event.target.value)));
-$('test-score-button').addEventListener('click', () => selectSong(songs.get(TEST_ID)));
+$('song-select').addEventListener('change', event => selectSong(songChoice(event.target.value)));
 $('play-button').addEventListener('click', () => playing ? pause() : start());
 $('restart-button').addEventListener('click', () => { const resume = playing; resetSession(); if (resume) start(); });
 $('midi-button').addEventListener('click', connectMidi);
@@ -413,31 +461,36 @@ document.addEventListener('keydown', event => {
   event.preventDefault(); strike((octave + 1) * 12 + index, `key-${event.code}`, true);
 });
 document.addEventListener('keyup', event => release(`key-${event.code}`));
-window.addEventListener('blur', () => { pressed.clear(); highlightKeys(); if (playing || starting) pause('Paused while this window was inactive. Press Play to continue.'); });
-document.addEventListener('visibilitychange', () => { if (document.hidden && (playing || starting)) pause('Paused while this page was hidden. Press Play to continue.'); });
+window.addEventListener('blur', () => { pressed.clear(); highlightKeys(); if (playing || starting) pause('Paused — window inactive'); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && (playing || starting)) pause('Paused — page hidden'); });
 let resizeTimer;
 window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { if (model) { renderer.resize(); paint(true); } }, 180); });
 
 document.querySelector(`input[name="lesson-mode"][value="${mode}"]`).checked = true;
 $('tempo').value = Math.round(speed * 100); $('tempo-label').textContent = `${Math.round(speed * 100)}%`;
 $('sound-enabled').checked = preferences.sound !== false; audio.setEnabled($('sound-enabled').checked);
+let localRecoveryFailed = false;
 try {
   for (const song of await storage.list()) if (song.id && typeof song.xml === 'string') {
     const localSong = {...song, id:`local-${song.id}`, legacyId:song.id, localOnly:true, repositorySaved:false, needsScore:false};
     songs.set(localSong.id, localSong);
   }
-} catch (_) { notice('Earlier device-only scores could not be read. Your GitHub song library is still available.', true); }
+} catch (error) {
+  console.warn('Local score recovery failed:', error);
+  localRecoveryFailed = true;
+}
 await refreshSharedLibrary();
-refreshLibrary(); drawKeyboard();
+await refreshLibrary(); drawKeyboard();
 const remembered = storage.lastSelection();
-await selectSong(songs.get(remembered) || songs.get(`local-${remembered}`) || songs.get(DEFAULT_ID));
+await selectSong(songChoice(remembered) || songChoice(`local-${remembered}`) || songChoice(DEFAULT_ID) || songChoices[0]);
+if (localRecoveryFailed && $('import-message').hidden) notice('Device-only scores could not be read.', true);
 try { window.PracticeTracker?.recordOpen('learning-songs'); } catch (_) {}
 try { if (window.PracticeMIDI?.isEnabled()) connectMidi(); } catch (_) {}
 
 // A read-only snapshot makes regressions inspectable without synthesizing MIDI.
 window.PianoSongLesson = Object.freeze({
   getSnapshot: () => ({selectedId, mode, playing, elapsed, speed,
-    songCount:songs.size, storagePersistent:storage.persistent, librarySource,
+    songCount:songChoices.length, storagePersistent:storage.persistent, librarySource,
     model:model ? {title:model.title, parts:model.parts.length, notes:model.notes.length, attacks:model.attacks.length, duration:model.duration, warnings:[...model.warnings]} : null,
     lesson:engine ? {...engine.snapshot(), statuses:Object.fromEntries(engine.statuses)} : null})
 });

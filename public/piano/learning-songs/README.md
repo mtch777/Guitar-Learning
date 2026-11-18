@@ -11,7 +11,7 @@ conversion decisions and validation evidence are committed under `scores/`.
 See [the score notes](./scores/phoebe-score-README.md) for attribution, small
 notation timing adjustments and reproducible conversion commands.
 
-**Upload to GitHub (.musicxml, .xml, .mxl)** opens the repository's authenticated
+**Upload (.musicxml, .xml, .mxl)** opens the repository's authenticated
 upload page. Choose files, commit them to `main`, and return to the lesson after
 publishing finishes. **Refresh songs** retrieves the published shared catalog.
 No GitHub token is embedded in the site or requested by the lesson.
@@ -29,24 +29,30 @@ scores and never rewrites source uploads. A refresh failure retains the current
 usable lesson and displays the error. Score hashes detect stale publication.
 
 Only preferences and the last selected song remain device-local. Older scores
-from the previous browser-only library are preserved and labeled **only on this
-device**. Select one, use **Download score**, then **Upload to GitHub** to migrate
+from the previous browser-only library are preserved and labeled **Device-only
+copy**. Select one, use **Download score**, then **Upload** to migrate
 it. A legacy local entry cannot override the repository's Phoebe song.
+
+Known development fixtures remain in the catalog and source directories but are
+hidden from the song selector. Exact local copies of published songs are also
+hidden; remembered selections resolve to the shared copy. Fingerprints identify
+these files, so a genuine upload is not hidden because of its title or filename.
 
 ## Practice
 
-- **Wait for me:** press Play and hit every highlighted pitch in the current
+- **Wait for correct notes:** press Play and hit every highlighted pitch in the current
   chord. Wrong pitches do not advance the score. Tied continuations do not
   require another attack.
-- **Play in time:** a two-beat count-in starts continuous score/audio playback.
+- **Continuous playback:** a two-beat count-in starts continuous score/audio playback.
   Correct note starts turn green and missed starts turn red; chord notes receive
   independent feedback. The onset window is ±180 ms. Hold duration is not graded.
 - Play/pause, restart, playback speed and sound controls are provided.
 - Use a MIDI keyboard, the on-screen piano or computer keys A–K / W E T Y U.
   Z/X changes octave. The existing global MIDI preference is reused.
 
-Repeat/navigation notation remains visible, but practice follows written order
-once and says so. Grace/cue notes are visible but excluded from grading.
+The collapsed **Details** section contains arranger attribution, grading limits
+and applicable score limitations. Repeat/navigation notation remains visible,
+but practice follows written order once. Grace/cue notes are visible but excluded from grading.
 Microtonal, unpitched and nonzero-transposing scores are rejected clearly.
 Ornaments and techniques remain visible; playback uses written pitches.
 

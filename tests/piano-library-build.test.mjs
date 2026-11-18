@@ -219,3 +219,20 @@ test('unsupported uploaded formats get diagnostics while upload-folder housekeep
   assert.deepEqual(await fs.readFile(source), unsupported);
   assert.equal(validateSongCatalog(catalog).importErrors.length, 1);
 });
+
+test('only explicitly fingerprinted uploads are marked as tests, preserving same-title user scores', async t => {
+  const {root, seed, put} = await temporaryLibrary(t);
+  const testXML = titled('MusicXML-upload-test');
+  const userXML = testXML.replace('</score-partwise>', '<!-- User copy -->\n</score-partwise>');
+  seed.testSourceSha256 = [digest(testXML)];
+  await fs.writeFile(path.join(root, 'song-library.seed.json'), JSON.stringify(seed));
+  const testPath = await put('renamed-fixture.xml', testXML);
+  const userPath = await put('MusicXML-upload-test.xml', userXML);
+  const catalog = await buildSongLibrary({root});
+  const uploaded = catalog.songs.filter(song => song.id !== 'fixture');
+  assert.equal(uploaded.length, 2);
+  assert.equal(uploaded.find(song => song.sourceFilename === 'renamed-fixture.xml').testScore, true);
+  assert.equal(uploaded.find(song => song.sourceFilename === 'MusicXML-upload-test.xml').testScore, undefined);
+  assert.equal(await fs.readFile(testPath, 'utf8'), testXML);
+  assert.equal(await fs.readFile(userPath, 'utf8'), userXML);
+});

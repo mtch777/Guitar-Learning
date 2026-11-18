@@ -44,6 +44,11 @@ async function filesUnder(directory, prefix = '') {
 export async function buildSongLibrary({root = lessonRoot} = {}) {
   const seed = JSON.parse(await fs.readFile(path.join(root, 'song-library.seed.json'), 'utf8'));
   if (seed.version !== 1 || !Array.isArray(seed.songs)) throw new Error('Invalid song-library.seed.json.');
+  const testSourceHashes = seed.testSourceSha256 || [];
+  if (!Array.isArray(testSourceHashes) || testSourceHashes.some(digest => !/^[a-f0-9]{64}$/.test(digest))) {
+    throw new Error('Invalid test-source hashes in song-library.seed.json.');
+  }
+  const testSources = new Set(testSourceHashes);
   const unzip = await unzipImplementation();
   const previousParser = globalThis.DOMParser;
   globalThis.DOMParser = DOMParser;
@@ -83,8 +88,10 @@ export async function buildSongLibrary({root = lessonRoot} = {}) {
         await fs.writeFile(path.join(root, scorePath), xml, 'utf8');
         generatedPaths.add(scorePath);
         const title = model.title && model.title !== 'Untitled score' ? model.title : path.basename(filename).replace(/\.(musicxml|xml|mxl)$/i, '');
+        const sourceDigest = sha256(original);
         songs.push({id:`upload-${digest}`, title, composer:model.composer || '', scorePath, sourcePath,
-          sourceFilename:path.basename(filename), sha256:digest, sourceSha256:sha256(original),
+          sourceFilename:path.basename(filename), sha256:digest, sourceSha256:sourceDigest,
+          ...(testSources.has(sourceDigest) ? {testScore:true} : {}),
           noteCount:model.notes.filter(note => !note.isRest).length, attackCount:model.attacks.length});
         normalizedHashes.add(digest);
       } catch (error) {
