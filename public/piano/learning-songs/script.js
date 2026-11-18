@@ -95,12 +95,15 @@ async function refreshLibrary() {
   const labelFor = song => `${song.composer ? song.composer + ' — ' : ''}${song.title}`;
   const labelCounts = new Map();
   for (const song of songChoices) labelCounts.set(labelFor(song), (labelCounts.get(labelFor(song)) || 0) + 1);
+  const uploadNumbers = new Map();
   for (const song of songChoices) {
     const option = document.createElement('option');
     option.value = song.id;
     const baseLabel = labelFor(song);
-    const filename = labelCounts.get(baseLabel) > 1 ? ` · ${song.id === DEFAULT_ID ? 'Piano arrangement' : (song.sourceFilename || song.id)}` : '';
-    option.textContent = `${baseLabel}${filename}${song.pendingPublication ? ' · Publishing…' : song.localOnly ? ' · Device-only copy' : ''}`;
+    const isDuplicate = labelCounts.get(baseLabel) > 1;
+    if (song.id !== DEFAULT_ID) uploadNumbers.set(baseLabel, (uploadNumbers.get(baseLabel) || 0) + 1);
+    const version = song.id === DEFAULT_ID ? 'Piano' : `Upload ${uploadNumbers.get(baseLabel)}`;
+    option.textContent = `${baseLabel}${isDuplicate ? ` · ${version}` : ''}${song.pendingPublication ? ' · Publishing…' : song.localOnly ? ' · Device-only copy' : ''}`;
     $('song-select').append(option);
   }
   const selected = songChoice(selectedId);
