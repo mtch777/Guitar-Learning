@@ -1,14 +1,14 @@
 const buildVersion = document.querySelector('meta[name="build-version"]')?.content
   || new URL(import.meta.url).searchParams.get('v') || 'dev';
 const loadModule = name => import(new URL(`./${name}?v=${encodeURIComponent(buildVersion)}`, import.meta.url).href);
-const [scoreModule, engineModule, renderModule, storageModule, uploadModule, audioModule] = await Promise.all(
-  ['score-model.js', 'lesson-engine.js', 'score-renderer.js', 'song-storage.js', 'score-upload.js', 'piano-audio.js'].map(loadModule)
+const [scoreModule, engineModule, renderModule, storageModule, repositoryModule, audioModule] = await Promise.all(
+  ['score-model.js', 'lesson-engine.js', 'score-renderer.js', 'song-storage.js', 'github-song-storage.js', 'piano-audio.js'].map(loadModule)
 );
 const {parseMusicXML, secondsAtBeat, beatAtSeconds} = scoreModule;
 const {LessonEngine} = engineModule;
 const {ScoreRenderer} = renderModule;
-const {SongStorage, scoreIdentity} = storageModule;
-const {readScoreFile} = uploadModule;
+const {SongStorage} = storageModule;
+const {SONG_LIBRARY, loadSongLibrary, loadSongScore} = repositoryModule;
 const {PianoAudio} = audioModule;
 if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, {once:true}));
 
@@ -16,8 +16,8 @@ const $ = id => document.getElementById(id);
 const DEFAULT_ID = 'phoebe-bridgers-i-know-the-end';
 const TEST_ID = 'conversion-test-nwc';
 const builtIns = [
-  {id:DEFAULT_ID, title:'I Know the End', composer:'Phoebe Bridgers', needsScore:true},
-  {id:TEST_ID, title:'Conversion test · 20 notes', composer:'Michael Cuthbert', url:'./scores/conversion-test.musicxml', testScore:true}
+  {id:DEFAULT_ID, title:'I Know the End', composer:'Phoebe Bridgers', url:new URL('./scores/phoebe-bridgers-i-know-the-end.musicxml', document.baseURI).href, repositorySaved:true, description:'Piano arrangement by Edgar Roock · converted from MIDI'},
+  {id:TEST_ID, title:'Conversion test · 20 notes', composer:'Michael Cuthbert', url:new URL('./scores/conversion-test.musicxml', document.baseURI).href, testScore:true, repositorySaved:true}
 ];
 const songs = new Map(builtIns.map(song => [song.id, song]));
 const storage = await new SongStorage().open();
@@ -28,7 +28,8 @@ let mode = preferences.mode === 'timed' ? 'timed' : 'wait';
 let speed = Math.max(.25, Math.min(1.5, Number(preferences.speed) || 1));
 let selectedId = null, model = null, engine = null, timedGroups = [], audioNotes = [];
 let playing = false, elapsed = 0, anchor = 0, animation = 0, nextAudio = 0, totalSeconds = 0;
-let busy = false, uploadForDefault = false, countIn = 0, lastPaint = '', lastStatus = '';
+let busy = false, libraryLoading = false, countIn = 0, lastPaint = '', lastStatus = '';
+let librarySource = 'bundled', waitingForUpload = false;
 let starting = false, startGeneration = 0;
 let octave = 4, midiAccess = null;
 const pressed = new Map();
@@ -51,8 +52,7 @@ function controls() {
   $('play-button').disabled = busy || !engine || starting;
   $('restart-button').disabled = busy || !engine;
   $('song-select').disabled = busy;
-  $('upload-button').disabled = busy;
-  $('empty-upload').disabled = busy;
+  $('refresh-library').disabled = busy || libraryLoading;
   $('test-score-button').disabled = busy;
   $('tempo').disabled = busy || playing;
   const finished = engine?.complete && (mode === 'wait' || elapsed >= totalSeconds + .2);
@@ -63,10 +63,39 @@ function refreshLibrary() {
   for (const song of songs.values()) {
     const option = document.createElement('option');
     option.value = song.id;
-    option.textContent = `${song.composer ? song.composer + ' — ' : ''}${song.title}${song.needsScore ? ' · upload score' : ''}`;
+    option.textContent = `${song.composer ? song.composer + ' — ' : ''}${song.title}${song.localOnly ? ' · only on this device' : ''}`;
     $('song-select').append(option);
   }
   if (selectedId) $('song-select').value = selectedId;
+}
+function libraryNotice(message = '', error = false) {
+  $('library-message').textContent = message;
+  $('library-message').hidden = !message;
+  $('library-message').classList.toggle('error', error);
+}
+async function refreshSharedLibrary({announce = false} = {}) {
+  if (libraryLoading || busy) return false;
+  libraryLoading = true; controls();
+  try {
+    const catalog = await loadSongLibrary({deployedCatalogUrl:new URL('./song-library.json', document.baseURI).href});
+    const localSongs = [...songs.values()].filter(song => song.localOnly);
+    const previousSong = songs.get(selectedId);
+    songs.clear();
+    for (const song of catalog.songs) songs.set(song.id, song);
+    for (const song of localSongs) songs.set(song.id, song);
+    if (previousSong && !songs.has(previousSong.id)) songs.set(previousSong.id, previousSong);
+    librarySource = catalog.source;
+    refreshLibrary();
+    const messages = [];
+    if (catalog.warning) messages.push(catalog.warning);
+    if (announce) messages.push(`Song list refreshed · ${catalog.songs.length} songs saved on GitHub. A new upload appears after publishing finishes.`);
+    for (const issue of catalog.importErrors || []) messages.push(`${issue.sourceFilename}: ${issue.message}`);
+    libraryNotice(messages.join(' '), !!catalog.importErrors?.length);
+    return true;
+  } catch (error) {
+    libraryNotice(error.message, true);
+    return false;
+  } finally { libraryLoading = false; controls(); }
 }
 function configureEngine() {
   timedGroups = model.groups.map(group => ({...group,
@@ -199,26 +228,12 @@ async function selectSong(song, {preparedModel = null, remember = true} = {}) {
   const previous = {model, engine, selectedId};
   pause('Loading score…'); controls(); notice();
   try {
-    if (song.needsScore) {
-      renderer.destroy(); model = null; engine = null;
-      $('score').hidden = true;
-      $('empty-score').hidden = false;
-      $('empty-title').textContent = 'I Know the End';
-      $('empty-description').textContent = 'Phoebe Bridgers is your first song. Upload a MusicXML score of this song to begin. A verified notation file is still needed; the available performance MIDI cannot preserve the original written score.';
-      $('song-title').textContent = song.title;
-      $('song-composer').textContent = song.composer;
-      $('song-detail').textContent = 'Score needed';
-      $('score-warnings').hidden = true;
-      $('hit-count').textContent = $('miss-count').textContent = '0';
-      $('progress-count').textContent = '0 / 0';
-      $('progress-fill').style.width = '0%';
-      setStatus('Upload this song, or open the conversion test score.');
-    } else {
+    {
       let xml = song.xml;
       if (!xml) {
-        const response = await fetch(new URL(song.url, import.meta.url));
-        if (!response.ok) throw new Error(`The score could not be loaded (${response.status}).`);
-        xml = await response.text();
+        const loaded = await loadSongScore(song);
+        xml = loaded.xml;
+        if (loaded.warning) notice(loaded.warning);
       }
       const candidate = preparedModel || parseMusicXML(xml);
       $('score').hidden = false; $('empty-score').hidden = true;
@@ -228,6 +243,9 @@ async function selectSong(song, {preparedModel = null, remember = true} = {}) {
       $('song-title').textContent = song.title;
       $('song-composer').textContent = song.composer || candidate.composer || '';
       $('song-detail').textContent = `${candidate.parts.length} part${candidate.parts.length === 1 ? '' : 's'} · ${candidate.attacks.length} attacks${song.testScore ? ' · NoteWorthy → MusicXML' : ''}`;
+      $('song-description').textContent = song.description || '';
+      $('song-description').hidden = !song.description;
+      $('local-recovery').hidden = !song.localOnly;
       const warnings = [...candidate.warnings, ...(rendered.warnings || [])];
       $('score-warnings').textContent = warnings.join(' ');
       $('score-warnings').hidden = !warnings.length;
@@ -245,6 +263,8 @@ async function selectSong(song, {preparedModel = null, remember = true} = {}) {
       try { await renderer.load(model); paint(true); } catch (_) { engine = null; }
     } else {
       $('score').hidden = true; $('empty-score').hidden = false;
+      $('empty-title').textContent = 'The score could not be loaded';
+      $('empty-description').textContent = 'Refresh the song list and try again, or select another song.';
     }
     if (selectedId) $('song-select').value = selectedId;
     notice(error.message || 'This score could not be opened.', true);
@@ -253,38 +273,17 @@ async function selectSong(song, {preparedModel = null, remember = true} = {}) {
   } finally { busy = false; controls(); }
 }
 
-async function uploadFiles(files) {
-  const targetDefault = uploadForDefault;
-  uploadForDefault = false;
-  const results = [], failures = [];
-  for (const file of files) {
-    try {
-      const xml = await readScoreFile(file);
-      const candidate = parseMusicXML(xml);
-      const title = candidate.title && candidate.title !== 'Untitled score' ? candidate.title : file.name.replace(/\.(musicxml|xml|mxl)$/i,'');
-      const matchesDefault = (targetDefault && files.length === 1) || /i\s+know\s+the\s+end/i.test(`${title} ${file.name}`);
-      const song = {
-        id:matchesDefault ? DEFAULT_ID : await scoreIdentity(xml),
-        title:matchesDefault ? 'I Know the End' : title,
-        composer:matchesDefault ? 'Phoebe Bridgers' : candidate.composer,
-        xml, filename:file.name, uploadedAt:new Date().toISOString(), needsScore:false
-      };
-      const loaded = await selectSong(song, {preparedModel:candidate, remember:false});
-      if (!loaded) { failures.push(`${file.name}: ${$('import-message').textContent}`); continue; }
-      let persisted = false;
-      try { persisted = await storage.put(song); }
-      catch (_) { /* Keep the loaded lesson usable and report the failed save. */ }
-      songs.set(song.id, song);
-      refreshLibrary();
-      storage.select(selectedId || song.id);
-      results.push(`${file.name}${persisted ? '' : ' (open for this visit; browser storage is unavailable or full)'}`);
-    } catch (error) { failures.push(`${file.name}: ${error.message}`); }
-  }
-  const messages = [];
-  if (results.length) messages.push(`Opened ${results.join(', ')}.`);
-  if (failures.length) messages.push(failures.join(' '));
-  notice(messages.join(' '), failures.length > 0);
-  $('song-upload').value = '';
+function downloadLocalScore() {
+  const song = songs.get(selectedId);
+  if (!song?.localOnly || !song.xml) return;
+  const xml = song.xml.replace(/(<\?xml\b[^?]*\bencoding\s*=\s*["'])[^"']+(["'])/i, '$1UTF-8$2');
+  const url = URL.createObjectURL(new Blob([xml], {type:'application/vnd.recordare.musicxml+xml'}));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${song.title.replace(/[^\p{L}\p{N}._ -]/gu, '').trim() || 'recovered-score'}.musicxml`;
+  document.body.append(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  libraryNotice('Downloaded this device-only score. Use Upload to GitHub to add it to your shared song library.');
 }
 
 function strike(midi, source, sound = false) {
@@ -373,9 +372,19 @@ function refreshMidi() {
   if (devices.length) { try { window.PracticeMIDI?.setEnabled(true); } catch (_) {} }
 }
 
-$('upload-button').addEventListener('click', () => { uploadForDefault = false; $('song-upload').click(); });
-$('empty-upload').addEventListener('click', () => { uploadForDefault = true; $('song-upload').click(); });
-$('song-upload').addEventListener('change', event => uploadFiles([...event.target.files]));
+for (const id of ['upload-button', 'empty-upload']) {
+  $(id).href = SONG_LIBRARY.uploadUrl;
+  $(id).addEventListener('click', () => {
+    waitingForUpload = true;
+    if (playing || starting) pause();
+    libraryNotice('On GitHub, choose your score files and commit the changes to main. Return here and refresh songs after publishing finishes.');
+  });
+}
+$('refresh-library').addEventListener('click', () => refreshSharedLibrary({announce:true}));
+$('download-local-score').addEventListener('click', downloadLocalScore);
+window.addEventListener('focus', () => {
+  if (waitingForUpload && !busy && !playing) { waitingForUpload = false; refreshSharedLibrary({announce:true}); }
+});
 $('song-select').addEventListener('change', event => selectSong(songs.get(event.target.value)));
 $('test-score-button').addEventListener('click', () => selectSong(songs.get(TEST_ID)));
 $('play-button').addEventListener('click', () => playing ? pause() : start());
@@ -412,18 +421,23 @@ window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer
 document.querySelector(`input[name="lesson-mode"][value="${mode}"]`).checked = true;
 $('tempo').value = Math.round(speed * 100); $('tempo-label').textContent = `${Math.round(speed * 100)}%`;
 $('sound-enabled').checked = preferences.sound !== false; audio.setEnabled($('sound-enabled').checked);
-if (!storage.persistent) $('library-note').textContent = 'Browser storage is unavailable. Uploaded scores will remain open for this visit only.';
-try { for (const song of await storage.list()) if (song.id && typeof song.xml === 'string') songs.set(song.id, song); }
-catch (_) { notice('Saved scores could not be read. You can still upload a score for this visit.', true); }
+try {
+  for (const song of await storage.list()) if (song.id && typeof song.xml === 'string') {
+    const localSong = {...song, id:`local-${song.id}`, legacyId:song.id, localOnly:true, repositorySaved:false, needsScore:false};
+    songs.set(localSong.id, localSong);
+  }
+} catch (_) { notice('Earlier device-only scores could not be read. Your GitHub song library is still available.', true); }
+await refreshSharedLibrary();
 refreshLibrary(); drawKeyboard();
-await selectSong(songs.get(storage.lastSelection()) || songs.get(DEFAULT_ID));
+const remembered = storage.lastSelection();
+await selectSong(songs.get(remembered) || songs.get(`local-${remembered}`) || songs.get(DEFAULT_ID));
 try { window.PracticeTracker?.recordOpen('learning-songs'); } catch (_) {}
 try { if (window.PracticeMIDI?.isEnabled()) connectMidi(); } catch (_) {}
 
 // A read-only snapshot makes regressions inspectable without synthesizing MIDI.
 window.PianoSongLesson = Object.freeze({
   getSnapshot: () => ({selectedId, mode, playing, elapsed, speed,
-    songCount:songs.size, storagePersistent:storage.persistent,
+    songCount:songs.size, storagePersistent:storage.persistent, librarySource,
     model:model ? {title:model.title, parts:model.parts.length, notes:model.notes.length, attacks:model.attacks.length, duration:model.duration, warnings:[...model.warnings]} : null,
     lesson:engine ? {...engine.snapshot(), statuses:Object.fromEntries(engine.statuses)} : null})
 });

@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "defaultSongId": "phoebe-bridgers-i-know-the-end",
+  "songs": [
+    {
+      "id": "phoebe-bridgers-i-know-the-end",
+      "title": "I Know the End",
+      "composer": "Phoebe Bridgers",
+      "scorePath": "scores/phoebe-bridgers-i-know-the-end.musicxml",
+      "sourcePath": "scores/phoebe-bridgers-i-know-the-end.mid",
+      "description": "Piano arrangement by Edgar Roock · converted from MIDI",
+      "provenance": "scores/phoebe-bridgers-i-know-the-end.provenance.json",
+      "sourceFilename": "phoebe-bridgers-i-know-the-end.mid",
+      "sha256": "655e8b1a2edfe9989fc6bdbb2ed9cae9b9144aaccf5a212f62719a81b71b0b68",
+      "sourceSha256": "5339cdf536ad2af95d720f82ce3304547f3b97a9f3f4eee2f3cabf4291dc0364",
+      "noteCount": 1426,
+      "attackCount": 1396
+    },
+    {
+      "id": "conversion-test-nwc",
+      "title": "Conversion test · 20 notes",
+      "composer": "Michael Cuthbert",
+      "scorePath": "scores/conversion-test.musicxml",
+      "sourcePath": "scores/conversion-test-source.nwctxt",
+      "testScore": true,
+      "sourceFilename": "conversion-test-source.nwctxt",
+      "sha256": "e8744c600ec44b90cea8cca50684df2752ff3d19cc9a31a6a8cb1e678bb17cdb",
+      "sourceSha256": "6092906c16414d6ea1872f99c607d36f04fc53cad7b9be113f4411458cf1ba76",
+      "noteCount": 20,
+      "attackCount": 19
+    },
+    {
+      "id": "upload-3bd940f45a28e83f4a8065bb0d4e6c4634f5a51afc3874eb22d129ee9ea84c61",
+      "title": "Pr\\\"aludium",
+      "composer": "Johann Sebastian Bach",
+      "scorePath": "scores/upload-3bd940f45a28e83f4a8065bb0d4e6c4634f5a51afc3874eb22d129ee9ea84c61.musicxml",
+      "sourcePath": "uploads/Bach-BWV939.musicxml",
+      "sourceFilename": "Bach-BWV939.musicxml",
+      "sha256": "3bd940f45a28e83f4a8065bb0d4e6c4634f5a51afc3874eb22d129ee9ea84c61",
+      "sourceSha256": "d073bebcba3c37870d2dc563c5849936d70732b463d33b96a246f6bc9fd5a266",
+      "noteCount": 188,
+      "attackCount": 179
+    },
+    {
+      "id": "upload-734aa2f1e2baa21664a3c34e542730c48bd9c444087544e9b02df32d60a55a72",
+      "title": "MusicXML-upload-test",
+      "composer": "",
+      "scorePath": "scores/upload-734aa2f1e2baa21664a3c34e542730c48bd9c444087544e9b02df32d60a55a72.musicxml",
+      "sourcePath": "uploads/MusicXML-upload-test.mxl",
+      "sourceFilename": "MusicXML-upload-test.mxl",
+      "sha256": "734aa2f1e2baa21664a3c34e542730c48bd9c444087544e9b02df32d60a55a72",
+      "sourceSha256": "8ad71850956835eea64d1e106d254397819bf183969a88aba5f076ceba5fa1aa",
+      "noteCount": 1,
+      "attackCount": 1
+    }
+  ],
+  "importErrors": []
+}

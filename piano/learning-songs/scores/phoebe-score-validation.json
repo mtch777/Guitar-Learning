@@ -1,0 +1,33 @@
+{
+  "sourceMidiSha256": "5339cdf536ad2af95d720f82ce3304547f3b97a9f3f4eee2f3cabf4291dc0364",
+  "scoreSha256": "655e8b1a2edfe9989fc6bdbb2ed9cae9b9144aaccf5a212f62719a81b71b0b68",
+  "sourceNoteOccurrences": 1396,
+  "actualPracticeAttacks": 1396,
+  "allSourcePitchesAndNotatedTimingsMatched": true,
+  "allWrittenSegmentsMapped": true,
+  "modelWarnings": [],
+  "scoreDurationSeconds": 323.957052,
+  "measures": 128,
+  "renderReport": {
+    "mappedNotes": 1622,
+    "expectedNotes": 1622,
+    "warnings": []
+  },
+  "cursorPositions": 1018,
+  "cursorRestartVerified": true,
+  "greenRedCurrentColorsVerified": [
+    {
+      "color": "#16875d",
+      "elements": 1
+    },
+    {
+      "color": "#d63349",
+      "elements": 1
+    },
+    {
+      "color": "#7653b3",
+      "elements": 1
+    }
+  ],
+  "scope": "Technical source-note, notation, model, SVG and cursor checks; no audible playback or human musical acceptance claimed."
+}

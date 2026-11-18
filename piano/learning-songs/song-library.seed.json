@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "defaultSongId": "phoebe-bridgers-i-know-the-end",
+  "songs": [
+    {
+      "id": "phoebe-bridgers-i-know-the-end",
+      "title": "I Know the End",
+      "composer": "Phoebe Bridgers",
+      "scorePath": "scores/phoebe-bridgers-i-know-the-end.musicxml",
+      "sourcePath": "scores/phoebe-bridgers-i-know-the-end.mid",
+      "description": "Piano arrangement by Edgar Roock · converted from MIDI",
+      "provenance": "scores/phoebe-bridgers-i-know-the-end.provenance.json"
+    },
+    {
+      "id": "conversion-test-nwc",
+      "title": "Conversion test · 20 notes",
+      "composer": "Michael Cuthbert",
+      "scorePath": "scores/conversion-test.musicxml",
+      "sourcePath": "scores/conversion-test-source.nwctxt",
+      "testScore": true
+    }
+  ]
+}
