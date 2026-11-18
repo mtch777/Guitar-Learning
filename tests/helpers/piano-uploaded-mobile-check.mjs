@@ -10,7 +10,8 @@ const dependencies = createRequire(resolve(process.argv[2] || 'package.json'));
 const {JSDOM} = dependencies('jsdom');
 const {createCanvas} = dependencies('@napi-rs/canvas');
 const root = resolve(fileURLToPath(new URL('../..', import.meta.url)));
-const xml = readFileSync(resolve(root, 'public/piano/learning-songs/uploads/I_Know_the_End.musicxml'), 'utf8');
+const filename = process.argv[3] || 'public/piano/learning-songs/uploads/I_Know_the_End.musicxml';
+const xml = readFileSync(resolve(root, filename), 'utf8');
 const results = [];
 for (const [width, height, longTextBounds] of [[900,300],[545,260],[420,300],[390,300],[390,180],[340,100],[390,300,true]]) {
   const dom = new JSDOM('<!doctype html><div id="viewport"><div id="score"></div></div>',
