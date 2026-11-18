@@ -9,6 +9,7 @@ const COLOR_OPTIONS = Object.freeze({
 });
 const beatValue = fraction => Number(fraction?.RealValue ?? 0) * 4;
 const timeKey = value => Number(value).toFixed(8);
+const WINDOW_PADDING = 4;
 const noteKey = note => JSON.stringify([
   note.partId, note.partIndex, note.staff, String(note.voice), note.measureIndex,
   timeKey(note.measureOnset), note.midi, Boolean(note.isGrace),
@@ -28,13 +29,18 @@ export class ScoreRenderer {
     this.currentIds = new Set();
     this.appliedColors = new Map();
     this.cursorPositions = [];
+    this.systems = [];
+    this.systemForMeasure = new Map();
+    this.visibleSystem = -1;
     this.cursorStep = 0;
     this.beat = 0;
     this.loadVersion = 0;
     this.resizeTimer = null;
     this.renderedWidth = 0;
+    this.renderedHeight = 0;
     this.onResize = () => {
-      if (!this.osmd || Math.abs(this.availableWidth() - this.renderedWidth) < 1) return;
+      if (!this.osmd || (Math.abs(this.availableWidth() - this.renderedWidth) < 1
+        && Math.abs(this.availableHeight() - this.renderedHeight) < 1)) return;
       this.view.clearTimeout(this.resizeTimer);
       this.resizeTimer = this.view.setTimeout(() => {
         if (this.osmd) this.resize();
@@ -43,6 +49,7 @@ export class ScoreRenderer {
     if (this.view.ResizeObserver) {
       this.resizeObserver = new this.view.ResizeObserver(this.onResize);
       this.resizeObserver.observe(this.container);
+      if (this.viewport !== this.container) this.resizeObserver.observe(this.viewport);
     } else this.view.addEventListener('resize', this.onResize);
   }
 
@@ -52,15 +59,64 @@ export class ScoreRenderer {
     return Math.max(1, Math.floor((this.container.clientWidth || this.viewport.clientWidth || 800) - padding));
   }
 
-  renderToWidth(display, host) {
+  availableHeight() {
+    return Math.max(1, Math.floor(this.viewport.clientHeight || 300));
+  }
+
+  indexSystems(display, host) {
+    const sources = new Map(display.Sheet.SourceMeasures.map((measure, index) => [measure, index]));
+    const svgs = [...host.querySelectorAll('svg')];
+    const rows = [];
+    let pageTop = 0;
+    for (const [pageIndex, page] of display.GraphicSheet.MusicPages.entries()) {
+      const svg = svgs[pageIndex];
+      const viewWidth = Number(svg?.getAttribute('viewBox')?.split(/\s+/)[2]);
+      const pixelsPerUnit = viewWidth > 0 ? Number(svg.getAttribute('width')) / viewWidth : display.Zoom;
+      const staffGroups = [...(svg?.querySelectorAll('.osmd-staffline') || [])];
+      let staffIndex = 0;
+      for (const system of page.MusicSystems) {
+        const box = system.PositionAndShape;
+        const origin = box.AbsolutePosition.y - page.PositionAndShape.AbsolutePosition.y;
+        let top = pageTop + (origin + box.BorderTop) * 10 * display.Zoom;
+        let bottom = pageTop + (origin + box.BorderBottom) * 10 * display.Zoom;
+        // Native system bounds include labels and expressions. Actual staff SVG
+        // bounds also protect ledger notes, stems, slurs and ties in browsers.
+        for (const staff of system.StaffLines) {
+          const group = staffGroups[staffIndex++];
+          if (typeof group?.getBBox !== 'function') continue;
+          try {
+            const bounds = group.getBBox();
+            if (Number.isFinite(bounds.y) && bounds.height > 0) {
+              top = Math.min(top, pageTop + bounds.y * pixelsPerUnit);
+              bottom = Math.max(bottom, pageTop + (bounds.y + bounds.height) * pixelsPerUnit);
+            }
+          } catch (_) { /* Native bounds remain available before browser paint. */ }
+        }
+        const measures = [...new Set(system.GraphicalMeasures.flat().filter(Boolean)
+          .map(measure => sources.get(measure.parentSourceMeasure)).filter(Number.isInteger))];
+        rows.push({top, bottom, measures});
+      }
+      pageTop += Number(svg?.getAttribute('height')) || 0;
+    }
+    return rows;
+  }
+
+  renderToViewport(display, host) {
     const width = this.availableWidth();
+    const height = this.availableHeight();
     host.style.width = `${width}px`;
+    host.style.top = '0px';
     display.Zoom = 1;
     // The web lesson needs a small screen margin, not a printed page's gutters.
     display.EngravingRules.PageLeftMargin = 1.2;
     display.EngravingRules.PageRightMargin = 1.2;
-    for (let pass = 0; pass < 4; pass++) {
+    display.EngravingRules.PageTopMargin = .6;
+    display.EngravingRules.PageBottomMargin = .6;
+    display.EngravingRules.MinimumDistanceBetweenSystems = 3;
+    let systems;
+    for (let pass = 0; pass < 8; pass++) {
       display.render();
+      systems = this.indexSystems(display, host);
       let requiredWidth = width;
       for (const page of display.GraphicSheet.MusicPages) {
         for (const system of page.MusicSystems) {
@@ -88,13 +144,17 @@ export class ScoreRenderer {
           }
         } catch (_) { /* Some browsers cannot measure a hidden replacement yet. */ }
       }
-      if (requiredWidth <= width + .5 || pass === 3) break;
+      const requiredHeight = Math.max(1, ...systems.map((row, index) =>
+        (systems[index + 1] || row).bottom - row.top + WINDOW_PADDING * 2));
+      if (requiredWidth <= width + .5 && requiredHeight <= height + .5) break;
+      if (pass === 7) throw new Error('The score could not fit the available two-row window.');
       // Re-engrave at a fitting scale instead of cropping/scaling an
       // old SVG. Native cursor positions and notehead mappings stay coherent.
-      display.Zoom *= width / requiredWidth * .99;
+      display.Zoom *= Math.min(width / requiredWidth,
+        Math.max(1, height - WINDOW_PADDING * 2) / Math.max(1, requiredHeight - WINDOW_PADDING * 2)) * .99;
     }
     host.style.width = '100%';
-    return width;
+    return {width, height, systems};
   }
 
   async load(model) {
@@ -112,17 +172,19 @@ export class ScoreRenderer {
     this.container.append(host);
     const display = new Runtime(host, {
       backend: 'svg', autoResize: false, followCursor: false,
-      drawTitle: true, newSystemFromXML: false, newPageFromXML: false,
+      drawTitle: false, drawSubtitle: false, drawComposer: false, drawLyricist: false,
+      drawPartNames: false, drawPartAbbreviations: false,
+      newSystemFromXML: false, newPageFromXML: false,
       cursorsOptions: [{type: 0, color: COLORS.current, alpha: 0.18, follow: false}],
     });
     display.EngravingRules.CursorIgnoreRepetitions = true;
     let mapping;
     let positions;
-    let renderedWidth;
+    let layout;
     try {
       await display.load(model.xml);
       if (version !== this.loadVersion) throw new Error('This score load was replaced by a newer selection.');
-      renderedWidth = this.renderToWidth(display, host);
+      layout = this.renderToViewport(display, host);
       mapping = this.indexNotes(display, model);
       positions = this.indexCursor(display, model);
     } catch (error) {
@@ -131,12 +193,21 @@ export class ScoreRenderer {
       throw error;
     }
     this.osmd?.dispose?.();
-    this.container.replaceChildren(host);
+    const frame = this.container.ownerDocument.createElement('div');
+    frame.className = 'lesson-score-window';
+    Object.assign(frame.style, {position: 'relative', width: '100%', overflow: 'hidden'});
+    frame.append(host);
+    this.container.replaceChildren(frame);
     host.style.visibility = '';
-    host.style.position = '';
+    host.style.position = 'absolute';
+    host.style.left = '0px';
     host.style.width = '100%';
+    this.host = host;
+    this.frame = frame;
     this.osmd = display;
-    this.renderedWidth = renderedWidth;
+    this.renderedWidth = layout.width;
+    this.renderedHeight = layout.height;
+    this.setSystems(layout.systems);
     this.model = model;
     this.noteMap = mapping.notes;
     this.cursorPositions = positions;
@@ -217,7 +288,7 @@ export class ScoreRenderer {
         if (positions.length && beat < positions.at(-1).beat - 1e-7) {
           throw new Error('The score cursor did not follow written measure order.');
         }
-        positions.push({beat, step});
+        positions.push({beat, step, measureIndex: iterator.CurrentMeasureIndex});
       }
       cursor.next();
       step++;
@@ -258,7 +329,8 @@ export class ScoreRenderer {
       if (this.cursorPositions[middle].beat <= this.beat + 1e-8) low = middle + 1;
       else high = middle;
     }
-    const target = this.cursorPositions[Math.max(0, low - 1)].step;
+    const position = this.cursorPositions[Math.max(0, low - 1)];
+    const target = position.step;
     const cursor = this.osmd.cursor;
     if (target < this.cursorStep) {
       cursor.reset();
@@ -272,29 +344,42 @@ export class ScoreRenderer {
       }
     }
     cursor.show();
-    this.scrollCursorIntoViewport();
+    this.showSystem(this.systemForMeasure.get(position.measureIndex) ?? 0);
   }
 
-  scrollCursorIntoViewport() {
-    const cursor = this.osmd?.cursor.cursorElement;
-    if (!cursor || !this.viewport.clientHeight) return;
-    const rect = cursor.getBoundingClientRect();
-    const view = this.viewport.getBoundingClientRect();
-    const margin = 24;
-    if (rect.top < view.top + margin || rect.bottom > view.bottom - margin) {
-      const target = this.viewport.scrollTop + rect.top - view.top - margin;
-      this.viewport.scrollTop = Math.max(0, Math.min(target, this.viewport.scrollHeight - this.viewport.clientHeight));
-    }
-    if (rect.left < view.left + margin || rect.right > view.right - margin) {
-      const target = this.viewport.scrollLeft + rect.left - view.left - margin;
-      this.viewport.scrollLeft = Math.max(0, Math.min(target, this.viewport.scrollWidth - this.viewport.clientWidth));
-    }
+  setSystems(systems) {
+    this.systems = systems;
+    this.systemForMeasure = new Map(systems.flatMap((row, index) => row.measures.map(measure => [measure, index])));
+    this.visibleSystem = -1;
+  }
+
+  showSystem(index) {
+    if (!this.systems.length || index === this.visibleSystem) return;
+    const row = this.systems[index];
+    const next = this.systems[index + 1];
+    const previous = this.systems[index - 1];
+    const after = this.systems[index + (next ? 2 : 1)];
+    // Keep a small edge around this pair without admitting any neighboring row.
+    const topPadding = previous ? Math.min(WINDOW_PADDING, Math.max(0, (row.top - previous.bottom) / 2)) : WINDOW_PADDING;
+    const last = next || row;
+    const bottomPadding = after ? Math.min(WINDOW_PADDING, Math.max(0, (after.top - last.bottom) / 2)) : WINDOW_PADDING;
+    const top = Math.max(0, row.top - topPadding);
+    const bottom = last.bottom + bottomPadding;
+    this.host.style.top = `${-top}px`;
+    this.frame.style.height = `${bottom - top}px`;
+    this.frame.dataset.visibleSystemStart = String(index + 1);
+    this.frame.dataset.visibleSystemCount = next ? '2' : '1';
+    this.frame.dataset.systemCount = String(this.systems.length);
+    this.visibleSystem = index;
   }
 
   resize() {
     if (!this.osmd || !this.model) return;
     const beat = this.beat;
-    this.renderedWidth = this.renderToWidth(this.osmd, this.container.firstElementChild);
+    const layout = this.renderToViewport(this.osmd, this.host);
+    this.renderedWidth = layout.width;
+    this.renderedHeight = layout.height;
+    this.setSystems(layout.systems);
     const mapping = this.indexNotes(this.osmd, this.model);
     this.noteMap = mapping.notes;
     this.cursorPositions = this.indexCursor(this.osmd, this.model);
@@ -312,6 +397,10 @@ export class ScoreRenderer {
     this.osmd?.dispose?.();
     this.osmd = null;
     this.model = null;
+    this.systems = [];
+    this.systemForMeasure.clear();
+    this.host = null;
+    this.frame = null;
     this.noteMap.clear();
     this.container.replaceChildren();
   }

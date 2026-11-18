@@ -5,33 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Learning Songs · Practice</title>
   <meta name="theme-color" content="#0b0f14">
-  <link rel="stylesheet" href="./style.css?v=a85edec5646f">
-  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=a85edec5646f"></script>
-  <script defer src="./vendor/fflate-0.8.3.min.js?v=a85edec5646f"></script>
-  <script defer src="../shared/tracker.js?v=a85edec5646f"></script>
-  <script defer src="../shared/midi.js?v=a85edec5646f"></script>
-  <script type="module" src="./script.js?v=a85edec5646f"></script>
-  <meta name="build-version" content="a85edec5646f">
+  <link rel="stylesheet" href="./style.css?v=0be815445271">
+  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=0be815445271"></script>
+  <script defer src="./vendor/fflate-0.8.3.min.js?v=0be815445271"></script>
+  <script defer src="../shared/tracker.js?v=0be815445271"></script>
+  <script defer src="../shared/midi.js?v=0be815445271"></script>
+  <script type="module" src="./script.js?v=0be815445271"></script>
+  <meta name="build-version" content="0be815445271">
 </head>
 <body>
   <main class="lesson-shell">
-    <header class="page-heading"><h1>Learning songs</h1><a href="../?v=a85edec5646f">← Practice</a></header>
     <section class="song-library card" aria-labelledby="library-heading">
-      <div class="song-picker"><label id="library-heading" for="song-select">Song</label><select id="song-select"><option>Loading songs…</option></select></div>
+      <a class="practice-link" href="../?v=0be815445271">← Practice</a>
+      <div class="song-picker"><label id="library-heading" class="sr-only" for="song-select">Song</label><select id="song-select"><option>Loading songs…</option></select></div>
       <a id="upload-button" class="button secondary" href="https://github.com/mtch777/Guitar-Learning/upload/main/public/piano/learning-songs/uploads" target="_blank" rel="noopener noreferrer">Upload <span>(.musicxml, .xml, .mxl)</span></a>
-      <button id="refresh-library" type="button" class="button secondary">Refresh songs</button>
+      <button id="refresh-library" type="button" class="button secondary" aria-label="Refresh songs">Refresh</button>
       <p id="library-message" class="library-message" role="status" hidden></p>
       <div id="local-recovery" class="local-recovery" hidden><span>Device-only copy</span><button id="download-local-score" type="button" class="small-button">Download score</button></div>
     </section>
-    <fieldset class="lesson-modes" id="lesson-modes">
-      <legend>Lesson mode</legend>
-      <label class="mode-card"><input type="radio" name="lesson-mode" value="wait" checked><strong>Wait for correct notes</strong></label>
-      <label class="mode-card"><input type="radio" name="lesson-mode" value="timed"><strong>Continuous playback</strong></label>
-    </fieldset>
-    <section class="score-card card" aria-label="Sheet music">
-      <div class="transport">
+    <section class="score-card card" aria-label="Song practice">
+      <div class="session-toolbar">
+        <fieldset class="lesson-modes" id="lesson-modes">
+          <legend class="sr-only">Lesson mode</legend>
+          <label class="mode-card"><input type="radio" name="lesson-mode" value="wait" checked><strong>Wait for correct notes</strong></label>
+          <label class="mode-card"><input type="radio" name="lesson-mode" value="timed"><strong>Continuous playback</strong></label>
+        </fieldset>
+        <div class="transport">
         <div class="transport-primary"><button id="play-button" class="button primary" type="button" disabled><span aria-hidden="true">▶</span> Play</button><button id="restart-button" class="button secondary" type="button" disabled><span aria-hidden="true">↺</span> Restart</button></div>
         <div class="transport-options"><label class="tempo-control" for="tempo"><span>Speed <output id="tempo-label" for="tempo">100%</output></span><input id="tempo" type="range" min="25" max="150" step="5" value="100"></label><label class="sound-control"><input id="sound-enabled" type="checkbox" checked> Sound</label></div>
+        </div>
       </div>
       <div class="practice-bar"><p id="practice-status" role="status" aria-live="polite">Loading…</p><div class="score-counts" aria-label="Lesson results"><span class="hit-count">✓ <strong id="hit-count">0</strong> hit</span><span class="miss-count">× <strong id="miss-count">0</strong> missed</span><span><strong id="progress-count">0 / 0</strong></span></div></div>
       <div class="progress-track"><div id="progress-fill"></div></div>
@@ -40,14 +42,10 @@
         <div id="empty-score" class="empty-score" hidden><h3 id="empty-title"></h3><p id="empty-description"></p><a id="empty-upload" class="button primary" href="https://github.com/mtch777/Guitar-Learning/upload/main/public/piano/learning-songs/uploads" target="_blank" rel="noopener noreferrer">Upload</a></div>
         <div id="score" aria-label="Interactive sheet music"></div>
       </div>
-      <footer class="score-footer"><div class="legend"><span><i class="legend-dot current"></i> Current</span><span><i class="legend-dot hit"></i> Hit</span><span><i class="legend-dot miss"></i> Missed</span></div></footer>
-      <details id="song-details" class="song-details"><summary>Details</summary><p id="song-description" hidden></p><p id="grading-note"></p><p id="score-warnings" hidden></p></details>
-    </section>
-    <section class="input-card card" aria-labelledby="input-heading"><div class="input-heading"><div><h2 id="input-heading">Keyboard</h2><p id="midi-status" class="muted">MIDI not enabled</p></div><div class="input-actions"><button id="keyboard-toggle" type="button" class="button secondary" aria-expanded="true" aria-controls="keyboard-panel">Hide keyboard</button><button id="midi-button" type="button" class="button secondary"><span id="midi-dot" class="connection-dot"></span> Enable MIDI</button></div></div>
       <div id="keyboard-panel">
-        <div class="keyboard-tools"><span id="keyboard-range" aria-label="Song note range"></span><div class="computer-octave" role="group" aria-label="Computer keyboard octave"><span>Computer keys</span><button id="octave-down" type="button" class="small-button" aria-label="Computer keyboard one octave lower" title="Lower input octave (Z)">−</button><span id="input-octave"></span><button id="octave-up" type="button" class="small-button" aria-label="Computer keyboard one octave higher" title="Higher input octave (X)">+</button></div></div>
         <div id="keyboard" class="keyboard" aria-label="On-screen piano keyboard"></div>
       </div>
+      <footer class="input-footer"><p id="midi-status" class="muted">MIDI not enabled</p><div class="input-actions"><button id="midi-button" type="button" class="button secondary"><span id="midi-dot" class="connection-dot"></span> Enable MIDI</button><button id="keyboard-toggle" type="button" class="button secondary" aria-expanded="true" aria-controls="keyboard-panel">Hide keyboard</button></div></footer>
     </section>
   </main>
 </body>

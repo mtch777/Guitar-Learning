@@ -32,11 +32,10 @@ let busy = false, libraryLoading = false, countIn = 0, lastPaint = '', lastStatu
 let librarySource = 'bundled', waitingForUpload = false;
 let libraryNoticeTimer;
 let starting = false, startGeneration = 0;
-let octave = 4, midiAccess = null;
+let midiAccess = null;
 let keyboardVisible = preferences.keyboardVisible !== false, lastKeyboardPaint = '';
 const pressed = new Map();
 const noteNames = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
-const shortcuts = ['a','w','s','e','d','f','t','g','y','h','u','j','k'];
 const midiName = midi => noteNames[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
 
 function setStatus(text) {
@@ -80,8 +79,6 @@ async function refreshLibrary() {
       selectedId = selected.id;
       storage.select(selectedId);
       $('local-recovery').hidden = !selected.localOnly;
-      $('song-description').textContent = selected.description || '';
-      $('song-description').hidden = !selected.description;
     }
     $('song-select').value = selectedId;
   }
@@ -133,7 +130,6 @@ function configureEngine() {
   })).sort((a,b) => a.time - b.time);
   totalSeconds = secondsAtBeat(model, model.duration, speed);
   elapsed = 0; nextAudio = 0; lastPaint = '';
-  $('grading-note').textContent = mode === 'timed' ? 'Timing window: ±180 ms. Note lengths are not graded.' : 'Note lengths are not graded.';
 }
 function currentVisualGroup(beat) {
   if (mode === 'wait') return engine?.snapshot().currentGroup;
@@ -186,8 +182,6 @@ function resetSession() {
   pause();
   if (!engine) return;
   engine.reset(); elapsed = 0; nextAudio = 0; lastPaint = '';
-  $('score-viewport').scrollTop = 0;
-  $('score-viewport').scrollLeft = 0;
   paint(true); controls();
   setStatus('Ready');
 }
@@ -252,18 +246,6 @@ async function start() {
   controls();
 }
 
-function scoreNotices(warnings) {
-  const concise = new Map([
-    ['A tempo instruction has no exact numeric playback tempo; the previous tempo continues.', 'Tempo text does not change playback speed.'],
-    ['Grace notes remain visible in the score; this lesson does not play or score their unspecified timing.', 'Grace notes are not played or graded.'],
-    ['Cue notes remain visible in the score and are excluded from practice.', 'Cue notes are excluded from practice.'],
-    ['Notes hidden by the source file are preserved in score data and excluded from practice.', 'Hidden notes are excluded from practice.'],
-    ['Repeats, endings and navigation are shown as written. Playback and both practice modes follow each written measure once; repeat jumps are not performed.', 'Each written measure plays once; repeat and navigation jumps are skipped.'],
-    ['Ornaments and performance techniques remain visible; playback and practice use the written note pitches.', 'Ornaments use the written pitches.'],
-    ['No initial numeric tempo is specified. Playback starts at 120 BPM; change the tempo control if needed.', 'Starting tempo: 120 BPM (not specified in the score).'],
-  ]);
-  return warnings.map(warning => concise.get(warning) || warning);
-}
 function scoreErrorMessage(error) {
   if (error.code === 'TRANSPOSED_INSTRUMENT') return 'Export this score at concert pitch and try again.';
   if (error.code === 'UNPITCHED_SCORE') return 'Choose a piano or melody part with pitched notes.';
@@ -292,20 +274,14 @@ async function selectSong(song, {preparedModel = null, remember = true} = {}) {
       model = candidate;
       configureEngine();
       drawKeyboard();
-      $('song-description').textContent = song.description || '';
-      $('song-description').hidden = !song.description;
       $('local-recovery').hidden = !song.localOnly;
       if (rendered.warnings?.length) console.warn('Score rendering details:', rendered.warnings);
-      const warnings = scoreNotices(candidate.warnings);
-      $('score-warnings').textContent = warnings.join(' ');
-      $('score-warnings').hidden = !warnings.length;
       paint(true);
       setStatus('Ready');
     }
     selectedId = song.id;
     $('song-select').value = selectedId;
     if (remember) storage.select(selectedId);
-    $('score-viewport').scrollTop = 0;
     return true;
   } catch (error) {
     console.warn('Score selection failed:', error);
@@ -385,8 +361,8 @@ function drawKeyboard() {
     const label = document.createElement('span'); label.className = 'note-name'; label.textContent = midiName(midi);
     label.classList.toggle('octave-label', midi % 12 === 0);
     label.classList.toggle('range-label', midi === layout.min || midi === layout.max);
-    const shortcut = document.createElement('span'); shortcut.className = 'shortcut';
-    key.append(label, shortcut);
+    key.append(label);
+    key.title = midiName(midi);
     key.addEventListener('pointerdown', event => {
       event.preventDefault(); key.setPointerCapture?.(event.pointerId);
       strike(midi, `pointer-${event.pointerId}`, true);
@@ -401,25 +377,9 @@ function drawKeyboard() {
     });
     $('keyboard').append(key);
   }
-  $('keyboard-range').textContent = layout.min === null ? '' : layout.min === layout.max ? midiName(layout.min) : `${midiName(layout.min)} – ${midiName(layout.max)}`;
-  updateComputerKeyboard();
   lastKeyboardPaint = '';
   highlightKeys();
 }
-function updateComputerKeyboard() {
-  const base = (octave + 1) * 12;
-  $('input-octave').textContent = `${midiName(base)} – ${midiName(base + 12)}`;
-  $('octave-down').disabled = octave <= 0; $('octave-up').disabled = octave >= 8;
-  $('keyboard').querySelectorAll('[data-midi]').forEach(key => {
-    const midi = Number(key.dataset.midi);
-    const shortcut = shortcuts[midi - base]?.toUpperCase() || '';
-    const label = key.querySelector('.shortcut');
-    label.textContent = shortcut;
-    label.hidden = !shortcut;
-    key.title = `${midiName(midi)}${shortcut ? ` (${shortcut})` : ''}`;
-  });
-}
-function changeOctave(delta) { octave = Math.max(0, Math.min(8, octave + delta)); updateComputerKeyboard(); }
 function showKeyboard(visible) {
   keyboardVisible = visible;
   $('keyboard-panel').hidden = !visible;
@@ -477,8 +437,6 @@ $('song-select').addEventListener('change', event => selectSong(songChoice(event
 $('play-button').addEventListener('click', () => playing ? pause() : start());
 $('restart-button').addEventListener('click', () => { const resume = playing; resetSession(); if (resume) start(); });
 $('midi-button').addEventListener('click', connectMidi);
-$('octave-down').addEventListener('click', () => changeOctave(-1));
-$('octave-up').addEventListener('click', () => changeOctave(1));
 $('keyboard-toggle').addEventListener('click', () => { showKeyboard(!keyboardVisible); savePreferences(); });
 $('lesson-modes').addEventListener('change', event => {
   if (event.target.name !== 'lesson-mode') return;
@@ -492,15 +450,6 @@ $('tempo').addEventListener('input', event => {
 });
 $('tempo').addEventListener('change', () => { if (model) { configureEngine(); resetSession(); } savePreferences(); });
 $('sound-enabled').addEventListener('change', event => { audio.setEnabled(event.target.checked); savePreferences(); });
-document.addEventListener('keydown', event => {
-  if (event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.target.closest('input, select, textarea, [contenteditable="true"]')) return;
-  const key = event.key.toLowerCase();
-  if (key === 'z' || key === 'x') { event.preventDefault(); changeOctave(key === 'z' ? -1 : 1); return; }
-  const index = shortcuts.indexOf(key);
-  if (index < 0) return;
-  event.preventDefault(); strike((octave + 1) * 12 + index, `key-${event.code}`, true);
-});
-document.addEventListener('keyup', event => release(`key-${event.code}`));
 window.addEventListener('blur', () => { pressed.clear(); highlightKeys(); if (playing || starting) pause('Paused — window inactive'); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && (playing || starting)) pause('Paused — page hidden'); });
 
