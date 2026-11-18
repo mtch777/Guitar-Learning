@@ -99,3 +99,74 @@ def attach_lyric_evidence(analysis, evidence, source_fingerprint=None):
 
 
 
+
+
+def lyric_refrain_core_evidence(events, bar_times, *, source_fingerprint,
+                               maximum_pair_gap_seconds, maximum_alignment_error=.25,
+                               candidate_distribution=None):
+    """Opt-in repeated-lyric core envelopes, not full sections or sung spans.
+
+    An envelope ends at the last matched onset, never a guessed vocal release.
+    Intervening bars are envelope evidence, not continuous observed singing.
+    """
+    result = lyric_refrain_evidence(events, bar_times,
+        source_fingerprint=source_fingerprint, maximum_pair_gap_seconds=maximum_pair_gap_seconds,
+        maximum_alignment_error=maximum_alignment_error,
+        candidate_distribution=candidate_distribution)
+    normalized=[]
+    for event in events or []:
+        words=' '.join(re.findall(r'\w+',event['text'].casefold()))
+        if words:normalized.append((event['start_seconds'],words,event.get('timestamp_error_seconds')))
+
+    def allowance(event):
+        t,_,lyric_error=event
+        if not _number(lyric_error) or lyric_error<0:return None
+        candidates=[b for b in bar_times if b['start_seconds']<=t<b['end_seconds']]
+        if not candidates:return None
+        b=candidates[0];err=b.get('max_error_seconds')
+        if b.get('verified')is not True or not _number(err) or not 0<=err<=maximum_alignment_error:return None
+        # Any neighboring clock region touched by the uncertainty must also be usable.
+        total=err+lyric_error
+        for _ in range(len(bar_times)+1):
+            touched=[v for v in bar_times if v['start_seconds']<t+total and v['end_seconds']>t-total] if total else candidates
+            if not touched or any(v.get('verified')is not True or not _number(v.get('max_error_seconds')) or not 0<=v['max_error_seconds']<=maximum_alignment_error for v in touched):return None
+            cursor=t-total
+            for v in touched:
+                if v['start_seconds']>cursor+1e-10:return None
+                cursor=max(cursor,v['end_seconds'])
+            if cursor<t+total-1e-10:return None
+            enlarged=max(v['max_error_seconds']for v in touched)+lyric_error
+            if enlarged<=total:return total
+            total=enlarged
+        return None
+
+    errors=[allowance(e)for e in normalized];runs=[]
+    for i in range(len(normalized)):
+        for j in range(i+2,len(normalized)):
+            k=0
+            while j+k<len(normalized) and i+k<j and normalized[i+k][1]==normalized[j+k][1]:
+                if errors[i+k]is None or errors[j+k]is None:break
+                if k and max(normalized[i+k][0]-normalized[i+k-1][0],normalized[j+k][0]-normalized[j+k-1][0])>maximum_pair_gap_seconds:break
+                k+=1
+            if k>=2:runs.append((i,j,k))
+    runs=[r for r in runs if not any(s!=r and s[1]-s[0]==r[1]-r[0] and s[0]<=r[0] and s[0]+s[2]>=r[0]+r[2] for s in runs)]
+    envelopes=[];seen=set()
+    for i,j,k in runs:
+        for start in(i,j):
+            a=normalized[start][0]+errors[start];z=normalized[start+k-1][0]-errors[start+k-1]
+            key=(a,z)
+            if z>a and key not in seen:
+                seen.add(key);envelopes.append(dict(start_seconds=a,end_seconds=z,matched_line_count=k,
+                    basis='first_to_last_matched_onset_with_uncertainty_trim',continuous_singing_verified=False))
+    for row,b in zip(result['bars'],bar_times):
+        err=b.get('max_error_seconds');usable=b.get('verified')is True and _number(err) and 0<=err<=maximum_alignment_error
+        ids=[i for i,v in enumerate(envelopes)if usable and v['start_seconds']<=b['start_seconds']-err and b['end_seconds']+err<=v['end_seconds']]
+        positive=bool(ids)
+        row.update(status='positive_refrain_core_envelope'if positive else 'no_lyrics'if not normalized else 'alignment_unverified'if not usable else 'no_positive_core_evidence',
+            core_envelope_ids=ids,continuous_singing_verified=False,
+            candidate_distribution=deepcopy(candidate_distribution)if positive else None,
+            alternatives=['chorus','verse','intro','outro','other_refrain_function']if positive else [])
+    result['core_envelopes']=envelopes
+    result['limitations'].append('Core envelopes can cross instrumental gaps or functional changes; require musical corroboration before proposing whole sections.')
+    return result
+

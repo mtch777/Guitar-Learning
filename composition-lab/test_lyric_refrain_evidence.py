@@ -46,7 +46,35 @@ class LyricTests(unittest.TestCase):
  def test_identity(self):
   r=analyze_functions(song([A,B]));
   with self.assertRaises(ValueError):attach_lyric_evidence(r,self.cue())
+
+
+
+
+
+class CoreTests(unittest.TestCase):
+ def setUp(self):
+  self.times=[dict(bar=i+1,start_seconds=i,end_seconds=i+1,verified=True,max_error_seconds=.1)for i in range(16)]
+  self.events=[dict(start_seconds=t,text=s,timestamp_error_seconds=.1)for t,s in[(1.2,'alpha'),(4.8,'beta'),(9.2,'alpha'),(12.8,'beta')]]
+ def result(self):
+  from lyric_refrain_evidence import lyric_refrain_core_evidence
+  return lyric_refrain_core_evidence(self.events,self.times,source_fingerprint='synthetic',maximum_pair_gap_seconds=8)
+ def test_supported_envelope(self):
+  r=self.result();self.assertEqual([b['bar']for b in r['bars']if b['core_envelope_ids']],[3,4,11,12]);self.assertTrue(all(not b['continuous_singing_verified']for b in r['bars']));self.assertNotIn('alpha',json.dumps(r))
+ def test_no_guessed_last_line_end(self):self.assertLess(self.result()['core_envelopes'][0]['end_seconds'],4.8)
+ def test_unverified_matching_occurrence(self):
+  self.times[9]['verified']=False;self.assertFalse(self.result()['core_envelopes'])
+ def test_missing_lyrics(self):
+  self.events=[];self.assertFalse(self.result()['core_envelopes'])
+ def test_long_gap_not_filled(self):
+  self.events[1]['start_seconds']=9.3;self.events[2]['start_seconds']=10;self.events[3]['start_seconds']=19;self.assertFalse(self.result()['core_envelopes'])
+ def test_uncertainty_gap_rejected(self):
+  self.events[0]['start_seconds']=1.9;self.times=[b for b in self.times if b['bar']!=3];self.assertFalse(self.result()['core_envelopes'])
+ def test_uncertainty_expansion_rechecked(self):
+  self.events[0]['start_seconds']=1.9;self.times[2]['max_error_seconds']=.2;self.times[3]['verified']=False;self.events[0]['timestamp_error_seconds']=1.0;self.assertFalse(self.result()['core_envelopes'])
+ def test_unverified_status_preserved(self):
+  self.times[0]['verified']=False;self.assertEqual(self.result()['bars'][0]['status'],'alignment_unverified')
+ def test_repeated_verse_remains_possible(self):
+  b=next(b for b in self.result()['bars']if b['core_envelope_ids']);self.assertIn('verse',b['alternatives']);self.assertIn('outro',b['alternatives']);self.assertIsNone(b['confidence'])
+
 if __name__=='__main__':unittest.main()
-
-
 

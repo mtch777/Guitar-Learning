@@ -31,3 +31,15 @@ References were held out from lyric-model fitting but inspected during earlier m
 
 Tests:18new lyric tests,12section-function regressions,19repeat regressions passed. Source-only optional API remains experimental; publication does not establish classifier accuracy.
 
+
+## Core-envelope increment
+Added a separate opt-in `lyric_refrain_core_evidence` API. It finds maximal verified repeated lyric subruns, and represents only their first-to-last onset envelopes with endpoint uncertainty removed. It does not guess the end of the final sung line. Full bars must fit after expanding their own timing uncertainty. Intervening instrumental gaps and possible functional changes remain explicit: `continuous_singing_verified=False`; all alternative roles and unknown labels remain.
+
+Controlled five-song test, SAME original timing checks with timed references remapped and uncertainty containment: onset-only evidence2/30chorus bars; core envelopes16/30. No disagreements among77labeled nonchorus bars, but9additional positive bars have no reference label. Do not call this100%general precision. These are inspected development songs, not a pristine blind benchmark.
+
+Separate modeled-landmark interpolation experiment reaches23/34chorus bars with1known nonchorus disagreement (bridge), and20unlabeled positive bars. This uses a different timing gate and denominator, is not locally certified alignment, and is NOT implemented as automatic verification in this API.
+
+Positive verse evidence from changed lyrics over recurring instrumental material was also tested and did not discriminate reliably. Absence of a refrain remains unknown, never verse.
+
+Tests after core increment:27lyric tests,12function regressions,19repeat regressions. Core envelopes are useful refrain candidates, not complete musical sections or a finished verse/chorus classifier.
+
