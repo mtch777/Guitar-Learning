@@ -264,14 +264,14 @@ $scope.rangeMax = 72; // C5
 
     $scope.status = "Requesting MIDI access...";
     $scope.statusType = "";
-
+    var midiStage = "access";
 
     navigator
       .requestMIDIAccess({
         sysex: false
       })
       .then(function (access) {
-
+        midiStage = "setup";
         midiAccess = access;
 
         midiAccess.onstatechange =
@@ -284,18 +284,13 @@ $scope.rangeMax = 72; // C5
         });
       })
       .catch(function (error) {
-
+        var failure = window.PracticeMIDI?.reportFailure?.(error, midiStage) ||
+          "MIDI " + midiStage + " failed: " + (error?.message || error);
         $scope.$evalAsync(function () {
           $scope.midiConnected = false;
           $scope.midiAccessGranted = false;
 
-          $scope.status =
-            "MIDI access failed: " +
-            (
-              error && error.message
-                ? error.message
-                : error
-            );
+          $scope.status = failure;
 
           $scope.statusType = "error";
         });
