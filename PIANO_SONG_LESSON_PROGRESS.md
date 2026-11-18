@@ -14,6 +14,30 @@ guitar/Composition Lab behavior intact. MIDI and audio QA must be silent.
 
 ## Acceptance checklist
 
+### Current correction — repository song library and playable Phoebe
+
+The user explicitly requires the Phoebe song to be uploaded and all song uploads
+to persist on GitHub. This supersedes the earlier browser-only storage choice and
+the placeholder decision. Convert the existing MIDI note events, retain the
+unaltered original, and disclose notation timing adjustments.
+
+- [x] Convert the complete Phoebe MIDI; compare all source pitches and attacks.
+- [ ] Publish the original, MusicXML and conversion provenance in the repository.
+- [x] Load Phoebe on a fresh visit; keep the last selected song on later visits (integration verified).
+- [x] Read the shared song catalog from the deployed repository on every device (fresh-device integration verified).
+- [x] Route uploads through GitHub's authenticated file upload page.
+- [x] Regenerate the catalog and normalized MusicXML automatically during publish (prebuild verified).
+- [x] Preserve previous device-only scores with a download/migration route.
+- [ ] Verify genuine XML/MXL indexing, bad-file isolation, shared-library reload,
+      full Phoebe rendering, and both lesson modes; then verify live deployment.
+
+Original uploads are committed to main under `public/piano/learning-songs/uploads`.
+The existing build validates them with the same parser used by the lesson and
+publishes normalized scores plus the catalog to the existing gh-pages branch.
+No token is embedded in the site and no browser-only save is presented as shared.
+
+### Initial release record
+
 - [x] Inspect current main (`9bdd1922ec2a`), piano source, shared MIDI/tracker and deployment workflow.
 - [x] Implement full score rendering, shared score events and timing.
 - [x] Persist successful uploads and last song selection; reload them without re-upload.
@@ -71,7 +95,7 @@ the requested Phoebe Bridgers song.
   manifests, declared XML encodings, selection/save races, untitled filenames,
   asynchronous Play races and suspended audio clocks during integration.
 
-## Source and scope limits
+## Initial release source decision (superseded below)
 
 The first library entry is **Phoebe Bridgers — I Know the End**, awaiting a
 MusicXML/MXL upload. Edgar Roock's public arrangement video
@@ -90,7 +114,7 @@ once with a visible warning. Grace/cue notes are displayed and explicitly
 excluded. Unsupported transposing/microtonal/unpitched scores are rejected
 clearly. These limits do not establish universal lossless notation support.
 
-## Publication
+## Initial publication record
 
 Source release `c3c1f0a4879a22b6cb3a79e4c9871b4de1b378b3` is on main.
 Build/test/publish run 44210272476 and Pages deployment 44210377614 both succeeded.
@@ -115,3 +139,28 @@ Bach BWV939 `.musicxml` together. Both entered the library. Reload restored the
 Bach score, selection, timed mode and muted sound preference without re-upload.
 Longer scores reveal a second width dependency: the vertical scrollbar appears
 after engraving. Reserving its gutter before rendering keeps that width stable.
+
+
+## Repository-persistence correction — verification
+
+- Source MIDI has 1,396 note occurrences. Every pitch and occurrence is retained
+  in the full 128-measure, 323.957-second piano score. Nine starts shift by at most
+  1.667 ms and 115 releases by at most 36.667 ms for notation. The original MIDI
+  and exact events are preserved; the derived MusicXML is not claimed timing-lossless.
+- Actual OSMD maps all 1,622 notation items, with no model or renderer warnings.
+  All 1,396 practice attacks match the conversion event evidence. MusicXML 4.0
+  XSD passes. The converter reproduces identical hashes.
+- `node --test tests/piano-*.test.mjs`: 66/66 pass. Added actual XML/MXL indexing,
+  source-byte preservation, deterministic catalogs, invalid-upload isolation,
+  filename encoding, hash checks and deployed/GitHub fallback tests.
+- `npm run build`: passes and generates the repository catalog before Vite.
+- Updated integrated app helper passes 11 checks across five fresh page/module
+  boots: actual Phoebe, both modes, native-upload link without a fake save, shared
+  catalog additions, failed-refresh recovery, last selection and independent
+  device, legacy ID collisions and migration, plus existing MIDI/audio controls.
+- Migrated the genuine Bach MusicXML and MuseScore MXL from the earlier browser
+  upload checks into the GitHub uploads directory. The normal build discovers
+  both automatically; the shared dropdown contains four songs.
+- The upload page requires GitHub sign-in and its Commit changes step. Opening
+  the link alone never claims an upload succeeded. No page token or secret exists.
+- Live deployment and real browser verification of this correction are pending.

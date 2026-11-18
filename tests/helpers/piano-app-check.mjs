@@ -1,6 +1,7 @@
 // Optional silent integration check:
 // node tests/helpers/piano-app-check.mjs /path/to/render/package.json
-// Exercises the real app, renderer, upload/storage and MIDI event adapter.
+// Exercises the real app/renderer/MIDI adapter, public GitHub catalog and local recovery.
+// Native GitHub authentication/commit is not simulated here; verify it separately.
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {readFileSync} from 'node:fs';
@@ -11,12 +12,16 @@ const dependencies = createRequire(resolve(process.argv[2] || 'package.json'));
 const {JSDOM} = dependencies('jsdom');
 const {createCanvas} = dependencies('@napi-rs/canvas');
 const {IDBFactory} = dependencies('fake-indexeddb');
-const {zipSync, strToU8} = dependencies('fflate');
+
 const root = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const app = resolve(root, 'public/piano/learning-songs');
 const html = readFileSync(resolve(app, 'index.html'), 'utf8');
 const sourceXML = readFileSync(resolve(app, 'scores/conversion-test.musicxml'), 'utf8');
-const indexedDB = new IDBFactory();
+let indexedDB = new IDBFactory();
+let remoteCatalog;
+const remoteScores = new Map();
+let remoteUnavailable = false;
+const fetchRequests = [];
 const saved = new Map();
 const localStorage = {
   getItem: key => saved.get(key) ?? null,
@@ -36,7 +41,7 @@ async function settle(predicate, label) {
   throw new Error(`Timed out: ${label}`);
 }
 
-async function boot({resume = 'running'} = {}) {
+async function boot({resume = 'running', legacySongs = []} = {}) {
   const dom = new JSDOM(html, {pretendToBeVisual: true, runScripts: 'outside-only', url: 'http://localhost/piano/learning-songs/'});
   const {window} = dom;
   const clock = {seconds: 0};
@@ -93,12 +98,30 @@ async function boot({resume = 'running'} = {}) {
     requestAnimationFrame: window.requestAnimationFrame, cancelAnimationFrame: window.cancelAnimationFrame})) {
     Object.defineProperty(globalThis, name, {configurable: true, writable: true, value});
   }
-  globalThis.fetch = async input => {
+  globalThis.fetch = async (input, options = {}) => {
     const url = new URL(input);
-    assert.equal(url.protocol, 'file:', 'Integration fetch reads only repository fixtures.');
-    try { return {ok: true, status: 200, text: async () => readFileSync(fileURLToPath(url), 'utf8')}; }
+    fetchRequests.push({url: url.href, options});
+    assert.ok(!options.method || options.method === 'GET', 'Static lesson never attempts unauthenticated GitHub writes.');
+    if (url.pathname.endsWith('/song-library.json')) {
+      if (remoteUnavailable) return {ok: false, status: 503};
+      return {ok: true, status: 200, json: async () => structuredClone(remoteCatalog), text: async () => JSON.stringify(remoteCatalog)};
+    }
+    const relative = url.pathname.split('/learning-songs/')[1];
+    if (relative && remoteScores.has(relative)) {
+      const text = remoteScores.get(relative);
+      return {ok: true, status: 200, text: async () => text};
+    }
+    const path = url.protocol === 'file:' ? fileURLToPath(url) : relative ? resolve(app, decodeURIComponent(relative)) : null;
+    if (!path) throw new Error('Unexpected test request: ' + url.href);
+    try { return {ok: true, status: 200, text: async () => readFileSync(path, 'utf8')}; }
     catch (_) { return {ok: false, status: 404}; }
   };
+  if (legacySongs.length) {
+    const {SongStorage} = await import(pathToFileURL(resolve(app, 'song-storage.js')).href);
+    const legacyStorage = await new SongStorage().open();
+    for (const song of legacySongs) await legacyStorage.put(song);
+    legacyStorage.db?.close();
+  }
   window.addEventListener('error', event => errors.push(event.error || event.message));
   window.eval(readFileSync(resolve(app, 'vendor/opensheetmusicdisplay-2.3.1.min.js'), 'utf8'));
   window.eval(readFileSync(resolve(app, 'vendor/fflate-0.8.3.min.js'), 'utf8'));
@@ -122,26 +145,72 @@ async function boot({resume = 'running'} = {}) {
     input.checked = true;
     input.dispatchEvent(new window.Event('change', {bubbles: true}));
   };
-  const upload = async (name, bytes) => {
-    await click('upload-button');
-    const file = new window.File([bytes], name);
-    file.arrayBuffer = async () => Uint8Array.from(bytes).buffer;
-    Object.defineProperty($('song-upload'), 'files', {configurable: true, value: [file]});
-    $('song-upload').dispatchEvent(new window.Event('change', {bubbles: true}));
-    await settle(() => !$('import-message').hidden && !$('song-select').disabled, `upload ${name}`);
+  const select = async id => {
+    $('song-select').value = id;
+    $('song-select').dispatchEvent(new window.Event('change', {bubbles: true}));
+    await settle(() => snapshot().selectedId === id && !$('song-select').disabled, `select ${id}`);
   };
-  return {dom, window, $, clock, frames, sounds, audioControl, snapshot, click, midi, strike, advance, mode, upload};
+
+  return {dom, window, $, clock, frames, sounds, audioControl, snapshot, click, midi, strike, advance, mode, select};
 }
 
 async function run() {
-  let ui = await boot();
+  remoteCatalog = JSON.parse(readFileSync(resolve(app, 'song-library.json'), 'utf8'));
+  const legacyXML = sourceXML.replaceAll('Cuthbert NWC Test', 'Legacy recovery score');
+  let ui = await boot({legacySongs: [{id: 'phoebe-bridgers-i-know-the-end', title: 'Legacy recovery score', composer: 'Local tester', xml: legacyXML, filename: 'legacy.musicxml'}]});
   assert.equal(ui.snapshot().selectedId, 'phoebe-bridgers-i-know-the-end');
-  assert.equal(ui.snapshot().model, null);
-  assert.ok(ui.$('play-button').disabled);
-  assert.match(ui.$('empty-description').textContent, /verified notation file is still needed/);
-  checks.push('honest Phoebe default requires a real score');
+  assert.equal(ui.snapshot().model?.attacks, 1396, 'Fresh default is the actual full Phoebe score.');
+  assert.equal(ui.snapshot().model?.notes, 1622, 'Every pitched segment and rest reaches the actual renderer.');
+  assert.ok(!ui.$('play-button').disabled);
+  assert.ok(ui.$('score').querySelector('svg'));
+  assert.equal(ui.$('song-title').textContent, 'I Know the End');
+  const uploadLink = ui.$('upload-button');
+  assert.equal(uploadLink.tagName, 'A');
+  assert.equal(uploadLink.href, 'https://github.com/mtch777/Guitar-Learning/upload/main/public/piano/learning-songs/uploads');
+  assert.match(uploadLink.textContent, /\.musicxml.*\.xml.*\.mxl/);
+  assert.equal(ui.$('song-upload'), null, 'Native GitHub upload replaces browser-only file picker.');
+  assert.match(ui.$('library-note').textContent, /GitHub/);
+  const beforeNativeUpload = ui.snapshot().songCount;
+  uploadLink.addEventListener('click', event => event.preventDefault(), {once: true});
+  await ui.click('upload-button');
+  assert.equal(ui.snapshot().songCount, beforeNativeUpload);
+  assert.match(ui.$('library-message').textContent, /commit the changes/);
+  assert.ok(!/uploaded successfully|saved successfully/i.test(ui.$('library-message').textContent));
+  const legacyOption = [...ui.$('song-select').options].find(option => option.textContent.includes('Legacy recovery score'));
+  assert.ok(legacyOption && legacyOption.value.startsWith('local-'), 'A local Phoebe-ID recovery file cannot replace the repository default.');
+  await ui.select(legacyOption.value);
+  assert.ok(!ui.$('local-recovery').hidden, 'Legacy local score is visibly marked as device-only.');
+  assert.match(ui.$('local-recovery').textContent, /only on this device/);
+  assert.ok(ui.$('download-local-score'), 'Legacy local files can be downloaded for GitHub migration.');
+  checks.push('actual full Phoebe default renders; native GitHub upload link; isolated legacy recovery and migration control');
 
-  await ui.click('test-score-button');
+  await ui.select('phoebe-bridgers-i-know-the-end');
+  await ui.click('midi-button');
+  await ui.click('play-button');
+  const phoebeFirst = ui.snapshot().lesson;
+  assert.deepEqual(phoebeFirst.requiredPitches, [61, 85]);
+  ui.strike(60);
+  assert.equal(ui.snapshot().lesson.hits, 0);
+  assert.equal(ui.snapshot().lesson.currentIndex, phoebeFirst.currentIndex);
+  for (const pitch of phoebeFirst.requiredPitches) ui.strike(pitch);
+  assert.equal(ui.snapshot().lesson.hits, 2);
+  assert.ok(ui.snapshot().lesson.currentIndex > phoebeFirst.currentIndex);
+  await ui.click('play-button');
+  await ui.click('restart-button');
+  ui.mode('timed');
+  await ui.click('play-button');
+  ui.advance(-ui.snapshot().elapsed);
+  ui.strike(61);
+  ui.advance(.181);
+  assert.equal(ui.snapshot().lesson.hits, 1);
+  assert.equal(ui.snapshot().lesson.misses, 1);
+  assert.ok(ui.$('score').querySelector('[fill="#16875d"]'));
+  assert.ok(ui.$('score').querySelector('[fill="#d63349"]'));
+  await ui.click('play-button');
+  ui.mode('wait');
+  checks.push('actual Phoebe first chord blocks wrong input, advances only when complete, and grades separate timed hit/miss heads');
+
+  await ui.select('conversion-test-nwc');
   await settle(() => ui.snapshot().model && !ui.$('song-select').disabled, 'render NWC score');
   assert.equal(ui.snapshot().model.notes, 20);
   assert.ok(ui.$('score').querySelector('svg'));
@@ -230,24 +299,29 @@ async function run() {
   assert.equal(ui.snapshot().lesson.misses, 0);
   checks.push('last attack is separate from playback end; pause/resume preserves final held-note grades');
 
-  const uploadedXML = sourceXML.replaceAll('Cuthbert NWC Test', 'Saved integration fixture');
-  const archive = zipSync({
-    'META-INF/container.xml': strToU8('<container><rootfiles><rootfile full-path="score.musicxml" media-type="application/vnd.recordare.musicxml+xml"/></rootfiles></container>'),
-    'score.musicxml': strToU8(uploadedXML),
-  });
-  await ui.upload('saved-integration.mxl', archive);
-  assert.ok(!ui.$('import-message').classList.contains('error'), ui.$('import-message').textContent);
+  // This simulates the repository catalog produced AFTER a GitHub commit/build.
+  // Merely opening the native upload page cannot change this catalog or claim success.
+  const savedId = 'upload-integration-repository';
+  const savedPath = 'scores/upload-integration-repository.musicxml';
+  remoteScores.set(savedPath, sourceXML.replaceAll('Cuthbert NWC Test', 'Saved integration fixture'));
+  remoteCatalog.songs.push({id: savedId, title: 'Saved integration fixture', composer: 'Integration test', scorePath: savedPath,
+    sourcePath: 'uploads/saved-integration.mxl', sourceFilename: 'saved-integration.mxl'});
+  await ui.click('refresh-library');
+  await settle(() => [...ui.$('song-select').options].some(option => option.value === savedId) && !ui.$('song-select').disabled, 'refresh newly committed repository score');
+  await ui.select(savedId);
   assert.equal(ui.snapshot().model.title, 'Saved integration fixture');
-  const savedId = ui.snapshot().selectedId;
-  assert.match(savedId, /^upload-/);
-  assert.equal(ui.snapshot().songCount, 3);
-  assert.ok(!/storage is unavailable/.test(ui.$('import-message').textContent));
-  await ui.upload('invalid.musicxml', strToU8('<not-a-score/>'));
-  assert.ok(ui.$('import-message').classList.contains('error'));
+  assert.equal(ui.snapshot().model.notes, 20);
+  assert.ok(ui.$('local-recovery').hidden, 'Repository score is not presented as local-only recovery.');
+  remoteUnavailable = true;
+  await ui.click('refresh-library');
+  await settle(() => !ui.$('library-message').hidden && !ui.$('refresh-library').disabled, 'failed catalog refresh');
   assert.equal(ui.snapshot().selectedId, savedId);
   assert.equal(ui.snapshot().model.notes, 20);
   assert.ok(ui.$('score').querySelector('svg'));
-  checks.push('real MXL upload saves to IndexedDB; rejected upload retains usable prior score');
+  assert.match(ui.$('library-message').textContent, /could not be loaded/i);
+  assert.ok(!/saved to GitHub|uploaded successfully/i.test(ui.$('library-message').textContent));
+  remoteUnavailable = false;
+  checks.push('new GitHub catalog score becomes selectable; failed refresh preserves active score and never claims upload success');
 
   const speedInput = ui.$('tempo');
   speedInput.value = '75';
@@ -256,14 +330,13 @@ async function run() {
   ui.dom.window.close();
   ui = await boot();
   assert.equal(ui.snapshot().selectedId, savedId);
-  assert.equal(ui.snapshot().songCount, 3);
   assert.equal(ui.snapshot().model.title, 'Saved integration fixture');
   assert.equal(ui.snapshot().model.notes, 20);
   assert.equal(ui.snapshot().mode, 'timed');
   assert.equal(ui.snapshot().speed, .75);
   assert.ok(ui.$('score').querySelector('svg'));
   assert.equal(ui.snapshot().lesson.hits, 0);
-  checks.push('fresh page/module restores saved score, selection, mode and speed without re-upload');
+  checks.push('fresh page/module restores repository score, last selection, mode and speed without re-upload');
 
   ui.dom.window.close();
   ui = await boot({resume: 'deferred'});
@@ -301,6 +374,20 @@ async function run() {
   await ui.click('play-button');
   checks.push('rejected audio resume leaves audio clock frozen but count-in, score and missed-note grading continue silently');
   assert.deepEqual(errors, []);
+  ui.dom.window.close();
+  // A new device has no IndexedDB score data or remembered selection, but every
+  // GitHub-backed score remains available and Phoebe is the first/default song.
+  indexedDB = new IDBFactory();
+  saved.clear();
+  ui = await boot();
+  assert.equal(ui.snapshot().selectedId, 'phoebe-bridgers-i-know-the-end');
+  assert.equal(ui.snapshot().model.attacks, 1396);
+  assert.ok([...ui.$('song-select').options].some(option => option.value === savedId));
+  assert.ok(![...ui.$('song-select').options].some(option => option.value.startsWith('local-')));
+  await ui.select(savedId);
+  assert.equal(ui.snapshot().model.title, 'Saved integration fixture');
+  checks.push('independent device reads shared GitHub songs with no local score storage, defaults to Phoebe');
+  assert.ok(fetchRequests.every(request => !request.options.headers?.Authorization));
   ui.dom.window.close();
   console.log(JSON.stringify({status: 'pass', checks, silent: true, generations: generation}, null, 2));
 }

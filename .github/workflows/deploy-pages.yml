@@ -7,6 +7,7 @@ on:
       - 'src/**'
       - 'public/riff-builder/**'
       - 'public/piano/**'
+      - 'scripts/piano/**'
       - 'public/data/fretboard-efficiency*.json'
       - 'public/fretboard-efficiency/**'
       - 'tests/**'
