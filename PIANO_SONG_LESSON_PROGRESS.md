@@ -507,3 +507,9 @@ Release and live acceptance:
 - [x] Replace the whole-page SVG `getBBox()` fit/gutter check with a brace-specific left gutter for multi-staff scores. Whole-page bounds include long lyrics/direction text unrelated to musical measure widths; on a narrow screen the old algorithm repeatedly added gutters without making the music fit. Keep engraving-derived measure width and two-row height calculations. Existing real-brace clipping regression also passes.
 - [x] Add a real uploaded-file regression with simulated enormous SVG text overhang at 390px width, alongside six narrow-size combinations. The previous algorithm would exhaust its eight passes on this case.
 - [ ] Verify fixed build, release and device playback after deployment.
+### 2026-11-18 — Softer piano playback tone
+
+- [x] Replace the two-oscillator triangle/sine tone with four independently decaying, mildly stretched sine partials. Upper harmonics decay rapidly, while the fundamental sustains; short release stops notes cleanly.
+- [x] Keep the lesson's existing note onset/duration/velocity scheduling, MIDI grading, Sound toggle and offline/no-autoplay behavior.
+- [x] Add a silent unit test for frequency, envelope decay, oscillator count and stop behavior.
+- [ ] Confirm GitHub CI, Pages deployment and subjective listening approval separately.

@@ -1,4 +1,4 @@
-/** A small local Web Audio instrument. No autoplay, sample download or MIDI output. */
+/** A small, offline piano-like Web Audio instrument. No autoplay or MIDI output. */
 export class PianoAudio {
   constructor() { this.context = null; this.master = null; this.voices = new Set(); this.enabled = true; }
   async unlock() {
@@ -25,31 +25,59 @@ export class PianoAudio {
     if (!this.context || this.context.state !== 'running' || !this.enabled) return;
     const start = this.context.currentTime + Math.max(0, when - this.time);
     const length = Math.max(.04, duration);
-    const gain = this.context.createGain();
     const frequency = 440 * Math.pow(2, (midi - 69) / 12);
-    const fundamental = this.context.createOscillator();
-    const overtone = this.context.createOscillator();
-    fundamental.type = 'triangle'; fundamental.frequency.value = frequency;
-    overtone.type = 'sine'; overtone.frequency.value = frequency * 2;
-    const harmonicGain = this.context.createGain(); harmonicGain.gain.value = .11;
-    fundamental.connect(gain); overtone.connect(harmonicGain); harmonicGain.connect(gain); gain.connect(this.master);
-    const level = Math.max(.01, Math.min(1, velocity)) * .33;
-    gain.gain.setValueAtTime(.0001, start);
-    gain.gain.exponentialRampToValueAtTime(level, start + .008);
-    gain.gain.exponentialRampToValueAtTime(Math.max(.0002, level * .35), start + Math.min(.3, length * .8));
-    gain.gain.exponentialRampToValueAtTime(.0001, start + length + .12);
-    const voice = {fundamental, overtone, gain, harmonicGain};
+    const level = Math.max(.01, Math.min(1, velocity));
+    // A piano string is struck, then its brighter partials decay more quickly
+    // than its fundamental. Slightly stretched harmonics mimic string stiffness.
+    // Four sines avoid the steady triangle-wave/organ quality of the old tone.
+    const partials = [
+      {multiple: 1, amplitude: .38, decay: 1.8},
+      {multiple: 2, amplitude: .20, decay: .65},
+      {multiple: 3, amplitude: .085, decay: .24},
+      {multiple: 4, amplitude: .045, decay: .085},
+    ];
+    const oscillators = [];
+    const gains = [];
+    const release = .15;
+    const end = start + length + release;
+    for (const {multiple, amplitude, decay} of partials) {
+      const oscillator = this.context.createOscillator();
+      const gain = this.context.createGain();
+      oscillator.type = 'sine';
+      oscillator.frequency.value = multiple === 1 ? frequency
+        : frequency * multiple * Math.sqrt(1 + .00012 * multiple * multiple);
+      oscillator.connect(gain);
+      gain.connect(this.master);
+      const peak = Math.max(.0002, level * amplitude);
+      const held = Math.max(.0001, peak * Math.exp(-length / decay));
+      gain.gain.setValueAtTime(.0001, start);
+      gain.gain.exponentialRampToValueAtTime(peak, start + .004);
+      gain.gain.exponentialRampToValueAtTime(held, start + length);
+      gain.gain.exponentialRampToValueAtTime(.0001, end);
+      oscillators.push(oscillator);
+      gains.push(gain);
+    }
+    const voice = {oscillators, gains};
     this.voices.add(voice);
-    fundamental.onended = () => {
+    oscillators[0].onended = () => {
       this.voices.delete(voice);
-      fundamental.disconnect(); overtone.disconnect(); harmonicGain.disconnect(); gain.disconnect();
+      for (const oscillator of oscillators) oscillator.disconnect();
+      for (const gain of gains) gain.disconnect();
     };
-    fundamental.start(start); overtone.start(start);
-    fundamental.stop(start + length + .14); overtone.stop(start + length + .14);
+    for (const oscillator of oscillators) {
+      oscillator.start(start);
+      oscillator.stop(end + .01);
+    }
   }
   stopAll() {
     for (const voice of this.voices) {
-      try { voice.gain.gain.cancelScheduledValues(this.context.currentTime); voice.gain.gain.setValueAtTime(0, this.context.currentTime); voice.fundamental.stop(); voice.overtone.stop(); } catch (_) {}
+      for (const gain of voice.gains) {
+        gain.gain.cancelScheduledValues(this.context.currentTime);
+        gain.gain.setValueAtTime(0, this.context.currentTime);
+      }
+      for (const oscillator of voice.oscillators) {
+        try { oscillator.stop(); } catch (_) {}
+      }
     }
     this.voices.clear();
   }
