@@ -71,7 +71,7 @@ h3 { font-size: 20px; margin: 0 0 10px; }
 .miss-count { color: var(--red); }
 .progress-track { height: 3px; background: #283140; }
 #progress-fill { height: 100%; width: 0; background: #b49af5; transition: width .18s ease; }
-.score-viewport { background: #fff; color: #172033; position: relative; overflow: auto; max-height: 660px; min-height: 250px; scroll-behavior: smooth; scrollbar-color: #aeb6c2 #f4f5f7; }
+.score-viewport { background: #fff; color: #172033; position: relative; overflow: auto; scrollbar-gutter: stable; max-height: 660px; min-height: 250px; scroll-behavior: smooth; scrollbar-color: #aeb6c2 #f4f5f7; }
 #score { min-width: 590px; padding: 12px 0 28px; position: relative; }
 #score svg { display: block; }
 #score .cursorImg { pointer-events: none; }
