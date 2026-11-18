@@ -1,16 +1,16 @@
 const keys = [
-  { label: "C", count: 0, type: "none", color: "#34A853" },
-  { label: "G", count: 1, type: "sharp", color: "#7CB342" },
-  { label: "D", count: 2, type: "sharp", color: "#C0CA33" },
-  { label: "A", count: 3, type: "sharp", color: "#FDD835" },
-  { label: "E", count: 4, type: "sharp", color: "#FFB300" },
-  { label: "B", count: 5, type: "sharp", color: "#FB8C00" },
-  { label: "F#/Gb", count: 6, type: "either", color: "#EA4335" },
-  { label: "Db", count: 5, type: "flat", color: "#7E57C2" },
-  { label: "Ab", count: 4, type: "flat", color: "#5C6BC0" },
-  { label: "Eb", count: 3, type: "flat", color: "#42A5F5" },
-  { label: "Bb", count: 2, type: "flat", color: "#26A69A" },
-  { label: "F", count: 1, type: "flat", color: "#5BBE7A" }
+  { label: "C", pitchClass: 0, count: 0, type: "none", color: "#34A853" },
+  { label: "G", pitchClass: 7, count: 1, type: "sharp", color: "#7CB342" },
+  { label: "D", pitchClass: 2, count: 2, type: "sharp", color: "#C0CA33" },
+  { label: "A", pitchClass: 9, count: 3, type: "sharp", color: "#FDD835" },
+  { label: "E", pitchClass: 4, count: 4, type: "sharp", color: "#FFB300" },
+  { label: "B", pitchClass: 11, count: 5, type: "sharp", color: "#FB8C00" },
+  { label: "F#/Gb", pitchClass: 6, count: 6, type: "either", color: "#EA4335" },
+  { label: "Db", pitchClass: 1, count: 5, type: "flat", color: "#7E57C2" },
+  { label: "Ab", pitchClass: 8, count: 4, type: "flat", color: "#5C6BC0" },
+  { label: "Eb", pitchClass: 3, count: 3, type: "flat", color: "#42A5F5" },
+  { label: "Bb", pitchClass: 10, count: 2, type: "flat", color: "#26A69A" },
+  { label: "F", pitchClass: 5, count: 1, type: "flat", color: "#5BBE7A" }
 ];
 
 const ANSWER_PITCH_CLASS = {
@@ -23,7 +23,7 @@ const ANSWER_PITCH_CLASS = {
   6: 11  // B
 };
 
-const GREY = "#D6D9DF";
+const NEUTRAL = "#202833";
 const WRONG = "#E53935";
 
 const svg = document.getElementById("circleSvg");
@@ -43,6 +43,7 @@ let currentIndex = null;
 let remaining = [];
 let solved = new Set();
 let locked = false;
+let feedbackTimer = null;
 let questionNumber = 0;
 let wedgePaths = [];
 let labels = [];
@@ -104,7 +105,7 @@ function drawCircle() {
         startAngle,
         endAngle
       ),
-      fill: GREY,
+      fill: NEUTRAL,
       class: "wedge"
     });
 
@@ -169,6 +170,8 @@ function setMidiConnection(connected) {
 }
 
 function resetLesson() {
+  window.clearTimeout(feedbackTimer);
+  feedbackTimer = null;
   remaining = keys.map((_, index) => index);
 
   solved = new Set();
@@ -178,7 +181,7 @@ function resetLesson() {
   restartButton.hidden = true;
 
   wedgePaths.forEach((path) => {
-    path.setAttribute("fill", GREY);
+    path.setAttribute("fill", NEUTRAL);
   });
 
   labels.forEach((label) => {
@@ -232,7 +235,7 @@ function nextQuestion() {
 
   wedgePaths.forEach((path, index) => {
     if (!solved.has(index)) {
-      path.setAttribute("fill", GREY);
+      path.setAttribute("fill", NEUTRAL);
     }
   });
 
@@ -306,23 +309,22 @@ function handleMidiMessage(event) {
   if (playedPitchClass === expectedPitchClass) {
     handleCorrect();
   } else {
-    handleWrong();
+    handleWrong(playedPitchClass);
   }
 }
 
-function handleWrong() {
+function handleWrong(playedPitchClass) {
   locked = true;
 
-  const path =
-    wedgePaths[currentIndex];
-
-  const originalColor =
-    keys[currentIndex].color;
+  const playedIndex = keys.findIndex((key) => key.pitchClass === playedPitchClass);
+  const path = wedgePaths[playedIndex];
+  const originalColor = path.getAttribute("fill");
 
   path.setAttribute("fill", WRONG);
   setStatus("Wrong", "error");
 
-  window.setTimeout(() => {
+  feedbackTimer = window.setTimeout(() => {
+    feedbackTimer = null;
     path.setAttribute(
       "fill",
       originalColor
@@ -345,7 +347,7 @@ function handleCorrect() {
 
   wedgePaths[solvedIndex].setAttribute(
     "fill",
-    GREY
+    NEUTRAL
   );
 
   labels[solvedIndex].style.display =
@@ -366,7 +368,8 @@ function handleCorrect() {
     "success"
   );
 
-  window.setTimeout(() => {
+  feedbackTimer = window.setTimeout(() => {
+    feedbackTimer = null;
     nextQuestion();
   }, 450);
 }

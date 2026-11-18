@@ -13,7 +13,7 @@ const keys = [
   { label: "F", pitchClass: 5, color: "#5BBE7A" }
 ];
 
-const GREY = "#D6D9DF";
+const NEUTRAL = "#202833";
 const WRONG = "#E53935";
 
 const svg = document.getElementById("circleSvg");
@@ -33,6 +33,7 @@ let currentIndex = null;
 let remaining = [];
 let solved = new Set();
 let locked = false;
+let feedbackTimer = null;
 let questionNumber = 0;
 let wedgePaths = [];
 let checkMarks = [];
@@ -93,7 +94,7 @@ function drawCircle() {
         startAngle,
         endAngle
       ),
-      fill: GREY,
+      fill: NEUTRAL,
       class: "wedge"
     });
 
@@ -144,6 +145,8 @@ function setMidiConnection(connected) {
 }
 
 function resetLesson() {
+  window.clearTimeout(feedbackTimer);
+  feedbackTimer = null;
   remaining = keys.map((_, index) => index);
   solved = new Set();
   locked = false;
@@ -152,7 +155,7 @@ function resetLesson() {
   restartButton.hidden = true;
 
   wedgePaths.forEach((path) => {
-    path.setAttribute("fill", GREY);
+    path.setAttribute("fill", NEUTRAL);
   });
 
   checkMarks.forEach((check) => {
@@ -186,7 +189,7 @@ function nextQuestion() {
 
   wedgePaths.forEach((path, index) => {
     if (!solved.has(index)) {
-      path.setAttribute("fill", GREY);
+      path.setAttribute("fill", NEUTRAL);
     }
   });
 
@@ -239,20 +242,22 @@ function handleMidiMessage(event) {
   if (playedPitchClass === target.pitchClass) {
     handleCorrect();
   } else {
-    handleWrong();
+    handleWrong(playedPitchClass);
   }
 }
 
-function handleWrong() {
+function handleWrong(playedPitchClass) {
   locked = true;
 
-  const path = wedgePaths[currentIndex];
-  const originalColor = keys[currentIndex].color;
+  const playedIndex = keys.findIndex((key) => key.pitchClass === playedPitchClass);
+  const path = wedgePaths[playedIndex];
+  const originalColor = path.getAttribute("fill");
 
   path.setAttribute("fill", WRONG);
   setStatus("Wrong", "error");
 
-  window.setTimeout(() => {
+  feedbackTimer = window.setTimeout(() => {
+    feedbackTimer = null;
     path.setAttribute("fill", originalColor);
     setStatus(
       "Question " + questionNumber + " of " + keys.length,
@@ -269,7 +274,7 @@ function handleCorrect() {
   const path = wedgePaths[solvedIndex];
   const check = checkMarks[solvedIndex];
 
-  path.setAttribute("fill", GREY);
+  path.setAttribute("fill", NEUTRAL);
   check.style.display = "block";
 
   solved.add(solvedIndex);
@@ -280,7 +285,8 @@ function handleCorrect() {
 
   setStatus("Correct ✓", "success");
 
-  window.setTimeout(() => {
+  feedbackTimer = window.setTimeout(() => {
+    feedbackTimer = null;
     nextQuestion();
   }, 450);
 }

@@ -107,7 +107,7 @@ button:disabled {
 
 .check {
   fill: #172033;
-  font-size: 30px;
+  font-size: 40px;
   font-weight: 900;
   text-anchor: middle;
   dominant-baseline: middle;
@@ -219,12 +219,17 @@ button {
   background: #1b2330;
   color: #f3f4f6;
 }
-.wedge { stroke: rgba(255,255,255,.18); }
+.wedge { stroke: #667085; }
 .center-disc {
   fill: #141a22;
   stroke: rgba(255,255,255,.10);
 }
-.check { fill: #f3f4f6; }
+.check {
+  fill: #4ade80;
+  stroke: #10261a;
+  stroke-width: 2px;
+  paint-order: stroke fill;
+}
 .midi-button,
 .midi-connection {
   background: #2a1417;
