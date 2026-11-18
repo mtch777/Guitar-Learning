@@ -22,7 +22,7 @@ def _unit(value):
     return max(0., min(1., value))
 
 
-def analyze_functions(features, repeats=None, lead_channels=(), weights=None, lyric_evidence=None):
+def analyze_functions(features, repeats=None, lead_channels=(), weights=None, lyric_evidence=None, recording_evidence=None):
     """Return hypotheses for existing repeated groups, plus one row per bar.
 
     lead_channels are caller-confirmed vocal/melodic foreground channel IDs, not
@@ -141,4 +141,6 @@ def analyze_functions(features, repeats=None, lead_channels=(), weights=None, ly
                     'No intro/outro, bridge, breakdown or solo classification in this pass.'])
 
     from lyric_refrain_evidence import attach_lyric_evidence, feature_fingerprint
-    return attach_lyric_evidence(result, lyric_evidence, feature_fingerprint(features) if lyric_evidence is not None else None)
+    result = attach_lyric_evidence(result, lyric_evidence, feature_fingerprint(features) if lyric_evidence is not None else None)
+    from recording_function_evidence import attach_recording_evidence
+    return attach_recording_evidence(result, recording_evidence, feature_fingerprint(features) if recording_evidence is not None else None)
