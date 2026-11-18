@@ -4,30 +4,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Learning Songs · Practice</title>
-  <link rel="stylesheet" href="../shared/category.css?v=9bdd1922ec2a">
-  <meta name="build-version" content="9bdd1922ec2a">
+  <meta name="theme-color" content="#0b0f14">
+  <link rel="stylesheet" href="./style.css?v=c3c1f0a4879a">
+  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=c3c1f0a4879a"></script>
+  <script defer src="./vendor/fflate-0.8.3.min.js?v=c3c1f0a4879a"></script>
+  <script defer src="../shared/tracker.js?v=c3c1f0a4879a"></script>
+  <script defer src="../shared/midi.js?v=c3c1f0a4879a"></script>
+  <script type="module" src="./script.js?v=c3c1f0a4879a"></script>
+  <meta name="build-version" content="c3c1f0a4879a">
 </head>
 <body>
-  <main class="page">
-    <a class="back" href="../?v=9bdd1922ec2a">← Practice</a>
-
-    <header class="category-hero">
-      <span class="category-icon">🎵</span>
-      <div>
-        <h1>Learning Songs</h1>
-      </div>
-    </header>
-
-    <section class="lesson-list">
-      <div class="empty-state">No lessons here yet.</div>
+  <main class="lesson-shell">
+    <nav class="lesson-nav"><a href="../?v=c3c1f0a4879a">← Practice</a><span>PIANO / LEARNING SONGS</span></nav>
+    <header class="page-heading"><div><p class="eyebrow">YOUR MUSIC, AT YOUR PACE</p><h1>Learning songs</h1></div><span class="heading-mark" aria-hidden="true">♬</span></header>
+    <section class="song-library card" aria-labelledby="library-heading">
+      <div class="song-picker"><label id="library-heading" for="song-select">Song library</label><select id="song-select" aria-describedby="library-note"><option>Loading songs…</option></select></div>
+      <button id="upload-button" type="button" class="button secondary">Upload <span>(.musicxml, .xml, .mxl)</span></button>
+      <input id="song-upload" type="file" accept=".musicxml,.xml,.mxl,application/vnd.recordare.musicxml+xml,application/vnd.recordare.musicxml" multiple hidden>
+      <p id="library-note" class="muted library-note">Your uploads and last selection are saved in this browser.</p>
     </section>
+    <fieldset class="lesson-modes" id="lesson-modes">
+      <legend>Lesson mode</legend>
+      <label class="mode-card"><input type="radio" name="lesson-mode" value="wait" checked><span class="mode-number">1</span><span><strong>Wait for me</strong><small>The score advances when you hit every right note.</small></span></label>
+      <label class="mode-card"><input type="radio" name="lesson-mode" value="timed"><span class="mode-number">2</span><span><strong>Play in time</strong><small>The music keeps going. Hits turn green; misses turn red.</small></span></label>
+    </fieldset>
+    <section class="score-card card" aria-labelledby="song-title">
+      <header class="score-heading"><div><h2 id="song-title">Loading…</h2><p id="song-composer" class="muted"></p></div><span id="song-detail" class="song-detail"></span></header>
+      <div class="transport">
+        <div class="transport-primary"><button id="play-button" class="button primary" type="button" disabled><span aria-hidden="true">▶</span> Play</button><button id="restart-button" class="button secondary" type="button" disabled><span aria-hidden="true">↺</span> Restart</button></div>
+        <div class="transport-options"><label class="tempo-control" for="tempo"><span>Speed <output id="tempo-label" for="tempo">100%</output></span><input id="tempo" type="range" min="25" max="150" step="5" value="100"></label><label class="sound-control"><input id="sound-enabled" type="checkbox" checked> Sound</label></div>
+      </div>
+      <div class="practice-bar"><p id="practice-status" role="status" aria-live="polite">Choose a score to begin.</p><div class="score-counts" aria-label="Lesson results"><span class="hit-count">✓ <strong id="hit-count">0</strong> hit</span><span class="miss-count">× <strong id="miss-count">0</strong> missed</span><span><strong id="progress-count">0 / 0</strong></span></div></div>
+      <div class="progress-track"><div id="progress-fill"></div></div>
+      <div id="import-message" class="notice" role="status" hidden></div>
+      <div id="score-warnings" class="notice warning" hidden></div>
+      <div class="score-viewport" id="score-viewport">
+        <div id="empty-score" class="empty-score" hidden><span class="empty-icon" aria-hidden="true">♩</span><h3 id="empty-title"></h3><p id="empty-description"></p><div class="empty-actions"><button id="empty-upload" type="button" class="button primary">Upload this score</button><button id="test-score-button" type="button" class="button secondary">Try the conversion test score</button></div></div>
+        <div id="score" aria-label="Interactive sheet music"></div>
+      </div>
+      <footer class="score-footer"><div class="legend"><span><i class="legend-dot current"></i> Current</span><span><i class="legend-dot hit"></i> Hit</span><span><i class="legend-dot miss"></i> Missed</span></div><span id="grading-note">Pitch and note starts are graded.</span></footer>
+    </section>
+    <section class="input-card card" aria-labelledby="input-heading"><div class="input-heading"><div><h2 id="input-heading">Your keyboard</h2><p id="midi-status" class="muted">Connect a MIDI keyboard, or use the keys below.</p></div><button id="midi-button" type="button" class="button secondary"><span id="midi-dot" class="connection-dot"></span> Enable MIDI</button></div>
+      <div class="keyboard-tools"><button id="octave-down" type="button" class="small-button" aria-label="Keyboard one octave lower">− Octave</button><span id="keyboard-range"></span><button id="octave-up" type="button" class="small-button" aria-label="Keyboard one octave higher">+ Octave</button></div>
+      <div id="keyboard" class="keyboard" aria-label="On-screen piano keyboard"></div>
+      <p class="keyboard-help muted">Click or tap keys to test. Computer keyboard: <kbd>A</kbd>–<kbd>K</kbd> for white keys, <kbd>W E T Y U</kbd> for black keys. <kbd>Z</kbd>/<kbd>X</kbd> changes octave.</p>
+    </section>
+    <p class="page-footnote">Upload a MusicXML score directly, or export one from your notation app. Practice data stays on this device.</p>
   </main>
-
-  <script src="../shared/tracker.js?v=9bdd1922ec2a"></script>
-  <script>
-    if (window.PracticeTracker) {
-      window.PracticeTracker.renderCounts(document);
-    }
-  </script>
 </body>
 </html>
