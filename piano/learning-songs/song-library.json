@@ -43,6 +43,18 @@
       "attackCount": 179
     },
     {
+      "id": "upload-9ff086d6c9f2eb81535f9a90f6c7decef87125dcd0344bb371ab2280d65018ea",
+      "title": "I Know the End",
+      "composer": "Phoebe Bridgers",
+      "scorePath": "scores/upload-9ff086d6c9f2eb81535f9a90f6c7decef87125dcd0344bb371ab2280d65018ea.musicxml",
+      "sourcePath": "uploads/I_Know_the_End.musicxml",
+      "sourceFilename": "I_Know_the_End.musicxml",
+      "sha256": "9ff086d6c9f2eb81535f9a90f6c7decef87125dcd0344bb371ab2280d65018ea",
+      "sourceSha256": "b16d8dfe3fd19c9f841e67c0325fa9a471b12fa6f6bea94c73ceb80d0b9c38dc",
+      "noteCount": 990,
+      "attackCount": 990
+    },
+    {
       "id": "upload-734aa2f1e2baa21664a3c34e542730c48bd9c444087544e9b02df32d60a55a72",
       "title": "MusicXML-upload-test",
       "composer": "",
