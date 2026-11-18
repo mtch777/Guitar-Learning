@@ -296,7 +296,7 @@ and keep the complete playing interface on screen without scrolling.
   adjacency, bottom MIDI/Show-Hide controls and no removed-UI remnants.
 - [x] Preserve shared uploads/selection, both lesson modes, MIDI/touch grading,
   full song-range keyboard, sustained highlights and remembered visibility.
-- [ ] Verify renderer/application behavior and realistic portrait/landscape
+- [x] Verify renderer/application behavior and realistic portrait/landscape
   geometry silently, build/publish and inspect the actual live release.
 
 Counterexamples: a partial third system or clipped high ledger note does not
@@ -342,3 +342,25 @@ Local verification:
 - Updated renderer helper computes tight bounds from actual OSMD brace paths,
   reproduces the previous failure and passes with every final brace inside the
   SVG. The complete renderer/row/height-resize/atomic-load checks still pass.
+- Corrected source release `206550af31901bc67fddae917c673db9358e4fa9` passed
+  build/regression/publish run 44230265584 and Pages deployment 44230374751.
+  Published branch commit: `a2cb9eb9b9a321c5eb94248d968c6fe441f669f2`.
+  Live browser confirmed build `206550af3190` and a successfully loaded score.
+- At the live 1363×936 viewport, page scroll dimensions also measure 1363×936.
+  The score is 300px high, the keyboard begins exactly at its bottom (0px gap),
+  and the complete lesson card ends at y=565. Only two systems are visible;
+  printed title/credits and removed controls/legend/Details are absent.
+- Silent live continuous playback advanced from systems 1–2 to 2–3. The cursor
+  remained entirely inside the clipped score window, two sounding keys were
+  highlighted, and document/score scroll offsets remained zero.
+- Ordinary browser zoom exercised smaller CSS viewports, not physical devices.
+  At 681×468, the score refit to 260px and all bottom buttons ended by y=461.
+  At 545×374, the narrow controls layout refit the score to 99.4px, preserving
+  two complete systems and the paused cursor; bottom buttons ended by y=367.6.
+  Page scroll dimensions equaled each viewport, with zero score/keyboard gap.
+  Resize preserved progress 102/1396. Show/Hide kept its button accessible,
+  preserved progress, and refit the score when the keyboard was hidden.
+- Restored browser zoom and speed to 100%, selected Wait for correct notes,
+  restarted to Ready with systems 1–2, and left the keyboard shown and Sound off.
+  Captured the complete compact lesson view for the final reply. Physical MIDI
+  hardware and listening acceptance were not exercised; no UI blocker remains.
