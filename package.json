@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@xmldom/xmldom": "0.9.12",
     "vite": "^7.1.0"
   }
 }
