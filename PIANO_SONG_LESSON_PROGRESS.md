@@ -239,8 +239,8 @@ the keyboard shown by default.
   overlaps), and show current required pitches in wait mode.
 - [x] Add an accessible Show/Hide control, shown by default, without changing
   playback or grading when the visual keyboard is hidden.
-- [ ] Run relevant renderer/application checks, build/publish, and inspect the
-  live layout at desktop and phone widths silently.
+- [x] Run relevant renderer/application checks, build/publish, and inspect the
+  live layout at desktop and narrow viewport widths silently.
 
 Counterexamples: Phoebe's actual range has black endpoints (MIDI46–97); its first
 low note sustains while the upper notes change. A narrow page must not clip bars,
@@ -261,4 +261,22 @@ Local verification:
 - Initial integration assertion exposed CSSOM percentage rounding
   (97.9752% + 2.02482% = 100.00002%); the mathematical layout fits exactly.
   Corrected the CSS-string assertion to allow subpixel serialization rounding.
-- `npm run build`: passed. Publication and live inspection pending below.
+- `npm run build`: passed. Source release
+  `ec67ab24a7e9f0065582e9e3ce5aa5ac02cb4b5b` is on main. Build/regression/publish
+  run 44224777250 and Pages deployment 44224880944 both succeeded. Published
+  branch commit: `32fffce8296ce7f04133eaf44b409f37debaee05`.
+- Live browser verified build `ec67ab24a7e9`. At a 337px CSS viewport, score
+  client/scroll widths both measure 307px (previous release scrolled to 590px).
+  Page client/scroll widths both measure 337px. The keyboard has 52 keys spanning
+  MIDI46–97 (A-sharp2 to C-sharp7), fits within 287px, and both black endpoints
+  are fully inside its bounds. Narrow inspection used ordinary 400% browser
+  zoom; this is viewport verification, not physical-phone testing.
+- At normal zoom, page client/scroll widths both measure 1348px and score
+  client/scroll widths both measure 1299px. The score uses the available width.
+  Show/Hide updates visibility, button text and aria-expanded. Silent continuous
+  playback lights C-sharp4/C-sharp6; pausing leaves zero playing highlights.
+  Reset wait mode highlights the same first required pitches. Live screenshot
+  captured; tab left ready, keyboard shown, Sound off, zoom restored to 100%.
+- Independent review found no blocking issue; all 14 tracked score/provenance/
+  original-upload files retain their prior contents. Physical MIDI hardware and
+  listening acceptance were not exercised. No remaining blocker for this UI task.
