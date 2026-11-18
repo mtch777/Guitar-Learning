@@ -224,3 +224,41 @@ Local verification:
   both measure 1348px. Details is closed and playback is reset/ready with sound
   off. Screenshot captured after the cleanup. Mobile/hardware MIDI checks were
   not part of this presentation-only verification.
+
+## Responsive score and song-range keyboard — 2026-11-17
+
+User request: fit sheet music to screen width; show the keyboard from the song's
+lowest to highest note; highlight notes during playback; provide Show/Hide with
+the keyboard shown by default.
+
+- [x] Remove fixed score/page width limits and verify actual engraving fits
+  narrow and desktop widths, including resize with existing grades/cursor.
+- [x] Draw the complete chromatic song range, including black-key endpoints and
+  single-note scores; retain MIDI, touch and computer input.
+- [x] Highlight sounding notes through their full durations (including ties and
+  overlaps), and show current required pitches in wait mode.
+- [x] Add an accessible Show/Hide control, shown by default, without changing
+  playback or grading when the visual keyboard is hidden.
+- [ ] Run relevant renderer/application checks, build/publish, and inspect the
+  live layout at desktop and phone widths silently.
+
+Counterexamples: Phoebe's actual range has black endpoints (MIDI46–97); its first
+low note sustains while the upper notes change. A narrow page must not clip bars,
+and a hidden keyboard must not stop MIDI grading. Preserve all score source data.
+
+Local verification:
+
+- `node --test tests/piano-*.test.mjs`: 73/73 pass, including four new keyboard
+  range/timing tests using both authored boundaries and the actual Phoebe score.
+- Existing silent application helper: 17 checks across seven fresh boots pass.
+  Full range/black endpoints, fixed display during input-octave changes,
+  sustained lower notes with changing upper notes, pause/resume/restart, hidden
+  MIDI practice and remembered visibility are exercised.
+- Existing actual-renderer helper: full Phoebe score maps all 1,622 notation
+  items at 390/320/280/1348px. SVG/head bounds, minimum non-overlapping measure
+  widths, cursor/grade preservation and observer lifecycle pass. These helper
+  sizes are engraving checks; live browser geometry is recorded separately.
+- Initial integration assertion exposed CSSOM percentage rounding
+  (97.9752% + 2.02482% = 100.00002%); the mathematical layout fits exactly.
+  Corrected the CSS-string assertion to allow subpixel serialization rounding.
+- `npm run build`: passed. Publication and live inspection pending below.

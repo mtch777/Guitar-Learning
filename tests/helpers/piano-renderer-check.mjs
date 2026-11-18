@@ -25,8 +25,15 @@ window.HTMLCanvasElement.prototype.getContext = function(type) {
 window.HTMLCanvasElement.prototype.toDataURL = function() {
   return canvases.get(this)?.toDataURL() || createCanvas(1, 1).toDataURL();
 };
-Object.defineProperty(window.HTMLElement.prototype, 'clientWidth', {get() { return 900; }});
-Object.defineProperty(window.HTMLElement.prototype, 'offsetWidth', {get() { return 900; }});
+let availableWidth = 900;
+Object.defineProperty(window.HTMLElement.prototype, 'clientWidth', {get() { return availableWidth; }});
+Object.defineProperty(window.HTMLElement.prototype, 'offsetWidth', {get() { return availableWidth; }});
+const observers = [];
+window.ResizeObserver = class {
+  constructor(callback) { this.callback = callback; observers.push(this); }
+  observe(target) { this.target = target; }
+  disconnect() { this.disconnected = true; }
+};
 window.eval(readFileSync(resolve(root, 'public/piano/learning-songs/vendor/opensheetmusicdisplay-2.3.1.min.js'), 'utf8'));
 const xml = readFileSync(resolve(root, 'public/piano/learning-songs/scores/conversion-test.musicxml'), 'utf8');
 const model = parseMusicXML(xml, {DOMParser: window.DOMParser, XMLSerializer: window.XMLSerializer});
@@ -90,5 +97,43 @@ assert.equal(renderer.osmd, previousDisplay, 'A failed replacement preserves the
 assert.equal(window.document.querySelector('svg'), previousSvg, 'A failed replacement preserves its original SVG.');
 assert.equal(renderer.appliedColors.get('tied-c'), '#16875d');
 console.log(JSON.stringify({complexReport, tieUnisonHeads: cAttack.noteIds.length, writtenCursorBeats: renderer.cursorPositions.map(position => position.beat), failedReplacementPreserved: true}));
+
+const phoebe = parseMusicXML(readFileSync(resolve(root, 'public/piano/learning-songs/scores/phoebe-bridgers-i-know-the-end.musicxml'), 'utf8'), {DOMParser:window.DOMParser, XMLSerializer:window.XMLSerializer});
+await renderer.load(phoebe);
+assert.equal(renderer.noteMap.size, 1622);
+const hit = phoebe.attacks[0], missed = phoebe.attacks[1], current = phoebe.attacks[2];
+renderer.color(new Map([[hit.id, 'hit'], [missed.id, 'miss']]), [current.id]);
+renderer.cursorAtBeat(123);
+const fitChecks = [];
+for (const width of [390, 320, 280, 1348]) {
+  availableWidth = width;
+  if (width === 390) {
+    observers[0].callback();
+    await new Promise(resolve => setTimeout(resolve, 150));
+  } else renderer.resize();
+  assert.equal(renderer.renderedWidth, width, 'Container width drives engraving.');
+  assert.equal(renderer.beat, 123, 'Width changes retain the native cursor beat.');
+  assert.equal(renderer.noteMap.size, phoebe.notes.length, 'All written notes and rests remain mapped.');
+  for (const id of hit.noteIds) assert.equal(renderer.appliedColors.get(id), '#16875d');
+  for (const id of missed.noteIds) assert.equal(renderer.appliedColors.get(id), '#d63349');
+  for (const id of current.noteIds) assert.equal(renderer.appliedColors.get(id), '#7653b3');
+  for (const svg of window.document.querySelectorAll('svg')) {
+    assert.ok(Number(svg.getAttribute('width')) <= width + .5, 'Actual SVG surface fits its available width.');
+    assert.ok(Number(svg.getAttribute('viewBox').split(/\s+/)[2]) * renderer.osmd.Zoom <= width + .5);
+  }
+  const measures = renderer.osmd.GraphicSheet.MusicPages.flatMap(page => page.MusicSystems.flatMap(system => system.GraphicalMeasures.flat().filter(Boolean)));
+  assert.ok(measures.every(measure => measure.minimumStaffEntriesWidth <= 0 || measure.staffEntriesScaleFactor >= .999), 'Dense measures are not compressed below the renderer\'s non-overlapping width.');
+  const heads = [...renderer.noteMap.values()].filter(({note}) => !note.isRest && !note.isHidden);
+  for (const {graphical} of heads) {
+    const vexNote = graphical.vfnote?.[0];
+    assert.ok(vexNote.getNoteHeadBeginX() * renderer.osmd.Zoom >= -.5, 'No pitched head is clipped on the left.');
+    assert.ok(vexNote.getNoteHeadEndX() * renderer.osmd.Zoom <= width + .5, 'No pitched head is clipped on the right.');
+  }
+  fitChecks.push({width, zoom:renderer.osmd.Zoom, mapped:renderer.noteMap.size, systems:renderer.osmd.GraphicSheet.MusicPages.reduce((sum,page) => sum + page.MusicSystems.length, 0)});
+}
+assert.equal(renderer.osmd.Zoom, 1, 'Expanding back to desktop restores normal notation size.');
+assert.equal(observers[0].target, renderer.container, 'Observe the actual score container, not only window events.');
+console.log(JSON.stringify({responsivePhoebe:fitChecks, observerResize:true, colorsAndCursorPreserved:true}));
 renderer.destroy();
+assert.equal(observers[0].disconnected, true);
 dom.window.close();

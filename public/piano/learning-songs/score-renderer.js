@@ -32,13 +32,69 @@ export class ScoreRenderer {
     this.beat = 0;
     this.loadVersion = 0;
     this.resizeTimer = null;
+    this.renderedWidth = 0;
     this.onResize = () => {
+      if (!this.osmd || Math.abs(this.availableWidth() - this.renderedWidth) < 1) return;
       this.view.clearTimeout(this.resizeTimer);
       this.resizeTimer = this.view.setTimeout(() => {
         if (this.osmd) this.resize();
       }, 120);
     };
-    this.view.addEventListener('resize', this.onResize);
+    if (this.view.ResizeObserver) {
+      this.resizeObserver = new this.view.ResizeObserver(this.onResize);
+      this.resizeObserver.observe(this.container);
+    } else this.view.addEventListener('resize', this.onResize);
+  }
+
+  availableWidth() {
+    const style = this.view.getComputedStyle(this.container);
+    const padding = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0);
+    return Math.max(1, Math.floor((this.container.clientWidth || this.viewport.clientWidth || 800) - padding));
+  }
+
+  renderToWidth(display, host) {
+    const width = this.availableWidth();
+    host.style.width = `${width}px`;
+    display.Zoom = 1;
+    // The web lesson needs a small screen margin, not a printed page's gutters.
+    display.EngravingRules.PageLeftMargin = 1.2;
+    display.EngravingRules.PageRightMargin = 1.2;
+    for (let pass = 0; pass < 4; pass++) {
+      display.render();
+      let requiredWidth = width;
+      for (const page of display.GraphicSheet.MusicPages) {
+        for (const system of page.MusicSystems) {
+          const first = system.GraphicalMeasures[0]?.find(Boolean);
+          if (!first) continue;
+          const start = first.PositionAndShape.AbsolutePosition.x - page.PositionAndShape.AbsolutePosition.x;
+          const measures = system.GraphicalMeasures.reduce((sum, staves) => sum + Math.max(0, ...staves.filter(Boolean).map(measure =>
+            measure.beginInstructionsWidth + measure.minimumStaffEntriesWidth + measure.endInstructionsWidth
+          ).filter(Number.isFinite)), 0);
+          requiredWidth = Math.max(requiredWidth, (start + measures + display.EngravingRules.PageRightMargin) * 10 * display.Zoom);
+        }
+      }
+      // Browser SVG bounds also cover long credits/expressions outside staves.
+      // jsdom has no getBBox; the actual engraving widths above remain testable.
+      for (const svg of host.querySelectorAll('svg')) {
+        if (typeof svg.getBBox !== 'function') continue;
+        try {
+          const bounds = svg.getBBox();
+          const viewWidth = Number(svg.getAttribute('viewBox')?.split(/\s+/)[2]);
+          const svgWidth = Number(svg.getAttribute('width'));
+          if (viewWidth > 0 && svgWidth > 0) {
+            // getBBox reports SVG user units; width/viewBox converts to CSS px.
+            const pixelsPerUnit = svgWidth / viewWidth;
+            requiredWidth = Math.max(requiredWidth, (Math.max(viewWidth, bounds.x + bounds.width) - Math.min(0, bounds.x)) * pixelsPerUnit);
+          }
+        } catch (_) { /* Some browsers cannot measure a hidden replacement yet. */ }
+      }
+      if (requiredWidth <= width + .5 || pass === 3) break;
+      // Re-engrave at a fitting scale instead of cropping/scaling an
+      // old SVG. Native cursor positions and notehead mappings stay coherent.
+      display.Zoom *= width / requiredWidth * .99;
+    }
+    host.style.width = '100%';
+    return width;
   }
 
   async load(model) {
@@ -52,7 +108,7 @@ export class ScoreRenderer {
     host.className = 'lesson-score-render';
     // Lay out a replacement at the real available width without disturbing the
     // currently usable score. A failed load leaves that score and its grades intact.
-    Object.assign(host.style, {visibility: 'hidden', position: 'absolute', width: `${this.container.clientWidth || 800}px`});
+    Object.assign(host.style, {visibility: 'hidden', position: 'absolute', width: `${this.availableWidth()}px`});
     this.container.append(host);
     const display = new Runtime(host, {
       backend: 'svg', autoResize: false, followCursor: false,
@@ -62,10 +118,11 @@ export class ScoreRenderer {
     display.EngravingRules.CursorIgnoreRepetitions = true;
     let mapping;
     let positions;
+    let renderedWidth;
     try {
       await display.load(model.xml);
       if (version !== this.loadVersion) throw new Error('This score load was replaced by a newer selection.');
-      display.render();
+      renderedWidth = this.renderToWidth(display, host);
       mapping = this.indexNotes(display, model);
       positions = this.indexCursor(display, model);
     } catch (error) {
@@ -79,6 +136,7 @@ export class ScoreRenderer {
     host.style.position = '';
     host.style.width = '100%';
     this.osmd = display;
+    this.renderedWidth = renderedWidth;
     this.model = model;
     this.noteMap = mapping.notes;
     this.cursorPositions = positions;
@@ -236,7 +294,7 @@ export class ScoreRenderer {
   resize() {
     if (!this.osmd || !this.model) return;
     const beat = this.beat;
-    this.osmd.render();
+    this.renderedWidth = this.renderToWidth(this.osmd, this.container.firstElementChild);
     const mapping = this.indexNotes(this.osmd, this.model);
     this.noteMap = mapping.notes;
     this.cursorPositions = this.indexCursor(this.osmd, this.model);
@@ -249,6 +307,7 @@ export class ScoreRenderer {
   destroy() {
     this.loadVersion++;
     this.view.removeEventListener('resize', this.onResize);
+    this.resizeObserver?.disconnect();
     this.view.clearTimeout(this.resizeTimer);
     this.osmd?.dispose?.();
     this.osmd = null;

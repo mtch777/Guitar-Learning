@@ -129,6 +129,7 @@ async function boot({resume = 'running', legacySongs = []} = {}) {
   await import(pathToFileURL(resolve(app, 'script.js')).href + `?v=app-check-${++generation}`);
   const $ = id => window.document.getElementById(id);
   const snapshot = () => window.PianoSongLesson.getSnapshot();
+  const keyPitches = (state = '') => [...$('keyboard').querySelectorAll(`.piano-key${state ? '.' + state : ''}`)].map(key => Number(key.dataset.midi));
   const click = async id => { $(id).click(); await new Promise(resolve => setImmediate(resolve)); };
   const midi = (pitch, on = true, velocity = 100) => {
     assert.equal(typeof device.onmidimessage, 'function', 'MIDI must be connected through the real button.');
@@ -151,7 +152,7 @@ async function boot({resume = 'running', legacySongs = []} = {}) {
     await settle(() => snapshot().selectedId === id && !$('song-select').disabled, `select ${id}`);
   };
 
-  return {dom, window, $, clock, frames, sounds, audioControl, snapshot, click, midi, strike, advance, mode, select};
+  return {dom, window, $, clock, frames, sounds, audioControl, snapshot, keyPitches, click, midi, strike, advance, mode, select};
 }
 
 async function run() {
@@ -180,6 +181,22 @@ async function run() {
   assert.equal(ui.$('song-details').open, false, 'Source and grading details start collapsed.');
   assert.match(ui.$('song-description').textContent, /Edgar Roock/);
   assert.match(ui.$('grading-note').textContent, /Note lengths are not graded/);
+  assert.equal(ui.$('keyboard-panel').hidden, false, 'Keyboard is shown by default.');
+  assert.equal(ui.$('keyboard-toggle').getAttribute('aria-expanded'), 'true');
+  const phoebeKeys = Array.from({length:52}, (_, index) => 46 + index);
+  assert.deepEqual(ui.keyPitches(), phoebeKeys, 'All chromatic keys from the real song minimum to maximum appear at once.');
+  assert.ok(ui.$('keyboard').querySelector('[data-midi="46"]').classList.contains('black'));
+  assert.ok(ui.$('keyboard').querySelector('[data-midi="97"]').classList.contains('black'));
+  for (const key of ui.$('keyboard').querySelectorAll('.piano-key')) {
+    assert.ok(parseFloat(key.style.left) >= -1e-8);
+    // CSSOM serializes percentages to fewer digits than the layout arithmetic.
+    assert.ok(parseFloat(key.style.left) + parseFloat(key.style.width) <= 100 + 1e-4, 'Both black endpoints are fully inside the keyboard.');
+  }
+  await ui.click('octave-up');
+  assert.deepEqual(ui.keyPitches(), phoebeKeys, 'Computer input octave does not move the displayed song range.');
+  assert.match(ui.$('input-octave').textContent, /C5.*C6/);
+  await ui.click('octave-down');
+  checks.push('song-range keyboard includes both black endpoints and every intervening pitch; computer octave leaves the view fixed');
   const initialOptions = [...ui.$('song-select').options].map(option => option.value);
   for (const test of remoteCatalog.songs.filter(song => song.testScore)) assert.ok(!initialOptions.includes(test.id));
   assert.ok(!initialOptions.includes('local-old-test-copy'), 'An exact local test copy is hidden.');
@@ -210,30 +227,50 @@ async function run() {
   await ui.click('play-button');
   const phoebeFirst = ui.snapshot().lesson;
   assert.deepEqual(phoebeFirst.requiredPitches, [61, 85]);
+  assert.deepEqual(ui.keyPitches('current'), [61, 85], 'Wait mode shows all required chord keys.');
   ui.strike(60);
   assert.equal(ui.snapshot().lesson.hits, 0);
   assert.equal(ui.snapshot().lesson.currentIndex, phoebeFirst.currentIndex);
+  await ui.click('keyboard-toggle');
+  assert.equal(ui.$('keyboard-panel').hidden, true);
+  assert.equal(ui.$('keyboard-toggle').getAttribute('aria-expanded'), 'false');
+  assert.equal(ui.snapshot().playing, true, 'Hiding the visual keyboard does not stop practice.');
   for (const pitch of phoebeFirst.requiredPitches) ui.strike(pitch);
   assert.equal(ui.snapshot().lesson.hits, 2);
   assert.ok(ui.snapshot().lesson.currentIndex > phoebeFirst.currentIndex);
+  await ui.click('keyboard-toggle');
+  assert.equal(ui.$('keyboard-panel').hidden, false);
+  assert.deepEqual(ui.keyPitches('current'), ui.snapshot().lesson.requiredPitches, 'Revealed keyboard shows the current target after hidden MIDI input.');
   await ui.click('play-button');
   await ui.click('restart-button');
   ui.mode('timed');
   await ui.click('play-button');
+  assert.deepEqual(ui.keyPitches('playing'), [], 'Count-in does not light notes before their onset.');
   ui.advance(-ui.snapshot().elapsed);
+  assert.deepEqual(ui.keyPitches('playing'), [61, 85]);
   ui.strike(61);
   ui.advance(.181);
   assert.equal(ui.snapshot().lesson.hits, 1);
   assert.equal(ui.snapshot().lesson.misses, 1);
   assert.ok(ui.$('score').querySelector('[fill="#16875d"]'));
   assert.ok(ui.$('score').querySelector('[fill="#d63349"]'));
+  ui.advance(.02);
+  assert.deepEqual(ui.keyPitches('playing'), [61, 80], 'Bass sustains while the first short melody note releases and the next begins.');
   await ui.click('play-button');
+  assert.deepEqual(ui.keyPitches('playing'), [], 'Pausing clears sounding-key feedback.');
+  await ui.click('play-button');
+  assert.deepEqual(ui.keyPitches('playing'), [61, 80], 'Resume restores the notes sounding at the frozen score time.');
+  await ui.click('play-button');
+  await ui.click('restart-button');
+  assert.deepEqual(ui.keyPitches('playing'), [], 'Restart does not leave a sustained key lit.');
   ui.mode('wait');
   checks.push('actual Phoebe first chord blocks wrong input, advances only when complete, and grades separate timed hit/miss heads');
+  checks.push('keyboard wait targets, timed onsets/releases/sustains, pause/resume/restart, and hidden MIDI grading agree with the actual score');
 
   await ui.select(practiceId);
   await settle(() => ui.snapshot().model && !ui.$('song-select').disabled, 'render NWC score');
   assert.equal(ui.snapshot().model.notes, 20);
+  assert.notDeepEqual(ui.keyPitches(), phoebeKeys, 'Selecting a different song updates the keyboard range.');
   assert.ok(ui.$('score').querySelector('svg'));
   assert.equal(ui.snapshot().storagePersistent, true);
   await ui.click('midi-button');
@@ -362,6 +399,8 @@ async function run() {
   speedInput.value = '75';
   speedInput.dispatchEvent(new ui.window.Event('input', {bubbles:true}));
   speedInput.dispatchEvent(new ui.window.Event('change', {bubbles:true}));
+  await ui.click('keyboard-toggle');
+  assert.equal(ui.$('keyboard-panel').hidden, true);
   ui.dom.window.close();
   ui = await boot();
   assert.equal(ui.snapshot().selectedId, savedId);
@@ -369,6 +408,9 @@ async function run() {
   assert.equal(ui.snapshot().model.notes, 20);
   assert.equal(ui.snapshot().mode, 'timed');
   assert.equal(ui.snapshot().speed, .75);
+  assert.equal(ui.$('keyboard-panel').hidden, true, 'Show/hide preference survives reload.');
+  await ui.click('keyboard-toggle');
+  assert.equal(ui.$('keyboard-panel').hidden, false);
   assert.ok(ui.$('score').querySelector('svg'));
   assert.equal(ui.snapshot().lesson.hits, 0);
   checks.push('fresh page/module restores repository score, last selection, mode and speed without re-upload');
@@ -417,6 +459,7 @@ async function run() {
   ui = await boot();
   assert.equal(ui.snapshot().selectedId, 'phoebe-bridgers-i-know-the-end');
   assert.equal(ui.snapshot().model.attacks, 1396);
+  assert.equal(ui.$('keyboard-panel').hidden, false, 'A fresh device defaults to showing the keyboard.');
   assert.ok([...ui.$('song-select').options].some(option => option.value === savedId));
   assert.ok(![...ui.$('song-select').options].some(option => option.value.startsWith('local-')));
   await ui.select(savedId);

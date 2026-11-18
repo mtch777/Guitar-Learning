@@ -48,7 +48,14 @@ these files, so a genuine upload is not hidden because of its title or filename.
   independent feedback. The onset window is ±180 ms. Hold duration is not graded.
 - Play/pause, restart, playback speed and sound controls are provided.
 - Use a MIDI keyboard, the on-screen piano or computer keys A–K / W E T Y U.
-  Z/X changes octave. The existing global MIDI preference is reused.
+  Z/X changes the computer input octave without shifting the displayed keyboard.
+  The existing global MIDI preference is reused.
+- The keyboard spans the selected song's lowest through highest playable pitch.
+  Continuous playback highlights each sounding pitch for its full duration;
+  wait mode highlights the remaining required keys. Pressed keys are green.
+  Show/Hide defaults to shown and remembers the user's setting.
+- The score reflows to the available screen width. Dense measures use a smaller
+  engraving scale when necessary to fit without cutting notes or overlapping them.
 
 The collapsed **Details** section contains arranger attribution, grading limits
 and applicable score limitations. Repeat/navigation notation remains visible,
