@@ -35,7 +35,6 @@ const FLAT_ORDER = [
 ];
 
 const NEUTRAL = "#202833";
-const WRONG = "#E53935";
 
 const svg = document.getElementById("circleSvg");
 const midiButton = document.getElementById("midiButton");
@@ -378,7 +377,7 @@ function handleMidiMessage(event) {
   );
 
   if (activeSequences.length === 0) {
-    handleWrong(playedPitchClass);
+    handleWrong();
     return;
   }
 
@@ -392,19 +391,12 @@ function handleMidiMessage(event) {
   }
 }
 
-function handleWrong(playedPitchClass) {
+function handleWrong() {
   locked = true;
-
-  const playedIndex = visualKeys.findIndex((key) => key.pitchClass === playedPitchClass);
-  const path = wedgePaths[playedIndex];
-  const originalColor = path.getAttribute("fill");
-
-  path.setAttribute("fill", WRONG);
   setStatus("Wrong · start the sequence again", "error");
 
   feedbackTimer = window.setTimeout(() => {
     feedbackTimer = null;
-    path.setAttribute("fill", originalColor);
     resetAnswerProgress();
     setStatus(currentPrompt(), "");
     locked = false;
@@ -449,12 +441,14 @@ async function connectMidi() {
     return;
   }
 
+  let midiStage = "access";
   try {
     setStatus("Waiting for keyboard input…", "");
 
     midiAccess = await navigator.requestMIDIAccess({
       sysex: false
     });
+    midiStage = "setup";
 
     midiAccess.onstatechange = () => {
       attachMidiInputs();
@@ -472,7 +466,11 @@ async function connectMidi() {
   } catch (error) {
     midiAccess = null;
     setMidiConnection(false);
-    setStatus("MIDI access failed", "error");
+    setStatus(
+      window.PracticeMIDI?.reportFailure?.(error, midiStage) ||
+        `MIDI ${midiStage} failed: ${error?.message || error}`,
+      "error"
+    );
   }
 }
 

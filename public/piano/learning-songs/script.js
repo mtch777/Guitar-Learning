@@ -392,14 +392,17 @@ async function connectMidi() {
     $('midi-status').textContent = 'MIDI unavailable in this browser.';
     return;
   }
+  let midiStage = 'access';
   try {
     $('midi-status').textContent = 'Requesting MIDI access…';
     midiAccess = await navigator.requestMIDIAccess({sysex:false});
+    midiStage = 'setup';
     midiAccess.onstatechange = refreshMidi;
     refreshMidi();
   } catch (error) {
-    console.warn('MIDI connection failed:', error);
-    $('midi-status').textContent = 'MIDI access denied. Check browser permissions.';
+    $('midi-dot').classList.remove('connected');
+    $('midi-status').textContent = window.PracticeMIDI?.reportFailure?.(error, midiStage) ||
+      `MIDI ${midiStage} failed: ${error?.message || error}`;
   }
 }
 function refreshMidi() {

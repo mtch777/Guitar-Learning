@@ -285,6 +285,18 @@ button {
   background: #202833;
   color: #f3f4f6;
 }
+.number-key.wrong {
+  border-color: #f87171;
+  background: #b91c1c;
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(248, 113, 113, .35);
+}
+.number-key.correct {
+  border-color: #4ade80;
+  background: #15803d;
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(74, 222, 128, .35);
+}
 .midi-button,
 .midi-connection {
   background: #2a1417;

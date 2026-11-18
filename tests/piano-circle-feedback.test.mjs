@@ -6,6 +6,7 @@ import vm from 'node:vm';
 const lessons = ['color-to-note', 'accidentals-count', 'accidentals-order'];
 const neutral = '#202833';
 const wrong = '#E53935';
+const numberPitches = [0, 2, 4, 5, 7, 9, 11];
 // Starting at C, clockwise sectors advance by a perfect fifth.
 const sectorForPitch = pitch => Array.from({length: 12}, (_, i) => (i * 7) % 12).indexOf(pitch);
 
@@ -18,6 +19,7 @@ class Element {
     this.classes = new Set();
     this.classList = {
       add: name => this.classes.add(name),
+      remove: (...names) => names.forEach(name => this.classes.delete(name)),
       toggle: (name, enabled) => enabled ? this.classes.add(name) : this.classes.delete(name),
       contains: name => this.classes.has(name),
     };
@@ -36,6 +38,17 @@ class Element {
 
 async function boot(lesson, random = 0) {
   const elements = Object.fromEntries(['circleSvg', 'midiButton', 'restartButton', 'status', 'sequenceProgress'].map(id => [id, new Element()]));
+  const numberKeys = [];
+  if (lesson === 'accidentals-count') {
+    const html = readFileSync(new URL(`../public/piano/theory/circle-of-fifths/${lesson}/index.html`, import.meta.url), 'utf8');
+    for (const [, note, count] of html.matchAll(/<div class="number-key"><span>([^<]+)<\/span><strong>(\d)<\/strong><\/div>/g)) {
+      const key = new Element();
+      key.className = 'number-key';
+      key.textContent = `${note} ${count}`;
+      numberKeys.push(key);
+    }
+    assert.deepEqual(numberKeys.map(key => key.textContent), ['C 0', 'D 1', 'E 2', 'F 3', 'G 4', 'A 5', 'B 6']);
+  }
   const input = {};
   const access = {inputs: new Map([['test', input]])};
   const timers = new Map();
@@ -45,6 +58,7 @@ async function boot(lesson, random = 0) {
   const context = vm.createContext({
     document: {
       getElementById: id => elements[id],
+      querySelectorAll: selector => { assert.equal(selector, '.number-key'); return numberKeys; },
       createElementNS: () => new Element(),
       createElement: () => new Element(),
     },
@@ -64,7 +78,7 @@ async function boot(lesson, random = 0) {
   await elements.midiButton.click();
   assert.equal(typeof input.onmidimessage, 'function');
   return {
-    elements, wedges, checks,
+    elements, wedges, checks, numberKeys,
     select: value => { selection = value; },
     strike: (midi, velocity = 100, command = 0x90) => input.onmidimessage({data: [command, midi, velocity]}),
     pending: () => timers.size,
@@ -77,11 +91,12 @@ async function boot(lesson, random = 0) {
     reset: () => elements.restartButton.click(),
     fills: () => wedges.map(element => element.getAttribute('fill')),
     flashing: () => wedges.flatMap((element, i) => element.getAttribute('fill') === wrong ? [i] : []),
+    numberFeedback: type => numberKeys.flatMap((element, i) => element.classList.contains(type) ? [i] : []),
   };
 }
 
 for (const lesson of lessons) {
-  test(`${lesson}: wrong MIDI input flashes its actual fifths location in any octave and restores the prompt`, async () => {
+  test(`${lesson}: wrong MIDI feedback is confined to the appropriate guess display in any octave`, async () => {
     for (let pitch = 0; pitch < 12; pitch++) {
       // Use a different correct response whenever the input would otherwise be right.
       const random = lesson === 'accidentals-order'
@@ -90,16 +105,24 @@ for (const lesson of lessons) {
       const ui = await boot(lesson, random);
       const before = ui.fills();
       const sector = sectorForPitch(pitch);
+      const expectedSectors = lesson === 'color-to-note' ? [sector] : [];
+      const expectedNumber = lesson === 'accidentals-count' && numberPitches.includes(pitch)
+        ? [numberPitches.indexOf(pitch)] : [];
       for (const octaveBase of [48, 84]) {
         ui.strike(octaveBase + pitch);
-        assert.deepEqual(ui.flashing(), [sector], `MIDI ${octaveBase + pitch}`);
+        assert.deepEqual(ui.flashing(), expectedSectors, `MIDI ${octaveBase + pitch}`);
+        assert.deepEqual(ui.numberFeedback('wrong'), expectedNumber);
+        assert.deepEqual(ui.numberFeedback('correct'), []);
+        if (lesson !== 'color-to-note') assert.deepEqual(ui.fills(), before);
         assert.deepEqual(ui.fills().filter((_, i) => i !== sector), before.filter((_, i) => i !== sector));
-        // Inputs during the existing feedback lock cannot leave multiple red wedges.
+        // Inputs during the existing feedback lock cannot change the submitted guess.
         ui.strike(octaveBase + (pitch + 1) % 12);
-        assert.deepEqual(ui.flashing(), [sector]);
+        assert.deepEqual(ui.flashing(), expectedSectors);
+        assert.deepEqual(ui.numberFeedback('wrong'), expectedNumber);
         assert.equal(ui.pending(), 1);
         ui.advance(350);
         assert.deepEqual(ui.fills(), before);
+        assert.deepEqual(ui.numberFeedback('wrong'), []);
         assert.equal(ui.pending(), 0);
       }
     }
@@ -113,7 +136,8 @@ for (const lesson of lessons) {
     ui.advance(450);
     const before = ui.fills();
     ui.strike(lesson === 'accidentals-order' ? 67 : 60);
-    assert.deepEqual(ui.flashing(), [solvedSector]);
+    assert.deepEqual(ui.flashing(), lesson === 'color-to-note' ? [solvedSector] : []);
+    if (lesson !== 'color-to-note') assert.deepEqual(ui.fills(), before);
     assert.equal(ui.checks[solvedSector].style.display, 'block');
     ui.advance(350);
     assert.deepEqual(ui.fills(), before);
@@ -123,10 +147,12 @@ for (const lesson of lessons) {
   test(`${lesson}: reset cancels stale wrong-flash and correct-advance callbacks`, async () => {
     const ui = await boot(lesson);
     ui.strike(69); // A is wrong for initial C (or the initial G accidental sequence).
-    assert.deepEqual(ui.flashing(), [3]);
+    assert.deepEqual(ui.flashing(), lesson === 'color-to-note' ? [3] : []);
     ui.select(lesson === 'accidentals-order' ? 2.25 / 12 : 3.25 / 12); // New prompt A.
     ui.reset();
     assert.equal(ui.pending(), 0);
+    assert.deepEqual(ui.numberFeedback('wrong'), []);
+    assert.deepEqual(ui.numberFeedback('correct'), []);
     const afterReset = ui.fills();
     assert.equal(afterReset[3], '#FDD835');
     ui.advance(350);
@@ -138,6 +164,8 @@ for (const lesson of lessons) {
     assert.equal(ui.pending(), 1);
     ui.select(0);
     ui.reset();
+    assert.deepEqual(ui.numberFeedback('wrong'), []);
+    assert.deepEqual(ui.numberFeedback('correct'), []);
     const restarted = ui.fills();
     const status = ui.elements.status.textContent;
     ui.advance(450);
@@ -152,16 +180,19 @@ for (const lesson of lessons) {
     ui.strike(69, 100, 0x80);
     ui.strike(69, 0);
     assert.deepEqual(ui.fills(), before);
+    assert.deepEqual(ui.numberFeedback('wrong'), []);
+    assert.deepEqual(ui.numberFeedback('correct'), []);
     assert.equal(ui.pending(), 0);
   });
 }
 
 for (const lesson of ['accidentals-count', 'accidentals-order']) {
-  test(`${lesson}: incorrect input matching the prompt tonic restores its colored sector`, async () => {
+  test(`${lesson}: incorrect input matching the prompt tonic leaves its colored sector unchanged`, async () => {
     const ui = await boot(lesson, lesson === 'accidentals-count' ? 1.25 / 12 : 0); // G.
     const before = ui.fills();
     ui.strike(67);
-    assert.deepEqual(ui.flashing(), [1]);
+    assert.deepEqual(ui.flashing(), []);
+    assert.deepEqual(ui.fills(), before);
     ui.advance(350);
     assert.deepEqual(ui.fills(), before);
     assert.equal(ui.fills()[1], '#7CB342');
@@ -175,7 +206,7 @@ test('accidentals-order: a wrong input resets the sequence while preserving the 
   ui.strike(66);
   assert.equal(ui.elements.sequenceProgress.children[0].textContent, 'F#');
   ui.strike(60);
-  assert.deepEqual(ui.flashing(), [0]);
+  assert.deepEqual(ui.flashing(), []);
   assert.equal(ui.fills()[2], '#C0CA33');
   ui.advance(350);
   assert.equal(ui.elements.sequenceProgress.children[0].textContent, '');
@@ -193,4 +224,42 @@ test('accidentals-order: the shared F-sharp/G-flat sector is checked only after 
   assert.match(ui.elements.status.textContent, /^Gb/);
   [70, 63, 68, 61, 66, 71].forEach(midi => ui.strike(midi));
   assert.equal(ui.checks[6].style.display, 'block');
+});
+
+test('accidentals-count: every correct number flashes green until the next question', async () => {
+  for (let count = 0; count <= 6; count++) {
+    const ui = await boot('accidentals-count', (count + 0.25) / 12);
+    ui.strike(60 + numberPitches[count]);
+    assert.deepEqual(ui.numberFeedback('correct'), [count]);
+    assert.deepEqual(ui.numberFeedback('wrong'), []);
+    assert.deepEqual(ui.flashing(), []);
+    assert.equal(ui.elements.status.textContent, 'Correct ✓');
+    assert.equal(ui.checks[count].style.display, 'block');
+    ui.advance(449);
+    assert.deepEqual(ui.numberFeedback('correct'), [count]);
+    ui.advance(1);
+    assert.deepEqual(ui.numberFeedback('correct'), []);
+    assert.deepEqual(ui.numberFeedback('wrong'), []);
+  }
+});
+
+test('accidentals-count: repeated wrong number guesses flash afresh and return to neutral', async () => {
+  const ui = await boot('accidentals-count'); // C expects 0.
+  const before = ui.fills();
+  for (let attempt = 0; attempt < 2; attempt++) {
+    ui.strike(69); // A means 5.
+    assert.deepEqual(ui.numberFeedback('wrong'), [5]);
+    assert.deepEqual(ui.fills(), before);
+    ui.strike(60); // The existing feedback lock still ignores input.
+    assert.deepEqual(ui.numberFeedback('wrong'), [5]);
+    assert.deepEqual(ui.numberFeedback('correct'), []);
+    ui.advance(299);
+    assert.deepEqual(ui.numberFeedback('wrong'), [5]);
+    ui.advance(1);
+    assert.deepEqual(ui.numberFeedback('wrong'), []);
+    assert.equal(ui.pending(), 0);
+  }
+  ui.strike(60);
+  assert.deepEqual(ui.numberFeedback('correct'), [0]);
+  assert.deepEqual(ui.numberFeedback('wrong'), []);
 });

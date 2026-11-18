@@ -329,12 +329,14 @@ async function connectMidi() {
     return false;
   }
 
+  let midiStage = "access";
   try {
     setStatus("Waiting for keyboard input…", "");
 
     midiAccess = await navigator.requestMIDIAccess({
       sysex: false
     });
+    midiStage = "setup";
 
     midiAccess.onstatechange = attachMidiInputs;
 
@@ -351,7 +353,11 @@ async function connectMidi() {
   } catch (error) {
     midiAccess = null;
     setMidiConnection(false);
-    setStatus("MIDI access failed", "error");
+    setStatus(
+      window.PracticeMIDI?.reportFailure?.(error, midiStage) ||
+        `MIDI ${midiStage} failed: ${error?.message || error}`,
+      "error"
+    );
     return false;
   }
 }

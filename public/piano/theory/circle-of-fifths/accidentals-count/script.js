@@ -24,12 +24,12 @@ const ANSWER_PITCH_CLASS = {
 };
 
 const NEUTRAL = "#202833";
-const WRONG = "#E53935";
 
 const svg = document.getElementById("circleSvg");
 const midiButton = document.getElementById("midiButton");
 const restartButton = document.getElementById("restartButton");
 const statusElement = document.getElementById("status");
+const numberKeys = Array.from(document.querySelectorAll(".number-key"));
 
 const SIZE = 600;
 const CX = SIZE / 2;
@@ -169,9 +169,19 @@ function setMidiConnection(connected) {
   midiButton.disabled = connected;
 }
 
+function clearNumberFeedback() {
+  numberKeys.forEach((key) => key.classList.remove("correct", "wrong"));
+}
+
+function showNumberFeedback(count, correct) {
+  clearNumberFeedback();
+  numberKeys[count]?.classList.add(correct ? "correct" : "wrong");
+}
+
 function resetLesson() {
   window.clearTimeout(feedbackTimer);
   feedbackTimer = null;
+  clearNumberFeedback();
   remaining = keys.map((_, index) => index);
 
   solved = new Set();
@@ -306,29 +316,26 @@ function handleMidiMessage(event) {
   const expectedPitchClass =
     ANSWER_PITCH_CLASS[targetCount];
 
+  const guessedCount = Object.keys(ANSWER_PITCH_CLASS).find(
+    (count) => ANSWER_PITCH_CLASS[count] === playedPitchClass
+  );
+
+  showNumberFeedback(guessedCount, playedPitchClass === expectedPitchClass);
+
   if (playedPitchClass === expectedPitchClass) {
     handleCorrect();
   } else {
-    handleWrong(playedPitchClass);
+    handleWrong();
   }
 }
 
-function handleWrong(playedPitchClass) {
+function handleWrong() {
   locked = true;
-
-  const playedIndex = keys.findIndex((key) => key.pitchClass === playedPitchClass);
-  const path = wedgePaths[playedIndex];
-  const originalColor = path.getAttribute("fill");
-
-  path.setAttribute("fill", WRONG);
   setStatus("Wrong", "error");
 
   feedbackTimer = window.setTimeout(() => {
     feedbackTimer = null;
-    path.setAttribute(
-      "fill",
-      originalColor
-    );
+    clearNumberFeedback();
 
     setStatus(
       currentPrompt(),
@@ -370,6 +377,7 @@ function handleCorrect() {
 
   feedbackTimer = window.setTimeout(() => {
     feedbackTimer = null;
+    clearNumberFeedback();
     nextQuestion();
   }, 450);
 }
@@ -383,6 +391,7 @@ async function connectMidi() {
       return;
     }
 
+    let midiStage = "access";
     try {
       setStatus(
         "Connecting MIDI…",
@@ -393,6 +402,7 @@ async function connectMidi() {
         await navigator.requestMIDIAccess({
           sysex: false
         });
+      midiStage = "setup";
 
       midiAccess.onstatechange = () => {
         attachMidiInputs();
@@ -410,7 +420,11 @@ async function connectMidi() {
     } catch (error) {
     midiAccess = null;
     setMidiConnection(false);
-    setStatus("MIDI access failed", "error");
+    setStatus(
+      window.PracticeMIDI?.reportFailure?.(error, midiStage) ||
+        `MIDI ${midiStage} failed: ${error?.message || error}`,
+      "error"
+    );
   }
 }
 
