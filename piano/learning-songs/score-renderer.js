@@ -79,6 +79,7 @@ export class ScoreRenderer {
         const origin = box.AbsolutePosition.y - page.PositionAndShape.AbsolutePosition.y;
         let top = pageTop + (origin + box.BorderTop) * 10 * display.Zoom;
         let bottom = pageTop + (origin + box.BorderBottom) * 10 * display.Zoom;
+        const nativeTop = top, nativeBottom = bottom;
         // Native system bounds include labels and expressions. Actual staff SVG
         // bounds also protect ledger notes, stems, slurs and ties in browsers.
         for (const staff of system.StaffLines) {
@@ -94,7 +95,7 @@ export class ScoreRenderer {
         }
         const measures = [...new Set(system.GraphicalMeasures.flat().filter(Boolean)
           .map(measure => sources.get(measure.parentSourceMeasure)).filter(Number.isInteger))];
-        rows.push({top, bottom, measures});
+        rows.push({top, bottom, nativeTop, nativeBottom, measures});
       }
       pageTop += Number(svg?.getAttribute('height')) || 0;
     }
@@ -114,6 +115,7 @@ export class ScoreRenderer {
     display.EngravingRules.PageBottomMargin = .6;
     display.EngravingRules.MinimumDistanceBetweenSystems = 3;
     let systems;
+    const fitPasses = [];
     for (let pass = 0; pass < 8; pass++) {
       display.render();
       systems = this.indexSystems(display, host);
@@ -131,6 +133,7 @@ export class ScoreRenderer {
       }
       // Browser SVG bounds also cover long credits/expressions outside staves.
       // jsdom has no getBBox; the actual engraving widths above remain testable.
+      const svgBounds = [];
       for (const svg of host.querySelectorAll('svg')) {
         if (typeof svg.getBBox !== 'function') continue;
         try {
@@ -140,14 +143,22 @@ export class ScoreRenderer {
           if (viewWidth > 0 && svgWidth > 0) {
             // getBBox reports SVG user units; width/viewBox converts to CSS px.
             const pixelsPerUnit = svgWidth / viewWidth;
+            svgBounds.push({x:bounds.x,right:bounds.x+bounds.width,viewWidth,svgWidth,pixelsPerUnit});
             requiredWidth = Math.max(requiredWidth, (Math.max(viewWidth, bounds.x + bounds.width) - Math.min(0, bounds.x)) * pixelsPerUnit);
           }
         } catch (_) { /* Some browsers cannot measure a hidden replacement yet. */ }
       }
       const requiredHeight = Math.max(1, ...systems.map((row, index) =>
         (systems[index + 1] || row).bottom - row.top + WINDOW_PADDING * 2));
+      const worstIndex = systems.findIndex((row,index) => Math.abs((systems[index + 1] || row).bottom - row.top + WINDOW_PADDING * 2 - requiredHeight) < .001);
+      fitPasses.push({pass,zoom:display.Zoom,requiredWidth,requiredHeight,svgBounds,
+        nativeHeight:Math.max(1,...systems.map((row,index) => (systems[index+1]||row).nativeBottom-row.nativeTop+WINDOW_PADDING*2)),
+        worstPair:systems.slice(worstIndex,worstIndex+2)});
       if (requiredWidth <= width + .5 && requiredHeight <= height + .5) break;
-      if (pass === 7) throw new Error('The score could not fit the available two-row window.');
+      if (pass === 7) {
+        console.error('Score fit diagnostics: ' + JSON.stringify({width,height,passes:fitPasses}));
+        throw new Error('The score could not fit the available two-row window.');
+      }
       // Re-engrave at a fitting scale instead of cropping/scaling an
       // old SVG. Native cursor positions and notehead mappings stay coherent.
       display.Zoom *= Math.min(width / requiredWidth,
