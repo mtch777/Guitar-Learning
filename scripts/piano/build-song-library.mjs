@@ -102,14 +102,17 @@ export async function buildSongLibrary({root = lessonRoot} = {}) {
     if (previousParser === undefined) delete globalThis.DOMParser;
     else globalThis.DOMParser = previousParser;
   }
-  if (!songs.some(song => song.id === seed.defaultSongId)) throw new Error('The default song is missing from the library.');
+  if (songs.length && !songs.some(song => song.id === seed.defaultSongId)) {
+    // A deleted default may leave uploaded songs as the only remaining choices.
+    seed.defaultSongId = songs[0].id;
+  }
   // Remove only this generator's stale derived files, never originals or other scores.
   for (const filename of await filesUnder(path.join(root, 'scores'))) {
     if (/^upload-[a-f0-9]{64}\.musicxml$/.test(filename) && !generatedPaths.has('scores/' + filename)) {
       await fs.unlink(path.join(root, 'scores', filename));
     }
   }
-  const catalog = {version:1, defaultSongId:seed.defaultSongId, songs, importErrors};
+  const catalog = {version:1, defaultSongId:songs.length ? seed.defaultSongId : null, songs, importErrors};
   await fs.writeFile(path.join(root, 'song-library.json'), JSON.stringify(catalog, null, 2) + '\n');
   return catalog;
 }

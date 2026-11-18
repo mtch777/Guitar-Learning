@@ -37,6 +37,15 @@ export class SongStorage {
     });
     return true;
   }
+  async delete(id) {
+    if (!this.db) { this.memory.delete(id); return; }
+    await new Promise((resolve, reject) => {
+      const transaction = this.db.transaction(STORE, 'readwrite');
+      transaction.objectStore(STORE).delete(id);
+      transaction.oncomplete = resolve;
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
   lastSelection() { try { return localStorage.getItem(SELECTION); } catch (_) { return null; } }
   select(id) { try { localStorage.setItem(SELECTION, id); } catch (_) {} }
   preferences() { try { return JSON.parse(localStorage.getItem(PREFERENCES) || '{}') || {}; } catch (_) { return {}; } }

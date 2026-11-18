@@ -513,3 +513,13 @@ Release and live acceptance:
 - [x] Keep the lesson's existing note onset/duration/velocity scheduling, MIDI grading, Sound toggle and offline/no-autoplay behavior.
 - [x] Add a silent unit test for frequency, envelope decay, oscillator count and stop behavior.
 - [ ] Confirm GitHub CI, Pages deployment and subjective listening approval separately.
+### 2026-11-18 — Delete song from Learning Songs
+
+- [x] Add a compact Delete song button next to the selector; confirmation uses the song's actual displayed label.
+- [x] Add authenticated GitHub deletion of uploads and seeded songs using one atomic Git tree/commit/ref update; protect against unsafe paths, stale references and missing token.
+- [x] Remove seeded song list entries and unshared source files; automatically pick the next default when the previous default is deleted.
+- [x] Allow an empty published song list and show an Upload prompt instead of resurrecting a bundled default.
+- [x] Support deletion of device-only legacy copies locally, without requiring GitHub credentials.
+- [x] Hide deleted songs immediately and across same-session refreshes while GitHub Pages publishes the updated catalog.
+- [x] Add API contract tests for uploaded, seeded, last-song and refusal paths; add confirmation/cancellation UI regression.
+- [ ] Publish code, confirm build and Pages deployment. Destructive production deletion itself remains user-controlled via token + confirmation.

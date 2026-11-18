@@ -80,6 +80,13 @@ test('catalog rejects traversal, remote score targets, duplicated IDs and missin
   assert.throws(() => validateSongCatalog(missingDefault), /default song/);
 });
 
+test('empty song list is valid after deleting the final song', () => {
+  const empty = validateSongCatalog({version:1,defaultSongId:null,songs:[],importErrors:[]});
+  assert.deepEqual(empty.songs, []);
+  assert.equal(empty.defaultSongId, null);
+  assert.throws(() => validateSongCatalog({version:1,defaultSongId:'old',songs:[]}), /default song/);
+});
+
 test('manifest cannot inject a local XML score, fake saved flag or arbitrary fetch URL', () => {
   const catalog = fixture();
   Object.assign(catalog.songs[0], {url: 'https://attacker.invalid/', xml: 'fake', needsScore: true, repositorySaved: false});

@@ -21,9 +21,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .lesson-shell { width: calc(100% - 16px); height: 100vh; height: 100dvh; margin: 0 auto; padding: 6px 0; display: flex; flex-direction: column; gap: 6px; }
 .card { border: 1px solid var(--border); border-radius: 8px; background: #141a22; overflow: hidden; }
-.song-library { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 6px; padding: 6px; flex: none; }
+.song-library { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto; align-items: center; gap: 6px; padding: 6px; flex: none; }
 .practice-link { font-size: 11px; color: var(--muted); text-decoration: none; white-space: nowrap; padding: 6px 2px; }
 .song-picker { min-width: 0; }
+#delete-song { padding: 0 8px; font-size: 16px; }
 .song-picker select { width: 100%; height: 34px; border: 1px solid #3b4657; border-radius: 6px; background: #0d131c; color: #f4f5f8; padding: 0 24px 0 8px; font-size: 12px; }
 .button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; border-radius: 6px; padding: 7px 10px; min-height: 34px; font-weight: 650; font-size: 12px; line-height: 1.25; white-space: nowrap; text-decoration: none; }
 .primary { border: 1px solid #c3aeff; background: #b9a1fb; color: #19102e; }
@@ -37,6 +38,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .local-recovery { display: flex; align-items: center; gap: 8px; }
 .small-button { background: #1c2531; border: 1px solid #354153; color: #c4cedd; border-radius: 5px; padding: 5px 8px; font-size: 10px; }
 #upload-dialog { width: min(480px, calc(100vw - 24px)); max-height: min(90dvh, 740px); overflow-y: auto; padding: 16px; border: 1px solid #52617a; border-radius: 9px; background: #151c27; color: #e9edf5; box-shadow: 0 16px 50px #0009; }
+#delete-dialog { width: min(420px, calc(100vw - 24px)); padding: 16px; border: 1px solid #52617a; border-radius: 9px; background: #151c27; color: #e9edf5; }
+#delete-dialog::backdrop { background: #05080dc9; }
+#delete-form { display: flex; flex-direction: column; gap: 12px; }
+#delete-form h2, #delete-form p { margin: 0; }
+#delete-form input { padding: 9px; border: 1px solid #465369; border-radius: 6px; background: #0d131c; color: #f1f4f8; }
+#delete-status.error { color: var(--red); }
 #upload-dialog::backdrop { background: #05080dc9; }
 #upload-form { display: flex; flex-direction: column; gap: 8px; }
 .upload-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -108,9 +115,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .connection-dot { height: 6px; width: 6px; border-radius: 50%; background: #8390a3; }
 .connection-dot.connected { background: var(--green); }
 @media (max-width: 620px) {
-  .song-library { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .song-library { grid-template-columns: auto minmax(0, 1fr) auto auto; }
   .song-picker { grid-column: 2 / 4; }
+  #delete-song { grid-column: 4; }
   #upload-button { grid-column: 1 / 3; }
+  #refresh-library { grid-column: 3 / 5; }
   .session-toolbar { gap: 4px; padding: 4px; }
   .lesson-modes, .transport { flex-basis: 100%; }
   .mode-card { padding: 5px; }

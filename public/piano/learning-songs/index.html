@@ -17,6 +17,7 @@
     <section class="song-library card" aria-labelledby="library-heading">
       <a class="practice-link" href="../">← Practice</a>
       <div class="song-picker"><label id="library-heading" class="sr-only" for="song-select">Song</label><select id="song-select"><option>Loading songs…</option></select></div>
+      <button id="delete-song" type="button" class="button secondary" aria-label="Delete song" title="Delete song" disabled>🗑️</button>
       <button id="upload-button" type="button" class="button secondary">Upload <span>(.musicxml, .xml, .mxl)</span></button>
       <button id="refresh-library" type="button" class="button secondary" aria-label="Refresh songs">Refresh</button>
       <p id="library-message" class="library-message" role="status" hidden></p>
@@ -59,6 +60,16 @@
       <details class="upload-formats"><summary>Other formats converted in our earlier tests</summary><p>These were converted with separate desktop/server tools; direct lesson import is still limited to the three formats above. Convert these to MusicXML first:</p><p>.mscx, .mscz, .mei, .abc, .krn, .md (MuseData), .nwc, .nwctxt, .cap, .capx, .ove, .scw, .enc, .mus, .musx, .dorico, .gtp, .gp3, .gp4, .gp5, .gpx, .gp, .tg, .ptb, .tef. MIDI (.mid/.midi) was also converted for the default song.</p><p>.sib, .ovex, .notion and .stf did not have successful conversions in that test set.</p></details>
       <p id="upload-status" role="status" aria-live="polite"></p>
       <div class="upload-actions"><button id="upload-cancel" type="button" class="button secondary">Cancel</button><button id="upload-submit" type="submit" class="button primary">Save to GitHub</button></div>
+    </form>
+  </dialog>
+  <dialog id="delete-dialog" aria-labelledby="delete-title">
+    <form id="delete-form">
+      <h2 id="delete-title">Delete song?</h2>
+      <p id="delete-description"></p>
+      <label for="delete-token">GitHub token</label>
+      <input id="delete-token" type="password" autocomplete="off" spellcheck="false" required placeholder="Contents: read and write">
+      <p id="delete-status" role="status" aria-live="polite"></p>
+      <div class="upload-actions"><button id="delete-cancel" type="button" class="button secondary">Cancel</button><button id="delete-confirm" type="submit" class="button primary">Delete song</button></div>
     </form>
   </dialog>
 </body>
