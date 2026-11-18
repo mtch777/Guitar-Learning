@@ -25,7 +25,7 @@ guitar/Composition Lab behavior intact. MIDI and audio QA must be silent.
 - [ ] Attach a verified structured notation file for I Know the End. The named first entry currently requests an upload.
 - [x] Verify score parsing, mode transitions, upload/reload and error recovery.
 - [x] Run relevant unit tests and production build.
-- [ ] Inspect the deployed page and mobile layout before claiming live verification.
+- [x] Inspect the deployed page, score and controls in a real browser.
 
 ## Design and disproof cases
 
@@ -92,6 +92,19 @@ clearly. These limits do not establish universal lossless notation support.
 
 ## Publication
 
-Local implementation and verification are complete. Source publication, live
-workflow status and actual browser geometry are recorded separately after they
-are observed; this checkpoint does not yet claim a successful deployment.
+Source release `c3c1f0a4879a22b6cb3a79e4c9871b4de1b378b3` is on main.
+Build/test/publish run 44210272476 and Pages deployment 44210377614 both succeeded.
+The live page at <https://mtch777.github.io/Guitar-Learning/piano/learning-songs/>
+was then inspected in the cloud browser, with sound disabled.
+
+Observed UI results: first Phoebe entry requests its missing score; selecting the
+conversion test renders its 20 source notes/19 attacks. A wrong C4 did not
+advance; D4, G4 and G3 completed the first chord and produced 3 green hits.
+Timed mode counted in, played through and marked 19 unplayed attacks missed.
+The page itself has no horizontal overflow at the inspected 1348px viewport.
+
+A 10px internal score overflow was traced to horizontal container padding being
+included in OSMD's initial width measurement. The follow-up removes that padding;
+normal engraving margins remain. Browser sizing controls did not provide a
+narrower viewport, so mobile geometry is not claimed as visually verified.
+Physical MIDI hardware and audible musical quality remain separate user checks.
