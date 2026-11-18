@@ -194,7 +194,7 @@ unavailable. This task does not change score contents or grading behavior.
       song selector; preserve source files and genuine device-only uploads.
 - [x] Verify actual score rendering, both lesson modes, retained controls,
       remembered selection and failed-load recovery with silent checks.
-- [ ] Build, publish to the existing GitHub Pages URL, and verify live content.
+- [x] Build, publish to the existing GitHub Pages URL, and verify live content.
 
 Acceptance counterexamples: removed DOM elements must not break startup; a real
 upload must remain available even when its title resembles a test; a remembered
@@ -214,4 +214,13 @@ Local verification:
 - Independent diff/DOM review passes. All 14 tracked score/provenance/original
   upload files match their preceding Git blob hashes. Parser, renderer, lesson
   engine, audio and upload parsing are unchanged.
-- Publication and live browser inspection remain pending below.
+- Source release `91a99a037db8d7de7d7a3bc776081ef315aa08e9` is on main.
+  Build/test/publish run 44221357866 and Pages deployment 44221452110 both
+  succeeded. Published branch commit: `1299245df651d013b274e941ee85196f565d10d9`.
+- Live browser verified build `91a99a037db8`: actual Phoebe score renders, the
+  selector contains only Phoebe (old device-only test copies are also hidden),
+  concise mode names and functional controls remain, and Details opens to the
+  arranger attribution and note-length grading limit. Page scroll/client widths
+  both measure 1348px. Details is closed and playback is reset/ready with sound
+  off. Screenshot captured after the cleanup. Mobile/hardware MIDI checks were
+  not part of this presentation-only verification.
