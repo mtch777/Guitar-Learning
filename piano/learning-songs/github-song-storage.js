@@ -20,6 +20,52 @@ const RAW_BASE = `https://raw.githubusercontent.com/${SONG_LIBRARY.repository}/$
 const MAX_CATALOG_BYTES = 4 * 1024 * 1024;
 const MAX_SCORE_BYTES = 20 * 1024 * 1024;
 
+const normalizedXML = xml => xml.replace(/(<\?xml\b[^?]*\bencoding\s*=\s*["'])[^"']+(["'])/i, '$1UTF-8$2');
+const hexDigest = bytes => Array.from(new Uint8Array(bytes), byte => byte.toString(16).padStart(2, '0')).join('');
+// Exact normalized XML of the three retained regression fixtures. These also
+// hide their old device copies when the published catalog cannot be reached.
+const TEST_SCORE_SHA256 = new Set([
+  '0c28f895ad6061020d48d3ae872a3509664294e2284be01dc70f2796353a54a6',
+  '3bd940f45a28e83f4a8065bb0d4e6c4634f5a51afc3874eb22d129ee9ea84c61',
+  '734aa2f1e2baa21664a3c34e542730c48bd9c444087544e9b02df32d60a55a72',
+]);
+
+/** Display choices only; original catalog entries and device copies stay intact. */
+export async function visibleSongChoices(entries) {
+  const allSongs = [...entries];
+  const repositoryHashes = new Map();
+  for (const song of allSongs) {
+    if (!song.repositorySaved || song.localOnly) continue;
+    for (const digest of [song.sha256, song.sourceSha256].filter(Boolean)) {
+      const existing = repositoryHashes.get(digest);
+      // A real library entry wins if a test fixture shares its exact bytes.
+      if (!existing || (existing.testScore && !song.testScore)) repositoryHashes.set(digest, song);
+    }
+  }
+  const aliases = new Map();
+  const choices = await Promise.all(allSongs.map(async song => {
+    if (song.testScore) return null;
+    if (song.localOnly && typeof song.xml === 'string' && globalThis.crypto?.subtle) {
+      try {
+        const variants = [...new Set([song.xml, normalizedXML(song.xml)])];
+        const digests = await Promise.all(variants.map(async xml => hexDigest(
+          await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(xml))
+        )));
+        const match = digests.map(digest => repositoryHashes.get(digest)).find(Boolean);
+        if (match) {
+          if (!match.testScore) aliases.set(song.id, match.id);
+          return null;
+        }
+        if (digests.some(digest => TEST_SCORE_SHA256.has(digest))) return null;
+      } catch (_) {
+        // If hashing is unavailable, keep the recoverable copy visible.
+      }
+    }
+    return song;
+  }));
+  return {songs: choices.filter(Boolean), aliases};
+}
+
 function safePath(value, kind) {
   if (typeof value !== 'string' || value.length > 500 || /[\\\u0000-\u001f\u007f]/.test(value)) return false;
   const segments = value.split('/');
@@ -143,7 +189,7 @@ export async function loadSongLibrary({
       return {
         ...catalog,
         source: location.source,
-        warning: index ? 'The site copy of the library could not be loaded. Showing the published library directly from GitHub.' : '',
+        warning: '',
         songs: catalog.songs.map(song => ({
           ...song,
           url: new URL(song.scorePath, location.base).href,
@@ -157,7 +203,7 @@ export async function loadSongLibrary({
       errors.push(`${location.source}: ${error.name === 'AbortError' ? 'request timed out' : error.message}`);
     }
   }
-  throw new Error(`The GitHub song library could not be loaded. ${errors.join('; ')}. Refresh after the connection or deployment recovers.`);
+  throw new Error('Song list unavailable. Check your connection and refresh.', {cause: errors});
 }
 
 /** Retrieve a score and verify the catalog digest when Web Crypto is available. */
@@ -170,13 +216,13 @@ export async function loadSongScore(song, {fetchImpl = globalThis.fetch, timeout
       const xml = await fetchText(urls[index], {fetchImpl, timeoutMs, maxBytes: MAX_SCORE_BYTES});
       if (song.sha256 && globalThis.crypto?.subtle) {
         const digest = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(xml));
-        const actual = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+        const actual = hexDigest(digest);
         if (actual !== song.sha256) throw new Error('The score does not yet match the published catalog.');
       }
-      return {xml, warning: index ? 'Loaded the score from the alternate GitHub publishing endpoint.' : ''};
+      return {xml, warning: ''};
     } catch (error) {
       errors.push(error.name === 'AbortError' ? 'request timed out' : error.message);
     }
   }
-  throw new Error(`The published score could not be loaded: ${errors.join('; ')}. Refresh after deployment completes.`);
+  throw new Error('Score unavailable. Refresh and try again.', {cause: errors});
 }
