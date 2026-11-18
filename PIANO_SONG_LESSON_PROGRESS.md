@@ -451,7 +451,7 @@ upload did not appear immediately after Refresh.
 - [x] Show which formats the lesson can import immediately and which were only
   converted in the separate research lab.
 - [x] Report publishing progress and automatically discover the saved song.
-- [ ] Verify upload validation, GitHub persistence, lesson behavior and deploy.
+- [x] Verify upload validation, GitHub persistence, lesson behavior and deploy.
 
 Diagnosis: `I_Know_the_End.musicxml` was committed to `main` at
 `764315c78751c52884f5b7b6739d8136fea633ac`. Pages build
@@ -475,5 +475,19 @@ Local acceptance: 114/114 piano tests pass, including original-byte GitHub PUT,
 missing-token/unsupported-format refusal and credential-safe API errors.
 The actual lesson/renderer helper passes 22 silent checks across eight fresh
 boots, including the new dialog and distinguishable duplicate Phoebe labels.
-`npm run build`, syntax checks and `git diff --check` pass. Remote CI, deployment
-and live browser confirmation remain pending.
+`npm run build`, syntax checks and `git diff --check` pass.
+
+Release and live acceptance:
+
+- Source release `5904d03178e7b5f70db00caae72d698612a197b5` passed
+  build/regression/publish run 44332215182 and Pages deployment 44332405619.
+- Live lesson reported build `5904d03178e7`. Upload is a button that opens the
+  in-page file/token dialog, with an expandable list distinguishing the other
+  offline converter inputs. No navigation to GitHub occurred on Upload click.
+- The existing uploaded `I_Know_the_End.musicxml` now has a separate selector
+  label from the original Phoebe piano arrangement. Selecting it rendered the
+  actual score and changed the Ready lesson count to 0/990; the original has
+  0/1396. The uploaded score shows its source guitar-note notation and lyrics.
+- Screen capture saved for review. No actual fine-grained token was entered;
+  a live authenticated PUT was not performed. Its request bytes/path, errors
+  and no-token behavior were covered by isolated API-contract tests.
