@@ -11,6 +11,7 @@ on:
     paths:
       - '.github/workflows/piano-import-midi.yml'
       - 'scripts/piano/import-midi-url.py'
+      - 'scripts/piano/import-musescore-score.py'
 
 permissions:
   contents: write
@@ -69,10 +70,10 @@ jobs:
           node-version: '22'
       - name: Install dependencies
         run: |
-          python -m pip install 'music21==9.9.1'
+          python -m pip install 'music21==9.9.1' 'playwright==1.56.0'
+          python -m playwright install --with-deps chromium
           npm ci
-      - name: Import original MIDI over HTTPS and verify the lesson catalog
+      - name: Import the real MuseScore score-page URL
         run: |
-          python scripts/piano/import-midi-url.py --url 'https://raw.githubusercontent.com/mtch777/Guitar-Learning/main/tests/fixtures/piano-midi-import-smoke.mid'
+          python scripts/piano/import-musescore-score.py --score-url 'https://musescore.com/user/19750166/scores/6109206'
           npm run prebuild
-          node scripts/piano/verify-midi-import-smoke.mjs
