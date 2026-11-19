@@ -41,6 +41,18 @@
       "attackCount": 1916
     },
     {
+      "id": "upload-1d50936df9dff58404865a57cc2c428b61af12245bc37fe58e1df00aaed80273",
+      "title": "I Know the End (All Chords)",
+      "composer": "Phoebe Bridgers",
+      "scorePath": "scores/upload-1d50936df9dff58404865a57cc2c428b61af12245bc37fe58e1df00aaed80273.musicxml",
+      "sourcePath": "uploads/I_Know_the_End_Chords--41c8ce247c493fee9810550b68215062598f4001f5801fea80f94a48277e3972.musicxml",
+      "sourceFilename": "I_Know_the_End_Chords--41c8ce247c493fee9810550b68215062598f4001f5801fea80f94a48277e3972.musicxml",
+      "sha256": "1d50936df9dff58404865a57cc2c428b61af12245bc37fe58e1df00aaed80273",
+      "sourceSha256": "41c8ce247c493fee9810550b68215062598f4001f5801fea80f94a48277e3972",
+      "noteCount": 3444,
+      "attackCount": 3398
+    },
+    {
       "id": "upload-007988d2df1df7275379ecf42c8124723085af5c787436341b0a49a7119c1069",
       "title": "I Want You To Love Me",
       "composer": "Fiona Apple",
