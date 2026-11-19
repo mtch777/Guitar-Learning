@@ -22,7 +22,7 @@ class StrumPriorityTests(unittest.TestCase):
         self.assertEqual(result['id'], 'strumPick')
         self.assertEqual(result['metrics']['tier_cost'], result['metrics']['priority_cost'])
         self.assertEqual(len(result['metrics']['priority_cost']), 3)
-        self.assertEqual(len(result['metrics']['tie_break_cost']), 4)
+        self.assertEqual(len(result['metrics']['tie_break_cost']), 5)
         return result
 
     def test_open_priority_beats_adjacent_strumming(self):
@@ -85,6 +85,16 @@ class StrumPriorityTests(unittest.TestCase):
         self.assertEqual(result['metrics']['open_used'], 1)
         self.assertEqual(len(result['assignments']), 2)
         self.assertEqual(len({a['string_number'] for a in result['assignments']}), 2)
+
+    def test_repeated_dyad_keeps_shape_through_open_string_interlude(self):
+        notes = [note(0, 60, 0, 120), note(1, 76, 60, 180),
+                 note(2, 83, 120, 180), note(3, 35, 240, 300),
+                 note(4, 76, 360, 480), note(5, 83, 360, 480)]
+        result = self.checked(notes)
+        assigned = {a['note_id']: (a['string_number'], a['fret'])
+                    for a in result['assignments']}
+        self.assertEqual((assigned[1], assigned[2]), (assigned[4], assigned[5]))
+        self.assertEqual(result['metrics']['repeated_shape_remaps'], 0)
 
     def test_held_open_exception_is_global_and_exact(self):
         result = self.checked([note(0, 64, 0, 1920), note(1, 88, 960, 1920)])

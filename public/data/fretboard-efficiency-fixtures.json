@@ -7565,7 +7565,7 @@
         {
           "id": "strumPick",
           "label": "Strum + pick",
-          "description": "Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results.",
+          "description": "Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Picking direction, repeated fretted-shape continuity, and movement break otherwise equal results.",
           "assignments": [
             {
               "note_id": 0,
@@ -10515,8 +10515,10 @@
               3,
               36
             ],
+            "repeated_shape_remaps": 0,
             "tie_break_cost": [
               22,
+              0,
               7461068,
               246,
               470
@@ -10538,16 +10540,18 @@
             "rapid_skip_definition": "For consecutive attack groups that each contain exactly one new note, with onset gap at most rapid_max_gap_seconds, add max(0, abs(string difference) - 1). Same and adjacent strings both cost zero. Chords and longer gaps break the run; other ringing notes do not.",
             "tie_break_order": [
               "rapid_run_direction_reversals",
+              "repeated_shape_remaps",
               "rapid_shift_cost",
               "hand_travel_frets",
               "fretting_effort"
             ],
+            "repeated_shape_definition": "For successive fretted attacks within 0.75 seconds, if at least two pitches recur, count recurring pitches moved to a different string/fret. Open-only attacks preserve the previous shape memory.",
             "direction_definition": "Count nonzero string-direction changes within a rapid single-attack run. Repeated-string attacks retain the last nonzero direction; chords and long gaps reset it. Chord orders are canonical bass-to-treble annotations.",
             "rapid_frets_per_second": 8.0,
             "transition_allowance_seconds": 0.125,
             "deterministic_tie_break": "Lexicographic occurrence-ordered string/fret and anchor path, after all three primary and all four secondary costs are equal."
           },
-          "runtime_seconds": 0.0831,
+          "runtime_seconds": 0.1539,
           "midi_path": "fretboard-efficiency/cfa029a2_strumPick_strings.mid"
         }
       ],
@@ -18798,7 +18802,7 @@
         {
           "id": "strumPick",
           "label": "Strum + pick",
-          "description": "Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results.",
+          "description": "Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Picking direction, repeated fretted-shape continuity, and movement break otherwise equal results.",
           "assignments": [
             {
               "note_id": 0,
@@ -21970,8 +21974,10 @@
               15,
               18
             ],
+            "repeated_shape_remaps": 0,
             "tie_break_cost": [
               13,
+              0,
               3274667,
               168,
               692
@@ -21993,16 +21999,18 @@
             "rapid_skip_definition": "For consecutive attack groups that each contain exactly one new note, with onset gap at most rapid_max_gap_seconds, add max(0, abs(string difference) - 1). Same and adjacent strings both cost zero. Chords and longer gaps break the run; other ringing notes do not.",
             "tie_break_order": [
               "rapid_run_direction_reversals",
+              "repeated_shape_remaps",
               "rapid_shift_cost",
               "hand_travel_frets",
               "fretting_effort"
             ],
+            "repeated_shape_definition": "For successive fretted attacks within 0.75 seconds, if at least two pitches recur, count recurring pitches moved to a different string/fret. Open-only attacks preserve the previous shape memory.",
             "direction_definition": "Count nonzero string-direction changes within a rapid single-attack run. Repeated-string attacks retain the last nonzero direction; chords and long gaps reset it. Chord orders are canonical bass-to-treble annotations.",
             "rapid_frets_per_second": 8.0,
             "transition_allowance_seconds": 0.125,
             "deterministic_tie_break": "Lexicographic occurrence-ordered string/fret and anchor path, after all three primary and all four secondary costs are equal."
           },
-          "runtime_seconds": 0.0912,
+          "runtime_seconds": 0.1896,
           "midi_path": "fretboard-efficiency/da80eca9_strumPick_strings.mid"
         }
       ],
@@ -32905,7 +32913,7 @@
         {
           "id": "strumPick",
           "label": "Strum + pick",
-          "description": "Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Direction and fretting movement break otherwise equal results.",
+          "description": "Minimize missed exact-pitch opens, then skipped strings within co-attacks, then skips between rapid single attacks. Picking direction, repeated fretted-shape continuity, and movement break otherwise equal results.",
           "assignments": [
             {
               "note_id": 0,
@@ -33074,13 +33082,13 @@
             },
             {
               "note_id": 33,
-              "string_number": 2,
-              "fret": 17
+              "string_number": 3,
+              "fret": 21
             },
             {
               "note_id": 34,
-              "string_number": 1,
-              "fret": 19
+              "string_number": 2,
+              "fret": 24
             },
             {
               "note_id": 35,
@@ -33419,13 +33427,13 @@
             },
             {
               "note_id": 102,
-              "string_number": 2,
-              "fret": 17
+              "string_number": 3,
+              "fret": 21
             },
             {
               "note_id": 103,
-              "string_number": 1,
-              "fret": 19
+              "string_number": 2,
+              "fret": 24
             },
             {
               "note_id": 104,
@@ -34554,7 +34562,7 @@
             {
               "time_seconds": 3.875,
               "tick": 744,
-              "position": 16,
+              "position": 20,
               "attack_note_ids": [
                 33,
                 34
@@ -34567,14 +34575,14 @@
                 "Adjacent-string power-chord shape"
               ],
               "picking_order": [
-                2,
-                1
+                3,
+                2
               ]
             },
             {
               "time_seconds": 4.0,
               "tick": 768,
-              "position": 16,
+              "position": 20,
               "attack_note_ids": [
                 35
               ],
@@ -34589,7 +34597,7 @@
             {
               "time_seconds": 4.125,
               "tick": 792,
-              "position": 16,
+              "position": 20,
               "attack_note_ids": [
                 36
               ],
@@ -34607,7 +34615,7 @@
             {
               "time_seconds": 4.25,
               "tick": 816,
-              "position": 16,
+              "position": 20,
               "attack_note_ids": [
                 37,
                 38
@@ -34627,7 +34635,7 @@
             {
               "time_seconds": 4.625,
               "tick": 888,
-              "position": 16,
+              "position": 20,
               "attack_note_ids": [
                 39,
                 40
@@ -34647,7 +34655,7 @@
             {
               "time_seconds": 4.75,
               "tick": 912,
-              "position": 16,
+              "position": 20,
               "attack_note_ids": [
                 41
               ],
@@ -35451,7 +35459,7 @@
             {
               "time_seconds": 11.875,
               "tick": 2280,
-              "position": 16,
+              "position": 20,
               "attack_note_ids": [
                 102,
                 103
@@ -35464,14 +35472,14 @@
                 "Adjacent-string power-chord shape"
               ],
               "picking_order": [
-                2,
-                1
+                3,
+                2
               ]
             },
             {
               "time_seconds": 12.0,
               "tick": 2304,
-              "position": 16,
+              "position": 20,
               "attack_note_ids": [
                 104
               ],
@@ -35486,7 +35494,7 @@
             {
               "time_seconds": 12.125,
               "tick": 2328,
-              "position": 16,
+              "position": 20,
               "attack_note_ids": [
                 105
               ],
@@ -35504,7 +35512,7 @@
             {
               "time_seconds": 12.25,
               "tick": 2352,
-              "position": 16,
+              "position": 20,
               "attack_note_ids": [
                 106,
                 107
@@ -35524,7 +35532,7 @@
             {
               "time_seconds": 12.625,
               "tick": 2424,
-              "position": 16,
+              "position": 20,
               "attack_note_ids": [
                 108,
                 109
@@ -35544,7 +35552,7 @@
             {
               "time_seconds": 12.75,
               "tick": 2448,
-              "position": 16,
+              "position": 20,
               "attack_note_ids": [
                 110
               ],
@@ -37127,14 +37135,14 @@
             "open_eligible": 132,
             "open_used": 132,
             "open_exceptions": 0,
-            "rapid_shift_count": 31,
-            "rapid_shift_cost": 8715943,
+            "rapid_shift_count": 29,
+            "rapid_shift_cost": 8827943,
             "hand_travel_frets": 213,
             "max_shift_frets": 19,
             "max_fret_span": 4,
-            "mean_fret_span": 0.5988,
-            "fretting_effort": 712,
-            "picking_cost": 945,
+            "mean_fret_span": 0.6105,
+            "fretting_effort": 704,
+            "picking_cost": 941,
             "shape_cost": 1024,
             "tier_cost": [
               0,
@@ -37155,11 +37163,13 @@
               0,
               54
             ],
+            "repeated_shape_remaps": 0,
             "tie_break_cost": [
               11,
-              8715943,
+              0,
+              8827943,
               213,
-              712
+              704
             ]
           },
           "objective": {
@@ -37178,16 +37188,18 @@
             "rapid_skip_definition": "For consecutive attack groups that each contain exactly one new note, with onset gap at most rapid_max_gap_seconds, add max(0, abs(string difference) - 1). Same and adjacent strings both cost zero. Chords and longer gaps break the run; other ringing notes do not.",
             "tie_break_order": [
               "rapid_run_direction_reversals",
+              "repeated_shape_remaps",
               "rapid_shift_cost",
               "hand_travel_frets",
               "fretting_effort"
             ],
+            "repeated_shape_definition": "For successive fretted attacks within 0.75 seconds, if at least two pitches recur, count recurring pitches moved to a different string/fret. Open-only attacks preserve the previous shape memory.",
             "direction_definition": "Count nonzero string-direction changes within a rapid single-attack run. Repeated-string attacks retain the last nonzero direction; chords and long gaps reset it. Chord orders are canonical bass-to-treble annotations.",
             "rapid_frets_per_second": 8.0,
             "transition_allowance_seconds": 0.125,
             "deterministic_tie_break": "Lexicographic occurrence-ordered string/fret and anchor path, after all three primary and all four secondary costs are equal."
           },
-          "runtime_seconds": 0.2931,
+          "runtime_seconds": 0.4726,
           "midi_path": "fretboard-efficiency/c5a35486_strumPick_strings.mid"
         }
       ],

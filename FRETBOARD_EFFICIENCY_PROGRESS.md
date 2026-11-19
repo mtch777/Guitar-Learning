@@ -1,5 +1,21 @@
 # Drop E fretboard efficiency
 
+## Current delivery: repeated-shape fingering continuity — 2026-11-19
+
+User feedback: around 3.6–4.0 seconds in C / Strum + pick, the E5/B5 dyad moves from strings 3/2 (frets 21/24) to strings 2/1 (frets 17/19) on its immediate repeat, with only open B1 in between. Prefer reusing the same fretted shape when a neighboring open-string passage provides time to reposition elsewhere. Preserve exact MIDI notes and the accepted three primary strum/pick priorities.
+
+- [x] Reproduce the transition in the saved source and determine why the current tie-break permits it.
+- [x] Add a reusable repeated-fretted-shape continuity tie-breaker, after the three strict primary priorities and existing rapid-pick direction tie-break.
+- [x] Regenerate all Strum + pick mappings and string MIDI exports while retaining Greedy and Optimized unchanged; validate the cited transition and source/picking invariants.
+- [x] Run relevant full tests and build checks.
+- [ ] Publish, verify deployed bytes and playback display, then hand off the working lesson.
+
+The previous search has no memory of a chord's pitch-to-string/fret shape once open notes intervene; the existing rapid-shift proxy can therefore prefer a different physical shape on a repeated dyad. The new 0.75-second shape comparison counts remapped recurring fretted pitches only when at least two pitches recur across successive fretted attacks; open-only attacks retain the previous fretted shape. It is a secondary tie-break, so exact-pitch open strings, chord string adjacency and rapid single-note skip counts remain lexicographically first. A two-note repeated shape is the decisive regression, while original note/timing equality and all nine mapping exports are independent release gates.
+
+Regeneration changes only four string/fret assignments in C / Strum + pick: occurrences **33/34 at 3.875 s** and **102/103 at 11.875 s** now reuse the prior E5/B5 fingering, **string 3 fret 21 / string 2 fret 24**. The corresponding earlier attacks 30/31 and 99/100 already used those contacts. Both repetitions are separated from the preceding fretted shape by open B1. A/B Strum + pick positions remain identical; all Greedy and Optimized version objects and all source notes remain identical. The C max fret is still 24. Exact primary costs stay A **(4,3,36)**, B **(4,15,18)**, C **(0,0,54)**, with **132/132 C opens** and **69/69 contiguous C chord attacks**. The independent metric now reports zero repeated-shape remaps for all three fixtures. C's modeled rapid-shift cost increases from **8,715,943 to 8,827,943**, a secondary proxy tradeoff for retaining a repeatable physical dyad.
+
+Source-only and export checks pass in the **75-test Python suite**, including exact full-source picking minima, all nine string MIDI exports, explicit source occurrence preservation and the new two-repetition regression. The native/browser-side JavaScript suite passes **335 tests, one pre-existing skip, zero failures**. Production Vite build and whitespace checks pass. The deployed changes are the mapping data, C's string MIDI export and the review's tie-break explanation; the main Playback renderer remains unchanged.
+
 ## Current delivery: gray overview behind Playback — 2026-11-15
 
 User request: the versions that play should show every used position in gray, with currently playing notes in their existing interval colors. Scope is Playback in the Fretboard Efficiency lesson across all saved fingerings. Retain interval/octave labels, the fixed full range, and the colored Static overview.

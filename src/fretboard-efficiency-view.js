@@ -288,11 +288,13 @@ export async function mountEfficiencyReview({data: providedData} = {}) {
         model.append(priorities);
         const rapidGap = number(selectedModel.rapid_max_gap_seconds * 1000) + ' ms';
         model.append(element('p', 'small', `Rapid pairs use the source timing, at most ${rapidGap} between attacks. Playback speed does not recompute the fingering.`));
-        for (const definition of [selectedModel.chord_skip_definition, selectedModel.rapid_skip_definition]) {
+        for (const definition of [selectedModel.chord_skip_definition,
+          selectedModel.rapid_skip_definition, selectedModel.repeated_shape_definition]) {
           if (definition) model.append(element('p', 'small', definition.replaceAll('rapid_max_gap_seconds', rapidGap)));
         }
         const tieLabels = {
           rapid_run_direction_reversals: 'Fewer picking direction reversals',
+          repeated_shape_remaps: 'Keep repeated fretted shapes on the same strings/frets',
           rapid_shift_cost: 'Fewer rapid neck shifts',
           hand_travel_frets: 'Less hand travel',
           fretting_effort: 'Less fretting effort'

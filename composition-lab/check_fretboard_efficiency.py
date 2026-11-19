@@ -20,7 +20,7 @@ import struct
 ROOT = Path(__file__).resolve().parents[1]
 TUNING_HIGH_TO_LOW = (64, 59, 55, 50, 45, 40, 35, 28)
 STRUM_PRIORITY_ORDER = ("open_misses", "chord_skipped_strings", "rapid_single_skipped_strings")
-STRUM_TIE_ORDER = ("rapid_run_direction_reversals", "rapid_shift_cost",
+STRUM_TIE_ORDER = ("rapid_run_direction_reversals", "repeated_shape_remaps", "rapid_shift_cost",
                    "hand_travel_frets", "fretting_effort")
 EXPECTED_SOURCES = {
     "6_review_cfa029a287078971a412e05347b5612f6d9ef8c0ea69a1e9b0b58a82fb71aafd.mid": {
@@ -344,6 +344,25 @@ def strum_pick_metrics(notes, assignments, *, ticks_per_beat=960, tempo_bpm=120,
         if crossing:
             reversals += bool(direction and crossing != direction)
             direction = crossing
+    shape_remaps = 0
+    last_fretted_tick = None
+    last_fretted_pitches = {}
+    for tick, ids in frames:
+        if not any(contacts[nid]["fret"] > 0 for nid in ids):
+            continue
+        sounding = [n for n in by_id.values() if n["start_tick"] <= tick < n["end_tick"]
+                    and contacts[n["id"]]["fret"] > 0]
+        if not sounding:
+            continue
+        current = {n["pitch"]: (contacts[n["id"]]["string_number"],
+                                contacts[n["id"]]["fret"]) for n in sounding}
+        if last_fretted_tick is not None and (tick - last_fretted_tick) * 60 / (
+                ticks_per_beat * tempo_bpm) <= 0.75:
+            common = current.keys() & last_fretted_pitches.keys()
+            if len(common) >= 2:
+                shape_remaps += sum(current[pitch] != last_fretted_pitches[pitch]
+                                    for pitch in common)
+        last_fretted_tick, last_fretted_pitches = tick, current
     open_misses = sum(n["pitch"] in TUNING_HIGH_TO_LOW for n in notes) - sum(
         a["fret"] == 0 for a in assignments)
     return {"open_misses": open_misses, "chord_skipped_strings": chord_skips,
@@ -351,6 +370,7 @@ def strum_pick_metrics(notes, assignments, *, ticks_per_beat=960, tempo_bpm=120,
             "rapid_single_skipped_strings": skips, "rapid_single_pair_count": pairs,
             "rapid_single_skip_transition_count": skip_transitions,
             "rapid_run_direction_reversals": reversals,
+            "repeated_shape_remaps": shape_remaps,
             "priority_cost": [open_misses, chord_skips, skips]}
 
 
@@ -499,7 +519,8 @@ def validate_version(notes, version, *, ticks_per_beat=960, tempo_bpm=120,
                 require(version["metrics"].get(key) == expected, f"Incorrect independent picking metric {key}")
             require(version["metrics"].get("tier_cost") == picking["priority_cost"],
                     "Strum + pick tier_cost must declare its three actual priorities")
-            tie = [picking["rapid_run_direction_reversals"], rapid_cost, travel, fretting_effort]
+            tie = [picking["rapid_run_direction_reversals"], picking["repeated_shape_remaps"],
+                   rapid_cost, travel, fretting_effort]
             require(version["metrics"].get("tie_break_cost") == tie,
                     "Incorrect independently recomputed picking tie-break cost")
         result.update(picking)

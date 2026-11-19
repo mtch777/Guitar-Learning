@@ -262,6 +262,16 @@ class FrozenPickingFixtureTests(unittest.TestCase):
         self.assertTrue(all(set(f["versions"]) == {"greedy", "optimized", "strumPick"}
                             for f in report["fixtures"]))
 
+    def test_c_repeated_high_dyads_keep_the_same_fretted_shape(self):
+        fixture = next(f for f in self.data["fixtures"] if f["id"] == "c5a35486")
+        version = next(v for v in fixture["versions"] if v["id"] == "strumPick")
+        positions = {a["note_id"]: (a["string_number"], a["fret"])
+                     for a in version["assignments"]}
+        for first, repeat in (((30, 31), (33, 34)), ((99, 100), (102, 103))):
+            self.assertEqual([positions[n] for n in first],
+                             [positions[n] for n in repeat])
+        self.assertEqual(version["metrics"]["repeated_shape_remaps"], 0)
+
     def test_full_fixture_primary_costs_are_independently_optimal(self):
         for fixture in self.data["fixtures"]:
             with self.subTest(fixture=fixture["id"]):
