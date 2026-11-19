@@ -342,8 +342,9 @@ export async function mountEfficiencyReview({data: providedData} = {}) {
     else if (embedded) bundle = JSON.parse(embedded.textContent);
     else {
       const base = import.meta.env?.BASE_URL || './';
-      const dataUrl = new URL('data/fretboard-efficiency-fixtures.json', new URL(base, document.baseURI));
-      const response = await fetch(dataUrl);
+      const dataUrl = new URL('data/fretboard-efficiency-fixtures.json?v=20261119-shapes',
+        new URL(base, document.baseURI));
+      const response = await fetch(dataUrl, { cache: 'no-store' });
       if (!response.ok) throw new Error(`Could not load the mapping results (${response.status}).`);
       bundle = await response.json();
     }

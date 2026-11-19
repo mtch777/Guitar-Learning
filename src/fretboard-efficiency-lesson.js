@@ -125,7 +125,8 @@ export function setupFretboardEfficiencyLesson({ player, isSelected, onSelection
     info.textContent = 'Drop E · intervals relative to E';
     updateLink();
     try {
-      dataPromise ||= fetch(import.meta.env.BASE_URL + 'data/fretboard-efficiency-fixtures.json')
+      dataPromise ||= fetch(import.meta.env.BASE_URL + 'data/fretboard-efficiency-fixtures.json?v=20261119-shapes',
+        { cache: 'no-store' })
         .then(response => {
           if (!response.ok) throw new Error('The MIDI mappings could not be loaded.');
           return response.json();
