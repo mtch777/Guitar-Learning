@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Guitar Learning: automatic MuseScore MIDI import
 // @namespace    https://mtch777.github.io/Guitar-Learning/
-// @version      1.0.0
-// @description  Return a MIDI link to the Learning Songs lesson automatically when its MuseScore piano tutorial loads.
+// @version      1.1.0
+// @description  Load MuseScore's MIDI automatically and return it to the Learning Songs lesson.
 // @match        https://mtch777.github.io/Guitar-Learning/piano/learning-songs/*
 // @match        https://musescore.com/user/*/scores/*
 // @match        https://www.musescore.com/user/*/scores/*
@@ -20,10 +20,14 @@
   const REQUEST_ID = /^gl-[a-f0-9]{32}$/;
   const REQUEST_KEY = 'guitar-learning-import-request';
   const MAX_WAIT_MS = 90000;
+  const HELPER_VERSION = '1.1.0';
 
   if (location.hostname === 'mtch777.github.io') {
     const markReady = () => {
-      if (document.documentElement) document.documentElement.dataset.musescoreHelper = 'ready';
+      if (document.documentElement) {
+        document.documentElement.dataset.musescoreHelper = 'ready';
+        document.documentElement.dataset.musescoreHelperVersion = HELPER_VERSION;
+      }
       window.dispatchEvent(new Event('musescore-helper-ready'));
     };
     markReady();
@@ -31,6 +35,9 @@
     return;
   }
   if (!['musescore.com', 'www.musescore.com'].includes(location.hostname)) return;
+  // The parent inspects same-origin tutorial-frame resources. Do not run the
+  // handoff inside that frame or redirect only the invisible frame to GitHub.
+  if (window.top !== window) return;
 
   const params = new URLSearchParams(location.hash.slice(1));
   let requestId = params.get('guitar-learning-import');
@@ -46,6 +53,7 @@
   let completed = false;
   let timer;
   let observer;
+  let tutorialFrame;
   function finish(payload) {
     if (completed) return;
     completed = true;
@@ -120,6 +128,33 @@
     };
   }
 
+  // Loading the piano tutorial in a hidden, same-origin frame triggers its MIDI
+  // request even when the parent score page is idle. The MuseScore downloader
+  // extension uses this same player-loading mechanism. No user click or audio
+  // playback is needed. Keep the frame rendered (not display:none) so mobile
+  // browsers do not skip player initialization.
+  function startMidiPlayer() {
+    if (completed || tutorialFrame || !document.body) return;
+    const status = document.createElement('div');
+    status.textContent = 'Importing MuseScore MIDI… Returning to Learning Songs automatically.';
+    status.setAttribute('role', 'status');
+    status.style.cssText = 'position:fixed;bottom:12px;left:12px;z-index:2147483647;padding:10px 14px;background:#17212e;color:#fff;border:1px solid #ad90ee;border-radius:8px;font:14px sans-serif;max-width:calc(100vw - 48px)';
+    document.body.appendChild(status);
+    const tutorial = new URL(location.href);
+    tutorial.hash = '';
+    tutorial.search = '';
+    tutorial.pathname = tutorial.pathname.replace(/\/piano-tutorial\/?$/, '').replace(/\/$/, '') + '/piano-tutorial';
+    const frame = document.createElement('iframe');
+    frame.src = tutorial.href;
+    frame.setAttribute('aria-hidden', 'true');
+    frame.tabIndex = -1;
+    frame.style.cssText = 'position:fixed;left:-2000px;top:0;width:1000px;height:600px;opacity:0;pointer-events:none;border:0';
+    frame.addEventListener('load', () => inspectFrame(window), {once:true});
+    tutorialFrame = frame;
+    document.body.appendChild(frame);
+    inspectFrame(window);
+  }
+
   const startedAt = Date.now();
   timer = setInterval(() => {
     if (completed) return;
@@ -128,4 +163,6 @@
     } else inspectFrame(window);
   }, 500);
   inspectFrame(window);
+  if (document.body) startMidiPlayer();
+  else document.addEventListener('DOMContentLoaded', startMidiPlayer, {once:true});
 })();

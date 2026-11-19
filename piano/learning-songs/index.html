@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Learning Songs · Practice</title>
   <meta name="theme-color" content="#0b0f14">
-  <link rel="stylesheet" href="./style.css?v=c12d47f67880">
-  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=c12d47f67880"></script>
-  <script defer src="./vendor/fflate-0.8.3.min.js?v=c12d47f67880"></script>
-  <script defer src="../shared/tracker.js?v=c12d47f67880"></script>
-  <script defer src="../shared/midi.js?v=c12d47f67880"></script>
-  <script type="module" src="./script.js?v=c12d47f67880"></script>
-  <meta name="build-version" content="c12d47f67880">
+  <link rel="stylesheet" href="./style.css?v=b71f9d87b6b7">
+  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=b71f9d87b6b7"></script>
+  <script defer src="./vendor/fflate-0.8.3.min.js?v=b71f9d87b6b7"></script>
+  <script defer src="../shared/tracker.js?v=b71f9d87b6b7"></script>
+  <script defer src="../shared/midi.js?v=b71f9d87b6b7"></script>
+  <script type="module" src="./script.js?v=b71f9d87b6b7"></script>
+  <meta name="build-version" content="b71f9d87b6b7">
 </head>
 <body>
   <main class="lesson-shell">
     <section class="song-library card" aria-labelledby="library-heading">
-      <a class="practice-link" href="../?v=c12d47f67880">← Practice</a>
+      <a class="practice-link" href="../?v=b71f9d87b6b7">← Practice</a>
       <div class="song-picker"><label id="library-heading" class="sr-only" for="song-select">Song</label><select id="song-select"><option>Loading songs…</option></select></div>
       <button id="delete-song" type="button" class="button secondary" aria-label="Delete song" title="Delete song" disabled>🗑️</button>
       <button id="upload-button" type="button" class="button secondary">Upload song</button>
@@ -90,6 +90,7 @@
           <input id="score-url" type="url" placeholder="https://musescore.com/user/…/scores/…" required>
           <p class="upload-help">MuseScore links import automatically with the browser helper. Direct MusicXML and MIDI links also work.</p>
           <p id="musescore-helper-warning" class="upload-help" hidden>For automatic MuseScore imports, open this lesson in <a href="https://www.quetta.net/" target="_blank" rel="noopener noreferrer">Quetta</a>, add <a href="https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag" target="_blank" rel="noopener noreferrer">Violentmonkey</a>, and <a href="https://mtch777.github.io/Guitar-Learning/piano/learning-songs/musescore-auto-import.user.js" target="_blank" rel="noopener noreferrer">install our helper</a> once.</p>
+          <p id="musescore-helper-update" class="upload-help" hidden>Your MuseScore helper is installed but needs an update. <a href="https://mtch777.github.io/Guitar-Learning/piano/learning-songs/musescore-auto-import.user.js" target="_blank" rel="noopener noreferrer">Update helper</a>, then reload this page.</p>
           <p id="url-status" role="status" aria-live="polite"></p>
           <div class="upload-actions"><button id="url-back" type="button" class="button secondary">Back</button><button id="url-submit" type="submit" class="button primary">Import</button></div>
         </form>
