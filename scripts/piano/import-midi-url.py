@@ -5,6 +5,7 @@ This does not access MuseScore's internal API or generate authentication tokens.
 """
 import argparse
 import hashlib
+import os
 import tempfile
 import urllib.parse
 import urllib.request
@@ -39,8 +40,8 @@ def download_midi(value):
     return data
 
 
-def import_bytes(data, directory):
-    from music21 import converter
+def import_bytes(data, directory, title=""):
+    from music21 import converter, metadata
     if not data.startswith(b"MThd") or len(data) > MAX_BYTES:
         raise ValueError("Invalid MIDI file.")
     digest = hashlib.sha256(data).hexdigest()
@@ -54,13 +55,17 @@ def import_bytes(data, directory):
     if not xml_path.exists():
         with tempfile.TemporaryDirectory(prefix="piano-midi-") as temporary:
             score = converter.parse(str(midi_path))
+            if title.strip():
+                if score.metadata is None:
+                    score.insert(0, metadata.Metadata())
+                score.metadata.title = title.strip()[:100]
             score.write("musicxml", fp=str(xml_path))
     print(f"Imported {stem}.musicxml ({len(data)} MIDI bytes)")
     return xml_path
 
 
-def import_midi(url, directory):
-    return import_bytes(download_midi(url), directory)
+def import_midi(url, directory, title=""):
+    return import_bytes(download_midi(url), directory, title)
 
 
 def main():
@@ -68,12 +73,16 @@ def main():
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--url")
     source.add_argument("--file", type=Path)
+    parser.add_argument("--title", default="")
     parser.add_argument("--library", type=Path, default=Path("public/piano/learning-songs"))
     args = parser.parse_args()
     if args.file:
-        import_bytes(args.file.read_bytes(), args.library)
+        xml_path = import_bytes(args.file.read_bytes(), args.library, args.title)
     else:
-        import_midi(args.url, args.library)
+        xml_path = import_midi(args.url, args.library, args.title)
+    if os.environ.get("GITHUB_OUTPUT"):
+        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+            output.write(f"source_filename={xml_path.name}\n")
 
 
 if __name__ == "__main__":

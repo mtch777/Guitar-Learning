@@ -7,6 +7,8 @@ on:
         description: 'Direct HTTPS MIDI URL (not a MuseScore score-page URL)'
         required: true
         type: string
+  repository_dispatch:
+    types: [piano-midi-import]
   push:
     paths:
       - '.github/workflows/piano-import-midi.yml'
@@ -14,19 +16,21 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
-  group: piano-midi-import-${{ github.sha }}
+  group: piano-midi-import
   cancel-in-progress: false
 
 jobs:
   import:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           persist-credentials: true
       - uses: actions/setup-python@v5
         with:
@@ -39,22 +43,35 @@ jobs:
           python -m pip install 'music21==9.9.1'
           npm ci
       - name: Convert direct MIDI URL to MusicXML
+        id: convert
         env:
-          MIDI_URL: ${{ inputs.midi_url }}
+          MIDI_URL: ${{ github.event.client_payload.midi_url || inputs.midi_url }}
+          SCORE_TITLE: ${{ github.event.client_payload.title || '' }}
         run: |
-          python scripts/piano/import-midi-url.py --url "$MIDI_URL"
+          python scripts/piano/import-midi-url.py --url "$MIDI_URL" --title "$SCORE_TITLE"
           npm run prebuild
+      - name: Record imported song for automatic selection
+        if: github.event_name == 'repository_dispatch'
+        env:
+          IMPORT_ID: ${{ github.event.client_payload.request_id }}
+          SOURCE_FILENAME: ${{ steps.convert.outputs.source_filename }}
+        run: node scripts/piano/write-midi-import-receipt.mjs "$IMPORT_ID" "$SOURCE_FILENAME"
       - name: Commit imported MIDI, score and updated library
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add public/piano/learning-songs/uploads/midi-*.mid public/piano/learning-songs/uploads/midi-*.musicxml public/piano/learning-songs/scores/upload-*.musicxml public/piano/learning-songs/song-library.json
+          if [ -d public/piano/learning-songs/imports ]; then git add -A public/piano/learning-songs/imports; fi
           if git diff --cached --quiet; then
             echo 'Score already imported.'
           else
             git commit -m 'Import piano MIDI score'
             git push
           fi
+      - name: Deploy updated lesson to GitHub Pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-pages.yml --ref main
   smoke-test:
     if: github.event_name == 'push'
     runs-on: ubuntu-24.04
