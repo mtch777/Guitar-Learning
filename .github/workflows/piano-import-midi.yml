@@ -7,6 +7,10 @@ on:
         description: 'Direct HTTPS MIDI URL (not a MuseScore score-page URL)'
         required: true
         type: string
+  push:
+    paths:
+      - '.github/workflows/piano-import-midi.yml'
+      - 'scripts/piano/import-midi-url.py'
 
 permissions:
   contents: write
@@ -17,6 +21,7 @@ concurrency:
 
 jobs:
   import:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
@@ -50,3 +55,26 @@ jobs:
             git commit -m 'Import piano MIDI score'
             git push
           fi
+  smoke-test:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: |
+          python -m pip install 'music21==9.9.1'
+          npm ci
+      - name: Generate an original three-note MIDI fixture
+        run: python scripts/piano/midi-import-smoke.py
+      - name: Import and verify the lesson catalog
+        run: |
+          python scripts/piano/import-midi-url.py --file /tmp/piano-import-smoke.mid
+          npm run prebuild
+          node scripts/piano/verify-midi-import-smoke.mjs

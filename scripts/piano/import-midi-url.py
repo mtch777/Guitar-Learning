@@ -39,9 +39,10 @@ def download_midi(value):
     return data
 
 
-def import_midi(url, directory):
+def import_bytes(data, directory):
     from music21 import converter
-    data = download_midi(url)
+    if not data.startswith(b"MThd") or len(data) > MAX_BYTES:
+        raise ValueError("Invalid MIDI file.")
     digest = hashlib.sha256(data).hexdigest()
     stem = f"midi-{digest}"
     uploads = directory / "uploads"
@@ -57,12 +58,21 @@ def import_midi(url, directory):
     return xml_path
 
 
+def import_midi(url, directory):
+    return import_bytes(download_midi(url), directory)
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--url", required=True)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--url")
+    source.add_argument("--file", type=Path)
     parser.add_argument("--library", type=Path, default=Path("public/piano/learning-songs"))
     args = parser.parse_args()
-    import_midi(args.url, args.library)
+    if args.file:
+        import_bytes(args.file.read_bytes(), args.library)
+    else:
+        import_midi(args.url, args.library)
 
 
 if __name__ == "__main__":
