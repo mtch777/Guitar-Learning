@@ -9,22 +9,22 @@ export function newImportId(cryptoImpl = globalThis.crypto) {
   return `gl-${cryptoImpl.randomUUID().replace(/-/g, '').toLowerCase()}`;
 }
 
-export function tutorialUrl(value) {
+export function scorePageUrl(value) {
   let url;
   try { url = new URL(value); } catch (_) { throw new Error('Enter a valid MuseScore score URL.'); }
   if (url.protocol !== 'https:' || !['musescore.com', 'www.musescore.com'].includes(url.hostname) || url.username || url.password ||
       !/^\/(?:user\/\d+|[a-zA-Z0-9_-]+)\/scores\/\d+(?:\/piano-tutorial)?\/?$/.test(url.pathname)) {
     throw new Error('Enter a MuseScore score URL (musescore.com/user/…/scores/…).');
   }
-  return `https://musescore.com${url.pathname.replace(/\/piano-tutorial\/?$|\/$/, '')}/piano-tutorial`;
+  return `https://musescore.com${url.pathname.replace(/\/piano-tutorial\/?$|\/$/, '')}`;
 }
 
 export function beginMuseScoreImport(value, {storage = globalThis.sessionStorage, id = newImportId()} = {}) {
   if (!REQUEST_ID.test(id)) throw new Error('Invalid import request.');
-  const tutorial = tutorialUrl(value);
+  const scorePage = scorePageUrl(value);
   try { storage.setItem(REQUEST_KEY, id); }
   catch (_) { throw new Error('Enable browser session storage to import songs.'); }
-  return `${tutorial}#${new URLSearchParams({'guitar-learning-import':id})}`;
+  return `${scorePage}#${new URLSearchParams({'guitar-learning-import':id})}`;
 }
 
 /** Only accept a MIDI link after this tab initiated the matching MuseScore visit. */
@@ -43,7 +43,11 @@ export function consumeMidiHandoff(locationLike, historyLike, {storage = globalT
   }
   storage.removeItem(REQUEST_KEY);
   if (params.has('musescore-error')) {
-    return {id, error:String(params.get('musescore-error') || 'MuseScore MIDI could not be found.').slice(0, 250)};
+    const error = String(params.get('musescore-error') || 'MuseScore MIDI could not be found.').slice(0, 250);
+    // The fragment never reaches the server. Preserve the entire on-device
+    // trace (rather than truncating the JSON and losing its failure details).
+    const debug = String(params.get('musescore-debug') || '').replace(/[\u0000-\u001f\u007f]/g, ' ').slice(0, 50000);
+    return debug ? {id, error, debug} : {id, error};
   }
   return {id, url:validateMidiUrl(params.get(HANDOFF_KEY)), title:cleanTitle(params.get('musescore-title'))};
 }

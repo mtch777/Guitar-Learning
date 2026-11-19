@@ -594,6 +594,25 @@ const urlStatus = (message = '', error = false) => {
   $('url-status').textContent = message;
   $('url-status').classList.toggle('error', error);
 };
+function showMidiDiagnostics(raw = '') {
+  const details = $('musescore-diagnostics');
+  details.hidden = !raw;
+  if (!raw) return;
+  try { $('musescore-diagnostic-log').value = JSON.stringify(JSON.parse(raw), null, 2); }
+  catch (_) { $('musescore-diagnostic-log').value = raw; }
+  $('musescore-diagnostic-copy-status').textContent = '';
+}
+$('copy-musescore-diagnostics').addEventListener('click', async () => {
+  const field = $('musescore-diagnostic-log');
+  try {
+    await navigator.clipboard.writeText(field.value);
+    $('musescore-diagnostic-copy-status').textContent = 'Copied';
+  } catch (_) {
+    field.focus();
+    field.select();
+    $('musescore-diagnostic-copy-status').textContent = 'Select and copy the highlighted text';
+  }
+});
 const tokenStatus = (message = '', error = false) => {
   $('token-status').textContent = message;
   $('token-status').classList.toggle('error', error);
@@ -645,6 +664,7 @@ function openUploadDialog(stage = 'choose') {
   if (playing || starting) pause();
   uploadStatus();
   urlStatus();
+  showMidiDiagnostics();
   tokenStatus();
   $('upload-token').value = '';
   const saved = !!githubCredentials.get();
@@ -727,7 +747,7 @@ $('upload-form').addEventListener('submit', async event => {
 });
 const isMuseScoreUrl = value => /^(?:https:\/\/)?(?:www\.)?musescore\.com\//i.test(String(value).trim());
 const museScoreHelperInstalled = () => document.documentElement.dataset.musescoreHelper === 'ready';
-const museScoreHelperReady = () => museScoreHelperInstalled() && document.documentElement.dataset.musescoreHelperVersion === '1.1.0';
+const museScoreHelperReady = () => museScoreHelperInstalled() && document.documentElement.dataset.musescoreHelperVersion === '1.2.0';
 function updateMuseScoreHelperWarning() {
   const isMuseScore = isMuseScoreUrl($('score-url').value);
   $('musescore-helper-warning').hidden = !isMuseScore || museScoreHelperInstalled();
@@ -735,6 +755,7 @@ function updateMuseScoreHelperWarning() {
 }
 window.addEventListener('musescore-helper-ready', updateMuseScoreHelperWarning);
 $('score-url').addEventListener('input', updateMuseScoreHelperWarning);
+$('score-url').addEventListener('input', () => { if (returnedMidi?.error) returnedMidi = null; showMidiDiagnostics(); });
 $('url-form').addEventListener('submit', async event => {
   event.preventDefault();
   if (uploading) return;
@@ -819,6 +840,7 @@ try {
   }
 } catch (error) {
   openUploadDialog('url');
+  showMidiDiagnostics(returnedMidi?.debug);
   if (githubCredentials.get()) urlStatus(error.message || 'MIDI link could not be imported.', true);
   else tokenStatus(error.message || 'MIDI link could not be imported.', true);
 }
