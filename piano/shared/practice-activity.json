@@ -3,5 +3,291 @@
   "confirmedDays": [
     "2026-11-18"
   ],
-  "events": []
+  "events": [
+    {
+      "id": "legacy-keyboard-shapes-major-scales-1794950618226-0",
+      "day": "2026-11-17",
+      "lesson": "keyboard-shapes-major-scales"
+    },
+    {
+      "id": "legacy-keyboard-shapes-major-scales-1794953516249-1",
+      "day": "2026-11-17",
+      "lesson": "keyboard-shapes-major-scales"
+    },
+    {
+      "id": "legacy-keyboard-shapes-major-scales-1794953518162-2",
+      "day": "2026-11-17",
+      "lesson": "keyboard-shapes-major-scales"
+    },
+    {
+      "id": "legacy-keyboard-shapes-major-scales-1794973155563-3",
+      "day": "2026-11-17",
+      "lesson": "keyboard-shapes-major-scales"
+    },
+    {
+      "id": "legacy-keyboard-shapes-major-triads-1794950622906-0",
+      "day": "2026-11-17",
+      "lesson": "keyboard-shapes-major-triads"
+    },
+    {
+      "id": "legacy-keyboard-shapes-major-triads-1794973148463-1",
+      "day": "2026-11-17",
+      "lesson": "keyboard-shapes-major-triads"
+    },
+    {
+      "id": "legacy-learning-songs-1794963910680-0",
+      "day": "2026-11-17",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1794964846265-1",
+      "day": "2026-11-17",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1794965361637-2",
+      "day": "2026-11-17",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1794967312083-3",
+      "day": "2026-11-17",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1794967338803-4",
+      "day": "2026-11-17",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1794968780645-5",
+      "day": "2026-11-17",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1794972978965-6",
+      "day": "2026-11-17",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1794973074634-7",
+      "day": "2026-11-17",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-sheet-reading-note-reading-1794943719612-0",
+      "day": "2026-11-17",
+      "lesson": "sheet-reading-note-reading"
+    },
+    {
+      "id": "legacy-sheet-reading-note-reading-1794949663597-1",
+      "day": "2026-11-17",
+      "lesson": "sheet-reading-note-reading"
+    },
+    {
+      "id": "legacy-sheet-reading-note-reading-1794949818098-2",
+      "day": "2026-11-17",
+      "lesson": "sheet-reading-note-reading"
+    },
+    {
+      "id": "legacy-sheet-reading-note-reading-1794973064207-3",
+      "day": "2026-11-17",
+      "lesson": "sheet-reading-note-reading"
+    },
+    {
+      "id": "legacy-theory-circle-of-fifths-1794947007488-0",
+      "day": "2026-11-17",
+      "lesson": "theory-circle-of-fifths"
+    },
+    {
+      "id": "legacy-theory-circle-of-fifths-accidentals-count-1794947770887-0",
+      "day": "2026-11-17",
+      "lesson": "theory-circle-of-fifths-accidentals-count"
+    },
+    {
+      "id": "legacy-theory-circle-of-fifths-accidentals-count-1794949797162-1",
+      "day": "2026-11-17",
+      "lesson": "theory-circle-of-fifths-accidentals-count"
+    },
+    {
+      "id": "legacy-theory-circle-of-fifths-accidentals-order-1794947772655-0",
+      "day": "2026-11-17",
+      "lesson": "theory-circle-of-fifths-accidentals-order"
+    },
+    {
+      "id": "legacy-theory-circle-of-fifths-accidentals-order-1794949810825-1",
+      "day": "2026-11-17",
+      "lesson": "theory-circle-of-fifths-accidentals-order"
+    },
+    {
+      "id": "legacy-theory-circle-of-fifths-color-to-note-1794947766325-0",
+      "day": "2026-11-17",
+      "lesson": "theory-circle-of-fifths-color-to-note"
+    },
+    {
+      "id": "legacy-theory-circle-of-fifths-color-to-note-1794949794334-1",
+      "day": "2026-11-17",
+      "lesson": "theory-circle-of-fifths-color-to-note"
+    },
+    {
+      "id": "legacy-theory-circle-of-fifths-color-to-note-1794967325755-2",
+      "day": "2026-11-17",
+      "lesson": "theory-circle-of-fifths-color-to-note"
+    },
+    {
+      "id": "legacy-theory-circle-of-fifths-color-to-note-1794973016519-3",
+      "day": "2026-11-17",
+      "lesson": "theory-circle-of-fifths-color-to-note"
+    },
+    {
+      "id": "legacy-learning-songs-1795013860603-8",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795013955786-9",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795013989900-10",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795028302750-11",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795029166756-12",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795029188462-13",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795029832304-14",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795031079078-15",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795031925258-16",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795032204423-17",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795032481734-18",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795032493772-19",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795032776516-20",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795033670724-21",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795033694294-22",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795033710495-23",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795033774111-24",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795034186362-25",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795036548255-26",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795037433535-27",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795055065128-28",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795055067444-29",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795057236233-30",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795069330234-31",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795069335786-32",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795069487594-33",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795070891222-34",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-learning-songs-1795070893619-35",
+      "day": "2026-11-18",
+      "lesson": "learning-songs"
+    },
+    {
+      "id": "legacy-theory-circle-of-fifths-reference-1795014053140-0",
+      "day": "2026-11-18",
+      "lesson": "theory-circle-of-fifths-reference"
+    },
+    {
+      "id": "legacy-learning-songs-1795103836394-36",
+      "day": "2026-11-19",
+      "lesson": "learning-songs"
+    }
+  ]
 }
