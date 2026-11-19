@@ -16,7 +16,7 @@ const {uploadScoreToGitHub} = uploadModule;
 const {readScoreFile} = scoreUploadModule;
 const {deleteSongFromGitHub} = deleteModule;
 const {githubCredentials} = credentialModule;
-const {dispatchMidiImport, validateMidiUrl, tutorialUrl, consumeMidiHandoff} = await loadModule('github-midi-import.js');
+const {dispatchMidiImport, validateMidiUrl, beginMuseScoreImport, consumeMidiHandoff, newImportId} = await loadModule('github-midi-import.js');
 if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, {once:true}));
 
 const $ = id => document.getElementById(id);
@@ -34,6 +34,7 @@ let sourceModel = null, transposeOffset = 0;
 let playing = false, elapsed = 0, anchor = 0, animation = 0, nextAudio = 0, totalSeconds = 0;
 let busy = false, libraryLoading = false, countIn = 0, lastPaint = '', lastStatus = '';
 let librarySource = 'bundled', uploading = false, pendingUploadTimer;
+let pendingMidiTimer;
 let deleting = false;
 const pendingDeleteTimers = new Map();
 const PENDING_DELETE_KEY = 'piano-pending-github-deletions-v1';
@@ -548,6 +549,45 @@ function watchPublishedUpload(digest, attempts = 0) {
     watchPublishedUpload(digest, attempts + 1);
   }, 10000);
 }
+const PENDING_MIDI_KEY = 'piano-pending-midi-import-v1';
+const TEMP_MIDI_TOKEN_KEY = 'piano-temporary-midi-token-v1';
+function pendingMidi() {
+  try { return sessionStorage.getItem(PENDING_MIDI_KEY); } catch (_) { return null; }
+}
+function rememberPendingMidi(id) {
+  try { if (id) sessionStorage.setItem(PENDING_MIDI_KEY, id); else sessionStorage.removeItem(PENDING_MIDI_KEY); } catch (_) {}
+}
+function watchPublishedMidi(id, attempts = 0) {
+  clearTimeout(pendingMidiTimer);
+  if (!/^gl-[a-f0-9]{32}$/.test(id)) return;
+  libraryNotice('Converting MIDI and publishing the sheet music…');
+  pendingMidiTimer = setTimeout(async () => {
+    if (busy || libraryLoading) return watchPublishedMidi(id, attempts);
+    try {
+      const receiptUrl = new URL(`./imports/${id}.json?time=${Date.now()}`, document.baseURI);
+      const response = await fetch(receiptUrl, {cache:'no-store', credentials:'omit'});
+      if (response.ok) {
+        const receipt = await response.json();
+        if (receipt.requestId !== id || !/^upload-[a-f0-9]{64}$/.test(receipt.songId)) {
+          throw new Error('GitHub returned an invalid import result.');
+        }
+        await refreshSharedLibrary();
+        const imported = songChoice(receipt.songId);
+        if (imported) {
+          rememberPendingMidi(null);
+          await selectSong(imported);
+          libraryNotice('Song imported.', false, {temporary:true});
+          return;
+        }
+      }
+    } catch (error) { console.warn('Waiting for MIDI import:', error); }
+    if (attempts >= 44) {
+      libraryNotice('Import is taking longer than expected. Check GitHub Actions, then use Refresh.', true);
+      return;
+    }
+    watchPublishedMidi(id, attempts + 1);
+  }, attempts < 2 ? 5000 : 10000);
+}
 function uploadStatus(message = '', error = false) {
   $('upload-status').textContent = message;
   $('upload-status').classList.toggle('error', error);
@@ -636,7 +676,14 @@ $('upload-form').addEventListener('submit', async event => {
     controls();
   }
 });
-let returnedMidiUrl = null;
+let returnedMidi = null;
+const isMuseScoreUrl = value => /^(?:https:\/\/)?(?:www\.)?musescore\.com\//i.test(String(value).trim());
+const museScoreHelperReady = () => document.documentElement.dataset.musescoreHelper === 'ready';
+function updateMuseScoreHelperWarning() {
+  $('musescore-helper-warning').hidden = !isMuseScoreUrl($('score-url').value) || museScoreHelperReady();
+}
+window.addEventListener('musescore-helper-ready', updateMuseScoreHelperWarning);
+$('score-url').addEventListener('input', updateMuseScoreHelperWarning);
 const urlStatus = (message = '', error = false) => {
   $('url-status').textContent = message;
   $('url-status').classList.toggle('error', error);
@@ -650,6 +697,7 @@ $('url-button').addEventListener('click', () => {
   if (playing || starting) pause();
   urlStatus();
   fillCredential('url');
+  updateMuseScoreHelperWarning();
   $('url-dialog').showModal();
 });
 $('url-close').addEventListener('click', closeUrlDialog);
@@ -661,13 +709,26 @@ $('url-dialog').addEventListener('cancel', event => {
 $('url-form').addEventListener('submit', async event => {
   event.preventDefault();
   if (uploading) return;
-  if (!returnedMidiUrl && /^(?:https:\/\/)?(?:www\.)?musescore\.com\//i.test($('score-url').value.trim())) {
-    try { window.location.assign(tutorialUrl($('score-url').value)); }
-    catch (error) { urlStatus(error.message || 'Invalid MuseScore URL.', true); }
+  if (!returnedMidi && isMuseScoreUrl($('score-url').value)) {
+    if (!museScoreHelperReady()) {
+      updateMuseScoreHelperWarning();
+      return urlStatus('Install the browser helper once to enable automatic MuseScore imports.', true);
+    }
+    const token = $('url-token').value.trim();
+    if (!token) {
+      $('url-credentials').open = true;
+      return urlStatus('Enter your GitHub token (Contents: write).', true);
+    }
+    try {
+      const destination = beginMuseScoreImport($('score-url').value);
+      if ($('url-remember').checked) commitCredential('url', token);
+      else sessionStorage.setItem(TEMP_MIDI_TOKEN_KEY, token);
+      window.location.assign(destination);
+    } catch (error) { urlStatus(error.message || 'Could not start MuseScore import.', true); }
     return;
   }
   let url;
-  try { url = new URL(returnedMidiUrl || $('score-url').value.trim()); }
+  try { url = new URL(returnedMidi?.url || $('score-url').value.trim()); }
   catch (_) { return urlStatus('Enter a valid score URL.', true); }
   if (url.protocol !== 'https:') return urlStatus('Use an HTTPS score URL.', true);
   if (/\.mid(?:i)?$/i.test(url.pathname)) {
@@ -677,12 +738,16 @@ $('url-form').addEventListener('submit', async event => {
     try {
       validateMidiUrl(url.href);
       urlStatus('Starting MIDI conversion…');
-      await dispatchMidiImport(url.href, $('url-token').value);
+      const id = returnedMidi?.id || newImportId();
+      await dispatchMidiImport(url.href, $('url-token').value, {id, title:returnedMidi?.title || ''});
       commitCredential('url', $('url-token').value);
+      try { sessionStorage.removeItem(TEMP_MIDI_TOKEN_KEY); } catch (_) {}
       $('url-token').value = '';
       $('score-url').value = '';
-      returnedMidiUrl = null;
-      urlStatus('MIDI import started. Refresh the song list when the GitHub Action finishes.');
+      returnedMidi = null;
+      rememberPendingMidi(id);
+      $('url-dialog').close();
+      watchPublishedMidi(id);
     } catch (error) {
       urlStatus(error.message || 'MIDI import failed.', true);
     } finally {
@@ -716,14 +781,18 @@ $('url-form').addEventListener('submit', async event => {
   }
 });
 try {
-  returnedMidiUrl = consumeMidiHandoff(window.location, window.history);
-  if (returnedMidiUrl) {
-    $('score-url').value = returnedMidiUrl;
+  returnedMidi = consumeMidiHandoff(window.location, window.history);
+  if (returnedMidi) {
+    if (returnedMidi.error) throw new Error(returnedMidi.error);
+    $('score-url').value = returnedMidi.url;
     fillCredential('url');
-    urlStatus('MIDI found. Starting GitHub import…');
+    if (!$('url-token').value) {
+      try { $('url-token').value = sessionStorage.getItem(TEMP_MIDI_TOKEN_KEY) || ''; } catch (_) {}
+    }
+    urlStatus('MIDI found. Saving to GitHub…');
     $('url-dialog').showModal();
     if ($('url-token').value) $('url-form').requestSubmit();
-    else urlStatus('MIDI found. Enter a GitHub token with Actions: write, then press Continue.');
+    else urlStatus('MIDI found. Enter your GitHub token (Contents: write).', true);
   }
 } catch (error) {
   fillCredential('url');
@@ -855,6 +924,7 @@ const remembered = storage.lastSelection();
 await selectSong(songChoice(remembered) || songChoice(`local-${remembered}`) || songChoice(DEFAULT_ID) || songChoices[0]);
 if (!songChoices.length) showEmptyLibrary();
 if (pendingUpload()) watchPublishedUpload(pendingUpload());
+if (pendingMidi()) watchPublishedMidi(pendingMidi());
 for (const id of pendingDeletes) watchPublishedDeletion(id);
 if (localRecoveryFailed && $('import-message').hidden) notice('Device-only scores could not be read.', true);
 try { window.PracticeTracker?.recordOpen('learning-songs'); } catch (_) {}
