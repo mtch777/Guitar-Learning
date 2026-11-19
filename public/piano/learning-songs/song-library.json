@@ -1,21 +1,7 @@
 {
   "version": 1,
-  "defaultSongId": "phoebe-bridgers-i-know-the-end",
+  "defaultSongId": "conversion-test-nwc",
   "songs": [
-    {
-      "id": "phoebe-bridgers-i-know-the-end",
-      "title": "I Know the End",
-      "composer": "Phoebe Bridgers",
-      "scorePath": "scores/phoebe-bridgers-i-know-the-end.musicxml",
-      "sourcePath": "scores/phoebe-bridgers-i-know-the-end.mid",
-      "description": "Piano arrangement by Edgar Roock",
-      "provenance": "scores/phoebe-bridgers-i-know-the-end.provenance.json",
-      "sourceFilename": "phoebe-bridgers-i-know-the-end.mid",
-      "sha256": "655e8b1a2edfe9989fc6bdbb2ed9cae9b9144aaccf5a212f62719a81b71b0b68",
-      "sourceSha256": "5339cdf536ad2af95d720f82ce3304547f3b97a9f3f4eee2f3cabf4291dc0364",
-      "noteCount": 1426,
-      "attackCount": 1396
-    },
     {
       "id": "conversion-test-nwc",
       "title": "Conversion test · 20 notes",
@@ -79,21 +65,9 @@
       "attackCount": 812
     },
     {
-      "id": "upload-9ff086d6c9f2eb81535f9a90f6c7decef87125dcd0344bb371ab2280d65018ea",
-      "title": "I Know the End",
-      "composer": "Phoebe Bridgers",
-      "scorePath": "scores/upload-9ff086d6c9f2eb81535f9a90f6c7decef87125dcd0344bb371ab2280d65018ea.musicxml",
-      "sourcePath": "uploads/I_Know_the_End.musicxml",
-      "sourceFilename": "I_Know_the_End.musicxml",
-      "sha256": "9ff086d6c9f2eb81535f9a90f6c7decef87125dcd0344bb371ab2280d65018ea",
-      "sourceSha256": "b16d8dfe3fd19c9f841e67c0325fa9a471b12fa6f6bea94c73ceb80d0b9c38dc",
-      "noteCount": 990,
-      "attackCount": 990
-    },
-    {
       "id": "upload-007988d2df1df7275379ecf42c8124723085af5c787436341b0a49a7119c1069",
-      "title": "Music21 Fragment",
-      "composer": "Music21",
+      "title": "I Want You To Love Me",
+      "composer": "Fiona Apple",
       "scorePath": "scores/upload-007988d2df1df7275379ecf42c8124723085af5c787436341b0a49a7119c1069.musicxml",
       "sourcePath": "uploads/midi-e578ad97abfd8cac7ade35558f882643b8741e1851a6e0567fd33a0f7c420ae9.musicxml",
       "sourceFilename": "midi-e578ad97abfd8cac7ade35558f882643b8741e1851a6e0567fd33a0f7c420ae9.musicxml",
