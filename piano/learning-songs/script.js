@@ -70,7 +70,6 @@ function controls() {
   $('song-select').disabled = busy || libraryLoading;
   $('refresh-library').disabled = busy || libraryLoading;
   $('upload-button').disabled = uploading;
-  $('url-button').disabled = uploading;
   $('delete-song').disabled = busy || libraryLoading || deleting || uploading || !songChoice(selectedId) || !!songChoice(selectedId)?.pendingPublication;
   $('tempo').disabled = busy || playing;
   const limits = sourceModel ? transposeLimits(sourceModel) : {min:0, max:0};
@@ -550,7 +549,6 @@ function watchPublishedUpload(digest, attempts = 0) {
   }, 10000);
 }
 const PENDING_MIDI_KEY = 'piano-pending-midi-import-v1';
-const TEMP_MIDI_TOKEN_KEY = 'piano-temporary-midi-token-v1';
 function pendingMidi() {
   try { return sessionStorage.getItem(PENDING_MIDI_KEY); } catch (_) { return null; }
 }
@@ -592,6 +590,14 @@ function uploadStatus(message = '', error = false) {
   $('upload-status').textContent = message;
   $('upload-status').classList.toggle('error', error);
 }
+const urlStatus = (message = '', error = false) => {
+  $('url-status').textContent = message;
+  $('url-status').classList.toggle('error', error);
+};
+const tokenStatus = (message = '', error = false) => {
+  $('token-status').textContent = message;
+  $('token-status').classList.toggle('error', error);
+};
 function fillCredential(dialog) {
   const saved = githubCredentials.get();
   $(`${dialog}-token`).value = saved;
@@ -604,26 +610,20 @@ function commitCredential(dialog, token) {
     if (!githubCredentials.save(token)) libraryNotice('Could not remember credentials on this device.', true);
   } else githubCredentials.forget();
 }
-document.querySelectorAll('.credential-forget').forEach(button => button.addEventListener('click', () => {
+document.querySelector('#delete-dialog .credential-forget').addEventListener('click', () => {
   githubCredentials.forget();
-  for (const dialog of ['upload', 'url', 'delete']) {
-    $(`${dialog}-token`).value = '';
-    $(`${dialog}-remember`).checked = false;
-    const section = $(`${dialog}-credentials`);
-    if (section) section.open = true;
-  }
-}));
-async function saveScore(file, dialog, reportStatus) {
+  $('delete-token').value = '';
+  $('delete-remember').checked = false;
+  $('delete-credentials').open = true;
+});
+async function saveScore(file, reportStatus) {
   reportStatus('Checking score…');
   const xml = await readScoreFile(file);
   const parsed = parseMusicXML(xml);
   reportStatus('Saving original file to GitHub…');
-  const token = $(`${dialog}-token`).value;
-  const uploaded = await uploadScoreToGitHub(file, token);
-  commitCredential(dialog, token);
-  $(`${dialog}-token`).value = '';
+  const uploaded = await uploadScoreToGitHub(file, githubCredentials.get());
   savePendingUpload(uploaded.digest);
-  $(`${dialog}-dialog`).close();
+  $('upload-dialog').close();
   const pendingSong = {
     id:`pending-${uploaded.digest}`, title:parsed.title || file.name,
     composer:parsed.composer || '', sourceFilename:file.name, sourceSha256:uploaded.digest,
@@ -634,49 +634,97 @@ async function saveScore(file, dialog, reportStatus) {
   await selectSong(pendingSong, {preparedModel:parsed});
   watchPublishedUpload(uploaded.digest);
 }
+let returnedMidi = null, resumeMidiAfterTokenSave = false;
+function showUploadStage(stage) {
+  for (const name of ['token', 'choose', 'file', 'url']) {
+    $(`upload-${name}-stage`).hidden = stage !== name;
+  }
+  if (stage === 'url') updateMuseScoreHelperWarning();
+}
+function openUploadDialog(stage = 'choose') {
+  if (playing || starting) pause();
+  uploadStatus();
+  urlStatus();
+  tokenStatus();
+  $('upload-token').value = '';
+  const saved = !!githubCredentials.get();
+  resumeMidiAfterTokenSave = !saved && stage === 'url' && !!returnedMidi && !returnedMidi.legacy && !returnedMidi.error;
+  showUploadStage(saved ? stage : 'token');
+  $('upload-dialog').showModal();
+}
 function closeUploadDialog() {
   if (uploading) return;
   $('upload-token').value = '';
   $('upload-dialog').close();
 }
 for (const id of ['upload-button', 'empty-upload']) {
-  $(id).addEventListener('click', () => {
-    if (playing || starting) pause();
-    uploadStatus();
-    fillCredential('upload');
-    $('upload-dialog').showModal();
-  });
+  $(id).addEventListener('click', () => openUploadDialog());
 }
 $('upload-close').addEventListener('click', closeUploadDialog);
-$('upload-cancel').addEventListener('click', closeUploadDialog);
+$('token-cancel').addEventListener('click', closeUploadDialog);
 $('upload-dialog').addEventListener('cancel', event => {
   if (uploading) event.preventDefault();
   else $('upload-token').value = '';
 });
+$('token-form').addEventListener('submit', event => {
+  event.preventDefault();
+  if (uploading) return;
+  if (!githubCredentials.save($('upload-token').value)) {
+    return tokenStatus('Could not save the token on this browser.', true);
+  }
+  $('upload-token').value = '';
+  tokenStatus();
+  const resumeMidi = resumeMidiAfterTokenSave;
+  resumeMidiAfterTokenSave = false;
+  showUploadStage(resumeMidi ? 'url' : 'choose');
+  if (resumeMidi) $('url-form').requestSubmit();
+});
+$('change-token').addEventListener('click', () => {
+  resumeMidiAfterTokenSave = false;
+  showUploadStage('token');
+});
+$('forget-token').addEventListener('click', () => {
+  githubCredentials.forget();
+  resumeMidiAfterTokenSave = false;
+  showUploadStage('token');
+});
+$('choose-file').addEventListener('click', () => {
+  uploadStatus();
+  showUploadStage('file');
+});
+$('choose-url').addEventListener('click', () => {
+  urlStatus();
+  showUploadStage('url');
+});
+$('upload-back').addEventListener('click', () => { if (!uploading) showUploadStage('choose'); });
+$('url-back').addEventListener('click', () => { if (!uploading) showUploadStage('choose'); });
 $('upload-form').addEventListener('submit', async event => {
   event.preventDefault();
   if (uploading) return;
   const file = $('upload-file').files?.[0];
   if (!file) return uploadStatus('Choose a score file.', true);
+  if (!githubCredentials.get()) {
+    showUploadStage('token');
+    return tokenStatus('Save your GitHub token first.', true);
+  }
   uploading = true;
   $('upload-submit').disabled = true;
-  $('upload-cancel').disabled = true;
+  $('upload-back').disabled = true;
   $('upload-close').disabled = true;
   controls();
   try {
-    await saveScore(file, 'upload', uploadStatus);
+    await saveScore(file, uploadStatus);
     $('upload-file').value = '';
   } catch (error) {
     uploadStatus(error.message || 'Upload failed.', true);
   } finally {
     uploading = false;
     $('upload-submit').disabled = false;
-    $('upload-cancel').disabled = false;
+    $('upload-back').disabled = false;
     $('upload-close').disabled = false;
     controls();
   }
 });
-let returnedMidi = null;
 const isMuseScoreUrl = value => /^(?:https:\/\/)?(?:www\.)?musescore\.com\//i.test(String(value).trim());
 const museScoreHelperReady = () => document.documentElement.dataset.musescoreHelper === 'ready';
 function updateMuseScoreHelperWarning() {
@@ -684,45 +732,21 @@ function updateMuseScoreHelperWarning() {
 }
 window.addEventListener('musescore-helper-ready', updateMuseScoreHelperWarning);
 $('score-url').addEventListener('input', updateMuseScoreHelperWarning);
-const urlStatus = (message = '', error = false) => {
-  $('url-status').textContent = message;
-  $('url-status').classList.toggle('error', error);
-};
-function closeUrlDialog() {
-  if (uploading) return;
-  $('url-token').value = '';
-  $('url-dialog').close();
-}
-$('url-button').addEventListener('click', () => {
-  if (playing || starting) pause();
-  urlStatus();
-  fillCredential('url');
-  updateMuseScoreHelperWarning();
-  $('url-dialog').showModal();
-});
-$('url-close').addEventListener('click', closeUrlDialog);
-$('url-cancel').addEventListener('click', closeUrlDialog);
-$('url-dialog').addEventListener('cancel', event => {
-  if (uploading) event.preventDefault();
-  else $('url-token').value = '';
-});
 $('url-form').addEventListener('submit', async event => {
   event.preventDefault();
   if (uploading) return;
+  const token = githubCredentials.get();
+  if (!token) {
+    showUploadStage('token');
+    return tokenStatus('Save your GitHub token first.', true);
+  }
   if (!returnedMidi && isMuseScoreUrl($('score-url').value)) {
     if (!museScoreHelperReady()) {
       updateMuseScoreHelperWarning();
       return urlStatus('Install the browser helper once to enable automatic MuseScore imports.', true);
     }
-    const token = $('url-token').value.trim();
-    if (!token) {
-      $('url-credentials').open = true;
-      return urlStatus('Enter your GitHub token (Contents: write).', true);
-    }
     try {
       const destination = beginMuseScoreImport($('score-url').value);
-      if ($('url-remember').checked) commitCredential('url', token);
-      else sessionStorage.setItem(TEMP_MIDI_TOKEN_KEY, token);
       window.location.assign(destination);
     } catch (error) { urlStatus(error.message || 'Could not start MuseScore import.', true); }
     return;
@@ -733,26 +757,23 @@ $('url-form').addEventListener('submit', async event => {
   if (url.protocol !== 'https:') return urlStatus('Use an HTTPS score URL.', true);
   if (/\.mid(?:i)?$/i.test(url.pathname)) {
     uploading = true;
-    for (const id of ['url-submit', 'url-close', 'url-cancel']) $(id).disabled = true;
+    for (const id of ['url-submit', 'upload-close', 'url-back']) $(id).disabled = true;
     controls();
     try {
       validateMidiUrl(url.href);
       urlStatus('Starting MIDI conversion…');
       const id = returnedMidi?.id || newImportId();
-      await dispatchMidiImport(url.href, $('url-token').value, {id, title:returnedMidi?.title || ''});
-      commitCredential('url', $('url-token').value);
-      try { sessionStorage.removeItem(TEMP_MIDI_TOKEN_KEY); } catch (_) {}
-      $('url-token').value = '';
+      await dispatchMidiImport(url.href, token, {id, title:returnedMidi?.title || ''});
       $('score-url').value = '';
       returnedMidi = null;
       rememberPendingMidi(id);
-      $('url-dialog').close();
+      $('upload-dialog').close();
       watchPublishedMidi(id);
     } catch (error) {
       urlStatus(error.message || 'MIDI import failed.', true);
     } finally {
       uploading = false;
-      for (const id of ['url-submit', 'url-close', 'url-cancel']) $(id).disabled = false;
+      for (const id of ['url-submit', 'upload-close', 'url-back']) $(id).disabled = false;
       controls();
     }
     return;
@@ -760,7 +781,7 @@ $('url-form').addEventListener('submit', async event => {
   const extension = url.pathname.match(/\.(musicxml|xml|mxl)$/i)?.[1]?.toLowerCase();
   if (!extension) return urlStatus('The URL must point directly to a .musicxml, .xml or .mxl file.', true);
   uploading = true;
-  for (const id of ['url-submit', 'url-close', 'url-cancel']) $(id).disabled = true;
+  for (const id of ['url-submit', 'upload-close', 'url-back']) $(id).disabled = true;
   controls();
   try {
     urlStatus('Downloading score…');
@@ -770,13 +791,13 @@ $('url-form').addEventListener('submit', async event => {
     const blob = await response.blob();
     if (!blob.size || blob.size > 20 * 1024 * 1024) throw new Error('The score must be between 1 byte and 20 MB.');
     const file = new File([blob], decodeURIComponent(url.pathname.split('/').pop()), {type:blob.type});
-    await saveScore(file, 'url', urlStatus);
+    await saveScore(file, urlStatus);
     $('score-url').value = '';
   } catch (error) {
     urlStatus(error instanceof TypeError ? 'The source blocked direct downloading. Download the file there, then use Upload.' : error.message || 'Import failed.', true);
   } finally {
     uploading = false;
-    for (const id of ['url-submit', 'url-close', 'url-cancel']) $(id).disabled = false;
+    for (const id of ['url-submit', 'upload-close', 'url-back']) $(id).disabled = false;
     controls();
   }
 });
@@ -785,20 +806,16 @@ try {
   if (returnedMidi) {
     if (returnedMidi.error) throw new Error(returnedMidi.error);
     $('score-url').value = returnedMidi.url;
-    fillCredential('url');
-    if (!$('url-token').value) {
-      try { $('url-token').value = sessionStorage.getItem(TEMP_MIDI_TOKEN_KEY) || ''; } catch (_) {}
-    }
-    urlStatus('MIDI found. Saving to GitHub…');
-    $('url-dialog').showModal();
-    if ($('url-token').value && !returnedMidi.legacy) $('url-form').requestSubmit();
+    openUploadDialog('url');
+    if (githubCredentials.get()) urlStatus('MIDI found. Saving to GitHub…');
+    else tokenStatus('MIDI found. Save your GitHub token to finish the import.');
+    if (githubCredentials.get() && !returnedMidi.legacy) $('url-form').requestSubmit();
     else if (returnedMidi.legacy) urlStatus('MIDI link ready. Press Import to save it.');
-    else urlStatus('MIDI found. Enter your GitHub token (Contents: write).', true);
   }
 } catch (error) {
-  fillCredential('url');
-  urlStatus(error.message || 'MIDI link could not be imported.', true);
-  $('url-dialog').showModal();
+  openUploadDialog('url');
+  if (githubCredentials.get()) urlStatus(error.message || 'MIDI link could not be imported.', true);
+  else tokenStatus(error.message || 'MIDI link could not be imported.', true);
 }
 const deleteStatus = (message = '', error = false) => {
   $('delete-status').textContent = message;

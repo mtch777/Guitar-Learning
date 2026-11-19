@@ -21,7 +21,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .lesson-shell { width: calc(100% - 16px); height: 100vh; height: 100dvh; margin: 0 auto; padding: 6px 0; display: flex; flex-direction: column; gap: 6px; }
 .card { border: 1px solid var(--border); border-radius: 8px; background: #141a22; overflow: hidden; }
-.song-library { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto auto; align-items: center; gap: 6px; padding: 6px; flex: none; }
+.song-library { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto; align-items: center; gap: 6px; padding: 6px; flex: none; }
 .practice-link { font-size: 11px; color: var(--muted); text-decoration: none; white-space: nowrap; padding: 6px 2px; }
 .song-picker { min-width: 0; }
 #delete-song { padding: 0 8px; font-size: 16px; }
@@ -37,7 +37,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .library-message.error { color: #ffc2c8; }
 .local-recovery { display: flex; align-items: center; gap: 8px; }
 .small-button { background: #1c2531; border: 1px solid #354153; color: #c4cedd; border-radius: 5px; padding: 5px 8px; font-size: 10px; }
-#upload-dialog, #url-dialog { width: min(480px, calc(100vw - 24px)); max-height: min(90dvh, 740px); overflow-y: auto; padding: 16px; border: 1px solid #52617a; border-radius: 9px; background: #151c27; color: #e9edf5; box-shadow: 0 16px 50px #0009; }
+#upload-dialog { width: min(480px, calc(100vw - 24px)); max-height: min(90dvh, 740px); overflow-y: auto; padding: 16px; border: 1px solid #52617a; border-radius: 9px; background: #151c27; color: #e9edf5; box-shadow: 0 16px 50px #0009; }
 #delete-dialog { width: min(420px, calc(100vw - 24px)); padding: 16px; border: 1px solid #52617a; border-radius: 9px; background: #151c27; color: #e9edf5; }
 #delete-dialog::backdrop { background: #05080dc9; }
 #delete-form { display: flex; flex-direction: column; gap: 12px; }
@@ -48,23 +48,26 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .credential-options label input { width: auto !important; margin: 0; padding: 0 !important; accent-color: var(--accent); }
 .credential-forget { padding: 2px 0; border: 0; background: transparent; color: #c4b5fd; font-size: 11px; }
 #delete-status.error { color: var(--red); }
-#upload-dialog::backdrop, #url-dialog::backdrop { background: #05080dc9; }
-#upload-form, #url-form { display: flex; flex-direction: column; gap: 8px; }
+#upload-dialog::backdrop { background: #05080dc9; }
+.upload-shell, #token-form, #upload-form, #url-form { display: flex; flex-direction: column; gap: 10px; }
+.upload-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.upload-options .button { min-height: 56px; white-space: normal; font-size: 13px; }
+.upload-stage { display: flex; flex-direction: column; gap: 8px; }
 .upload-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .upload-heading h2 { margin: 0; font-size: 17px; }
-#upload-form > label, #url-form > label { font-size: 12px; font-weight: 650; }
-#upload-form > input, #url-form > input, .credential-details input[type=password] { width: 100%; min-width: 0; padding: 9px; border: 1px solid #465369; border-radius: 6px; background: #0d131c; color: #f1f4f8; font-size: 12px; }
+#token-form > label, #upload-form > label, #url-form > label { font-size: 12px; font-weight: 650; }
+#token-form > input, #upload-form > input, #url-form > input, .credential-details input[type=password] { width: 100%; min-width: 0; padding: 9px; border: 1px solid #465369; border-radius: 6px; background: #0d131c; color: #f1f4f8; font-size: 12px; }
 .credential-details { border-top: 1px solid var(--border); padding-top: 7px; font-size: 12px; }
 .credential-details summary { cursor: pointer; color: #d5c9ff; }
 .credential-details label { display: block; margin: 7px 0 4px; }
-.credential-details .credential-options { margin: 6px 0; }
+.credential-details .credential-options { margin: 8px 0 2px; }
 .upload-help, .upload-formats, #upload-status { margin: 0; color: #bdc8d8; font-size: 11px; line-height: 1.4; }
 .upload-help a { color: #c5b6ff; }
 .upload-formats { border-top: 1px solid var(--border); padding-top: 8px; }
 .upload-formats summary { cursor: pointer; color: #d5c9ff; }
 .upload-formats p { margin: 6px 0 0; }
-#upload-status, #url-status { min-height: 16px; margin: 0; font-size: 11px; }
-#upload-status.error, #url-status.error { color: var(--red); }
+#upload-status, #url-status, #token-status { min-height: 16px; margin: 0; font-size: 11px; }
+#upload-status.error, #url-status.error, #token-status.error { color: var(--red); }
 .upload-actions { display: flex; justify-content: flex-end; gap: 7px; }
 .score-card { display: flex; flex-direction: column; flex: 0 1 auto; min-height: 0; }
 .session-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; padding: 6px; flex: none; }
@@ -126,8 +129,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .song-library { grid-template-columns: auto minmax(0, 1fr) auto auto; }
   .song-picker { grid-column: 2 / 4; }
   #delete-song { grid-column: 4; }
-  #upload-button { grid-column: 1 / 2; }
-  #url-button { grid-column: 2 / 3; }
+  #upload-button { grid-column: 1 / 3; }
   #refresh-library { grid-column: 3 / 5; }
   .session-toolbar { gap: 4px; padding: 4px; }
   .lesson-modes, .transport { flex-basis: 100%; }
