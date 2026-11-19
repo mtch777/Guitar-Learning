@@ -43,6 +43,42 @@
       "attackCount": 179
     },
     {
+      "id": "upload-41c6058b327466b2fda6aa58082c2126c78c4a767e2e8b3ef4d51ed988fc6cec",
+      "title": "I Know the End",
+      "composer": "Phoebe Bridgers",
+      "scorePath": "scores/upload-41c6058b327466b2fda6aa58082c2126c78c4a767e2e8b3ef4d51ed988fc6cec.musicxml",
+      "sourcePath": "uploads/I_Know_the_End_new_--c528904328f9efa5c6d026fe0d4879c36b2214be41ab2acc9d408ac795baec0d.musicxml",
+      "sourceFilename": "I_Know_the_End_new_--c528904328f9efa5c6d026fe0d4879c36b2214be41ab2acc9d408ac795baec0d.musicxml",
+      "sha256": "41c6058b327466b2fda6aa58082c2126c78c4a767e2e8b3ef4d51ed988fc6cec",
+      "sourceSha256": "c528904328f9efa5c6d026fe0d4879c36b2214be41ab2acc9d408ac795baec0d",
+      "noteCount": 936,
+      "attackCount": 812
+    },
+    {
+      "id": "upload-9ff086d6c9f2eb81535f9a90f6c7decef87125dcd0344bb371ab2280d65018ea",
+      "title": "I Know the End",
+      "composer": "Phoebe Bridgers",
+      "scorePath": "scores/upload-9ff086d6c9f2eb81535f9a90f6c7decef87125dcd0344bb371ab2280d65018ea.musicxml",
+      "sourcePath": "uploads/I_Know_the_End.musicxml",
+      "sourceFilename": "I_Know_the_End.musicxml",
+      "sha256": "9ff086d6c9f2eb81535f9a90f6c7decef87125dcd0344bb371ab2280d65018ea",
+      "sourceSha256": "b16d8dfe3fd19c9f841e67c0325fa9a471b12fa6f6bea94c73ceb80d0b9c38dc",
+      "noteCount": 990,
+      "attackCount": 990
+    },
+    {
+      "id": "upload-5a732aae1f6c80d29199a84ac77e735498614c91a0916e47c03038aa43b4ef74",
+      "title": "Fiona Apple - I Want You To Love Me",
+      "composer": "Music21",
+      "scorePath": "scores/upload-5a732aae1f6c80d29199a84ac77e735498614c91a0916e47c03038aa43b4ef74.musicxml",
+      "sourcePath": "uploads/midi-e578ad97abfd8cac7ade35558f882643b8741e1851a6e0567fd33a0f7c420ae9.musicxml",
+      "sourceFilename": "midi-e578ad97abfd8cac7ade35558f882643b8741e1851a6e0567fd33a0f7c420ae9.musicxml",
+      "sha256": "5a732aae1f6c80d29199a84ac77e735498614c91a0916e47c03038aa43b4ef74",
+      "sourceSha256": "27d2f63ab3b80a0e8bc9f26db3a42e3fb2dd586f50c0de8e3c9b2d7a9cb938c5",
+      "noteCount": 1879,
+      "attackCount": 1742
+    },
+    {
       "id": "upload-734aa2f1e2baa21664a3c34e542730c48bd9c444087544e9b02df32d60a55a72",
       "title": "MusicXML-upload-test",
       "composer": "",
