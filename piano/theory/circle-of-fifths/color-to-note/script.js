@@ -20,6 +20,8 @@ const svg = document.getElementById("circleSvg");
 const midiButton = document.getElementById("midiButton");
 const restartButton = document.getElementById("restartButton");
 const statusElement = document.getElementById("status");
+const answerButton = document.getElementById("answerButton");
+const answerText = document.getElementById("answerText");
 
 const SIZE = 600;
 const CX = SIZE / 2;
@@ -144,6 +146,21 @@ function setMidiConnection(connected) {
   midiButton.disabled = connected;
 }
 
+function hideAnswer() {
+  answerText.hidden = true;
+  answerText.textContent = "";
+  answerButton.textContent = "Show answer";
+  answerButton.disabled = currentIndex === null;
+}
+
+answerButton.addEventListener("click", () => {
+  if (currentIndex === null) return;
+  if (!answerText.hidden) { hideAnswer(); return; }
+  answerText.textContent = "Answer: " + keys[currentIndex].label;
+  answerText.hidden = false;
+  answerButton.textContent = "Hide answer";
+});
+
 function resetLesson() {
   window.clearTimeout(feedbackTimer);
   feedbackTimer = null;
@@ -153,6 +170,7 @@ function resetLesson() {
   currentIndex = null;
   questionNumber = 0;
   restartButton.hidden = true;
+  hideAnswer();
 
   wedgePaths.forEach((path) => {
     path.setAttribute("fill", NEUTRAL);
@@ -178,6 +196,7 @@ function nextQuestion() {
   if (remaining.length === 0) {
     currentIndex = null;
     locked = true;
+    hideAnswer();
     setStatus("Complete ✓", "success");
     restartButton.hidden = false;
     return;
@@ -186,6 +205,7 @@ function nextQuestion() {
   currentIndex = randomRemainingIndex();
   questionNumber += 1;
   locked = false;
+  hideAnswer();
 
   wedgePaths.forEach((path, index) => {
     if (!solved.has(index)) {

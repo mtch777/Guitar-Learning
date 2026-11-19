@@ -14,13 +14,13 @@ const keys = [
 ];
 
 const ANSWER_PITCH_CLASS = {
-  0: 0,  // C
-  1: 2,  // D
-  2: 4,  // E
-  3: 5,  // F
-  4: 7,  // G
-  5: 9,  // A
-  6: 11  // B
+  0: 11, // B
+  1: 0,  // C
+  2: 2,  // D
+  3: 4,  // E
+  4: 5,  // F
+  5: 7,  // G
+  6: 9   // A
 };
 
 const NEUTRAL = "#202833";
@@ -29,6 +29,8 @@ const svg = document.getElementById("circleSvg");
 const midiButton = document.getElementById("midiButton");
 const restartButton = document.getElementById("restartButton");
 const statusElement = document.getElementById("status");
+const answerButton = document.getElementById("answerButton");
+const answerText = document.getElementById("answerText");
 const numberKeys = Array.from(document.querySelectorAll(".number-key"));
 
 const SIZE = 600;
@@ -169,6 +171,25 @@ function setMidiConnection(connected) {
   midiButton.disabled = connected;
 }
 
+function hideAnswer() {
+  answerText.hidden = true;
+  answerText.textContent = "";
+  answerButton.textContent = "Show answer";
+  answerButton.disabled = currentIndex === null;
+}
+
+answerButton.addEventListener("click", () => {
+  if (currentIndex === null) return;
+  if (!answerText.hidden) { hideAnswer(); return; }
+  const key = keys[currentIndex];
+  const count = key.count;
+  const kind = key.type === "sharp" ? " sharp" : key.type === "flat" ? " flat" : "";
+  const suffix = count === 1 ? "" : "s";
+  answerText.textContent = `Answer: ${count}${kind}${kind ? suffix : ''}`;
+  answerText.hidden = false;
+  answerButton.textContent = "Hide answer";
+});
+
 function clearNumberFeedback() {
   numberKeys.forEach((key) => key.classList.remove("correct", "wrong"));
 }
@@ -189,6 +210,7 @@ function resetLesson() {
   currentIndex = null;
   questionNumber = 0;
   restartButton.hidden = true;
+  hideAnswer();
 
   wedgePaths.forEach((path) => {
     path.setAttribute("fill", NEUTRAL);
@@ -234,6 +256,7 @@ function nextQuestion() {
   if (remaining.length === 0) {
     currentIndex = null;
     locked = true;
+    hideAnswer();
     setStatus("Complete ✓", "success");
     restartButton.hidden = false;
     return;
@@ -242,6 +265,7 @@ function nextQuestion() {
   currentIndex = randomRemainingIndex();
   questionNumber += 1;
   locked = false;
+  hideAnswer();
 
   wedgePaths.forEach((path, index) => {
     if (!solved.has(index)) {

@@ -38,6 +38,15 @@ app.controller("MyRngCtrl", function ($scope, $timeout) {
 
   var currentMidiNote = null;
   var noteColor = "#111111";
+  $scope.answerVisible = false;
+  $scope.answerAvailable = false;
+  $scope.answerLabel = "";
+
+  $scope.toggleAnswer = function () {
+    if (currentMidiNote === null) return;
+    $scope.answerLabel = midiToDisplayName(currentMidiNote);
+    $scope.answerVisible = !$scope.answerVisible;
+  };
 
   var midiAccess = null;
   var connectedInputCount = 0;
@@ -455,6 +464,9 @@ $scope.rangeMax = 72; // C5
 
     if (validNotes.length === 0) {
       currentMidiNote = null;
+      $scope.answerVisible = false;
+      $scope.answerAvailable = false;
+      $scope.answerLabel = "";
       clearStaff();
 
       return false;
@@ -475,6 +487,9 @@ $scope.rangeMax = 72; // C5
     );
 
     currentMidiNote = choices[randomIndex];
+    $scope.answerVisible = false;
+    $scope.answerAvailable = true;
+    $scope.answerLabel = midiToDisplayName(currentMidiNote);
 
     renderCurrentNote();
 

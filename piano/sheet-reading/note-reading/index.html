@@ -4,14 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Note Reading · Practice</title>
-  <link rel="stylesheet" href="./style.css?v=0874d18b67cf">
-  <meta name="build-version" content="0874d18b67cf">
+  <link rel="stylesheet" href="./style.css?v=21effe41d8ff">
+  <link rel="stylesheet" href="../../shared/answer.css?v=21effe41d8ff">
+  <meta name="build-version" content="21effe41d8ff">
 </head>
 <body ng-app="myApp">
   <div class="lesson-shell">
     <nav class="lesson-nav">
-      <a href="../?v=0874d18b67cf">← Sheet Reading</a>
-      <a href="../../?v=0874d18b67cf">Practice home</a>
+      <a href="../?v=21effe41d8ff">← Sheet Reading</a>
+      <a href="../../?v=21effe41d8ff">Practice home</a>
     </nav>
 
     <div class="trainer" ng-controller="MyRngCtrl">
@@ -88,6 +89,13 @@
         {{ midiConnected ? "🟢 MIDI connected" : "🔴 Enable MIDI" }}
       </button>
 
+      <button id="answerButton" type="button" ng-click="toggleAnswer()" ng-disabled="!answerAvailable">
+        {{ answerVisible ? 'Hide answer' : 'Show answer' }}
+      </button>
+      <output id="answerText" class="answer-text" ng-show="answerVisible" aria-live="polite">
+        Answer: {{ answerLabel }}
+      </output>
+
       <div class="status" ng-class="statusType" aria-live="polite">
         {{ status }}
       </div>
@@ -96,8 +104,8 @@
     </div>
   </div>
 
-  <script src="../../shared/tracker.js?v=0874d18b67cf"></script>
-  <script src="../../shared/midi.js?v=0874d18b67cf"></script>
+  <script src="../../shared/tracker.js?v=21effe41d8ff"></script>
+  <script src="../../shared/midi.js?v=21effe41d8ff"></script>
   <script>
     if (window.PracticeTracker) {
       window.PracticeTracker.recordOpen("sheet-reading-note-reading");
@@ -105,6 +113,6 @@
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vexflow/1.2.93/vexflow-min.js"></script>
-  <script src="./script.js?v=0874d18b67cf"></script>
+  <script src="./script.js?v=21effe41d8ff"></script>
 </body>
 </html>

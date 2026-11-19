@@ -40,6 +40,8 @@ const svg = document.getElementById("circleSvg");
 const midiButton = document.getElementById("midiButton");
 const restartButton = document.getElementById("restartButton");
 const statusElement = document.getElementById("status");
+const answerButton = document.getElementById("answerButton");
+const answerText = document.getElementById("answerText");
 const sequenceProgress = document.getElementById("sequenceProgress");
 
 const SIZE = 600;
@@ -185,6 +187,22 @@ function setMidiConnection(connected) {
   midiButton.disabled = connected;
 }
 
+function hideAnswer() {
+  answerText.hidden = true;
+  answerText.textContent = "";
+  answerButton.textContent = "Show answer";
+  answerButton.disabled = currentIndex === null;
+}
+
+answerButton.addEventListener("click", () => {
+  if (currentIndex === null) return;
+  if (!answerText.hidden) { hideAnswer(); return; }
+  answerText.textContent = "Answer: " + getSequencesForKey(keys[currentIndex])[0]
+    .map(note => note.name).join(" → ");
+  answerText.hidden = false;
+  answerButton.textContent = "Hide answer";
+});
+
 function getSequencesForKey(key) {
   if (key.type === "sharp") {
     return [SHARP_ORDER.slice(0, key.count)];
@@ -261,6 +279,7 @@ function resetLesson() {
   questionNumber = 0;
   answerPosition = 0;
   restartButton.hidden = true;
+  hideAnswer();
 
   wedgePaths.forEach((path) => path.setAttribute("fill", NEUTRAL));
   labels.forEach((label) => (label.style.display = "none"));
@@ -301,6 +320,7 @@ function nextQuestion() {
   if (remaining.length === 0) {
     currentIndex = null;
     locked = true;
+    hideAnswer();
     sequenceProgress.textContent = "";
     setStatus("Complete ✓", "success");
     restartButton.hidden = false;
@@ -310,6 +330,7 @@ function nextQuestion() {
   currentIndex = randomRemainingIndex();
   questionNumber += 1;
   locked = false;
+  hideAnswer();
 
   wedgePaths.forEach((path, visualIndex) => {
     if (checkMarks[visualIndex].style.display === "none") {

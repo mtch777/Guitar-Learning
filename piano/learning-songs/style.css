@@ -97,6 +97,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .sound-control input { accent-color: var(--accent); margin: 0; }
 .practice-bar { padding: 3px 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #101620; border-top: 1px solid var(--border); flex: none; }
 #practice-status { font-size: 11px; margin: 0; color: #d5ddeb; min-height: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.answer-toggle { flex: none; min-height: 16px; padding: 0 3px; border: 0; background: none; color: #c4b5fd; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.answer-toggle:disabled { color: #7c8594; }
 .score-counts { display: flex; gap: 10px; font-size: 10px; white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--muted); flex: none; }
 .score-counts strong { font-weight: 700; }
 .hit-count { color: var(--green); }

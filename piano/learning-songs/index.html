@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Learning Songs · Practice</title>
   <meta name="theme-color" content="#0b0f14">
-  <link rel="stylesheet" href="./style.css?v=0874d18b67cf">
-  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=0874d18b67cf"></script>
-  <script defer src="./vendor/fflate-0.8.3.min.js?v=0874d18b67cf"></script>
-  <script defer src="../shared/tracker.js?v=0874d18b67cf"></script>
-  <script defer src="../shared/midi.js?v=0874d18b67cf"></script>
-  <script type="module" src="./script.js?v=0874d18b67cf"></script>
-  <meta name="build-version" content="0874d18b67cf">
+  <link rel="stylesheet" href="./style.css?v=21effe41d8ff">
+  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=21effe41d8ff"></script>
+  <script defer src="./vendor/fflate-0.8.3.min.js?v=21effe41d8ff"></script>
+  <script defer src="../shared/tracker.js?v=21effe41d8ff"></script>
+  <script defer src="../shared/midi.js?v=21effe41d8ff"></script>
+  <script type="module" src="./script.js?v=21effe41d8ff"></script>
+  <meta name="build-version" content="21effe41d8ff">
 </head>
 <body>
   <main class="lesson-shell">
     <section class="song-library card" aria-labelledby="library-heading">
-      <a class="practice-link" href="../?v=0874d18b67cf">← Practice</a>
+      <a class="practice-link" href="../?v=21effe41d8ff">← Practice</a>
       <div class="song-picker"><label id="library-heading" class="sr-only" for="song-select">Song</label><select id="song-select"><option>Loading songs…</option></select></div>
       <button id="delete-song" type="button" class="button secondary" aria-label="Delete song" title="Delete song" disabled>🗑️</button>
       <button id="upload-button" type="button" class="button secondary">Upload song</button>
@@ -36,7 +36,7 @@
         <div class="transport-options"><label class="tempo-control" for="tempo"><span>Speed <output id="tempo-label" for="tempo">100%</output></span><input id="tempo" type="range" min="25" max="150" step="5" value="100"></label><label class="sound-control"><input id="sound-enabled" type="checkbox" checked> Sound</label></div>
         </div>
       </div>
-      <div class="practice-bar"><p id="practice-status" role="status" aria-live="polite">Loading…</p><div class="score-counts" aria-label="Lesson results"><span class="hit-count">✓ <strong id="hit-count">0</strong> hit</span><span class="miss-count">× <strong id="miss-count">0</strong> missed</span><span><strong id="progress-count">0 / 0</strong></span></div></div>
+      <div class="practice-bar"><p id="practice-status" role="status" aria-live="polite">Loading…</p><button id="answer-button" class="answer-toggle" type="button" disabled>Show answer</button><div class="score-counts" aria-label="Lesson results"><span class="hit-count">✓ <strong id="hit-count">0</strong> hit</span><span class="miss-count">× <strong id="miss-count">0</strong> missed</span><span><strong id="progress-count">0 / 0</strong></span></div></div>
       <div class="progress-track"><div id="progress-fill"></div></div>
       <div id="import-message" class="notice" role="status" hidden></div>
       <div class="score-viewport" id="score-viewport">
