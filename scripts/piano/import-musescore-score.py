@@ -31,6 +31,7 @@ async def retrieve_url(score_page):
         async def examine(response):
             if "/api/jmuse?" not in response.url or "type=midi" not in response.url:
                 return
+            print(f"Observed MIDI endpoint response: HTTP {response.status}", flush=True)
             try:
                 data = await response.json()
                 url = (data.get("info") or {}).get("url")
@@ -41,11 +42,19 @@ async def retrieve_url(score_page):
 
         page.on("response", examine)
         try:
-            await page.goto(score_page + "/piano-tutorial", wait_until="domcontentloaded", timeout=30000)
+            opening = await page.goto(score_page, wait_until="domcontentloaded", timeout=30000)
+            print(f"Score page: HTTP {opening.status if opening else 'unknown'}", flush=True)
+            tutorial = await page.goto(score_page + "/piano-tutorial", wait_until="domcontentloaded", timeout=30000)
+            print(f"Piano tutorial: HTTP {tutorial.status if tutorial else 'unknown'}", flush=True)
             body = (await page.locator("body").inner_text(timeout=15000)).lower()
+            print(f"Page title: {(await page.title())[:120]}", flush=True)
+            print(f"Visible text excerpt: {body[:250]!r}", flush=True)
             if any(term in body for term in ("verify you are human", "checking your browser", "captcha")):
                 raise RuntimeError("MuseScore requires human verification; automated import stopped.")
-            return await asyncio.wait_for(found, timeout=35)
+            try:
+                return await asyncio.wait_for(found, timeout=20)
+            except asyncio.TimeoutError as exc:
+                raise RuntimeError("Piano tutorial did not issue a successful MIDI request.") from exc
         finally:
             await browser.close()
 
