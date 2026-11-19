@@ -70,3 +70,11 @@ test('a MuseScore error returns to the lesson with a useful message', () => {
   const location = {pathname:'/Guitar-Learning/piano/learning-songs/', search:'', hash:'#'+new URLSearchParams({'musescore-error':'MIDI never loaded', 'musescore-request':ID})};
   assert.deepEqual(consumeMidiHandoff(location, {replaceState() {}}, {storage}), {id:ID, error:'MIDI never loaded'});
 });
+
+test('old manually supplied MIDI links remain available but require an explicit Import click', () => {
+  const url = SAMPLE + '?X-Amz-Signature=example';
+  const result = consumeMidiHandoff({pathname:'/Guitar-Learning/piano/learning-songs/', search:'', hash:'#'+new URLSearchParams({'musescore-midi':url})}, {replaceState() {}}, {storage:session()});
+  assert.equal(result.legacy, true);
+  assert.equal(result.url, url);
+  assert.match(result.id, /^gl-[a-f0-9]{32}$/);
+});

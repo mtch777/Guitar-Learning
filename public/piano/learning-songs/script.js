@@ -791,7 +791,8 @@ try {
     }
     urlStatus('MIDI found. Saving to GitHub…');
     $('url-dialog').showModal();
-    if ($('url-token').value) $('url-form').requestSubmit();
+    if ($('url-token').value && !returnedMidi.legacy) $('url-form').requestSubmit();
+    else if (returnedMidi.legacy) urlStatus('MIDI link ready. Press Import to save it.');
     else urlStatus('MIDI found. Enter your GitHub token (Contents: write).', true);
   }
 } catch (error) {
