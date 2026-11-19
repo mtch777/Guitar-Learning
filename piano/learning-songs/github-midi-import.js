@@ -33,6 +33,11 @@ export function consumeMidiHandoff(locationLike, historyLike, {storage = globalT
   if (!params.has(HANDOFF_KEY) && !params.has('musescore-error')) return null;
   historyLike.replaceState(null, '', locationLike.pathname + locationLike.search);
   const id = params.get('musescore-request');
+  // Old manually obtained MIDI links still open the import dialog, but do not
+  // automatically spend the saved GitHub credential on an unsolicited link.
+  if (!id && params.has(HANDOFF_KEY)) {
+    return {id:newImportId(), url:validateMidiUrl(params.get(HANDOFF_KEY)), title:'', legacy:true};
+  }
   if (!id || !REQUEST_ID.test(id) || storage.getItem(REQUEST_KEY) !== id) {
     throw new Error('This MIDI return was not started by this lesson tab. Try Import again.');
   }
