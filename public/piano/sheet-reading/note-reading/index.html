@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Note Reading · Practice</title>
+  <title>Random Note / Chord · Practice</title>
   <link rel="stylesheet" href="./style.css?v=20261117-6">
   <link rel="stylesheet" href="../../shared/answer.css">
 </head>
@@ -15,9 +15,9 @@
     </nav>
 
     <div class="trainer" ng-controller="MyRngCtrl">
-      <h1>Note Reading</h1>
+      <h1>{{ lessonTitle }}</h1>
 
-      <div class="filters">
+      <div class="filters" ng-show="kind === 'note'">
         <label>
           <span>Clef</span>
           <select ng-model="clefFilter" ng-change="applyFilters()">
@@ -95,6 +95,8 @@
         Answer: {{ answerLabel }}
       </output>
 
+      <button class="restart-round" type="button" ng-show="roundComplete" ng-click="restartRound()">Start new round</button>
+
       <div class="status" ng-class="statusType" aria-live="polite">
         {{ status }}
       </div>
@@ -112,6 +114,6 @@
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vexflow/1.2.93/vexflow-min.js"></script>
-  <script src="./script.js?v=20261117-6"></script>
+  <script src="./script.js?v=20261119-2"></script>
 </body>
 </html>

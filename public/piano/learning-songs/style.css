@@ -97,8 +97,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .sound-control input { accent-color: var(--accent); margin: 0; }
 .practice-bar { padding: 3px 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #101620; border-top: 1px solid var(--border); flex: none; }
 #practice-status { font-size: 11px; margin: 0; color: #d5ddeb; min-height: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.answer-toggle { flex: none; min-height: 16px; padding: 0 3px; border: 0; background: none; color: #c4b5fd; font-size: 10px; font-weight: 700; white-space: nowrap; }
-.answer-toggle:disabled { color: #7c8594; }
 .score-counts { display: flex; gap: 10px; font-size: 10px; white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--muted); flex: none; }
 .score-counts strong { font-weight: 700; }
 .hit-count { color: var(--green); }
@@ -106,6 +104,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .progress-track { height: 2px; background: #283140; flex: none; }
 #progress-fill { height: 100%; width: 0; background: #b49af5; transition: width .18s ease; }
 .score-viewport { background: #fff; color: #172033; position: relative; overflow: hidden; height: 300px; max-height: 300px; min-height: 0; flex: 0 1 auto; }
+.score-loading { position: absolute; inset: 0; z-index: 4; background: #fff; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 13px; font-weight: 650; color: #465269; }
+.loading-spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid #dbd3f4; border-top-color: #8765cb; border-radius: 50%; animation: score-spinner .8s linear infinite; flex: none; }
+@keyframes score-spinner { to { transform: rotate(360deg); } }
+.musescore-transition { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 24px; background: rgba(8, 12, 18, .92); }
+.transition-card { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; max-width: 330px; border: 1px solid #6f568e; border-radius: 18px; background: #182130; color: #ece7f7; padding: 32px 24px; box-shadow: 0 20px 60px #0008; }
+.transition-card strong { font-size: 18px; }
+.transition-card p { margin: 0; font-size: 13px; line-height: 1.55; color: #bec7d7; }
+.transition-card .loading-spinner { width: 32px; height: 32px; }
 #score { min-width: 0; width: 100%; height: 100%; padding: 0; position: relative; overflow: hidden; }
 .lesson-score-render { min-width: 0; width: 100%; }
 #score svg { display: block; }
@@ -172,4 +178,4 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .input-footer { padding: 3px 5px; }
   .practice-bar { padding: 2px 6px; }
 }
-@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }

@@ -42,6 +42,9 @@ test('permission failures are actionable', async () => {
 test('MuseScore URLs open the normal score page, leaving piano tutorial in its hidden frame', () => {
   assert.equal(scorePageUrl('https://musescore.com/user/19750166/scores/6109206'),
     'https://musescore.com/user/19750166/scores/6109206');
+  assert.equal(scorePageUrl('6109206'), 'https://musescore.com/user/0/scores/6109206');
+  assert.equal(beginMuseScoreImport('6109206', {id:ID, storage:session()}),
+    'https://musescore.com/user/0/scores/6109206#guitar-learning-import=' + ID);
   assert.equal(scorePageUrl('https://musescore.com/user/19750166/scores/6109206/piano-tutorial'),
     'https://musescore.com/user/19750166/scores/6109206');
   assert.equal(scorePageUrl('https://www.musescore.com/pianouser/scores/6109206'),

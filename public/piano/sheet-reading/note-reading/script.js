@@ -36,6 +36,27 @@ app.controller("MyRngCtrl", function ($scope, $timeout) {
     10  // A#
   ];
 
+  var params = new URLSearchParams(window.location.search);
+  $scope.kind = params.get('kind') === 'chord' ? 'chord' : 'note';
+  var chordAccidentals = ['0', '1', '2', 'all'].indexOf(params.get('accidentals')) >= 0
+    ? params.get('accidentals') : 'all';
+  var remainingQuestions = [];
+  var previousQuestion = null;
+  var chordHits = new Set();
+  var currentNotes = [];
+  $scope.roundComplete = false;
+
+  function updateTitle() {
+    if ($scope.kind === 'chord') {
+      var endings = {0:'Natural Notes', 1:'1 Accidental', 2:'2 Accidentals', all:'All Notes'};
+      $scope.lessonTitle = 'Random Chord — Major Triad — ' + endings[chordAccidentals];
+    } else {
+      var clefs = {treble:'Treble Clef', bass:'Bass Clef', both:'Both Clefs'};
+      var notes = {natural:'Natural Notes', accidental:'Accidentals Only', both:'All Notes'};
+      $scope.lessonTitle = 'Random Note — ' + clefs[$scope.clefFilter] + ' — ' + notes[$scope.noteFilter];
+    }
+  }
+
   var currentMidiNote = null;
   var noteColor = "#111111";
   $scope.answerVisible = false;
@@ -44,7 +65,7 @@ app.controller("MyRngCtrl", function ($scope, $timeout) {
 
   $scope.toggleAnswer = function () {
     if (currentMidiNote === null) return;
-    $scope.answerLabel = midiToDisplayName(currentMidiNote);
+    $scope.answerLabel = currentNotes.map(midiToDisplayName).join(' · ');
     $scope.answerVisible = !$scope.answerVisible;
   };
 
@@ -58,14 +79,16 @@ app.controller("MyRngCtrl", function ($scope, $timeout) {
   /*
    * Default filters.
    */
-$scope.clefFilter = "treble";
-$scope.noteFilter = "natural";
+$scope.clefFilter = ['treble', 'bass', 'both'].indexOf(params.get('clef')) >= 0
+  ? params.get('clef') : 'treble';
+$scope.noteFilter = params.get('notes') === 'all' ? 'both' : 'natural';
 
 $scope.absoluteMidiMin = ABSOLUTE_MIDI_MIN;
 $scope.absoluteMidiMax = ABSOLUTE_MIDI_MAX;
 
-$scope.rangeMin = 60; // C4
-$scope.rangeMax = 72; // C5
+$scope.rangeMin = $scope.kind === 'chord' ? 48 : $scope.clefFilter === 'bass' || $scope.clefFilter === 'both' ? 36 : 60;
+$scope.rangeMax = $scope.kind === 'chord' ? 72 : $scope.clefFilter === 'bass' ? 59 : 79;
+updateTitle();
 
   $scope.absoluteMinLabel = midiToDisplayName(
     ABSOLUTE_MIDI_MIN
@@ -131,6 +154,11 @@ $scope.rangeMax = 72; // C5
 
     feedbackLocked = false;
     noteColor = "#111111";
+    updateTitle();
+    remainingQuestions = getFilteredMidiNotes();
+    previousQuestion = null;
+    chordHits.clear();
+    $scope.roundComplete = false;
 
     var noteWasSelected = selectNewNote();
 
@@ -209,8 +237,9 @@ $scope.rangeMax = 72; // C5
       midiNote++
     ) {
       if (
-        noteMatchesClefFilter(midiNote) &&
-        noteMatchesTypeFilter(midiNote)
+        ($scope.kind === 'chord'
+          ? midiNote + 7 <= maximum && chordMatchesFilter(midiNote)
+          : noteMatchesClefFilter(midiNote) && noteMatchesTypeFilter(midiNote))
       ) {
         filteredNotes.push(midiNote);
       }
@@ -218,6 +247,17 @@ $scope.rangeMax = 72; // C5
 
     return filteredNotes;
   }
+
+  function chordMatchesFilter(root) {
+    if (chordAccidentals === 'all') return true;
+    var notes = [root, root + 4, root + 7];
+    var blackKeys = notes.filter(function (midi) {
+      return ACCIDENTAL_PITCH_CLASSES.indexOf(midi % 12) !== -1;
+    }).length;
+    return blackKeys === Number(chordAccidentals);
+  }
+
+  $scope.restartRound = function () { $scope.applyFilters(); };
 
   /*
    * Check whether the note belongs to the selected clef.
@@ -398,19 +438,32 @@ $scope.rangeMax = 72; // C5
       return;
     }
 
+    if (currentNotes.indexOf(playedMidiNote) !== -1 && $scope.kind === 'chord') {
+      chordHits.add(playedMidiNote);
+      if (chordHits.size < currentNotes.length) {
+        $scope.status = chordHits.size + ' / ' + currentNotes.length + ' correct — play the remaining notes.';
+        $scope.statusType = 'correct';
+        return;
+      }
+    }
+
     feedbackLocked = true;
 
     if (feedbackTimer) {
       $timeout.cancel(feedbackTimer);
     }
 
-    if (playedMidiNote === currentMidiNote) {
+    if (currentNotes.indexOf(playedMidiNote) !== -1) {
       noteColor = "#16a34a";
 
       $scope.status = "Correct";
       $scope.statusType = "correct";
 
       renderCurrentNote();
+
+      remainingQuestions = remainingQuestions.filter(function (note) {
+        return note !== currentMidiNote;
+      });
 
       feedbackTimer = $timeout(function () {
         noteColor = "#111111";
@@ -422,14 +475,12 @@ $scope.rangeMax = 72; // C5
 
         if (noteWasSelected) {
           $scope.status =
-            "Play the new note.";
+            $scope.kind === 'chord' ? 'Play the new chord.' : 'Play the new note.';
 
           $scope.statusType = "";
         } else {
-          $scope.status =
-            "No notes match the current filters.";
-
-          $scope.statusType = "error";
+          $scope.status = 'Round complete ✓';
+          $scope.statusType = 'correct';
         }
       }, 500);
     } else {
@@ -460,26 +511,26 @@ $scope.rangeMax = 72; // C5
    * one valid choice exists.
    */
   function selectNewNote() {
-    var validNotes = getFilteredMidiNotes();
-
-    if (validNotes.length === 0) {
+    if (remainingQuestions.length === 0) {
       currentMidiNote = null;
+      currentNotes = [];
       $scope.answerVisible = false;
       $scope.answerAvailable = false;
       $scope.answerLabel = "";
+      $scope.roundComplete = getFilteredMidiNotes().length > 0;
       clearStaff();
 
       return false;
     }
 
-    var choices = validNotes.filter(
+    var choices = remainingQuestions.filter(
       function (midiNote) {
-        return midiNote !== currentMidiNote;
+        return midiNote !== previousQuestion;
       }
     );
 
     if (choices.length === 0) {
-      choices = validNotes;
+      choices = remainingQuestions;
     }
 
     var randomIndex = Math.floor(
@@ -487,9 +538,14 @@ $scope.rangeMax = 72; // C5
     );
 
     currentMidiNote = choices[randomIndex];
+    previousQuestion = currentMidiNote;
+    currentNotes = $scope.kind === 'chord'
+      ? [currentMidiNote, currentMidiNote + 4, currentMidiNote + 7] : [currentMidiNote];
+    chordHits.clear();
+    $scope.roundComplete = false;
     $scope.answerVisible = false;
     $scope.answerAvailable = true;
-    $scope.answerLabel = midiToDisplayName(currentMidiNote);
+    $scope.answerLabel = currentNotes.map(midiToDisplayName).join(' · ');
 
     renderCurrentNote();
 
@@ -624,7 +680,28 @@ $scope.rangeMax = 72; // C5
     var bassVoice;
     var visibleNotes;
 
-    if (isTreble) {
+    if ($scope.kind === 'chord') {
+      var clef = isTreble ? 'treble' : 'bass';
+      var chord = new VF.StaveNote({
+        clef: clef,
+        keys: currentNotes.map(function (midi) {
+          return midiToVexFlowNote(midi).replace(/^(.*?)(-?\d+)$/, function (_, name, octave) {
+            return name.toLowerCase() + '/' + octave;
+          });
+        }),
+        duration: 'w'
+      });
+      currentNotes.forEach(function (midi, index) {
+        if (ACCIDENTAL_PITCH_CLASSES.indexOf(midi % 12) !== -1) {
+          chord.addAccidental(index, new VF.Accidental('#'));
+        }
+      });
+      chord.setStyle({fillStyle: noteColor, strokeStyle: noteColor});
+      var chordVoice = new VF.Voice({num_beats: 4, beat_value: 4});
+      chordVoice.addTickables([chord]);
+      trebleVoice = isTreble ? chordVoice : createGhostVoice();
+      bassVoice = isTreble ? createGhostVoice() : chordVoice;
+    } else if (isTreble) {
       visibleNotes = score.notes(
         vexFlowNote + "/w",
         {
@@ -698,7 +775,7 @@ $scope.rangeMax = 72; // C5
   }
 
   updateRangeDisplay();
-  selectNewNote();
+  $scope.applyFilters();
 
   if (window.PracticeMIDI && window.PracticeMIDI.isEnabled()) {
     $timeout(function () {

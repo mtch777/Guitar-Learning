@@ -10,8 +10,11 @@ export function newImportId(cryptoImpl = globalThis.crypto) {
 }
 
 export function scorePageUrl(value) {
+  const input = String(value ?? '').trim();
+  // MuseScore redirects /user/0/scores/{id} to the correct uploader's page.
+  if (/^\d{1,12}$/.test(input)) return 'https://musescore.com/user/0/scores/' + input;
   let url;
-  try { url = new URL(value); } catch (_) { throw new Error('Enter a valid MuseScore score URL.'); }
+  try { url = new URL(input); } catch (_) { throw new Error('Enter a MuseScore score ID or URL.'); }
   if (url.protocol !== 'https:' || !['musescore.com', 'www.musescore.com'].includes(url.hostname) || url.username || url.password ||
       !/^\/(?:user\/\d+|[a-zA-Z0-9_-]+)\/scores\/\d+(?:\/piano-tutorial)?\/?$/.test(url.pathname)) {
     throw new Error('Enter a MuseScore score URL (musescore.com/user/…/scores/…).');

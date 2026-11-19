@@ -30,7 +30,6 @@ const preferences = storage.preferences();
 let mode = preferences.mode === 'timed' ? 'timed' : 'wait';
 let speed = Math.max(.25, Math.min(1.5, Number(preferences.speed) || 1));
 let selectedId = null, model = null, engine = null, timedGroups = [], audioNotes = [];
-let answerVisible = false;
 let sourceModel = null, transposeOffset = 0;
 let playing = false, elapsed = 0, anchor = 0, animation = 0, nextAudio = 0, totalSeconds = 0;
 let busy = false, libraryLoading = false, countIn = 0, lastPaint = '', lastStatus = '';
@@ -55,14 +54,7 @@ const noteNames = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B
 const midiName = midi => noteNames[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
 
 function paintStatus() {
-  let text = lastStatus;
-  if (answerVisible && engine && model) {
-    const pitches = mode === 'wait' ? engine.snapshot().requiredPitches
-      : currentVisualGroup(Math.max(0, beatAtSeconds(model, elapsed, speed)))?.notes.map(note => note.midi) || [];
-    const names = [...new Set(pitches)].sort((a, b) => a - b).map(midiName);
-    text = names.length ? `Answer: ${names.join(' ')}` : lastStatus;
-  }
-  if ($('practice-status').textContent !== text) $('practice-status').textContent = text;
+  if ($('practice-status').textContent !== lastStatus) $('practice-status').textContent = lastStatus;
 }
 function setStatus(text) {
   lastStatus = text;
@@ -75,10 +67,9 @@ function notice(message = '', error = false) {
 }
 function savePreferences() { storage.savePreferences({mode, speed, sound:audio.enabled, keyboardVisible}); }
 function controls() {
+  $('play-button').hidden = mode === 'wait';
   $('play-button').disabled = busy || !engine || starting;
   $('restart-button').disabled = busy || !engine;
-  $('answer-button').disabled = busy || !engine;
-  $('answer-button').textContent = answerVisible ? 'Hide answer' : 'Show answer';
   $('song-select').disabled = busy || libraryLoading;
   $('refresh-library').disabled = busy || libraryLoading;
   $('upload-button').disabled = uploading;
@@ -138,10 +129,8 @@ function showEmptyLibrary() {
   pause('No songs');
   model = sourceModel = engine = null;
   selectedId = null;
-  renderer.osmd?.dispose?.();
-  renderer.osmd = null;
-  renderer.container.replaceChildren();
-  renderer.systems = [];
+  renderer.clear();
+  $('score-loading').hidden = true;
   $('score').hidden = true;
   $('empty-score').hidden = false;
   $('empty-title').textContent = 'No songs';
@@ -224,7 +213,6 @@ function paint(force = false) {
   renderer.cursorAtBeat(Math.min(beat, model.duration));
   // Releases can fall between score onsets, so keyboard feedback updates every frame.
   highlightKeys(state);
-  if (answerVisible) paintStatus();
 }
 function completionText() {
   const state = engine.snapshot();
@@ -248,10 +236,18 @@ function pause(message = 'Paused') {
 function resetSession() {
   pause();
   if (!engine) return;
-  answerVisible = false;
   engine.reset(); elapsed = 0; nextAudio = 0; lastPaint = '';
   paint(true); controls();
-  setStatus('Ready');
+  if (mode === 'wait') armWaitMode();
+  else setStatus('Ready');
+}
+function armWaitMode() {
+  if (mode !== 'wait' || !engine) return;
+  engine.start(0);
+  playing = true;
+  setStatus('Listening for notes');
+  paint(true);
+  controls();
 }
 function scheduleAudio() {
   while (nextAudio < audioNotes.length && audioNotes[nextAudio].time <= elapsed + .12) {
@@ -278,7 +274,7 @@ function tick() {
   animation = requestAnimationFrame(tick);
 }
 async function start() {
-  if (!engine || busy || playing || starting) return;
+  if (mode !== 'timed' || !engine || busy || playing || starting) return;
   // Finishing the last attack does not finish its sustained sound.
   if (engine.complete && (mode === 'wait' || elapsed >= totalSeconds + .2)) resetSession();
   const generation = ++startGeneration;
@@ -305,11 +301,6 @@ async function start() {
     engine.start(elapsed);
     playing = true;
     tick();
-  } else {
-    engine.start(0);
-    playing = true;
-    setStatus('Playing');
-    paint();
   }
   controls();
 }
@@ -332,52 +323,59 @@ function scoreErrorMessage(error) {
 async function selectSong(song, {preparedModel = null, remember = true} = {}) {
   if (!song || busy) return false;
   busy = true;
-  const previous = {model, sourceModel, transposeOffset, engine, selectedId};
-  pause('Loading score…'); answerVisible = false; controls(); notice(); libraryNotice();
+  pause('Loading score…'); notice(); libraryNotice();
+  renderer.clear();
+  model = sourceModel = engine = null;
+  transposeOffset = 0;
+  selectedId = song.id;
+  $('song-select').value = selectedId;
+  $('score').hidden = false;
+  $('empty-score').hidden = true;
+  $('score-loading').hidden = false;
+  $('score-viewport').setAttribute('aria-busy', 'true');
+  $('hit-count').textContent = '0'; $('miss-count').textContent = '0'; $('progress-count').textContent = '0 / 0';
+  $('progress-fill').style.width = '0%';
+  setStatus('Loading sheet music…');
+  controls();
   try {
-    {
-      let xml = song.xml;
-      if (!xml) {
-        const loaded = await loadSongScore(song);
-        xml = loaded.xml;
-      }
-      const candidate = preparedModel || parseMusicXML(xml);
-      $('score').hidden = false; $('empty-score').hidden = true;
-      const rendered = await renderer.load(candidate);
-      model = candidate;
-      sourceModel = candidate;
-      transposeOffset = 0;
-      pressed.clear();
-      configureEngine();
-      drawKeyboard();
-      $('local-recovery').hidden = !song.localOnly;
-      if (rendered.warnings?.length) console.warn('Score rendering details:', rendered.warnings);
-      paint(true);
-      setStatus('Ready');
+    let xml = song.xml;
+    if (!xml) {
+      const loaded = await loadSongScore(song);
+      xml = loaded.xml;
     }
-    selectedId = song.id;
-    $('song-select').value = selectedId;
+    const candidate = preparedModel || parseMusicXML(xml);
+    const rendered = await renderer.load(candidate);
+    model = candidate;
+    sourceModel = candidate;
+    transposeOffset = 0;
+    pressed.clear();
+    configureEngine();
+    drawKeyboard();
+    $('local-recovery').hidden = !song.localOnly;
+    if (rendered.warnings?.length) console.warn('Score rendering details:', rendered.warnings);
+    paint(true);
+    setStatus('Ready');
     if (remember) storage.select(selectedId);
     return true;
   } catch (error) {
     console.warn('Score selection failed:', error);
-    model = previous.model; sourceModel = previous.sourceModel; transposeOffset = previous.transposeOffset;
-    engine = previous.engine; selectedId = previous.selectedId;
-    if (model) {
-      try { await renderer.load(model); paint(true); } catch (_) { engine = null; }
-    } else {
-      $('score').hidden = true; $('empty-score').hidden = false;
-      $('empty-title').textContent = 'Score unavailable';
-      $('empty-description').textContent = 'Refresh or choose another song.';
-    }
-    if (selectedId) $('song-select').value = selectedId;
+    renderer.clear();
+    $('score').hidden = true; $('empty-score').hidden = false;
+    $('empty-title').textContent = 'Score unavailable';
+    $('empty-description').textContent = 'Refresh or choose another song.';
     const message = scoreErrorMessage(error);
     const attempted = song.sourceFilename || song.title || 'Selected song';
-    libraryNotice(`${attempted} did not load: ${message}${engine ? ' The previous score is still displayed.' : ''}`, true);
+    libraryNotice(attempted + ' did not load: ' + message, true);
     notice(message, true);
-    setStatus(engine ? 'Previous score kept' : 'Score unavailable');
+    setStatus('Score unavailable');
     return false;
-  } finally { busy = false; controls(); highlightKeys(); }
+  } finally {
+    busy = false;
+    $('score-loading').hidden = true;
+    $('score-viewport').removeAttribute('aria-busy');
+    if (engine && mode === 'wait') armWaitMode();
+    controls(); highlightKeys();
+  }
 }
 
 async function transposeBy(semitones) {
@@ -406,7 +404,7 @@ async function transposeBy(semitones) {
     // be engraved. The offset/model are committed only after that succeeds.
     setStatus(error.message || 'Pitch could not be changed');
     return false;
-  } finally { busy = false; controls(); paint(true); }
+  } finally { busy = false; if (engine && mode === 'wait') armWaitMode(); controls(); paint(true); }
 }
 
 function downloadLocalScore() {
@@ -706,6 +704,7 @@ $('token-form').addEventListener('submit', event => {
   if (!githubCredentials.save($('upload-token').value)) {
     return tokenStatus('Could not save the token on this browser.', true);
   }
+  try { void window.PracticeTracker?.sync(); } catch (_) {}
   $('upload-token').value = '';
   tokenStatus();
   const resumeMidi = resumeMidiAfterTokenSave;
@@ -759,7 +758,7 @@ $('upload-form').addEventListener('submit', async event => {
     controls();
   }
 });
-const isMuseScoreUrl = value => /^(?:https:\/\/)?(?:www\.)?musescore\.com\//i.test(String(value).trim());
+const isMuseScoreUrl = value => /^\d{1,12}$/.test(String(value).trim()) || /^(?:https:\/\/)?(?:www\.)?musescore\.com\//i.test(String(value).trim());
 const museScoreHelperInstalled = () => document.documentElement.dataset.musescoreHelper === 'ready';
 const museScoreHelperReady = () => museScoreHelperInstalled() && document.documentElement.dataset.musescoreHelperVersion === '1.2.0';
 function updateMuseScoreHelperWarning() {
@@ -787,7 +786,11 @@ $('url-form').addEventListener('submit', async event => {
     }
     try {
       const destination = beginMuseScoreImport($('score-url').value);
-      window.location.assign(destination);
+      urlStatus('Opening MuseScore briefly to read MIDI, then returning here…');
+      $('musescore-transition').hidden = false;
+      $('url-submit').disabled = true;
+      $('url-back').disabled = true;
+      window.setTimeout(() => window.location.assign(destination), 1100);
     } catch (error) { urlStatus(error.message || 'Could not start MuseScore import.', true); }
     return;
   }
@@ -944,12 +947,6 @@ $('download-local-score').addEventListener('click', downloadLocalScore);
 $('song-select').addEventListener('change', event => selectSong(songChoice(event.target.value)));
 $('play-button').addEventListener('click', () => playing ? pause() : start());
 $('restart-button').addEventListener('click', () => { const resume = playing; resetSession(); if (resume) start(); });
-$('answer-button').addEventListener('click', () => {
-  if (!engine || busy) return;
-  answerVisible = !answerVisible;
-  controls();
-  paintStatus();
-});
 $('transpose-down').addEventListener('click', () => transposeBy(-1));
 $('transpose-up').addEventListener('click', () => transposeBy(1));
 $('midi-button').addEventListener('click', connectMidi);
@@ -958,6 +955,7 @@ $('lesson-modes').addEventListener('change', event => {
   if (event.target.name !== 'lesson-mode') return;
   pause(); mode = event.target.value;
   if (model) { configureEngine(); resetSession(); }
+  if (mode === 'wait' && !midiAccess) connectMidi();
   savePreferences();
 });
 $('tempo').addEventListener('input', event => {
@@ -966,8 +964,13 @@ $('tempo').addEventListener('input', event => {
 });
 $('tempo').addEventListener('change', () => { if (model) { configureEngine(); resetSession(); } savePreferences(); });
 $('sound-enabled').addEventListener('change', event => { audio.setEnabled(event.target.checked); savePreferences(); });
-window.addEventListener('blur', () => { pressed.clear(); highlightKeys(); if (playing || starting) pause('Paused — window inactive'); });
-document.addEventListener('visibilitychange', () => { if (document.hidden && (playing || starting)) pause('Paused — page hidden'); });
+window.addEventListener('blur', () => { pressed.clear(); highlightKeys(); if (mode === 'timed' && (playing || starting)) pause('Paused — window inactive'); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && mode === 'timed' && (playing || starting)) pause('Paused — page hidden'); });
+window.addEventListener('pageshow', () => {
+  $('musescore-transition').hidden = true;
+  $('url-submit').disabled = false;
+  $('url-back').disabled = false;
+});
 
 document.querySelector(`input[name="lesson-mode"][value="${mode}"]`).checked = true;
 $('tempo').value = Math.round(speed * 100); $('tempo-label').textContent = `${Math.round(speed * 100)}%`;
@@ -993,7 +996,7 @@ if (pendingMidi()) watchPublishedMidi(pendingMidi());
 for (const id of pendingDeletes) watchPublishedDeletion(id);
 if (localRecoveryFailed && $('import-message').hidden) notice('Device-only scores could not be read.', true);
 try { window.PracticeTracker?.recordOpen('learning-songs'); } catch (_) {}
-try { if (window.PracticeMIDI?.isEnabled()) connectMidi(); } catch (_) {}
+try { if (mode === 'wait' || window.PracticeMIDI?.isEnabled()) connectMidi(); } catch (_) {}
 
 // A read-only snapshot makes regressions inspectable without synthesizing MIDI.
 window.PianoSongLesson = Object.freeze({

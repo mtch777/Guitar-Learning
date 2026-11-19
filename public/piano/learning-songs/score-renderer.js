@@ -67,6 +67,28 @@ export class ScoreRenderer {
     return Math.max(1, Math.floor((this.container.clientWidth || this.viewport.clientWidth || 800) - padding));
   }
 
+  /** Clear the score and note mapping while the next song loads. */
+  clear() {
+    this.loadVersion++;
+    this.view.clearTimeout(this.resizeTimer);
+    this.osmd?.dispose?.();
+    this.osmd = null;
+    this.model = null;
+    this.host = null;
+    this.frame = null;
+    this.container.replaceChildren();
+    this.noteMap = new Map();
+    this.statuses = new Map();
+    this.currentIds = new Set();
+    this.appliedColors = new Map();
+    this.cursorPositions = [];
+    this.systems = [];
+    this.systemForMeasure = new Map();
+    this.visibleSystem = -1;
+    this.renderedWidth = 0;
+    this.renderedHeight = 0;
+  }
+
   availableHeight() {
     return Math.max(1, Math.floor(this.viewport.clientHeight || 300));
   }

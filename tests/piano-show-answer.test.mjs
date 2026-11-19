@@ -73,7 +73,7 @@ test('note reading: revealing a note name leaves the same note waiting for MIDI 
     },
   };
   const source = readFileSync(new URL('../public/piano/sheet-reading/note-reading/script.js', import.meta.url), 'utf8');
-  vm.runInNewContext(source, {angular,Vex,document:{getElementById:() => staff},window:{},navigator:{},Math:Object.assign(Object.create(Math),{random:() => 0})});
+  vm.runInNewContext(source, {angular,Vex,document:{getElementById:() => staff},window:{location:{search:''}},URLSearchParams,navigator:{},Math:Object.assign(Object.create(Math),{random:() => 0})});
   controller(scope,() => {throw Error('Hint must not start a timer.');});
   assert.equal(scope.answerAvailable, true);
   assert.equal(scope.answerVisible, false);
