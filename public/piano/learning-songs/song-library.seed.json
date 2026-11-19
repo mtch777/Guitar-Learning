@@ -14,5 +14,11 @@
       "sourcePath": "scores/conversion-test-source.nwctxt",
       "testScore": true
     }
-  ]
+  ],
+  "uploadedLabels": {
+    "midi-e578ad97abfd8cac7ade35558f882643b8741e1851a6e0567fd33a0f7c420ae9.musicxml": {
+      "title": "I Want You To Love Me",
+      "composer": "Fiona Apple"
+    }
+  }
 }

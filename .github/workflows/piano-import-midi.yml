@@ -13,6 +13,8 @@ on:
     paths:
       - '.github/workflows/piano-import-midi.yml'
       - 'scripts/piano/import-midi-url.py'
+      - 'scripts/piano/build-song-library.mjs'
+      - 'public/piano/learning-songs/song-library.seed.json'
 
 permissions:
   contents: write
@@ -96,6 +98,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A public/piano/learning-songs/uploads public/piano/learning-songs/scores public/piano/learning-songs/song-library.json
+          if [ -d public/piano/learning-songs/imports ]; then git add -A public/piano/learning-songs/imports; fi
           if ! git diff --cached --quiet; then
             git commit -m 'Repair stored MIDI score measure grids'
             git push

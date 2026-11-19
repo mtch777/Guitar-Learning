@@ -64,6 +64,28 @@ test('native MusicXML becomes a shared song while the exact uploaded bytes remai
   assert.equal(validateSongCatalog(catalog).songs.length, 2);
 });
 
+test('saved MIDI keeps its display name and import receipt when the converter changes its score ID', async t => {
+  const {root, seed, put} = await temporaryLibrary(t);
+  const filename = `midi-${'e'.repeat(64)}.musicxml`;
+  const scoreXML = titled('Music21 Fragment');
+  const originalPath = await put(filename, scoreXML);
+  seed.uploadedLabels = {[filename]: {title:'I Want You To Love Me', composer:'Fiona Apple'}};
+  await fs.writeFile(path.join(root, 'song-library.seed.json'), JSON.stringify(seed));
+  await fs.mkdir(path.join(root, 'imports'));
+  const requestId = `gl-${'b'.repeat(32)}`;
+  const receiptPath = path.join(root, 'imports', `${requestId}.json`);
+  await fs.writeFile(receiptPath, JSON.stringify({version:1, requestId, sourceFilename:filename, songId:`upload-${'0'.repeat(64)}`}) + '\n');
+  const catalog = await buildSongLibrary({root});
+  const song = catalog.songs.find(song => song.sourceFilename === filename);
+  assert.equal(song.title, 'I Want You To Love Me');
+  assert.equal(song.composer, 'Fiona Apple');
+  assert.equal(JSON.parse(await fs.readFile(receiptPath, 'utf8')).songId, song.id);
+  assert.equal(await fs.readFile(originalPath, 'utf8'), scoreXML, 'The stored MusicXML is never changed to rename a song.');
+  const previousReceipt = await fs.readFile(receiptPath, 'utf8');
+  await buildSongLibrary({root});
+  assert.equal(await fs.readFile(receiptPath, 'utf8'), previousReceipt, 'A second build does not rewrite the receipt.');
+});
+
 test('legacy XML encoding normalizes to UTF-8 without changing accents or source bytes', async t => {
   const {root, put} = await temporaryLibrary(t);
   const originalText = titled('Béla Bartók étude').replace(/encoding="[^"]+"/, 'encoding="ISO-8859-1"');

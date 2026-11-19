@@ -49,6 +49,14 @@ export async function buildSongLibrary({root = lessonRoot} = {}) {
     throw new Error('Invalid test-source hashes in song-library.seed.json.');
   }
   const testSources = new Set(testSourceHashes);
+  const uploadedLabels = seed.uploadedLabels || {};
+  if (!uploadedLabels || typeof uploadedLabels !== 'object' || Array.isArray(uploadedLabels)
+    || Object.entries(uploadedLabels).some(([name, label]) =>
+      !name || name.includes('/') || name.includes('\\') || !label
+      || typeof label.title !== 'string' || !label.title.trim() || label.title.length > 120
+      || (label.composer !== undefined && (typeof label.composer !== 'string' || label.composer.length > 120)))) {
+    throw new Error('Invalid uploaded song labels in song-library.seed.json.');
+  }
   const unzip = await unzipImplementation();
   const previousParser = globalThis.DOMParser;
   globalThis.DOMParser = DOMParser;
@@ -97,9 +105,10 @@ export async function buildSongLibrary({root = lessonRoot} = {}) {
         await fs.mkdir(path.join(root, 'scores'), {recursive:true});
         await fs.writeFile(path.join(root, scorePath), xml, 'utf8');
         generatedPaths.add(scorePath);
-        const title = model.title && model.title !== 'Untitled score' ? model.title : path.basename(filename).replace(/\.(musicxml|xml|mxl)$/i, '');
+        const uploadedLabel = uploadedLabels[path.basename(filename)];
+        const title = uploadedLabel?.title || (model.title && model.title !== 'Untitled score' ? model.title : path.basename(filename).replace(/\.(musicxml|xml|mxl)$/i, ''));
         const sourceDigest = sha256(original);
-        songs.push({id:`upload-${digest}`, title, composer:model.composer || '', scorePath, sourcePath,
+        songs.push({id:`upload-${digest}`, title, composer:uploadedLabel?.composer ?? model.composer ?? '', scorePath, sourcePath,
           sourceFilename:path.basename(filename), sha256:digest, sourceSha256:sourceDigest,
           ...(testSources.has(sourceDigest) ? {testScore:true} : {}),
           noteCount:model.notes.filter(note => !note.isRest).length, attackCount:model.attacks.length});
@@ -124,6 +133,20 @@ export async function buildSongLibrary({root = lessonRoot} = {}) {
   }
   const catalog = {version:1, defaultSongId:songs.length ? seed.defaultSongId : null, songs, importErrors};
   await fs.writeFile(path.join(root, 'song-library.json'), JSON.stringify(catalog, null, 2) + '\n');
+  // Re-conversion changes the MusicXML digest and therefore the song ID. Keep
+  // older successful MuseScore handoff receipts pointing to the live song.
+  const songBySource = new Map(songs.map(song => [song.sourceFilename, song]));
+  for (const filename of await filesUnder(path.join(root, 'imports'))) {
+    if (!/^gl-[a-f0-9]{32}\.json$/.test(filename)) continue;
+    const receiptPath = path.join(root, 'imports', filename);
+    const receipt = JSON.parse(await fs.readFile(receiptPath, 'utf8'));
+    const song = songBySource.get(receipt.sourceFilename);
+    if (receipt.version === 1 && receipt.requestId === filename.slice(0, -5)
+      && /^midi-[a-f0-9]{64}\.musicxml$/.test(receipt.sourceFilename || '')
+      && song && receipt.songId !== song.id) {
+      await fs.writeFile(receiptPath, JSON.stringify({...receipt, songId:song.id}) + '\n');
+    }
+  }
   return catalog;
 }
 

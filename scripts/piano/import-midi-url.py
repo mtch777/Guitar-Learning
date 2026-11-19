@@ -10,6 +10,7 @@ import re
 import tempfile
 import urllib.parse
 import urllib.request
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 MAX_BYTES = 12 * 1024 * 1024
@@ -150,7 +151,11 @@ def repair_saved_imports(directory):
                       for part in saved.parts]
         if not part_grids or all(grid == part_grids[0] for grid in part_grids[1:]):
             continue
-        title = saved.metadata.title if saved.metadata else ""
+        # Parsing the saved XML through music21 can substitute the generic
+        # "Music21 Fragment" title even when the original XML has a work-title.
+        # Read the original metadata directly so a repair never renames a song.
+        root = ET.parse(xml_path).getroot()
+        title = root.findtext("./work/work-title") or root.findtext("./movement-title") or ""
         import_bytes(midi_path.read_bytes(), directory, title or "", replace_existing=True)
         print(f"Repaired inconsistent measures in {xml_path.name}")
 
