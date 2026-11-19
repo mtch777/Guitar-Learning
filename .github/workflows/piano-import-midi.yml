@@ -1,0 +1,52 @@
+name: Import piano MIDI URL
+
+on:
+  workflow_dispatch:
+    inputs:
+      midi_url:
+        description: 'Direct HTTPS MIDI URL (not a MuseScore score-page URL)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: piano-midi-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install converters and catalog dependencies
+        run: |
+          python -m pip install 'music21==9.9.1'
+          npm ci
+      - name: Convert direct MIDI URL to MusicXML
+        env:
+          MIDI_URL: ${{ inputs.midi_url }}
+        run: |
+          python scripts/piano/import-midi-url.py --url "$MIDI_URL"
+          npm run prebuild
+      - name: Commit imported score and updated library
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/piano/learning-songs/uploads/midi-*.musicxml public/piano/learning-songs/scores/upload-*.musicxml public/piano/learning-songs/song-library.json
+          if git diff --cached --quiet; then
+            echo 'Score already imported.'
+          else
+            git commit -m 'Import piano MIDI score'
+            git push
+          fi
