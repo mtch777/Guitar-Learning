@@ -43,11 +43,12 @@ async function settle(predicate, label) {
   throw new Error(`Timed out: ${label}`);
 }
 
-async function boot({resume = 'running', legacySongs = [], midiReturn = null} = {}) {
-  const fragment = midiReturn ? `#${new URLSearchParams({'musescore-midi':midiReturn.url, 'musescore-request':midiReturn.id, 'musescore-title':'Fixture Score'})}` : '';
+async function boot({resume = 'running', legacySongs = [], midiReturn = null, midiError = null} = {}) {
+  const fragment = midiReturn ? `#${new URLSearchParams({'musescore-midi':midiReturn.url, 'musescore-request':midiReturn.id, 'musescore-title':'Fixture Score'})}` :
+    midiError ? `#${new URLSearchParams({'musescore-error':midiError.message, 'musescore-request':midiError.id, 'musescore-debug':midiError.debug})}` : '';
   const dom = new JSDOM(html, {pretendToBeVisual: true, runScripts: 'outside-only', url: `http://localhost/piano/learning-songs/${fragment}`});
   const {window} = dom;
-  if (midiReturn) window.sessionStorage.setItem('piano-musescore-import-request-v1', midiReturn.id);
+  if (midiReturn || midiError) window.sessionStorage.setItem('piano-musescore-import-request-v1', (midiReturn || midiError).id);
   window.HTMLDialogElement.prototype.showModal = function() { this.setAttribute('open', ''); };
   window.HTMLDialogElement.prototype.close = function() { this.removeAttribute('open'); };
   const clock = {seconds: 0};
@@ -281,7 +282,7 @@ async function run() {
   assert.equal(ui.$('musescore-helper-update').hidden, false, 'An older installed helper prompts an update.');
   await ui.click('url-submit');
   assert.match(ui.$('url-status').textContent, /Update the browser helper/, 'Old helper is blocked before navigating.');
-  ui.window.document.documentElement.dataset.musescoreHelperVersion = '1.1.0';
+  ui.window.document.documentElement.dataset.musescoreHelperVersion = '1.2.0';
   triggerUrlInput();
   assert.equal(ui.$('musescore-helper-update').hidden, true, 'Updated helper clears the warning.');
   await ui.click('url-back');
@@ -732,6 +733,18 @@ async function run() {
     checks.push('MuseScore MIDI handoff with a missing token resumes exactly one authenticated GitHub conversion after Save Token');
     ui.dom.window.close();
   } finally { globalThis.setTimeout = nativeSetTimeout; }
+
+  const diagnostic = {helper:'1.2.0',frameLoaded:true,events:[{ms:0,context:'score-page',phase:'Score page opened'}, {ms:600,context:'tutorial-frame',phase:'MIDI API HTTP 404'}]};
+  ui = await boot({midiError:{id:`gl-${'c'.repeat(32)}`, message:'MuseScore did not provide MIDI within 90 seconds.', debug:JSON.stringify(diagnostic)}});
+  assert.ok(ui.$('upload-dialog').open, 'A timed-out import returns to the Upload song dialog.');
+  assert.equal(ui.$('upload-url-stage').hidden, false, 'Import error appears in the URL screen.');
+  assert.match(ui.$('url-status').textContent, /90 seconds/);
+  assert.equal(ui.$('musescore-diagnostics').hidden, false, 'Diagnostics are available on a failed import.');
+  assert.match(ui.$('musescore-diagnostic-log').value, /MIDI API HTTP 404/);
+  await ui.click('copy-musescore-diagnostics');
+  assert.match(ui.$('musescore-diagnostic-copy-status').textContent, /Select and copy|Copied/);
+  checks.push('timed-out MuseScore import returns complete structured diagnostics with a visible Copy diagnostics button');
+  ui.dom.window.close();
   console.log(JSON.stringify({status: 'pass', checks, silent: true, generations: generation}, null, 2));
 }
 

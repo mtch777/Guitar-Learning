@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {dispatchMidiImport, validateMidiUrl, tutorialUrl, beginMuseScoreImport, consumeMidiHandoff, newImportId} from '../public/piano/learning-songs/github-midi-import.js';
+import {dispatchMidiImport, validateMidiUrl, scorePageUrl, beginMuseScoreImport, consumeMidiHandoff, newImportId} from '../public/piano/learning-songs/github-midi-import.js';
 
 const SAMPLE = 'https://s3w.musescore.com/musescore.scoredata/g/example/score.mid';
 const ID = 'gl-0123456789abcdef0123456789abcdef';
@@ -39,22 +39,22 @@ test('permission failures are actionable', async () => {
   }), /Contents: write/);
 });
 
-test('MuseScore score URLs open the piano tutorial', () => {
-  assert.equal(tutorialUrl('https://musescore.com/user/19750166/scores/6109206'),
-    'https://musescore.com/user/19750166/scores/6109206/piano-tutorial');
-  assert.equal(tutorialUrl('https://musescore.com/user/19750166/scores/6109206/piano-tutorial'),
-    'https://musescore.com/user/19750166/scores/6109206/piano-tutorial');
-  assert.equal(tutorialUrl('https://www.musescore.com/pianouser/scores/6109206'),
-    'https://musescore.com/pianouser/scores/6109206/piano-tutorial');
-  assert.throws(() => tutorialUrl('https://musescore.com/other/path'));
-  assert.throws(() => tutorialUrl('https://evil.test/user/19750166/scores/6109206'));
+test('MuseScore URLs open the normal score page, leaving piano tutorial in its hidden frame', () => {
+  assert.equal(scorePageUrl('https://musescore.com/user/19750166/scores/6109206'),
+    'https://musescore.com/user/19750166/scores/6109206');
+  assert.equal(scorePageUrl('https://musescore.com/user/19750166/scores/6109206/piano-tutorial'),
+    'https://musescore.com/user/19750166/scores/6109206');
+  assert.equal(scorePageUrl('https://www.musescore.com/pianouser/scores/6109206'),
+    'https://musescore.com/pianouser/scores/6109206');
+  assert.throws(() => scorePageUrl('https://musescore.com/other/path'));
+  assert.throws(() => scorePageUrl('https://evil.test/user/19750166/scores/6109206'));
 });
 
 test('automatic MuseScore redirect and authorized MIDI return share a tab-bound request', () => {
   const signed = 'https://s3w.musescore.com/musescore.scoredata/g/test/score.mid?X-Amz-Signature=abc';
   const storage = session();
   const target = beginMuseScoreImport('https://musescore.com/user/19750166/scores/6109206', {id:ID, storage});
-  assert.equal(target, `https://musescore.com/user/19750166/scores/6109206/piano-tutorial#guitar-learning-import=${ID}`);
+  assert.equal(target, `https://musescore.com/user/19750166/scores/6109206#guitar-learning-import=${ID}`);
   const location = {pathname:'/Guitar-Learning/piano/learning-songs/', search:'?v=test', hash:'#'+new URLSearchParams({'musescore-midi':signed, 'musescore-request':ID, 'musescore-title':'Fiona Apple'})};
   let replacement;
   assert.deepEqual(consumeMidiHandoff(location, {replaceState:(_a,_b,url) => replacement = url}, {storage}), {id:ID, url:signed, title:'Fiona Apple'});
@@ -69,6 +69,20 @@ test('a MuseScore error returns to the lesson with a useful message', () => {
   beginMuseScoreImport('https://musescore.com/user/19750166/scores/6109206', {id:ID, storage});
   const location = {pathname:'/Guitar-Learning/piano/learning-songs/', search:'', hash:'#'+new URLSearchParams({'musescore-error':'MIDI never loaded', 'musescore-request':ID})};
   assert.deepEqual(consumeMidiHandoff(location, {replaceState() {}}, {storage}), {id:ID, error:'MIDI never loaded'});
+});
+
+test('a timed-out MuseScore import returns an actionable, bounded diagnostic trace', () => {
+  const storage = session();
+  beginMuseScoreImport('https://musescore.com/user/19750166/scores/6109206', {id:ID, storage});
+  const hash = '#'+new URLSearchParams({
+    'musescore-request':ID,
+    'musescore-error':'MuseScore did not provide MIDI within 90 seconds.',
+    'musescore-debug':'Score page opened → Tutorial frame loaded → MIDI API HTTP 404',
+  });
+  assert.deepEqual(consumeMidiHandoff({pathname:'/Guitar-Learning/piano/learning-songs/', search:'', hash}, {replaceState() {}}, {storage}), {
+    id:ID, error:'MuseScore did not provide MIDI within 90 seconds.',
+    debug:'Score page opened → Tutorial frame loaded → MIDI API HTTP 404',
+  });
 });
 
 test('old manually supplied MIDI links remain available but require an explicit Import click', () => {

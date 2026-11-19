@@ -12,68 +12,80 @@ const SONG_ID = `upload-${'b'.repeat(64)}`;
 const SIGNED = 'https://s3w.musescore.com/musescore.scoredata/g/abc/score.mid?X-Amz-Signature=sig';
 const script = await readFile(new URL('../public/piano/learning-songs/musescore-auto-import.user.js', import.meta.url), 'utf8');
 
-function runHelper(url, {resources = [], frameResources = [], responseUrl, xhr = false, nested = false, bodyReady = true} = {}) {
-  const source = new URL(url), session = new Map(), intervals = [], redirects = [], frames = [], notices = [], listeners = {};
+function runHelper(url, {resources = [], frameResources = [], responseUrl, responseStatus = 200, xhr = false, nested = false, bodyReady = true} = {}) {
+  const source = new URL(url), session = new Map(), intervals = [], redirects = [], frames = [], banners = [], listeners = {}, emitted = [];
+  let time = 1_000_000;
   const frameWindow = {
     performance:{getEntriesByType() { return frameResources.map(name => ({name})); }},
-    document:{querySelectorAll() { return []; }},
+    location:{pathname:source.pathname.replace(/\/piano-tutorial\/?$/, '') + '/piano-tutorial'},
+    document:{readyState:'complete', visibilityState:'visible', body:{textContent:''}, querySelector() { return null; }, querySelectorAll() { return []; }},
   };
+  const body = {appendChild(node) {
+    if (node.tagName === 'iframe') { node.contentWindow = frameWindow; frames.push(node); }
+    else banners.push(node);
+  }};
   const document = {
-    title:'Fiona Apple — Piano score | MuseScore',
+    title:'Fiona Apple — Piano score | MuseScore', readyState:'complete', visibilityState:'visible',
     documentElement:{dataset:{}},
-    body:bodyReady ? {appendChild(node) {
-      if (node.tagName === 'iframe') { node.contentWindow = frameWindow; frames.push(node); }
-      else notices.push(node.textContent);
-    }} : null,
+    body:bodyReady ? body : null,
     addEventListener(event, fn) { listeners[event] = fn; },
     createElement(tag) {
       assert.ok(['iframe', 'div'].includes(tag));
-      return {tagName:tag, style:{}, setAttribute() {}, addEventListener() {}};
+      return {tagName:tag, style:{}, handlers:{}, setAttribute() {}, addEventListener(event, fn) { this.handlers[event] = fn; }};
     },
     querySelector(selector) { return selector === 'h1' ? {textContent:'I Want You To Love Me'} : null; },
     querySelectorAll(selector) { return selector === 'iframe' ? frames : []; },
   };
   const location = {
-    href:source.href, pathname:source.pathname, hostname:source.hostname,
+    href:source.href, pathname:source.pathname, hostname:source.hostname, origin:source.origin,
     hash:source.hash,
     replace(value) { redirects.push(value); },
   };
   const window = {
-    dispatchEvent() {},
-    document,
+    dispatchEvent() {}, addEventListener(event, fn) { listeners[event] = fn; },
+    document, location, innerWidth:1200, innerHeight:720,
+    navigator:{userAgent:'Quetta test browser', onLine:true},
     performance:{getEntriesByType() { return resources.map(name => ({name})); }},
-    fetch() { return Promise.resolve({clone:() => ({json:async () => ({info:{url:responseUrl}})})}); },
+    fetch() { return Promise.resolve({status:responseStatus,clone:() => ({json:async () => ({result:'success',info:{url:responseUrl}})})}); },
   };
   window.top = nested ? {} : window;
+  window.parent = nested ? {postMessage(payload, targetOrigin) { emitted.push({payload,targetOrigin}); }} : window;
   if (xhr) {
     window.XMLHttpRequest = class {
       open() {}
-      addEventListener(_event, fn) { this.onLoad = fn; }
-      send() { this.status = 200; this.responseText = JSON.stringify({info:{url:responseUrl}}); this.onLoad?.(); }
+      addEventListener(event, fn) { if (event === 'load') this.onLoad = fn; }
+      send() { this.status = responseStatus; this.responseText = JSON.stringify({result:'success',info:{url:responseUrl}}); this.onLoad?.(); }
     };
   }
   const context = {location, window, document, URL, URLSearchParams, Event:class {},
+    Date:class extends Date { static now() { return time; } },
     PerformanceObserver:undefined,
     sessionStorage:{getItem:key => session.get(key) || null, setItem:(key,value) => session.set(key,value), removeItem:key => session.delete(key)},
     setInterval(fn) { intervals.push(fn); return intervals.length; },
     clearInterval() {},
   };
   vm.runInNewContext(script, context);
-  return {window, document, session, intervals, redirects, frames, notices, listeners};
+  return {window, document, session, intervals, redirects, frames, banners, listeners, emitted,
+    activateBody() { document.body = body; listeners.DOMContentLoaded?.(); },
+    advanceMs(ms) { time += ms; for (const fn of intervals) fn(); },
+    sendCapture(payload, {origin = source.origin, sourceWindow = frameWindow} = {}) {
+      listeners.message?.({origin, source:sourceWindow, data:payload});
+    },
+  };
 }
 
 test('helper advertises readiness on the piano lesson without navigating away', () => {
   const state = runHelper('https://mtch777.github.io/Guitar-Learning/piano/learning-songs/');
   assert.equal(state.document.documentElement.dataset.musescoreHelper, 'ready');
-  assert.equal(state.document.documentElement.dataset.musescoreHelperVersion, '1.1.0');
+  assert.equal(state.document.documentElement.dataset.musescoreHelperVersion, '1.2.0');
   assert.deepEqual(state.redirects, []);
 });
 
 test('helper starts the piano tutorial automatically and returns MIDI without the user pressing Play', () => {
   const state = runHelper(`https://musescore.com/user/19750166/scores/6109206#guitar-learning-import=${ID}`, {frameResources:[SIGNED]});
   assert.equal(state.frames.length, 1);
-  assert.match(state.notices[0], /Importing MuseScore MIDI/);
-  assert.equal(state.frames[0].src, 'https://musescore.com/user/19750166/scores/6109206/piano-tutorial');
+  assert.match(state.banners[0].textContent, /Importing MIDI/);
+  assert.equal(state.frames[0].src, `https://musescore.com/user/19750166/scores/6109206/piano-tutorial#guitar-learning-capture=${ID}`);
   assert.equal(state.redirects.length, 1);
   const params = new URLSearchParams(new URL(state.redirects[0]).hash.slice(1));
   assert.equal(params.get('musescore-midi'), SIGNED);
@@ -81,20 +93,51 @@ test('helper starts the piano tutorial automatically and returns MIDI without th
 });
 
 test('helper can load the tutorial after document body becomes available', () => {
-  const state = runHelper(`https://musescore.com/user/19750166/scores/6109206/piano-tutorial#guitar-learning-import=${ID}`, {bodyReady:false});
+  const state = runHelper(`https://musescore.com/user/19750166/scores/6109206#guitar-learning-import=${ID}`, {bodyReady:false});
   assert.equal(state.frames.length, 0);
   assert.equal(typeof state.listeners.DOMContentLoaded, 'function');
-  state.document.body = {appendChild(node) { if (node.tagName === 'iframe') state.frames.push(node); }};
-  state.listeners.DOMContentLoaded();
+  state.activateBody();
   assert.equal(state.frames.length, 1);
-  assert.equal(state.frames[0].src, 'https://musescore.com/user/19750166/scores/6109206/piano-tutorial');
+  assert.equal(state.frames[0].src, `https://musescore.com/user/19750166/scores/6109206/piano-tutorial#guitar-learning-capture=${ID}`);
 });
 
-test('tutorial iframe does not start its own import or redirect away from the page', () => {
+test('unmarked tutorial iframe does not observe or redirect', () => {
   const state = runHelper(`https://musescore.com/user/19750166/scores/6109206/piano-tutorial#guitar-learning-import=${ID}`, {nested:true, resources:[SIGNED]});
   assert.equal(state.frames.length, 0);
   assert.equal(state.intervals.length, 0);
   assert.deepEqual(state.redirects, []);
+});
+
+test('marked tutorial iframe captures signed MIDI without redirecting itself', async () => {
+  const state = runHelper(`https://musescore.com/user/19750166/scores/6109206/piano-tutorial#guitar-learning-capture=${ID}`, {nested:true, responseUrl:SIGNED});
+  await state.window.fetch('https://musescore.com/api/jmuse?id=6109206&index=0&type=midi', {headers:{Authorization:'secret-should-not-appear-in-logs'}});
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(state.frames.length, 0);
+  assert.deepEqual(state.redirects, []);
+  assert.ok(state.emitted.some(event => event.payload.event?.phase === 'MIDI API requested'));
+  assert.ok(state.emitted.some(event => event.payload.event?.detail?.includes('authorization header: present')));
+  assert.ok(state.emitted.some(event => event.payload.url === SIGNED));
+  assert.equal(JSON.stringify(state.emitted).includes('secret-should-not-appear-in-logs'), false);
+});
+
+test('parent receives signed URL from authorized child frame without score.mid resource timing', async () => {
+  const parent = runHelper(`https://musescore.com/user/19750166/scores/6109206#guitar-learning-import=${ID}`);
+  const child = runHelper(parent.frames[0].src, {nested:true, responseUrl:SIGNED});
+  await child.window.fetch('/api/jmuse?id=6109206&index=0&type=midi');
+  await new Promise(resolve => setImmediate(resolve));
+  for (const message of child.emitted) parent.sendCapture(message.payload);
+  assert.equal(parent.redirects.length, 1);
+  const params = new URLSearchParams(new URL(parent.redirects[0]).hash.slice(1));
+  assert.equal(params.get('musescore-midi'), SIGNED);
+});
+
+test('messages from another frame or origin cannot hijack the import', () => {
+  const parent = runHelper(`https://musescore.com/user/19750166/scores/6109206#guitar-learning-import=${ID}`);
+  const payload = {source:'guitar-learning-midi-capture',id:ID,url:SIGNED};
+  parent.sendCapture(payload, {origin:'https://other.example'});
+  parent.sendCapture(payload, {sourceWindow:{}});
+  parent.sendCapture({...payload,id:'gl-'+ '0'.repeat(32)});
+  assert.deepEqual(parent.redirects, []);
 });
 
 test('helper returns the MIDI URL from MuseScore resource timing without another click', () => {
@@ -127,6 +170,26 @@ test('helper can read authorized MIDI responses from XMLHttpRequest', () => {
   request.open('GET', '/api/jmuse?id=6109206&index=0&type=midi');
   request.send();
   assert.equal(state.redirects.length, 1);
+});
+
+test('90-second failure returns structured diagnostics including frame state and API status', async () => {
+  const state = runHelper(`https://musescore.com/user/19750166/scores/6109206#guitar-learning-import=${ID}`);
+  state.frames[0].handlers.load();
+  const child = runHelper(state.frames[0].src, {nested:true, responseStatus:404});
+  await child.window.fetch('/api/jmuse?id=6109206&index=0&type=midi');
+  await new Promise(resolve => setImmediate(resolve));
+  for (const message of child.emitted) state.sendCapture(message.payload);
+  state.advanceMs(90000);
+  assert.equal(state.redirects.length, 1);
+  const params = new URLSearchParams(new URL(state.redirects[0]).hash.slice(1));
+  assert.match(params.get('musescore-error'), /90 seconds/);
+  const debug = JSON.parse(params.get('musescore-debug'));
+  assert.equal(debug.helper, '1.2.0');
+  assert.equal(debug.frameLoaded, true);
+  assert.equal(debug.scorePage.path, '/user/19750166/scores/6109206');
+  assert.ok(debug.events.some(event => event.phase === 'Frame capture ready'));
+  assert.ok(debug.events.some(event => event.phase === 'MIDI API HTTP 404'));
+  assert.equal(JSON.stringify(debug).includes('X-Amz-Signature'), false);
 });
 
 test('import receipt maps the converted MIDI file to the exact published song', async () => {
