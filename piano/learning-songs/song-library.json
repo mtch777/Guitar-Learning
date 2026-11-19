@@ -29,6 +29,18 @@
       "attackCount": 179
     },
     {
+      "id": "upload-869c418f95a327ccdcebc9ae287a9f08a315e312e16b43272982b6e3bc701c34",
+      "title": "I Know the End (All Chords)",
+      "composer": "Phoebe Bridgers",
+      "scorePath": "scores/upload-869c418f95a327ccdcebc9ae287a9f08a315e312e16b43272982b6e3bc701c34.musicxml",
+      "sourcePath": "uploads/I_Know_the_End_All_Chords--44320cfe6af46d8b31579c1ef129179dd3ddac1f39121e58e4994034d6797bce.musicxml",
+      "sourceFilename": "I_Know_the_End_All_Chords--44320cfe6af46d8b31579c1ef129179dd3ddac1f39121e58e4994034d6797bce.musicxml",
+      "sha256": "869c418f95a327ccdcebc9ae287a9f08a315e312e16b43272982b6e3bc701c34",
+      "sourceSha256": "44320cfe6af46d8b31579c1ef129179dd3ddac1f39121e58e4994034d6797bce",
+      "noteCount": 1031,
+      "attackCount": 812
+    },
+    {
       "id": "upload-ecd64fbbd3fbbdd1b8517894e2a8f8cbb395148fdfc49cf0205ca97ec9e67873",
       "title": "I Know the End",
       "composer": "Phoebe Bridgers",
@@ -39,18 +51,6 @@
       "sourceSha256": "8fad015aaa74285abcc42eb157eedc3b78e422ced8bbb3d3bd1f8f24db80e9ad",
       "noteCount": 2290,
       "attackCount": 1916
-    },
-    {
-      "id": "upload-1d50936df9dff58404865a57cc2c428b61af12245bc37fe58e1df00aaed80273",
-      "title": "I Know the End (All Chords)",
-      "composer": "Phoebe Bridgers",
-      "scorePath": "scores/upload-1d50936df9dff58404865a57cc2c428b61af12245bc37fe58e1df00aaed80273.musicxml",
-      "sourcePath": "uploads/I_Know_the_End_Chords--41c8ce247c493fee9810550b68215062598f4001f5801fea80f94a48277e3972.musicxml",
-      "sourceFilename": "I_Know_the_End_Chords--41c8ce247c493fee9810550b68215062598f4001f5801fea80f94a48277e3972.musicxml",
-      "sha256": "1d50936df9dff58404865a57cc2c428b61af12245bc37fe58e1df00aaed80273",
-      "sourceSha256": "41c8ce247c493fee9810550b68215062598f4001f5801fea80f94a48277e3972",
-      "noteCount": 3444,
-      "attackCount": 3398
     },
     {
       "id": "upload-007988d2df1df7275379ecf42c8124723085af5c787436341b0a49a7119c1069",
