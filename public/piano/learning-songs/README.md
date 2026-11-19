@@ -27,9 +27,12 @@ If publication is delayed, **Refresh** retrieves the latest shared catalog.
 
 **MuseScore URL** accepts score-page links when the user's browser has the
 optional [MuseScore import userscript](./musescore-auto-import.user.js) installed.
-The helper runs inside the MuseScore page, finds its downloadable MIDI URL, and
-hands it back to the lesson for a GitHub Actions MIDI-to-MusicXML conversion and
-publication. This browser setup is required for MuseScore score-page links.
+Version 1.1.0 of the helper triggers MuseScore's piano tutorial MIDI loading
+automatically in a hidden same-origin frame, then returns the signed MIDI link
+to the lesson for GitHub Actions MIDI-to-MusicXML conversion and publication.
+After the one-time browser setup, no manual MuseScore navigation or Play click
+is part of the import flow. The form detects older installed helpers and links
+to the update. This browser setup is required for MuseScore score-page links.
 The same URL form also accepts direct `.mid`, `.midi`, `.musicxml`, `.xml` or `.mxl`
 links from supported hosts; direct XML downloads additionally require CORS access.
 

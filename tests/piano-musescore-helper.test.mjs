@@ -12,17 +12,29 @@ const SONG_ID = `upload-${'b'.repeat(64)}`;
 const SIGNED = 'https://s3w.musescore.com/musescore.scoredata/g/abc/score.mid?X-Amz-Signature=sig';
 const script = await readFile(new URL('../public/piano/learning-songs/musescore-auto-import.user.js', import.meta.url), 'utf8');
 
-function runHelper(url, {resources = [], responseUrl, xhr = false} = {}) {
-  const source = new URL(url), session = new Map(), intervals = [], redirects = [];
+function runHelper(url, {resources = [], frameResources = [], responseUrl, xhr = false, nested = false, bodyReady = true} = {}) {
+  const source = new URL(url), session = new Map(), intervals = [], redirects = [], frames = [], notices = [], listeners = {};
+  const frameWindow = {
+    performance:{getEntriesByType() { return frameResources.map(name => ({name})); }},
+    document:{querySelectorAll() { return []; }},
+  };
   const document = {
     title:'Fiona Apple — Piano score | MuseScore',
     documentElement:{dataset:{}},
-    addEventListener() {},
+    body:bodyReady ? {appendChild(node) {
+      if (node.tagName === 'iframe') { node.contentWindow = frameWindow; frames.push(node); }
+      else notices.push(node.textContent);
+    }} : null,
+    addEventListener(event, fn) { listeners[event] = fn; },
+    createElement(tag) {
+      assert.ok(['iframe', 'div'].includes(tag));
+      return {tagName:tag, style:{}, setAttribute() {}, addEventListener() {}};
+    },
     querySelector(selector) { return selector === 'h1' ? {textContent:'I Want You To Love Me'} : null; },
-    querySelectorAll() { return []; },
+    querySelectorAll(selector) { return selector === 'iframe' ? frames : []; },
   };
   const location = {
-    hostname:source.hostname,
+    href:source.href, pathname:source.pathname, hostname:source.hostname,
     hash:source.hash,
     replace(value) { redirects.push(value); },
   };
@@ -32,6 +44,7 @@ function runHelper(url, {resources = [], responseUrl, xhr = false} = {}) {
     performance:{getEntriesByType() { return resources.map(name => ({name})); }},
     fetch() { return Promise.resolve({clone:() => ({json:async () => ({info:{url:responseUrl}})})}); },
   };
+  window.top = nested ? {} : window;
   if (xhr) {
     window.XMLHttpRequest = class {
       open() {}
@@ -46,12 +59,41 @@ function runHelper(url, {resources = [], responseUrl, xhr = false} = {}) {
     clearInterval() {},
   };
   vm.runInNewContext(script, context);
-  return {window, document, session, intervals, redirects};
+  return {window, document, session, intervals, redirects, frames, notices, listeners};
 }
 
 test('helper advertises readiness on the piano lesson without navigating away', () => {
   const state = runHelper('https://mtch777.github.io/Guitar-Learning/piano/learning-songs/');
   assert.equal(state.document.documentElement.dataset.musescoreHelper, 'ready');
+  assert.equal(state.document.documentElement.dataset.musescoreHelperVersion, '1.1.0');
+  assert.deepEqual(state.redirects, []);
+});
+
+test('helper starts the piano tutorial automatically and returns MIDI without the user pressing Play', () => {
+  const state = runHelper(`https://musescore.com/user/19750166/scores/6109206#guitar-learning-import=${ID}`, {frameResources:[SIGNED]});
+  assert.equal(state.frames.length, 1);
+  assert.match(state.notices[0], /Importing MuseScore MIDI/);
+  assert.equal(state.frames[0].src, 'https://musescore.com/user/19750166/scores/6109206/piano-tutorial');
+  assert.equal(state.redirects.length, 1);
+  const params = new URLSearchParams(new URL(state.redirects[0]).hash.slice(1));
+  assert.equal(params.get('musescore-midi'), SIGNED);
+  assert.equal(params.get('musescore-request'), ID);
+});
+
+test('helper can load the tutorial after document body becomes available', () => {
+  const state = runHelper(`https://musescore.com/user/19750166/scores/6109206/piano-tutorial#guitar-learning-import=${ID}`, {bodyReady:false});
+  assert.equal(state.frames.length, 0);
+  assert.equal(typeof state.listeners.DOMContentLoaded, 'function');
+  state.document.body = {appendChild(node) { if (node.tagName === 'iframe') state.frames.push(node); }};
+  state.listeners.DOMContentLoaded();
+  assert.equal(state.frames.length, 1);
+  assert.equal(state.frames[0].src, 'https://musescore.com/user/19750166/scores/6109206/piano-tutorial');
+});
+
+test('tutorial iframe does not start its own import or redirect away from the page', () => {
+  const state = runHelper(`https://musescore.com/user/19750166/scores/6109206/piano-tutorial#guitar-learning-import=${ID}`, {nested:true, resources:[SIGNED]});
+  assert.equal(state.frames.length, 0);
+  assert.equal(state.intervals.length, 0);
   assert.deepEqual(state.redirects, []);
 });
 

@@ -726,9 +726,12 @@ $('upload-form').addEventListener('submit', async event => {
   }
 });
 const isMuseScoreUrl = value => /^(?:https:\/\/)?(?:www\.)?musescore\.com\//i.test(String(value).trim());
-const museScoreHelperReady = () => document.documentElement.dataset.musescoreHelper === 'ready';
+const museScoreHelperInstalled = () => document.documentElement.dataset.musescoreHelper === 'ready';
+const museScoreHelperReady = () => museScoreHelperInstalled() && document.documentElement.dataset.musescoreHelperVersion === '1.1.0';
 function updateMuseScoreHelperWarning() {
-  $('musescore-helper-warning').hidden = !isMuseScoreUrl($('score-url').value) || museScoreHelperReady();
+  const isMuseScore = isMuseScoreUrl($('score-url').value);
+  $('musescore-helper-warning').hidden = !isMuseScore || museScoreHelperInstalled();
+  $('musescore-helper-update').hidden = !isMuseScore || !museScoreHelperInstalled() || museScoreHelperReady();
 }
 window.addEventListener('musescore-helper-ready', updateMuseScoreHelperWarning);
 $('score-url').addEventListener('input', updateMuseScoreHelperWarning);
@@ -743,7 +746,9 @@ $('url-form').addEventListener('submit', async event => {
   if (!returnedMidi && isMuseScoreUrl($('score-url').value)) {
     if (!museScoreHelperReady()) {
       updateMuseScoreHelperWarning();
-      return urlStatus('Install the browser helper once to enable automatic MuseScore imports.', true);
+      return urlStatus(museScoreHelperInstalled()
+        ? 'Update the browser helper and reload this page before importing.'
+        : 'Install the browser helper once to enable automatic MuseScore imports.', true);
     }
     try {
       const destination = beginMuseScoreImport($('score-url').value);
