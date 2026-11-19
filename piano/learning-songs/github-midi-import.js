@@ -1,6 +1,26 @@
 const REPO = 'mtch777/Guitar-Learning';
 const WORKFLOW = 'piano-import-midi.yml';
 const ALLOWED_HOSTS = new Set(['s3w.musescore.com', 'raw.githubusercontent.com']);
+export const MIDI_HANDOFF_KEY = 'musescore-midi';
+
+export function tutorialUrl(value) {
+  let url;
+  try { url = new URL(value); } catch (_) { throw new Error('Enter a valid MuseScore score URL.'); }
+  if (url.protocol !== 'https:' || url.hostname !== 'musescore.com' || url.username || url.password ||
+      !/^\/user\/\d+\/scores\/\d+(?:\/piano-tutorial)?\/?$/.test(url.pathname)) {
+    throw new Error('Enter a MuseScore score URL (musescore.com/user/…/scores/…).');
+  }
+  return `${url.origin}${url.pathname.replace(/\/piano-tutorial\/?$|\/$/, '')}/piano-tutorial`;
+}
+
+export function consumeMidiHandoff(locationLike, historyLike) {
+  const hash = String(locationLike.hash || '').replace(/^#/, '');
+  const params = new URLSearchParams(hash);
+  if (!params.has(MIDI_HANDOFF_KEY)) return null;
+  // Remove temporary signed links from the visible URL immediately.
+  historyLike.replaceState(null, '', locationLike.pathname + locationLike.search);
+  return validateMidiUrl(params.get(MIDI_HANDOFF_KEY));
+}
 
 export function validateMidiUrl(value) {
   let url;

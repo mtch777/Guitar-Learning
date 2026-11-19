@@ -16,7 +16,7 @@ const {uploadScoreToGitHub} = uploadModule;
 const {readScoreFile} = scoreUploadModule;
 const {deleteSongFromGitHub} = deleteModule;
 const {githubCredentials} = credentialModule;
-const {dispatchMidiImport, validateMidiUrl} = await loadModule('github-midi-import.js');
+const {dispatchMidiImport, validateMidiUrl, tutorialUrl, consumeMidiHandoff} = await loadModule('github-midi-import.js');
 if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, {once:true}));
 
 const $ = id => document.getElementById(id);
@@ -636,6 +636,7 @@ $('upload-form').addEventListener('submit', async event => {
     controls();
   }
 });
+let returnedMidiUrl = null;
 const urlStatus = (message = '', error = false) => {
   $('url-status').textContent = message;
   $('url-status').classList.toggle('error', error);
@@ -660,13 +661,15 @@ $('url-dialog').addEventListener('cancel', event => {
 $('url-form').addEventListener('submit', async event => {
   event.preventDefault();
   if (uploading) return;
+  if (!returnedMidiUrl && /^(?:https:\/\/)?(?:www\.)?musescore\.com\//i.test($('score-url').value.trim())) {
+    try { window.location.assign(tutorialUrl($('score-url').value)); }
+    catch (error) { urlStatus(error.message || 'Invalid MuseScore URL.', true); }
+    return;
+  }
   let url;
-  try { url = new URL($('score-url').value.trim()); }
+  try { url = new URL(returnedMidiUrl || $('score-url').value.trim()); }
   catch (_) { return urlStatus('Enter a valid score URL.', true); }
   if (url.protocol !== 'https:') return urlStatus('Use an HTTPS score URL.', true);
-  if (/(^|\.)musescore\.com$/i.test(url.hostname)) {
-    return urlStatus('MuseScore page links cannot be imported directly. Download MusicXML from MuseScore, then use Upload.', true);
-  }
   if (/\.mid(?:i)?$/i.test(url.pathname)) {
     uploading = true;
     for (const id of ['url-submit', 'url-close', 'url-cancel']) $(id).disabled = true;
@@ -678,6 +681,7 @@ $('url-form').addEventListener('submit', async event => {
       commitCredential('url', $('url-token').value);
       $('url-token').value = '';
       $('score-url').value = '';
+      returnedMidiUrl = null;
       urlStatus('MIDI import started. Refresh the song list when the GitHub Action finishes.');
     } catch (error) {
       urlStatus(error.message || 'MIDI import failed.', true);
@@ -711,6 +715,21 @@ $('url-form').addEventListener('submit', async event => {
     controls();
   }
 });
+try {
+  returnedMidiUrl = consumeMidiHandoff(window.location, window.history);
+  if (returnedMidiUrl) {
+    $('score-url').value = returnedMidiUrl;
+    fillCredential('url');
+    urlStatus('MIDI found. Starting GitHub import…');
+    $('url-dialog').showModal();
+    if ($('url-token').value) $('url-form').requestSubmit();
+    else urlStatus('MIDI found. Enter a GitHub token with Actions: write, then press Continue.');
+  }
+} catch (error) {
+  fillCredential('url');
+  urlStatus(error.message || 'MIDI link could not be imported.', true);
+  $('url-dialog').showModal();
+}
 const deleteStatus = (message = '', error = false) => {
   $('delete-status').textContent = message;
   $('delete-status').classList.toggle('error', error);
