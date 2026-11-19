@@ -24,7 +24,7 @@ def validate_score_url(value):
 
 async def retrieve_url(score_page):
     async with async_playwright() as playwright:
-        browser = await playwright.chromium.launch(headless=True)
+        browser = await playwright.chromium.launch(headless=True, channel="chrome")
         page = await browser.new_page()
         found = asyncio.get_running_loop().create_future()
 

@@ -17,7 +17,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: piano-midi-import
+  group: piano-midi-import-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:
@@ -71,7 +71,6 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install 'music21==9.9.1' 'playwright==1.56.0'
-          python -m playwright install --with-deps chromium
           npm ci
       - name: Import the real MuseScore score-page URL
         run: |
