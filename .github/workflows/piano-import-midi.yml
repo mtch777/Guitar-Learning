@@ -90,6 +90,7 @@ jobs:
           npm ci
       - name: Import original MIDI over HTTPS and verify the lesson catalog
         run: |
+          python -m unittest discover -s tests -p 'test_piano_midi_converter.py'
           python scripts/piano/import-midi-url.py --url 'https://raw.githubusercontent.com/mtch777/Guitar-Learning/main/tests/fixtures/piano-midi-import-smoke.mid'
           npm run prebuild
           node scripts/piano/verify-midi-import-smoke.mjs

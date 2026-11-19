@@ -40,6 +40,16 @@ def download_midi(value):
     return data
 
 
+def preserve_midi_polyphony(score):
+    """Make simultaneous, differently held MIDI notes explicit MusicXML voices."""
+    from music21 import stream
+
+    for part in score.parts:
+        for measure in part.getElementsByClass(stream.Measure):
+            if not measure.voices:
+                measure.makeVoices(inPlace=True)
+
+
 def import_bytes(data, directory, title=""):
     from music21 import converter, metadata
     if not data.startswith(b"MThd") or len(data) > MAX_BYTES:
@@ -55,6 +65,11 @@ def import_bytes(data, directory, title=""):
     if not xml_path.exists():
         with tempfile.TemporaryDirectory(prefix="piano-midi-") as temporary:
             score = converter.parse(str(midi_path))
+            # music21's MIDI import can leave unequal-length simultaneous notes
+            # in a measure without Voices. Its MusicXML writer then serializes
+            # those notes sequentially, corrupting timing and cross-bar ties.
+            # Explicit Voices preserve the original overlapping MIDI timing.
+            preserve_midi_polyphony(score)
             if title.strip():
                 if score.metadata is None:
                     score.insert(0, metadata.Metadata())

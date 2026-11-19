@@ -70,6 +70,16 @@ export async function buildSongLibrary({root = lessonRoot} = {}) {
     for (const filename of await filesUnder(path.join(root, 'uploads'))) {
       const extension = filename.split('.').pop().toLowerCase();
       const sourcePath = 'uploads/' + filename;
+      // The MIDI importer retains its exact source bytes beside the MusicXML.
+      // They are a supported source for this pipeline, not a failed upload.
+      if (/^midi-[a-f0-9]{64}\.mid$/.test(filename)) {
+        try {
+          await fs.access(path.join(root, 'uploads', filename.replace(/\.mid$/, '.musicxml')));
+          continue;
+        } catch (error) {
+          if (error.code !== 'ENOENT') throw error;
+        }
+      }
       if (!SUPPORTED_EXTENSIONS.includes(extension)) {
         if (!['README.md', '.gitkeep'].includes(path.basename(filename))) importErrors.push({
           sourcePath, sourceFilename:path.basename(filename),
