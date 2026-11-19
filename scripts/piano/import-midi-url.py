@@ -47,11 +47,12 @@ def import_bytes(data, directory):
     stem = f"midi-{digest}"
     uploads = directory / "uploads"
     uploads.mkdir(parents=True, exist_ok=True)
+    midi_path = uploads / f"{stem}.mid"
+    if not midi_path.exists():
+        midi_path.write_bytes(data)
     xml_path = uploads / f"{stem}.musicxml"
     if not xml_path.exists():
         with tempfile.TemporaryDirectory(prefix="piano-midi-") as temporary:
-            midi_path = Path(temporary) / "input.mid"
-            midi_path.write_bytes(data)
             score = converter.parse(str(midi_path))
             score.write("musicxml", fp=str(xml_path))
     print(f"Imported {stem}.musicxml ({len(data)} MIDI bytes)")

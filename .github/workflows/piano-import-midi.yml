@@ -44,11 +44,11 @@ jobs:
         run: |
           python scripts/piano/import-midi-url.py --url "$MIDI_URL"
           npm run prebuild
-      - name: Commit imported score and updated library
+      - name: Commit imported MIDI, score and updated library
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/piano/learning-songs/uploads/midi-*.musicxml public/piano/learning-songs/scores/upload-*.musicxml public/piano/learning-songs/song-library.json
+          git add public/piano/learning-songs/uploads/midi-*.mid public/piano/learning-songs/uploads/midi-*.musicxml public/piano/learning-songs/scores/upload-*.musicxml public/piano/learning-songs/song-library.json
           if git diff --cached --quiet; then
             echo 'Score already imported.'
           else

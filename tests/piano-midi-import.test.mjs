@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {dispatchMidiImport, validateMidiUrl} from '../public/piano/learning-songs/github-midi-import.js';
+import {dispatchMidiImport, validateMidiUrl, tutorialUrl, consumeMidiHandoff} from '../public/piano/learning-songs/github-midi-import.js';
 
 const SAMPLE = 'https://s3w.musescore.com/musescore.scoredata/g/example/score.mid';
 
@@ -30,4 +30,22 @@ test('permission failures are actionable', async () => {
   await assert.rejects(() => dispatchMidiImport(SAMPLE, 'test-token', {
     fetchImpl:async () => ({status:403}),
   }), /Actions: write/);
+});
+
+test('MuseScore score URLs open the piano tutorial', () => {
+  assert.equal(tutorialUrl('https://musescore.com/user/19750166/scores/6109206'),
+    'https://musescore.com/user/19750166/scores/6109206/piano-tutorial');
+  assert.equal(tutorialUrl('https://musescore.com/user/19750166/scores/6109206/piano-tutorial'),
+    'https://musescore.com/user/19750166/scores/6109206/piano-tutorial');
+  assert.throws(() => tutorialUrl('https://musescore.com/other/path'));
+  assert.throws(() => tutorialUrl('https://evil.test/user/19750166/scores/6109206'));
+});
+
+test('bookmarklet MIDI handoff removes signed URL from browser address bar', () => {
+  const signed = 'https://s3w.musescore.com/musescore.scoredata/g/test/score.mid?X-Amz-Signature=abc';
+  const location = {pathname:'/Guitar-Learning/piano/learning-songs/', search:'?v=test', hash:'#'+new URLSearchParams({'musescore-midi':signed})};
+  let replacement;
+  assert.equal(consumeMidiHandoff(location, {replaceState:(_a,_b,url) => replacement = url}), signed);
+  assert.equal(replacement, '/Guitar-Learning/piano/learning-songs/?v=test');
+  assert.equal(consumeMidiHandoff({...location, hash:'#nothing=here'}, {replaceState() {throw Error('unexpected');}}), null);
 });
