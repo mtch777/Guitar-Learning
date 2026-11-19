@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import {DOMParser, XMLSerializer} from '@xmldom/xmldom';
 import {parseMusicXML, ScoreModelError} from '../public/piano/learning-songs/score-model.js';
 import {transposeScore, transposeLimits} from '../public/piano/learning-songs/score-transpose.js';
@@ -20,8 +19,8 @@ const one = (content, fifths = 0) => parse(score(measure(attrs(fifths === null ?
 const errorCode = code => error => error instanceof ScoreModelError && error.code === code;
 const noteIdentity = model => model.notes.map(({midi, step, alter, octave, ...note}) => note);
 
-test('actual Phoebe score shifts all notation and practice pitches together with stable IDs and clocks', () => {
-  const original = parse(readFileSync(new URL('../public/piano/learning-songs/scores/phoebe-bridgers-i-know-the-end.musicxml', import.meta.url), 'utf8'));
+test('a polyphonic score shifts all notation and practice pitches together with stable IDs and clocks', () => {
+  const original = one(pitch('D', 4, -1) + pitch('D', 6, -1, '<chord/>'), -5);
   const originalXML = original.xml;
   for (const [amount, expectedKey, firstChord] of [[1, '2', [62, 86]], [-1, '0', [60, 84]]]) {
     const result = shift(original, amount);

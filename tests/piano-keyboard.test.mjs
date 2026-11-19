@@ -1,15 +1,20 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {readFileSync} from 'node:fs';
-import {DOMParser, XMLSerializer} from '@xmldom/xmldom';
 import {keyboardLayout, playingPitchesAt} from '../public/piano/learning-songs/keyboard-model.js';
-import {parseMusicXML, secondsAtBeat} from '../public/piano/learning-songs/score-model.js';
+import {secondsAtBeat} from '../public/piano/learning-songs/score-model.js';
 
 const sorted = pitches => [...pitches].sort((a, b) => a - b);
-const phoebe = parseMusicXML(readFileSync(new URL('../public/piano/learning-songs/scores/phoebe-bridgers-i-know-the-end.musicxml', import.meta.url), 'utf8'), {DOMParser, XMLSerializer});
+// A deterministic phrase, independent of songs the user may delete.
+const phrase = {tempos:[{onset:0,bpm:75}], attacks:[
+  {midi:61,onset:0,duration:1},
+  {midi:85,onset:0,duration:.25},
+  {midi:80,onset:.25,duration:.75},
+  {midi:46,onset:2,duration:.5},
+  {midi:97,onset:3,duration:.5},
+]};
 
-test('actual Phoebe keyboard spans every pitch from its black low endpoint through its black high endpoint', () => {
-  const layout = keyboardLayout(phoebe.attacks);
+test('full-range keyboard spans every pitch between black low and high endpoints', () => {
+  const layout = keyboardLayout(phrase.attacks);
   assert.equal(layout.min, 46);
   assert.equal(layout.max, 97);
   assert.equal(layout.keys.length, 52);
@@ -54,11 +59,11 @@ test('playback highlights release between onsets and retain overlapping same-pit
   }
 });
 
-test('actual Phoebe sustains its first lower note while its upper note changes, using speed-adjusted score time', () => {
+test('a sustained lower note remains lit while the upper note changes, at every playback speed', () => {
   for (const speed of [1, .5, 1.5]) {
-    const notes = phoebe.attacks.map(note => ({midi:note.midi,
-      time:secondsAtBeat(phoebe, note.onset, speed),
-      endTime:secondsAtBeat(phoebe, note.onset + note.duration, speed)}));
+    const notes = phrase.attacks.map(note => ({midi:note.midi,
+      time:secondsAtBeat(phrase, note.onset, speed),
+      endTime:secondsAtBeat(phrase, note.onset + note.duration, speed)}));
     assert.deepEqual(sorted(playingPitchesAt(notes, 0)), [61, 85]);
     assert.deepEqual(sorted(playingPitchesAt(notes, .21 / speed)), [61, 80]);
     assert.deepEqual(sorted(playingPitchesAt(notes, -.01)), []);
