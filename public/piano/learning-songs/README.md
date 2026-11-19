@@ -11,20 +11,27 @@ conversion decisions and validation evidence are committed under `scores/`.
 See [the score notes](./scores/phoebe-score-README.md) for attribution, small
 notation timing adjustments and reproducible conversion commands.
 
-**Upload** opens an in-page file picker for `.musicxml`, `.xml` and `.mxl`. The browser
-validates the score, then saves the unchanged original directly to this
-repository's `main` branch through GitHub's Contents API. Since GitHub Pages is
-static, the user supplies a fine-grained GitHub token with Contents: read and
-write access limited to this repository. The token is cleared from the input
-after success or dismissal; **Remember on this device** stores it in localStorage.
-The credential fields collapse when saved credentials are present. The lesson
-adds the uploaded song immediately, then polls for the Pages publication.
+**Upload song** is the only entry point for adding a score. With no saved GitHub
+token, its first screen is **Save Token**, independent of selecting a file or
+starting an import. Saving a token shows the two choices: **Upload file** or
+**MuseScore URL**. Later visits skip the token screen; Change/Forget are available
+in a collapsed section. The token is stored only in this browser's localStorage,
+not in the repository. Because GitHub Pages is static, the fine-grained token
+needs Contents: read and write, limited to this one repository.
+
+**Upload file** accepts `.musicxml`, `.xml` and `.mxl`. The browser validates
+the score, then saves the unchanged original directly to this repository's
+`main` branch through GitHub's Contents API. The lesson adds the uploaded song
+immediately, then polls for the Pages publication.
 If publication is delayed, **Refresh** retrieves the latest shared catalog.
 
-**URL** imports direct `.musicxml`, `.xml` or `.mxl` file links when the source
-allows cross-origin browser downloads. The same GitHub save and publish flow is
-used. MuseScore.com *score page* URLs cannot be converted from the static site;
-download a permitted MusicXML file from MuseScore and use Upload.
+**MuseScore URL** accepts score-page links when the user's browser has the
+optional [MuseScore import userscript](./musescore-auto-import.user.js) installed.
+The helper runs inside the MuseScore page, finds its downloadable MIDI URL, and
+hands it back to the lesson for a GitHub Actions MIDI-to-MusicXML conversion and
+publication. This browser setup is required for MuseScore score-page links.
+The same URL form also accepts direct `.mid`, `.midi`, `.musicxml`, `.xml` or `.mxl`
+links from supported hosts; direct XML downloads additionally require CORS access.
 
 The earlier conversion experiment produced 28 nonempty MusicXML outputs from
 other note-data formats, but those conversions ran in separate desktop/server
@@ -44,9 +51,9 @@ invalid uploads with visible diagnostics, deduplicates identical normalized
 scores and never rewrites source uploads. A refresh failure retains the current
 usable lesson and displays the error. Score hashes detect stale publication.
 
-Only preferences and the last selected song remain device-local. Older scores
-from the previous browser-only library are preserved and labeled **Device-only
-copy**. Select one, use **Download score**, then **Upload** to migrate
+The GitHub token, preferences, last selected song and any older browser-only
+scores remain device-local. Those older scores are labeled **Device-only copy**.
+Select one, use **Download score**, then **Upload song → Upload file** to migrate
 it. A legacy local entry cannot override the repository's Phoebe song.
 
 Known development fixtures remain in the catalog and source directories but are

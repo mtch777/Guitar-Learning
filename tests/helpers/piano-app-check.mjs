@@ -23,6 +23,7 @@ let remoteCatalog;
 const remoteScores = new Map();
 let remoteUnavailable = false;
 const fetchRequests = [];
+const midiDispatches = [];
 const saved = new Map();
 const localStorage = {
   getItem: key => saved.get(key) ?? null,
@@ -42,9 +43,11 @@ async function settle(predicate, label) {
   throw new Error(`Timed out: ${label}`);
 }
 
-async function boot({resume = 'running', legacySongs = []} = {}) {
-  const dom = new JSDOM(html, {pretendToBeVisual: true, runScripts: 'outside-only', url: 'http://localhost/piano/learning-songs/'});
+async function boot({resume = 'running', legacySongs = [], midiReturn = null} = {}) {
+  const fragment = midiReturn ? `#${new URLSearchParams({'musescore-midi':midiReturn.url, 'musescore-request':midiReturn.id, 'musescore-title':'Fixture Score'})}` : '';
+  const dom = new JSDOM(html, {pretendToBeVisual: true, runScripts: 'outside-only', url: `http://localhost/piano/learning-songs/${fragment}`});
   const {window} = dom;
+  if (midiReturn) window.sessionStorage.setItem('piano-musescore-import-request-v1', midiReturn.id);
   window.HTMLDialogElement.prototype.showModal = function() { this.setAttribute('open', ''); };
   window.HTMLDialogElement.prototype.close = function() { this.removeAttribute('open'); };
   const clock = {seconds: 0};
@@ -98,7 +101,7 @@ async function boot({resume = 'running', legacySongs = []} = {}) {
   Object.defineProperty(window, 'indexedDB', {value: indexedDB});
   Object.defineProperty(window, 'localStorage', {value: localStorage});
   for (const [name, value] of Object.entries({window, document: window.document, DOMParser: window.DOMParser, XMLSerializer: window.XMLSerializer,
-    navigator: window.navigator, localStorage, indexedDB, AudioContext: SilentAudioContext,
+    navigator: window.navigator, localStorage, sessionStorage:window.sessionStorage, indexedDB, AudioContext: SilentAudioContext,
     performance: {now: () => clock.seconds * 1000},
     requestAnimationFrame: window.requestAnimationFrame, cancelAnimationFrame: window.cancelAnimationFrame})) {
     Object.defineProperty(globalThis, name, {configurable: true, writable: true, value});
@@ -106,6 +109,11 @@ async function boot({resume = 'running', legacySongs = []} = {}) {
   globalThis.fetch = async (input, options = {}) => {
     const url = new URL(input);
     fetchRequests.push({url: url.href, options});
+    if (url.href === 'https://api.github.com/repos/mtch777/Guitar-Learning/dispatches') {
+      assert.equal(options.method, 'POST');
+      midiDispatches.push({body:JSON.parse(options.body), authorization:options.headers.Authorization});
+      return {status:204};
+    }
     assert.ok(!options.method || options.method === 'GET', 'Static lesson never attempts unauthenticated GitHub writes.');
     if (url.pathname.endsWith('/song-library.json')) {
       if (remoteUnavailable) return {ok: false, status: 503};
@@ -231,45 +239,63 @@ async function run() {
   const initialOptions = [...ui.$('song-select').options].map(option => option.value);
   const phoebeLabels = [...ui.$('song-select').options].filter(option => /Phoebe Bridgers — I Know the End/.test(option.textContent)).map(option => option.textContent);
   assert.ok(phoebeLabels.length >= 2, 'Both arrangements remain visible even when a second test copy shares the title.');
-  assert.ok(phoebeLabels.some(label => /Piano arrangement/.test(label)));
-  assert.ok(phoebeLabels.some(label => /I_Know_the_End\.musicxml/.test(label)), 'The uploaded version is distinguishable from the default.');
+  assert.ok(phoebeLabels.some(label => /· Piano/.test(label)));
+  assert.ok(phoebeLabels.some(label => /· Upload 1/.test(label)), 'The uploaded version is distinguishable from the default.');
   for (const test of remoteCatalog.songs.filter(song => song.testScore)) assert.ok(!initialOptions.includes(test.id));
   assert.ok(!initialOptions.includes('local-old-test-copy'), 'An exact local test copy is hidden.');
   assert.ok(initialOptions.includes('local-real-same-title-upload'), 'A genuine same-title upload remains available.');
   const uploadButton = ui.$('upload-button');
   assert.equal(uploadButton.tagName, 'BUTTON');
-  assert.match(uploadButton.textContent, /\.musicxml.*\.xml.*\.mxl/);
+  assert.equal(uploadButton.textContent, 'Upload song');
+  assert.equal(ui.$('url-button'), null, 'URL import is inside Upload song, not another toolbar button.');
   assert.equal(ui.$('upload-file').accept, '.musicxml,.xml,.mxl');
   assert.equal(ui.$('library-note'), null);
   const beforeNativeUpload = ui.snapshot().songCount;
   await ui.click('upload-button');
   assert.equal(ui.snapshot().songCount, beforeNativeUpload);
   assert.ok(ui.$('upload-dialog').open, 'Upload opens an in-page dialog.');
+  assert.equal(ui.$('upload-token-stage').hidden, false, 'No saved token: credentials appear first.');
+  assert.equal(ui.$('upload-choose-stage').hidden, true, 'Import choices wait for token save.');
+  assert.equal(ui.$('upload-file-stage').hidden, true, 'No file needs to be selected to save credentials.');
+  const {githubCredentials} = await import(pathToFileURL(resolve(app, 'github-credentials.js')).href);
+  assert.equal(githubCredentials.get(), '');
+  ui.$('upload-token').value = 'temporary-test-credential';
+  await ui.click('save-token');
+  assert.equal(githubCredentials.get(), 'temporary-test-credential', 'Save Token persists without uploading.');
+  assert.equal(ui.$('upload-choose-stage').hidden, false, 'After saving, both song sources appear.');
+  assert.equal(ui.snapshot().songCount, beforeNativeUpload, 'Saving credentials alone does not add a song.');
+  await ui.click('choose-file');
+  assert.equal(ui.$('upload-file-stage').hidden, false, 'Upload file reveals the native file picker.');
   assert.match(ui.$('upload-form').textContent, /other formats converted in our earlier tests/i);
   assert.match(ui.$('upload-form').textContent, /\.mscx.*\.gp.*\.tef/i);
-  assert.equal(ui.$('upload-remember').checked, false, 'The browser never saves a token without consent.');
-  await ui.click('upload-cancel');
-  assert.ok(!ui.$('upload-dialog').open, 'Cancel closes without changing the song library.');
-  const {githubCredentials} = await import(pathToFileURL(resolve(app, 'github-credentials.js')).href);
-  githubCredentials.save('temporary-test-credential');
+  await ui.click('upload-back');
+  await ui.click('choose-url');
+  assert.equal(ui.$('upload-url-stage').hidden, false, 'MuseScore URL reveals the URL input.');
+  await ui.click('url-back');
+  await ui.click('upload-close');
+  assert.ok(!ui.$('upload-dialog').open, 'Close never uploads a song.');
   await ui.click('upload-button');
-  assert.equal(ui.$('upload-token').value, 'temporary-test-credential');
-  assert.equal(ui.$('upload-remember').checked, true);
-  await ui.click('upload-cancel');
+  assert.equal(ui.$('upload-choose-stage').hidden, false, 'A saved token skips the setup screen.');
+  await ui.click('forget-token');
+  assert.equal(githubCredentials.get(), '', 'Forget removes saved credentials.');
+  assert.equal(ui.$('upload-token-stage').hidden, false, 'Forget returns to token setup.');
+  ui.$('upload-token').value = 'temporary-test-credential';
+  await ui.click('save-token');
+  await ui.click('upload-close');
   await ui.select('phoebe-bridgers-i-know-the-end');
   await ui.click('delete-song');
-  assert.equal(ui.$('delete-token').value, 'temporary-test-credential', 'Both dialogs reuse the remembered credential.');
+  assert.equal(ui.$('delete-token').value, 'temporary-test-credential', 'Delete reuses the saved credential.');
   ui.$('delete-dialog').querySelector('.credential-forget').click();
   assert.equal(githubCredentials.get(), '');
   assert.equal(ui.$('delete-token').value, '');
   assert.equal(ui.$('delete-remember').checked, false);
   await ui.click('delete-cancel');
-  checks.push('optional device-only GitHub credential reuse across both dialogs and explicit Forget');
+  checks.push('one Upload song flow saves/forgets token without uploading, offers file/MuseScore choices, and reuses saved token for Delete');
   await ui.select('local-real-same-title-upload');
   await ui.click('delete-song');
   assert.ok(ui.$('delete-dialog').open, 'Delete opens a confirmation dialog.');
   assert.match(ui.$('delete-description').textContent, /Delete “/);
-  assert.equal(ui.$('delete-token').hidden, true, 'A device-only copy needs no GitHub token.');
+  assert.equal(ui.$('delete-credentials').hidden, true, 'A device-only copy needs no GitHub token.');
   await ui.click('delete-cancel');
   assert.ok([...ui.$('song-select').options].some(option => option.value === 'local-real-same-title-upload'), 'Cancel never deletes the song.');
   await ui.click('delete-song');
@@ -669,6 +695,30 @@ async function run() {
   checks.push('remembered exact local duplicate resolves to its shared GitHub score without a duplicate entry');
   assert.deepEqual(errors, []);
   ui.dom.window.close();
+
+  // The MuseScore helper returns directly to the Upload song dialog. With no
+  // credential saved yet, Save Token should resume that same conversion once.
+  saved.clear();
+  const midiReturn = {id:`gl-${'a'.repeat(32)}`, url:'https://s3w.musescore.com/musescore.scoredata/g/fixture/score.mid?X-Amz-Signature=fixture'};
+  const nativeSetTimeout = globalThis.setTimeout;
+  globalThis.setTimeout = (callback, milliseconds, ...args) => milliseconds >= 5000 ? 0 : nativeSetTimeout(callback, milliseconds, ...args);
+  try {
+    ui = await boot({midiReturn});
+    assert.ok(ui.$('upload-dialog').open, 'The automatic MIDI return opens Upload song.');
+    assert.equal(ui.$('upload-token-stage').hidden, false, 'A fresh browser asks for the token before dispatch.');
+    assert.equal(midiDispatches.length, 0, 'No import is dispatched without saved credentials.');
+    ui.$('upload-token').value = 'temporary-test-credential';
+    await ui.click('save-token');
+    await settle(() => midiDispatches.length === 1, 'dispatch MIDI after Save Token');
+    assert.equal(midiDispatches[0].authorization, 'Bearer temporary-test-credential');
+    assert.equal(midiDispatches[0].body.event_type, 'piano-midi-import');
+    assert.equal(midiDispatches[0].body.client_payload.midi_url, midiReturn.url);
+    assert.equal(midiDispatches[0].body.client_payload.request_id, midiReturn.id);
+    assert.equal(ui.$('upload-dialog').open, false, 'Successful dispatch closes the same dialog.');
+    assert.equal(githubCredentials.get(), 'temporary-test-credential', 'The newly saved token stays available for later uploads.');
+    checks.push('MuseScore MIDI handoff with a missing token resumes exactly one authenticated GitHub conversion after Save Token');
+    ui.dom.window.close();
+  } finally { globalThis.setTimeout = nativeSetTimeout; }
   console.log(JSON.stringify({status: 'pass', checks, silent: true, generations: generation}, null, 2));
 }
 

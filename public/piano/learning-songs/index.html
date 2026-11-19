@@ -18,8 +18,7 @@
       <a class="practice-link" href="../">← Practice</a>
       <div class="song-picker"><label id="library-heading" class="sr-only" for="song-select">Song</label><select id="song-select"><option>Loading songs…</option></select></div>
       <button id="delete-song" type="button" class="button secondary" aria-label="Delete song" title="Delete song" disabled>🗑️</button>
-      <button id="upload-button" type="button" class="button secondary">Upload</button>
-      <button id="url-button" type="button" class="button secondary">URL</button>
+      <button id="upload-button" type="button" class="button secondary">Upload song</button>
       <button id="refresh-library" type="button" class="button secondary" aria-label="Refresh songs">Refresh</button>
       <p id="library-message" class="library-message" role="status" hidden></p>
       <div id="local-recovery" class="local-recovery" hidden><span>Device-only copy</span><button id="download-local-score" type="button" class="small-button">Download score</button></div>
@@ -50,37 +49,51 @@
     </section>
   </main>
   <dialog id="upload-dialog" aria-labelledby="upload-title">
-    <form id="upload-form">
-      <div class="upload-heading"><h2 id="upload-title">Upload score</h2><button id="upload-close" type="button" class="small-button" aria-label="Close upload">✕</button></div>
-      <label for="upload-file">Score file</label>
-      <input id="upload-file" type="file" accept=".musicxml,.xml,.mxl" required>
-      <p class="upload-help">Playable uploads: .musicxml, .xml, .mxl. The original file is saved in GitHub and appears in the song list after publishing.</p>
-      <details id="upload-credentials" class="credential-details" open><summary>GitHub credentials</summary>
-        <label for="upload-token">Fine-grained token</label>
-        <input id="upload-token" type="password" autocomplete="off" spellcheck="false" required placeholder="Contents: read and write">
-        <div class="credential-options"><label><input id="upload-remember" type="checkbox"> Remember on this device</label><button class="credential-forget" type="button">Forget credentials</button></div>
-        <p class="upload-help"><a href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener noreferrer">Create a token</a> with Contents: read and write for this repository.</p>
-      </details>
-      <details class="upload-formats"><summary>Other formats converted in our earlier tests</summary><p>These were converted with separate desktop/server tools; direct lesson import is still limited to the three formats above. Convert these to MusicXML first:</p><p>.mscx, .mscz, .mei, .abc, .krn, .md (MuseData), .nwc, .nwctxt, .cap, .capx, .ove, .scw, .enc, .mus, .musx, .dorico, .gtp, .gp3, .gp4, .gp5, .gpx, .gp, .tg, .ptb, .tef. MIDI (.mid/.midi) was also converted for the default song.</p><p>.sib, .ovex, .notion and .stf did not have successful conversions in that test set.</p></details>
-      <p id="upload-status" role="status" aria-live="polite"></p>
-      <div class="upload-actions"><button id="upload-cancel" type="button" class="button secondary">Cancel</button><button id="upload-submit" type="submit" class="button primary">Save to GitHub</button></div>
-    </form>
-  </dialog>
-  <dialog id="url-dialog" aria-labelledby="url-title">
-    <form id="url-form">
-      <div class="upload-heading"><h2 id="url-title">Import song URL</h2><button id="url-close" type="button" class="small-button" aria-label="Close URL import">✕</button></div>
-      <label for="score-url">Score URL</label>
-      <input id="score-url" type="url" placeholder="https://musescore.com/user/…/scores/…" required>
-      <p class="upload-help">MuseScore links import automatically after a one-time browser setup. Direct MusicXML and MIDI links work too.</p>
-      <p id="musescore-helper-warning" class="upload-help" hidden>Android Chrome cannot run the automatic helper. Open the lesson in <a href="https://www.quetta.net/" target="_blank" rel="noopener noreferrer">Quetta</a>, add <a href="https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag" target="_blank" rel="noopener noreferrer">Violentmonkey</a>, then <a href="https://mtch777.github.io/Guitar-Learning/piano/learning-songs/musescore-auto-import.user.js" target="_blank" rel="noopener noreferrer">install our helper</a> once. Check that MIDI works in that browser before switching your practice sessions.</p>
-      <details id="url-credentials" class="credential-details" open><summary>GitHub credentials</summary>
-        <label for="url-token">Fine-grained token</label>
-        <input id="url-token" type="password" autocomplete="off" spellcheck="false" placeholder="Contents: read and write">
-        <div class="credential-options"><label><input id="url-remember" type="checkbox"> Remember on this device</label><button class="credential-forget" type="button">Forget credentials</button></div>
-      </details>
-      <p id="url-status" role="status" aria-live="polite"></p>
-      <div class="upload-actions"><button id="url-cancel" type="button" class="button secondary">Cancel</button><button id="url-submit" type="submit" class="button primary">Import</button></div>
-    </form>
+    <div class="upload-shell">
+      <div class="upload-heading"><h2 id="upload-title">Upload song</h2><button id="upload-close" type="button" class="small-button" aria-label="Close upload">✕</button></div>
+
+      <section id="upload-token-stage" class="upload-stage" hidden>
+        <form id="token-form">
+          <label for="upload-token">GitHub fine-grained token</label>
+          <input id="upload-token" type="password" autocomplete="off" spellcheck="false" required placeholder="Paste token">
+          <p class="upload-help">Select only <strong>mtch777/Guitar-Learning</strong> and give <strong>Contents: Read and write</strong>. <a href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener noreferrer">Create a token</a></p>
+          <p id="token-status" role="status" aria-live="polite"></p>
+          <div class="upload-actions"><button id="token-cancel" type="button" class="button secondary">Cancel</button><button id="save-token" type="submit" class="button primary">Save Token</button></div>
+        </form>
+      </section>
+
+      <section id="upload-choose-stage" class="upload-stage" hidden>
+        <div class="upload-options" role="group" aria-label="Song source">
+          <button id="choose-file" type="button" class="button secondary">Upload file</button>
+          <button id="choose-url" type="button" class="button secondary">MuseScore URL</button>
+        </div>
+        <details id="upload-credentials" class="credential-details"><summary>GitHub token saved</summary>
+          <div class="credential-options"><button id="change-token" type="button" class="small-button">Change token</button><button id="forget-token" type="button" class="small-button">Forget token</button></div>
+        </details>
+      </section>
+
+      <section id="upload-file-stage" class="upload-stage" hidden>
+        <form id="upload-form">
+          <label for="upload-file">Score file</label>
+          <input id="upload-file" type="file" accept=".musicxml,.xml,.mxl" required>
+          <p class="upload-help">Supported: .musicxml, .xml, .mxl. The original file is saved in GitHub.</p>
+          <details class="upload-formats"><summary>Other formats converted in our earlier tests</summary><p>These were converted with separate desktop/server tools; direct lesson import is still limited to the three formats above. Convert these to MusicXML first:</p><p>.mscx, .mscz, .mei, .abc, .krn, .md (MuseData), .nwc, .nwctxt, .cap, .capx, .ove, .scw, .enc, .mus, .musx, .dorico, .gtp, .gp3, .gp4, .gp5, .gpx, .gp, .tg, .ptb, .tef. MIDI (.mid/.midi) was also converted for the default song.</p><p>.sib, .ovex, .notion and .stf did not have successful conversions in that test set.</p></details>
+          <p id="upload-status" role="status" aria-live="polite"></p>
+          <div class="upload-actions"><button id="upload-back" type="button" class="button secondary">Back</button><button id="upload-submit" type="submit" class="button primary">Save to GitHub</button></div>
+        </form>
+      </section>
+
+      <section id="upload-url-stage" class="upload-stage" hidden>
+        <form id="url-form">
+          <label for="score-url">Score URL</label>
+          <input id="score-url" type="url" placeholder="https://musescore.com/user/…/scores/…" required>
+          <p class="upload-help">MuseScore links import automatically with the browser helper. Direct MusicXML and MIDI links also work.</p>
+          <p id="musescore-helper-warning" class="upload-help" hidden>For automatic MuseScore imports, open this lesson in <a href="https://www.quetta.net/" target="_blank" rel="noopener noreferrer">Quetta</a>, add <a href="https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag" target="_blank" rel="noopener noreferrer">Violentmonkey</a>, and <a href="https://mtch777.github.io/Guitar-Learning/piano/learning-songs/musescore-auto-import.user.js" target="_blank" rel="noopener noreferrer">install our helper</a> once.</p>
+          <p id="url-status" role="status" aria-live="polite"></p>
+          <div class="upload-actions"><button id="url-back" type="button" class="button secondary">Back</button><button id="url-submit" type="submit" class="button primary">Import</button></div>
+        </form>
+      </section>
+    </div>
   </dialog>
   <dialog id="delete-dialog" aria-labelledby="delete-title">
     <form id="delete-form">

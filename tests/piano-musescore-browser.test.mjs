@@ -12,7 +12,7 @@ if (process.env.PIANO_BROWSER_TEST === '1') {
 const root = fileURLToPath(new URL('../public/', import.meta.url));
 const helper = await readFile(new URL('../public/piano/learning-songs/musescore-auto-import.user.js', import.meta.url), 'utf8');
 
-test('one Import click automatically finds the MIDI and dispatches conversion', {skip:!playwright}, async () => {
+test('Upload song saves a token independently, offers both sources, then imports MuseScore MIDI', {skip:!playwright}, async () => {
   const browser = await playwright.chromium.launch({headless:true, executablePath:'/usr/bin/chromium', args:['--no-sandbox']});
   const context = await browser.newContext();
   await context.addInitScript({content:helper});
@@ -41,10 +41,24 @@ test('one Import click automatically finds the MIDI and dispatches conversion', 
   const page = await context.newPage();
   try {
     await page.goto('https://mtch777.github.io/Guitar-Learning/piano/learning-songs/', {waitUntil:'domcontentloaded'});
-    await page.waitForSelector('#url-button');
-    await page.evaluate(() => localStorage.setItem('piano-song-github-credential-v1', 'browser-test-token'));
-    await page.reload({waitUntil:'domcontentloaded'});
-    await page.click('#url-button');
+    await page.waitForFunction(() => !!window.PianoSongLesson);
+    assert.equal(await page.locator('#url-button').count(), 0, 'URL must not be a separate top-level button');
+    await page.click('#upload-button');
+    assert.equal(await page.locator('#upload-token-stage').isVisible(), true);
+    assert.equal(await page.locator('#upload-choose-stage').isVisible(), false);
+    await page.locator('#upload-token').fill('browser-test-token');
+    await page.click('#save-token');
+    assert.equal(await page.locator('#upload-choose-stage').isVisible(), true);
+    assert.equal(await page.evaluate(() => localStorage.getItem('piano-song-github-credential-v1')), 'browser-test-token');
+    assert.equal(requests.length, 0, 'saving the token alone must not dispatch or upload anything');
+    await page.click('#choose-file');
+    assert.equal(await page.locator('#upload-file').isVisible(), true);
+    await page.click('#upload-back');
+    await page.click('#upload-close');
+    await page.click('#upload-button');
+    assert.equal(await page.locator('#upload-token-stage').isVisible(), false, 'saved token skips setup on later visits');
+    assert.equal(await page.locator('#upload-choose-stage').isVisible(), true);
+    await page.click('#choose-url');
     await page.locator('#score-url').fill('https://musescore.com/user/19750166/scores/6109206');
     await page.click('#url-submit');
     await page.waitForFunction(() => document.querySelector('#library-message')?.textContent?.includes('Converting MIDI'), {timeout:20000});
