@@ -8,6 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>Major Scales · Practice</title>
   <link rel="stylesheet" href="./style.css?v=20261117-7">
+  <link rel="stylesheet" href="../../shared/answer.css">
 </head>
 <body>
   <main class="lesson-shell">
@@ -36,8 +37,12 @@
 
       <div class="progress-row">
         <span id="progressText">0 / 8</span>
-        <button id="newScaleButton" type="button">New scale</button>
+        <div class="answer-actions">
+          <button id="answerButton" type="button">Show answer</button>
+          <button id="newScaleButton" type="button">New scale</button>
+        </div>
       </div>
+      <output id="answerText" class="answer-text" hidden aria-live="polite"></output>
     </section>
   </main>
 

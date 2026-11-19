@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const lessons = ['color-to-note', 'accidentals-count', 'accidentals-order'];
 const neutral = '#202833';
 const wrong = '#E53935';
-const numberPitches = [0, 2, 4, 5, 7, 9, 11];
+const numberPitches = [11, 0, 2, 4, 5, 7, 9];
 // Starting at C, clockwise sectors advance by a perfect fifth.
 const sectorForPitch = pitch => Array.from({length: 12}, (_, i) => (i * 7) % 12).indexOf(pitch);
 
@@ -37,7 +37,9 @@ class Element {
 }
 
 async function boot(lesson, random = 0) {
-  const elements = Object.fromEntries(['circleSvg', 'midiButton', 'restartButton', 'status', 'sequenceProgress'].map(id => [id, new Element()]));
+  const elements = Object.fromEntries(['circleSvg', 'midiButton', 'restartButton', 'status', 'sequenceProgress', 'answerButton', 'answerText'].map(id => [id, new Element()]));
+  elements.answerText.hidden = true;
+  elements.answerButton.disabled = true;
   const numberKeys = [];
   if (lesson === 'accidentals-count') {
     const html = readFileSync(new URL(`../public/piano/theory/circle-of-fifths/${lesson}/index.html`, import.meta.url), 'utf8');
@@ -47,7 +49,7 @@ async function boot(lesson, random = 0) {
       key.textContent = `${note} ${count}`;
       numberKeys.push(key);
     }
-    assert.deepEqual(numberKeys.map(key => key.textContent), ['C 0', 'D 1', 'E 2', 'F 3', 'G 4', 'A 5', 'B 6']);
+    assert.deepEqual(numberKeys.map(key => key.textContent), ['B 0', 'C 1', 'D 2', 'E 3', 'F 4', 'G 5', 'A 6']);
   }
   const input = {};
   const access = {inputs: new Map([['test', input]])};
@@ -101,7 +103,8 @@ for (const lesson of lessons) {
       // Use a different correct response whenever the input would otherwise be right.
       const random = lesson === 'accidentals-order'
         ? (pitch === 6 ? 11.25 / 12 : 0)
-        : (pitch === 0 ? 1.25 / 12 : 0);
+        : (lesson === 'color-to-note' && pitch === 0) || (lesson === 'accidentals-count' && pitch === 11)
+          ? 1.25 / 12 : 0;
       const ui = await boot(lesson, random);
       const before = ui.fills();
       const sector = sectorForPitch(pitch);
@@ -131,11 +134,11 @@ for (const lesson of lessons) {
   test(`${lesson}: a wrong note on a solved sector retains its completion check`, async () => {
     const ui = await boot(lesson);
     const solvedSector = lesson === 'accidentals-order' ? 1 : 0;
-    ui.strike(lesson === 'accidentals-order' ? 66 : 60);
+    ui.strike(lesson === 'accidentals-order' ? 66 : lesson === 'accidentals-count' ? 71 : 60);
     assert.equal(ui.checks[solvedSector].style.display, 'block');
     ui.advance(450);
     const before = ui.fills();
-    ui.strike(lesson === 'accidentals-order' ? 67 : 60);
+    ui.strike(lesson === 'accidentals-order' ? 67 : lesson === 'accidentals-count' ? 62 : 60);
     assert.deepEqual(ui.flashing(), lesson === 'color-to-note' ? [solvedSector] : []);
     if (lesson !== 'color-to-note') assert.deepEqual(ui.fills(), before);
     assert.equal(ui.checks[solvedSector].style.display, 'block');
@@ -159,7 +162,7 @@ for (const lesson of lessons) {
     assert.deepEqual(ui.fills(), afterReset);
 
     if (lesson === 'accidentals-order') [66, 61, 68].forEach(midi => ui.strike(midi));
-    else ui.strike(lesson === 'color-to-note' ? 69 : 65);
+    else ui.strike(lesson === 'color-to-note' ? 69 : 64);
     assert.equal(ui.elements.status.textContent, 'Correct ✓');
     assert.equal(ui.pending(), 1);
     ui.select(0);
@@ -196,7 +199,7 @@ for (const lesson of ['accidentals-count', 'accidentals-order']) {
     ui.advance(350);
     assert.deepEqual(ui.fills(), before);
     assert.equal(ui.fills()[1], '#7CB342');
-    ui.strike(lesson === 'accidentals-count' ? 62 : 66);
+    ui.strike(lesson === 'accidentals-count' ? 60 : 66);
     assert.equal(ui.elements.status.textContent, 'Correct ✓');
   });
 }
@@ -247,19 +250,47 @@ test('accidentals-count: repeated wrong number guesses flash afresh and return t
   const ui = await boot('accidentals-count'); // C expects 0.
   const before = ui.fills();
   for (let attempt = 0; attempt < 2; attempt++) {
-    ui.strike(69); // A means 5.
-    assert.deepEqual(ui.numberFeedback('wrong'), [5]);
+    ui.strike(69); // A means 6.
+    assert.deepEqual(ui.numberFeedback('wrong'), [6]);
     assert.deepEqual(ui.fills(), before);
     ui.strike(60); // The existing feedback lock still ignores input.
-    assert.deepEqual(ui.numberFeedback('wrong'), [5]);
+    assert.deepEqual(ui.numberFeedback('wrong'), [6]);
     assert.deepEqual(ui.numberFeedback('correct'), []);
     ui.advance(299);
-    assert.deepEqual(ui.numberFeedback('wrong'), [5]);
+    assert.deepEqual(ui.numberFeedback('wrong'), [6]);
     ui.advance(1);
     assert.deepEqual(ui.numberFeedback('wrong'), []);
     assert.equal(ui.pending(), 0);
   }
-  ui.strike(60);
+  ui.strike(71);
   assert.deepEqual(ui.numberFeedback('correct'), [0]);
   assert.deepEqual(ui.numberFeedback('wrong'), []);
 });
+
+for (const lesson of lessons) {
+  test(`${lesson}: Show answer reveals the answer without submitting or advancing`, async () => {
+    const ui = await boot(lesson, 1.25 / 12);
+    const initial = ui.fills();
+    const shown = {
+      'color-to-note': 'Answer: G',
+      'accidentals-count': 'Answer: 1 sharp',
+      'accidentals-order': 'Answer: F# → C#',
+    };
+    assert.equal(ui.elements.answerButton.disabled, false);
+    ui.elements.answerButton.click();
+    assert.equal(ui.elements.answerText.hidden, false);
+    assert.equal(ui.elements.answerText.textContent, shown[lesson]);
+    assert.equal(ui.elements.answerButton.textContent, 'Hide answer');
+    assert.deepEqual(ui.fills(), initial);
+    assert.equal(ui.pending(), 0);
+    assert.ok(ui.checks.every(check => check.style.display === 'none'));
+    ui.elements.answerButton.click();
+    assert.equal(ui.elements.answerText.hidden, true);
+    assert.equal(ui.elements.answerButton.textContent, 'Show answer');
+    if (lesson === 'accidentals-order') [66, 61].forEach(midi => ui.strike(midi));
+    else ui.strike(lesson === 'color-to-note' ? 67 : 60);
+    assert.equal(ui.elements.status.textContent, 'Correct ✓');
+    ui.advance(450);
+    assert.equal(ui.elements.answerText.hidden, true);
+  });
+}

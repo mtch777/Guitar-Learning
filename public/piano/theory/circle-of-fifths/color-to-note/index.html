@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Color → Key · Circle of Fifths</title>
   <link rel="stylesheet" href="./style.css?v=20261117-6">
+  <link rel="stylesheet" href="../../../shared/answer.css">
 </head>
 <body>
   <main class="lesson-shell">
@@ -16,6 +17,8 @@
     <section class="quiz-card">
       <div class="quiz-toolbar">
         <button id="midiButton" class="midi-button" type="button">🔴 Enable MIDI</button>
+        <button id="answerButton" type="button" disabled>Show answer</button>
+        <output id="answerText" class="answer-text" hidden aria-live="polite"></output>
         <span id="status" class="status" aria-live="polite">
           Enable MIDI to start
         </span>

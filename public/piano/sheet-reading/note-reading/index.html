@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Note Reading · Practice</title>
   <link rel="stylesheet" href="./style.css?v=20261117-6">
+  <link rel="stylesheet" href="../../shared/answer.css">
 </head>
 <body ng-app="myApp">
   <div class="lesson-shell">
@@ -86,6 +87,13 @@
       >
         {{ midiConnected ? "🟢 MIDI connected" : "🔴 Enable MIDI" }}
       </button>
+
+      <button id="answerButton" type="button" ng-click="toggleAnswer()" ng-disabled="!answerAvailable">
+        {{ answerVisible ? 'Hide answer' : 'Show answer' }}
+      </button>
+      <output id="answerText" class="answer-text" ng-show="answerVisible" aria-live="polite">
+        Answer: {{ answerLabel }}
+      </output>
 
       <div class="status" ng-class="statusType" aria-live="polite">
         {{ status }}

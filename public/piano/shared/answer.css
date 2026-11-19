@@ -1,0 +1,13 @@
+.answer-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.answer-text {
+  display: inline-block;
+  color: #c4b5fd;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+.answer-text[hidden] { display: none; }

@@ -35,7 +35,7 @@
         <div class="transport-options"><label class="tempo-control" for="tempo"><span>Speed <output id="tempo-label" for="tempo">100%</output></span><input id="tempo" type="range" min="25" max="150" step="5" value="100"></label><label class="sound-control"><input id="sound-enabled" type="checkbox" checked> Sound</label></div>
         </div>
       </div>
-      <div class="practice-bar"><p id="practice-status" role="status" aria-live="polite">Loading…</p><div class="score-counts" aria-label="Lesson results"><span class="hit-count">✓ <strong id="hit-count">0</strong> hit</span><span class="miss-count">× <strong id="miss-count">0</strong> missed</span><span><strong id="progress-count">0 / 0</strong></span></div></div>
+      <div class="practice-bar"><p id="practice-status" role="status" aria-live="polite">Loading…</p><button id="answer-button" class="answer-toggle" type="button" disabled>Show answer</button><div class="score-counts" aria-label="Lesson results"><span class="hit-count">✓ <strong id="hit-count">0</strong> hit</span><span class="miss-count">× <strong id="miss-count">0</strong> missed</span><span><strong id="progress-count">0 / 0</strong></span></div></div>
       <div class="progress-track"><div id="progress-fill"></div></div>
       <div id="import-message" class="notice" role="status" hidden></div>
       <div class="score-viewport" id="score-viewport">

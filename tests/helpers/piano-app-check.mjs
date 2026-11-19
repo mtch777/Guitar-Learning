@@ -196,6 +196,12 @@ async function run() {
   remoteScores.set(duplicatePath, practiceXML);
   remoteCatalog.songs.push({id:'integration-duplicate-phoebe', title:'I Know the End', composer:'Phoebe Bridgers',
     scorePath:duplicatePath, sourceFilename:'I_Know_the_End.musicxml'});
+  const realImportPath = process.env.PIANO_REAL_SCORE_XML;
+  if (realImportPath) {
+    const realScorePath = 'scores/integration-real-midi.musicxml';
+    remoteScores.set(realScorePath, readFileSync(realImportPath, 'utf8'));
+    remoteCatalog.songs.push({id:'integration-real-midi', title:'I Want You To Love Me', composer:'Fiona Apple', scorePath:realScorePath});
+  }
   const legacyXML = sourceXML.replaceAll('Cuthbert NWC Test', 'Legacy recovery score');
   const hiddenTest = remoteCatalog.songs.find(song => song.sourceFilename === 'MusicXML-upload-test.mxl');
   const hiddenTestXML = readFileSync(resolve(app, hiddenTest.scorePath), 'utf8');
@@ -208,6 +214,16 @@ async function run() {
   assert.equal(ui.snapshot().model?.attacks, 1396, 'Fresh default is the actual full Phoebe score.');
   assert.equal(ui.snapshot().model?.notes, 1622, 'Every pitched segment and rest reaches the actual renderer.');
   assert.ok(!ui.$('play-button').disabled);
+  const hintBefore = ui.snapshot().lesson;
+  await ui.click('answer-button');
+  assert.match(ui.$('practice-status').textContent, /^Answer: /);
+  assert.equal(ui.$('answer-button').textContent, 'Hide answer');
+  assert.equal(ui.snapshot().lesson.hits, hintBefore.hits);
+  assert.equal(ui.snapshot().lesson.currentIndex, hintBefore.currentIndex);
+  await ui.click('answer-button');
+  assert.equal(ui.$('answer-button').textContent, 'Show answer');
+  assert.equal(ui.$('practice-status').textContent, 'Ready');
+  checks.push('Learning Songs Show answer exposes the required notes without changing grade or playback');
   assert.ok(ui.$('score').querySelector('svg'));
   assert.equal(ui.$('score').querySelector('.lesson-score-window').dataset.visibleSystemStart, '1');
   assert.equal(ui.$('score').querySelector('.lesson-score-window').dataset.visibleSystemCount, '2',
@@ -238,6 +254,16 @@ async function run() {
   }
   checks.push('song-range keyboard includes both black endpoints and every intervening pitch without computer-key or range controls');
   const initialOptions = [...ui.$('song-select').options].map(option => option.value);
+  if (realImportPath) {
+    await ui.select('integration-real-midi');
+    assert.equal(ui.snapshot().model.notes, 2221, 'The complete re-barred MuseScore import reaches the actual sheet renderer.');
+    assert.equal(ui.snapshot().model.attacks, 1744, 'Cross-measure ties keep their distinct note attacks.');
+    assert.equal(ui.snapshot().model.duration, 480, 'Both MIDI parts keep their original 480-beat timeline.');
+    assert.ok(ui.$('score').querySelector('svg'), 'The imported score is visible.');
+    assert.equal(ui.snapshot().lesson.hits, 0);
+    await ui.select('phoebe-bridgers-i-know-the-end');
+    checks.push('Actual Fiona Apple MIDI conversion renders and remains selectable after switching songs');
+  }
   const phoebeLabels = [...ui.$('song-select').options].filter(option => /Phoebe Bridgers — I Know the End/.test(option.textContent)).map(option => option.textContent);
   assert.ok(phoebeLabels.length >= 2, 'Both arrangements remain visible even when a second test copy shares the title.');
   assert.ok(phoebeLabels.some(label => /· Piano/.test(label)));

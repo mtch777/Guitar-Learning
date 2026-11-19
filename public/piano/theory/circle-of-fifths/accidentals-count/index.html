@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Accidentals Count · Circle of Fifths</title>
   <link rel="stylesheet" href="./style.css?v=20261117-6">
+  <link rel="stylesheet" href="../../../shared/answer.css">
 </head>
 <body>
   <main class="lesson-shell">
@@ -16,19 +17,21 @@
     <section class="quiz-card">
       <div class="quiz-toolbar">
         <button id="midiButton" class="midi-button" type="button">🔴 Enable MIDI</button>
+        <button id="answerButton" type="button" disabled>Show answer</button>
+        <output id="answerText" class="answer-text" hidden aria-live="polite"></output>
         <span id="status" class="status" aria-live="polite">
           Enable MIDI to start
         </span>
       </div>
 
       <div class="number-keyboard" aria-label="MIDI number mapping">
-        <div class="number-key"><span>C</span><strong>0</strong></div>
-        <div class="number-key"><span>D</span><strong>1</strong></div>
-        <div class="number-key"><span>E</span><strong>2</strong></div>
-        <div class="number-key"><span>F</span><strong>3</strong></div>
-        <div class="number-key"><span>G</span><strong>4</strong></div>
-        <div class="number-key"><span>A</span><strong>5</strong></div>
-        <div class="number-key"><span>B</span><strong>6</strong></div>
+        <div class="number-key"><span>B</span><strong>0</strong></div>
+        <div class="number-key"><span>C</span><strong>1</strong></div>
+        <div class="number-key"><span>D</span><strong>2</strong></div>
+        <div class="number-key"><span>E</span><strong>3</strong></div>
+        <div class="number-key"><span>F</span><strong>4</strong></div>
+        <div class="number-key"><span>G</span><strong>5</strong></div>
+        <div class="number-key"><span>A</span><strong>6</strong></div>
       </div>
 
       <div class="chart-wrap">

@@ -30,6 +30,7 @@ const preferences = storage.preferences();
 let mode = preferences.mode === 'timed' ? 'timed' : 'wait';
 let speed = Math.max(.25, Math.min(1.5, Number(preferences.speed) || 1));
 let selectedId = null, model = null, engine = null, timedGroups = [], audioNotes = [];
+let answerVisible = false;
 let sourceModel = null, transposeOffset = 0;
 let playing = false, elapsed = 0, anchor = 0, animation = 0, nextAudio = 0, totalSeconds = 0;
 let busy = false, libraryLoading = false, countIn = 0, lastPaint = '', lastStatus = '';
@@ -53,10 +54,19 @@ const pressed = new Map();
 const noteNames = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
 const midiName = midi => noteNames[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
 
+function paintStatus() {
+  let text = lastStatus;
+  if (answerVisible && engine && model) {
+    const pitches = mode === 'wait' ? engine.snapshot().requiredPitches
+      : currentVisualGroup(Math.max(0, beatAtSeconds(model, elapsed, speed)))?.notes.map(note => note.midi) || [];
+    const names = [...new Set(pitches)].sort((a, b) => a - b).map(midiName);
+    text = names.length ? `Answer: ${names.join(' ')}` : lastStatus;
+  }
+  if ($('practice-status').textContent !== text) $('practice-status').textContent = text;
+}
 function setStatus(text) {
-  if (text === lastStatus) return;
   lastStatus = text;
-  $('practice-status').textContent = text;
+  paintStatus();
 }
 function notice(message = '', error = false) {
   $('import-message').textContent = message;
@@ -67,6 +77,8 @@ function savePreferences() { storage.savePreferences({mode, speed, sound:audio.e
 function controls() {
   $('play-button').disabled = busy || !engine || starting;
   $('restart-button').disabled = busy || !engine;
+  $('answer-button').disabled = busy || !engine;
+  $('answer-button').textContent = answerVisible ? 'Hide answer' : 'Show answer';
   $('song-select').disabled = busy || libraryLoading;
   $('refresh-library').disabled = busy || libraryLoading;
   $('upload-button').disabled = uploading;
@@ -212,6 +224,7 @@ function paint(force = false) {
   renderer.cursorAtBeat(Math.min(beat, model.duration));
   // Releases can fall between score onsets, so keyboard feedback updates every frame.
   highlightKeys(state);
+  if (answerVisible) paintStatus();
 }
 function completionText() {
   const state = engine.snapshot();
@@ -235,6 +248,7 @@ function pause(message = 'Paused') {
 function resetSession() {
   pause();
   if (!engine) return;
+  answerVisible = false;
   engine.reset(); elapsed = 0; nextAudio = 0; lastPaint = '';
   paint(true); controls();
   setStatus('Ready');
@@ -319,7 +333,7 @@ async function selectSong(song, {preparedModel = null, remember = true} = {}) {
   if (!song || busy) return false;
   busy = true;
   const previous = {model, sourceModel, transposeOffset, engine, selectedId};
-  pause('Loading score…'); controls(); notice(); libraryNotice();
+  pause('Loading score…'); answerVisible = false; controls(); notice(); libraryNotice();
   try {
     {
       let xml = song.xml;
@@ -930,6 +944,12 @@ $('download-local-score').addEventListener('click', downloadLocalScore);
 $('song-select').addEventListener('change', event => selectSong(songChoice(event.target.value)));
 $('play-button').addEventListener('click', () => playing ? pause() : start());
 $('restart-button').addEventListener('click', () => { const resume = playing; resetSession(); if (resume) start(); });
+$('answer-button').addEventListener('click', () => {
+  if (!engine || busy) return;
+  answerVisible = !answerVisible;
+  controls();
+  paintStatus();
+});
 $('transpose-down').addEventListener('click', () => transposeBy(-1));
 $('transpose-up').addEventListener('click', () => transposeBy(1));
 $('midi-button').addEventListener('click', connectMidi);

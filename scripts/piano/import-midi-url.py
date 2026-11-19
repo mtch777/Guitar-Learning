@@ -6,6 +6,7 @@ This does not access MuseScore's internal API or generate authentication tokens.
 import argparse
 import hashlib
 import os
+import re
 import tempfile
 import urllib.parse
 import urllib.request
@@ -50,7 +51,52 @@ def preserve_midi_polyphony(score):
                 measure.makeVoices(inPlace=True)
 
 
-def import_bytes(data, directory, title=""):
+def align_midi_measure_grids(score):
+    """Re-bar MIDI parts onto one time grid without moving their note events.
+
+    MIDI carries a single timeline, but music21 may infer different meters for
+    different tracks (e.g. 6/8 piano and 4/4 accompaniment). MusicXML and OSMD
+    expect every part's measure N to refer to the same interval; otherwise the
+    engraved notation can omit notes and the lesson's beat positions drift.
+    """
+    from music21 import meter, stream
+
+    parts = list(score.parts)
+    if len(parts) < 2:
+        return
+    reference = list(parts[0].getElementsByClass(stream.Measure))
+    if not reference:
+        return
+    reference_grid = [(float(measure.offset), float(measure.barDuration.quarterLength))
+                      for measure in reference]
+    shared_meter = stream.Stream()
+    for measure in reference:
+        if measure.timeSignature:
+            shared_meter.insert(measure.offset, measure.timeSignature)
+    if not shared_meter:
+        shared_meter.insert(0, meter.TimeSignature('4/4'))
+
+    for part in parts[1:]:
+        measures = list(part.getElementsByClass(stream.Measure))
+        grid = [(float(measure.offset), float(measure.barDuration.quarterLength))
+                for measure in measures]
+        if grid == reference_grid:
+            continue
+        flattened = part.flatten()
+        for signature in list(flattened.getElementsByClass(meter.TimeSignature)):
+            flattened.remove(signature)
+        # Establish voices on the complete timeline before splitting at bar
+        # lines, or a held pitch can switch voice mid-tie between measures.
+        flattened.makeVoices(inPlace=True)
+        rebuilt = flattened.makeMeasures(
+            meterStream=shared_meter, refStreamOrTimeRange=[0, score.duration.quarterLength],
+        )
+        rebuilt.makeTies(inPlace=True)
+        rebuilt.partName = part.partName
+        score.replace(part, rebuilt)
+
+
+def import_bytes(data, directory, title="", *, replace_existing=False):
     from music21 import converter, metadata
     if not data.startswith(b"MThd") or len(data) > MAX_BYTES:
         raise ValueError("Invalid MIDI file.")
@@ -62,19 +108,23 @@ def import_bytes(data, directory, title=""):
     if not midi_path.exists():
         midi_path.write_bytes(data)
     xml_path = uploads / f"{stem}.musicxml"
-    if not xml_path.exists():
-        with tempfile.TemporaryDirectory(prefix="piano-midi-") as temporary:
-            score = converter.parse(str(midi_path))
-            # music21's MIDI import can leave unequal-length simultaneous notes
-            # in a measure without Voices. Its MusicXML writer then serializes
-            # those notes sequentially, corrupting timing and cross-bar ties.
-            # Explicit Voices preserve the original overlapping MIDI timing.
-            preserve_midi_polyphony(score)
-            if title.strip():
-                if score.metadata is None:
-                    score.insert(0, metadata.Metadata())
-                score.metadata.title = title.strip()[:100]
-            score.write("musicxml", fp=str(xml_path))
+    if replace_existing or not xml_path.exists():
+        score = converter.parse(str(midi_path))
+        align_midi_measure_grids(score)
+        # music21's MIDI import can leave unequal-length simultaneous notes
+        # in a measure without Voices. Its MusicXML writer then serializes
+        # those notes sequentially, corrupting timing and cross-bar ties.
+        # Explicit Voices preserve the original overlapping MIDI timing.
+        preserve_midi_polyphony(score)
+        if title.strip():
+            if score.metadata is None:
+                score.insert(0, metadata.Metadata())
+            score.metadata.title = title.strip()[:100]
+        # Never leave a partial or failed conversion in place of a saved song.
+        with tempfile.TemporaryDirectory(prefix="piano-midi-", dir=uploads) as temporary:
+            temporary_xml = Path(temporary) / "score.musicxml"
+            score.write("musicxml", fp=str(temporary_xml))
+            temporary_xml.replace(xml_path)
     print(f"Imported {stem}.musicxml ({len(data)} MIDI bytes)")
     return xml_path
 
@@ -83,14 +133,40 @@ def import_midi(url, directory, title=""):
     return import_bytes(download_midi(url), directory, title)
 
 
+def repair_saved_imports(directory):
+    """Repair old MIDI-backed XML only if the parts' time grids disagree."""
+    from music21 import converter, stream
+
+    uploads = directory / "uploads"
+    for midi_path in sorted(uploads.glob("midi-*.mid")):
+        if not re.fullmatch(r"midi-[a-f0-9]{64}\.mid", midi_path.name):
+            continue
+        xml_path = midi_path.with_suffix(".musicxml")
+        if not xml_path.is_file():
+            continue
+        saved = converter.parse(str(xml_path))
+        part_grids = [[(measure.offset, measure.barDuration.quarterLength)
+                       for measure in part.getElementsByClass(stream.Measure)]
+                      for part in saved.parts]
+        if not part_grids or all(grid == part_grids[0] for grid in part_grids[1:]):
+            continue
+        title = saved.metadata.title if saved.metadata else ""
+        import_bytes(midi_path.read_bytes(), directory, title or "", replace_existing=True)
+        print(f"Repaired inconsistent measures in {xml_path.name}")
+
+
 def main():
     parser = argparse.ArgumentParser()
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--url")
     source.add_argument("--file", type=Path)
+    source.add_argument("--repair-saved", action="store_true")
     parser.add_argument("--title", default="")
     parser.add_argument("--library", type=Path, default=Path("public/piano/learning-songs"))
     args = parser.parse_args()
+    if args.repair_saved:
+        repair_saved_imports(args.library)
+        return
     if args.file:
         xml_path = import_bytes(args.file.read_bytes(), args.library, args.title)
     else:

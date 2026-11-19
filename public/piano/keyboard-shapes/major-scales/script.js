@@ -18,6 +18,8 @@ const midiButton = document.getElementById("midiButton");
 const newScaleButton = document.getElementById("newScaleButton");
 const keyboard = document.getElementById("keyboard");
 const progressText = document.getElementById("progressText");
+const answerButton = document.getElementById("answerButton");
+const answerText = document.getElementById("answerText");
 
 let midiAccess = null;
 let targetPitchClass = null;
@@ -58,6 +60,7 @@ function chooseRandomRoot() {
   nextIndex = 0;
   correctNotes = new Set();
   finished = false;
+  hideAnswer();
 
   rootName.textContent = NOTE_NAMES[targetPitchClass];
   progressText.textContent = "0 / 8";
@@ -84,6 +87,25 @@ function isBlack(pitchClass) {
 function buildScale(start) {
   return MAJOR_INTERVALS.map((interval) => start + interval);
 }
+
+function hideAnswer() {
+  answerText.hidden = true;
+  answerText.textContent = "";
+  answerButton.textContent = "Show answer";
+}
+
+function answerNotes() {
+  return startMidi === null
+    ? MAJOR_INTERVALS.map(interval => NOTE_NAMES[(targetPitchClass + interval) % 12])
+    : expectedSequence.map(noteNameWithOctave);
+}
+
+answerButton.addEventListener("click", () => {
+  if (!answerText.hidden) { hideAnswer(); return; }
+  answerText.textContent = "Answer: " + answerNotes().join(" – ");
+  answerText.hidden = false;
+  answerButton.textContent = "Hide answer";
+});
 
 function getDisplayRangeForStart(start) {
   const octaveC = start - (start % 12);
@@ -232,6 +254,7 @@ function handleStartingNote(noteNumber) {
 
   startMidi = noteNumber;
   expectedSequence = buildScale(startMidi);
+  if (!answerText.hidden) answerText.textContent = "Answer: " + answerNotes().join(" – ");
   nextIndex = 1;
   correctNotes = new Set([startMidi]);
 

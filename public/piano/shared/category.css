@@ -132,6 +132,15 @@ h1 {
   line-height: 1.2;
   letter-spacing: -0.01em;
 }
+.reference-content {
+  padding: 14px 18px;
+  border: 1px solid #2a3340;
+  border-radius: 16px;
+  background: #141a22;
+  line-height: 1.5;
+}
+.reference-content p { margin: 4px 0 10px; }
+.reference-content p:last-child { margin-bottom: 4px; }
 /* Dark theme */
 :root {
   color-scheme: dark;
