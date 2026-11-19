@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Learning Songs · Practice</title>
   <meta name="theme-color" content="#0b0f14">
-  <link rel="stylesheet" href="./style.css?v=572f6a78eb57">
-  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=572f6a78eb57"></script>
-  <script defer src="./vendor/fflate-0.8.3.min.js?v=572f6a78eb57"></script>
-  <script defer src="../shared/tracker.js?v=572f6a78eb57"></script>
-  <script defer src="../shared/midi.js?v=572f6a78eb57"></script>
-  <script type="module" src="./script.js?v=572f6a78eb57"></script>
-  <meta name="build-version" content="572f6a78eb57">
+  <link rel="stylesheet" href="./style.css?v=e98c96239cef">
+  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=e98c96239cef"></script>
+  <script defer src="./vendor/fflate-0.8.3.min.js?v=e98c96239cef"></script>
+  <script defer src="../shared/tracker.js?v=e98c96239cef"></script>
+  <script defer src="../shared/midi.js?v=e98c96239cef"></script>
+  <script type="module" src="./script.js?v=e98c96239cef"></script>
+  <meta name="build-version" content="e98c96239cef">
 </head>
 <body>
   <main class="lesson-shell">
     <section class="song-library card" aria-labelledby="library-heading">
-      <a class="practice-link" href="../?v=572f6a78eb57">← Practice</a>
+      <a class="practice-link" href="../?v=e98c96239cef">← Practice</a>
       <div class="song-picker"><label id="library-heading" class="sr-only" for="song-select">Song</label><select id="song-select"><option>Loading songs…</option></select></div>
       <button id="delete-song" type="button" class="button secondary" aria-label="Delete song" title="Delete song" disabled>🗑️</button>
       <button id="upload-button" type="button" class="button secondary">Upload</button>
@@ -72,7 +72,7 @@
       <div class="upload-heading"><h2 id="url-title">Import score from URL</h2><button id="url-close" type="button" class="small-button" aria-label="Close URL import">✕</button></div>
       <label for="score-url">Score URL</label>
       <input id="score-url" type="url" placeholder="https://…/score.musicxml" required>
-      <p class="upload-help">Direct MusicXML links (.musicxml, .xml, .mxl) work when the host allows downloads. MuseScore page links require downloading the score through MuseScore first.</p>
+      <p class="upload-help">Direct MusicXML links (.musicxml, .xml, .mxl) and MIDI download URLs (.mid) are supported. MIDI conversion runs through GitHub Actions. MuseScore score-page links are not supported yet.</p>
       <details id="url-credentials" class="credential-details" open><summary>GitHub credentials</summary>
         <label for="url-token">Fine-grained token</label>
         <input id="url-token" type="password" autocomplete="off" spellcheck="false" required placeholder="Contents: read and write">

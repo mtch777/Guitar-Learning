@@ -16,6 +16,7 @@ const {uploadScoreToGitHub} = uploadModule;
 const {readScoreFile} = scoreUploadModule;
 const {deleteSongFromGitHub} = deleteModule;
 const {githubCredentials} = credentialModule;
+const {dispatchMidiImport, validateMidiUrl} = await loadModule('github-midi-import.js');
 if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, {once:true}));
 
 const $ = id => document.getElementById(id);
@@ -665,6 +666,27 @@ $('url-form').addEventListener('submit', async event => {
   if (url.protocol !== 'https:') return urlStatus('Use an HTTPS score URL.', true);
   if (/(^|\.)musescore\.com$/i.test(url.hostname)) {
     return urlStatus('MuseScore page links cannot be imported directly. Download MusicXML from MuseScore, then use Upload.', true);
+  }
+  if (/\.mid(?:i)?$/i.test(url.pathname)) {
+    uploading = true;
+    for (const id of ['url-submit', 'url-close', 'url-cancel']) $(id).disabled = true;
+    controls();
+    try {
+      validateMidiUrl(url.href);
+      urlStatus('Starting MIDI conversion…');
+      await dispatchMidiImport(url.href, $('url-token').value);
+      commitCredential('url', $('url-token').value);
+      $('url-token').value = '';
+      $('score-url').value = '';
+      urlStatus('MIDI import started. Refresh the song list when the GitHub Action finishes.');
+    } catch (error) {
+      urlStatus(error.message || 'MIDI import failed.', true);
+    } finally {
+      uploading = false;
+      for (const id of ['url-submit', 'url-close', 'url-cancel']) $(id).disabled = false;
+      controls();
+    }
+    return;
   }
   const extension = url.pathname.match(/\.(musicxml|xml|mxl)$/i)?.[1]?.toLowerCase();
   if (!extension) return urlStatus('The URL must point directly to a .musicxml, .xml or .mxl file.', true);
