@@ -28,6 +28,7 @@ let keyElements = new Map();
 let wrongTimers = new Map();
 let lastRootPitchClass = null;
 let finished = false;
+let remainingRoots = new Set(Array.from({length:12}, (_, index) => index));
 
 function setStatus(text, type) {
   statusElement.textContent = text;
@@ -43,11 +44,19 @@ function setMidiConnection(connected) {
 }
 
 function chooseRandomRoot() {
-  let next;
-
-  do {
-    next = Math.floor(Math.random() * 12);
-  } while (next === lastRootPitchClass && lastRootPitchClass !== null);
+  if (!remainingRoots.size) {
+    finished = true;
+    targetPitchClass = null;
+    rootName.textContent = '✓';
+    progressText.textContent = '12 / 12 roots';
+    answerButton.disabled = true;
+    newTriadButton.textContent = 'Start new round';
+    setStatus('All 12 major triads answered ✓', 'success');
+    return;
+  }
+  const eligible = [...remainingRoots].filter(root => root !== lastRootPitchClass);
+  const choices = eligible.length ? eligible : [...remainingRoots];
+  const next = choices[Math.floor(Math.random() * choices.length)];
 
   lastRootPitchClass = next;
   targetPitchClass = next;
@@ -57,6 +66,8 @@ function chooseRandomRoot() {
   nextIndex = 0;
   correctNotes = new Set();
   finished = false;
+  answerButton.disabled = false;
+  newTriadButton.textContent = 'New triad';
   hideAnswer();
 
   rootName.textContent = NOTE_NAMES[targetPitchClass];
@@ -262,6 +273,7 @@ function handleTriadNote(noteNumber) {
 
   if (nextIndex >= expectedSequence.length) {
     finished = true;
+    remainingRoots.delete(targetPitchClass);
     setStatus(
       NOTE_NAMES[targetPitchClass] + " major triad complete ✓",
       "success"
@@ -361,7 +373,13 @@ midiButton.addEventListener("click", () => {
   connectMidi();
 });
 
-newTriadButton.addEventListener("click", chooseRandomRoot);
+newTriadButton.addEventListener('click', () => {
+  if (!remainingRoots.size) {
+    remainingRoots = new Set(Array.from({length:12}, (_, index) => index));
+    lastRootPitchClass = null;
+  }
+  chooseRandomRoot();
+});
 
 chooseRandomRoot();
 

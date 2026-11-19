@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Learning Songs · Practice</title>
   <meta name="theme-color" content="#0b0f14">
-  <link rel="stylesheet" href="./style.css?v=6d23b11db665">
-  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=6d23b11db665"></script>
-  <script defer src="./vendor/fflate-0.8.3.min.js?v=6d23b11db665"></script>
-  <script defer src="../shared/tracker.js?v=6d23b11db665"></script>
-  <script defer src="../shared/midi.js?v=6d23b11db665"></script>
-  <script type="module" src="./script.js?v=6d23b11db665"></script>
-  <meta name="build-version" content="6d23b11db665">
+  <link rel="stylesheet" href="./style.css?v=f9e4ddbf88a6">
+  <script defer src="./vendor/opensheetmusicdisplay-2.3.1.min.js?v=f9e4ddbf88a6"></script>
+  <script defer src="./vendor/fflate-0.8.3.min.js?v=f9e4ddbf88a6"></script>
+  <script defer src="../shared/tracker.js?v=f9e4ddbf88a6"></script>
+  <script defer src="../shared/midi.js?v=f9e4ddbf88a6"></script>
+  <script type="module" src="./script.js?v=f9e4ddbf88a6"></script>
+  <meta name="build-version" content="f9e4ddbf88a6">
 </head>
 <body>
   <main class="lesson-shell">
     <section class="song-library card" aria-labelledby="library-heading">
-      <a class="practice-link" href="../?v=6d23b11db665">← Practice</a>
+      <a class="practice-link" href="../?v=f9e4ddbf88a6">← Practice</a>
       <div class="song-picker"><label id="library-heading" class="sr-only" for="song-select">Song</label><select id="song-select"><option>Loading songs…</option></select></div>
       <button id="delete-song" type="button" class="button secondary" aria-label="Delete song" title="Delete song" disabled>🗑️</button>
       <button id="upload-button" type="button" class="button secondary">Upload song</button>
@@ -36,10 +36,11 @@
         <div class="transport-options"><label class="tempo-control" for="tempo"><span>Speed <output id="tempo-label" for="tempo">100%</output></span><input id="tempo" type="range" min="25" max="150" step="5" value="100"></label><label class="sound-control"><input id="sound-enabled" type="checkbox" checked> Sound</label></div>
         </div>
       </div>
-      <div class="practice-bar"><p id="practice-status" role="status" aria-live="polite">Loading…</p><button id="answer-button" class="answer-toggle" type="button" disabled>Show answer</button><div class="score-counts" aria-label="Lesson results"><span class="hit-count">✓ <strong id="hit-count">0</strong> hit</span><span class="miss-count">× <strong id="miss-count">0</strong> missed</span><span><strong id="progress-count">0 / 0</strong></span></div></div>
+      <div class="practice-bar"><p id="practice-status" role="status" aria-live="polite">Loading…</p><div class="score-counts" aria-label="Lesson results"><span class="hit-count">✓ <strong id="hit-count">0</strong> hit</span><span class="miss-count">× <strong id="miss-count">0</strong> missed</span><span><strong id="progress-count">0 / 0</strong></span></div></div>
       <div class="progress-track"><div id="progress-fill"></div></div>
       <div id="import-message" class="notice" role="status" hidden></div>
       <div class="score-viewport" id="score-viewport">
+        <div id="score-loading" class="score-loading" role="status" aria-live="polite" hidden><span class="loading-spinner" aria-hidden="true"></span><span>Loading sheet music…</span></div>
         <div id="empty-score" class="empty-score" hidden><h3 id="empty-title"></h3><p id="empty-description"></p><button id="empty-upload" type="button" class="button primary">Upload</button></div>
         <div id="score" aria-label="Interactive sheet music"></div>
       </div>
@@ -49,6 +50,13 @@
       <footer class="input-footer"><p id="midi-status" class="muted">MIDI not enabled</p><div class="input-actions"><button id="midi-button" type="button" class="button secondary"><span id="midi-dot" class="connection-dot"></span> Enable MIDI</button><button id="keyboard-toggle" type="button" class="button secondary" aria-expanded="true" aria-controls="keyboard-panel">Hide keyboard</button></div></footer>
     </section>
   </main>
+  <div id="musescore-transition" class="musescore-transition" role="status" aria-live="polite" hidden>
+    <div class="transition-card">
+      <span class="loading-spinner" aria-hidden="true"></span>
+      <strong>Importing from MuseScore</strong>
+      <p>Opening MuseScore briefly to load the notes. You'll return to Learning Songs automatically.</p>
+    </div>
+  </div>
   <dialog id="upload-dialog" aria-labelledby="upload-title">
     <div class="upload-shell">
       <div class="upload-heading"><h2 id="upload-title">Upload song</h2><button id="upload-close" type="button" class="small-button" aria-label="Close upload">✕</button></div>
@@ -86,9 +94,10 @@
 
       <section id="upload-url-stage" class="upload-stage" hidden>
         <form id="url-form">
-          <label for="score-url">Score URL</label>
-          <input id="score-url" type="url" placeholder="https://musescore.com/user/…/scores/…" required>
-          <p class="upload-help">MuseScore links import automatically with the browser helper. Direct MusicXML and MIDI links also work.</p>
+          <label for="score-url">MuseScore URL or score ID</label>
+          <input id="score-url" type="text" inputmode="url" placeholder="6109206 or https://musescore.com/user/…/scores/…" required>
+          <p class="upload-help">Paste a MuseScore link or numeric score ID. Direct MusicXML and MIDI links also work.</p>
+          <p class="upload-help">MuseScore briefly opens in this tab to read the score using your browser session, then returns here automatically.</p>
           <p id="musescore-helper-warning" class="upload-help" hidden>For automatic MuseScore imports, open this lesson in <a href="https://www.quetta.net/" target="_blank" rel="noopener noreferrer">Quetta</a>, add <a href="https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag" target="_blank" rel="noopener noreferrer">Violentmonkey</a>, and <a href="https://mtch777.github.io/Guitar-Learning/piano/learning-songs/musescore-auto-import.user.js" target="_blank" rel="noopener noreferrer">install our helper</a> once.</p>
           <p id="musescore-helper-update" class="upload-help" hidden>Your MuseScore helper is installed but needs an update. <a href="https://mtch777.github.io/Guitar-Learning/piano/learning-songs/musescore-auto-import.user.js" target="_blank" rel="noopener noreferrer">Update helper</a>, then reload this page.</p>
           <p id="url-status" role="status" aria-live="polite"></p>
