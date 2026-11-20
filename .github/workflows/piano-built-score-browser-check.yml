@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/piano-built-score-browser-check.yml'
+      - '.github/workflows/piano-import-midi.yml'
       - 'scripts/piano/check-learning-site.py'
       - 'public/piano/learning-songs/score-renderer.js'
       - 'public/piano/learning-songs/script.js'

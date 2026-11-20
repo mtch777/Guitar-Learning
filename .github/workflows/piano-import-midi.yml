@@ -171,3 +171,7 @@ jobs:
               node scripts/piano/assert-midi-import.mjs "$(basename "$score")"
             fi
           done
+      - name: Deploy rebuilt piano library after smoke checks
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-pages.yml --ref main
