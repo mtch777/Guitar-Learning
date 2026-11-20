@@ -8,6 +8,7 @@ on:
       - '.github/workflows/register-fretboard-nov20.yml'
       - 'composition-lab/fretboard_strum_efficiency.py'
       - 'composition-lab/run_fretboard_efficiency.py'
+      - 'composition-lab/test_fretboard_strum_priority_oracle.py'
 
 permissions:
   contents: write

@@ -317,7 +317,7 @@ class FrozenPickingFixtureTests(unittest.TestCase):
     def test_legacy_two_version_bundle_requires_explicit_opt_in(self):
         legacy = deepcopy(self.data)
         for fixture in legacy["fixtures"]:
-            fixture["versions"] = [v for v in fixture["versions"] if v["id"] != "strumPick"]
+            fixture["versions"] = [v for v in fixture["versions"] if v["id"] in ("greedy", "optimized")]
         with self.assertRaisesRegex(ValidationError, "legacy bundles"):
             validate_dataset(legacy, self.source_dir)
         self.assertTrue(validate_dataset(legacy, self.source_dir, allow_legacy_versions=True)["passed"])
