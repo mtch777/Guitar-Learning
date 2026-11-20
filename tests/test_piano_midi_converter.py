@@ -88,5 +88,77 @@ class MIDIPolyphonyTest(unittest.TestCase):
                 self.assertEqual(len({n.findtext('voice') for n in notes}), 1)
 
 
+
+class ExactMidiTimingTest(unittest.TestCase):
+    def make_midi(self, *tracks, ppq=480):
+        import io
+        import mido
+        midi = mido.MidiFile(type=1, ticks_per_beat=ppq)
+        for messages in tracks:
+            track = mido.MidiTrack()
+            track.extend(messages)
+            midi.tracks.append(track)
+        result = io.BytesIO()
+        midi.save(file=result)
+        return result.getvalue()
+
+    def test_music21_upstream_offset_drift_regression(self):
+        import mido
+        t = 480
+        M = mido.Message
+        data = self.make_midi([
+            M('note_on', note=58, velocity=90, time=0),
+            M('note_on', note=62, velocity=90, time=0),
+            M('note_on', note=55, velocity=90, time=0),
+            M('note_off', note=58, velocity=0, time=t * 8),
+            M('note_off', note=62, velocity=0, time=0),
+            M('note_off', note=55, velocity=0, time=t * 4),
+            M('note_on', note=60, velocity=90, time=0),
+            M('note_off', note=60, velocity=0, time=t),
+        ])
+        score = IMPORTER.score_from_midi_bytes(data, 'Offset regression').stripTies()
+        actual = sorted((p.midi, float(n.getOffsetInHierarchy(score)), float(n.duration.quarterLength))
+                        for n in score.recurse().notes for p in n.pitches)
+        self.assertEqual(actual, [(55, 0.0, 12.0), (58, 0.0, 8.0),
+                                  (60, 12.0, 1.0), (62, 0.0, 8.0)])
+
+    def test_multi_part_polyrhythm_and_ties_share_one_grid(self):
+        import mido
+        M, Meta, t = mido.Message, mido.MetaMessage, 480
+        data = self.make_midi([
+            Meta('time_signature', numerator=3, denominator=4, time=0),
+            M('note_on', note=60, velocity=90, time=0),
+            M('note_off', note=60, time=t * 7),
+        ], [
+            M('note_on', note=48, velocity=80, time=0),
+            M('note_on', note=55, velocity=80, time=0),
+            M('note_off', note=48, time=t * 6),
+            M('note_off', note=55, time=t),
+        ])
+        score = IMPORTER.score_from_midi_bytes(data, 'Cross-bar chords')
+        with tempfile.TemporaryDirectory() as directory:
+            location = Path(directory) / 'output.musicxml'
+            score.write('musicxml', fp=str(location))
+            root = ET.parse(location).getroot()
+            for part in root.findall('part'):
+                measures = part.findall('measure')
+                self.assertGreaterEqual(len(measures), 3)
+                self.assertEqual([m.get('number') for m in measures[:3]], ['1','2','3'])
+            self.assertTrue(root.findall('.//tie'))
+
+    def test_midi_note_on_zero_velocity_and_drum_channel(self):
+        import mido
+        M = mido.Message
+        data = self.make_midi([
+            M('note_on', note=60, channel=0, velocity=100, time=0),
+            M('note_on', note=60, channel=0, velocity=0, time=480),
+            M('note_on', note=35, channel=9, velocity=100, time=0),
+            M('note_off', note=35, channel=9, time=480),
+        ])
+        score = IMPORTER.score_from_midi_bytes(data)
+        pitched = [p.midi for n in score.recurse().notes for p in n.pitches]
+        self.assertEqual(pitched, [60])
+
+
 if __name__ == "__main__":
     unittest.main()

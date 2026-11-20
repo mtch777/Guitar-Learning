@@ -97,6 +97,96 @@ def align_midi_measure_grids(score):
         score.replace(part, rebuilt)
 
 
+def score_from_midi_bytes(data, title=''):
+    """Decode original MIDI note-on/off ticks before building stable cross-bar notation."""
+    from collections import defaultdict, deque
+    from fractions import Fraction
+    from io import BytesIO
+    import mido
+    from music21 import chord, key, metadata, meter, metronome, note, stream
+
+    midi_file = mido.MidiFile(file=BytesIO(data))
+    ppq = midi_file.ticks_per_beat
+    if ppq <= 0:
+        raise ValueError('SMPTE-timed MIDI is not supported; export in PPQ timing.')
+    tracks, meters, tempos, keys = [], [], [], []
+    for track_index, track in enumerate(midi_file.tracks):
+        tick, name = 0, ''
+        active = defaultdict(deque)
+        notes = []
+        for event in track:
+            tick += event.time
+            if event.is_meta:
+                if event.type == 'track_name' and not name:
+                    name = event.name[:100]
+                elif event.type == 'time_signature':
+                    meters.append((tick, track_index, event.numerator, event.denominator))
+                elif event.type == 'set_tempo':
+                    tempos.append((tick, track_index, event.tempo))
+                elif event.type == 'key_signature':
+                    keys.append((tick, track_index, event.key))
+                continue
+            if event.type == 'note_on' and event.velocity:
+                active[(event.channel, event.note)].append(tick)
+            elif event.type == 'note_off' or (event.type == 'note_on' and not event.velocity):
+                starts = active[(event.channel, event.note)]
+                if starts:
+                    onset = starts.popleft()
+                    if tick > onset and event.channel != 9:
+                        notes.append((onset, tick, event.note))
+        if any(active.values()):
+            raise ValueError(f'MIDI track {track_index+1} contains notes without note-offs.')
+        if notes:
+            tracks.append((name or f'Track {track_index+1}', notes))
+    if not tracks:
+        raise ValueError('This MIDI contains no completed pitched notes.')
+
+    def ordered_changes(changes):
+        by_tick = {}
+        for event in sorted(changes, key=lambda row: (row[0], row[1])):
+            by_tick.setdefault(event[0], event[2:])
+        return sorted(by_tick.items())
+
+    score = stream.Score()
+    score.insert(0, metadata.Metadata())
+    if title.strip():
+        score.metadata.title = title.strip()[:100]
+    meter_changes = ordered_changes(meters)
+    if not meter_changes or meter_changes[0][0] > 0:
+        meter_changes.insert(0, (0, (4, 4)))
+    meter_stream = stream.Stream()
+    for tick, (numerator, denominator) in meter_changes:
+        meter_stream.insert(Fraction(tick, ppq), meter.TimeSignature(f'{numerator}/{denominator}'))
+    end_tick = max(end for _, events in tracks for _, end, _ in events)
+    for part_index, (name, events) in enumerate(tracks):
+        part = stream.Part()
+        part.partName = name
+        grouped = defaultdict(set)
+        for onset, end, pitch in events:
+            grouped[(onset, end)].add(pitch)
+        for (onset, end), pitches in sorted(grouped.items()):
+            duration = Fraction(end-onset, ppq)
+            musical_note = (chord.Chord(sorted(pitches), quarterLength=duration)
+                            if len(pitches) > 1 else note.Note(next(iter(pitches)), quarterLength=duration))
+            part.insert(Fraction(onset, ppq), musical_note)
+        if part_index == 0:
+            for tick, (tempo,) in ordered_changes(tempos):
+                part.insert(Fraction(tick, ppq), metronome.MetronomeMark(number=mido.tempo2bpm(tempo)))
+            for tick, (signature,) in ordered_changes(keys):
+                try:
+                    part.insert(Fraction(tick, ppq), key.Key(signature))
+                except Exception:
+                    pass
+        # Music21's per-measure voice assignment can break ties. Allocate on
+        # the global timeline, split into measures only afterward.
+        part.makeVoices(inPlace=True)
+        part = part.makeMeasures(meterStream=meter_stream, refStreamOrTimeRange=[0, Fraction(end_tick, ppq)])
+        part.makeTies(inPlace=True)
+        part.partName = name
+        score.insert(0, part)
+    return score
+
+
 def import_bytes(data, directory, title="", *, replace_existing=False):
     from music21 import converter, metadata
     if not data.startswith(b"MThd") or len(data) > MAX_BYTES:
@@ -110,13 +200,7 @@ def import_bytes(data, directory, title="", *, replace_existing=False):
         midi_path.write_bytes(data)
     xml_path = uploads / f"{stem}.musicxml"
     if replace_existing or not xml_path.exists():
-        score = converter.parse(str(midi_path))
-        align_midi_measure_grids(score)
-        # music21's MIDI import can leave unequal-length simultaneous notes
-        # in a measure without Voices. Its MusicXML writer then serializes
-        # those notes sequentially, corrupting timing and cross-bar ties.
-        # Explicit Voices preserve the original overlapping MIDI timing.
-        preserve_midi_polyphony(score)
+        score = score_from_midi_bytes(data, title)
         if title.strip():
             if score.metadata is None:
                 score.insert(0, metadata.Metadata())
