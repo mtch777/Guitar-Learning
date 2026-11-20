@@ -42,12 +42,25 @@ async def verify(browser, mobile):
         await page.locator("#song-select").select_option(song_id)
         try:
             await page.wait_for_function("""() => {
-              const s=document.querySelector('#practice-status')?.textContent;
-              return s==='Ready' || s==='Score unavailable';
-            }""", timeout=40000)
+              const spinner=document.querySelector('#score-loading');
+              const ready=spinner?.hidden && document.querySelector('#score svg');
+              const failed=spinner?.hidden && !document.querySelector('#empty-score')?.hidden;
+              return ready || failed;
+            }""", timeout=20000)
         except Exception:
             print('REAL SCORE RENDER TIMEOUT; captured console messages:', flush=True)
-            for msg in errors[-40:]:
+            try:
+                print('REAL SCORE TIMEOUT DOM:', await page.evaluate("""() => ({
+                  status: document.querySelector('#practice-status')?.textContent,
+                  loading: !document.querySelector('#score-loading')?.hidden,
+                  svg: document.querySelectorAll('#score svg').length,
+                  empty: !document.querySelector('#empty-score')?.hidden,
+                  notice: document.querySelector('#import-message')?.textContent,
+                  selection: document.querySelector('#song-select')?.selectedOptions?.[0]?.textContent,
+                })"""), flush=True)
+            except Exception as error:
+                print('REAL SCORE TIMEOUT DOM UNAVAILABLE:', str(error)[:250], flush=True)
+            for msg in errors[-45:]:
                 print('REAL SCORE TIMEOUT CONSOLE:', msg[:900], flush=True)
             raise
         await page.wait_for_timeout(1000)
