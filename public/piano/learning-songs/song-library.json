@@ -53,6 +53,18 @@
       "attackCount": 1916
     },
     {
+      "id": "upload-07b043665eb28d18b3784ed89e29696fdec5ab4da810d43bd24215cd759cbfe5",
+      "title": "Polite Company",
+      "composer": "Rainbow Kitten Surprise",
+      "scorePath": "scores/upload-07b043665eb28d18b3784ed89e29696fdec5ab4da810d43bd24215cd759cbfe5.musicxml",
+      "sourcePath": "uploads/midi-190ee0d516e3917d53b1951bcf08d0577cf9f500819429dad87463c7ee3aba89.musicxml",
+      "sourceFilename": "midi-190ee0d516e3917d53b1951bcf08d0577cf9f500819429dad87463c7ee3aba89.musicxml",
+      "sha256": "07b043665eb28d18b3784ed89e29696fdec5ab4da810d43bd24215cd759cbfe5",
+      "sourceSha256": "5fcbe121ba5ba99b4559019469fb1f0dbf612e5c804ded00839f6813d45198e8",
+      "noteCount": 1046,
+      "attackCount": 219
+    },
+    {
       "id": "upload-007988d2df1df7275379ecf42c8124723085af5c787436341b0a49a7119c1069",
       "title": "I Want You To Love Me",
       "composer": "Fiona Apple",
