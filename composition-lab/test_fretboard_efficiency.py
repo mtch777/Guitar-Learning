@@ -239,9 +239,9 @@ class SourceFixtureTests(unittest.TestCase):
     def test_all_outputs_against_raw_midi_and_independent_metrics(self):
         result = validate_dataset(json.loads(self.dataset_path.read_text()), self.source_dir)
         self.assertTrue(result["passed"])
-        self.assertEqual(sum(f["raw_notes_preserved"] for f in result["fixtures"]), 710)
+        self.assertEqual(sum(f["raw_notes_preserved"] for f in result["fixtures"]), 709)
         self.assertEqual({f["fixture"]: f["raw_notes_preserved"] for f in result["fixtures"]},
-                         {"cfa029a2": 164, "da80eca9": 191, "c5a35486": 241, "186bfd78": 114})
+                         {"cfa029a2": 164, "da80eca9": 191, "c5a35486": 241, "186bfd78": 113})
 
     def test_duplicate_high_chords_remain_four_occurrences(self):
         for filename, expected in EXPECTED_SOURCES.items():
@@ -261,10 +261,12 @@ class SourceFixtureTests(unittest.TestCase):
         self.assertEqual(raw['tempo_events'], [])
         self.assertEqual((raw['tempo_bpm'], raw['duration_ticks'], raw['duration_seconds']),
                          (120, 2016, 10.5))
-        self.assertEqual(len(raw['notes']), 114)
-        self.assertEqual((raw['notes'][103]['pitch'], raw['notes'][103]['start_tick'], raw['notes'][103]['end_tick']),
-                         (71, 1848, 1849))
-        self.assertEqual(Counter(n['velocity'] for n in raw['notes']), Counter({90: 84, 1: 30}))
+        self.assertEqual(len(raw['notes']), 113)
+        self.assertFalse(any(n['pitch'] == 71 and n['start_tick'] == 1848 for n in raw['notes']),
+                         'The exact-upload zero-duration B4 must not be invented as audible music')
+        self.assertEqual([(n['start_tick'], n['end_tick']) for n in raw['notes']
+                          if n['pitch'] == 60 and n['start_tick'] == 1848], [(1848, 1872)])
+        self.assertEqual(Counter(n['velocity'] for n in raw['notes']), Counter({90: 83, 1: 30}))
         self.assertEqual(maximum_open_attacks(raw['notes']), 32)
 
     def test_uploaded_rewrite_frozen_clock_dynamics_and_holds(self):

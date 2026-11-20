@@ -154,7 +154,7 @@ def build(source_dir, output, fixture_ids=None, strategy_ids=None, *, rapid_max_
                 source_url=f'https://github.com/mtch777/Guitar-Learning/blob/main/tests/fixtures/fretboard-efficiency/{filename}',
                 tempo_source='MIDI default; this user upload has no explicit tempo event',
                 warnings=['No tempo is embedded in this MIDI; playback uses the MIDI default of 120 BPM.',
-                          'One zero-duration B4 in the exact upload at 9.625 s was given the minimum 1 source tick (5.208 ms) for playable mapping. The original MIDI bytes are archived unchanged.',
+                          'The exact upload has a zero-duration B4 at 9.625 s, omitted from playable mapping; the neighboring C4 release is aligned from source tick 1871 to 1872 (5.208 ms later). Original MIDI bytes are archived unchanged.',
                           'All other MIDI note pitches, velocities, attacks, and releases are retained.',
                           'Open-string, adjacent-string, and repeated-shape preferences are constrained by playability.'])
         previous_versions = {}
