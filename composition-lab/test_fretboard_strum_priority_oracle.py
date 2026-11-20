@@ -258,7 +258,7 @@ class FrozenPickingFixtureTests(unittest.TestCase):
     def test_all_three_profiles_and_actual_exports_pass_the_independent_oracle(self):
         report = validate_dataset(self.data, self.source_dir)
         self.assertTrue(report["passed"])
-        self.assertEqual(len(report["fixtures"]), 3)
+        self.assertEqual(len(report["fixtures"]), 4)
         self.assertTrue(all(set(f["versions"]) == {"greedy", "optimized", "strumPick"}
                             for f in report["fixtures"]))
 

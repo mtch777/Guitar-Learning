@@ -69,9 +69,13 @@ test('the real lesson selector corresponds to every published built-in fixture, 
   assert.ok(rewrite, 'C is present in the actual published data');
   assert.equal(rewrite.source_filename, '2026-11-15_midi_rewrite_2.mid');
   assert.equal(rewrite.source_sha256, '5fa3e52d30a27b3568c7303f47011cb5aaa9777ac2a584ea31e7f797d522ca77');
+  const november = data.fixtures.find(fixture => fixture.id === '186bfd78');
+  assert.ok(november, 'November 20 upload is selectable');
+  assert.equal(november.source_filename, '2026-11-20_midi_rewrite.mid');
+  assert.equal(november.source_sha256, '186bfd78c47b6d6a41b28745a1efb247358d6d7c5bcf9168180beea0e13d07b0');
 });
 
-for (const fixtureId of ['cfa029a2', 'da80eca9', 'c5a35486']) {
+for (const fixtureId of ['cfa029a2', 'da80eca9', 'c5a35486', '186bfd78']) {
   test(`${fixtureId}: all three mapping URLs load that exact fixture and retain shareable selection`, async () => {
     for (const versionId of ['optimized', 'greedy', 'strumPick']) {
       const harness = mount(`?lesson=fretboardEfficiency&riff=${fixtureId}&mapping=${versionId}`);
@@ -93,7 +97,7 @@ for (const fixtureId of ['cfa029a2', 'da80eca9', 'c5a35486']) {
       assert.equal(link.searchParams.get('riff'), fixtureId);
       assert.equal(link.searchParams.get('mapping'), versionId);
       assert.equal(harness.location.href, link.href);
-      assert.deepEqual(harness.requests, ['/Guitar-Learning/data/fretboard-efficiency-fixtures.json?v=20261119-shapes']);
+      assert.deepEqual(harness.requests, ['/Guitar-Learning/data/fretboard-efficiency-fixtures.json?v=20261120-rewrite']);
       assert.equal(harness.fields.fretboardEfficiencyRiff.disabled, false);
       assert.equal(harness.fields.fretboardEfficiencyMapping.disabled, false);
       assert.equal(harness.fields.fretboardEfficiencyView.value, 'playback');
@@ -403,6 +407,6 @@ test('the actual trainer keeps fixed bounds and used positions, coloring only pl
       selectedLesson = 'fretboardEfficiency';
       if (fixture.id === 'c5a35486' && version.id === 'strumPick') assert.equal(highestFret, 24);
     }
-    assert.equal(efficiencySourceTick(1000, fixture.ticks_per_beat), fixture.id === 'c5a35486' ? 100 : 1000);
+    assert.equal(efficiencySourceTick(1000, fixture.ticks_per_beat), fixture.ticks_per_beat === 96 ? 100 : 1000);
   }
 });

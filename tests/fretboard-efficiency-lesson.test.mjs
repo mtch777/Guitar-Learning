@@ -30,6 +30,8 @@ const frozenSources = {
   da80eca9: {notes: 191, ppqn: 960, endTick: 61920, durationMs: 32250},
   c5a35486: {notes: 241, ppqn: 96, endTick: 4608, durationMs: 24000,
     sha256: '5fa3e52d30a27b3568c7303f47011cb5aaa9777ac2a584ea31e7f797d522ca77'},
+  '186bfd78': {notes: 114, ppqn: 96, endTick: 2016, durationMs: 10500,
+    sha256: '186bfd78c47b6d6a41b28745a1efb247358d6d7c5bcf9168180beea0e13d07b0'},
 };
 const originalFixtureIds = new Set(['cfa029a2', 'da80eca9']);
 const nativeTick = (sourceTick, ppqn) => {

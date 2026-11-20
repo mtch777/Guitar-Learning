@@ -45,7 +45,7 @@ class StrategyAdditionTests(unittest.TestCase):
                 self.assertEqual(restored, before)
                 self.assertEqual(after['versions'][2]['id'], 'strumPick')
                 self.assertTrue((root / 'public' / after['versions'][2]['midi_path']).is_file())
-            self.assertEqual(len(list((root / 'public/fretboard-efficiency').glob('*.mid'))), 3)
+            self.assertEqual(len(list((root / 'public/fretboard-efficiency').glob('*.mid'))), len(original['fixtures']))
 
     def test_refuses_to_combine_new_mapping_with_stale_source_notes(self):
         original = legacy_bundle()

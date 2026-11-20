@@ -1,0 +1,57 @@
+name: Register November 20 fretboard mapping
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/fixtures/fretboard-efficiency/2026-11-20_midi_rewrite.mid'
+      - '.github/workflows/register-fretboard-nov20.yml'
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: register-fretboard-nov20
+  cancel-in-progress: false
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pinned MIDI parser
+        run: python -m pip install -r composition-lab/requirements-fretboard-efficiency.txt
+
+      - name: Generate only the new source's three canonical mappings
+        run: python -B composition-lab/run_fretboard_efficiency.py --fixture 186bfd78
+
+      - name: Validate every source, playable assignment, and exported MIDI
+        run: |
+          python -B composition-lab/check_fretboard_efficiency.py > /tmp/fretboard-validation.json
+          python -B -m unittest discover -s composition-lab -p 'test_fretboard_*.py' -v
+          python -B -m unittest discover -s composition-lab -p 'test_fretboard_strum_*.py' -v
+
+      - name: Commit only the generated dataset and three exports
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/fretboard-efficiency-fixtures.json public/fretboard-efficiency/186bfd78_*.mid
+          git diff --cached --quiet && { echo "Expected generated files are missing"; exit 1; }
+          git commit -m "Publish November 20 Drop E fingering mappings"
+          git push origin HEAD:main
+
+      - name: Dispatch the existing Pages build and regression suite
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-pages.yml --ref main

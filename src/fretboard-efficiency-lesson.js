@@ -2,7 +2,7 @@
 // Sound, score timing and active contacts remain owned by Song Player.
 export const EFFICIENCY_LESSON_ID = 'fretboardEfficiency';
 export const EFFICIENCY_TUNING_LOW_TO_HIGH = [28, 35, 40, 45, 50, 55, 59, 64];
-const BUILT_IN_FIXTURE_IDS = ['cfa029a2', 'da80eca9', 'c5a35486'];
+const BUILT_IN_FIXTURE_IDS = ['cfa029a2', 'da80eca9', 'c5a35486', '186bfd78'];
 const MAPPING_IDS = ['optimized', 'greedy', 'strumPick'];
 
 export function efficiencySelectionFromSearch(search) {
@@ -125,7 +125,7 @@ export function setupFretboardEfficiencyLesson({ player, isSelected, onSelection
     info.textContent = 'Drop E · intervals relative to E';
     updateLink();
     try {
-      dataPromise ||= fetch(import.meta.env.BASE_URL + 'data/fretboard-efficiency-fixtures.json?v=20261119-shapes',
+      dataPromise ||= fetch(import.meta.env.BASE_URL + 'data/fretboard-efficiency-fixtures.json?v=20261120-rewrite',
         { cache: 'no-store' })
         .then(response => {
           if (!response.ok) throw new Error('The MIDI mappings could not be loaded.');

@@ -239,9 +239,9 @@ class SourceFixtureTests(unittest.TestCase):
     def test_all_outputs_against_raw_midi_and_independent_metrics(self):
         result = validate_dataset(json.loads(self.dataset_path.read_text()), self.source_dir)
         self.assertTrue(result["passed"])
-        self.assertEqual(sum(f["raw_notes_preserved"] for f in result["fixtures"]), 596)
+        self.assertEqual(sum(f["raw_notes_preserved"] for f in result["fixtures"]), 710)
         self.assertEqual({f["fixture"]: f["raw_notes_preserved"] for f in result["fixtures"]},
-                         {"cfa029a2": 164, "da80eca9": 191, "c5a35486": 241})
+                         {"cfa029a2": 164, "da80eca9": 191, "c5a35486": 241, "186bfd78": 114})
 
     def test_duplicate_high_chords_remain_four_occurrences(self):
         for filename, expected in EXPECTED_SOURCES.items():
@@ -252,6 +252,18 @@ class SourceFixtureTests(unittest.TestCase):
                 for tick in expected["duplicate_chord_ticks"]:
                     pitches = sorted(n["pitch"] for n in raw["notes"] if n["start_tick"] == tick)
                     self.assertEqual(pitches, [59, 59, 62, 69])
+
+    def test_november_twenty_midi_is_registered_with_exact_dynamics_and_clock(self):
+        raw = read_midi_source(self.source_dir / '2026-11-20_midi_rewrite.mid')
+        expected = EXPECTED_SOURCES['2026-11-20_midi_rewrite.mid']
+        self.assertEqual(raw['sha256'], expected['sha256'])
+        self.assertEqual((raw['format'], raw['track_count'], raw['ticks_per_beat']), (0, 1, 96))
+        self.assertEqual(raw['tempo_events'], [])
+        self.assertEqual((raw['tempo_bpm'], raw['duration_ticks'], raw['duration_seconds']),
+                         (120, 2016, 10.5))
+        self.assertEqual(len(raw['notes']), 114)
+        self.assertEqual(Counter(n['velocity'] for n in raw['notes']), Counter({90: 84, 1: 30}))
+        self.assertEqual(maximum_open_attacks(raw['notes']), 32)
 
     def test_uploaded_rewrite_frozen_clock_dynamics_and_holds(self):
         # The lesson keeps its stable C ID while adopting the user's replacement.

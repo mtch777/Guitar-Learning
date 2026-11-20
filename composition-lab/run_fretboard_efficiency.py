@@ -16,6 +16,7 @@ FIXTURES = (
     ('cfa029a2', 'A · Low response', '6_review_cfa029a287078971a412e05347b5612f6d9ef8c0ea69a1e9b0b58a82fb71aafd.mid'),
     ('da80eca9', 'B · High dyads', '6_review_da80eca929e874d93378b26542ed63cb17be1735f2470a387fe0ad284431535a.mid'),
     ('c5a35486', 'C · MIDI rewrite', '2026-11-15_midi_rewrite_2.mid'),
+    ('186bfd78', 'D · November 20 rewrite', '2026-11-20_midi_rewrite.mid'),
 )
 STRATEGIES = (
     ('greedy', greedy_fingering),
@@ -145,6 +146,14 @@ def build(source_dir, output, fixture_ids=None, strategy_ids=None, *, rapid_max_
                           'Held notes retain their original string and fret until release, including notes entering midway through a hold.',
                           'Greedy chooses local open/low-fret preferences only among grips with a feasible held-note continuation; '
                           'it is a comparison algorithm, not an original guitarist fingering.'])
+        elif fixture_id == '186bfd78':
+            fixture.update(source_kind='user_upload', source_original_filename='2026-11-20 midi rewrite.mid',
+                source_commit=None,
+                source_url=f'https://github.com/mtch777/Guitar-Learning/blob/main/tests/fixtures/fretboard-efficiency/{filename}',
+                tempo_source='MIDI default; this user upload has no explicit tempo event',
+                warnings=['No tempo is embedded in this MIDI; playback uses the MIDI default of 120 BPM.',
+                          'All MIDI note occurrences, velocities, attacks, and releases are retained.',
+                          'Open-string, adjacent-string, and repeated-shape preferences are constrained by playability.'])
         previous_versions = {}
         if selected_strategies is not None:
             previous = existing.get(fixture_id)
