@@ -168,5 +168,114 @@ class ExactMidiTimingTest(unittest.TestCase):
         self.assertEqual(pitched, [60])
 
 
+
+class ConverterEdgeCaseTest(unittest.TestCase):
+    """Independent deterministic inputs covering the failure-prone MIDI cases."""
+
+    @staticmethod
+    def midi(events, ppq=480, meter=(4, 4), tempo_us=None, as_type_zero=False):
+        import io
+        import mido
+        midi = mido.MidiFile(ticks_per_beat=ppq, type=0 if as_type_zero else 1)
+        track = mido.MidiTrack()
+        midi.tracks.append(track)
+        absolute = [(0, -3, mido.MetaMessage('time_signature', numerator=meter[0],
+                                           denominator=meter[1], time=0))]
+        if tempo_us:
+            absolute.append((0, -2, mido.MetaMessage('set_tempo', tempo=tempo_us, time=0)))
+        for start, end, pitch in events:
+            if end < start:
+                raise ValueError('invalid test fixture')
+            absolute.append((start, 1, mido.Message('note_on', note=pitch, velocity=87, time=0)))
+            absolute.append((end, 0, mido.Message('note_off', note=pitch, time=0)))
+        prev = 0
+        for tick, _priority, message in sorted(absolute, key=lambda row:(row[0],row[1])):
+            track.append(message.copy(time=tick-prev))
+            prev = tick
+        buffer = io.BytesIO()
+        midi.save(file=buffer)
+        return buffer.getvalue()
+
+    def assert_writes_readable_xml(self, data):
+        score = IMPORTER.score_from_midi_bytes(data)
+        with tempfile.TemporaryDirectory() as directory:
+            filename = Path(directory) / 'score.musicxml'
+            score.write('musicxml', fp=str(filename))
+            root = ET.parse(filename).getroot()
+            self.assertTrue(root.findall('./part/measure/note'))
+            self.assertTrue(root.findall('./part/measure/attributes/divisions'))
+
+    def test_repeated_pitch_cross_bar_and_changing_chords(self):
+        self.assert_writes_readable_xml(self.midi([
+            (0, 240, 60), (240, 480, 60), (480, 2400, 60),
+            (0, 1440, 64), (960, 1920, 67), (1920, 2880, 72),
+            (2880, 5280, 60), (2880, 3360, 64), (3360, 5280, 67),
+        ]))
+
+    def test_tuplets_and_small_humanized_offsets(self):
+        self.assert_writes_readable_xml(self.midi([
+            (0, 158, 60), (162, 319, 62), (321, 482, 64),
+            (480, 640, 65), (642, 800, 67), (798, 959, 69),
+        ]))
+
+    def test_tempo_and_unusual_meters(self):
+        for meter in ((3,4), (5,8), (7,8), (6,8), (9,8)):
+            with self.subTest(meter=meter):
+                self.assert_writes_readable_xml(self.midi([
+                    (0, 1440, 60), (240, 720, 64), (960, 1920, 67),
+                    (1440, 3360, 72)
+                ], meter=meter, tempo_us=555555))
+
+    def test_type_zero_midi(self):
+        self.assert_writes_readable_xml(self.midi([
+            (0, 480, 60), (0, 480, 64), (480, 1920, 67),
+        ], as_type_zero=True))
+
+    def test_randomized_polyphonic_scores_representable(self):
+        import random
+        rng = random.Random(20261119)
+        # Notation export and rhythmic continuity across overlapping chords,
+        # repeated notes, rests, syncopation, tuplets, and cross-measure ties.
+        for sample in range(24):
+            ppq = 480
+            grid = rng.choice((80, 120, 160, 240))
+            events = []
+            for i in range(18):
+                start = i * grid + rng.randint(-2, 2) if i else 0
+                start = max(0, start)
+                duration = rng.choice((grid, 2*grid, 3*grid, 6*grid))
+                pitch = rng.randint(48, 77)
+                events.append((start, start + duration, pitch))
+                if i % 4 == 0:
+                    events.append((start, start + 2*grid, pitch + 12))
+            with self.subTest(sample=sample, grid=grid):
+                self.assert_writes_readable_xml(self.midi(events, ppq=ppq))
+
+    def test_unfinished_notes_are_rejected_not_dropped(self):
+        import io
+        import mido
+        midi = mido.MidiFile(type=0)
+        track = mido.MidiTrack()
+        track.append(mido.Message('note_on', note=60, velocity=100, time=0))
+        midi.tracks.append(track)
+        buffer = io.BytesIO()
+        midi.save(file=buffer)
+        with self.assertRaisesRegex(ValueError, 'notes without note-offs'):
+            IMPORTER.score_from_midi_bytes(buffer.getvalue())
+
+    def test_drums_only_are_not_silent_success(self):
+        import io
+        import mido
+        midi = mido.MidiFile(type=0)
+        track = mido.MidiTrack()
+        track.append(mido.Message('note_on', note=35, channel=9, velocity=100, time=0))
+        track.append(mido.Message('note_off', note=35, channel=9, time=480))
+        midi.tracks.append(track)
+        buffer = io.BytesIO()
+        midi.save(file=buffer)
+        with self.assertRaisesRegex(ValueError, 'no completed pitched notes'):
+            IMPORTER.score_from_midi_bytes(buffer.getvalue())
+
+
 if __name__ == "__main__":
     unittest.main()
