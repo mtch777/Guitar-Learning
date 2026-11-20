@@ -262,6 +262,8 @@ class SourceFixtureTests(unittest.TestCase):
         self.assertEqual((raw['tempo_bpm'], raw['duration_ticks'], raw['duration_seconds']),
                          (120, 2016, 10.5))
         self.assertEqual(len(raw['notes']), 114)
+        self.assertEqual((raw['notes'][103]['pitch'], raw['notes'][103]['start_tick'], raw['notes'][103]['end_tick']),
+                         (71, 1848, 1849))
         self.assertEqual(Counter(n['velocity'] for n in raw['notes']), Counter({90: 84, 1: 30}))
         self.assertEqual(maximum_open_attacks(raw['notes']), 32)
 

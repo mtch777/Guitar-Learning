@@ -148,11 +148,14 @@ def build(source_dir, output, fixture_ids=None, strategy_ids=None, *, rapid_max_
                           'it is a comparison algorithm, not an original guitarist fingering.'])
         elif fixture_id == '186bfd78':
             fixture.update(source_kind='user_upload', source_original_filename='2026-11-20 midi rewrite.mid',
+                original_upload_sha256='186bfd78c47b6d6a41b28745a1efb247358d6d7c5bcf9168180beea0e13d07b0',
+                original_upload_url='https://github.com/mtch777/Guitar-Learning/blob/main/tests/fixtures/fretboard-efficiency/2026-11-20_midi_rewrite_original.mid',
                 source_commit=None,
                 source_url=f'https://github.com/mtch777/Guitar-Learning/blob/main/tests/fixtures/fretboard-efficiency/{filename}',
                 tempo_source='MIDI default; this user upload has no explicit tempo event',
                 warnings=['No tempo is embedded in this MIDI; playback uses the MIDI default of 120 BPM.',
-                          'All MIDI note occurrences, velocities, attacks, and releases are retained.',
+                          'One zero-duration B4 in the exact upload at 9.625 s was given the minimum 1 source tick (5.208 ms) for playable mapping. The original MIDI bytes are archived unchanged.',
+                          'All other MIDI note pitches, velocities, attacks, and releases are retained.',
                           'Open-string, adjacent-string, and repeated-shape preferences are constrained by playability.'])
         previous_versions = {}
         if selected_strategies is not None:

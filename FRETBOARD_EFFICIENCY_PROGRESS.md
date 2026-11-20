@@ -1,5 +1,10 @@
 # Drop E fretboard efficiency
 
+## November 20 upload — source playback repair and lesson D
+
+New **D · November 20 rewrite** is a separate fixture, not a replacement for A/B/C. Original uploaded `2026-11-20 midi rewrite.mid` SHA-256 `186bfd78c47b6d6a41b28745a1efb247358d6d7c5bcf9168180beea0e13d07b0` contains 114 note-ons, PPQN 96 and duration 2,016 ticks / 10.5 seconds at the MIDI-default 120 BPM. One B4 note-on/note-off at 1,848 ticks (9.625 seconds) is zero duration; the site's exact playable-grip model rejects that. The unchanged original upload is archived as `tests/fixtures/fretboard-efficiency/2026-11-20_midi_rewrite_original.mid`. The active source `2026-11-20_midi_rewrite.mid` differs only by moving that B4 note-off to tick 1,849 (5.208 ms later). All other event types, pitches, velocities, and absolute event ticks agree; active playback-safe SHA-256 is `aa397c4800e1277a4dc5fabc027c773fc689ba77419452c2b5ee5b5fac74f7b7`. The established 3-profile Drop E optimizer and independent validator run over that repaired, fully playable source. D is selected via `?lesson=fretboardEfficiency&riff=186bfd78&mapping=strumPick`; full-range fixed fretboard and gray-overview / Static behavior stay unchanged.
+
+
 ## Current delivery: repeated-shape fingering continuity — 2026-11-19
 
 User feedback: around 3.6–4.0 seconds in C / Strum + pick, the E5/B5 dyad moves from strings 3/2 (frets 21/24) to strings 2/1 (frets 17/19) on its immediate repeat, with only open B1 in between. Prefer reusing the same fretted shape when a neighboring open-string passage provides time to reposition elsewhere. Preserve exact MIDI notes and the accepted three primary strum/pick priorities.

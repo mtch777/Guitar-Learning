@@ -30,6 +30,8 @@ python composition-lab/export_fretboard_efficiency_review.py --output /absolute/
 
 The exported HTML embeds all fixtures and their available mappings and makes no automatic network requests. Its source-MIDI button opens the recorded GitHub source only when clicked. Older two-version mapping files remain supported; the lesson disables choices absent from the loaded fixture.
 
+D adds the separate user-uploaded **November 20 rewrite** (`186bfd78`), with 114 note occurrences at 96 PPQN and 10.5 seconds. The original uploaded MIDI is preserved unchanged as `tests/fixtures/fretboard-efficiency/2026-11-20_midi_rewrite_original.mid`. One B4 at 9.625 seconds has exactly zero duration in the upload; only its note-off is moved forward by one source tick (5.208 ms) in the playable source file. Original and playable SHA-256 values are recorded in `FRETBOARD_EFFICIENCY_PROGRESS.md` and the D fixture's source metadata. All other source events retain their original timing. D retains all three fingering strategies and the complete static/playback fretboard views.
+
 ## Fixed inputs
 
 | Fixture | File prefix | Notes | Attacks | Duration | Diagnostic purpose |

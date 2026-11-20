@@ -41,7 +41,7 @@ EXPECTED_SOURCES = {
         "ticks_per_beat": 96, "duration_ticks": 4608,
     },
     "2026-11-20_midi_rewrite.mid": {
-        "sha256": "186bfd78c47b6d6a41b28745a1efb247358d6d7c5bcf9168180beea0e13d07b0",
+        "sha256": "aa397c4800e1277a4dc5fabc027c773fc689ba77419452c2b5ee5b5fac74f7b7",
         "note_count": 114, "open_eligible": 32, "feasible_opens": 32,
         "ticks_per_beat": 96, "duration_ticks": 2016,
     },
