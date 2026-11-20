@@ -13,6 +13,7 @@ on:
     paths:
       - '.github/workflows/piano-import-midi.yml'
       - 'scripts/piano/import-midi-url.py'
+      - 'tests/test_piano_midi_converter.py'
       - 'scripts/piano/build-song-library.mjs'
       - 'public/piano/learning-songs/song-library.seed.json'
 
