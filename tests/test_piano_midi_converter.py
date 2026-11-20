@@ -263,6 +263,23 @@ class ConverterEdgeCaseTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'notes without note-offs'):
             IMPORTER.score_from_midi_bytes(buffer.getvalue())
 
+    def test_illegal_xml_track_name_is_removed(self):
+        import io
+        import mido
+        midi = mido.MidiFile(type=0, ticks_per_beat=480)
+        track = mido.MidiTrack()
+        track.extend([
+            mido.MetaMessage('track_name', name='Piano\\x00 Name', time=0),
+            mido.Message('note_on', note=60, velocity=90, time=0),
+            mido.Message('note_off', note=60, time=480),
+        ])
+        midi.tracks.append(track)
+        output = io.BytesIO()
+        midi.save(file=output)
+        score = IMPORTER.score_from_midi_bytes(output.getvalue())
+        self.assertNotIn(chr(0), score.parts[0].partName)
+        self.assert_writes_readable_xml(output.getvalue())
+
     def test_drums_only_are_not_silent_success(self):
         import io
         import mido
