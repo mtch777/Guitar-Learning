@@ -204,6 +204,9 @@ class ConverterEdgeCaseTest(unittest.TestCase):
             root = ET.parse(filename).getroot()
             self.assertTrue(root.findall('./part/measure/note'))
             self.assertTrue(root.findall('./part/measure/attributes/divisions'))
+            self.assertFalse(any((n.text or '').strip() in ('256th','512th','1024th','2048th')
+                                 for n in root.findall('.//note/type')),
+                             'OSMD rejects 256th-note durations; export must use readable notation')
 
     def test_repeated_pitch_cross_bar_and_changing_chords(self):
         self.assert_writes_readable_xml(self.midi([

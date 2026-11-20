@@ -3,7 +3,7 @@ import {execFileSync} from 'node:child_process';
 import {DOMParser} from '@xmldom/xmldom';
 import {parseMusicXML} from '../../public/piano/learning-songs/score-model.js';
 
-const MAX_ENDPOINT_ERROR_QUARTERS = 0.0081; // nearest 1/64-quarter grid is <=1/128.
+const MAX_ENDPOINT_ERROR_QUARTERS = 1 / 64 + 1e-6; // nearest 1/32-quarter grid is <=1/64.
 const PYTHON = process.env.PYTHON || 'python';
 
 export async function verifyMidiFidelity(midiFile, scoreFile) {

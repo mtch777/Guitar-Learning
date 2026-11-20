@@ -164,8 +164,11 @@ def score_from_midi_bytes(data, title=''):
     def max_grid_error(subdivisions):
         return max((abs(Fraction(round(Fraction(tick*subdivisions, ppq)), subdivisions)
                          - Fraction(tick, ppq)) for tick in note_ticks), default=Fraction(0))
-    subdivisions = next((grid for grid in (4, 6, 8, 12, 16, 24, 32, 48, 64)
-                         if max_grid_error(grid) <= Fraction(1, 128)), 64)
+    # OSMD/VexFlow cannot reliably engrave music21's 256th-note fragments.
+    # Cap the grid at 1/32-quarter (a 128th note), retaining original MIDI
+    # unchanged and bounding event-time rounding to <= 1/64 quarter note.
+    subdivisions = next((grid for grid in (4, 6, 8, 12, 16, 24, 32)
+                         if max_grid_error(grid) <= Fraction(1, 128)), 32)
     def position(tick):
         return Fraction(round(Fraction(tick*subdivisions, ppq)), subdivisions)
     adjustment = max_grid_error(subdivisions)
@@ -280,6 +283,19 @@ def repair_saved_imports(directory):
             title = labels.get(xml_path.name, {}).get("title", "")
             import_bytes(midi_path.read_bytes(), directory, title, replace_existing=True)
             print(f"Rebuilt malformed XML from original MIDI: {xml_path.name}")
+            continue
+        root = ET.parse(xml_path).getroot()
+        if any((element.text or '').strip() in ('256th', '512th', '1024th', '2048th')
+               for element in root.findall('.//note/type')):
+            # Strict XML and note/timing validation are not sufficient:
+            # 256th-note fragments cannot be displayed by the pinned OSMD.
+            seed_path = directory / "song-library.seed.json"
+            labels = json.loads(seed_path.read_text()).get("uploadedLabels", {}) if seed_path.exists() else {}
+            title = (labels.get(xml_path.name, {}).get("title")
+                     or root.findtext("./work/work-title")
+                     or root.findtext("./movement-title") or "")
+            import_bytes(midi_path.read_bytes(), directory, title, replace_existing=True)
+            print(f"Rebuilt renderer-incompatible 256th-note score: {xml_path.name}")
             continue
         saved = converter.parse(str(xml_path))
         part_grids = [[(measure.offset, measure.barDuration.quarterLength)
