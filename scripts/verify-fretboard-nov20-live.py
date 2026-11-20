@@ -27,7 +27,7 @@ async def main():
                       return f?.value==='186bfd78' && m?.value==='strumPick'
                         && p?.dataset?.fixtureId==='186bfd78'
                         && p?.dataset?.versionId==='strumPick'
-                        && p?.dataset?.durationTicks==='2016'
+                        && p?.dataset?.durationTicks==='20160'
                         && b && !b.disabled;
                     }""", timeout=18000)
                     break
