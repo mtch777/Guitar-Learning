@@ -170,8 +170,8 @@ def score_from_midi_bytes(data, title=''):
                             if len(pitches) > 1 else note.Note(next(iter(pitches)), quarterLength=duration))
             part.insert(Fraction(onset, ppq), musical_note)
         if part_index == 0:
-            for tick, (tempo,) in ordered_changes(tempos):
-                part.insert(Fraction(tick, ppq), tempo.MetronomeMark(number=mido.tempo2bpm(tempo)))
+            for tick, (microseconds_per_beat,) in ordered_changes(tempos):
+                part.insert(Fraction(tick, ppq), tempo.MetronomeMark(number=mido.tempo2bpm(microseconds_per_beat)))
             for tick, (signature,) in ordered_changes(keys):
                 try:
                     part.insert(Fraction(tick, ppq), key.Key(signature))
