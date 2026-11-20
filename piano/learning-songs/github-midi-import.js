@@ -91,3 +91,22 @@ export async function dispatchMidiImport(url, token, {id = newImportId(), title 
   if (response.status === 404) throw new Error('The GitHub import repository was not found or is inaccessible.');
   throw new Error(`Could not start MIDI import (HTTP ${response.status}).`);
 }
+
+/** Interpret a server-published per-request receipt, including failed imports.
+ * Older success receipts without a status remain backward compatible.
+ */
+export function readMidiImportReceipt(receipt, id) {
+  if (!REQUEST_ID.test(id) || !receipt || receipt.version !== 1 || receipt.requestId !== id) {
+    throw new Error('GitHub returned an invalid MIDI import result.');
+  }
+  if (receipt.status === 'failed') {
+    if (typeof receipt.error !== 'string' || !receipt.error.trim()) {
+      throw new Error('GitHub returned an invalid failed-import receipt.');
+    }
+    return {failed:true, error:receipt.error.replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 320)};
+  }
+  if ((receipt.status && receipt.status !== 'success') || !/^upload-[a-f0-9]{64}$/.test(receipt.songId)) {
+    throw new Error('GitHub returned an invalid successful-import receipt.');
+  }
+  return {failed:false, songId:receipt.songId};
+}
