@@ -33,27 +33,9 @@ jobs:
           npm ci
       - name: Reuse original signed MuseScore MIDI from failed import log
         env:
-          GH_TOKEN: ${{ github.token }}
+          MIDI_URL: 'https://s3w.musescore.com/musescore.scoredata/g/aac8419eb387ca6bfa397fdfd849711e57d0c671/score.mid?response-content-disposition=inline%3B&response-content-type=audio%2Fmidi&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=B20SANWKGFHTGDNAQBLE%2F20261119%2Feu-central-1%2Fs3%2Faws4_request&X-Amz-Date=20261119T232522Z&X-Amz-SignedHeaders=host&X-Amz-Expires=10800&X-Amz-Signature=7486a9328472a497f1dfa99ed75ee70de6565a660a7117443cb70c1b8233b3a5'
         run: |
-          python - <<'PY'
-          import os, re, subprocess, urllib.request
-          endpoint = 'https://api.github.com/repos/mtch777/Guitar-Learning/actions/jobs/135959787444/logs'
-          request = urllib.request.Request(endpoint, headers={
-              'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
-              'Accept': 'application/vnd.github+json',
-              'User-Agent': 'Guitar-Learning-piano-recovery',
-          })
-          with urllib.request.urlopen(request, timeout=30) as response:
-              logs = response.read(1000000).decode('utf-8', 'replace')
-          url = next((line.split('MIDI_URL: ', 1)[1].strip() for line in logs.splitlines() if 'MIDI_URL: https://s3w.musescore.com/' in line), None)
-          if not url:
-              raise RuntimeError('Original MuseScore MIDI link missing from failed import log')
-          subprocess.run([
-              'python', 'scripts/piano/import-midi-url.py',
-              '--url', url,
-              '--title', 'Polite company - Rainbow Kitten Surprise',
-          ], check=True)
-          PY
+          python scripts/piano/import-midi-url.py --url "$MIDI_URL" --title 'Polite company - Rainbow Kitten Surprise'
           npm run prebuild
           node --input-type=module -e "
           import fs from 'node:fs';
