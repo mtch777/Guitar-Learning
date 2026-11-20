@@ -37218,7 +37218,7 @@
       "label": "D \u00b7 November 20 rewrite",
       "source_filename": "2026-11-20_midi_rewrite.mid",
       "source_url": "https://github.com/mtch777/Guitar-Learning/blob/main/tests/fixtures/fretboard-efficiency/2026-11-20_midi_rewrite.mid",
-      "source_sha256": "20564b248a57e74b0674da89c6bee74249766ddcc0e2c6b56bedd75372b8b888",
+      "source_sha256": "16fb521d0286d40a8afc9db227282f47e1f7fd4d9296a162ec1606c60f8fac77",
       "ticks_per_beat": 96,
       "tempo_bpm": 120.0,
       "duration_ticks": 2016,
@@ -38248,24 +38248,14 @@
           "id": 102,
           "pitch": 60,
           "start_tick": 1848,
-          "end_tick": 1871,
+          "end_tick": 1872,
           "velocity": 90,
           "channel": 0,
           "start_seconds": 9.625,
-          "end_seconds": 9.744791666666666
+          "end_seconds": 9.75
         },
         {
           "id": 103,
-          "pitch": 71,
-          "start_tick": 1848,
-          "end_tick": 1849,
-          "velocity": 90,
-          "channel": 0,
-          "start_seconds": 9.625,
-          "end_seconds": 9.630208333333332
-        },
-        {
-          "id": 104,
           "pitch": 28,
           "start_tick": 1872,
           "end_tick": 1920,
@@ -38275,7 +38265,7 @@
           "end_seconds": 10.0
         },
         {
-          "id": 105,
+          "id": 104,
           "pitch": 35,
           "start_tick": 1872,
           "end_tick": 1920,
@@ -38285,8 +38275,18 @@
           "end_seconds": 10.0
         },
         {
-          "id": 106,
+          "id": 105,
           "pitch": 71,
+          "start_tick": 1920,
+          "end_tick": 1944,
+          "velocity": 90,
+          "channel": 0,
+          "start_seconds": 10.0,
+          "end_seconds": 10.125
+        },
+        {
+          "id": 106,
+          "pitch": 72,
           "start_tick": 1920,
           "end_tick": 1944,
           "velocity": 90,
@@ -38296,17 +38296,17 @@
         },
         {
           "id": 107,
-          "pitch": 72,
-          "start_tick": 1920,
-          "end_tick": 1944,
+          "pitch": 71,
+          "start_tick": 1944,
+          "end_tick": 1968,
           "velocity": 90,
           "channel": 0,
-          "start_seconds": 10.0,
-          "end_seconds": 10.125
+          "start_seconds": 10.125,
+          "end_seconds": 10.25
         },
         {
           "id": 108,
-          "pitch": 71,
+          "pitch": 72,
           "start_tick": 1944,
           "end_tick": 1968,
           "velocity": 90,
@@ -38316,17 +38316,17 @@
         },
         {
           "id": 109,
-          "pitch": 72,
-          "start_tick": 1944,
-          "end_tick": 1968,
+          "pitch": 71,
+          "start_tick": 1968,
+          "end_tick": 1992,
           "velocity": 90,
           "channel": 0,
-          "start_seconds": 10.125,
-          "end_seconds": 10.25
+          "start_seconds": 10.25,
+          "end_seconds": 10.375
         },
         {
           "id": 110,
-          "pitch": 71,
+          "pitch": 72,
           "start_tick": 1968,
           "end_tick": 1992,
           "velocity": 90,
@@ -38336,16 +38336,6 @@
         },
         {
           "id": 111,
-          "pitch": 72,
-          "start_tick": 1968,
-          "end_tick": 1992,
-          "velocity": 90,
-          "channel": 0,
-          "start_seconds": 10.25,
-          "end_seconds": 10.375
-        },
-        {
-          "id": 112,
           "pitch": 71,
           "start_tick": 1992,
           "end_tick": 2016,
@@ -38355,7 +38345,7 @@
           "end_seconds": 10.5
         },
         {
-          "id": 113,
+          "id": 112,
           "pitch": 72,
           "start_tick": 1992,
           "end_tick": 2016,
@@ -38883,61 +38873,56 @@
             },
             {
               "note_id": 102,
-              "string_number": 3,
-              "fret": 5
+              "string_number": 2,
+              "fret": 1
             },
             {
               "note_id": 103,
-              "string_number": 1,
-              "fret": 7
-            },
-            {
-              "note_id": 104,
               "string_number": 8,
               "fret": 0
             },
             {
-              "note_id": 105,
+              "note_id": 104,
               "string_number": 7,
               "fret": 0
             },
             {
-              "note_id": 106,
+              "note_id": 105,
               "string_number": 2,
               "fret": 12
+            },
+            {
+              "note_id": 106,
+              "string_number": 1,
+              "fret": 8
             },
             {
               "note_id": 107,
-              "string_number": 1,
-              "fret": 8
+              "string_number": 2,
+              "fret": 12
             },
             {
               "note_id": 108,
-              "string_number": 2,
-              "fret": 12
+              "string_number": 1,
+              "fret": 8
             },
             {
               "note_id": 109,
-              "string_number": 1,
-              "fret": 8
+              "string_number": 2,
+              "fret": 12
             },
             {
               "note_id": 110,
-              "string_number": 2,
-              "fret": 12
-            },
-            {
-              "note_id": 111,
               "string_number": 1,
               "fret": 8
             },
             {
-              "note_id": 112,
+              "note_id": 111,
               "string_number": 2,
               "fret": 12
             },
             {
-              "note_id": 113,
+              "note_id": 112,
               "string_number": 1,
               "fret": 8
             }
@@ -40133,32 +40118,29 @@
             {
               "time_seconds": 9.625,
               "tick": 1848,
-              "position": 4,
+              "position": 1,
               "attack_note_ids": [
-                102,
-                103
+                102
               ],
               "active_note_ids": [
-                102,
-                103
+                102
               ],
               "shape_labels": [],
               "picking_order": [
-                1,
-                3
+                2
               ]
             },
             {
               "time_seconds": 9.75,
               "tick": 1872,
-              "position": 4,
+              "position": 1,
               "attack_note_ids": [
-                104,
-                105
+                103,
+                104
               ],
               "active_note_ids": [
-                104,
-                105
+                103,
+                104
               ],
               "shape_labels": [
                 "Drop E open power chord"
@@ -40173,12 +40155,12 @@
               "tick": 1920,
               "position": 8,
               "attack_note_ids": [
-                106,
-                107
+                105,
+                106
               ],
               "active_note_ids": [
-                106,
-                107
+                105,
+                106
               ],
               "shape_labels": [],
               "picking_order": [
@@ -40191,12 +40173,12 @@
               "tick": 1944,
               "position": 8,
               "attack_note_ids": [
-                108,
-                109
+                107,
+                108
               ],
               "active_note_ids": [
-                108,
-                109
+                107,
+                108
               ],
               "shape_labels": [],
               "picking_order": [
@@ -40209,12 +40191,12 @@
               "tick": 1968,
               "position": 8,
               "attack_note_ids": [
-                110,
-                111
+                109,
+                110
               ],
               "active_note_ids": [
-                110,
-                111
+                109,
+                110
               ],
               "shape_labels": [],
               "picking_order": [
@@ -40227,12 +40209,12 @@
               "tick": 1992,
               "position": 8,
               "attack_note_ids": [
-                112,
-                113
+                111,
+                112
               ],
               "active_note_ids": [
-                112,
-                113
+                111,
+                112
               ],
               "shape_labels": [],
               "picking_order": [
@@ -40242,34 +40224,34 @@
             }
           ],
           "metrics": {
-            "note_count": 114,
+            "note_count": 113,
             "attack_count": 75,
             "open_eligible": 32,
             "open_used": 32,
             "open_exceptions": 0,
-            "rapid_shift_count": 23,
-            "rapid_shift_cost": 2712001,
-            "hand_travel_frets": 93,
+            "rapid_shift_count": 24,
+            "rapid_shift_cost": 2784001,
+            "hand_travel_frets": 99,
             "max_shift_frets": 9,
             "max_fret_span": 4,
-            "mean_fret_span": 1.4667,
-            "fretting_effort": 639,
+            "mean_fret_span": 1.44,
+            "fretting_effort": 633,
             "picking_cost": 333,
             "shape_cost": 556,
             "tier_cost": [
               0,
-              2712001,
+              2784001,
               [
-                93,
-                639
+                99,
+                633
               ],
               333,
               556
             ],
-            "states_examined": 114,
+            "states_examined": 113,
             "search": "local_greedy"
           },
-          "runtime_seconds": 0.0053,
+          "runtime_seconds": 0.005,
           "midi_path": "fretboard-efficiency/186bfd78_greedy_strings.mid"
         },
         {
@@ -40794,56 +40776,51 @@
             },
             {
               "note_id": 103,
-              "string_number": 4,
-              "fret": 21
-            },
-            {
-              "note_id": 104,
               "string_number": 8,
               "fret": 0
             },
             {
-              "note_id": 105,
+              "note_id": 104,
               "string_number": 7,
               "fret": 0
             },
             {
-              "note_id": 106,
+              "note_id": 105,
               "string_number": 4,
               "fret": 21
+            },
+            {
+              "note_id": 106,
+              "string_number": 3,
+              "fret": 17
             },
             {
               "note_id": 107,
-              "string_number": 3,
-              "fret": 17
+              "string_number": 4,
+              "fret": 21
             },
             {
               "note_id": 108,
-              "string_number": 4,
-              "fret": 21
+              "string_number": 3,
+              "fret": 17
             },
             {
               "note_id": 109,
-              "string_number": 3,
-              "fret": 17
+              "string_number": 4,
+              "fret": 21
             },
             {
               "note_id": 110,
-              "string_number": 4,
-              "fret": 21
-            },
-            {
-              "note_id": 111,
               "string_number": 3,
               "fret": 17
             },
             {
-              "note_id": 112,
+              "note_id": 111,
               "string_number": 4,
               "fret": 21
             },
             {
-              "note_id": 113,
+              "note_id": 112,
               "string_number": 3,
               "fret": 17
             }
@@ -42062,16 +42039,16 @@
               "tick": 1848,
               "position": 17,
               "attack_note_ids": [
-                102,
-                103
+                102
               ],
               "active_note_ids": [
-                102,
-                103
+                102
               ],
-              "shape_labels": [],
+              "shape_labels": [
+                "A-shape minor-pentatonic fragment",
+                "E-shape minor-pentatonic fragment"
+              ],
               "picking_order": [
-                4,
                 6
               ]
             },
@@ -42080,12 +42057,12 @@
               "tick": 1872,
               "position": 17,
               "attack_note_ids": [
-                104,
-                105
+                103,
+                104
               ],
               "active_note_ids": [
-                104,
-                105
+                103,
+                104
               ],
               "shape_labels": [
                 "Drop E open power chord"
@@ -42100,12 +42077,12 @@
               "tick": 1920,
               "position": 17,
               "attack_note_ids": [
-                106,
-                107
+                105,
+                106
               ],
               "active_note_ids": [
-                106,
-                107
+                105,
+                106
               ],
               "shape_labels": [],
               "picking_order": [
@@ -42118,12 +42095,12 @@
               "tick": 1944,
               "position": 17,
               "attack_note_ids": [
-                108,
-                109
+                107,
+                108
               ],
               "active_note_ids": [
-                108,
-                109
+                107,
+                108
               ],
               "shape_labels": [],
               "picking_order": [
@@ -42136,12 +42113,12 @@
               "tick": 1968,
               "position": 17,
               "attack_note_ids": [
-                110,
-                111
+                109,
+                110
               ],
               "active_note_ids": [
-                110,
-                111
+                109,
+                110
               ],
               "shape_labels": [],
               "picking_order": [
@@ -42154,12 +42131,12 @@
               "tick": 1992,
               "position": 17,
               "attack_note_ids": [
-                112,
-                113
+                111,
+                112
               ],
               "active_note_ids": [
-                112,
-                113
+                111,
+                112
               ],
               "shape_labels": [],
               "picking_order": [
@@ -42169,7 +42146,7 @@
             }
           ],
           "metrics": {
-            "note_count": 114,
+            "note_count": 113,
             "attack_count": 75,
             "open_eligible": 32,
             "open_used": 32,
@@ -42179,24 +42156,24 @@
             "hand_travel_frets": 0,
             "max_shift_frets": 0,
             "max_fret_span": 4,
-            "mean_fret_span": 1.5067,
-            "fretting_effort": 633,
-            "picking_cost": 272,
-            "shape_cost": 520,
+            "mean_fret_span": 1.4933,
+            "fretting_effort": 629,
+            "picking_cost": 274,
+            "shape_cost": 516,
             "tier_cost": [
               0,
               0,
               [
                 0,
-                633
+                629
               ],
-              272,
-              520
+              274,
+              516
             ],
-            "states_examined": 14214,
+            "states_examined": 13872,
             "search": "exhaustive_discrete_dp"
           },
-          "runtime_seconds": 0.0664,
+          "runtime_seconds": 0.0646,
           "midi_path": "fretboard-efficiency/186bfd78_optimized_strings.mid"
         },
         {
@@ -42701,18 +42678,18 @@
             },
             {
               "note_id": 99,
-              "string_number": 2,
-              "fret": 7
+              "string_number": 3,
+              "fret": 11
             },
             {
               "note_id": 100,
-              "string_number": 2,
-              "fret": 10
+              "string_number": 3,
+              "fret": 14
             },
             {
               "note_id": 101,
-              "string_number": 2,
-              "fret": 13
+              "string_number": 3,
+              "fret": 17
             },
             {
               "note_id": 102,
@@ -42721,58 +42698,53 @@
             },
             {
               "note_id": 103,
-              "string_number": 2,
-              "fret": 12
-            },
-            {
-              "note_id": 104,
               "string_number": 8,
               "fret": 0
             },
             {
-              "note_id": 105,
+              "note_id": 104,
               "string_number": 7,
               "fret": 0
             },
             {
+              "note_id": 105,
+              "string_number": 3,
+              "fret": 16
+            },
+            {
               "note_id": 106,
               "string_number": 2,
-              "fret": 12
+              "fret": 13
             },
             {
               "note_id": 107,
-              "string_number": 1,
-              "fret": 8
+              "string_number": 3,
+              "fret": 16
             },
             {
               "note_id": 108,
               "string_number": 2,
-              "fret": 12
+              "fret": 13
             },
             {
               "note_id": 109,
-              "string_number": 1,
-              "fret": 8
+              "string_number": 3,
+              "fret": 16
             },
             {
               "note_id": 110,
               "string_number": 2,
-              "fret": 12
+              "fret": 13
             },
             {
               "note_id": 111,
-              "string_number": 1,
-              "fret": 8
+              "string_number": 3,
+              "fret": 16
             },
             {
               "note_id": 112,
               "string_number": 2,
-              "fret": 12
-            },
-            {
-              "note_id": 113,
-              "string_number": 1,
-              "fret": 8
+              "fret": 13
             }
           ],
           "positions": [
@@ -43917,7 +43889,7 @@
             {
               "time_seconds": 9.125,
               "tick": 1752,
-              "position": 7,
+              "position": 8,
               "attack_note_ids": [
                 98
               ],
@@ -43932,7 +43904,7 @@
             {
               "time_seconds": 9.25,
               "tick": 1776,
-              "position": 7,
+              "position": 9,
               "attack_note_ids": [
                 99
               ],
@@ -43941,72 +43913,65 @@
               ],
               "shape_labels": [],
               "picking_order": [
-                2
+                3
               ]
             },
             {
               "time_seconds": 9.375,
               "tick": 1800,
-              "position": 8,
+              "position": 11,
               "attack_note_ids": [
                 100
               ],
               "active_note_ids": [
                 100
               ],
-              "shape_labels": [
-                "E-shape minor-pentatonic fragment"
-              ],
+              "shape_labels": [],
               "picking_order": [
-                2
+                3
               ]
             },
             {
               "time_seconds": 9.5,
               "tick": 1824,
-              "position": 9,
+              "position": 13,
               "attack_note_ids": [
                 101
               ],
               "active_note_ids": [
                 101
               ],
-              "shape_labels": [
-                "E-shape minor-pentatonic fragment"
-              ],
+              "shape_labels": [],
               "picking_order": [
-                2
+                3
               ]
             },
             {
               "time_seconds": 9.625,
               "tick": 1848,
-              "position": 8,
+              "position": 10,
               "attack_note_ids": [
-                102,
-                103
+                102
               ],
               "active_note_ids": [
-                102,
-                103
+                102
               ],
               "shape_labels": [],
               "picking_order": [
-                4,
-                2
+                4
               ]
             },
             {
               "time_seconds": 9.75,
               "tick": 1872,
-              "position": 8,
+              "position": 10,
               "attack_note_ids": [
-                104,
-                105
+                103,
+                104
               ],
               "active_note_ids": [
-                104,
-                105
+                103,
+                104
               ],
               "shape_labels": [
                 "Drop E open power chord"
@@ -44019,117 +43984,117 @@
             {
               "time_seconds": 10.0,
               "tick": 1920,
-              "position": 8,
+              "position": 12,
               "attack_note_ids": [
-                106,
-                107
+                105,
+                106
               ],
               "active_note_ids": [
-                106,
-                107
+                105,
+                106
               ],
               "shape_labels": [],
               "picking_order": [
-                2,
-                1
+                3,
+                2
               ]
             },
             {
               "time_seconds": 10.125,
               "tick": 1944,
-              "position": 8,
+              "position": 12,
               "attack_note_ids": [
-                108,
-                109
+                107,
+                108
               ],
               "active_note_ids": [
-                108,
-                109
+                107,
+                108
               ],
               "shape_labels": [],
               "picking_order": [
-                2,
-                1
+                3,
+                2
               ]
             },
             {
               "time_seconds": 10.25,
               "tick": 1968,
-              "position": 8,
+              "position": 12,
               "attack_note_ids": [
-                110,
-                111
+                109,
+                110
               ],
               "active_note_ids": [
-                110,
-                111
+                109,
+                110
               ],
               "shape_labels": [],
               "picking_order": [
-                2,
-                1
+                3,
+                2
               ]
             },
             {
               "time_seconds": 10.375,
               "tick": 1992,
-              "position": 8,
+              "position": 12,
               "attack_note_ids": [
-                112,
-                113
+                111,
+                112
               ],
               "active_note_ids": [
-                112,
-                113
+                111,
+                112
               ],
               "shape_labels": [],
               "picking_order": [
-                2,
-                1
+                3,
+                2
               ]
             }
           ],
           "metrics": {
-            "note_count": 114,
+            "note_count": 113,
             "attack_count": 75,
             "open_eligible": 32,
             "open_used": 32,
             "open_exceptions": 0,
-            "rapid_shift_count": 7,
-            "rapid_shift_cost": 408000,
-            "hand_travel_frets": 40,
+            "rapid_shift_count": 11,
+            "rapid_shift_cost": 460000,
+            "hand_travel_frets": 48,
             "max_shift_frets": 7,
             "max_fret_span": 4,
-            "mean_fret_span": 1.32,
-            "fretting_effort": 553,
-            "picking_cost": 363,
-            "shape_cost": 528,
+            "mean_fret_span": 1.24,
+            "fretting_effort": 517,
+            "picking_cost": 348,
+            "shape_cost": 536,
             "tier_cost": [
               0,
-              1,
+              0,
               8
             ],
-            "states_examined": 22077,
+            "states_examined": 22219,
             "search": "exhaustive_strum_pick_dp",
-            "chord_skipped_strings": 1,
-            "chord_attack_count": 39,
+            "chord_skipped_strings": 0,
+            "chord_attack_count": 38,
             "contiguous_chord_count": 38,
             "rapid_single_skipped_strings": 8,
-            "rapid_single_pair_count": 27,
+            "rapid_single_pair_count": 28,
             "rapid_single_skip_transition_count": 4,
             "rapid_run_direction_reversals": 1,
             "priority_cost": [
               0,
-              1,
+              0,
               8
             ],
             "repeated_shape_remaps": 0,
             "tie_break_cost": [
               1,
               0,
-              408000,
-              40,
-              553
+              460000,
+              48,
+              517
             ]
           },
           "objective": {
@@ -44159,13 +44124,13 @@
             "transition_allowance_seconds": 0.125,
             "deterministic_tie_break": "Lexicographic occurrence-ordered string/fret and anchor path, after all three primary and all four secondary costs are equal."
           },
-          "runtime_seconds": 0.1235,
+          "runtime_seconds": 0.1223,
           "midi_path": "fretboard-efficiency/186bfd78_strumPick_strings.mid"
         }
       ],
       "warnings": [
         "No tempo is embedded in this MIDI; playback uses the MIDI default of 120 BPM.",
-        "One zero-duration B4 in the exact upload at 9.625 s was given the minimum 1 source tick (5.208 ms) for playable mapping. The original MIDI bytes are archived unchanged.",
+        "The exact upload has a zero-duration B4 at 9.625 s, omitted from playable mapping; the neighboring C4 release is aligned from source tick 1871 to 1872 (5.208 ms later). Original MIDI bytes are archived unchanged.",
         "All other MIDI note pitches, velocities, attacks, and releases are retained.",
         "Open-string, adjacent-string, and repeated-shape preferences are constrained by playability."
       ],
