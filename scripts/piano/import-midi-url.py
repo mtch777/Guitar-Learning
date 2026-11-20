@@ -103,7 +103,7 @@ def score_from_midi_bytes(data, title=''):
     from fractions import Fraction
     from io import BytesIO
     import mido
-    from music21 import chord, key, metadata, meter, metronome, note, stream
+    from music21 import chord, key, metadata, meter, tempo, note, stream
 
     midi_file = mido.MidiFile(file=BytesIO(data))
     ppq = midi_file.ticks_per_beat
@@ -171,7 +171,7 @@ def score_from_midi_bytes(data, title=''):
             part.insert(Fraction(onset, ppq), musical_note)
         if part_index == 0:
             for tick, (tempo,) in ordered_changes(tempos):
-                part.insert(Fraction(tick, ppq), metronome.MetronomeMark(number=mido.tempo2bpm(tempo)))
+                part.insert(Fraction(tick, ppq), tempo.MetronomeMark(number=mido.tempo2bpm(tempo)))
             for tick, (signature,) in ordered_changes(keys):
                 try:
                     part.insert(Fraction(tick, ppq), key.Key(signature))
