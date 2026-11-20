@@ -1,0 +1,33 @@
+name: Verify November 20 fretboard in live Chrome
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-fretboard-nov20-live.yml'
+      - 'scripts/verify-fretboard-nov20-live.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Chromium test runner
+        run: |
+          python -m pip install 'playwright==1.56.0'
+          python -m playwright install --with-deps chromium
+      - name: Validate public lesson with actual native player
+        run: python scripts/verify-fretboard-nov20-live.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: november20-fretboard-live-screenshots
+          path: /tmp/fretboard-nov20-*.png
