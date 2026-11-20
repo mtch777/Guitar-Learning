@@ -145,9 +145,7 @@ export class ScoreRenderer {
     display.EngravingRules.MinimumDistanceBetweenSystems = 3;
     let systems;
     for (let pass = 0; pass < 8; pass++) {
-      if (this.debugLongScore) console.info('[PianoRender] begin render pass', pass + 1, Date.now());
       display.render();
-      if (this.debugLongScore) console.info('[PianoRender] end render pass', pass + 1, Date.now());
       systems = this.indexSystems(display, host);
       let requiredWidth = width;
       for (const page of display.GraphicSheet.MusicPages) {
@@ -198,8 +196,6 @@ export class ScoreRenderer {
     if (!model?.xml || !Array.isArray(model.notes) || !Array.isArray(model.attacks)) {
       throw new TypeError('The score renderer needs a parsed MusicXML model.');
     }
-    this.debugLongScore = model.notes.length > 400;
-    if (this.debugLongScore) console.info('[PianoRender] begin', {notes:model.notes.length, attacks:model.attacks.length, time:Date.now()});
     const Runtime = this.view.opensheetmusicdisplay?.OpenSheetMusicDisplay;
     if (!Runtime) throw new Error('The sheet music renderer has not loaded. Reload the page and try again.');
     const version = ++this.loadVersion;
@@ -221,24 +217,17 @@ export class ScoreRenderer {
     let positions;
     let layout;
     try {
-      if (this.debugLongScore) console.info('[PianoRender] loading OSMD MusicXML', Date.now());
       await display.load(engravingXML(model.xml));
-      if (this.debugLongScore) console.info('[PianoRender] OSMD MusicXML parsed', Date.now());
       if (version !== this.loadVersion) throw new Error('This score load was replaced by a newer selection.');
       layout = this.renderToViewport(display, host);
-      if (this.debugLongScore) console.info('[PianoRender] finished rendering viewport', Date.now());
       mapping = this.indexNotes(display, model);
-      if (this.debugLongScore) console.info('[PianoRender] matched notes', Date.now());
       positions = this.indexCursor(display, model);
-      if (this.debugLongScore) console.info('[PianoRender] matched cursor', Date.now());
     } catch (error) {
       display.dispose?.();
       host.remove();
       throw error;
     }
-    if (this.debugLongScore) console.info('[PianoRender] about to dispose previous OSMD', !!this.osmd, Date.now());
     this.osmd?.dispose?.();
-    if (this.debugLongScore) console.info('[PianoRender] previous OSMD disposed', Date.now());
     const frame = this.container.ownerDocument.createElement('div');
     frame.className = 'lesson-score-window';
     Object.assign(frame.style, {position: 'relative', width: '100%', overflow: 'hidden'});
@@ -254,7 +243,6 @@ export class ScoreRenderer {
     this.renderedWidth = layout.width;
     this.renderedHeight = layout.height;
     this.setSystems(layout.systems);
-    if (this.debugLongScore) console.info('[PianoRender] new model DOM attached', Date.now());
     this.model = model;
     this.noteMap = mapping.notes;
     this.cursorPositions = positions;
@@ -263,11 +251,8 @@ export class ScoreRenderer {
     this.currentIds = new Set();
     this.appliedColors = new Map();
     this.beat = 0;
-    if (this.debugLongScore) console.info('[PianoRender] coloring noteheads', Date.now());
     this.color(this.statuses);
-    if (this.debugLongScore) console.info('[PianoRender] noteheads colored', Date.now());
     this.cursorAtBeat(0);
-    if (this.debugLongScore) console.info('[PianoRender] cursor initialized and loading complete', Date.now());
     return {mappedNotes: this.noteMap.size, expectedNotes: model.notes.length, warnings: mapping.warnings};
   }
 
