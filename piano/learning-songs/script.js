@@ -312,7 +312,8 @@ function scoreErrorMessage(error) {
   if (error.code === 'EMPTY_SCORE') return 'This score has no playable notes.';
   if (['UNMATCHED_TIE', 'AMBIGUOUS_TIE', 'UNFINISHED_TIE'].includes(error.code)) return 'This score has incomplete or ambiguous ties. Try another MusicXML export.';
   if (error.code === 'PITCH_RANGE') return 'This score includes notes outside the MIDI range.';
-  if (error.code) return 'This score could not be read. Try another MusicXML export.';
+  if (error.code === 'BadArguments') return 'The notation renderer rejected this score: ' + String(error.message || 'Unsupported note type').slice(0, 180);
+  if (error.code) return 'Score error (' + String(error.code).slice(0, 60) + '): ' + String(error.message || 'Could not read this score').slice(0, 180);
   if (error.message?.includes('could not fit')) return 'This score could not fit the sheet music window on this screen.';
   if (error.message?.includes('Cannot match')) return 'This score has notes the display could not match.';
   if (error.cause?.some?.(reason => /timed out/i.test(reason))) return 'The score download timed out. Check your connection and try selecting it again.';
