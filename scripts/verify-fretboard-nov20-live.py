@@ -3,7 +3,7 @@ import asyncio
 import json
 from playwright.async_api import async_playwright
 
-URL = "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=186bfd78&mapping=strumPick&v=20261120-final"
+URL = "https://mtch777.github.io/Guitar-Learning/?lesson=fretboardEfficiency&riff=186bfd78&mapping=stable&v=20261120-fret-stable"
 SHA = "16fb521d0286d40a8afc9db227282f47e1f7fd4d9296a162ec1606c60f8fac77"
 
 
@@ -24,9 +24,9 @@ async def main():
                       const m=document.querySelector('#fretboardEfficiencyMapping');
                       const p=document.querySelector('#songPlayerProgress');
                       const b=document.querySelector('#songPlayerPlayPause');
-                      return f?.value==='186bfd78' && m?.value==='strumPick'
+                      return f?.value==='186bfd78' && m?.value==='stable'
                         && p?.dataset?.fixtureId==='186bfd78'
-                        && p?.dataset?.versionId==='strumPick'
+                        && p?.dataset?.versionId==='stable'
                         && p?.dataset?.durationTicks==='20160'
                         && b && !b.disabled;
                     }""", timeout=18000)
@@ -47,15 +47,23 @@ async def main():
                   versions:fixture?.versions?.map(v=>({
                     id:v.id, assignments:v.assignments.length,
                     opens:v.metrics.open_used, chordSkips:v.metrics.chord_skipped_strings,
-                    contiguous:v.metrics.contiguous_chord_count
+                    contiguous:v.metrics.contiguous_chord_count,
+                    neckTravel:v.metrics.hand_travel_frets, rapidShifts:v.metrics.rapid_shift_count,
+                    singleSkips:v.metrics.rapid_single_skipped_strings
                   }))
                 };
             }""")
             assert payload["present"] and payload["noteCount"] == 113 and payload["sourceSha"] == SHA, payload
             assert abs(payload["seconds"] - 10.5) < 0.0001, payload
-            assert set(v["id"] for v in payload["versions"]) == {"greedy","optimized","strumPick"}, payload
+            assert set(v["id"] for v in payload["versions"]) == {"greedy","optimized","strumPick","stable"}, payload
             assert all(v["assignments"] == 113 and v["opens"] == 32 for v in payload["versions"]), payload
             assert next(v for v in payload["versions"] if v["id"]=="strumPick")["contiguous"] == 38
+            original = next(v for v in payload["versions"] if v["id"]=="strumPick")
+            stable = next(v for v in payload["versions"] if v["id"]=="stable")
+            assert original["neckTravel"] == 48 and original["rapidShifts"] == 11, payload
+            assert stable["neckTravel"] == 0 and stable["rapidShifts"] == 0, payload
+            assert stable["chordSkips"] == 0 and stable["contiguous"] == 38, payload
+            assert original["singleSkips"] == 8 and stable["singleSkips"] == 22, payload
             await page.screenshot(path="/tmp/fretboard-nov20-ready.png", full_page=True)
             print("PUBLIC FIXTURE AND NATIVE PLAYER READY:", json.dumps(payload), flush=True)
 
@@ -82,7 +90,7 @@ async def main():
             await page.locator("#songPlayerStop").click()
             await page.wait_for_function("""() => Number(document.querySelector('#songPlayerProgress')?.value||0)===0""", timeout=5000)
 
-            for strategy in ("optimized", "greedy", "strumPick"):
+            for strategy in ("optimized", "greedy", "strumPick", "stable"):
                 await page.locator("#fretboardEfficiencyMapping").select_option(strategy)
                 await page.wait_for_function("""(wanted) =>
                   document.querySelector('#songPlayerProgress')?.dataset?.versionId === wanted
@@ -92,7 +100,7 @@ async def main():
             await page.screenshot(path="/tmp/fretboard-nov20-static.png", full_page=True)
             await page.locator("#fretboardEfficiencyView").select_option("playback")
             assert not errors, errors
-            print("SUCCESS: real published site played November 20 D in color over gray positions, "
+            print("SUCCESS: real published site played November 20 D / Stable frets in color over gray positions, "
                   "completed its native transport, stopped and switched all three fingering profiles and static view.",
                   flush=True)
         finally:
