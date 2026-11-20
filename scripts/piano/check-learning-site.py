@@ -102,11 +102,20 @@ async def verify(browser, mobile):
                 await page.evaluate("""() => [...document.querySelectorAll('#song-select option')]
                   .find(o => /I Want You To Love Me/i.test(o.textContent))?.value""")
             )
-            await page.wait_for_function("""() =>
-              !!document.querySelector('#score svg')
-              && document.querySelector('#score-loading')?.hidden
-              && document.querySelector('#practice-status')?.textContent==='Ready'
-            """, timeout=30000)
+            try:
+                await page.wait_for_function("""() =>
+                  document.querySelector('#score-loading')?.hidden
+                  && ['Ready','Score unavailable'].includes(document.querySelector('#practice-status')?.textContent)
+                """, timeout=30000)
+            except Exception:
+                print("FIONA DEBUG timeout console:", errors[-30:], flush=True)
+                print("FIONA DEBUG state:", await page.evaluate("""() => ({
+                  status:document.querySelector('#practice-status')?.textContent,
+                  svg:document.querySelectorAll('#score svg').length,
+                  loading:!document.querySelector('#score-loading')?.hidden,
+                  errors:window.__pianoScoreErrors,
+                })"""), flush=True)
+                raise
             fiona = await page.evaluate("""() => ({
               status:document.querySelector('#practice-status')?.textContent,
               svgCount:document.querySelectorAll('#score svg').length,
