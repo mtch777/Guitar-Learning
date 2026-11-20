@@ -15,12 +15,12 @@ const noteKey = note => JSON.stringify([
   timeKey(note.measureOnset), note.midi, Boolean(note.isGrace),
 ]);
 
-// OSMD 2.3.1 drops the first measure's graphical notes when a sound-only
-// tempo direction immediately follows the opening attributes. The original
-// MusicXML remains untouched for timing, playback and uploaded storage.
+// OSMD 2.3.1 can drop noteheads in ANY measure that begins with a
+// sound-only tempo direction, not just the first bar. The original model.xml
+// retains every tempo change for playback; only the engraving copy omits them.
 const engravingXML = xml => xml.replace(
-  /(<measure\b[^>]*>[\s\S]*?<\/attributes>\s*)<direction>\s*<sound\b[^>]*\/>\s*<\/direction>/,
-  '$1',
+  /<direction>\s*<sound\b[^>]*\btempo="[^"]+"[^>]*\/>\s*<\/direction>/g,
+  '',
 );
 
 /** Original notation, with attack results painted onto its actual SVG noteheads. */
