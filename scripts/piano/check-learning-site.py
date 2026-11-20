@@ -9,6 +9,24 @@ async def verify(browser, mobile):
     context = await browser.new_context(viewport={"width": 393 if mobile else 1120, "height": 844 if mobile else 820},
                                         is_mobile=mobile, has_touch=mobile)
     page = await context.new_page()
+    await page.add_init_script("""() => {}""") if False else None
+    await page.add_init_script("""(() => {
+      window.__pianoScoreErrors = [];
+      const previous = console.warn.bind(console);
+      console.warn = (...args) => {
+        if (args[0] === 'Score selection failed:') {
+          const e = args[1];
+          const details = {};
+          for (const name of ['name','code','message','stack','cause','innerError','originalError']) {
+            try { details[name] = typeof e?.[name] === 'object'
+              ? String(e[name]) : e?.[name]; } catch (_) {}
+          }
+          details.keys = Object.getOwnPropertyNames(e || {});
+          window.__pianoScoreErrors.push(details);
+        }
+        previous(...args);
+      };
+    })();""")
     errors = []
     page.on("console", lambda msg: errors.append(f"console.{msg.type}: {msg.text}")
             if msg.type in ("error", "warning") else None)
@@ -34,6 +52,7 @@ async def verify(browser, mobile):
           rendered: !!document.querySelector('#score svg .vf-stavenote, #score svg .vf-stave'),
           empty: !document.querySelector('#empty-score')?.hidden,
           scoreUrl: [...performance.getEntriesByType('resource')].filter(x=>/upload-.*\\.musicxml/.test(x.name)).map(x=>x.name),
+          capturedErrors: window.__pianoScoreErrors,
         })""")
         print(f"REAL SCORE {'MOBILE' if mobile else 'DESKTOP'}: {summary}", flush=True)
         for item in errors[-25:]:
