@@ -20,21 +20,34 @@ jobs:
       - run: |
           python -m pip install 'music21==9.9.1' 'mido==1.3.3'
           npm ci
-      - name: Inspect source MIDI without changing production
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import base64, mido
-          source=Path('public/piano/learning-songs/uploads/midi-190ee0d516e3917d53b1951bcf08d0577cf9f500819429dad87463c7ee3aba89.mid')
-          midi=mido.MidiFile(str(source))
-          print('PIANO_SOURCE_BASE64='+base64.b64encode(source.read_bytes()).decode(),flush=True)
-          print('PIANO_MIDI_INFO',midi.type,midi.ticks_per_beat,len(midi.tracks),flush=True)
-          for i,track in enumerate(midi.tracks):
-              print('PIANO_TRACK',i,len(track),track.name,flush=True)
-          PY
+          python -m pip install 'playwright==1.56.0'
       - name: Test converter and rebuild in isolated checkout
         run: |
           python -m unittest discover -s tests -p 'test_piano_midi_converter.py'
+          python -m unittest discover -s tests -p 'test_piano_readable_notation.py'
           python scripts/piano/import-midi-url.py --repair-saved
           npm run prebuild
           node scripts/piano/assert-midi-import.mjs midi-190ee0d516e3917d53b1951bcf08d0577cf9f500819429dad87463c7ee3aba89.musicxml
+          node scripts/piano/assert-midi-import.mjs midi-e578ad97abfd8cac7ade35558f882643b8741e1851a6e0567fd33a0f7c420ae9.musicxml
+          python - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          p=Path('public/piano/learning-songs/uploads/midi-190ee0d516e3917d53b1951bcf08d0577cf9f500819429dad87463c7ee3aba89.musicxml')
+          root=ET.parse(p).getroot()
+          notes=root.findall('.//note')
+          pitched=sum(n.find('pitch') is not None for n in notes)
+          rests=sum(n.find('rest') is not None for n in notes)
+          starts=sum(n.find('pitch') is not None and all(t.get('type')!='stop' for t in n.findall('tie')) for n in notes)
+          ties=sum(len(n.findall('tie')) for n in notes)
+          print(f'PIANO READABILITY: MIDI source 219 attacks; output {pitched} pitched notes, {rests} rests, {ties} tie flags, {starts} attacks, {len(notes)} total elements',flush=True)
+          assert starts==219 and pitched<=420 and rests<=140 and ties<=400
+          PY
+      - name: Browser rendering for real Polite Company at mobile and desktop widths
+        env:
+          PIANO_LESSON_URL: http://127.0.0.1:8765/Guitar-Learning/piano/learning-songs/
+        run: |
+          npm run build
+          mkdir -p .local/piano-static-site
+          ln -s "$(pwd)/dist" .local/piano-static-site/Guitar-Learning
+          python -m http.server 8765 --bind 127.0.0.1 --directory .local/piano-static-site > /tmp/piano-notation-server.log 2>&1 &
+          python scripts/piano/check-learning-site.py
