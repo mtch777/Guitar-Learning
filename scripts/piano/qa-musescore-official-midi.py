@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Four consecutive real MIDI exports from MuseScore Studio's own test corpus.
+"""Full official corpus of MIDI exports from MuseScore Studio's own test corpus.
 
 The files are officially published by musescore/MuseScore. This tests the
 MIDI->MusicXML->piano-lesson path, but NOT cloudflare-protected musescore.com
@@ -36,6 +36,10 @@ def main():
     random.Random(SEED).shuffle(sources)
     root=ROOT / 'public/piano/learning-songs'
     consecutive=0
+    longest=0
+    passed=0
+    rejected=0
+    failed=0
     results=[]
     for count,name in enumerate(sources,1):
         link=SOURCE+name
@@ -54,18 +58,28 @@ def main():
             song=next(s for s in catalog['songs'] if s.get('sourceFilename')==xml.name)
             result.update(outcome='PASS',attacks=song['attackCount'],score_notes=song['noteCount'])
             consecutive+=1
+            passed+=1
+            longest=max(longest,consecutive)
+        except ValueError as error:
+            if 'no completed pitched notes' in str(error):
+                result.update(outcome='EXPECTED_REJECTION',reason=str(error))
+                rejected+=1
+            else:
+                result.update(outcome='FAIL',reason=str(error)[:400])
+                failed+=1
+            consecutive=0
         except Exception as error:
             result.update(outcome='FAIL',reason=str(error)[:400])
+            failed+=1
             consecutive=0
         results.append(result)
         print(f'QA OFFICIAL RESULT {count} {result["outcome"]}: {result.get("reason",str(result.get("attacks"))+" attacks")} | consecutive={consecutive}',flush=True)
-        if consecutive==4:
-            break
     output={'source_repository':'musescore/MuseScore', 'random_seed':SEED, 'target':4,
-            'consecutive':consecutive,'attempts':results}
+            'longest_streak':longest, 'passed':passed, 'expected_rejections':rejected,
+            'unexpected_failures':failed, 'attempts':results}
     (ROOT/'musescore-official-midi-qa-results.json').write_text(json.dumps(output,indent=2))
-    print(f'QA OFFICIAL FINAL {consecutive}/4 consecutive successful actual MuseScore-exported MIDIs',flush=True)
-    return 0 if consecutive>=4 else 1
+    print(f'QA OFFICIAL FINAL longest={longest}/4 consecutive; passed={passed}; expected_rejections={rejected}; unexpected_failures={failed}; total={len(results)}',flush=True)
+    return 0 if longest>=4 and failed==0 else 1
 
 
 if __name__=='__main__':
