@@ -18,6 +18,7 @@ on:
       - 'scripts/piano/assert-midi-import.mjs'
       - 'scripts/piano/verify-midi-fidelity.mjs'
       - 'scripts/piano/expected-midi-attacks.py'
+      - 'scripts/piano/repair-midi-fidelity.py'
       - 'scripts/piano/write-midi-import-failure.mjs'
       - 'public/piano/learning-songs/song-library.seed.json'
 
@@ -139,13 +140,20 @@ jobs:
           python -m unittest discover -s tests -p 'test_piano_midi_converter.py'
           python scripts/piano/import-midi-url.py --repair-saved
           npm run prebuild
+          python scripts/piano/repair-midi-fidelity.py
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A public/piano/learning-songs/uploads public/piano/learning-songs/scores public/piano/learning-songs/song-library.json
           if [ -d public/piano/learning-songs/imports ]; then git add -A public/piano/learning-songs/imports; fi
           if ! git diff --cached --quiet; then
-            git commit -m 'Repair stored MIDI score measure grids'
-            git push
+            git commit -m 'Repair stored MIDI fidelity against original MIDI'
+            for attempt in 1 2 3; do
+              git fetch origin main
+              git rebase origin/main
+              if git push origin HEAD:main; then break; fi
+              if [ "$attempt" = 3 ]; then exit 1; fi
+              sleep 2
+            done
           fi
       - name: Import original MIDI over HTTPS and verify the lesson catalog
         run: |
