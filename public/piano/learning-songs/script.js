@@ -346,21 +346,16 @@ async function selectSong(song, {preparedModel = null, remember = true} = {}) {
     }
     const candidate = preparedModel || parseMusicXML(xml);
     const rendered = await renderer.load(candidate);
-    if (candidate.attacks.length === 219) console.info('[PianoSelect] renderer returned', Date.now());
     model = candidate;
     sourceModel = candidate;
     transposeOffset = 0;
     pressed.clear();
     configureEngine();
-    if (candidate.attacks.length === 219) console.info('[PianoSelect] engine configured', Date.now());
     drawKeyboard();
-    if (candidate.attacks.length === 219) console.info('[PianoSelect] keyboard drawn', Date.now());
     $('local-recovery').hidden = !song.localOnly;
     if (rendered.warnings?.length) console.warn('Score rendering details:', rendered.warnings);
     paint(true);
-    if (candidate.attacks.length === 219) console.info('[PianoSelect] paint completed', Date.now());
     setStatus('Ready');
-    if (candidate.attacks.length === 219) console.info('[PianoSelect] status set to Ready', Date.now());
     if (remember) storage.select(selectedId);
     return true;
   } catch (error) {

@@ -10,7 +10,6 @@ async def verify(browser, mobile):
     context = await browser.new_context(viewport={"width": 393 if mobile else 1120, "height": 844 if mobile else 820},
                                         is_mobile=mobile, has_touch=mobile)
     page = await context.new_page()
-    await page.add_init_script("""() => {}""") if False else None
     await page.add_init_script("""(() => {
       window.__pianoScoreErrors = [];
       const previous = console.warn.bind(console);
@@ -81,6 +80,24 @@ async def verify(browser, mobile):
             f"Polite Company is listed but DOES NOT LOAD on {'mobile' if mobile else 'desktop'}; "
             f"status={summary['status']}, notice={summary['notice']}"
         )
+        # The original Android failure happened in Continuous playback mode.
+        await page.locator('input[name="lesson-mode"][value="timed"]').check()
+        await page.wait_for_function("""() =>
+          document.querySelector('input[name="lesson-mode"][value="timed"]')?.checked
+          && document.querySelector('#practice-status')?.textContent === 'Ready'
+        """, timeout=10000)
+        continuous = await page.evaluate("""() => ({
+          mode: document.querySelector('input[name="lesson-mode"]:checked')?.value,
+          status: document.querySelector('#practice-status')?.textContent,
+          svgCount: document.querySelectorAll('#score svg').length,
+          blank: !document.querySelector('#empty-score')?.hidden,
+          playEnabled: !document.querySelector('#play-button')?.disabled,
+          noteError: document.querySelector('#import-message')?.textContent,
+        })""")
+        print(f"REAL SCORE CONTINUOUS {'MOBILE' if mobile else 'DESKTOP'}: {continuous}", flush=True)
+        assert continuous['mode'] == 'timed' and continuous['status'] == 'Ready' and continuous['svgCount'] > 0
+        assert not continuous['blank'] and continuous['playEnabled'] and not continuous['noteError']
+
     finally:
         await context.close()
 
