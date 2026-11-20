@@ -1,8 +1,9 @@
 """Verify the REAL published piano score in runner Chrome, including on a phone viewport."""
 import asyncio
+import os
 from playwright.async_api import async_playwright
 
-URL = "https://mtch777.github.io/Guitar-Learning/piano/learning-songs/"
+URL = os.environ.get("PIANO_LESSON_URL", "https://mtch777.github.io/Guitar-Learning/piano/learning-songs/")
 
 
 async def verify(browser, mobile):

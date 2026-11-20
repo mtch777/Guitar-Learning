@@ -1,0 +1,41 @@
+name: Check built piano score in real Chrome
+
+on:
+  push:
+    paths:
+      - '.github/workflows/piano-built-score-browser-check.yml'
+      - 'scripts/piano/check-learning-site.py'
+      - 'public/piano/learning-songs/score-renderer.js'
+      - 'public/piano/learning-songs/script.js'
+      - 'public/piano/learning-songs/song-library.seed.json'
+      - 'scripts/piano/import-midi-url.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render-real-score:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install lesson and browser dependencies
+        run: |
+          npm ci
+          python -m pip install 'playwright==1.56.0'
+      - name: Build and open actual Polite Company score on phone and desktop
+        env:
+          PIANO_LESSON_URL: http://127.0.0.1:8765/Guitar-Learning/piano/learning-songs/
+        run: |
+          npm run build
+          mkdir -p .local/piano-static-site
+          ln -s "$(pwd)/dist" .local/piano-static-site/Guitar-Learning
+          python -m http.server 8765 --bind 127.0.0.1 --directory .local/piano-static-site >/tmp/piano-local-server.log 2>&1 &
+          python scripts/piano/check-learning-site.py
