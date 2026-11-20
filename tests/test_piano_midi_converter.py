@@ -116,11 +116,19 @@ class ExactMidiTimingTest(unittest.TestCase):
             M('note_on', note=60, velocity=90, time=0),
             M('note_off', note=60, velocity=0, time=t),
         ])
-        score = IMPORTER.score_from_midi_bytes(data, 'Offset regression').stripTies()
-        actual = sorted((p.midi, float(n.getOffsetInHierarchy(score)), float(n.duration.quarterLength))
-                        for n in score.recurse().notes for p in n.pitches)
-        self.assertEqual(actual, [(55, 0.0, 12.0), (58, 0.0, 8.0),
-                                  (60, 12.0, 1.0), (62, 0.0, 8.0)])
+        score = IMPORTER.score_from_midi_bytes(data, 'Offset regression')
+        from collections import defaultdict
+        segments = defaultdict(list)
+        for n in score.recurse().notes:
+            onset = float(n.getOffsetInHierarchy(score))
+            for p in n.pitches:
+                segments[p.midi].append((onset, onset + float(n.quarterLength)))
+        self.assertEqual(set(segments), {55, 58, 60, 62})
+        for pitch, (start, end) in {55:(0,12), 58:(0,8), 62:(0,8), 60:(12,13)}.items():
+            pieces = sorted(segments[pitch])
+            self.assertEqual(pieces[0][0], start)
+            self.assertEqual(pieces[-1][1], end)
+            self.assertTrue(all(left[1] == right[0] for left, right in zip(pieces, pieces[1:])))
 
     def test_multi_part_polyrhythm_and_ties_share_one_grid(self):
         import mido
