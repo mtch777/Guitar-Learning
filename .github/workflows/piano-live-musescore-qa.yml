@@ -1,0 +1,37 @@
+name: Piano live MuseScore 4-consecutive QA
+
+on:
+  push:
+    paths:
+      - '.github/workflows/piano-live-musescore-qa.yml'
+      - 'scripts/piano/qa-musescore-live.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-musescore-qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned converter, browser, and parser
+        run: |
+          python -m pip install 'music21==9.9.1' 'mido==1.3.3' 'playwright==1.58.0'
+          npm ci
+      - name: Attempt 4 consecutive distinct real MuseScore score-page imports
+        run: python scripts/piano/qa-musescore-live.py --limit 14 --target 4
+      - name: Upload test report even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: piano-musescore-live-qa
+          path: musescore-live-qa-results.json
+          if-no-files-found: warn
