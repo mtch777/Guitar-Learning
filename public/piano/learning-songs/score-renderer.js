@@ -236,7 +236,9 @@ export class ScoreRenderer {
       host.remove();
       throw error;
     }
+    if (this.debugLongScore) console.info('[PianoRender] about to dispose previous OSMD', !!this.osmd, Date.now());
     this.osmd?.dispose?.();
+    if (this.debugLongScore) console.info('[PianoRender] previous OSMD disposed', Date.now());
     const frame = this.container.ownerDocument.createElement('div');
     frame.className = 'lesson-score-window';
     Object.assign(frame.style, {position: 'relative', width: '100%', overflow: 'hidden'});
@@ -252,6 +254,7 @@ export class ScoreRenderer {
     this.renderedWidth = layout.width;
     this.renderedHeight = layout.height;
     this.setSystems(layout.systems);
+    if (this.debugLongScore) console.info('[PianoRender] new model DOM attached', Date.now());
     this.model = model;
     this.noteMap = mapping.notes;
     this.cursorPositions = positions;
@@ -260,8 +263,11 @@ export class ScoreRenderer {
     this.currentIds = new Set();
     this.appliedColors = new Map();
     this.beat = 0;
+    if (this.debugLongScore) console.info('[PianoRender] coloring noteheads', Date.now());
     this.color(this.statuses);
+    if (this.debugLongScore) console.info('[PianoRender] noteheads colored', Date.now());
     this.cursorAtBeat(0);
+    if (this.debugLongScore) console.info('[PianoRender] cursor initialized and loading complete', Date.now());
     return {mappedNotes: this.noteMap.size, expectedNotes: model.notes.length, warnings: mapping.warnings};
   }
 
