@@ -10,6 +10,8 @@ on:
       - 'public/piano/learning-songs/song-library.seed.json'
       - 'scripts/piano/import-midi-url.py'
       - 'scripts/piano/readable_midi_notation.py'
+      - 'public/piano/learning-songs/uploads/midi-*.musicxml'
+      - 'public/piano/learning-songs/scores/upload-*.musicxml'
   workflow_dispatch:
 
 permissions:
@@ -34,6 +36,7 @@ jobs:
       - name: Build and open actual Polite Company score on phone and desktop
         env:
           PIANO_LESSON_URL: http://127.0.0.1:8765/Guitar-Learning/piano/learning-songs/
+          PIANO_QA_INCLUDE_FIONA: '1'
         run: |
           npm run build
           mkdir -p .local/piano-static-site
