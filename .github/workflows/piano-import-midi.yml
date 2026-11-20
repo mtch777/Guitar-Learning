@@ -16,6 +16,8 @@ on:
       - 'tests/test_piano_midi_converter.py'
       - 'scripts/piano/build-song-library.mjs'
       - 'scripts/piano/assert-midi-import.mjs'
+      - 'scripts/piano/verify-midi-fidelity.mjs'
+      - 'scripts/piano/expected-midi-attacks.py'
       - 'scripts/piano/write-midi-import-failure.mjs'
       - 'public/piano/learning-songs/song-library.seed.json'
 

@@ -5,6 +5,9 @@ on:
     paths:
       - '.github/workflows/piano-official-midi-qa.yml'
       - 'scripts/piano/qa-musescore-official-midi.py'
+      - 'scripts/piano/verify-midi-fidelity.mjs'
+      - 'scripts/piano/expected-midi-attacks.py'
+      - 'scripts/piano/assert-midi-import.mjs'
   workflow_dispatch:
 
 permissions:
