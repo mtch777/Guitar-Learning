@@ -145,7 +145,9 @@ export class ScoreRenderer {
     display.EngravingRules.MinimumDistanceBetweenSystems = 3;
     let systems;
     for (let pass = 0; pass < 8; pass++) {
+      if (this.debugLongScore) console.info('[PianoRender] begin render pass', pass + 1, Date.now());
       display.render();
+      if (this.debugLongScore) console.info('[PianoRender] end render pass', pass + 1, Date.now());
       systems = this.indexSystems(display, host);
       let requiredWidth = width;
       for (const page of display.GraphicSheet.MusicPages) {
@@ -196,6 +198,8 @@ export class ScoreRenderer {
     if (!model?.xml || !Array.isArray(model.notes) || !Array.isArray(model.attacks)) {
       throw new TypeError('The score renderer needs a parsed MusicXML model.');
     }
+    this.debugLongScore = model.notes.length > 400;
+    if (this.debugLongScore) console.info('[PianoRender] begin', {notes:model.notes.length, attacks:model.attacks.length, time:Date.now()});
     const Runtime = this.view.opensheetmusicdisplay?.OpenSheetMusicDisplay;
     if (!Runtime) throw new Error('The sheet music renderer has not loaded. Reload the page and try again.');
     const version = ++this.loadVersion;
@@ -217,11 +221,16 @@ export class ScoreRenderer {
     let positions;
     let layout;
     try {
+      if (this.debugLongScore) console.info('[PianoRender] loading OSMD MusicXML', Date.now());
       await display.load(engravingXML(model.xml));
+      if (this.debugLongScore) console.info('[PianoRender] OSMD MusicXML parsed', Date.now());
       if (version !== this.loadVersion) throw new Error('This score load was replaced by a newer selection.');
       layout = this.renderToViewport(display, host);
+      if (this.debugLongScore) console.info('[PianoRender] finished rendering viewport', Date.now());
       mapping = this.indexNotes(display, model);
+      if (this.debugLongScore) console.info('[PianoRender] matched notes', Date.now());
       positions = this.indexCursor(display, model);
+      if (this.debugLongScore) console.info('[PianoRender] matched cursor', Date.now());
     } catch (error) {
       display.dispose?.();
       host.remove();

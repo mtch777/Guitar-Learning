@@ -29,7 +29,7 @@ async def verify(browser, mobile):
     })();""")
     errors = []
     page.on("console", lambda msg: errors.append(f"console.{msg.type}: {msg.text}")
-            if msg.type in ("error", "warning") else None)
+            if msg.type in ("error", "warning") or "[PianoRender]" in msg.text else None)
     page.on("pageerror", lambda exc: errors.append(f"pageerror: {exc}"))
     try:
         response = await page.goto(URL, wait_until="domcontentloaded", timeout=30000)
@@ -39,10 +39,16 @@ async def verify(browser, mobile):
         song_id = await page.evaluate("""() => [...document.querySelectorAll('#song-select option')]
           .find(o => /Polite Company/i.test(o.textContent)).value""")
         await page.locator("#song-select").select_option(song_id)
-        await page.wait_for_function("""() => {
-          const s=document.querySelector('#practice-status')?.textContent;
-          return s==='Ready' || s==='Score unavailable';
-        }""", timeout=60000)
+        try:
+            await page.wait_for_function("""() => {
+              const s=document.querySelector('#practice-status')?.textContent;
+              return s==='Ready' || s==='Score unavailable';
+            }""", timeout=40000)
+        except Exception:
+            print('REAL SCORE RENDER TIMEOUT; captured console messages:', flush=True)
+            for msg in errors[-40:]:
+                print('REAL SCORE TIMEOUT CONSOLE:', msg[:900], flush=True)
+            raise
         await page.wait_for_timeout(1000)
         summary = await page.evaluate("""() => ({
           status: document.querySelector('#practice-status')?.textContent,
