@@ -97,6 +97,15 @@ def align_midi_measure_grids(score):
         score.replace(part, rebuilt)
 
 
+
+def xml_text(value):
+    """Keep only legal XML 1.0 scalar values in imported metadata."""
+    return ''.join(char for char in str(value) if ord(char) in (9, 10, 13)
+                   or 32 <= ord(char) <= 0xD7FF
+                   or 0xE000 <= ord(char) <= 0xFFFD
+                   or 0x10000 <= ord(char) <= 0x10FFFF)
+
+
 def score_from_midi_bytes(data, title=''):
     """Decode original MIDI note-on/off ticks before building stable cross-bar notation."""
     from collections import defaultdict, deque
@@ -118,7 +127,7 @@ def score_from_midi_bytes(data, title=''):
             tick += event.time
             if event.is_meta:
                 if event.type == 'track_name' and not name:
-                    name = event.name[:100]
+                    name = xml_text(event.name)[:100]
                 elif event.type == 'time_signature':
                     meters.append((tick, track_index, event.numerator, event.denominator))
                 elif event.type == 'set_tempo':
@@ -167,7 +176,7 @@ def score_from_midi_bytes(data, title=''):
     score = stream.Score()
     score.insert(0, metadata.Metadata())
     if title.strip():
-        score.metadata.title = title.strip()[:100]
+        score.metadata.title = xml_text(title).strip()[:100]
     meter_changes = ordered_changes(meters)
     if not meter_changes or meter_changes[0][0] > 0:
         meter_changes.insert(0, (0, (4, 4)))
@@ -228,6 +237,9 @@ def import_bytes(data, directory, title="", *, replace_existing=False):
         with tempfile.TemporaryDirectory(prefix="piano-midi-", dir=uploads) as temporary:
             temporary_xml = Path(temporary) / "score.musicxml"
             score.write("musicxml", fp=str(temporary_xml))
+            # xmldom is lenient; browsers and strict MusicXML consumers are not.
+            # Reject illegal XML controls before publishing or replacing a good score.
+            ET.parse(temporary_xml)
             temporary_xml.replace(xml_path)
     print(f"Imported {stem}.musicxml ({len(data)} MIDI bytes)")
     return xml_path
@@ -238,8 +250,9 @@ def import_midi(url, directory, title=""):
 
 
 def repair_saved_imports(directory):
-    """Repair old MIDI-backed XML only if the parts' time grids disagree."""
+    """Repair malformed MIDI-backed XML or mismatched measures from original MIDI."""
     from music21 import converter, stream
+    import json
 
     uploads = directory / "uploads"
     for midi_path in sorted(uploads.glob("midi-*.mid")):
@@ -247,6 +260,17 @@ def repair_saved_imports(directory):
             continue
         xml_path = midi_path.with_suffix(".musicxml")
         if not xml_path.is_file():
+            continue
+        try:
+            # A browser's lenient XML parser must never let a NUL-containing
+            # imported track title bypass strict XML verification.
+            ET.parse(xml_path)
+        except ET.ParseError:
+            seed_path = directory / "song-library.seed.json"
+            labels = json.loads(seed_path.read_text()).get("uploadedLabels", {}) if seed_path.exists() else {}
+            title = labels.get(xml_path.name, {}).get("title", "")
+            import_bytes(midi_path.read_bytes(), directory, title, replace_existing=True)
+            print(f"Rebuilt malformed XML from original MIDI: {xml_path.name}")
             continue
         saved = converter.parse(str(xml_path))
         part_grids = [[(measure.offset, measure.barDuration.quarterLength)
