@@ -45,6 +45,7 @@ jobs:
       - name: Browser rendering for real Polite Company at mobile and desktop widths
         env:
           PIANO_LESSON_URL: http://127.0.0.1:8765/Guitar-Learning/piano/learning-songs/
+          PIANO_QA_INCLUDE_FIONA: '1'
         run: |
           npm run build
           mkdir -p .local/piano-static-site

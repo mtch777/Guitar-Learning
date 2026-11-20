@@ -13,6 +13,8 @@ on:
     paths:
       - '.github/workflows/piano-import-midi.yml'
       - 'scripts/piano/import-midi-url.py'
+      - 'scripts/piano/readable_midi_notation.py'
+      - 'tests/test_piano_readable_notation.py'
       - 'tests/test_piano_midi_converter.py'
       - 'scripts/piano/build-song-library.mjs'
       - 'scripts/piano/assert-midi-import.mjs'
@@ -138,6 +140,7 @@ jobs:
       - name: Repair older MIDI imports with mismatched measure grids
         run: |
           python -m unittest discover -s tests -p 'test_piano_midi_converter.py'
+          python -m unittest discover -s tests -p 'test_piano_readable_notation.py'
           python scripts/piano/import-midi-url.py --repair-saved
           npm run prebuild
           python scripts/piano/repair-midi-fidelity.py

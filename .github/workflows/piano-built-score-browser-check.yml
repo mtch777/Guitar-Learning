@@ -9,6 +9,7 @@ on:
       - 'public/piano/learning-songs/script.js'
       - 'public/piano/learning-songs/song-library.seed.json'
       - 'scripts/piano/import-midi-url.py'
+      - 'scripts/piano/readable_midi_notation.py'
   workflow_dispatch:
 
 permissions:

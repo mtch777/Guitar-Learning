@@ -6,6 +6,8 @@ on:
       - '.github/workflows/piano-official-midi-qa.yml'
       - 'scripts/piano/qa-musescore-official-midi.py'
       - 'scripts/piano/import-midi-url.py'
+      - 'scripts/piano/readable_midi_notation.py'
+      - 'tests/test_piano_readable_notation.py'
       - 'tests/test_piano_midi_converter.py'
       - 'scripts/piano/verify-midi-fidelity.mjs'
       - 'scripts/piano/expected-midi-attacks.py'

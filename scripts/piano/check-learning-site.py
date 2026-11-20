@@ -97,6 +97,26 @@ async def verify(browser, mobile):
         print(f"REAL SCORE CONTINUOUS {'MOBILE' if mobile else 'DESKTOP'}: {continuous}", flush=True)
         assert continuous['mode'] == 'timed' and continuous['status'] == 'Ready' and continuous['svgCount'] > 0
         assert not continuous['blank'] and continuous['playEnabled'] and not continuous['noteError']
+        if os.environ.get('PIANO_QA_INCLUDE_FIONA') == '1':
+            await page.locator('#song-select').select_option(
+                await page.evaluate("""() => [...document.querySelectorAll('#song-select option')]
+                  .find(o => /I Want You To Love Me/i.test(o.textContent))?.value""")
+            )
+            await page.wait_for_function("""() =>
+              !!document.querySelector('#score svg')
+              && document.querySelector('#score-loading')?.hidden
+              && document.querySelector('#practice-status')?.textContent==='Ready'
+            """, timeout=30000)
+            fiona = await page.evaluate("""() => ({
+              status:document.querySelector('#practice-status')?.textContent,
+              svgCount:document.querySelectorAll('#score svg').length,
+              empty:!document.querySelector('#empty-score')?.hidden,
+              notice:document.querySelector('#import-message')?.textContent,
+            })""")
+            print(f"FIONA SCORE {'MOBILE' if mobile else 'DESKTOP'}: {fiona}", flush=True)
+            assert fiona['status']=='Ready' and fiona['svgCount']>0
+            assert not fiona['empty'] and not fiona['notice']
+
 
     finally:
         await context.close()
