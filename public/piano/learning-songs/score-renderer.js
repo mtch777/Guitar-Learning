@@ -19,7 +19,7 @@ const noteKey = note => JSON.stringify([
 // sound-only tempo direction, not just the first bar. The original model.xml
 // retains every tempo change for playback; only the engraving copy omits them.
 const engravingXML = xml => xml.replace(
-  /<direction>\s*<sound\b[^>]*\btempo="[^"]+"[^>]*\/>\s*<\/direction>/g,
+  /<direction\b[^>]*>\s*(?:<offset>[^<]*<\/offset>\s*)?<sound\b[^>]*\btempo="[^"]+"[^>]*\/>\s*<\/direction>/g,
   '',
 );
 
