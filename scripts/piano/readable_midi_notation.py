@@ -98,7 +98,11 @@ def normalize(events):
         for n in group:
             # The source exports ~0.95 * written note duration. Reconstruct
             # the nearest conventional sixteenth-based duration.
-            predicted=(n.end-onset)/Q(95,100)
+            exact=n.end-n.start
+            # A note already ending on a written grid boundary should not be
+            # lengthened merely because most MIDI exports use a 95% gate.
+            # This matters for exact 4-beat or 8-beat written notes.
+            predicted=(n.end-onset) if abs(exact-snap(exact)) <= Q(1,40) else (n.end-onset)/Q(95,100)
             duration=min(LENGTHS,key=lambda d:(abs(d-predicted),d))
             output.append(replace(n,start=onset,end=onset+duration))
     bypitch=defaultdict(list)
