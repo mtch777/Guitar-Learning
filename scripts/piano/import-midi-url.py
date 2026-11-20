@@ -173,16 +173,25 @@ def score_from_midi_bytes(data, title=''):
         print(f'Normalized raw MIDI timing to 1/{subdivisions}-quarter grid '
               f'(maximum correction {float(adjustment):.5f} quarter notes).')
 
+    def snapped_changes(changes):
+        # The score's rhythmic grid can collapse adjacent MIDI metadata ticks.
+        # Retain exactly one event per written position (latest event wins),
+        # preventing contradictory tempos or meters at the same onset.
+        by_position = {}
+        for tick, values in ordered_changes(changes):
+            by_position[position(tick)] = values
+        return sorted(by_position.items())
+
     score = stream.Score()
     score.insert(0, metadata.Metadata())
     if title.strip():
         score.metadata.title = xml_text(title).strip()[:100]
-    meter_changes = ordered_changes(meters)
+    meter_changes = snapped_changes(meters)
     if not meter_changes or meter_changes[0][0] > 0:
         meter_changes.insert(0, (0, (4, 4)))
     meter_stream = stream.Stream()
-    for tick, (numerator, denominator) in meter_changes:
-        meter_stream.insert(position(tick), meter.TimeSignature(f'{numerator}/{denominator}'))
+    for onset, (numerator, denominator) in meter_changes:
+        meter_stream.insert(onset, meter.TimeSignature(f'{numerator}/{denominator}'))
     end_time = max((position(end) for _, events in tracks for _, end, _ in events))
     for part_index, (name, events) in enumerate(tracks):
         part = stream.Part()
@@ -198,11 +207,11 @@ def score_from_midi_bytes(data, title=''):
                             if len(pitches) > 1 else note.Note(next(iter(pitches)), quarterLength=duration))
             part.insert(onset, musical_note)
         if part_index == 0:
-            for tick, (microseconds_per_beat,) in ordered_changes(tempos):
-                part.insert(position(tick), tempo.MetronomeMark(number=mido.tempo2bpm(microseconds_per_beat)))
-            for tick, (signature,) in ordered_changes(keys):
+            for onset, (microseconds_per_beat,) in snapped_changes(tempos):
+                part.insert(onset, tempo.MetronomeMark(number=mido.tempo2bpm(microseconds_per_beat)))
+            for onset, (signature,) in snapped_changes(keys):
                 try:
-                    part.insert(position(tick), key.Key(signature))
+                    part.insert(onset, key.Key(signature))
                 except Exception:
                     pass
         # Music21's per-measure voice assignment can break ties. Allocate on

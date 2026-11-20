@@ -280,6 +280,30 @@ class ConverterEdgeCaseTest(unittest.TestCase):
         self.assertNotIn(chr(0), score.parts[0].partName)
         self.assert_writes_readable_xml(output.getvalue())
 
+    def test_tempo_events_collapsing_to_same_written_time_are_deduplicated(self):
+        import io
+        import mido
+        from music21 import tempo
+        midi = mido.MidiFile(type=0, ticks_per_beat=480)
+        track = mido.MidiTrack([
+            mido.MetaMessage('set_tempo', tempo=500000, time=0),
+            mido.MetaMessage('set_tempo', tempo=520000, time=1),
+            mido.MetaMessage('set_tempo', tempo=600000, time=1),
+            mido.Message('note_on', note=64, velocity=90, time=0),
+            mido.Message('note_off', note=64, time=480),
+        ])
+        midi.tracks.append(track)
+        buffer = io.BytesIO()
+        midi.save(file=buffer)
+        score = IMPORTER.score_from_midi_bytes(buffer.getvalue())
+        tempos = list(score.recurse().getElementsByClass(tempo.MetronomeMark))
+        self.assertEqual(len(tempos), 1)
+        self.assertAlmostEqual(float(tempos[0].number), 100.0)
+        with tempfile.TemporaryDirectory() as directory:
+            xml = Path(directory) / 'score.musicxml'
+            score.write('musicxml', fp=str(xml))
+            ET.parse(xml)
+
     def test_drums_only_are_not_silent_success(self):
         import io
         import mido
