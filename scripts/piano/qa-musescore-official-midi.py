@@ -61,7 +61,7 @@ def main():
             passed+=1
             longest=max(longest,consecutive)
         except ValueError as error:
-            if 'no completed pitched notes' in str(error):
+            if 'no completed pitched' in str(error).lower():
                 result.update(outcome='EXPECTED_REJECTION',reason=str(error))
                 rejected+=1
             else:

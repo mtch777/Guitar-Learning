@@ -97,6 +97,38 @@ async def verify(browser, mobile):
         print(f"REAL SCORE CONTINUOUS {'MOBILE' if mobile else 'DESKTOP'}: {continuous}", flush=True)
         assert continuous['mode'] == 'timed' and continuous['status'] == 'Ready' and continuous['svgCount'] > 0
         assert not continuous['blank'] and continuous['playEnabled'] and not continuous['noteError']
+        if os.environ.get('PIANO_QA_INCLUDE_FIONA') == '1':
+            await page.locator('#song-select').select_option(
+                await page.evaluate("""() => [...document.querySelectorAll('#song-select option')]
+                  .find(o => /I Want You To Love Me/i.test(o.textContent))?.value""")
+            )
+            try:
+                await page.wait_for_function("""() =>
+                  document.querySelector('#score-loading')?.hidden
+                  && ['Ready','Score unavailable'].includes(document.querySelector('#practice-status')?.textContent)
+                """, timeout=30000)
+            except Exception:
+                print("FIONA DEBUG timeout console:", errors[-30:], flush=True)
+                print("FIONA DEBUG state:", await page.evaluate("""() => ({
+                  status:document.querySelector('#practice-status')?.textContent,
+                  svg:document.querySelectorAll('#score svg').length,
+                  loading:!document.querySelector('#score-loading')?.hidden,
+                  errors:window.__pianoScoreErrors,
+                })"""), flush=True)
+                raise
+            fiona = await page.evaluate("""() => ({
+              status:document.querySelector('#practice-status')?.textContent,
+              svgCount:document.querySelectorAll('#score svg').length,
+              empty:!document.querySelector('#empty-score')?.hidden,
+              notice:document.querySelector('#import-message')?.textContent,
+            })""")
+            print(f"FIONA SCORE {'MOBILE' if mobile else 'DESKTOP'}: {fiona}", flush=True)
+            if fiona['status'] != 'Ready' or fiona['empty']:
+                print('FIONA BROWSER DIAGNOSTICS', errors[-18:], flush=True)
+                print('FIONA BROWSER EXCEPTIONS', await page.evaluate('window.__pianoScoreErrors'), flush=True)
+            assert fiona['status']=='Ready' and fiona['svgCount']>0
+            assert not fiona['empty'] and not fiona['notice']
+
 
     finally:
         await context.close()

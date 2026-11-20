@@ -240,15 +240,20 @@ def import_bytes(data, directory, title="", *, replace_existing=False):
         midi_path.write_bytes(data)
     xml_path = uploads / f"{stem}.musicxml"
     if replace_existing or not xml_path.exists():
-        score = score_from_midi_bytes(data, title)
-        if title.strip():
-            if score.metadata is None:
-                score.insert(0, metadata.Metadata())
-            score.metadata.title = xml_text(title).strip()[:100]
-        # Never leave a partial or failed conversion in place of a saved song.
+        # Use semantic, gate-aware piano notation rather than music21's
+        # note-off-exact multi-voice engraving. Preserve the original .mid.
+        import importlib.util
+        import sys
+        notation_path = Path(__file__).with_name("readable_midi_notation.py")
+        spec = importlib.util.spec_from_file_location("readable_midi_notation", notation_path)
+        notation = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = notation
+        spec.loader.exec_module(notation)
+        xml_bytes = notation.encode(data, title)
+        # Never replace a working score with partially generated MusicXML.
         with tempfile.TemporaryDirectory(prefix="piano-midi-", dir=uploads) as temporary:
             temporary_xml = Path(temporary) / "score.musicxml"
-            score.write("musicxml", fp=str(temporary_xml))
+            temporary_xml.write_bytes(xml_bytes)
             # xmldom is lenient; browsers and strict MusicXML consumers are not.
             # Reject illegal XML controls before publishing or replacing a good score.
             ET.parse(temporary_xml)
@@ -285,6 +290,21 @@ def repair_saved_imports(directory):
             print(f"Rebuilt malformed XML from original MIDI: {xml_path.name}")
             continue
         root = ET.parse(xml_path).getroot()
+        notes = root.findall('.//note')
+        pitched = sum(n.find('pitch') is not None for n in notes)
+        rests = sum(n.find('rest') is not None for n in notes)
+        tiny = sum(n.findtext('type') in ('32nd', '64th', '128th', '256th') for n in notes)
+        notated = any(e.get('name') == 'piano-notation-engine' and e.text == 'piano-readable-midi-v1'
+                      for e in root.findall('.//miscellaneous-field'))
+        if not notated and pitched and (rests > pitched * 0.6 or tiny > pitched * 0.20):
+            seed_path = directory / "song-library.seed.json"
+            labels = json.loads(seed_path.read_text()).get("uploadedLabels", {}) if seed_path.exists() else {}
+            title = (labels.get(xml_path.name, {}).get("title")
+                     or root.findtext("./work/work-title")
+                     or root.findtext("./movement-title") or "")
+            import_bytes(midi_path.read_bytes(), directory, title, replace_existing=True)
+            print(f"Rebuilt overfragmented MIDI notation: {xml_path.name}; old pitched={pitched}, rests={rests}, tiny={tiny}")
+            continue
         if any((element.text or '').strip() in ('256th', '512th', '1024th', '2048th')
                for element in root.findall('.//note/type')):
             # Strict XML and note/timing validation are not sufficient:
