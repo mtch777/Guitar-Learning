@@ -298,6 +298,18 @@ export class ScoreRenderer {
     const required = new Set(model.attacks.flatMap(attack => attack.noteIds));
     const missingRequired = missing.filter(note => !note.isHidden && required.has(note.id));
     if (missingRequired.length) {
+      console.warn('[PianoNoteMatching]', JSON.stringify({
+        first: missingRequired.slice(0,20).map(n=>({
+          part:n.partId,partIndex:n.partIndex,staff:n.staff,voice:n.voice,
+          measure:n.measureIndex,offset:n.measureOnset,midi:n.midi,
+          isHidden:n.isHidden,tieStart:n.tieStart,tieStop:n.tieStop,
+          key:noteKey(n),
+        })),
+        available:[...buckets.keys()].filter(k=>{
+          try { return JSON.parse(k)[4]===missingRequired[0].measureIndex; }
+          catch(_) { return false; }
+        }).slice(0,35),
+      }));
       const first = missingRequired[0];
       throw new Error(`Cannot match ${missingRequired.length} practice note(s) to the displayed score (first: measure ${first.measureNumber}, staff ${first.staff}). Import another MusicXML export of this score.`);
     }

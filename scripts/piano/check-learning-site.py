@@ -123,6 +123,8 @@ async def verify(browser, mobile):
               notice:document.querySelector('#import-message')?.textContent,
             })""")
             print(f"FIONA SCORE {'MOBILE' if mobile else 'DESKTOP'}: {fiona}", flush=True)
+            print('FIONA BROWSER DIAGNOSTICS', errors[-18:],flush=True)
+            print('FIONA BROWSER EXCEPTIONS', await page.evaluate('window.__pianoScoreErrors'),flush=True)
             assert fiona['status']=='Ready' and fiona['svgCount']>0
             assert not fiona['empty'] and not fiona['notice']
 
