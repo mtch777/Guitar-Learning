@@ -167,8 +167,10 @@ test('the three frozen source fixtures remain present with their original clocks
   assert.deepEqual(bundle.fixtures.map(f => f.id).sort(), Object.keys(frozenSources).sort());
   for (const fixture of bundle.fixtures) {
     const raw = rawSources.get(fixture.id), frozen = frozenSources[fixture.id];
-    assert.deepEqual(fixture.versions.map(v => v.id).sort(), ['greedy', 'optimized', 'strumPick'],
-      'Every frozen source must retain both existing profiles and the separate picking profile');
+    assert.deepEqual(fixture.versions.map(v => v.id).sort(),
+      fixture.id === '186bfd78' ? ['greedy', 'optimized', 'stable', 'strumPick'] :
+      ['greedy', 'optimized', 'strumPick'],
+      'Original profiles remain; November 20 adds one independent stable-fret mapping');
     assert.equal(raw.notes.length, frozen.notes);
     assert.equal(raw.ppqn, frozen.ppqn);
     assert.equal(raw.endTick, frozen.endTick);

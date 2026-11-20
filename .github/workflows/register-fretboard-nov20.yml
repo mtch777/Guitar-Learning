@@ -6,6 +6,8 @@ on:
     paths:
       - 'tests/fixtures/fretboard-efficiency/2026-11-20_midi_rewrite.mid'
       - '.github/workflows/register-fretboard-nov20.yml'
+      - 'composition-lab/fretboard_strum_efficiency.py'
+      - 'composition-lab/run_fretboard_efficiency.py'
 
 permissions:
   contents: write

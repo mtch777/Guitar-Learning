@@ -20,6 +20,8 @@ import struct
 ROOT = Path(__file__).resolve().parents[1]
 TUNING_HIGH_TO_LOW = (64, 59, 55, 50, 45, 40, 35, 28)
 STRUM_PRIORITY_ORDER = ("open_misses", "chord_skipped_strings", "rapid_single_skipped_strings")
+STABLE_PRIORITY_ORDER = ("open_misses", "chord_skipped_strings", "rapid_shift_cost",
+                         "hand_travel_frets", "rapid_single_skipped_strings")
 STRUM_TIE_ORDER = ("rapid_run_direction_reversals", "repeated_shape_remaps", "rapid_shift_cost",
                    "hand_travel_frets", "fretting_effort")
 EXPECTED_SOURCES = {
@@ -529,6 +531,31 @@ def validate_version(notes, version, *, ticks_per_beat=960, tempo_bpm=120,
             require(version["metrics"].get("tie_break_cost") == tie,
                     "Incorrect independently recomputed picking tie-break cost")
         result.update(picking)
+    elif version.get("id") == "stable":
+        objective = version.get("objective", {})
+        cutoff = objective.get("rapid_max_gap_seconds", 0.25)
+        picking = strum_pick_metrics(notes, assignments, ticks_per_beat=ticks_per_beat,
+                                     tempo_bpm=tempo_bpm, rapid_max_gap_seconds=cutoff)
+        if check_metrics:
+            require(tuple(objective.get("priority_order", ())) == STABLE_PRIORITY_ORDER,
+                    "Incorrect fret-stable priority order")
+            for key in ("chord_skipped_strings", "chord_attack_count", "contiguous_chord_count",
+                        "rapid_single_skipped_strings", "rapid_single_pair_count",
+                        "rapid_single_skip_transition_count", "rapid_run_direction_reversals",
+                        "repeated_shape_remaps"):
+                require(version["metrics"].get(key) == picking[key],
+                        f"Incorrect independent stable-fret picking metric {key}")
+            primary = [picking["open_misses"], picking["chord_skipped_strings"],
+                       rapid_cost, travel, picking["rapid_single_skipped_strings"]]
+            require(version["metrics"].get("priority_cost") == primary,
+                    "Incorrect independently recomputed fret-stable priority cost")
+            require(version["metrics"].get("tier_cost") == primary,
+                    "Fret-stable tiers must reflect the five strict priorities")
+            require(version["metrics"].get("tie_break_cost") == [
+                picking["rapid_run_direction_reversals"],
+                picking["repeated_shape_remaps"], fretting_effort],
+                "Incorrect independently recomputed fret-stable tie-break cost")
+        result.update(picking)
     elif check_metrics and version.get("id") in ("greedy", "optimized"):
         declared = version["metrics"]
         expected_tiers = [result["open_eligible_note_count"] - result["open_note_count"], rapid_cost,
@@ -579,7 +606,10 @@ def validate_dataset(dataset, source_dir, export_root=None, *, allow_legacy_vers
         expected = EXPECTED_SOURCES[filename]
         require(maximum_open_attacks(fixture["notes"]) == expected["feasible_opens"],
                 "Frozen open-count feasibility changed")
-        require(Counter(v["id"] for v in fixture["versions"]) == Counter({v: 1 for v in required_versions}),
+        expected_versions = required_versions | ({"stable"} if fixture["id"] == "186bfd78"
+                                               and "strumPick" in required_versions else set())
+        require(Counter(v["id"] for v in fixture["versions"]) ==
+                Counter({v: 1 for v in expected_versions}),
                 "All requested versions must be independently checked; legacy bundles require explicit opt-in")
         metrics = {}
         exports = {}

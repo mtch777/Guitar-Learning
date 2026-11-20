@@ -77,7 +77,8 @@ test('the real lesson selector corresponds to every published built-in fixture, 
 
 for (const fixtureId of ['cfa029a2', 'da80eca9', 'c5a35486', '186bfd78']) {
   test(`${fixtureId}: all three mapping URLs load that exact fixture and retain shareable selection`, async () => {
-    for (const versionId of ['optimized', 'greedy', 'strumPick']) {
+    for (const versionId of (fixtureId === '186bfd78' ? ['optimized', 'greedy', 'strumPick', 'stable'] :
+                             ['optimized', 'greedy', 'strumPick'])) {
       const harness = mount(`?lesson=fretboardEfficiency&riff=${fixtureId}&mapping=${versionId}`);
       await harness.lesson.activate();
       assert.equal(harness.fields.fretboardEfficiencyRiff.value, fixtureId);
@@ -86,7 +87,7 @@ for (const fixtureId of ['cfa029a2', 'da80eca9', 'c5a35486', '186bfd78']) {
       assert.equal(harness.loads[0].fixture, data.fixtures.find(fixture => fixture.id === fixtureId));
       assert.equal(harness.loads[0].versionId, versionId);
       assert.equal(harness.selections[0].version.id, versionId);
-      if (versionId === 'strumPick') {
+      if (versionId === 'strumPick' || versionId === 'stable') {
         assert.ok(harness.fields.fretboardEfficiencyInfo.title.includes(
           harness.selections[0].version.objective.priority_labels.join(' → ')));
       }

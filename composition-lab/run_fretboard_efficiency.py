@@ -8,7 +8,7 @@ import time
 
 import mido
 from fretboard_efficiency import optimize_fingering, greedy_fingering, DROP_E
-from fretboard_strum_efficiency import optimize_strum_fingering
+from fretboard_strum_efficiency import optimize_strum_fingering, optimize_fret_stable_fingering
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_COMMIT = 'b86db9f73d1adf8a5552dc81a475437a36b4ae2c'
@@ -22,6 +22,7 @@ STRATEGIES = (
     ('greedy', greedy_fingering),
     ('optimized', optimize_fingering),
     ('strumPick', optimize_strum_fingering),
+    ('stable', optimize_fret_stable_fingering),
 )
 
 
@@ -172,6 +173,10 @@ def build(source_dir, output, fixture_ids=None, strategy_ids=None, *, rapid_max_
             previous_versions = {version['id']: version for version in previous['versions']}
         source_snapshot = json.dumps(notes, sort_keys=True)
         for strategy_id, algorithm in STRATEGIES:
+            # Add the low-neck-travel alternative only to the user's November 20 riff.
+            # All accepted A/B/C mappings and their selectors remain unchanged.
+            if strategy_id == 'stable' and fixture_id != '186bfd78':
+                continue
             if selected_strategies is not None and strategy_id not in selected_strategies:
                 if strategy_id in previous_versions:
                     fixture['versions'].append(previous_versions[strategy_id])
@@ -180,7 +185,7 @@ def build(source_dir, output, fixture_ids=None, strategy_ids=None, *, rapid_max_
                 continue
             start = time.monotonic()
             options = dict(ticks_per_beat=ppqn, tempo_bpm=fixture['tempo_bpm'])
-            if strategy_id == 'strumPick':
+            if strategy_id in ('strumPick', 'stable'):
                 options['rapid_max_gap_seconds'] = rapid_max_gap_seconds
             version = algorithm(notes, **options)
             if version['id'] != strategy_id:

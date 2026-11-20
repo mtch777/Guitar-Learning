@@ -89,7 +89,7 @@ def _movement_delta(previous, grip, tick, position, seconds_per_tick, rapid_rate
             last_grip, last_shape_tick, last_pitches)
 
 
-def _annotate_winner(last, source, seconds_per_tick, rapid_rate, rapid_max_gap_seconds, examined):
+def _annotate_winner(last, source, seconds_per_tick, rapid_rate, rapid_max_gap_seconds, examined, *, stable_mode=False):
     chain = []
     state = last
     while state.parent is not None:
@@ -118,6 +118,42 @@ def _annotate_winner(last, source, seconds_per_tick, rapid_rate, rapid_max_gap_s
         skip_pair_count += bool(rapid_pair and skips)
 
     result = _result(diagnostic, source, seconds_per_tick, rapid_rate, False, examined)
+    if stable_mode:
+        metrics = result['metrics']
+        if [metrics['open_exceptions'], metrics['rapid_shift_cost'],
+                metrics['hand_travel_frets'], metrics['fretting_effort']] != [
+                    last.cost[0], last.cost[2], last.cost[3], last.cost[7]]:
+            raise AssertionError('Fret-stability search and selected-path diagnostics disagree.')
+        result.update(
+            id='stable', label='Stable frets',
+            description='Preserve opens and adjacent-string chords, then minimize fast neck-position '
+                        'shifts and total movement along the frets; rapid single-note string skips '
+                        'are a lower priority. Shape continuity, direction, and fretting effort break ties.')
+        metrics.update(
+            chord_skipped_strings=last.cost[1], chord_attack_count=chord_count,
+            contiguous_chord_count=contiguous_count,
+            rapid_single_skipped_strings=last.cost[4], rapid_single_pair_count=pair_count,
+            rapid_single_skip_transition_count=skip_pair_count,
+            rapid_run_direction_reversals=last.cost[5], repeated_shape_remaps=last.cost[6],
+            priority_cost=list(last.cost[:5]), tie_break_cost=list(last.cost[5:]),
+            tier_cost=list(last.cost[:5]), search='exhaustive_fret_stability_dp')
+        result['objective'] = dict(
+            priority_order=['open_misses', 'chord_skipped_strings', 'rapid_shift_cost',
+                            'hand_travel_frets', 'rapid_single_skipped_strings'],
+            priority_labels=['Exact-pitch open strings', 'Adjacent strings for simultaneous notes',
+                             'Avoid rapid hand-position changes along frets',
+                             'Minimize total neck travel in frets',
+                             'Minimize skipped strings in rapid single-note passages'],
+            rapid_max_gap_seconds=rapid_max_gap_seconds,
+            tie_break_order=['rapid_run_direction_reversals', 'repeated_shape_remaps',
+                             'fretting_effort'],
+            repeated_shape_definition='Retain recurring fretted dyads through open-string passages '
+                                      'when higher-priority fret movement and picking goals tie.',
+            hand_shift_definition='Release-aware hand-position travel using the existing '
+                                  'five-fret hand window; an open-only passage preserves the '
+                                  'previous anchor but allows elapsed release time.',
+            rapid_frets_per_second=rapid_rate, transition_allowance_seconds=0.125)
+        return result
     result.update(id='strumPick', label='Strum + pick',
                   description='Minimize missed exact-pitch opens, then skipped strings within co-attacks, '
                               'then skips between rapid single attacks. Picking direction, repeated '
@@ -161,7 +197,8 @@ def _annotate_winner(last, source, seconds_per_tick, rapid_rate, rapid_max_gap_s
 
 
 def optimize_strum_fingering(notes, *, ticks_per_beat=960, tempo_bpm=120, max_fret=24,
-                            max_span=4, rapid_max_gap_seconds=0.25, rapid_frets_per_second=8.0):
+                            max_span=4, rapid_max_gap_seconds=0.25, rapid_frets_per_second=8.0,
+                            prioritize_fret_stability=False):
     """Assign exact source occurrences without changing pitches, starts, or holds.
 
     The search reuses only admitted physical grips/input validation. All search
@@ -187,8 +224,10 @@ def optimize_strum_fingering(notes, *, ticks_per_beat=960, tempo_bpm=120, max_fr
                 for position in grip.anchors or (previous.position,):
                     shape_remaps, rapid, travel, effort, last_tick, last_release, last_grip, last_shape_tick, last_pitches = _movement_delta(
                         previous, grip, tick, position, seconds_per_tick, rapid_frets_per_second)
-                    delta = (grip.open_misses, chord_skips, single_skips, reversals,
-                             shape_remaps, rapid, travel, effort)
+                    delta = ((grip.open_misses, chord_skips, rapid, travel, single_skips,
+                              reversals, shape_remaps, effort) if prioritize_fret_stability else
+                             (grip.open_misses, chord_skips, single_skips, reversals,
+                              shape_remaps, rapid, travel, effort))
                     cost = tuple(a + b for a, b in zip(previous.cost, delta))
                     # Parent ranks order complete equal-length prefixes, so a
                     # bounded key gives deterministic full-path ordering without
@@ -210,4 +249,9 @@ def optimize_strum_fingering(notes, *, ticks_per_beat=960, tempo_bpm=120, max_fr
             state.rank = rank
     winner = min(states, key=lambda state: (state.cost, state.rank))
     return _annotate_winner(winner, source, seconds_per_tick, rapid_frets_per_second,
-                           rapid_max_gap_seconds, examined)
+                           rapid_max_gap_seconds, examined, stable_mode=prioritize_fret_stability)
+
+
+def optimize_fret_stable_fingering(notes, **kwargs):
+    """Prefer a stable fretting-hand location over rapid single-note string hops."""
+    return optimize_strum_fingering(notes, prioritize_fret_stability=True, **kwargs)

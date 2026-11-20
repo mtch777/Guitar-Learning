@@ -259,8 +259,20 @@ class FrozenPickingFixtureTests(unittest.TestCase):
         report = validate_dataset(self.data, self.source_dir)
         self.assertTrue(report["passed"])
         self.assertEqual(len(report["fixtures"]), 4)
-        self.assertTrue(all(set(f["versions"]) == {"greedy", "optimized", "strumPick"}
+        self.assertTrue(all(set(f["versions"]) == (
+                            {"greedy", "optimized", "strumPick", "stable"} if f["fixture"] == "186bfd78"
+                            else {"greedy", "optimized", "strumPick"})
                             for f in report["fixtures"]))
+
+    def test_november_twenty_stable_frets_minimizes_neck_travel_without_chord_gaps(self):
+        fixture = next(f for f in self.data["fixtures"] if f["id"] == "186bfd78")
+        versions = {v["id"]: v for v in fixture["versions"]}
+        old = versions["strumPick"]["metrics"]
+        stable = versions["stable"]["metrics"]
+        self.assertEqual(stable["open_used"], old["open_used"])
+        self.assertEqual(stable["chord_skipped_strings"], old["chord_skipped_strings"])
+        self.assertLess(stable["hand_travel_frets"], old["hand_travel_frets"])
+        self.assertLessEqual(stable["rapid_shift_cost"], old["rapid_shift_cost"])
 
     def test_c_repeated_high_dyads_keep_the_same_fretted_shape(self):
         fixture = next(f for f in self.data["fixtures"] if f["id"] == "c5a35486")

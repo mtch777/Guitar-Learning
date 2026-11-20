@@ -90,7 +90,11 @@ export function setupFretboardEfficiencyLesson({ player, isSelected, onSelection
   function showMetrics(version) {
     const metrics = version.metrics;
     const prefix = `Drop E · intervals relative to E · ${metrics.open_used} open notes`;
-    if (version.id === 'strumPick') {
+    if (version.id === 'stable') {
+      info.textContent = prefix + ` · ${metrics.rapid_shift_count} rapid neck shifts` +
+        ` · ${metrics.hand_travel_frets} frets travelled` +
+        ` · ${metrics.chord_skipped_strings} chord string skips`;
+    } else if (version.id === 'strumPick') {
       info.textContent = prefix + ` · ${metrics.chord_skipped_strings ?? '—'} chord string skips` +
         ` · ${metrics.rapid_single_skipped_strings ?? '—'} rapid single-note string skips`;
     } else {

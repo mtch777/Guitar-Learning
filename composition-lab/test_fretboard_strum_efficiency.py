@@ -2,7 +2,7 @@
 from copy import deepcopy
 import unittest
 
-from fretboard_strum_efficiency import optimize_strum_fingering
+from fretboard_strum_efficiency import optimize_strum_fingering, optimize_fret_stable_fingering
 
 
 def note(note_id, pitch, start, end):
@@ -24,6 +24,18 @@ class StrumPriorityTests(unittest.TestCase):
         self.assertEqual(len(result['metrics']['priority_cost']), 3)
         self.assertEqual(len(result['metrics']['tie_break_cost']), 5)
         return result
+
+    def test_stable_variant_has_distinct_fret_movement_priorities(self):
+        original = phrase([52, 54, 52, 54], [0, 120, 240, 360])
+        before = deepcopy(original)
+        stable = optimize_fret_stable_fingering(original)
+        self.assertEqual(original, before)
+        self.assertEqual(stable['id'], 'stable')
+        self.assertEqual(stable['metrics']['tier_cost'], stable['metrics']['priority_cost'])
+        self.assertEqual(len(stable['metrics']['priority_cost']), 5)
+        self.assertEqual(stable['objective']['priority_order'][:4],
+                         ['open_misses', 'chord_skipped_strings', 'rapid_shift_cost',
+                          'hand_travel_frets'])
 
     def test_open_priority_beats_adjacent_strumming(self):
         result = self.checked([note(0, 28, 0, 960), note(1, 40, 0, 960)])

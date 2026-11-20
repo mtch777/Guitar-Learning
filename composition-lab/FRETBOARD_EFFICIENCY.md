@@ -72,6 +72,10 @@ The provisional threshold is 8 fret positions per second. Excess distance is `ma
 
 The score penalizes the severity and timing of movement; it is not simply a count of position changes. Open-note and rest windows can provide release time while the previous hand position is retained as the reference.
 
+## November 20 fret-stable alternative
+
+The user reported too much movement **along the frets/up and down the neck**, not between strings. The new **Stable frets** profile (D only) keeps Strum + pick available for comparison. Priorities for Stable frets are strictly: **(1) feasible exact-pitch open strings, (2) contiguous co-attacked chord strings, (3) release-aware rapid neck-position shift risk, (4) total longitudinal hand-position travel in frets, (5) string skips between rapid single-note attacks**. Only ties prefer consistent pick direction, repeated fretted shapes through open-string interludes, and lower fretting effort. This trades some right-hand string traversal for much less left-hand travel and does not modify source MIDI, the original hand optimizer, or existing A/B/C results. Open-only measures retain the last hand anchor but grant elapsed time for positioning; held notes remain fixed until release. Select `?lesson=fretboardEfficiency&riff=186bfd78&mapping=stable` for the updated version.
+
 ## Separate strum/pick optimizer
 
 `fretboard_strum_efficiency.py` provides `optimize_strum_fingering(...)`, a separate search policy. It shares the established playable-grip model but does not call the original optimizer or change its accepted mappings. Its three primary costs are compared lexicographically:
