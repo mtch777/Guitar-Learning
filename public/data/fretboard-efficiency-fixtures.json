@@ -40251,7 +40251,7 @@
             "states_examined": 113,
             "search": "local_greedy"
           },
-          "runtime_seconds": 0.005,
+          "runtime_seconds": 0.0059,
           "midi_path": "fretboard-efficiency/186bfd78_greedy_strings.mid"
         },
         {
@@ -42173,7 +42173,7 @@
             "states_examined": 13872,
             "search": "exhaustive_discrete_dp"
           },
-          "runtime_seconds": 0.0646,
+          "runtime_seconds": 0.0765,
           "midi_path": "fretboard-efficiency/186bfd78_optimized_strings.mid"
         },
         {
@@ -44124,8 +44124,1973 @@
             "transition_allowance_seconds": 0.125,
             "deterministic_tie_break": "Lexicographic occurrence-ordered string/fret and anchor path, after all three primary and all four secondary costs are equal."
           },
-          "runtime_seconds": 0.1223,
+          "runtime_seconds": 0.1577,
           "midi_path": "fretboard-efficiency/186bfd78_strumPick_strings.mid"
+        },
+        {
+          "id": "stable",
+          "label": "Stable frets",
+          "description": "Preserve opens and adjacent-string chords, then minimize fast neck-position shifts and total movement along the frets; rapid single-note string skips are a lower priority. Shape continuity, direction, and fretting effort break ties.",
+          "assignments": [
+            {
+              "note_id": 0,
+              "string_number": 6,
+              "fret": 20
+            },
+            {
+              "note_id": 1,
+              "string_number": 2,
+              "fret": 17
+            },
+            {
+              "note_id": 2,
+              "string_number": 1,
+              "fret": 19
+            },
+            {
+              "note_id": 3,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 4,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 5,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 6,
+              "string_number": 8,
+              "fret": 0
+            },
+            {
+              "note_id": 7,
+              "string_number": 7,
+              "fret": 0
+            },
+            {
+              "note_id": 8,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 9,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 10,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 11,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 12,
+              "string_number": 8,
+              "fret": 0
+            },
+            {
+              "note_id": 13,
+              "string_number": 7,
+              "fret": 0
+            },
+            {
+              "note_id": 14,
+              "string_number": 8,
+              "fret": 0
+            },
+            {
+              "note_id": 15,
+              "string_number": 7,
+              "fret": 0
+            },
+            {
+              "note_id": 16,
+              "string_number": 6,
+              "fret": 20
+            },
+            {
+              "note_id": 17,
+              "string_number": 2,
+              "fret": 17
+            },
+            {
+              "note_id": 18,
+              "string_number": 1,
+              "fret": 19
+            },
+            {
+              "note_id": 19,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 20,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 21,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 22,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 23,
+              "string_number": 3,
+              "fret": 21
+            },
+            {
+              "note_id": 24,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 25,
+              "string_number": 4,
+              "fret": 17
+            },
+            {
+              "note_id": 26,
+              "string_number": 5,
+              "fret": 21
+            },
+            {
+              "note_id": 27,
+              "string_number": 4,
+              "fret": 17
+            },
+            {
+              "note_id": 28,
+              "string_number": 5,
+              "fret": 21
+            },
+            {
+              "note_id": 29,
+              "string_number": 4,
+              "fret": 17
+            },
+            {
+              "note_id": 30,
+              "string_number": 8,
+              "fret": 0
+            },
+            {
+              "note_id": 31,
+              "string_number": 7,
+              "fret": 0
+            },
+            {
+              "note_id": 32,
+              "string_number": 8,
+              "fret": 0
+            },
+            {
+              "note_id": 33,
+              "string_number": 7,
+              "fret": 0
+            },
+            {
+              "note_id": 34,
+              "string_number": 3,
+              "fret": 21
+            },
+            {
+              "note_id": 35,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 36,
+              "string_number": 4,
+              "fret": 17
+            },
+            {
+              "note_id": 37,
+              "string_number": 5,
+              "fret": 21
+            },
+            {
+              "note_id": 38,
+              "string_number": 4,
+              "fret": 17
+            },
+            {
+              "note_id": 39,
+              "string_number": 5,
+              "fret": 21
+            },
+            {
+              "note_id": 40,
+              "string_number": 4,
+              "fret": 17
+            },
+            {
+              "note_id": 41,
+              "string_number": 8,
+              "fret": 0
+            },
+            {
+              "note_id": 42,
+              "string_number": 7,
+              "fret": 0
+            },
+            {
+              "note_id": 43,
+              "string_number": 8,
+              "fret": 0
+            },
+            {
+              "note_id": 44,
+              "string_number": 7,
+              "fret": 0
+            },
+            {
+              "note_id": 45,
+              "string_number": 1,
+              "fret": 0
+            },
+            {
+              "note_id": 46,
+              "string_number": 5,
+              "fret": 21
+            },
+            {
+              "note_id": 47,
+              "string_number": 4,
+              "fret": 17
+            },
+            {
+              "note_id": 48,
+              "string_number": 5,
+              "fret": 21
+            },
+            {
+              "note_id": 49,
+              "string_number": 4,
+              "fret": 19
+            },
+            {
+              "note_id": 50,
+              "string_number": 6,
+              "fret": 20
+            },
+            {
+              "note_id": 51,
+              "string_number": 2,
+              "fret": 17
+            },
+            {
+              "note_id": 52,
+              "string_number": 1,
+              "fret": 19
+            },
+            {
+              "note_id": 53,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 54,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 55,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 56,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 57,
+              "string_number": 8,
+              "fret": 0
+            },
+            {
+              "note_id": 58,
+              "string_number": 7,
+              "fret": 0
+            },
+            {
+              "note_id": 59,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 60,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 61,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 62,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 63,
+              "string_number": 8,
+              "fret": 0
+            },
+            {
+              "note_id": 64,
+              "string_number": 7,
+              "fret": 0
+            },
+            {
+              "note_id": 65,
+              "string_number": 8,
+              "fret": 0
+            },
+            {
+              "note_id": 66,
+              "string_number": 7,
+              "fret": 0
+            },
+            {
+              "note_id": 67,
+              "string_number": 6,
+              "fret": 20
+            },
+            {
+              "note_id": 68,
+              "string_number": 2,
+              "fret": 17
+            },
+            {
+              "note_id": 69,
+              "string_number": 1,
+              "fret": 19
+            },
+            {
+              "note_id": 70,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 71,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 72,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 73,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 74,
+              "string_number": 3,
+              "fret": 21
+            },
+            {
+              "note_id": 75,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 76,
+              "string_number": 4,
+              "fret": 17
+            },
+            {
+              "note_id": 77,
+              "string_number": 5,
+              "fret": 21
+            },
+            {
+              "note_id": 78,
+              "string_number": 4,
+              "fret": 17
+            },
+            {
+              "note_id": 79,
+              "string_number": 5,
+              "fret": 21
+            },
+            {
+              "note_id": 80,
+              "string_number": 4,
+              "fret": 17
+            },
+            {
+              "note_id": 81,
+              "string_number": 8,
+              "fret": 0
+            },
+            {
+              "note_id": 82,
+              "string_number": 7,
+              "fret": 0
+            },
+            {
+              "note_id": 83,
+              "string_number": 8,
+              "fret": 0
+            },
+            {
+              "note_id": 84,
+              "string_number": 7,
+              "fret": 0
+            },
+            {
+              "note_id": 85,
+              "string_number": 3,
+              "fret": 21
+            },
+            {
+              "note_id": 86,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 87,
+              "string_number": 4,
+              "fret": 17
+            },
+            {
+              "note_id": 88,
+              "string_number": 5,
+              "fret": 21
+            },
+            {
+              "note_id": 89,
+              "string_number": 4,
+              "fret": 17
+            },
+            {
+              "note_id": 90,
+              "string_number": 5,
+              "fret": 21
+            },
+            {
+              "note_id": 91,
+              "string_number": 4,
+              "fret": 17
+            },
+            {
+              "note_id": 92,
+              "string_number": 8,
+              "fret": 0
+            },
+            {
+              "note_id": 93,
+              "string_number": 7,
+              "fret": 0
+            },
+            {
+              "note_id": 94,
+              "string_number": 8,
+              "fret": 0
+            },
+            {
+              "note_id": 95,
+              "string_number": 7,
+              "fret": 0
+            },
+            {
+              "note_id": 96,
+              "string_number": 1,
+              "fret": 0
+            },
+            {
+              "note_id": 97,
+              "string_number": 5,
+              "fret": 21
+            },
+            {
+              "note_id": 98,
+              "string_number": 4,
+              "fret": 17
+            },
+            {
+              "note_id": 99,
+              "string_number": 5,
+              "fret": 21
+            },
+            {
+              "note_id": 100,
+              "string_number": 4,
+              "fret": 19
+            },
+            {
+              "note_id": 101,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 102,
+              "string_number": 6,
+              "fret": 20
+            },
+            {
+              "note_id": 103,
+              "string_number": 8,
+              "fret": 0
+            },
+            {
+              "note_id": 104,
+              "string_number": 7,
+              "fret": 0
+            },
+            {
+              "note_id": 105,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 106,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 107,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 108,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 109,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 110,
+              "string_number": 3,
+              "fret": 17
+            },
+            {
+              "note_id": 111,
+              "string_number": 4,
+              "fret": 21
+            },
+            {
+              "note_id": 112,
+              "string_number": 3,
+              "fret": 17
+            }
+          ],
+          "positions": [
+            {
+              "time_seconds": 1.5,
+              "tick": 288,
+              "position": 17,
+              "attack_note_ids": [
+                0
+              ],
+              "active_note_ids": [
+                0
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                6
+              ]
+            },
+            {
+              "time_seconds": 1.5625,
+              "tick": 300,
+              "position": 17,
+              "attack_note_ids": [
+                1
+              ],
+              "active_note_ids": [
+                0,
+                1
+              ],
+              "shape_labels": [
+                "E-shape minor-pentatonic fragment"
+              ],
+              "picking_order": [
+                2
+              ]
+            },
+            {
+              "time_seconds": 1.625,
+              "tick": 312,
+              "position": 17,
+              "attack_note_ids": [
+                2
+              ],
+              "active_note_ids": [
+                1,
+                2
+              ],
+              "shape_labels": [
+                "Adjacent-string power-chord shape"
+              ],
+              "picking_order": [
+                1
+              ]
+            },
+            {
+              "time_seconds": 1.75,
+              "tick": 336,
+              "position": 17,
+              "attack_note_ids": [
+                3
+              ],
+              "active_note_ids": [
+                3
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                3
+              ]
+            },
+            {
+              "time_seconds": 1.875,
+              "tick": 360,
+              "position": 17,
+              "attack_note_ids": [
+                4,
+                5
+              ],
+              "active_note_ids": [
+                4,
+                5
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4,
+                3
+              ]
+            },
+            {
+              "time_seconds": 2.0,
+              "tick": 384,
+              "position": 17,
+              "attack_note_ids": [
+                6,
+                7
+              ],
+              "active_note_ids": [
+                6,
+                7
+              ],
+              "shape_labels": [
+                "Drop E open power chord"
+              ],
+              "picking_order": [
+                8,
+                7
+              ]
+            },
+            {
+              "time_seconds": 2.5,
+              "tick": 480,
+              "position": 17,
+              "attack_note_ids": [
+                8,
+                9
+              ],
+              "active_note_ids": [
+                8,
+                9
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4,
+                3
+              ]
+            },
+            {
+              "time_seconds": 2.625,
+              "tick": 504,
+              "position": 17,
+              "attack_note_ids": [
+                10,
+                11
+              ],
+              "active_note_ids": [
+                10,
+                11
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4,
+                3
+              ]
+            },
+            {
+              "time_seconds": 2.75,
+              "tick": 528,
+              "position": 17,
+              "attack_note_ids": [
+                12,
+                13
+              ],
+              "active_note_ids": [
+                12,
+                13
+              ],
+              "shape_labels": [
+                "Drop E open power chord"
+              ],
+              "picking_order": [
+                8,
+                7
+              ]
+            },
+            {
+              "time_seconds": 2.875,
+              "tick": 552,
+              "position": 17,
+              "attack_note_ids": [
+                14,
+                15
+              ],
+              "active_note_ids": [
+                14,
+                15
+              ],
+              "shape_labels": [
+                "Drop E open power chord"
+              ],
+              "picking_order": [
+                8,
+                7
+              ]
+            },
+            {
+              "time_seconds": 3.0,
+              "tick": 576,
+              "position": 17,
+              "attack_note_ids": [
+                16
+              ],
+              "active_note_ids": [
+                16
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                6
+              ]
+            },
+            {
+              "time_seconds": 3.0625,
+              "tick": 588,
+              "position": 17,
+              "attack_note_ids": [
+                17
+              ],
+              "active_note_ids": [
+                16,
+                17
+              ],
+              "shape_labels": [
+                "E-shape minor-pentatonic fragment"
+              ],
+              "picking_order": [
+                2
+              ]
+            },
+            {
+              "time_seconds": 3.125,
+              "tick": 600,
+              "position": 17,
+              "attack_note_ids": [
+                18
+              ],
+              "active_note_ids": [
+                17,
+                18
+              ],
+              "shape_labels": [
+                "Adjacent-string power-chord shape"
+              ],
+              "picking_order": [
+                1
+              ]
+            },
+            {
+              "time_seconds": 3.25,
+              "tick": 624,
+              "position": 17,
+              "attack_note_ids": [
+                19,
+                20
+              ],
+              "active_note_ids": [
+                19,
+                20
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4,
+                3
+              ]
+            },
+            {
+              "time_seconds": 3.375,
+              "tick": 648,
+              "position": 17,
+              "attack_note_ids": [
+                21,
+                22
+              ],
+              "active_note_ids": [
+                21,
+                22
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4,
+                3
+              ]
+            },
+            {
+              "time_seconds": 3.5,
+              "tick": 672,
+              "position": 17,
+              "attack_note_ids": [
+                23
+              ],
+              "active_note_ids": [
+                23
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                3
+              ]
+            },
+            {
+              "time_seconds": 3.5625,
+              "tick": 684,
+              "position": 17,
+              "attack_note_ids": [
+                24
+              ],
+              "active_note_ids": [
+                24
+              ],
+              "shape_labels": [
+                "A-shape minor-pentatonic fragment",
+                "E-shape minor-pentatonic fragment"
+              ],
+              "picking_order": [
+                4
+              ]
+            },
+            {
+              "time_seconds": 3.625,
+              "tick": 696,
+              "position": 17,
+              "attack_note_ids": [
+                25
+              ],
+              "active_note_ids": [
+                25
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4
+              ]
+            },
+            {
+              "time_seconds": 3.75,
+              "tick": 720,
+              "position": 17,
+              "attack_note_ids": [
+                26,
+                27
+              ],
+              "active_note_ids": [
+                26,
+                27
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                5,
+                4
+              ]
+            },
+            {
+              "time_seconds": 3.875,
+              "tick": 744,
+              "position": 17,
+              "attack_note_ids": [
+                28,
+                29
+              ],
+              "active_note_ids": [
+                28,
+                29
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                5,
+                4
+              ]
+            },
+            {
+              "time_seconds": 4.0,
+              "tick": 768,
+              "position": 17,
+              "attack_note_ids": [
+                30,
+                31
+              ],
+              "active_note_ids": [
+                30,
+                31
+              ],
+              "shape_labels": [
+                "Drop E open power chord"
+              ],
+              "picking_order": [
+                8,
+                7
+              ]
+            },
+            {
+              "time_seconds": 4.125,
+              "tick": 792,
+              "position": 17,
+              "attack_note_ids": [
+                32,
+                33
+              ],
+              "active_note_ids": [
+                32,
+                33
+              ],
+              "shape_labels": [
+                "Drop E open power chord"
+              ],
+              "picking_order": [
+                8,
+                7
+              ]
+            },
+            {
+              "time_seconds": 4.25,
+              "tick": 816,
+              "position": 17,
+              "attack_note_ids": [
+                34
+              ],
+              "active_note_ids": [
+                34
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                3
+              ]
+            },
+            {
+              "time_seconds": 4.3125,
+              "tick": 828,
+              "position": 17,
+              "attack_note_ids": [
+                35
+              ],
+              "active_note_ids": [
+                35
+              ],
+              "shape_labels": [
+                "A-shape minor-pentatonic fragment",
+                "E-shape minor-pentatonic fragment"
+              ],
+              "picking_order": [
+                4
+              ]
+            },
+            {
+              "time_seconds": 4.375,
+              "tick": 840,
+              "position": 17,
+              "attack_note_ids": [
+                36
+              ],
+              "active_note_ids": [
+                36
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4
+              ]
+            },
+            {
+              "time_seconds": 4.5,
+              "tick": 864,
+              "position": 17,
+              "attack_note_ids": [
+                37,
+                38
+              ],
+              "active_note_ids": [
+                37,
+                38
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                5,
+                4
+              ]
+            },
+            {
+              "time_seconds": 4.625,
+              "tick": 888,
+              "position": 17,
+              "attack_note_ids": [
+                39,
+                40
+              ],
+              "active_note_ids": [
+                39,
+                40
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                5,
+                4
+              ]
+            },
+            {
+              "time_seconds": 4.75,
+              "tick": 912,
+              "position": 17,
+              "attack_note_ids": [
+                41,
+                42
+              ],
+              "active_note_ids": [
+                41,
+                42
+              ],
+              "shape_labels": [
+                "Drop E open power chord"
+              ],
+              "picking_order": [
+                8,
+                7
+              ]
+            },
+            {
+              "time_seconds": 4.875,
+              "tick": 936,
+              "position": 17,
+              "attack_note_ids": [
+                43,
+                44
+              ],
+              "active_note_ids": [
+                43,
+                44
+              ],
+              "shape_labels": [
+                "Drop E open power chord"
+              ],
+              "picking_order": [
+                8,
+                7
+              ]
+            },
+            {
+              "time_seconds": 5.0,
+              "tick": 960,
+              "position": 17,
+              "attack_note_ids": [
+                45
+              ],
+              "active_note_ids": [
+                45
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                1
+              ]
+            },
+            {
+              "time_seconds": 5.0625,
+              "tick": 972,
+              "position": 17,
+              "attack_note_ids": [
+                46
+              ],
+              "active_note_ids": [
+                46
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                5
+              ]
+            },
+            {
+              "time_seconds": 5.125,
+              "tick": 984,
+              "position": 17,
+              "attack_note_ids": [
+                47
+              ],
+              "active_note_ids": [
+                47
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4
+              ]
+            },
+            {
+              "time_seconds": 5.25,
+              "tick": 1008,
+              "position": 17,
+              "attack_note_ids": [
+                48
+              ],
+              "active_note_ids": [
+                48
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                5
+              ]
+            },
+            {
+              "time_seconds": 5.375,
+              "tick": 1032,
+              "position": 17,
+              "attack_note_ids": [
+                49
+              ],
+              "active_note_ids": [
+                49
+              ],
+              "shape_labels": [
+                "E-shape minor-pentatonic fragment"
+              ],
+              "picking_order": [
+                4
+              ]
+            },
+            {
+              "time_seconds": 5.5,
+              "tick": 1056,
+              "position": 17,
+              "attack_note_ids": [
+                50
+              ],
+              "active_note_ids": [
+                50
+              ],
+              "shape_labels": [
+                "A-shape minor-pentatonic fragment",
+                "E-shape minor-pentatonic fragment"
+              ],
+              "picking_order": [
+                6
+              ]
+            },
+            {
+              "time_seconds": 5.5625,
+              "tick": 1068,
+              "position": 17,
+              "attack_note_ids": [
+                51
+              ],
+              "active_note_ids": [
+                50,
+                51
+              ],
+              "shape_labels": [
+                "E-shape minor-pentatonic fragment"
+              ],
+              "picking_order": [
+                2
+              ]
+            },
+            {
+              "time_seconds": 5.625,
+              "tick": 1080,
+              "position": 17,
+              "attack_note_ids": [
+                52
+              ],
+              "active_note_ids": [
+                51,
+                52
+              ],
+              "shape_labels": [
+                "Adjacent-string power-chord shape"
+              ],
+              "picking_order": [
+                1
+              ]
+            },
+            {
+              "time_seconds": 5.75,
+              "tick": 1104,
+              "position": 17,
+              "attack_note_ids": [
+                53,
+                54
+              ],
+              "active_note_ids": [
+                53,
+                54
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4,
+                3
+              ]
+            },
+            {
+              "time_seconds": 5.875,
+              "tick": 1128,
+              "position": 17,
+              "attack_note_ids": [
+                55,
+                56
+              ],
+              "active_note_ids": [
+                55,
+                56
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4,
+                3
+              ]
+            },
+            {
+              "time_seconds": 6.0,
+              "tick": 1152,
+              "position": 17,
+              "attack_note_ids": [
+                57,
+                58
+              ],
+              "active_note_ids": [
+                57,
+                58
+              ],
+              "shape_labels": [
+                "Drop E open power chord"
+              ],
+              "picking_order": [
+                8,
+                7
+              ]
+            },
+            {
+              "time_seconds": 6.5,
+              "tick": 1248,
+              "position": 17,
+              "attack_note_ids": [
+                59,
+                60
+              ],
+              "active_note_ids": [
+                59,
+                60
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4,
+                3
+              ]
+            },
+            {
+              "time_seconds": 6.625,
+              "tick": 1272,
+              "position": 17,
+              "attack_note_ids": [
+                61,
+                62
+              ],
+              "active_note_ids": [
+                61,
+                62
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4,
+                3
+              ]
+            },
+            {
+              "time_seconds": 6.75,
+              "tick": 1296,
+              "position": 17,
+              "attack_note_ids": [
+                63,
+                64
+              ],
+              "active_note_ids": [
+                63,
+                64
+              ],
+              "shape_labels": [
+                "Drop E open power chord"
+              ],
+              "picking_order": [
+                8,
+                7
+              ]
+            },
+            {
+              "time_seconds": 6.875,
+              "tick": 1320,
+              "position": 17,
+              "attack_note_ids": [
+                65,
+                66
+              ],
+              "active_note_ids": [
+                65,
+                66
+              ],
+              "shape_labels": [
+                "Drop E open power chord"
+              ],
+              "picking_order": [
+                8,
+                7
+              ]
+            },
+            {
+              "time_seconds": 7.0,
+              "tick": 1344,
+              "position": 17,
+              "attack_note_ids": [
+                67
+              ],
+              "active_note_ids": [
+                67
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                6
+              ]
+            },
+            {
+              "time_seconds": 7.0625,
+              "tick": 1356,
+              "position": 17,
+              "attack_note_ids": [
+                68
+              ],
+              "active_note_ids": [
+                67,
+                68
+              ],
+              "shape_labels": [
+                "E-shape minor-pentatonic fragment"
+              ],
+              "picking_order": [
+                2
+              ]
+            },
+            {
+              "time_seconds": 7.125,
+              "tick": 1368,
+              "position": 17,
+              "attack_note_ids": [
+                69
+              ],
+              "active_note_ids": [
+                68,
+                69
+              ],
+              "shape_labels": [
+                "Adjacent-string power-chord shape"
+              ],
+              "picking_order": [
+                1
+              ]
+            },
+            {
+              "time_seconds": 7.25,
+              "tick": 1392,
+              "position": 17,
+              "attack_note_ids": [
+                70,
+                71
+              ],
+              "active_note_ids": [
+                70,
+                71
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4,
+                3
+              ]
+            },
+            {
+              "time_seconds": 7.375,
+              "tick": 1416,
+              "position": 17,
+              "attack_note_ids": [
+                72,
+                73
+              ],
+              "active_note_ids": [
+                72,
+                73
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4,
+                3
+              ]
+            },
+            {
+              "time_seconds": 7.5,
+              "tick": 1440,
+              "position": 17,
+              "attack_note_ids": [
+                74
+              ],
+              "active_note_ids": [
+                74
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                3
+              ]
+            },
+            {
+              "time_seconds": 7.5625,
+              "tick": 1452,
+              "position": 17,
+              "attack_note_ids": [
+                75
+              ],
+              "active_note_ids": [
+                75
+              ],
+              "shape_labels": [
+                "A-shape minor-pentatonic fragment",
+                "E-shape minor-pentatonic fragment"
+              ],
+              "picking_order": [
+                4
+              ]
+            },
+            {
+              "time_seconds": 7.625,
+              "tick": 1464,
+              "position": 17,
+              "attack_note_ids": [
+                76
+              ],
+              "active_note_ids": [
+                76
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4
+              ]
+            },
+            {
+              "time_seconds": 7.75,
+              "tick": 1488,
+              "position": 17,
+              "attack_note_ids": [
+                77,
+                78
+              ],
+              "active_note_ids": [
+                77,
+                78
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                5,
+                4
+              ]
+            },
+            {
+              "time_seconds": 7.875,
+              "tick": 1512,
+              "position": 17,
+              "attack_note_ids": [
+                79,
+                80
+              ],
+              "active_note_ids": [
+                79,
+                80
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                5,
+                4
+              ]
+            },
+            {
+              "time_seconds": 8.0,
+              "tick": 1536,
+              "position": 17,
+              "attack_note_ids": [
+                81,
+                82
+              ],
+              "active_note_ids": [
+                81,
+                82
+              ],
+              "shape_labels": [
+                "Drop E open power chord"
+              ],
+              "picking_order": [
+                8,
+                7
+              ]
+            },
+            {
+              "time_seconds": 8.125,
+              "tick": 1560,
+              "position": 17,
+              "attack_note_ids": [
+                83,
+                84
+              ],
+              "active_note_ids": [
+                83,
+                84
+              ],
+              "shape_labels": [
+                "Drop E open power chord"
+              ],
+              "picking_order": [
+                8,
+                7
+              ]
+            },
+            {
+              "time_seconds": 8.25,
+              "tick": 1584,
+              "position": 17,
+              "attack_note_ids": [
+                85
+              ],
+              "active_note_ids": [
+                85
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                3
+              ]
+            },
+            {
+              "time_seconds": 8.3125,
+              "tick": 1596,
+              "position": 17,
+              "attack_note_ids": [
+                86
+              ],
+              "active_note_ids": [
+                86
+              ],
+              "shape_labels": [
+                "A-shape minor-pentatonic fragment",
+                "E-shape minor-pentatonic fragment"
+              ],
+              "picking_order": [
+                4
+              ]
+            },
+            {
+              "time_seconds": 8.375,
+              "tick": 1608,
+              "position": 17,
+              "attack_note_ids": [
+                87
+              ],
+              "active_note_ids": [
+                87
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4
+              ]
+            },
+            {
+              "time_seconds": 8.5,
+              "tick": 1632,
+              "position": 17,
+              "attack_note_ids": [
+                88,
+                89
+              ],
+              "active_note_ids": [
+                88,
+                89
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                5,
+                4
+              ]
+            },
+            {
+              "time_seconds": 8.625,
+              "tick": 1656,
+              "position": 17,
+              "attack_note_ids": [
+                90,
+                91
+              ],
+              "active_note_ids": [
+                90,
+                91
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                5,
+                4
+              ]
+            },
+            {
+              "time_seconds": 8.75,
+              "tick": 1680,
+              "position": 17,
+              "attack_note_ids": [
+                92,
+                93
+              ],
+              "active_note_ids": [
+                92,
+                93
+              ],
+              "shape_labels": [
+                "Drop E open power chord"
+              ],
+              "picking_order": [
+                8,
+                7
+              ]
+            },
+            {
+              "time_seconds": 8.875,
+              "tick": 1704,
+              "position": 17,
+              "attack_note_ids": [
+                94,
+                95
+              ],
+              "active_note_ids": [
+                94,
+                95
+              ],
+              "shape_labels": [
+                "Drop E open power chord"
+              ],
+              "picking_order": [
+                8,
+                7
+              ]
+            },
+            {
+              "time_seconds": 9.0,
+              "tick": 1728,
+              "position": 17,
+              "attack_note_ids": [
+                96
+              ],
+              "active_note_ids": [
+                96
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                1
+              ]
+            },
+            {
+              "time_seconds": 9.0625,
+              "tick": 1740,
+              "position": 17,
+              "attack_note_ids": [
+                97
+              ],
+              "active_note_ids": [
+                97
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                5
+              ]
+            },
+            {
+              "time_seconds": 9.125,
+              "tick": 1752,
+              "position": 17,
+              "attack_note_ids": [
+                98
+              ],
+              "active_note_ids": [
+                98
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4
+              ]
+            },
+            {
+              "time_seconds": 9.25,
+              "tick": 1776,
+              "position": 17,
+              "attack_note_ids": [
+                99
+              ],
+              "active_note_ids": [
+                99
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                5
+              ]
+            },
+            {
+              "time_seconds": 9.375,
+              "tick": 1800,
+              "position": 17,
+              "attack_note_ids": [
+                100
+              ],
+              "active_note_ids": [
+                100
+              ],
+              "shape_labels": [
+                "E-shape minor-pentatonic fragment"
+              ],
+              "picking_order": [
+                4
+              ]
+            },
+            {
+              "time_seconds": 9.5,
+              "tick": 1824,
+              "position": 17,
+              "attack_note_ids": [
+                101
+              ],
+              "active_note_ids": [
+                101
+              ],
+              "shape_labels": [
+                "A-shape minor-pentatonic fragment",
+                "E-shape minor-pentatonic fragment"
+              ],
+              "picking_order": [
+                3
+              ]
+            },
+            {
+              "time_seconds": 9.625,
+              "tick": 1848,
+              "position": 17,
+              "attack_note_ids": [
+                102
+              ],
+              "active_note_ids": [
+                102
+              ],
+              "shape_labels": [
+                "A-shape minor-pentatonic fragment",
+                "E-shape minor-pentatonic fragment"
+              ],
+              "picking_order": [
+                6
+              ]
+            },
+            {
+              "time_seconds": 9.75,
+              "tick": 1872,
+              "position": 17,
+              "attack_note_ids": [
+                103,
+                104
+              ],
+              "active_note_ids": [
+                103,
+                104
+              ],
+              "shape_labels": [
+                "Drop E open power chord"
+              ],
+              "picking_order": [
+                8,
+                7
+              ]
+            },
+            {
+              "time_seconds": 10.0,
+              "tick": 1920,
+              "position": 17,
+              "attack_note_ids": [
+                105,
+                106
+              ],
+              "active_note_ids": [
+                105,
+                106
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4,
+                3
+              ]
+            },
+            {
+              "time_seconds": 10.125,
+              "tick": 1944,
+              "position": 17,
+              "attack_note_ids": [
+                107,
+                108
+              ],
+              "active_note_ids": [
+                107,
+                108
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4,
+                3
+              ]
+            },
+            {
+              "time_seconds": 10.25,
+              "tick": 1968,
+              "position": 17,
+              "attack_note_ids": [
+                109,
+                110
+              ],
+              "active_note_ids": [
+                109,
+                110
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4,
+                3
+              ]
+            },
+            {
+              "time_seconds": 10.375,
+              "tick": 1992,
+              "position": 17,
+              "attack_note_ids": [
+                111,
+                112
+              ],
+              "active_note_ids": [
+                111,
+                112
+              ],
+              "shape_labels": [],
+              "picking_order": [
+                4,
+                3
+              ]
+            }
+          ],
+          "metrics": {
+            "note_count": 113,
+            "attack_count": 75,
+            "open_eligible": 32,
+            "open_used": 32,
+            "open_exceptions": 0,
+            "rapid_shift_count": 0,
+            "rapid_shift_cost": 0,
+            "hand_travel_frets": 0,
+            "max_shift_frets": 0,
+            "max_fret_span": 4,
+            "mean_fret_span": 1.4933,
+            "fretting_effort": 629,
+            "picking_cost": 343,
+            "shape_cost": 516,
+            "tier_cost": [
+              0,
+              0,
+              0,
+              0,
+              22
+            ],
+            "states_examined": 22219,
+            "search": "exhaustive_fret_stability_dp",
+            "chord_skipped_strings": 0,
+            "chord_attack_count": 38,
+            "contiguous_chord_count": 38,
+            "rapid_single_skipped_strings": 22,
+            "rapid_single_pair_count": 28,
+            "rapid_single_skip_transition_count": 9,
+            "rapid_run_direction_reversals": 10,
+            "repeated_shape_remaps": 0,
+            "priority_cost": [
+              0,
+              0,
+              0,
+              0,
+              22
+            ],
+            "tie_break_cost": [
+              10,
+              0,
+              629
+            ]
+          },
+          "objective": {
+            "priority_order": [
+              "open_misses",
+              "chord_skipped_strings",
+              "rapid_shift_cost",
+              "hand_travel_frets",
+              "rapid_single_skipped_strings"
+            ],
+            "priority_labels": [
+              "Exact-pitch open strings",
+              "Adjacent strings for simultaneous notes",
+              "Avoid rapid hand-position changes along frets",
+              "Minimize total neck travel in frets",
+              "Minimize skipped strings in rapid single-note passages"
+            ],
+            "rapid_max_gap_seconds": 0.25,
+            "tie_break_order": [
+              "rapid_run_direction_reversals",
+              "repeated_shape_remaps",
+              "fretting_effort"
+            ],
+            "repeated_shape_definition": "Retain recurring fretted dyads through open-string passages when higher-priority fret movement and picking goals tie.",
+            "hand_shift_definition": "Release-aware hand-position travel using the existing five-fret hand window; an open-only passage preserves the previous anchor but allows elapsed release time.",
+            "rapid_frets_per_second": 8.0,
+            "transition_allowance_seconds": 0.125
+          },
+          "runtime_seconds": 0.1516,
+          "midi_path": "fretboard-efficiency/186bfd78_stable_strings.mid"
         }
       ],
       "warnings": [
