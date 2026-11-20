@@ -98,7 +98,7 @@ for (const fixtureId of ['cfa029a2', 'da80eca9', 'c5a35486', '186bfd78']) {
       assert.equal(link.searchParams.get('riff'), fixtureId);
       assert.equal(link.searchParams.get('mapping'), versionId);
       assert.equal(harness.location.href, link.href);
-      assert.deepEqual(harness.requests, ['/Guitar-Learning/data/fretboard-efficiency-fixtures.json?v=20261120-rewrite']);
+      assert.deepEqual(harness.requests, ['/Guitar-Learning/data/fretboard-efficiency-fixtures.json?v=20261120-fret-stable']);
       assert.equal(harness.fields.fretboardEfficiencyRiff.disabled, false);
       assert.equal(harness.fields.fretboardEfficiencyMapping.disabled, false);
       assert.equal(harness.fields.fretboardEfficiencyView.value, 'playback');

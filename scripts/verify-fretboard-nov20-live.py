@@ -36,7 +36,7 @@ async def main():
                         raise AssertionError("Live November 20 mapping did not become selectable and ready")
                     await page.wait_for_timeout(10000)
             payload = await page.evaluate("""async () => {
-                const response=await fetch('/Guitar-Learning/data/fretboard-efficiency-fixtures.json?v=20261120-rewrite',
+                const response=await fetch('/Guitar-Learning/data/fretboard-efficiency-fixtures.json?v=20261120-fret-stable',
                   {cache:'no-store'});
                 if (!response.ok) throw new Error('Mapping JSON was not served');
                 const data=await response.json();
