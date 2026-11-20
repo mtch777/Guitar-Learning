@@ -53,27 +53,27 @@
       "attackCount": 1916
     },
     {
-      "id": "upload-11a650cfb5bd526a479e4e379c08dc0ddc6d750f9689db1ff64acc24cf601de5",
+      "id": "upload-0bd09a709e2ba4c870717083c6f8c2defbd6275db67d1c1cd849659bdaa5d9a0",
       "title": "Polite Company",
       "composer": "Rainbow Kitten Surprise",
-      "scorePath": "scores/upload-11a650cfb5bd526a479e4e379c08dc0ddc6d750f9689db1ff64acc24cf601de5.musicxml",
+      "scorePath": "scores/upload-0bd09a709e2ba4c870717083c6f8c2defbd6275db67d1c1cd849659bdaa5d9a0.musicxml",
       "sourcePath": "uploads/midi-190ee0d516e3917d53b1951bcf08d0577cf9f500819429dad87463c7ee3aba89.musicxml",
       "sourceFilename": "midi-190ee0d516e3917d53b1951bcf08d0577cf9f500819429dad87463c7ee3aba89.musicxml",
-      "sha256": "11a650cfb5bd526a479e4e379c08dc0ddc6d750f9689db1ff64acc24cf601de5",
-      "sourceSha256": "0f08077a30fa0ea0a9b2c377a20ad4c33635d23cb1d9a15ac3bd68f2dc5f7268",
-      "noteCount": 881,
+      "sha256": "0bd09a709e2ba4c870717083c6f8c2defbd6275db67d1c1cd849659bdaa5d9a0",
+      "sourceSha256": "8b8eef30c7f54f3ac2c7eef93f0ede0039e4a9e6c773e85446864d232b5d0585",
+      "noteCount": 381,
       "attackCount": 219
     },
     {
-      "id": "upload-50d8347bd1b5a35480d947e5faabd55a8bbce7fda0d3ae8acb3350ca67c73dea",
+      "id": "upload-033361a99c919b1b2a57dbc963c167fa8a53011b7ad219fcc7296d22e4f73241",
       "title": "I Want You To Love Me",
       "composer": "Fiona Apple",
-      "scorePath": "scores/upload-50d8347bd1b5a35480d947e5faabd55a8bbce7fda0d3ae8acb3350ca67c73dea.musicxml",
+      "scorePath": "scores/upload-033361a99c919b1b2a57dbc963c167fa8a53011b7ad219fcc7296d22e4f73241.musicxml",
       "sourcePath": "uploads/midi-e578ad97abfd8cac7ade35558f882643b8741e1851a6e0567fd33a0f7c420ae9.musicxml",
       "sourceFilename": "midi-e578ad97abfd8cac7ade35558f882643b8741e1851a6e0567fd33a0f7c420ae9.musicxml",
-      "sha256": "50d8347bd1b5a35480d947e5faabd55a8bbce7fda0d3ae8acb3350ca67c73dea",
-      "sourceSha256": "8ee55c2287082b2f11e647c46bdebc02d763632dc7d6d52cd4907197fa28c339",
-      "noteCount": 2184,
+      "sha256": "033361a99c919b1b2a57dbc963c167fa8a53011b7ad219fcc7296d22e4f73241",
+      "sourceSha256": "d5729b7306ffe7200a6db528f3a829c0eab70cc447c0c85b552eba222c5309ee",
+      "noteCount": 1772,
       "attackCount": 1744
     },
     {
