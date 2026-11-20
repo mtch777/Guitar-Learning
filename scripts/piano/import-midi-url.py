@@ -147,6 +147,23 @@ def score_from_midi_bytes(data, title=''):
             by_tick.setdefault(event[0], event[2:])
         return sorted(by_tick.items())
 
+    # MusicXML cannot represent arbitrary sub-tick tuplets produced by raw MIDI
+    # jitter. Pick the coarsest standard notation grid within 1/128 quarter;
+    # preserve triplet grids (3-based subdivisions) whenever they fit.
+    note_ticks = [tick for _, notes in tracks for start, end, _ in notes for tick in (start, end)]
+    note_ticks.extend(tick for tick, *_ in meters + tempos + keys)
+    def max_grid_error(subdivisions):
+        return max((abs(Fraction(round(Fraction(tick*subdivisions, ppq)), subdivisions)
+                         - Fraction(tick, ppq)) for tick in note_ticks), default=Fraction(0))
+    subdivisions = next((grid for grid in (4, 6, 8, 12, 16, 24, 32, 48, 64)
+                         if max_grid_error(grid) <= Fraction(1, 128)), 64)
+    def position(tick):
+        return Fraction(round(Fraction(tick*subdivisions, ppq)), subdivisions)
+    adjustment = max_grid_error(subdivisions)
+    if adjustment:
+        print(f'Normalized raw MIDI timing to 1/{subdivisions}-quarter grid '
+              f'(maximum correction {float(adjustment):.5f} quarter notes).')
+
     score = stream.Score()
     score.insert(0, metadata.Metadata())
     if title.strip():
@@ -156,31 +173,33 @@ def score_from_midi_bytes(data, title=''):
         meter_changes.insert(0, (0, (4, 4)))
     meter_stream = stream.Stream()
     for tick, (numerator, denominator) in meter_changes:
-        meter_stream.insert(Fraction(tick, ppq), meter.TimeSignature(f'{numerator}/{denominator}'))
-    end_tick = max(end for _, events in tracks for _, end, _ in events)
+        meter_stream.insert(position(tick), meter.TimeSignature(f'{numerator}/{denominator}'))
+    end_time = max((position(end) for _, events in tracks for _, end, _ in events))
     for part_index, (name, events) in enumerate(tracks):
         part = stream.Part()
         part.partName = name
         grouped = defaultdict(set)
         for onset, end, pitch in events:
-            grouped[(onset, end)].add(pitch)
+            snapped_start = position(onset)
+            snapped_end = max(position(end), snapped_start + Fraction(1, subdivisions))
+            grouped[(snapped_start, snapped_end)].add(pitch)
         for (onset, end), pitches in sorted(grouped.items()):
-            duration = Fraction(end-onset, ppq)
+            duration = end - onset
             musical_note = (chord.Chord(sorted(pitches), quarterLength=duration)
                             if len(pitches) > 1 else note.Note(next(iter(pitches)), quarterLength=duration))
-            part.insert(Fraction(onset, ppq), musical_note)
+            part.insert(onset, musical_note)
         if part_index == 0:
             for tick, (microseconds_per_beat,) in ordered_changes(tempos):
-                part.insert(Fraction(tick, ppq), tempo.MetronomeMark(number=mido.tempo2bpm(microseconds_per_beat)))
+                part.insert(position(tick), tempo.MetronomeMark(number=mido.tempo2bpm(microseconds_per_beat)))
             for tick, (signature,) in ordered_changes(keys):
                 try:
-                    part.insert(Fraction(tick, ppq), key.Key(signature))
+                    part.insert(position(tick), key.Key(signature))
                 except Exception:
                     pass
         # Music21's per-measure voice assignment can break ties. Allocate on
         # the global timeline, split into measures only afterward.
         part.makeVoices(inPlace=True)
-        part = part.makeMeasures(meterStream=meter_stream, refStreamOrTimeRange=[0, Fraction(end_tick, ppq)])
+        part = part.makeMeasures(meterStream=meter_stream, refStreamOrTimeRange=[0, end_time])
         part.makeTies(inPlace=True)
         part.partName = name
         score.insert(0, part)
