@@ -15,6 +15,7 @@ on:
       - 'scripts/piano/import-midi-url.py'
       - 'tests/test_piano_midi_converter.py'
       - 'scripts/piano/build-song-library.mjs'
+      - 'scripts/piano/assert-midi-import.mjs'
       - 'public/piano/learning-songs/song-library.seed.json'
 
 permissions:
@@ -53,6 +54,10 @@ jobs:
         run: |
           python scripts/piano/import-midi-url.py --url "$MIDI_URL" --title "$SCORE_TITLE"
           npm run prebuild
+      - name: Verify new score was accepted by the actual piano lesson parser
+        env:
+          SOURCE_FILENAME: ${{ steps.convert.outputs.source_filename }}
+        run: node scripts/piano/assert-midi-import.mjs "$SOURCE_FILENAME"
       - name: Record imported song for automatic selection
         if: github.event_name == 'repository_dispatch'
         env:
