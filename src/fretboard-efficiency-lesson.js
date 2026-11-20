@@ -3,7 +3,7 @@
 export const EFFICIENCY_LESSON_ID = 'fretboardEfficiency';
 export const EFFICIENCY_TUNING_LOW_TO_HIGH = [28, 35, 40, 45, 50, 55, 59, 64];
 const BUILT_IN_FIXTURE_IDS = ['cfa029a2', 'da80eca9', 'c5a35486', '186bfd78'];
-const MAPPING_IDS = ['optimized', 'greedy', 'strumPick'];
+const MAPPING_IDS = ['optimized', 'greedy', 'strumPick', 'stable'];
 
 export function efficiencySelectionFromSearch(search) {
   const params = new URLSearchParams(search);
@@ -11,7 +11,9 @@ export function efficiencySelectionFromSearch(search) {
     selected: params.get('lesson') === EFFICIENCY_LESSON_ID,
     fixtureId: BUILT_IN_FIXTURE_IDS.includes(params.get('riff'))
       ? params.get('riff') : BUILT_IN_FIXTURE_IDS[0],
-    versionId: MAPPING_IDS.includes(params.get('mapping')) ? params.get('mapping') : 'optimized',
+    versionId: MAPPING_IDS.includes(params.get('mapping')) &&
+      (params.get('mapping') !== 'stable' || params.get('riff') === '186bfd78')
+      ? params.get('mapping') : 'optimized',
     view: params.get('view') === 'static' ? 'static' : 'playback'
   };
 }

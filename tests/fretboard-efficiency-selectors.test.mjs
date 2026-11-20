@@ -76,7 +76,7 @@ test('the real lesson selector corresponds to every published built-in fixture, 
 });
 
 for (const fixtureId of ['cfa029a2', 'da80eca9', 'c5a35486', '186bfd78']) {
-  test(`${fixtureId}: all three mapping URLs load that exact fixture and retain shareable selection`, async () => {
+  test(`${fixtureId}: all available mapping URLs load that exact fixture and retain shareable selection`, async () => {
     for (const versionId of (fixtureId === '186bfd78' ? ['optimized', 'greedy', 'strumPick', 'stable'] :
                              ['optimized', 'greedy', 'strumPick'])) {
       const harness = mount(`?lesson=fretboardEfficiency&riff=${fixtureId}&mapping=${versionId}`);
@@ -126,6 +126,9 @@ test('default Time lesson and A/optimized fallback remain unchanged', () => {
     selected: false, fixtureId: 'cfa029a2', versionId: 'optimized', view: 'playback'
   });
   assert.deepEqual(efficiencySelectionFromSearch('?lesson=fretboardEfficiency&riff=missing&mapping=missing'), {
+    selected: true, fixtureId: 'cfa029a2', versionId: 'optimized', view: 'playback'
+  });
+  assert.deepEqual(efficiencySelectionFromSearch('?lesson=fretboardEfficiency&riff=cfa029a2&mapping=stable'), {
     selected: true, fixtureId: 'cfa029a2', versionId: 'optimized', view: 'playback'
   });
   assert.match(html, /<option value="timeSoloChords" selected>/);
