@@ -16,6 +16,7 @@ on:
       - 'tests/test_piano_midi_converter.py'
       - 'scripts/piano/build-song-library.mjs'
       - 'scripts/piano/assert-midi-import.mjs'
+      - 'scripts/piano/write-midi-import-failure.mjs'
       - 'public/piano/learning-songs/song-library.seed.json'
 
 permissions:
@@ -52,12 +53,41 @@ jobs:
           MIDI_URL: ${{ github.event.client_payload.midi_url || inputs.midi_url }}
           SCORE_TITLE: ${{ github.event.client_payload.title || '' }}
         run: |
-          python scripts/piano/import-midi-url.py --url "$MIDI_URL" --title "$SCORE_TITLE"
-          npm run prebuild
+          python scripts/piano/import-midi-url.py --url "$MIDI_URL" --title "$SCORE_TITLE" > "$RUNNER_TEMP/piano-midi-convert.log" 2>&1 || {
+            tail -n 10 "$RUNNER_TEMP/piano-midi-convert.log"
+            exit 1
+          }
+          npm run prebuild >> "$RUNNER_TEMP/piano-midi-convert.log" 2>&1 || {
+            tail -n 10 "$RUNNER_TEMP/piano-midi-convert.log"
+            exit 1
+          }
+          tail -n 5 "$RUNNER_TEMP/piano-midi-convert.log"
       - name: Verify new score was accepted by the actual piano lesson parser
         env:
           SOURCE_FILENAME: ${{ steps.convert.outputs.source_filename }}
-        run: node scripts/piano/assert-midi-import.mjs "$SOURCE_FILENAME"
+        run: node scripts/piano/assert-midi-import.mjs "$SOURCE_FILENAME" > "$RUNNER_TEMP/piano-midi-verify.log" 2>&1 || {
+          cat "$RUNNER_TEMP/piano-midi-verify.log"
+          exit 1
+          }
+      - name: Record and publish failure if converter or lesson verification rejected the MIDI
+        if: ${{ failure() && github.event_name == 'repository_dispatch' }}
+        env:
+          IMPORT_ID: ${{ github.event.client_payload.request_id }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/piano/write-midi-import-failure.mjs "$IMPORT_ID" "$RUNNER_TEMP/piano-midi-convert.log" "$RUNNER_TEMP/piano-midi-verify.log"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/piano/learning-songs/imports/"$IMPORT_ID".json
+          git commit -m 'Report failed piano MIDI import'
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            sleep 2
+          done
+          gh workflow run deploy-pages.yml --ref main
       - name: Record imported song for automatic selection
         if: github.event_name == 'repository_dispatch'
         env:
@@ -74,7 +104,13 @@ jobs:
             echo 'Score already imported.'
           else
             git commit -m 'Import piano MIDI score'
-            git push
+            for attempt in 1 2 3; do
+              git fetch origin main
+              git rebase origin/main
+              if git push origin HEAD:main; then break; fi
+              if [ "$attempt" = 3 ]; then exit 1; fi
+              sleep 2
+            done
           fi
       - name: Deploy updated lesson to GitHub Pages
         env:

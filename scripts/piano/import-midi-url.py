@@ -232,7 +232,7 @@ def import_bytes(data, directory, title="", *, replace_existing=False):
         if title.strip():
             if score.metadata is None:
                 score.insert(0, metadata.Metadata())
-            score.metadata.title = title.strip()[:100]
+            score.metadata.title = xml_text(title).strip()[:100]
         # Never leave a partial or failed conversion in place of a saved song.
         with tempfile.TemporaryDirectory(prefix="piano-midi-", dir=uploads) as temporary:
             temporary_xml = Path(temporary) / "score.musicxml"

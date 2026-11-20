@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {dispatchMidiImport, validateMidiUrl, scorePageUrl, beginMuseScoreImport, consumeMidiHandoff, newImportId} from '../public/piano/learning-songs/github-midi-import.js';
+import {dispatchMidiImport, validateMidiUrl, scorePageUrl, beginMuseScoreImport, consumeMidiHandoff, newImportId, readMidiImportReceipt} from '../public/piano/learning-songs/github-midi-import.js';
 
 const SAMPLE = 'https://s3w.musescore.com/musescore.scoredata/g/example/score.mid';
 const ID = 'gl-0123456789abcdef0123456789abcdef';
@@ -94,4 +94,18 @@ test('old manually supplied MIDI links remain available but require an explicit 
   assert.equal(result.legacy, true);
   assert.equal(result.url, url);
   assert.match(result.id, /^gl-[a-f0-9]{32}$/);
+});
+
+test('published MIDI success and failed-import receipts have request-bound, actionable outcomes', () => {
+  const songId = 'upload-' + 'a'.repeat(64);
+  assert.deepEqual(readMidiImportReceipt({version:1, requestId:ID, songId}, ID), {failed:false, songId});
+  assert.deepEqual(readMidiImportReceipt({version:1, requestId:ID, status:'failed',
+    error:'A tie into measure 22 has no matching start.'}, ID),
+    {failed:true, error:'A tie into measure 22 has no matching start.'});
+  assert.throws(() => readMidiImportReceipt({version:1, requestId:'gl-' + 'b'.repeat(32),
+    status:'failed', error:'failure'}, ID), /invalid/);
+  assert.throws(() => readMidiImportReceipt({version:1, requestId:ID,
+    status:'garbage', songId}, ID), /invalid/);
+  assert.throws(() => readMidiImportReceipt({version:1, requestId:ID,
+    status:'failed', error:''}, ID), /invalid/);
 });

@@ -16,7 +16,7 @@ const {uploadScoreToGitHub} = uploadModule;
 const {readScoreFile} = scoreUploadModule;
 const {deleteSongFromGitHub} = deleteModule;
 const {githubCredentials} = credentialModule;
-const {dispatchMidiImport, validateMidiUrl, beginMuseScoreImport, consumeMidiHandoff, newImportId} = await loadModule('github-midi-import.js');
+const {dispatchMidiImport, validateMidiUrl, beginMuseScoreImport, consumeMidiHandoff, newImportId, readMidiImportReceipt} = await loadModule('github-midi-import.js');
 if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, {once:true}));
 
 const $ = id => document.getElementById(id);
@@ -578,11 +578,14 @@ function watchPublishedMidi(id, attempts = 0) {
       const response = await fetch(receiptUrl, {cache:'no-store', credentials:'omit'});
       if (response.ok) {
         const receipt = await response.json();
-        if (receipt.requestId !== id || !/^upload-[a-f0-9]{64}$/.test(receipt.songId)) {
-          throw new Error('GitHub returned an invalid import result.');
+        const result = readMidiImportReceipt(receipt, id);
+        if (result.failed) {
+          rememberPendingMidi(null);
+          libraryNotice(`MIDI import failed: ${result.error}`, true);
+          return;
         }
         await refreshSharedLibrary();
-        const imported = songChoice(receipt.songId);
+        const imported = songChoice(result.songId);
         if (imported) {
           rememberPendingMidi(null);
           await selectSong(imported);
