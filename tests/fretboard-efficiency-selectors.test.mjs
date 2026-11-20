@@ -72,7 +72,7 @@ test('the real lesson selector corresponds to every published built-in fixture, 
   const november = data.fixtures.find(fixture => fixture.id === '186bfd78');
   assert.ok(november, 'November 20 upload is selectable');
   assert.equal(november.source_filename, '2026-11-20_midi_rewrite.mid');
-  assert.equal(november.source_sha256, 'aa397c4800e1277a4dc5fabc027c773fc689ba77419452c2b5ee5b5fac74f7b7');
+  assert.equal(november.source_sha256, '20564b248a57e74b0674da89c6bee74249766ddcc0e2c6b56bedd75372b8b888');
 });
 
 for (const fixtureId of ['cfa029a2', 'da80eca9', 'c5a35486', '186bfd78']) {
