@@ -21,7 +21,7 @@ export async function assertMidiImport(filename, root = 'public/piano/learning-s
   const xml = await readFile(join(root, song.scorePath), 'utf8');
   assert.match(xml, /<score-partwise/);
   const fidelity = await verifyMidiFidelity(
-    join(root,'uploads',filename.replace(/\\.musicxml$/, '.mid')),
+    join(root,'uploads',filename.slice(0, -'.musicxml'.length)+'.mid'),
     join(root,song.scorePath),
   );
   assert.equal(fidelity.attacks, song.attackCount, 'Lesson attack count must match original MIDI.');
