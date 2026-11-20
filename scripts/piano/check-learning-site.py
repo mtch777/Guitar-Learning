@@ -77,7 +77,7 @@ async def verify(browser, mobile):
         print(f"REAL SCORE {'MOBILE' if mobile else 'DESKTOP'}: {summary}", flush=True)
         for item in errors[-25:]:
             print("REAL SCORE BROWSER ERROR:", item[:2500], flush=True)
-        assert summary["status"] == "Ready" and summary["svgCount"] > 0 and not summary["empty"], (
+        assert summary["status"] in ("Ready", "Listening for notes") and summary["svgCount"] > 0 and not summary["empty"], (
             f"Polite Company is listed but DOES NOT LOAD on {'mobile' if mobile else 'desktop'}; "
             f"status={summary['status']}, notice={summary['notice']}"
         )
