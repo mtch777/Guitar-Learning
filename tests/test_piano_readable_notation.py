@@ -123,6 +123,17 @@ class ReadableNotation(unittest.TestCase):
         self.assertEqual(bystep['E'],int(7.25*960))
         self.assertEqual(len(attacks),2)
 
+    def test_short_midi_gate_does_not_fragment_whole_note(self):
+        data=create_midi([(0,1800,60),(0,960,64),(960,1920,67)])
+        _,_,pitched,_,attacks=describe(data)
+        c_notes=[n for n in pitched
+                 if n.findtext('pitch/step')=='C'
+                 and n.findtext('pitch/octave')=='4']
+        self.assertEqual(len(c_notes),1)
+        self.assertEqual(c_notes[0].findtext('duration'),'3840')
+        self.assertFalse(c_notes[0].findall('tie'))
+        self.assertEqual(len(attacks),3)
+
     def test_repeated_note_has_a_new_attack_not_a_tie(self):
         data=create_midi([(0,456,60),(480,936,60)])
         root,written,pitched,rests,attacks=describe(data)
