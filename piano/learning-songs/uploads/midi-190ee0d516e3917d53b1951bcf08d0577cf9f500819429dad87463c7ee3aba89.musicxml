@@ -874,33 +874,10 @@
           <step>F</step>
           <octave>3</octave>
         </pitch>
-        <duration>3360</duration>
-        <tie type="start" />
+        <duration>3840</duration>
         <voice>3</voice>
-        <type>half</type>
-        <dot />
-        <dot />
-        <notations>
-          <tied type="start" />
-        </notations>
+        <type>whole</type>
       </note>
-      <note>
-        <pitch>
-          <step>F</step>
-          <octave>3</octave>
-        </pitch>
-        <duration>240</duration>
-        <tie type="stop" />
-        <voice>3</voice>
-        <type>16th</type>
-        <notations>
-          <tied type="stop" />
-        </notations>
-      </note>
-      <forward>
-        <duration>240</duration>
-        <voice>3</voice>
-      </forward>
     </measure>
     <measure number="25" implicit="no">
       <forward>
