@@ -95,15 +95,23 @@ def normalize(events):
         onset=group[0].start
         if len(group)>1 and abs(onset-round(onset))<=Q(1,4):onset=Q(round(onset))
         onset=snap(onset)
+        chord_duration=None
+        if len(group)>1:
+            # Rolled chord notes can have slightly different starts and ends.
+            # The whole chord shares its notation gate; per-string rounding
+            # otherwise produces spurious polyphonic voices and extra noteheads.
+            shared_end=max(n.end for n in group)
+            shared_length=shared_end-onset
+            shared_predicted=(shared_length if
+                abs(shared_length-snap(shared_length))<=Q(1,40)
+                else shared_length/Q(95,100))
+            chord_duration=min(LENGTHS,key=lambda d:(abs(d-shared_predicted),d))
         for n in group:
-            # The source exports ~0.95 * written note duration. Reconstruct
-            # the nearest conventional sixteenth-based duration.
+            # Isolated notes retain their own on/off timing and written gate.
             exact=n.end-n.start
-            # A note already ending on a written grid boundary should not be
-            # lengthened merely because most MIDI exports use a 95% gate.
-            # This matters for exact 4-beat or 8-beat written notes.
             predicted=(n.end-onset) if abs(exact-snap(exact)) <= Q(1,40) else (n.end-onset)/Q(95,100)
-            duration=min(LENGTHS,key=lambda d:(abs(d-predicted),d))
+            duration=chord_duration if chord_duration is not None else min(
+                LENGTHS,key=lambda d:(abs(d-predicted),d))
             output.append(replace(n,start=onset,end=onset+duration))
     bypitch=defaultdict(list)
     for n in output:bypitch[n.pitch].append(n)
