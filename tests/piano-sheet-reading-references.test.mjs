@@ -5,6 +5,7 @@ import {DOMParser} from '@xmldom/xmldom';
 import {parseMusicXML} from '../public/piano/learning-songs/score-model.js';
 import {LOWEST_MIDI,HIGHEST_MIDI,EXPECTED_COUNT,NOTES_PER_MEASURE,noteForMidi,buildAllNotesMusicXML} from '../public/piano/sheet-reading/reference/all-notes/score.js';
 import {MAJOR_TRIADS,BLACK_KEYS,blackKeyCount,groupedTriads,triadPitchClasses} from '../public/piano/sheet-reading/reference/major-triads/triads.js';
+import {buildTriadMusicXML,writtenChord} from '../public/piano/sheet-reading/reference/major-triads/notation.js';
 
 const root=new URL('../public/piano/',import.meta.url);
 const load=async path=>readFile(new URL(path,root),'utf8');
@@ -51,15 +52,47 @@ test('Major triad groups contain every pitch class exactly once',()=>{
     MAJOR_TRIADS.map(c=>triadPitchClasses(c.root).filter(p=>BLACK_KEYS.has(p)).length));
 });
 
-test('Only Sheet Reading presents the new learning references',async()=>{
+test('Keyboard Shapes hosts the piano-key diagram, Sheet Reading hosts engraved triads',async()=>{
   const sheet=await load('sheet-reading/index.html');
   const keyboard=await load('keyboard-shapes/index.html');
+  const sheetTriad=await load('sheet-reading/reference/major-triads/script.js');
+  const keyboardTriad=await load('keyboard-shapes/reference/major-triads/script.js');
   assert.match(sheet,/reference\/all-notes\//);
   assert.match(sheet,/reference\/major-triads\//);
-  assert.doesNotMatch(sheet,/Staff Notes Reference/);
-  assert.match(keyboard,/Scales &amp; Chords Reference/);
+  assert.match(keyboard,/reference\/major-triads\//);
+  assert.doesNotMatch(keyboard,/Scales &amp; Chords Reference/);
   assert.doesNotMatch(keyboard,/reference\/all-notes\//);
-  assert.doesNotMatch(keyboard,/reference\/major-triads\//);
+  assert.match(keyboardTriad,/mini-keyboard/);
+  assert.doesNotMatch(sheetTriad,/mini-keyboard/);
+  assert.match(sheetTriad,/buildTriadMusicXML/);
+});
+
+test('Printed All Notes labels omit octave numbers, even in underlying MusicXML',()=>{
+  const doc=new DOMParser().parseFromString(buildAllNotesMusicXML(),'application/xml');
+  const labels=[...doc.getElementsByTagName('lyric')].map(lyric=>lyric.getElementsByTagName('text')[0].textContent);
+  assert.equal(labels.length,88);
+  assert.ok(labels.every(label=>/^[A-G](?:♯)?$/.test(label)));
+  assert.equal(labels[0],'A');
+  assert.equal(labels[1],'A♯');
+  assert.equal(labels.at(-1),'C');
+});
+
+test('Engraved major triads render all twelve correctly spelled root-position chords',()=>{
+  const groups=groupedTriads();
+  for (const {chords} of groups) {
+    const xml=buildTriadMusicXML(chords);
+    const doc=new DOMParser().parseFromString(xml,'application/xml');
+    assert.equal(doc.getElementsByTagName('measure').length,chords.length);
+    assert.equal(doc.getElementsByTagName('note').length,3*chords.length);
+    assert.equal(doc.getElementsByTagName('chord').length,2*chords.length);
+    const parsed=parseMusicXML(xml,{DOMParser});
+    assert.equal(parsed.attacks.length,3*chords.length);
+    for (const chord of chords) {
+      const written=writtenChord(chord);
+      assert.deepEqual(written.map(note=>note.midi),[60+chord.root,64+chord.root,67+chord.root]);
+      assert.deepEqual(written.map(note=>note.step+(note.accidental||'')),chord.notes);
+    }
+  }
 });
 
 test('Sheet Reading removes random prefixes from cards and lesson headers',async()=>{
