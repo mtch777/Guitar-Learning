@@ -78,7 +78,7 @@ test('long sustain becomes 60% volume after the threshold, without changing ordi
     const resumed = [...audio.voices].at(-1).sustainGain;
     assert.ok(resumed);
     assert.deepEqual(resumed.gain.events.map(e => [e[0], e[1]]),
-      [['set', 1], ['set', .6]], 'Resuming a note beyond four beats starts at 60%.');
+      [['set', .6]], 'Resuming a note beyond four beats starts at 60%.');
 
     audio.stopAll();
     assert.equal(audio.voices.size, 0);
