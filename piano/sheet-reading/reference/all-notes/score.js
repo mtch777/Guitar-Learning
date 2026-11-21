@@ -39,7 +39,7 @@ export function buildAllNotesMusicXML({showNames = true} = {}) {
       const beam = slot % 4 === 0 ? 'begin' : slot % 4 === 3 ? 'end' : 'continue';
       const pitch = `<pitch><step>${n.step}</step>${n.alter ? '<alter>1</alter>' : ''}<octave>${n.octave}</octave></pitch>`;
       const accidental = n.alter ? '<accidental>sharp</accidental>' : '';
-      const lyric = showNames ? `<lyric number="1"><syllabic>single</syllabic><text>${n.name.replace('♯','♯')}</text></lyric>` : '';
+      const lyric = showNames ? `<lyric number="1"><syllabic>single</syllabic><text>${n.step+(n.alter?'♯':'')}</text></lyric>` : '';
       notes.push(`<note id="all-notes-${midi}">${pitch}<duration>240</duration><type>eighth</type>${accidental}<stem>up</stem><beam number="1">${beam}</beam>${lyric}</note>`);
     }
     measures.push(`<measure number="${measureIndex + 1}">${attributes}${notes.join('')}</measure>`);
