@@ -14,20 +14,18 @@ const LEFT_MARGIN = 37;
 const RIGHT_MARGIN = 7;
 
 export const MOBILE_NOTES_PER_ROW = 24;
-export const DESKTOP_NOTES_PER_ROW = 48;
+export const DESKTOP_NOTES_PER_ROW = 24;
 
 export function rowDefinitions(width) {
   const perRow = width < 650 ? MOBILE_NOTES_PER_ROW : DESKTOP_NOTES_PER_ROW;
   const rows = [];
   for (let first = LOWEST_MIDI; first <= HIGHEST_MIDI; first += perRow) {
     const last = Math.min(HIGHEST_MIDI, first + perRow - 1);
-    // 8va/15ma clefs keep the two extremes readable without 9+ ledger lines.
+    // Each row fits three complete 4/4 bars. Octave-shifting clefs keep the\n    // written pitches correct without excessive ledger lines.
     const row = first === 21
       ? {clef:'bass', shift:1, octaveMark:'8'}
       : first === 45 ? {clef:'treble', shift:1, octaveMark:'8'}
       : first >= 93 ? {clef:'treble', shift:-2, octaveMark:'15'}
-        : first === 69 && perRow === DESKTOP_NOTES_PER_ROW
-      ? {clef:'treble', shift:-1, octaveMark:'8'}
       : {clef:'treble', shift:0, octaveMark:''};
     rows.push({first,last,...row});
   }
