@@ -575,6 +575,11 @@
       "lesson": "learning-songs"
     },
     {
+      "id": "171cda86-c4b8-405f-bffc-07c3700a6bb3",
+      "day": "2026-11-20",
+      "lesson": "learning-songs"
+    },
+    {
       "id": "42c2166e-c61f-4b99-9aad-a40815ffc4b0",
       "day": "2026-11-20",
       "lesson": "learning-songs"
@@ -590,9 +595,24 @@
       "lesson": "learning-songs"
     },
     {
+      "id": "69346313-865f-47ee-bb81-3904b7618ce1",
+      "day": "2026-11-20",
+      "lesson": "sheet-reading-all-notes-reference"
+    },
+    {
+      "id": "6a75e981-6668-4795-9390-0bea973d07ca",
+      "day": "2026-11-20",
+      "lesson": "sheet-reading-major-triads-reference"
+    },
+    {
       "id": "7e17f337-1e0f-4f0a-b0c5-3c3ffb38bbc4",
       "day": "2026-11-20",
       "lesson": "sheet-reading-all-notes-reference"
+    },
+    {
+      "id": "7f1860b3-dde8-4bfb-b264-2aab20617894",
+      "day": "2026-11-20",
+      "lesson": "keyboard-shapes-major-triads-reference"
     },
     {
       "id": "87db9d49-4ab1-472f-ba6d-439bd8301117",
