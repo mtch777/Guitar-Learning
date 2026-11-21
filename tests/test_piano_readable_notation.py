@@ -117,8 +117,11 @@ class ReadableNotation(unittest.TestCase):
         # necessarily a shared 8-beat chord; don't overextend either note.
         data=create_midi([(0,3362,60),(0,3478,64)])
         _,_,pitched,_,attacks=describe(data)
-        bystep={n.findtext('pitch/step'):int(n.findtext('duration'))
-                for n in pitched if n.find('pitch') is not None}
+        bystep={}
+        for n in pitched:
+            if n.find('pitch') is not None:
+                step=n.findtext('pitch/step')
+                bystep[step]=bystep.get(step,0)+int(n.findtext('duration'))
         self.assertEqual(bystep['C'],7*960)
         self.assertEqual(bystep['E'],int(7.25*960))
         self.assertEqual(len(attacks),2)
