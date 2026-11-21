@@ -2,11 +2,11 @@ name: Sheet Reading references QA
 
 on:
   push:
-    branches: [main, piano-keyboard-references]
+    branches: [main, piano-reference-layout-and-triads-20261120]
     paths:
       - 'public/piano/sheet-reading/**'
       - 'public/piano/keyboard-shapes/index.html'
-      - 'public/piano/keyboard-shapes/reference/index.html'
+      - 'public/piano/keyboard-shapes/reference/**'
       - 'tests/piano-sheet-reading-references.test.mjs'
       - 'scripts/piano/check-sheet-reading-references.py'
       - '.github/workflows/piano-sheet-reading-references-qa.yml'
