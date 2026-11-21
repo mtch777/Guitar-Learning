@@ -14,7 +14,7 @@ export async function verifyMidiFidelity(midiFile, scoreFile) {
   const expected = JSON.parse(decoded);
   const text = await readFile(scoreFile,'utf8');
   const model = parseMusicXML(text, {DOMParser});
-  const readable = /<miscellaneous-field name="piano-notation-engine">piano-readable-midi-v1<\/miscellaneous-field>/.test(text);
+  const readable = /<miscellaneous-field name="piano-notation-engine">piano-readable-midi-v(?:1|2)<\/miscellaneous-field>/.test(text);
   if (readable) {
     const tiny = [...text.matchAll(/<type>(?:32nd|64th|128th|256th)<\/type>/g)].length;
     if (tiny) throw new Error(`Notation quality regression: ${tiny} unsupported or excessively short note types.`);
