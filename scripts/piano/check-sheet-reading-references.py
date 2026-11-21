@@ -29,11 +29,21 @@ async def verify(browser,width):
           names:[...document.querySelectorAll('#notation text.note-name')].map(x=>x.textContent),
           ledger:document.querySelectorAll('#notation line.ledger-line').length,
           clefs:document.querySelectorAll('#notation .clef-path').length,
+          sharps:document.querySelectorAll('#notation .accidental-sign').length,
+          accidentalAlignment:[...document.querySelectorAll('#notation .accidental-sign')].map(sign=>{
+            const head=document.querySelector('#notation ellipse[data-midi="'+sign.dataset.forMidi+'"]');
+            const prev=document.querySelector('#notation ellipse[data-midi="'+(Number(sign.dataset.forMidi)-1)+'"]');
+            const a=sign.getBoundingClientRect(), n=head?.getBoundingClientRect(), p=prev?.getBoundingClientRect();
+            return {midi:Number(sign.dataset.forMidi),left:a.left,right:a.right,
+              noteLeft:n?.left,prevRight:p?.right,valid:!!(p&&n&&a.left>p.right+0.05&&a.right<n.left-0.05)};
+          }),
           text:document.querySelector('#render-status')?.textContent,
           overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
         })""")
         print(f'ALL NOTES {width}: rows={summary["rows"]} notes={summary["notes"]} names={summary["names"][:8]} ledger={summary["ledger"]} overflow={summary["overflow"]} errors={errors}',flush=True)
         assert summary['rows']==4 and summary['notes']==88 and summary['clefs']==4,summary
+        assert summary['sharps']==36,summary
+        assert all(a['valid'] for a in summary['accidentalAlignment']),summary['accidentalAlignment']
         assert len(summary['names'])==88 and all(n and not any(c.isdigit() for c in n) for n in summary['names']),summary
         assert summary['overflow']<=3,summary
         await page.screenshot(path=str(SCREENSHOTS/f'all-notes-{width}.png'),full_page=True)
