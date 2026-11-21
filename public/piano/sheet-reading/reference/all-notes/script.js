@@ -1,4 +1,5 @@
 import {LOWEST_MIDI, HIGHEST_MIDI, noteForMidi} from './score.js';
+import {TREBLE_CLEF,BASS_CLEF} from './clef-paths.js';
 
 const root = document.getElementById('notation');
 const status = document.getElementById('render-status');
@@ -67,8 +68,11 @@ function drawRow(row, showNames, rowIndex) {
     const y=STAFF_TOP+i*STAFF_LINE_GAP;
     svg.append(element('line',{x1:7,y1:y,x2:ROW_WIDTH-6,y2:y,class:'staff-line'}));
   }
-  const clef=element('text',{x:8,y:row.clef==='bass'?57:67,
-    class:'music-clef'},row.clef==='bass'?'𝄢':'𝄞');
+  // SVG outlines, not OS/browser-dependent music-font glyphs.
+  const clef=element('g',{transform:row.clef==='bass'
+    ? 'translate(5 66) scale(0.039 -0.039)' : 'translate(6 61) scale(0.038 -0.038)',
+    'data-clef':row.clef});
+  clef.append(element('path',{d:row.clef==='bass'?BASS_CLEF:TREBLE_CLEF,class:'clef-path'}));
   svg.append(clef);
   if(row.octaveMark) {
     svg.append(element('text',{x:20,y:row.shift>0?86:16,
