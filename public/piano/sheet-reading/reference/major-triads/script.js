@@ -13,10 +13,6 @@ function createGroups() {
     title.textContent=count+(count===1?' black key':' black keys');
     title.className='lesson-section-title';
     group.append(title);
-    const names=document.createElement('p');
-    names.className='chord-labels';
-    names.textContent=chords.map(chord=>chord.name).join(' · ');
-    group.append(names);
     const paper=document.createElement('div');
     paper.className='score-paper';
     const score=document.createElement('div');
