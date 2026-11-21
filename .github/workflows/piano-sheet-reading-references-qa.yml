@@ -2,7 +2,7 @@ name: Sheet Reading references QA
 
 on:
   push:
-    branches: [main]
+    branches: [main, piano-all-notes-accidental-spacing]
     paths:
       - 'public/piano/sheet-reading/**'
       - 'public/piano/keyboard-shapes/index.html'

@@ -14,7 +14,7 @@
 .stem{stroke:#111827;stroke-width:1.05}
 .beam{stroke:#111827;stroke-width:3}
 .flag{fill:none;stroke:#111827;stroke-width:1.8}
-.accidental{font-family:'Noto Music','DejaVu Sans',Arial,sans-serif;font-size:12px;fill:#111827;text-anchor:middle}
+.accidental-sign{fill:none;stroke:#111827;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter}
 .note-name{font-family:Arial,system-ui,sans-serif;font-size:8px;font-weight:600;fill:#1f2937;text-anchor:middle;letter-spacing:-.3px}
 .music-clef{font-family:'Noto Music','Segoe UI Symbol','Apple Symbols',serif;font-size:43px;fill:#111827}
 .octave-clef-mark{font-family:Arial,system-ui,sans-serif;font-size:10px;font-weight:700;fill:#111827}

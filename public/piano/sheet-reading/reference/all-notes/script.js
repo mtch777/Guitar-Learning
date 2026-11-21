@@ -11,7 +11,7 @@ const STAFF_TOP = 29;
 const STAFF_LINE_GAP = 9;
 const STAFF_BOTTOM = STAFF_TOP + STAFF_LINE_GAP * 4;
 const ROW_WIDTH = 380;
-const LEFT_MARGIN = 37;
+const LEFT_MARGIN = 43;
 const RIGHT_MARGIN = 7;
 
 export const MOBILE_NOTES_PER_ROW = 24;
@@ -79,17 +79,35 @@ function drawRow(row, showNames, rowIndex) {
       class:'octave-clef-mark'},row.octaveMark));
   }
   const capacity = root.clientWidth < 650 ? MOBILE_NOTES_PER_ROW : DESKTOP_NOTES_PER_ROW;
-  const dx=(ROW_WIDTH-LEFT_MARGIN-RIGHT_MARGIN)/capacity;
+  // Accidentals are written BEFORE the altered note, not after the natural.
+  // Reserve extra horizontal room before sharps so their marks do not touch
+  // the preceding natural notehead at compact, 24-notes-per-row phone sizes.
+  const notes=Array.from({length:row.last-row.first+1},(_,i)=>noteForMidi(row.first+i));
+  const gapWeights=notes.slice(1).map(n=>n.alter ? 18 : 12);
+  const weightTotal=gapWeights.reduce((sum,gap)=>sum+gap,0);
+  const factor=(ROW_WIDTH-LEFT_MARGIN-RIGHT_MARGIN)/(Math.max(
+    weightTotal, (capacity-1)*12
+  ));
   const notePositions=[];
-  for(let midi=row.first;midi<=row.last;midi++) {
-    const index=midi-row.first;
-    const n=noteForMidi(midi);
-    const x=LEFT_MARGIN+(index+0.5)*dx;
+  let x=LEFT_MARGIN;
+  for(let index=0;index<notes.length;index++) {
+    const n=notes[index];
+    const midi=n.midi;
+    if(index) x+=gapWeights[index-1]*factor;
     const y=noteY(n,row);
     notePositions.push({x,y,midi});
     ledgerLines(svg,x,y);
     // Sharp signs remain on the stave; only the printed names lose octave numbers.
-    if(n.alter) svg.append(element('text',{x:x-10.1,y:y+3.3,class:'accidental'},'♯'));
+    if(n.alter) {
+      // Small deterministic vector sharp, centered in the reserved gap
+      // immediately to the left of THIS notehead, not the previous natural.
+      const sign=element('g',{transform:'translate('+(x-8.8)+' '+y+')',
+        class:'accidental-sign','data-for-midi':midi});
+      sign.append(element('path',{d:
+        'M -1.6 -5.4 L -2.1 5.4 M 1.8 -5.4 L 1.3 5.4 '+
+        'M -3.2 -1.7 L 3.2 -2.5 M -3.2 2.5 L 3.2 1.7'}));
+      svg.append(sign);
+    }
     svg.append(element('ellipse',{cx:x,cy:y,rx:4.8,ry:3.3,
       transform:'rotate(-20 '+x+' '+y+')',class:'notehead','data-midi':midi}));
     if(showNames) svg.append(element('text',{x,y:127,class:'note-name','data-midi':midi},
