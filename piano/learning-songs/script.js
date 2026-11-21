@@ -180,9 +180,14 @@ function configureEngine() {
     endTime:secondsAtBeat(model, Math.max(group.onset, ...group.notes.map(note => note.onset + note.duration)), speed)
   }));
   engine = new LessonEngine(timedGroups, {mode, timingWindowMs:180});
-  audioNotes = model.attacks.map(note => ({...note,
-    time:secondsAtBeat(model, note.onset, speed), endTime:secondsAtBeat(model, note.onset + note.duration, speed)
-  })).sort((a,b) => a.time - b.time);
+  const commonTones = songChoice(selectedId)?.sourceFilename === 'I_Know_the_End_Common_Tones.musicxml';
+  audioNotes = model.attacks.map(note => {
+    const time = secondsAtBeat(model, note.onset, speed);
+    const endTime = secondsAtBeat(model, note.onset + note.duration, speed);
+    const softenAfterSeconds = commonTones && note.duration > 4
+      ? secondsAtBeat(model, note.onset + 4, speed) - time : null;
+    return {...note, time, endTime, softenAfterSeconds};
+  }).sort((a,b) => a.time - b.time);
   totalSeconds = secondsAtBeat(model, model.duration, speed);
   elapsed = 0; nextAudio = 0; lastPaint = '';
 }
@@ -253,7 +258,7 @@ function scheduleAudio() {
   while (nextAudio < audioNotes.length && audioNotes[nextAudio].time <= elapsed + .12) {
     const note = audioNotes[nextAudio++];
     if (note.time < elapsed - .08) continue;
-    audio.note(note.midi, note.endTime - note.time, anchor + note.time);
+    audio.note(note.midi, note.endTime - note.time, anchor + note.time, undefined, note.softenAfterSeconds);
   }
 }
 function tick() {
@@ -296,7 +301,11 @@ async function start() {
     nextAudio = audioNotes.findIndex(note => note.time >= elapsed - .03);
     if (nextAudio < 0) nextAudio = audioNotes.length;
     for (const note of audioNotes) {
-      if (note.time < elapsed && note.endTime > elapsed) audio.note(note.midi, note.endTime - elapsed);
+      if (note.time < elapsed && note.endTime > elapsed) {
+        const remainingSoften = note.softenAfterSeconds == null ? null
+          : Math.max(0, note.time + note.softenAfterSeconds - elapsed);
+        audio.note(note.midi, note.endTime - elapsed, undefined, undefined, remainingSoften);
+      }
     }
     engine.start(elapsed);
     playing = true;
