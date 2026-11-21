@@ -1,0 +1,14 @@
+.triads-reference.page {width:min(1000px,calc(100% - 24px));}
+.description {color:#c4cbd6;line-height:1.6;margin:12px 0 24px;}
+.description strong {color:#fff;}
+.triad-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.triad-card {background:#141a22;border:1px solid #2a3340;border-radius:16px;padding:16px;min-width:0;}
+.triad-card h3 {margin:0 0 6px;font-size:20px;}
+.chord-notes {font-size:15px;font-weight:750;color:#c4b5fd;margin:0 0 14px;}
+.mini-keyboard {position:relative;width:100%;height:62px;border-radius:5px;overflow:hidden;background:#1f2937;}
+.mini-key {position:absolute;top:0;box-sizing:border-box;}
+.mini-key.white {height:100%;background:#f3f4f6;border:1px solid #9ca3af;z-index:1;}
+.mini-key.white.active {background:#c4b5fd;border-color:#7c3aed;}
+.mini-key.black {height:61%;background:#111827;border:1px solid #070b11;border-radius:0 0 3px 3px;z-index:2;}
+.mini-key.black.active {background:#8b5cf6;border-color:#6d28d9;}
+@media(max-width:620px){.triad-grid{grid-template-columns:1fr;}.triad-card{padding:14px;}.mini-keyboard{height:56px;}}
