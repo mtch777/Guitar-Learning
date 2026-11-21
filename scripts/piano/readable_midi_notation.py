@@ -19,7 +19,7 @@ RELEASE_MATCH=Q(3,5)
 LENGTHS=[Q(n,4) for n in range(1,33)]
 # Musical subdivisions (whole through sixteenth; avoid 32nd/64th/128th clutter)
 FORMS=[
-    (Q(4),'whole',0), (Q(3),'half',1), (Q(2),'half',0),
+    (Q(4),'whole',0), (Q(7,2),'half',2), (Q(3),'half',1), (Q(2),'half',0),
     (Q(7,4),'quarter',2), (Q(3,2),'quarter',1),
     (Q(1),'quarter',0), (Q(3,4),'eighth',1),
     (Q(1,2),'eighth',0), (Q(1,4),'16th',0),
@@ -27,7 +27,7 @@ FORMS=[
 STEP_NAMES=('C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B')
 KEY_FIFTHS={'C':0,'G':1,'D':2,'A':3,'E':4,'B':5,'F#':6,'C#':7,
             'F':-1,'Bb':-2,'Eb':-3,'Ab':-4,'Db':-5,'Gb':-6,'Cb':-7}
-ENGINE='piano-readable-midi-v1'
+ENGINE='piano-readable-midi-v2'
 
 @dataclass(frozen=True)
 class Note:
@@ -128,7 +128,7 @@ def pieces(start,end):
         yield start,start+unit,typ,dots
         start+=unit
 
-def write_note(bar,n,lo,hi,typ,dots,member=False,full_rest=False):
+def write_note(bar,n,lo,hi,typ,dots,member=False,full_rest=False,voice=1):
     el=add(bar,'note')
     if member:add(el,'chord')
     if n is None:
@@ -143,12 +143,37 @@ def write_note(bar,n,lo,hi,typ,dots,member=False,full_rest=False):
     after=n is not None and n.end>hi
     if before:add(el,'tie',attributes={'type':'stop'})
     if after:add(el,'tie',attributes={'type':'start'})
-    add(el,'voice',1);add(el,'type',typ)
+    add(el,'voice',voice);add(el,'type',typ)
     for _ in range(dots):add(el,'dot')
     if before or after:
         annotation=add(el,'notations')
         if before:add(annotation,'tied',attributes={'type':'stop'})
         if after:add(annotation,'tied',attributes={'type':'start'})
+
+def allocate_voices(notes):
+    """Partition overlapping note spans before engraving.
+
+    Notes that start and finish together are one chord. Different durations
+    use independent voices: another pitch changing must NEVER split a held note.
+    """
+    groups=defaultdict(list)
+    for n in notes:
+        groups[(n.start,n.end)].append(n)
+    voices=[]
+    voice_ends=[]
+    ordered=sorted(groups.items(),key=lambda entry:
+                   (entry[0][0],-entry[0][1],min(n.pitch for n in entry[1])))
+    for (onset,off),members in ordered:
+        available=[i for i,previous_end in enumerate(voice_ends)
+                   if previous_end<=onset]
+        voice=max(available,key=lambda i:voice_ends[i]) if available else len(voices)
+        if voice==len(voices):
+            voices.append([])
+            voice_ends.append(Q(0))
+        voices[voice].append((onset,off,sorted(members,key=lambda n:n.pitch)))
+        voice_ends[voice]=off
+    return voices
+
 
 def encode(data,title=''):
     tracks,meters,keys,tempos=decode(data)
@@ -174,7 +199,7 @@ def encode(data,title=''):
         add(part,'part-name',text(name))
     for pi,(name,notes) in enumerate(tracks):
         part=add(score,'part',attributes={'id':f'P{pi+1}'})
-        boundaries={n.start for n in notes}|{n.end for n in notes}
+        voices=allocate_voices(notes)
         prior_meter=prior_key=None
         for baridx,(start,end,meter) in enumerate(bars):
             meas=add(part,'measure',attributes={'number':str(baridx+1),'implicit':'no'})
@@ -195,12 +220,32 @@ def encode(data,title=''):
                         direction=add(meas,'direction')
                         if t>start:add(direction,'offset',int((t-start)*DIVISIONS))
                         add(direction,'sound',attributes={'tempo':f'{60000000/micros:.5f}'})
-            positions=sorted({start,end}|{t for t in boundaries if start<t<end})
-            for a,b in zip(positions,positions[1:]):
-                active=sorted((n for n in notes if n.start<=a and n.end>=b),key=lambda n:n.pitch)
-                for lo,hi,typ,dots in pieces(a,b):
-                    if not active:write_note(meas,None,lo,hi,typ,dots,full_rest=lo==start and hi==end)
-                    else:
-                        for i,n in enumerate(active):write_note(meas,n,lo,hi,typ,dots,member=i>0)
+            wrote_voice=False
+            for index,events in enumerate(voices,1):
+                spans=[(max(onset,start),min(off,end),members)
+                       for onset,off,members in events
+                       if onset<end and off>start]
+                if not spans:
+                    continue
+                if wrote_voice:
+                    backup=add(meas,'backup')
+                    add(backup,'duration',int((end-start)*DIVISIONS))
+                cursor=start
+                for lo,hi,members in spans:
+                    if lo>cursor:
+                        forward=add(meas,'forward')
+                        add(forward,'duration',int((lo-cursor)*DIVISIONS))
+                        add(forward,'voice',index)
+                    for a,b,typ,dots in pieces(lo,hi):
+                        for member,n in enumerate(members):
+                            write_note(meas,n,a,b,typ,dots,member=member>0,voice=index)
+                    cursor=hi
+                if cursor<end:
+                    forward=add(meas,'forward')
+                    add(forward,'duration',int((end-cursor)*DIVISIONS))
+                    add(forward,'voice',index)
+                wrote_voice=True
+            if not wrote_voice:
+                write_note(meas,None,start,end,'whole',0,full_rest=True)
     ET.indent(score,space='  ')
     return ET.tostring(score,encoding='utf-8',xml_declaration=True)
