@@ -2,8 +2,6 @@ import {LOWEST_MIDI, HIGHEST_MIDI, noteForMidi} from './score.js';
 import {TREBLE_CLEF,BASS_CLEF} from './clef-paths.js';
 
 const root = document.getElementById('notation');
-const status = document.getElementById('render-status');
-const labels = document.getElementById('show-labels');
 const NS = 'http://www.w3.org/2000/svg';
 const STEPS = Object.freeze({C:0,D:1,E:2,F:3,G:4,A:5,B:6});
 const ROW_HEIGHT = 144;
@@ -58,7 +56,7 @@ function ledgerLines(svg, x, y) {
   }
 }
 
-function drawRow(row, showNames, rowIndex) {
+function drawRow(row, rowIndex) {
   const svg=element('svg',{viewBox:'0 0 '+ROW_WIDTH+' '+ROW_HEIGHT,role:'img',
     'aria-label':'Ascending chromatic eighth notes, '+(rowIndex+1)+' of '+rowDefinitions(root.clientWidth).length});
   svg.classList.add('reference-staff');
@@ -95,7 +93,7 @@ function drawRow(row, showNames, rowIndex) {
     const midi=n.midi;
     if(index) x+=gapWeights[index-1]*factor;
     const y=noteY(n,row);
-    notePositions.push({x,y,midi});
+    notePositions.push({x,y,midi,alter:n.alter});
     ledgerLines(svg,x,y);
     // Sharp signs remain on the stave; only the printed names lose octave numbers.
     if(n.alter) {
@@ -109,8 +107,9 @@ function drawRow(row, showNames, rowIndex) {
       svg.append(sign);
     }
     svg.append(element('ellipse',{cx:x,cy:y,rx:4.8,ry:3.3,
-      transform:'rotate(-20 '+x+' '+y+')',class:'notehead','data-midi':midi}));
-    if(showNames) svg.append(element('text',{x,y:127,class:'note-name','data-midi':midi},
+      transform:'rotate(-20 '+x+' '+y+')',class:'notehead'+(n.alter?' accidental-note':''),'data-midi':midi}));
+    svg.append(element('text',{x,y:127,
+      class:'note-name'+(n.alter?' accidental-label':''),'data-midi':midi},
       n.step+(n.alter?'♯':'')));
     // Each note remains an eighth note. Group their stems in 4-note beams.
   }
@@ -120,7 +119,7 @@ function drawRow(row, showNames, rowIndex) {
     const beamY=up ? Math.min(...group.map(n=>n.y))-24 : Math.max(...group.map(n=>n.y))+24;
     for(const n of group) {
       const sx=n.x+(up?4.2:-4.2);
-      svg.append(element('line',{x1:sx,y1:n.y,x2:sx,y2:beamY,class:'stem'}));
+      svg.append(element('line',{x1:sx,y1:n.y,x2:sx,y2:beamY,class:'stem'+(n.alter?' accidental-stem':'')}));
     }
     if(group.length>1) {
       svg.append(element('line',{x1:group[0].x+(up?4.2:-4.2),y1:beamY,
@@ -146,16 +145,14 @@ export function renderNotes() {
   for (const [i,row] of rows.entries()) {
     const line=document.createElement('div');
     line.className='reference-score-row';
-    line.append(drawRow(row,labels.checked,i));
+    line.append(drawRow(row,i));
     root.append(line);
   }
   root.dataset.rowCount=String(rows.length);
   root.dataset.noteCount=String(HIGHEST_MIDI-LOWEST_MIDI+1);
-  status.textContent='88 eighth notes · '+rows.length+' rows';
   window.PracticeTracker?.recordOpen('sheet-reading-all-notes-reference');
 }
 
-labels.addEventListener('change',renderNotes);
 window.addEventListener('resize',()=>{
   const expected=rowDefinitions(root.clientWidth).length;
   if(expected!==Number(root.dataset.rowCount))renderNotes();
