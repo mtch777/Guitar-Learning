@@ -105,7 +105,7 @@ function drawRow(row, showNames, rowIndex) {
         class:'accidental-sign','data-for-midi':midi});
       sign.append(element('path',{d:
         'M -1.6 -5.4 L -2.1 5.4 M 1.8 -5.4 L 1.3 5.4 '+
-        'M -3.2 -1.7 L 3.2 -2.5 M -3.2 2.5 L 3.2 1.7'}));
+        'M -2.6 -1.7 L 2.6 -2.5 M -2.6 2.5 L 2.6 1.7'}));
       svg.append(sign);
     }
     svg.append(element('ellipse',{cx:x,cy:y,rx:4.8,ry:3.3,
