@@ -37,21 +37,35 @@ async def verify(browser,width):
             return {midi:Number(sign.dataset.forMidi),left:a.left,right:a.right,
               noteLeft:n?.left,prevRight:p?.right,valid:!!(p&&n&&a.left>p.right+0.05&&a.right<n.left-0.05)};
           }),
-          text:document.querySelector('#render-status')?.textContent,
+          blueColor:'rgb(29, 78, 216)',
+          alteredHeadColors:[...document.querySelectorAll('#notation .notehead.accidental-note')].map(n=>getComputedStyle(n).fill),
+          naturalHeadColors:[...document.querySelectorAll('#notation .notehead:not(.accidental-note)')].map(n=>getComputedStyle(n).fill),
+          alteredLabelColors:[...document.querySelectorAll('#notation .note-name.accidental-label')].map(n=>getComputedStyle(n).fill),
+          naturalLabelColors:[...document.querySelectorAll('#notation .note-name:not(.accidental-label)')].map(n=>getComputedStyle(n).fill),
+          accidentalStrokeColors:[...document.querySelectorAll('#notation .accidental-sign')].map(n=>getComputedStyle(n).stroke),
+          alteredStemColors:[...document.querySelectorAll('#notation .stem.accidental-stem')].map(n=>getComputedStyle(n).stroke),
+          extraUI:[...document.querySelectorAll('.description,.notation-toolbar,#render-status,#show-labels')].map(n=>n.outerHTML.slice(0,200)),
+          bodyText:document.querySelector('main')?.textContent||'',
+
           overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
         })""")
         print(f'ALL NOTES {width}: rows={summary["rows"]} notes={summary["notes"]} names={summary["names"][:8]} ledger={summary["ledger"]} overflow={summary["overflow"]} errors={errors}',flush=True)
         assert summary['rows']==4 and summary['notes']==88 and summary['clefs']==4,summary
         assert summary['sharps']==36,summary
+        assert summary['extraUI']==[],summary['extraUI']
+        assert 'Every piano note' not in summary['bodyText'] and 'compact notation' not in summary['bodyText'],summary['bodyText']
+        assert len(summary['alteredHeadColors'])==36 and all(x==summary['blueColor'] for x in summary['alteredHeadColors']),summary['alteredHeadColors']
+        assert len(summary['alteredLabelColors'])==36 and all(x==summary['blueColor'] for x in summary['alteredLabelColors']),summary['alteredLabelColors']
+        assert len(summary['accidentalStrokeColors'])==36 and all(x==summary['blueColor'] for x in summary['accidentalStrokeColors']),summary['accidentalStrokeColors']
+        assert len(summary['alteredStemColors'])==36 and all(x==summary['blueColor'] for x in summary['alteredStemColors']),summary['alteredStemColors']
+        assert len(summary['naturalHeadColors'])==52 and all(x!=summary['blueColor'] for x in summary['naturalHeadColors'])
+        assert len(summary['naturalLabelColors'])==52 and all(x!=summary['blueColor'] for x in summary['naturalLabelColors'])
         assert all(a['valid'] for a in summary['accidentalAlignment']),summary['accidentalAlignment']
         assert len(summary['names'])==88 and all(n and not any(c.isdigit() for c in n) for n in summary['names']),summary
         assert summary['overflow']<=3,summary
         await page.screenshot(path=str(SCREENSHOTS/f'all-notes-{width}.png'),full_page=True)
-        await page.locator('#show-labels').uncheck()
-        assert await page.locator('#notation .note-name').count()==0
-        assert await page.locator('#notation ellipse.notehead').count()==88
-        await page.locator('#show-labels').check()
         assert await page.locator('#notation .note-name').count()==88
+        assert await page.locator('#show-labels').count()==0
 
         await page.goto(BASE+'sheet-reading/reference/major-triads/',wait_until='load',timeout=30000)
         await page.wait_for_function("""() => document.querySelectorAll('#triad-groups section[data-ready="true"]').length===4 ||
