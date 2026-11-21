@@ -53,15 +53,15 @@
       "attackCount": 1916
     },
     {
-      "id": "upload-0bd09a709e2ba4c870717083c6f8c2defbd6275db67d1c1cd849659bdaa5d9a0",
+      "id": "upload-feda90273beb397f93f71ecee450e1499885f8de13a3fc81333dbd27a32bb30b",
       "title": "Polite Company",
       "composer": "Rainbow Kitten Surprise",
-      "scorePath": "scores/upload-0bd09a709e2ba4c870717083c6f8c2defbd6275db67d1c1cd849659bdaa5d9a0.musicxml",
+      "scorePath": "scores/upload-feda90273beb397f93f71ecee450e1499885f8de13a3fc81333dbd27a32bb30b.musicxml",
       "sourcePath": "uploads/midi-190ee0d516e3917d53b1951bcf08d0577cf9f500819429dad87463c7ee3aba89.musicxml",
       "sourceFilename": "midi-190ee0d516e3917d53b1951bcf08d0577cf9f500819429dad87463c7ee3aba89.musicxml",
-      "sha256": "0bd09a709e2ba4c870717083c6f8c2defbd6275db67d1c1cd849659bdaa5d9a0",
-      "sourceSha256": "8b8eef30c7f54f3ac2c7eef93f0ede0039e4a9e6c773e85446864d232b5d0585",
-      "noteCount": 381,
+      "sha256": "feda90273beb397f93f71ecee450e1499885f8de13a3fc81333dbd27a32bb30b",
+      "sourceSha256": "7e04c50b92e01143059b4735b205a3ac4511cfb2d811a7101658fd1ce0a8f6f9",
+      "noteCount": 313,
       "attackCount": 219
     },
     {
