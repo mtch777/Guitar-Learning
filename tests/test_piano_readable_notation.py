@@ -52,9 +52,9 @@ class ReadableNotation(unittest.TestCase):
         self.assertLessEqual(len(pitched),420)
         self.assertLessEqual(len(rests),140)
         self.assertTrue(root.findall('.//measure'))
-        self.assertTrue(all(n.findtext('voice')=='1' for n in written))
+        self.assertTrue(all(int(n.findtext('voice') or '1')>=1 for n in written))
         self.assertFalse(any(n.findtext('type') in ('32nd','64th','128th','256th') for n in written))
-        self.assertFalse(root.findall('.//backup'))
+        self.assertTrue(root.findall('.//backup'), 'Independent held-note voices expected')
         self.assertEqual(len(root.findall('./part')),2)
 
     def test_humanized_gated_chord_becomes_one_notated_chord(self):
@@ -79,6 +79,38 @@ class ReadableNotation(unittest.TestCase):
         self.assertEqual(names['E'],0)
         self.assertEqual(names['G'],0)
         self.assertEqual(len(rests),0)
+
+    def test_held_pitch_is_not_sliced_when_other_pitches_change(self):
+        data=create_midi([
+            (0,1920,60),     # C4 holds four beats.
+            (0,480,64),      # E4
+            (480,960,67),    # G4
+            (960,1440,69),   # A4
+            (1440,1920,72),  # C5
+        ])
+        root,_,pitched,_,attacks=describe(data)
+        held=[n for n in pitched
+              if n.findtext('pitch/step')=='C'
+              and n.findtext('pitch/octave')=='4']
+        self.assertEqual(len(held),1)
+        self.assertEqual(held[0].findtext('duration'),'3840')
+        self.assertEqual(len(held[0].findall('tie')),0)
+        self.assertTrue(root.findall('.//backup'))
+        self.assertEqual(len(attacks),5)
+
+    def test_double_dotted_half_prevents_false_mid_measure_ties(self):
+        data=create_midi([
+            (0,1920,60),
+            (0,240,64),
+            (240,1920,64),
+        ])
+        _,_,pitched,_,attacks=describe(data)
+        e_notes=[n for n in pitched if n.findtext('pitch/step')=='E']
+        self.assertEqual(len(e_notes),2)
+        self.assertEqual(e_notes[1].findtext('duration'),'3360')
+        self.assertEqual(e_notes[1].findtext('type'),'half')
+        self.assertEqual(len(e_notes[1].findall('dot')),2)
+        self.assertEqual(len(attacks),3)
 
     def test_repeated_note_has_a_new_attack_not_a_tie(self):
         data=create_midi([(0,456,60),(480,936,60)])
