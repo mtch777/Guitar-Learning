@@ -95,23 +95,16 @@ def normalize(events):
         onset=group[0].start
         if len(group)>1 and abs(onset-round(onset))<=Q(1,4):onset=Q(round(onset))
         onset=snap(onset)
-        chord_duration=None
-        if len(group)>1:
-            # Rolled chord notes can have slightly different starts and ends.
-            # The whole chord shares its notation gate; per-string rounding
-            # otherwise produces spurious polyphonic voices and extra noteheads.
-            shared_end=max(n.end for n in group)
-            shared_length=shared_end-onset
-            shared_predicted=(shared_length if
-                abs(shared_length-snap(shared_length))<=Q(1,40)
-                else shared_length/Q(95,100))
-            chord_duration=min(LENGTHS,key=lambda d:(abs(d-shared_predicted),d))
         for n in group:
-            # Isolated notes retain their own on/off timing and written gate.
-            exact=n.end-n.start
-            predicted=(n.end-onset) if abs(exact-snap(exact)) <= Q(1,40) else (n.end-onset)/Q(95,100)
-            duration=chord_duration if chord_duration is not None else min(
-                LENGTHS,key=lambda d:(abs(d-predicted),d))
+            # Check the release against the *notated* chord onset, not the
+            # humanized individual string attack. Otherwise a rolled chord
+            # member can wrongly lose its 95%-gate compensation, while a
+            # genuine grid-aligned release can be stretched too far.
+            written_length=n.end-onset
+            predicted=(written_length if
+                       abs(written_length-snap(written_length))<=Q(1,40)
+                       else written_length/Q(95,100))
+            duration=min(LENGTHS,key=lambda d:(abs(d-predicted),d))
             output.append(replace(n,start=onset,end=onset+duration))
     bypitch=defaultdict(list)
     for n in output:bypitch[n.pitch].append(n)
