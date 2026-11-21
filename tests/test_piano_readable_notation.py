@@ -112,6 +112,17 @@ class ReadableNotation(unittest.TestCase):
         self.assertEqual(len(e_notes[1].findall('dot')),2)
         self.assertEqual(len(attacks),3)
 
+    def test_rolled_chord_preserves_grid_aligned_unequal_releases(self):
+        # Simultaneous pitches ending 7 and 7.25 beats later are not
+        # necessarily a shared 8-beat chord; don't overextend either note.
+        data=create_midi([(0,3362,60),(0,3478,64)])
+        _,_,pitched,_,attacks=describe(data)
+        bystep={n.findtext('pitch/step'):int(n.findtext('duration'))
+                for n in pitched if n.find('pitch') is not None}
+        self.assertEqual(bystep['C'],7*960)
+        self.assertEqual(bystep['E'],int(7.25*960))
+        self.assertEqual(len(attacks),2)
+
     def test_repeated_note_has_a_new_attack_not_a_tie(self):
         data=create_midi([(0,456,60),(480,936,60)])
         root,written,pitched,rests,attacks=describe(data)
