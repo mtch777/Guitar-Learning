@@ -1,7 +1,11 @@
 """Verify compact 88-note sheet and distinct major-triad references in real Chrome."""
 import asyncio
 import os
+from pathlib import Path
 from playwright.async_api import async_playwright
+
+SCREENSHOTS=Path('piano-reference-screenshots')
+SCREENSHOTS.mkdir(exist_ok=True)
 
 BASE=os.environ.get('PIANO_SITE_ROOT','http://127.0.0.1:8765/Guitar-Learning/piano/')
 
@@ -31,6 +35,7 @@ async def verify(browser,width):
         assert summary['rows']==4 and summary['notes']==88,summary
         assert len(summary['names'])==88 and all(n and not any(c.isdigit() for c in n) for n in summary['names']),summary
         assert summary['overflow']<=3,summary
+        await page.screenshot(path=str(SCREENSHOTS/f'all-notes-{width}.png'),full_page=True)
         await page.locator('#show-labels').uncheck()
         assert await page.locator('#notation .note-name').count()==0
         assert await page.locator('#notation ellipse.notehead').count()==88
@@ -51,6 +56,7 @@ async def verify(browser,width):
             groups.append((label,svgs,paths))
             assert svgs>=1 and paths>=3,(count,label,svgs,paths)
         print(f'SHEET TRIADS {width}: {groups}; errors={errors}',flush=True)
+        await page.screenshot(path=str(SCREENSHOTS/f'sheet-triads-{width}.png'),full_page=True)
         assert await page.locator('#triad-groups .mini-keyboard').count()==0
         assert [g[0].replace(' · ',' ') for g in groups]==[
           'C F G','D E A B♭','B D♭ E♭ A♭','F♯'
@@ -61,6 +67,7 @@ async def verify(browser,width):
         assert 'Scales & Chords Reference' not in await page.locator('section.lesson-section').first.inner_text()
         await page.goto(BASE+'keyboard-shapes/reference/major-triads/',wait_until='load',timeout=30000)
         await page.wait_for_function("""() => document.querySelectorAll('.triad-card').length===12""",timeout=10000)
+        await page.screenshot(path=str(SCREENSHOTS/f'keyboard-triads-{width}.png'),full_page=True)
         assert await page.locator('.mini-keyboard').count()==12
         assert await page.locator('.triad-score').count()==0
         print(f'KEYBOARD TRIADS {width}: 12 keyboard diagrams; errors={errors}',flush=True)

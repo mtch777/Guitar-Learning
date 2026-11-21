@@ -40,3 +40,10 @@ jobs:
           ln -s "$(pwd)/dist" .local/piano-static-site/Guitar-Learning
           python -m http.server 8765 --bind 127.0.0.1 --directory .local/piano-static-site >/tmp/piano-reference-http.log 2>&1 &
           python scripts/piano/check-sheet-reading-references.py
+      - name: Upload browser reference screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: piano-reference-screenshots
+          path: piano-reference-screenshots/
+          if-no-files-found: warn
