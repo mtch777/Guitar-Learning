@@ -48,11 +48,15 @@ export class PianoAudio {
       // Keep the old tone untouched until the threshold, then settle at 60%
       // over 25 ms to avoid a sudden discontinuity in the waveform.
       const fadeTime = start + softenAfterSeconds;
-      const fadeEnd = Math.min(start + length, fadeTime + .025);
-      sustainGain.gain.setValueAtTime(1, start);
-      if (fadeTime > start) sustainGain.gain.setValueAtTime(1, fadeTime);
-      if (fadeEnd > fadeTime) sustainGain.gain.linearRampToValueAtTime(.6, fadeEnd);
-      else sustainGain.gain.setValueAtTime(.6, start);
+      if (softenAfterSeconds === 0) {
+        // A resumed note may already be beyond four beats.
+        sustainGain.gain.setValueAtTime(.6, start);
+      } else {
+        const fadeEnd = Math.min(start + length, fadeTime + .025);
+        sustainGain.gain.setValueAtTime(1, start);
+        sustainGain.gain.setValueAtTime(1, fadeTime);
+        sustainGain.gain.linearRampToValueAtTime(.6, fadeEnd);
+      }
       sustainGain.connect(this.master);
     }
     for (const {multiple, amplitude, decay} of partials) {
