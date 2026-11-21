@@ -1,0 +1,11 @@
+.note-reference.page { width: min(1000px, calc(100% - 24px)); }
+.description { color: #c4cbd6; line-height: 1.6; margin: 12px 0 20px; }
+.description strong { color: #fff; }
+.notation-panel { border: 1px solid #2a3340; background: #141a22; border-radius: 18px; overflow: hidden; }
+.notation-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; padding:14px 16px; font-size:14px; font-weight:700; }
+.notation-toolbar label { display:flex; align-items:center; gap:7px; cursor:pointer; }
+.notation-toolbar input { width:18px; height:18px; accent-color:#a78bfa; }
+.render-status { margin:0; padding:7px 16px 13px; color:#aab5c5; font-size:13px; }
+.notation { background:#fff; color:#111827; min-height:250px; padding:10px 8px; overflow-x:auto; }
+.notation svg { max-width:100%; }
+@media (max-width:520px) { .notation { padding:8px 0; } .notation-toolbar { font-size:12px; } }

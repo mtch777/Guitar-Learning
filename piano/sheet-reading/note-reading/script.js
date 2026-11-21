@@ -49,11 +49,11 @@ app.controller("MyRngCtrl", function ($scope, $timeout) {
   function updateTitle() {
     if ($scope.kind === 'chord') {
       var endings = {0:'Natural Notes', 1:'1 Accidental', 2:'2 Accidentals', all:'All Notes'};
-      $scope.lessonTitle = 'Random Chord — Major Triad — ' + endings[chordAccidentals];
+      $scope.lessonTitle = 'Major Triad — ' + endings[chordAccidentals];
     } else {
       var clefs = {treble:'Treble Clef', bass:'Bass Clef', both:'Both Clefs'};
       var notes = {natural:'Natural Notes', accidental:'Accidentals Only', both:'All Notes'};
-      $scope.lessonTitle = 'Random Note — ' + clefs[$scope.clefFilter] + ' — ' + notes[$scope.noteFilter];
+      $scope.lessonTitle = '' + clefs[$scope.clefFilter] + ' — ' + notes[$scope.noteFilter];
     }
   }
 
