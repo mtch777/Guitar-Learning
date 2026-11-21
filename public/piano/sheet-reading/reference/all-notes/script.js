@@ -26,6 +26,8 @@ export function rowDefinitions(width) {
       ? {clef:'bass', shift:1, octaveMark:'8'}
       : first === 45 ? {clef:'treble', shift:1, octaveMark:'8'}
       : first >= 93 ? {clef:'treble', shift:-2, octaveMark:'15'}
+        : first === 69 && perRow === DESKTOP_NOTES_PER_ROW
+      ? {clef:'treble', shift:-1, octaveMark:'8'}
       : {clef:'treble', shift:0, octaveMark:''};
     rows.push({first,last,...row});
   }
