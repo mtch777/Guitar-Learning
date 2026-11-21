@@ -580,6 +580,11 @@
       "lesson": "learning-songs"
     },
     {
+      "id": "5c13d511-b896-496f-862d-652db8b45096",
+      "day": "2026-11-20",
+      "lesson": "sheet-reading-all-notes-reference"
+    },
+    {
       "id": "67f24b5d-107d-44f0-ad8c-7efd696f859b",
       "day": "2026-11-20",
       "lesson": "learning-songs"
@@ -590,6 +595,11 @@
       "lesson": "learning-songs"
     },
     {
+      "id": "b4090ec0-866e-479d-9a45-9eae962bf390",
+      "day": "2026-11-20",
+      "lesson": "sheet-reading-major-triads-reference"
+    },
+    {
       "id": "d1cbf55a-8d13-4dd7-a581-c09b8f36d621",
       "day": "2026-11-20",
       "lesson": "learning-songs"
@@ -598,6 +608,11 @@
       "id": "ef2cb48b-3020-493e-94f8-cf64bd27dfbb",
       "day": "2026-11-20",
       "lesson": "learning-songs"
+    },
+    {
+      "id": "fb435d21-6620-4468-bb62-a3a6a07301f7",
+      "day": "2026-11-20",
+      "lesson": "sheet-reading-major-triads-reference"
     }
   ]
 }
