@@ -28,11 +28,12 @@ async def verify(browser,width):
           notes:document.querySelectorAll('#notation ellipse.notehead').length,
           names:[...document.querySelectorAll('#notation text.note-name')].map(x=>x.textContent),
           ledger:document.querySelectorAll('#notation line.ledger-line').length,
+          clefs:document.querySelectorAll('#notation .clef-path').length,
           text:document.querySelector('#render-status')?.textContent,
           overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
         })""")
         print(f'ALL NOTES {width}: rows={summary["rows"]} notes={summary["notes"]} names={summary["names"][:8]} ledger={summary["ledger"]} overflow={summary["overflow"]} errors={errors}',flush=True)
-        assert summary['rows']==4 and summary['notes']==88,summary
+        assert summary['rows']==4 and summary['notes']==88 and summary['clefs']==4,summary
         assert len(summary['names'])==88 and all(n and not any(c.isdigit() for c in n) for n in summary['names']),summary
         assert summary['overflow']<=3,summary
         await page.screenshot(path=str(SCREENSHOTS/f'all-notes-{width}.png'),full_page=True)
