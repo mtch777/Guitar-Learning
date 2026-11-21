@@ -1,62 +1,64 @@
-import {groupedTriads, BLACK_KEYS} from './triads.js';
+import {groupedTriads} from './triads.js';
+import {buildTriadMusicXML} from './notation.js';
 
-const host = document.getElementById('triad-groups');
+const container = document.getElementById('triad-groups');
+const scores=[];
 
-function keyboardFor(chord) {
-  const keyboard = document.createElement('div');
-  keyboard.className = 'mini-keyboard';
-  keyboard.setAttribute('role', 'img');
-  keyboard.setAttribute('aria-label', chord.name + ' major: ' + chord.notes.join(', '));
-  const whiteNotes = [];
-  for (let midi=60; midi<=79; midi++) if (!BLACK_KEYS.has(midi%12)) whiteNotes.push(midi);
-  const targets = new Set([60+chord.root, 64+chord.root, 67+chord.root]);
-  const unit = 100 / whiteNotes.length;
-  const whiteIndex = new Map(whiteNotes.map((midi,index)=>[midi,index]));
-  for (const [index, midi] of whiteNotes.entries()) {
-    const key = document.createElement('span');
-    key.className = 'mini-key white' + (targets.has(midi) ? ' active' : '');
-    key.style.left = (index*unit)+'%';
-    key.style.width = unit+'%';
-    key.dataset.midi = String(midi);
-    keyboard.append(key);
+function createGroups() {
+  for (const {count,chords} of groupedTriads()) {
+    const group=document.createElement('section');
+    group.className='notation-group';
+    group.dataset.blackKeys=String(count);
+    const title=document.createElement('h2');
+    title.textContent=count+(count===1?' black key':' black keys');
+    title.className='lesson-section-title';
+    group.append(title);
+    const names=document.createElement('p');
+    names.className='chord-labels';
+    names.textContent=chords.map(chord=>chord.name).join(' · ');
+    group.append(names);
+    const paper=document.createElement('div');
+    paper.className='score-paper';
+    const score=document.createElement('div');
+    score.className='triad-score';
+    score.setAttribute('aria-label',chords.map(chord=>chord.name+' major: '+chord.notes.join(' ')).join('; '));
+    paper.append(score);
+    group.append(paper);
+    const status=document.createElement('p');
+    status.className='render-status';
+    status.textContent='Loading notation…';
+    group.append(status);
+    container.append(group);
+    scores.push({group,score,status,chords});
   }
-  for (let midi=60; midi<=79; midi++) {
-    if (!BLACK_KEYS.has(midi%12)) continue;
-    const previous = whiteIndex.get(midi-1);
-    if (previous === undefined) continue;
-    const key = document.createElement('span');
-    key.className = 'mini-key black' + (targets.has(midi) ? ' active' : '');
-    key.style.left = ((previous+1)*unit - unit*0.32)+'%';
-    key.style.width = (unit*0.64)+'%';
-    key.dataset.midi = String(midi);
-    keyboard.append(key);
-  }
-  return keyboard;
 }
 
-for (const {count,chords} of groupedTriads()) {
-  const section = document.createElement('section');
-  section.className = 'lesson-section';
-  section.dataset.blackKeys = String(count);
-  const heading = document.createElement('h2');
-  heading.className = 'lesson-section-title';
-  heading.textContent = count + (count===1?' black key':' black keys');
-  section.append(heading);
-  const grid = document.createElement('div');
-  grid.className='triad-grid';
-  for (const chord of chords) {
-    const card = document.createElement('article');
-    card.className='triad-card';
-    card.dataset.chord=chord.name;
-    const heading = document.createElement('h3');
-    heading.textContent=chord.name + ' major';
-    const notes = document.createElement('p');
-    notes.className='chord-notes';
-    notes.textContent=chord.notes.join(' · ');
-    card.append(heading,notes,keyboardFor(chord));
-    grid.append(card);
+async function drawScores() {
+  const Runtime=window.opensheetmusicdisplay?.OpenSheetMusicDisplay;
+  for (const item of scores) {
+    try {
+      if (!Runtime) throw new Error('Sheet music library unavailable.');
+      const osmd=new Runtime(item.score,{
+        backend:'svg',autoResize:false,followCursor:false,
+        drawTitle:false,drawSubtitle:false,drawComposer:false,drawLyricist:false,
+        drawPartNames:false,drawPartAbbreviations:false,
+        newPageFromXML:false,newSystemFromXML:false,
+      });
+      await osmd.load(buildTriadMusicXML(item.chords));
+      const mobile=item.score.clientWidth < 500;
+      osmd.Zoom=mobile ? 0.74 : 0.92;
+      osmd.render();
+      item.group.dataset.ready='true';
+      item.status.hidden=true;
+      item.osmd=osmd;
+    } catch(error) {
+      item.group.dataset.ready='false';
+      item.status.textContent='Sheet music error: '+(error?.message||error);
+      console.error('Major Triads engraving error:',error);
+    }
   }
-  section.append(grid);
-  host.append(section);
+  window.PracticeTracker?.recordOpen('sheet-reading-major-triads-reference');
 }
-window.PracticeTracker?.recordOpen('sheet-reading-major-triads-reference');
+
+createGroups();
+window.addEventListener('load',drawScores,{once:true});

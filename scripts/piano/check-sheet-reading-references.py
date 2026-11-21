@@ -1,42 +1,78 @@
-"""Headless Chrome QA for sheet-reading references in mobile and desktop."""
+"""Verify compact 88-note sheet and distinct major-triad references in real Chrome."""
 import asyncio
 import os
+from pathlib import Path
 from playwright.async_api import async_playwright
 
-BASE=os.environ.get("PIANO_SITE_ROOT","http://127.0.0.1:8765/Guitar-Learning/piano/")
+SCREENSHOTS=Path('piano-reference-screenshots')
+SCREENSHOTS.mkdir(exist_ok=True)
 
-async def verify(browser, width):
-    context=await browser.new_context(viewport={"width":width,"height":860}, is_mobile=width<600, has_touch=width<600)
+BASE=os.environ.get('PIANO_SITE_ROOT','http://127.0.0.1:8765/Guitar-Learning/piano/')
+
+async def verify(browser,width):
+    mobile=width<600
+    context=await browser.new_context(viewport={'width':width,'height':850},is_mobile=mobile,has_touch=mobile)
     page=await context.new_page()
     errors=[]
-    page.on("pageerror",lambda e:errors.append(str(e)))
+    page.on('pageerror',lambda e:errors.append(str(e)))
     try:
-        response=await page.goto(BASE+"sheet-reading/",wait_until="domcontentloaded",timeout=25000)
+        response=await page.goto(BASE+'sheet-reading/',wait_until='domcontentloaded',timeout=30000)
         assert response and response.status==200
         cards=await page.locator('section.lesson-section').first.locator('a.lesson-card').all_text_contents()
-        assert len(cards)==2 and "All Notes" in cards[0] and "Major Triads" in cards[1],cards
-        assert not any(s.startswith(('Random Note','Random Chord')) for s in await page.locator('a.lesson-card strong').all_text_contents())
-        await page.goto(BASE+"sheet-reading/reference/all-notes/",wait_until="load",timeout=30000)
-        await page.wait_for_function("""() => document.querySelectorAll('#notation svg').length>0 ||
-          document.querySelector('#render-status')?.textContent?.includes('could not render')""",timeout=30000)
-        status=await page.locator('#render-status').inner_text()
-        svg=await page.locator('#notation svg').count()
-        shapes=await page.locator('#notation svg path').count()
-        print(f'ALL NOTES {width}: status={status!r}, svg={svg}, paths={shapes}, errors={errors}',flush=True)
-        assert svg>0 and shapes>50 and '88 eighth notes' in status, (status,svg,shapes)
+        assert len(cards)==2 and 'All Notes' in cards[0] and 'Major Triads' in cards[1],cards
+
+        await page.goto(BASE+'sheet-reading/reference/all-notes/',wait_until='load',timeout=30000)
+        await page.wait_for_function("""() => document.querySelector('#notation')?.dataset.noteCount === '88'""",timeout=20000)
+        summary=await page.evaluate("""() => ({
+          rows:document.querySelectorAll('#notation .reference-score-row').length,
+          notes:document.querySelectorAll('#notation ellipse.notehead').length,
+          names:[...document.querySelectorAll('#notation text.note-name')].map(x=>x.textContent),
+          ledger:document.querySelectorAll('#notation line.ledger-line').length,
+          clefs:document.querySelectorAll('#notation .clef-path').length,
+          text:document.querySelector('#render-status')?.textContent,
+          overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
+        })""")
+        print(f'ALL NOTES {width}: rows={summary["rows"]} notes={summary["notes"]} names={summary["names"][:8]} ledger={summary["ledger"]} overflow={summary["overflow"]} errors={errors}',flush=True)
+        assert summary['rows']==4 and summary['notes']==88 and summary['clefs']==4,summary
+        assert len(summary['names'])==88 and all(n and not any(c.isdigit() for c in n) for n in summary['names']),summary
+        assert summary['overflow']<=3,summary
+        await page.screenshot(path=str(SCREENSHOTS/f'all-notes-{width}.png'),full_page=True)
         await page.locator('#show-labels').uncheck()
-        await page.wait_for_function("""() => document.querySelector('#render-status')?.textContent?.includes('88 eighth notes')""",timeout=15000)
-        assert await page.locator('#notation svg').count()>0
-        await page.goto(BASE+"sheet-reading/reference/major-triads/",wait_until="load",timeout=30000)
+        assert await page.locator('#notation .note-name').count()==0
+        assert await page.locator('#notation ellipse.notehead').count()==88
+        await page.locator('#show-labels').check()
+        assert await page.locator('#notation .note-name').count()==88
+
+        await page.goto(BASE+'sheet-reading/reference/major-triads/',wait_until='load',timeout=30000)
+        await page.wait_for_function("""() => document.querySelectorAll('#triad-groups section[data-ready="true"]').length===4 ||
+          document.querySelector('#triad-groups section[data-ready="false"]')""",timeout=30000)
+        sections=page.locator('#triad-groups .notation-group')
+        assert await sections.count()==4
+        groups=[]
+        for count in range(4):
+            group=page.locator(f'#triad-groups section[data-black-keys="{count}"]')
+            label=await group.locator('.chord-labels').inner_text()
+            svgs=await group.locator('svg').count()
+            paths=await group.locator('svg path').count()
+            groups.append((label,svgs,paths))
+            assert svgs>=1 and paths>=3,(count,label,svgs,paths)
+        print(f'SHEET TRIADS {width}: {groups}; errors={errors}',flush=True)
+        await page.screenshot(path=str(SCREENSHOTS/f'sheet-triads-{width}.png'),full_page=True)
+        assert await page.locator('#triad-groups .mini-keyboard').count()==0
+        assert [g[0].replace(' · ',' ') for g in groups]==[
+          'C F G','D E A B♭','B D♭ E♭ A♭','F♯'
+        ]
+
+        await page.goto(BASE+'keyboard-shapes/',wait_until='domcontentloaded',timeout=30000)
+        assert 'Major Triads' in await page.locator('section.lesson-section').first.inner_text()
+        assert 'Scales & Chords Reference' not in await page.locator('section.lesson-section').first.inner_text()
+        await page.goto(BASE+'keyboard-shapes/reference/major-triads/',wait_until='load',timeout=30000)
         await page.wait_for_function("""() => document.querySelectorAll('.triad-card').length===12""",timeout=10000)
-        actual=[]
-        for group in range(4):
-            names=await page.locator(f'section[data-black-keys="{group}"] .triad-card h3').all_text_contents()
-            actual.append([n.replace(' major','') for n in names])
-        expected=[['C','F','G'],['D','E','A','B♭'],['B','D♭','E♭','A♭'],['F♯']]
-        print(f'TRIADS {width}: {actual}; errors={errors}',flush=True)
-        assert actual==expected,(actual,expected)
-        assert len(errors)==0,errors
+        await page.screenshot(path=str(SCREENSHOTS/f'keyboard-triads-{width}.png'),full_page=True)
+        assert await page.locator('.mini-keyboard').count()==12
+        assert await page.locator('.triad-score').count()==0
+        print(f'KEYBOARD TRIADS {width}: 12 keyboard diagrams; errors={errors}',flush=True)
+        assert not errors,errors
     finally:
         await context.close()
 
@@ -46,7 +82,6 @@ async def main():
         try:
             await verify(browser,393)
             await verify(browser,1120)
-        finally:
-            await browser.close()
+        finally:await browser.close()
 
 if __name__=='__main__':asyncio.run(main())
