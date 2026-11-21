@@ -59,4 +59,4 @@ for (const {count,chords} of groupedTriads()) {
   section.append(grid);
   host.append(section);
 }
-window.PracticeTracker?.recordOpen('keyboard-shapes-major-triads-reference');
+window.PracticeTracker?.recordOpen('sheet-reading-major-triads-reference');

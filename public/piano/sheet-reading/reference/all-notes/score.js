@@ -22,7 +22,7 @@ export function buildAllNotesMusicXML({showNames = true} = {}) {
 <score-partwise version="4.0">
   <work><work-title>All Notes</work-title></work>
   <movement-title>All Notes</movement-title>
-  <identification><creator type="composer">Keyboard Shapes</creator></identification>
+  <identification><creator type="composer">Sheet Reading</creator></identification>
   <part-list><score-part id="P1"><part-name>Piano</part-name><part-abbreviation>Pno.</part-abbreviation></score-part></part-list>
   <part id="P1">`;
   const measures = [];

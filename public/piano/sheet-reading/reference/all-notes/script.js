@@ -28,7 +28,7 @@ async function showScore() {
     display.render();
     if (turn !== generation) return;
     message.textContent = 'A0 → C8 · 88 eighth notes';
-    window.PracticeTracker?.recordOpen('keyboard-shapes-all-notes-reference');
+    window.PracticeTracker?.recordOpen('sheet-reading-all-notes-reference');
   } catch (error) {
     console.error('All Notes sheet music failed:', error);
     message.textContent = 'Sheet music could not render: ' + (error?.message || error);
