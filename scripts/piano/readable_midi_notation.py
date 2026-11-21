@@ -105,6 +105,13 @@ def normalize(events):
                        abs(written_length-snap(written_length))<=Q(1,40)
                        else written_length/Q(95,100))
             duration=min(LENGTHS,key=lambda d:(abs(d-predicted),d))
+            # A MIDI instrument's short note-off gate can make an intended
+            # full-bar sustain appear as a 3.75-beat note, requiring an
+            # unsightly tied sixteenth. Keep genuinely released notes shorter;
+            # round only a near-four-beat hold starting on the four-beat grid.
+            if (duration==Q(15,4) and onset%Q(4)==0
+                and abs(n.end-(onset+Q(4)))<=Q(1,2)):
+                duration=Q(4)
             output.append(replace(n,start=onset,end=onset+duration))
     bypitch=defaultdict(list)
     for n in output:bypitch[n.pitch].append(n)
