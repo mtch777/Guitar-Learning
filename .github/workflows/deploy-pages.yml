@@ -68,6 +68,7 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          from html import escape, unescape
           import os
           import re
           from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
@@ -77,9 +78,10 @@ jobs:
 
           attr_re = re.compile(r'(?P<prefix>\b(?:href|src)=["\'])(?P<url>[^"\']+)(?P<suffix>["\'])')
 
-          def version_url(url):
+          def version_url(raw_url):
+              url = unescape(raw_url)
               if url.startswith(("http://", "https://", "//", "#", "mailto:", "tel:", "data:", "javascript:")):
-                  return url
+                  return raw_url
 
               parts = urlsplit(url)
               path = parts.path
@@ -91,18 +93,18 @@ jobs:
               )
 
               if not should_version:
-                  return url
+                  return raw_url
 
-              query = dict(parse_qsl(parts.query, keep_blank_values=True))
-              query["v"] = version
+              query = [(key, value) for key, value in parse_qsl(parts.query, keep_blank_values=True) if key != "v"]
+              query.append(("v", version))
 
-              return urlunsplit((
+              return escape(urlunsplit((
                   parts.scheme,
                   parts.netloc,
                   path,
                   urlencode(query),
                   parts.fragment,
-              ))
+              )), quote=True)
 
           changed = 0
 
